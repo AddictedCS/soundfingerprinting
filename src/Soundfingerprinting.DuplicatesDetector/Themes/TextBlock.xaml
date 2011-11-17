@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Soundfingerprinting.DuplicatesDetector.Themes.i__ahtung_sound_fingerprinting_soundfingerprintinggit_src_soundfingerprinting_duplicatesdetector_themes_textblock_xaml">
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceDictionary Source="Brushes.xaml" />
+	</ResourceDictionary.MergedDictionaries>
+	<Style TargetType="TextBlock" x:Key="TextBlockStyle">
+		<Setter Property="Foreground" Value="{StaticResource DefaultControlForegroundBrush}"></Setter>
+		<Setter Property="FontFamily" Value="Courier New"></Setter>
+		<Setter Property="FontSize" Value="12"></Setter>
+	</Style>
+
+</ResourceDictionary>

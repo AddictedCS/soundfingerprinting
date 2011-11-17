@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{362BA144-FDFE-410B-A8F5-A9359CC848AE}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Soundfingerprinting.SoundTools</RootNamespace>
+    <AssemblyName>Soundfingerprinting.SoundTools</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\2-Music.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Bass.Net, Version=2.4.6.4, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Externals\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="encog-core-cs">
+      <HintPath>..\Externals\encog-core-cs.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BassResampler\WinBassResampler.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BassResampler\WinBassResampler.designer.cs">
+      <DependentUpon>WinBassResampler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CSVWriter.cs" />
+    <Compile Include="DbFiller\WinDBFiller.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbFiller\WinDBFiller.designer.cs">
+      <DependentUpon>WinDBFiller.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DrawningTool\WinDrawningTool.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DrawningTool\WinDrawningTool.designer.cs">
+      <DependentUpon>WinDrawningTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FFMpegResampler\WinFFMpegResampler.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FFMpegResampler\WinFFMpegResampler.designer.cs">
+      <DependentUpon>WinFFMpegResampler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FilePermutations\WinFilePermutation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FilePermutations\WinFilePermutation.designer.cs">
+      <DependentUpon>WinFilePermutation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HashAlgorithm.cs" />
+    <Compile Include="Imaging.cs" />
+    <Compile Include="Misc\DumpResults.cs" />
+    <Compile Include="Misc\WinMisc.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Misc\WinMisc.designer.cs">
+      <DependentUpon>WinMisc.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NetworkEnsembling\WinEnsembleHash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NetworkEnsembling\WinEnsembleHash.designer.cs">
+      <DependentUpon>WinEnsembleHash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NetworkTrainer\WinNetworkTrainer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NetworkTrainer\WinNetworkTrainer.designer.cs">
+      <DependentUpon>WinNetworkTrainer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PermutationGenerator\WinPermGenerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PermutationGenerator\WinPermGenerator.designer.cs">
+      <DependentUpon>WinPermGenerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="QueryDb\WinCheckHashBins.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="QueryDb\WinCheckHashBins.designer.cs">
+      <DependentUpon>WinCheckHashBins.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QueryDb\WinQueryResults.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="QueryDb\WinQueryResults.designer.cs">
+      <DependentUpon>WinQueryResults.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QueryFingerprintManager.cs" />
+    <Compile Include="QueryStats.cs" />
+    <Compile Include="WaveletDecomposition\WinHaarWavelet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WaveletDecomposition\WinHaarWavelet.designer.cs">
+      <DependentUpon>WinHaarWavelet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WinMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinMain.designer.cs">
+      <DependentUpon>WinMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WinUtils.cs" />
+    <EmbeddedResource Include="BassResampler\WinBassResampler.resx">
+      <DependentUpon>WinBassResampler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DbFiller\WinDBFiller.resx">
+      <DependentUpon>WinDBFiller.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DrawningTool\WinDrawningTool.resx">
+      <DependentUpon>WinDrawningTool.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FFMpegResampler\WinFFMpegResampler.resx">
+      <DependentUpon>WinFFMpegResampler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FilePermutations\WinFilePermutation.resx">
+      <DependentUpon>WinFilePermutation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Misc\WinMisc.resx">
+      <DependentUpon>WinMisc.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NetworkEnsembling\WinEnsembleHash.resx">
+      <DependentUpon>WinEnsembleHash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NetworkTrainer\WinNetworkTrainer.resx">
+      <DependentUpon>WinNetworkTrainer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PermutationGenerator\WinPermGenerator.resx">
+      <DependentUpon>WinPermGenerator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="QueryDb\WinCheckHashBins.resx">
+      <DependentUpon>WinCheckHashBins.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="QueryDb\WinQueryResults.resx">
+      <DependentUpon>WinQueryResults.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WaveletDecomposition\WinHaarWavelet.resx">
+      <DependentUpon>WinHaarWavelet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinMain.resx">
+      <DependentUpon>WinMain.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2-Music.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Soundfingerprinting\Soundfingerprinting.csproj">
+      <Project>{56EB1986-589C-4DA9-B961-5833BB4A7816}</Project>
+      <Name>Soundfingerprinting</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy "$(SolutionDir)\Externals\*.*" "$(TargetDir)"</PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

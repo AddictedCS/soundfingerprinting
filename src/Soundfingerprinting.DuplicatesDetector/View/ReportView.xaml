@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="Soundfingerprinting.DuplicatesDetector.View.ReportView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:WpfToolkit="http://schemas.microsoft.com/wpf/2008/toolkit" xmlns:Themes="clr-namespace:Soundfingerprinting.DuplicatesDetector.Themes" mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="900">
+	<UserControl.Resources>
+		<Themes:SetIdConverter x:Key="SetIdConverter"></Themes:SetIdConverter>
+	</UserControl.Resources>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="6*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<WpfToolkit:DataGrid Grid.Row="0" x:Name="_dgvResults" Style="{StaticResource DataGrid}" ItemContainerStyle="{StaticResource ItemContStyle}" SelectedItem="{Binding SelectedItem, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Results, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="300" MinWidth="600" VerticalAlignment="Stretch">
+			<WpfToolkit:DataGrid.Columns>
+				<WpfToolkit:DataGridTextColumn Header="Set#" Binding="{Binding SetId, UpdateSourceTrigger=PropertyChanged}" Width="1.5*" />
+				<WpfToolkit:DataGridTextColumn Header="Title" Binding="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Width="5*" />
+				<WpfToolkit:DataGridTextColumn Header="Artist" Binding="{Binding Artist, UpdateSourceTrigger=PropertyChanged}" Width="5*" />
+				<WpfToolkit:DataGridTextColumn Header="Filename" Binding="{Binding FileName, UpdateSourceTrigger=PropertyChanged}" Width="8*" />
+			</WpfToolkit:DataGrid.Columns>
+			<WpfToolkit:DataGrid.ColumnHeaderStyle>
+				<Style TargetType="{x:Type WpfToolkit:DataGridColumnHeader}">
+					<Setter Property="Background" Value="{StaticResource AlternateGridLineColorBrush}"></Setter>
+				</Style>
+			</WpfToolkit:DataGrid.ColumnHeaderStyle>
+		</WpfToolkit:DataGrid>
+		<Grid Grid.Row="1">
+			<TextBlock Style="{StaticResource TextBlockStyle}" Text="{Binding Status}" MinHeight="25" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="40" Width="Auto" Margin="6,0,0,31" />
+			<Button Style="{DynamicResource RoundedButton}" Command="{Binding OpenFolderCommand}" CommandParameter="{Binding SelectedItem}" Content="Open Folder" Width="90" Height="25" HorizontalAlignment="Right" Margin="0,0,81,31" VerticalAlignment="Bottom" />
+			<Button Style="{DynamicResource RoundedButton}" Command="{Binding PlayCommand}" Content="{Binding PlayingStatus}" Height="25" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,31" />
+			<Button Style="{DynamicResource RoundedButton}" Command="{Binding SaveCommand}" Content="Save" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="0,44,0,0" />
+		</Grid>
+
+	</Grid>
+</UserControl>

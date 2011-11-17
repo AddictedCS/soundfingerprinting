@@ -1,0 +1,27 @@
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" x:Class="Soundfingerprinting.DuplicatesDetector.MainWindow" x:Name="Window" Title="Duplicates Detector" Width="640" Height="450" MinWidth="600" MinHeight="450" mc:Ignorable="d" Icon="Images\icon.png">
+	<Window.Resources>
+		<ResourceDictionary Source="MainWindowResourceDictionary.xaml" />
+	</Window.Resources>
+
+	<Grid x:Name="_wndMain">
+		<Grid.Background>
+			<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
+				<GradientStop Color="Black" />
+				<GradientStop Color="#FF140C49" Offset="1" />
+				<GradientStop Color="#FF0A0626" Offset="0.6" />
+			</LinearGradientBrush>
+		</Grid.Background>
+		<Border CornerRadius="5">
+			<Grid>
+				<ItemsControl ItemsSource="{Binding Workspaces}" Margin="10,10,10,10">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<Grid />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+				</ItemsControl>
+			</Grid>
+		</Border>
+	</Grid>
+
+</Window>

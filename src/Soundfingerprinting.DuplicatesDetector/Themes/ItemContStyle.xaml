@@ -1,0 +1,14 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:WPFToolkit="http://schemas.microsoft.com/wpf/2008/toolkit" xmlns:Themes="clr-namespace:Soundfingerprinting.DuplicatesDetector.Themes" x:Class="Soundfingerprinting.DuplicatesDetector.Themes.i__ahtung_sound_fingerprinting_soundfingerprintinggit_src_soundfingerprinting_duplicatesdetector_themes_itemcontstyle_xaml">
+
+	<Style x:Key="ItemContStyle" TargetType="{x:Type WPFToolkit:DataGridRow}">
+		<Style.Resources>
+			<Themes:SetIdConverter x:Key="BackgroundConverter" />
+		</Style.Resources>
+		<Setter Property="WPFToolkit:DataGrid.Background">
+			<Setter.Value>
+				<Binding Path="SetId" Converter="{StaticResource BackgroundConverter}"></Binding>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+</ResourceDictionary>

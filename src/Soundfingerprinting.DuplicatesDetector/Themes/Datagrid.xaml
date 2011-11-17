@@ -1,0 +1,39 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:WpfToolkit="http://schemas.microsoft.com/wpf/2008/toolkit" xmlns:Primitives="clr-namespace:Microsoft.Windows.Controls.Primitives;assembly=WPFToolkit" x:Class="Soundfingerprinting.DuplicatesDetector.Themes.i__ahtung_sound_fingerprinting_soundfingerprintinggit_src_soundfingerprinting_duplicatesdetector_themes_datagrid_xaml">
+
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceDictionary Source="Brushes.xaml" />
+	</ResourceDictionary.MergedDictionaries>
+
+	<!-- DataGrid Style -->
+	<!-- Created Ciumac Sergiu 19.01.2009 -->
+	<Style TargetType="WpfToolkit:DataGridCell">
+		<Style.Triggers>
+			<Trigger Property="IsSelected" Value="True">
+				<Setter Property="Background" Value="#1C1026" />
+				<Setter Property="Foreground" Value="Yellow" />
+				<Setter Property="BorderBrush" Value="Black"></Setter>
+			</Trigger>
+		</Style.Triggers>
+	</Style>
+	<Style x:Key="DataGrid" TargetType="{x:Type WpfToolkit:DataGrid}">
+		<Setter Property="Background" Value="{StaticResource DefaultControlBackgroundBrush}" />
+		<Setter Property="Foreground" Value="{StaticResource DefaultControlForegroundBrush}" />
+		<Setter Property="BorderBrush" Value="{StaticResource DefaultControlBorderBrush}" />
+		<Setter Property="HorizontalGridLinesBrush" Value="{StaticResource GridLineColorBrush}" />
+		<Setter Property="VerticalGridLinesBrush" Value="{StaticResource GridLineColorBrush}" />
+		<Setter Property="AlternatingRowBackground" Value="{StaticResource AlternateGridLineColorBrush}" />
+		<Setter Property="RowBackground" Value="{StaticResource DefaultControlBackgroundBrush}"></Setter>
+		<Setter Property="BorderThickness" Value="1" />
+		<!-- This is needed to force DG to have a non-default value.  Otherwise the DGR.DetailsVisibility cannot have a value of VisibleWhenSelected by default. -->
+		<Setter Property="RowDetailsVisibilityMode" Value="VisibleWhenSelected" />
+		<Setter Property="ScrollViewer.CanContentScroll" Value="False" />
+		<Setter Property="RowHeaderWidth" Value="0"></Setter>
+		<Setter Property="FontFamily" Value="Courier New"></Setter>
+		<Style.Resources>
+			<Style TargetType="ScrollBar">
+				<Setter Property="Background" Value="{StaticResource DefaultControlBackgroundBrush}"></Setter>
+			</Style>
+		</Style.Resources>
+	</Style>
+
+</ResourceDictionary>

@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{56EB1986-589C-4DA9-B961-5833BB4A7816}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Soundfingerprinting</RootNamespace>
+    <AssemblyName>Soundfingerprinting</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;SAFE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Bass.Net, Version=2.4.6.4, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Externals\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="encog-core-cs">
+      <HintPath>..\Externals\encog-core-cs.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DirectX.DirectSound, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Externals\Microsoft.DirectX.DirectSound.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AudioProxies\BassProxy.cs" />
+    <Compile Include="AudioProxies\DirectSoundProxy.cs" />
+    <Compile Include="AudioProxies\IAudio.cs" />
+    <Compile Include="AudioProxies\Strides\IncrementalRandomStride.cs" />
+    <Compile Include="AudioProxies\Strides\IncrementalStaticStride.cs" />
+    <Compile Include="AudioProxies\Strides\IStride.cs" />
+    <Compile Include="AudioProxies\Strides\RandomStride.cs" />
+    <Compile Include="AudioProxies\ReadStatus.cs" />
+    <Compile Include="AudioProxies\Strides\StaticStride.cs" />
+    <Compile Include="AudioProxies\Strides\StrideType.cs" />
+    <Compile Include="DbStorage\Entities\Album.cs" />
+    <Compile Include="DbStorage\Utils\ArrayUtils.cs" />
+    <Compile Include="DbStorage\DaoGateway.cs" />
+    <Compile Include="DbStorage\DaoGatewayException.cs" />
+    <Compile Include="DbStorage\Entities\Fingerprint.cs" />
+    <Compile Include="DbStorage\FingerprintEntityException.cs" />
+    <Compile Include="DbStorage\Entities\HashBin.cs" />
+    <Compile Include="DbStorage\Entities\HashBinMinHash.cs" />
+    <Compile Include="DbStorage\Entities\HashBinNeuralHasher.cs" />
+    <Compile Include="DbStorage\DaoStoredProcedureBuilder.cs" />
+    <Compile Include="DbStorage\Entities\Track.cs" />
+    <Compile Include="Fingerprinting\ConstantQ\ConstQ.cs" />
+    <Compile Include="Fingerprinting\FFT\Complex.cs" />
+    <Compile Include="Fingerprinting\FFT\ComplexArray.cs" />
+    <Compile Include="Fingerprinting\FFT\ComplexF.cs" />
+    <Compile Include="Fingerprinting\FFT\Fourier.cs" />
+    <Compile Include="Fingerprinting\FFT\FourierDirection.cs" />
+    <Compile Include="Fingerprinting\FingerprintManager.cs" />
+    <Compile Include="Fingerprinting\Wavelets\HaarWavelet.cs" />
+    <Compile Include="Fingerprinting\Windows\HammingWindow.cs" />
+    <Compile Include="Fingerprinting\Windows\HanningWindow.cs" />
+    <Compile Include="Fingerprinting\Wavelets\IntegralImage.cs" />
+    <Compile Include="Fingerprinting\Wavelets\IWaveletDecomposition.cs" />
+    <Compile Include="Fingerprinting\Windows\IWindowFunction.cs" />
+    <Compile Include="Fingerprinting\ConstantQ\SparKernel.cs" />
+    <Compile Include="Fingerprinting\Wavelets\WaveletUtils.cs" />
+    <Compile Include="Hashing\AgressiveSelector.cs" />
+    <Compile Include="Hashing\ConservativeSelector.cs" />
+    <Compile Include="Hashing\DbPermutations.cs" />
+    <Compile Include="Hashing\Hash.cs" />
+    <Compile Include="NeuralHashing\NeuralTrainer\NetTrainer.cs" />
+    <Compile Include="NeuralHashing\NeuralTrainer\NetTrainerException.cs" />
+    <Compile Include="NeuralHashing\NeuralTrainer\NetworkPerformanceMeter.cs" />
+    <Compile Include="NeuralHashing\NeuralTrainer\TrainingAsyncResult.cs" />
+    <Compile Include="NeuralHashing\NeuralTrainer\TrainingStatus.cs" />
+    <Compile Include="NeuralHashing\Utils\BinaryOutputUtil.cs" />
+    <Compile Include="NeuralHashing\Utils\FloatRange.cs" />
+    <Compile Include="Hashing\Histogram.cs" />
+    <Compile Include="Hashing\IMinMutualSelector.cs" />
+    <Compile Include="Hashing\IPermutations.cs" />
+    <Compile Include="Hashing\IPrecisionSupport.cs" />
+    <Compile Include="Hashing\LocalPermutations.cs" />
+    <Compile Include="Hashing\MinHash.cs" />
+    <Compile Include="Hashing\PermGenerator.cs" />
+    <Compile Include="Hashing\Precision.cs" />
+    <Compile Include="Hashing\SignalUtils.cs" />
+    <Compile Include="Hashing\Statistics.cs" />
+    <Compile Include="Hashing\SummedAcrossSelector.cs" />
+    <Compile Include="Hashing\Tools.cs" />
+    <Compile Include="NeuralHashing\ActivationFunctions\BipolarSigmoidFunction.cs" />
+    <Compile Include="NeuralHashing\ActivationFunctions\HyperbolicTangensFunction.cs" />
+    <Compile Include="NeuralHashing\ActivationFunctions\IActivationFunction.cs" />
+    <Compile Include="NeuralHashing\ActivationFunctions\SigmoidFunction.cs" />
+    <Compile Include="NeuralHashing\ActivationFunctions\StepFunction.cs" />
+    <Compile Include="NeuralHashing\Ensemble\NNEnsemble.cs" />
+    <Compile Include="NeuralHashing\Ensemble\NNHashingException.cs" />
+    <Compile Include="NeuralHashing\Layer.cs" />
+    <Compile Include="NeuralHashing\Learning\ISupervisedLearning.cs" />
+    <Compile Include="NeuralHashing\Network.cs" />
+    <Compile Include="NeuralHashing\Neuron.cs" />
+    <Compile Include="NeuralHashing\MMI\MinimalMutualInfoGroup.cs" />
+    <Compile Include="NeuralHashing\MMI\MinimalMutualInfoPair.cs" />
+    <Compile Include="NeuralHashing\MMI\MinimalMutualInfoPattern.cs" />
+    <Compile Include="NeuralHashing\MMI\MutualInformation.cs" />
+    <Compile Include="NeuralHashing\Utils\NormalizeUtils.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy "$(SolutionDir)\Externals\*.dll" "$(TargetDir)"</PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

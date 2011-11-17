@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Soundfingerprinting.DuplicatesDetector.Themes.i__ahtung_sound_fingerprinting_soundfingerprintinggit_src_soundfingerprinting_duplicatesdetector_themes_brushes_xaml">
+	<!-- Generic brushes -->
+	<SolidColorBrush x:Key="ControlBorderBrush" Color="#FF600855" />
+	<SolidColorBrush x:Key="ControlForegroundBrush" Color="#FF10257F" />
+	<SolidColorBrush x:Key="TextColorBrush" Color="#FF45C4F5" />
+	<SolidColorBrush x:Key="ControlBackgroundBrush" Color="Black" />
+
+	<!-- Generic brushes -->
+	<SolidColorBrush x:Key="DefaultControlBorderBrush" Color="#FF688CAF" />
+	<SolidColorBrush x:Key="DefaultControlBackgroundBrush" Color="Black" />
+	<SolidColorBrush x:Key="DefaultControlForegroundBrush" Color="#FF21D821" />
+
+	<!-- DataGrid related brushes -->
+	<SolidColorBrush x:Key="GridLineColorBrush" Color="Black" />
+	<SolidColorBrush x:Key="AlternateGridLineColorBrush" Color="#FF031F2E" />
+        
+	<!--Button related brushes-->
+	<SolidColorBrush x:Key="DefaultButtonBackground" Color="#FF260055"></SolidColorBrush>
+	<SolidColorBrush x:Key="DefaultButtonBorder" Color="#42060A"></SolidColorBrush>
+
+</ResourceDictionary>
