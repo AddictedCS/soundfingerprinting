@@ -8,7 +8,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Input;
 using Soundfingerprinting.AudioProxies;
 using Soundfingerprinting.DuplicatesDetector.Infrastructure;
 using Soundfingerprinting.DuplicatesDetector.Model;
@@ -51,6 +53,11 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         private bool _isPlaying;
 
         /// <summary>
+        ///  Flag - if the application is moving items from one folder to another
+        /// </summary>
+        private bool _isMoving;
+
+        /// <summary>
         ///   Opens the location folder where the result item is located
         /// </summary>
         private RelayCommand _openFolderCommand;
@@ -59,6 +66,16 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         ///   Play the selected file
         /// </summary>
         private RelayCommand _playCommand;
+
+        /// <summary>
+        ///   Save the results into a file
+        /// </summary>
+        private RelayCommand _saveCommand;
+
+        /// <summary>
+        ///  Move items into a separate folder
+        /// </summary>
+        private RelayCommand _moveItemsCommand;
 
         /// <summary>
         ///   Playing status (Stop/Play)
@@ -76,16 +93,17 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         private ObservableCollection<ResultItem> _results;
 
         /// <summary>
-        ///   Save the results into a file
-        /// </summary>
-        private RelayCommand _saveCommand;
-
-        /// <summary>
         ///   Status of the player (Show which file is currently playing)
         /// </summary>
         private string _status;
 
         #endregion
+
+        public ReportViewModel()
+        {
+            _isPlaying = false;
+            _isMoving = false;
+        }
 
         /// <summary>
         ///   Results displayed on the view
@@ -174,6 +192,18 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
             {
                 return _saveCommand ?? (_saveCommand =
                                         new RelayCommand(SaveResults, CanSaveResults));
+            }
+        }
+
+        /// <summary>
+        ///  Move duplicated files to a specific folder
+        /// </summary>
+        public RelayCommand MoveItemsCommand
+        {
+            get
+            {
+                return _moveItemsCommand ?? (_moveItemsCommand =
+                    new RelayCommand(MoveItems, CanMoveItems));
             }
         }
 
@@ -280,11 +310,15 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                 if (SelectedItem != null)
                 {
                     string filename = SelectedItem.Path;
-                    Status = "Playing: " + Path.GetFileName(filename);
-                    _proxy.StopPlayingFile(); //stop previous play, if such
-                    _proxy.PlayFile(filename); //play file
-                    PlayingStatus = STATUS_STOP; //change playing status 
-                    _isPlaying = !_isPlaying;
+                    if (File.Exists(SelectedItem.Path))
+                    {
+                        string path = Path.GetFileName(filename);
+                        Status = "Playing: " + path;
+                        _proxy.StopPlayingFile(); //stop previous play, if such
+                        _proxy.PlayFile(filename); //play file
+                        PlayingStatus = STATUS_STOP; //change playing status 
+                        _isPlaying = true;
+                    }
                 }
                 else
                     _proxy.StopPlayingFile(); //stop previous play, if such
@@ -335,6 +369,90 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                 _proxy.StopPlayingFile(); //stop previous play
                 _isPlaying = !_isPlaying;
             }
+        }
+
+        /// <summary>
+        ///  Move duplicate song to a different location
+        /// </summary>
+        public void MoveItems(object param)
+        {
+            //select folder
+            IFolderBrowserDialogService fbd = GetService<IFolderBrowserDialogService>();
+            if (fbd != null)
+            {
+                var result = fbd.Show();
+                if (result == DialogResult.OK || result == DialogResult.Yes)
+                {
+                    string selectedPath = fbd.SelectedPath;
+                    if (Directory.Exists(selectedPath))
+                    {
+                        _isMoving = true;
+                        Task.Factory.StartNew(
+                            () =>
+                            {
+                                MoveDuplicatesToFolder(selectedPath);
+                                _isMoving = false;
+                                Process.Start("explorer.exe", selectedPath);
+                            })
+                            .ContinueWith((task) => CommandManager.InvalidateRequerySuggested(),
+                                TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        ///  Move duplicates to folder
+        /// </summary>
+        private void MoveDuplicatesToFolder(string selectedPath)
+        {
+            foreach (var set in Sets)
+            {
+                bool hasUniqueFiles = CheckIfUniqueNames(set);
+                int count = 1;
+                foreach (var duplicate in set)
+                {
+                    string fileName = Path.GetFileName(duplicate.Path);
+                    if (!hasUniqueFiles)
+                        fileName = string.Format("{0}_{1}", count, fileName);
+                    string srcPath = duplicate.Path;
+                    string dstPath = Path.Combine(selectedPath, fileName);
+                    if (!File.Exists(dstPath))
+                    {
+                        try
+                        {
+                            File.Move(srcPath, dstPath);
+                            duplicate.Path = dstPath;
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                    count++;
+                }
+            }
+        }
+
+        private static bool CheckIfUniqueNames(IEnumerable<Track> source)
+        {
+            Dictionary<string, bool> distinct = new Dictionary<string, bool>();
+            foreach(var track in source)
+            {
+                string fileName = Path.GetFileName(track.Path);
+                if (fileName != null)
+                {
+                    if (distinct.ContainsKey(fileName))
+                        return false;
+                    distinct[fileName] = true;
+                }
+            }
+            return true;
+        }
+
+        public bool CanMoveItems(object param)
+        {
+            return Sets.Length > 0 && !_isPlaying && !_isMoving;
         }
     }
 }

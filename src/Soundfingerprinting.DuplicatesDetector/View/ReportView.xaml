@@ -25,6 +25,7 @@
 			<Button Style="{DynamicResource RoundedButton}" Command="{Binding OpenFolderCommand}" CommandParameter="{Binding SelectedItem}" Content="Open Folder" Width="90" Height="25" HorizontalAlignment="Right" Margin="0,0,81,31" VerticalAlignment="Bottom" />
 			<Button Style="{DynamicResource RoundedButton}" Command="{Binding PlayCommand}" Content="{Binding PlayingStatus}" Height="25" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,31" />
 			<Button Style="{DynamicResource RoundedButton}" Command="{Binding SaveCommand}" Content="Save" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="0,44,0,0" />
+            <Button Style="{DynamicResource RoundedButton}" Command="{Binding MoveItemsCommand}" Content="Move Items" Width="90" Height="25" HorizontalAlignment="Right" Margin="0,0,81,0" VerticalAlignment="Bottom" />
 		</Grid>
 
 	</Grid>

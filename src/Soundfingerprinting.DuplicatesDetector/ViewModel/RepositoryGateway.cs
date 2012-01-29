@@ -119,16 +119,6 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         private readonly IPermutations _permutations;
 
         /// <summary>
-        ///   Bass proxy used in reading from files
-        /// </summary>
-        private readonly BassProxy _proxy;
-
-        /// <summary>
-        ///   Query stride (used in querying the database)
-        /// </summary>
-        private readonly IStride _queryStride;
-
-        /// <summary>
         ///   Repository for storage, permutations, algorithm
         /// </summary>
         private readonly Repository _repository;
@@ -157,7 +147,6 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
 
             _cts = new CancellationTokenSource();
             _repository = new Repository(_storage, _permutations);
-            _proxy = new BassProxy(); /*audio proxy used in reading the file*/
             _createStride = new IncrementalStaticStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT);
         }
 
@@ -228,32 +217,35 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                 producers.Add(Task.Factory.StartNew(
                     () =>
                     {
-                        while (!bag.IsEmpty)
+                        using (IAudio audioProxy = ServiceContainer.Kernel.Get<IAudio>())
                         {
-                            if (token.IsCancellationRequested) return;
-                            string file;
-                            if (!bag.TryTake(out file)) return;
-                            Track track;
-                            float[] samples;
-                            try
+                            while (!bag.IsEmpty)
                             {
-                                track = TrackHelper.GetTrackInfo(MIN_TRACK_LENGTH, MAX_TRACK_LENGTH, file, _proxy);
-                                samples = TrackHelper.GetTrackSamples(track, _proxy, SAMPLE_RATE, MILLISECONDS_TO_PROCESS, MILLISECONDS_START);
-                            }
-                            catch
-                            {
-                                continue;
-                                /*Continue processing even if getting samples failed*/
-                                /*the failing might be caused by a bunch of File I/O factors, that cannot be considered critical*/
-                            }
-                            try
-                            {
-                                buffer.TryAdd(new Tuple<Track, float[]>(track, samples), 1, token); /*producer*/
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                /*it is safe to break here, operation was canceled*/
-                                break;
+                                if (token.IsCancellationRequested) return;
+                                string file;
+                                if (!bag.TryTake(out file)) return;
+                                Track track;
+                                float[] samples;
+                                try
+                                {
+                                    track = TrackHelper.GetTrackInfo(MIN_TRACK_LENGTH, MAX_TRACK_LENGTH, file, (BassProxy)audioProxy); //lame casting I know
+                                    samples = TrackHelper.GetTrackSamples(track, audioProxy, SAMPLE_RATE, MILLISECONDS_TO_PROCESS, MILLISECONDS_START);
+                                }
+                                catch
+                                {
+                                    continue;
+                                    /*Continue processing even if getting samples failed*/
+                                    /*the failing might be caused by a bunch of File I/O factors, that cannot be considered critical*/
+                                }
+                                try
+                                {
+                                    buffer.TryAdd(new Tuple<Track, float[]>(track, samples), 1, token); /*producer*/
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    /*it is safe to break here, operation was canceled*/
+                                    break;
+                                }
                             }
                         }
                     }, token));
@@ -262,7 +254,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
             /*When all producers ended with their operations, call the CompleteAdding() to tell Consumers no more items are available*/
             Task.Factory.ContinueWhenAll(producers.ToArray(), (p) => buffer.CompleteAdding());
 
-            for (int i = 0; i < numProcs*4; i++) /*consumer*/
+            for (int i = 0; i < numProcs * 4; i++) /*consumer*/
             {
                 consumers.Add(Task.Factory.StartNew(
                     () =>
@@ -281,6 +273,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                         }
                     }, token));
             }
+            
             Task.WaitAll(consumers.ToArray()); /*wait for all consumers to end*/
             return processedtracks;
         }

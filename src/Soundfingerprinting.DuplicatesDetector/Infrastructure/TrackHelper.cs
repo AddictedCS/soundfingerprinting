@@ -21,7 +21,7 @@ namespace Soundfingerprinting.DuplicatesDetector.Infrastructure
         /// <param name = "milliseconds">Milliseconds to gather</param>
         /// <param name = "startmilliseconds">Starting millisecond</param>
         /// <returns></returns>
-        public static float[] GetTrackSamples(Track track, BassProxy proxy, int sampleRate, int milliseconds, int startmilliseconds)
+        public static float[] GetTrackSamples(Track track, IAudio proxy, int sampleRate, int milliseconds, int startmilliseconds)
         {
             if (track == null || track.Path == null)
                 return null;

@@ -2,6 +2,7 @@
 // git://github.com/AddictedCS/soundfingerprinting.git
 // Code license: CPOL v.1.02
 // ciumac.sergiu@gmail.com
+using Soundfingerprinting.AudioProxies;
 using Soundfingerprinting.DuplicatesDetector.DataAccess;
 using Soundfingerprinting.Hashing;
 
@@ -28,6 +29,7 @@ namespace Soundfingerprinting.DuplicatesDetector.Services
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
             ServiceContainer.Kernel.Bind<IPermutations>().To<LocalPermutations>();
+            ServiceContainer.Kernel.Bind<IAudio>().To<BassProxy>().InSingletonScope();
         }
     }
 }

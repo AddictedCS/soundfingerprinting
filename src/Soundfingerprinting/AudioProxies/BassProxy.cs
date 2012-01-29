@@ -29,21 +29,6 @@ namespace Soundfingerprinting.AudioProxies
         private const int DEFAULT_SAMPLE_RATE = 44100;
 
         /// <summary>
-        ///   Reference counter used in order to determine when to unload the native C library
-        /// </summary>
-        private static volatile int _referenceCounter;
-
-        /// <summary>
-        ///   Checks whether the library is initialized
-        /// </summary>
-        private static volatile bool _initialized;
-
-        /// <summary>
-        ///   Global lock object
-        /// </summary>
-        private static readonly object Lockobject = new object();
-
-        /// <summary>
         ///   Shows whether the proxy is already disposed
         /// </summary>
         private bool _alreadyDisposed;
@@ -55,40 +40,32 @@ namespace Soundfingerprinting.AudioProxies
 
         #region Constructors
 
+        static BassProxy()
+        {
+            //Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
+            BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
+            //Dummy calls made for loading the assemblies
+            int bassVersion = Bass.BASS_GetVersion();
+            int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
+            int bassfxVersion = BassFx.BASS_FX_GetVersion();
+            int plg = Bass.BASS_PluginLoad("bassflac.dll");
+            if (plg == 0)
+                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+            if (!Bass.BASS_Init(-1, DEFAULT_SAMPLE_RATE, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero)) //Set Sample Rate / MONO
+                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+            if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50)) /*Set filter for anti aliasing*/
+                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+            if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true)) /*Set floating parameters to be passed*/
+                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+
+        }
+
         /// <summary>
         ///   Public Constructor
         /// </summary>
         public BassProxy()
         {
-            lock (Lockobject)
-            {
-                if (_referenceCounter == 0) //first instance in the project, register and load the assemblies
-                {
-                    if (!_initialized)
-                    {
-                        //Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
-                        BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
 
-                        //Dummy calls made for loading the assemblies
-                        int bassVersion = Bass.BASS_GetVersion();
-                        int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
-                        int bassfxVersion = BassFx.BASS_FX_GetVersion();
-
-                        int plg = Bass.BASS_PluginLoad("bassflac.dll");
-                        if (plg == 0)
-                            throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-                        if (!Bass.BASS_Init(-1, DEFAULT_SAMPLE_RATE, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero)) //Set Sample Rate / MONO
-                            throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-                        if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50)) /*Set filter for anti aliasing*/
-                            throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-                        if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true)) /*Set floating parameters to be passed*/
-                            throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-
-                        _initialized = true;
-                    }
-                }
-                _referenceCounter++;
-            }
         }
 
         #endregion
@@ -131,26 +108,26 @@ namespace Soundfingerprinting.AudioProxies
 
             if (BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
             {
-                int bufferSize = samplerate*20*4; /*read 10 seconds at each iteration*/
+                int bufferSize = samplerate * 20 * 4; /*read 10 seconds at each iteration*/
                 float[] buffer = new float[bufferSize];
                 List<float[]> chunks = new List<float[]>();
                 int size = 0;
-                while ((float) (size)/samplerate*1000 < totalmilliseconds)
+                while ((float)(size) / samplerate * 1000 < totalmilliseconds)
                 {
                     //get re-sampled/mono data
                     int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, bufferSize);
                     if (bytesRead == 0)
                         break;
-                    float[] chunk = new float[bytesRead/4]; //each float contains 4 bytes
-                    Array.Copy(buffer, chunk, bytesRead/4);
+                    float[] chunk = new float[bytesRead / 4]; //each float contains 4 bytes
+                    Array.Copy(buffer, chunk, bytesRead / 4);
                     chunks.Add(chunk);
-                    size += bytesRead/4; //size of the data
+                    size += bytesRead / 4; //size of the data
                 }
 
-                if ((float) (size)/samplerate*1000 < (milliseconds + startmillisecond))
+                if ((float)(size) / samplerate * 1000 < (milliseconds + startmillisecond))
                     return null; /*not enough samples to return the requested data*/
-                int start = (int) ((float) startmillisecond*samplerate/1000);
-                int end = (milliseconds <= 0) ? size : (int) ((float) (startmillisecond + milliseconds)*samplerate/1000);
+                int start = (int)((float)startmillisecond * samplerate / 1000);
+                int end = (milliseconds <= 0) ? size : (int)((float)(startmillisecond + milliseconds) * samplerate / 1000);
                 data = new float[size];
                 int index = 0;
                 /*Concatenate*/
@@ -169,6 +146,8 @@ namespace Soundfingerprinting.AudioProxies
             }
             else
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+            Bass.BASS_StreamFree(mixerStream);
+            Bass.BASS_StreamFree(stream);
             return data;
         }
 
@@ -183,70 +162,6 @@ namespace Soundfingerprinting.AudioProxies
         public float[] ReadMonoFromFile(string filename, int samplerate)
         {
             return ReadMonoFromFile(filename, samplerate, 0, 0);
-        }
-
-        public float[][] ReadSpectrum(string filename, int samplerate, int startmillisecond, int milliseconds, int overlap, int wdftsize, int logbins, int startfreq, int endfreq)
-        {
-            int totalmilliseconds = 0;
-            if (milliseconds <= 0)
-                totalmilliseconds = Int32.MaxValue;
-            else
-                totalmilliseconds = milliseconds + startmillisecond;
-            const int logbase = 2;
-            double logMin = Math.Log(startfreq, logbase);
-            double logMax = Math.Log(endfreq, logbase);
-            double delta = (logMax - logMin)/logbins;
-            double accDelta = 0;
-            float[] freqs = new float[logbins + 1];
-            for (int i = 0; i <= logbins /*32 octaves*/; ++i)
-            {
-                freqs[i] = (float) Math.Pow(logbase, logMin + accDelta);
-                accDelta += delta; // accDelta = delta * i
-            }
-
-            List<float[]> data = new List<float[]>();
-            int[] streams = new int[wdftsize/overlap - 1];
-            int[] mixerstreams = new int[wdftsize/overlap - 1];
-            double sec = (double) overlap/samplerate;
-            for (int i = 0; i < wdftsize/overlap - 1; i++)
-            {
-                streams[i] = Bass.BASS_StreamCreateFile(filename, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT); //Decode the stream
-                if (!Bass.BASS_ChannelSetPosition(streams[i], (float) startmillisecond/1000 + sec*i))
-                    throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-                mixerstreams[i] = BassMix.BASS_Mixer_StreamCreate(samplerate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-                if (!BassMix.BASS_Mixer_StreamAddChannel(mixerstreams[i], streams[i], BASSFlag.BASS_MIXER_FILTER))
-                    throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
-
-            float[] buffer = new float[wdftsize/2];
-            int size = 0;
-            int iter = 0;
-            while ((float) (size)/samplerate*1000 < totalmilliseconds)
-            {
-                int bytesRead = Bass.BASS_ChannelGetData(mixerstreams[iter%(wdftsize/overlap - 1)], buffer, (int) BASSData.BASS_DATA_FFT2048);
-                if (bytesRead == 0)
-                    break;
-                float[] chunk = new float[logbins];
-                for (int i = 0; i < logbins; i++)
-                {
-                    int lowBound = (int) freqs[i];
-                    int endBound = (int) freqs[i + 1];
-                    int startIndex = Utils.FFTFrequency2Index(lowBound, wdftsize, samplerate);
-                    int endIndex = Utils.FFTFrequency2Index(endBound, wdftsize, samplerate);
-                    float sum = 0f;
-                    for (int j = startIndex; j < endIndex; j++)
-                    {
-                        sum += buffer[j];
-                    }
-                    chunk[i] = sum/(endIndex - startIndex);
-                }
-                data.Add(chunk);
-                size += bytesRead/4;
-                iter++;
-            }
-
-
-            return data.ToArray();
         }
 
         /// <summary>
@@ -303,7 +218,7 @@ namespace Soundfingerprinting.AudioProxies
             if (BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
             {
                 WaveWriter waveWriter = new WaveWriter(outFileName, mixerStream, true);
-                const int length = 5512*10*4;
+                const int length = 5512 * 10 * 4;
                 float[] buffer = new float[length];
                 while (true)
                 {
@@ -330,14 +245,7 @@ namespace Soundfingerprinting.AudioProxies
                 {
                     //release managed resources
                 }
-
-                //release unmanaged resources
-                lock (Lockobject)
-                {
-                    _referenceCounter--;
-                    //if (_referenceCounter == 0) //last instance in the project, release BASS
-                    //    Bass.BASS_Free();
-                }
+                // Bass.BASS_Free();
             }
         }
 
