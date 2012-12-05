@@ -83,7 +83,7 @@ namespace Soundfingerprinting.SoundTools.DrawningTool
                                 int totalFingerprints = 0;
                                 List<bool[]> fingerprints = manager.CreateFingerprints(proxy, Path.GetFullPath(_tbPathToFile.Text), stride);
                                 int width = manager.FingerprintLength;
-                                int height = manager.LogBins;
+                                int height = FingerprintManager.LogBins;
                                 Bitmap image = Imaging.GetFingerprintsImage(fingerprints, width, height);
                                 image.Save(path);
                                 image.Dispose();
@@ -114,7 +114,7 @@ namespace Soundfingerprinting.SoundTools.DrawningTool
                                             List<bool[]> result = manager.CreateFingerprints(proxy, Path.GetFullPath(_tbPathToFile.Text), stride);
                                             int i = -1;
                                             int width = manager.FingerprintLength;
-                                            int height = manager.LogBins;
+                                            int height = FingerprintManager.LogBins;
                                             foreach (bool[] item in result)
                                             {
                                                 Image image = Imaging.GetFingerprintImage(item, width, height);

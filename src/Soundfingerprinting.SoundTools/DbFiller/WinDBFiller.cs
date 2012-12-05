@@ -531,10 +531,11 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         /// <param name = "track">Track of the corresponding fingerprints</param>
         private void HashFingerprintsUsingNeuralHasher(IEnumerable<Fingerprint> listOfFingerprintsToHash, Track track)
         {
+            FingerprintDescriptor descriptor = new FingerprintDescriptor();
             List<HashBinNeuralHasher> listToInsert = new List<HashBinNeuralHasher>();
             foreach (Fingerprint fingerprint in listOfFingerprintsToHash)
             {
-                _ensemble.ComputeHash(FingerprintManager.DecodeFingerprint(fingerprint.Signature));
+                _ensemble.ComputeHash(descriptor.DecodeFingerprint(fingerprint.Signature));
                 long[] hashbins = _ensemble.ExtractHashBins();
                 for (int i = 0; i < hashbins.Length; i++)
                 {

@@ -341,6 +341,8 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             string connectionString = null;
             _cmbValidationConnectionStringNeuralHasher.Invoke(new Action(() => { connectionString = _cmbValidationConnectionStringNeuralHasher.SelectedItem.ToString(); }));
 
+            FingerprintDescriptor descriptor = new FingerprintDescriptor();
+
             if (String.IsNullOrEmpty(connectionString))
             {
                 MessageBox.Show(Resources.SelectValidationDB);
@@ -386,7 +388,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 List<HashBinNeuralHasher> listToInsert = new List<HashBinNeuralHasher>();
                 foreach (Fingerprint fingerprint in fingerprints) /*For each track's fingerprint create hash*/
                 {
-                    ensemble.ComputeHash(FingerprintManager.DecodeFingerprint(fingerprint.Signature));
+                    ensemble.ComputeHash(descriptor.DecodeFingerprint(fingerprint.Signature));
                     long[] hashbins = ensemble.ExtractHashBins(); /*Extract hash bin / hash table*/
                     for (int i = 0; i < hashbins.Length; i++)
                     {

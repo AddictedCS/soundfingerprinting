@@ -246,11 +246,13 @@ namespace Soundfingerprinting.NeuralHashing.NeuralTrainer
             Dictionary<Int32, List<BasicMLData>> retVal = new Dictionary<Int32, List<BasicMLData>>();
             int neededTracks = (int) Math.Pow(2, outputs);
             int count = 0;
+
+            FingerprintDescriptor descriptor = new FingerprintDescriptor();
             foreach (KeyValuePair<Int32, List<Fingerprint>> pair in unnormalized)
             {
                 retVal.Add(pair.Key, new List<BasicMLData>());
                 foreach (Fingerprint fingerprint in pair.Value)
-                    retVal[pair.Key].Add(new BasicMLData(NormalizeUtils.NormalizeDesiredInputInPlace(function, FingerprintManager.DecodeFingerprint(fingerprint.Signature))));
+                    retVal[pair.Key].Add(new BasicMLData(NormalizeUtils.NormalizeDesiredInputInPlace(function, descriptor.DecodeFingerprint(fingerprint.Signature))));
                 count++;
                 if (count > neededTracks - 1)
                     break;

@@ -313,7 +313,7 @@ namespace Soundfingerprinting.SoundTools
             float[][] spectrum = manager.CreateLogSpectrogram(proxy, pathToFile, 0, 0);
             int specLen = spectrum.GetLength(0);
             int start = stride.GetFirstStride()/manager.Overlap;
-            int logbins = manager.LogBins;
+            int logbins = FingerprintManager.LogBins;
             int fingerprintLength = manager.FingerprintLength;
             int overlap = manager.Overlap;
             while (start + fingerprintLength < specLen)

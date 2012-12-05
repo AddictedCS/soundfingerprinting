@@ -69,6 +69,7 @@
     <Compile Include="DbStorage.Tests\HashBinTest.cs" />
     <Compile Include="DbStorage.Tests\MSDaoStoredProcedureBuilderTest.cs" />
     <Compile Include="DbStorage.Tests\TrackTest.cs" />
+    <Compile Include="Fingerprinting.Tests\FingerprintDescriptorTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintManagerTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintUtilsTest.cs" />
     <Compile Include="Fingerprinting.Tests\Wavelets\HaarWaveletTest.cs" />
