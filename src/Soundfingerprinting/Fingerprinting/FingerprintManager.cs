@@ -47,9 +47,11 @@ namespace Soundfingerprinting.Fingerprinting
 
         private readonly int[] logFrequenciesIndex;
 
+        private IWindowFunction windowFunction;
+       
         public FingerprintManager()
         {
-            WindowFunction = new HanningWindow();
+            windowFunction = new HanningWindow();
             WaveletDecomposition = new HaarWavelet();
             FingerprintDescriptor = new FingerprintDescriptor();
             FingerprintLength = 128;
@@ -60,25 +62,16 @@ namespace Soundfingerprinting.Fingerprinting
             MaxFrequency = 2000;
             TopWavelets = 200;
             SampleRate = 5512;
-            LogBase = Math.E;
+            LogBase = 2;
             logFrequenciesIndex = GenerateLogFrequencies(
                 SampleRate, MinFrequency, MaxFrequency, LogBins, WdftSize, LogBase);
 
-            windowArray = WindowFunction.GetWindow(WdftSize);
+            windowArray = windowFunction.GetWindow(WdftSize);
         }
-
 
         public event EventHandler<FingerprintManagerEventArgs> UnhandledException;
 
         public IFingerprintDescriptor FingerprintDescriptor { get; set; }
-
-        /// <summary>
-        ///   Window function used in spectrogram computation
-        /// </summary>
-        /// <remarks>
-        ///   Default <c>HanningWindow</c>
-        /// </remarks>
-        public IWindowFunction WindowFunction { get; set; }
 
         /// <summary>
         ///   Wavelet decomposition algorithm
