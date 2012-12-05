@@ -51,11 +51,13 @@ namespace Soundfingerprinting.Fingerprinting
 
         private readonly IWaveletDecomposition waveletDecomposition;
 
+        private readonly IFingerprintDescriptor fingerprintDescriptor;
+
         public FingerprintManager()
         {
             windowFunction = new HanningWindow();
             waveletDecomposition = new HaarWavelet();
-            FingerprintDescriptor = new FingerprintDescriptor();
+            fingerprintDescriptor = new FingerprintDescriptor();
             FingerprintLength = 128;
             Overlap = 64;
             SamplesPerFingerprint = FingerprintLength * Overlap;
@@ -72,9 +74,6 @@ namespace Soundfingerprinting.Fingerprinting
         }
 
         public event EventHandler<FingerprintManagerEventArgs> UnhandledException;
-
-        public IFingerprintDescriptor FingerprintDescriptor { get; set; }
-
 
         /// <summary>
         ///   Number of samples to read in order to create single fingerprint.
@@ -315,7 +314,7 @@ namespace Soundfingerprinting.Fingerprinting
 
                 start += fingerprintLength + (stride.GetStride() / overlap);
                 waveletDecomposition.DecomposeImageInPlace(frames); /*Compute wavelets*/
-                bool[] image = FingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets);
+                bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets);
                 fingerprints.Add(image);
             }
 
