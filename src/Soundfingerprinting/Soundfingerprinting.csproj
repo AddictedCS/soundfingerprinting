@@ -78,6 +78,7 @@
     <Compile Include="DbStorage\Entities\Track.cs" />
     <Compile Include="Fingerprinting\AbsComparator.cs" />
     <Compile Include="Fingerprinting\ConstantQ\ConstQ.cs" />
+    <Compile Include="Fingerprinting\DefaultFingerpringConfig.cs" />
     <Compile Include="Fingerprinting\FFT\Complex.cs" />
     <Compile Include="Fingerprinting\FFT\ComplexArray.cs" />
     <Compile Include="Fingerprinting\FFT\ComplexF.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Fingerprinting\FingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\FingerprintManager.cs" />
     <Compile Include="Fingerprinting\FingerprintManagerEventArgs.cs" />
+    <Compile Include="Fingerprinting\IFingerprintConfig.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\Wavelets\HaarWavelet.cs" />
     <Compile Include="Fingerprinting\Windows\HammingWindow.cs" />

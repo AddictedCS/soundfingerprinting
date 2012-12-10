@@ -2,24 +2,28 @@
 // git://github.com/AddictedCS/soundfingerprinting.git
 // Code license: CPOL v.1.02
 // ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Windows.Forms;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.AudioProxies.Strides;
-using Soundfingerprinting.Fingerprinting;
-using Soundfingerprinting.SoundTools.Properties;
 
 namespace Soundfingerprinting.SoundTools.DrawningTool
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.IO;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.AudioProxies;
+    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.SoundTools.Properties;
+
     /// <summary>
     ///   Drawing tool
     /// </summary>
     public partial class WinDrawningTool : Form
     {
+        private readonly IFingerprintConfig fingerprintConfig;
+
         /// <summary>
         ///   Parameter less constructor
         /// </summary>
@@ -29,6 +33,8 @@ namespace Soundfingerprinting.SoundTools.DrawningTool
             Icon = Resources.Sound;
             _lbImageTypes.Items.Add("Single file");
             _lbImageTypes.Items.Add("Separated images");
+            fingerprintConfig = new DefaultFingerpringConfig();
+
         }
 
         /// <summary>
@@ -82,7 +88,7 @@ namespace Soundfingerprinting.SoundTools.DrawningTool
                                 StaticStride stride = new StaticStride((int) _nudStride.Value);
                                 int totalFingerprints = 0;
                                 List<bool[]> fingerprints = manager.CreateFingerprints(proxy, Path.GetFullPath(_tbPathToFile.Text), stride);
-                                int width = manager.FingerprintLength;
+                                int width = fingerprintConfig.FingerprintLength;
                                 int height = FingerprintManager.LogBins;
                                 Bitmap image = Imaging.GetFingerprintsImage(fingerprints, width, height);
                                 image.Save(path);
@@ -113,7 +119,7 @@ namespace Soundfingerprinting.SoundTools.DrawningTool
                                             StaticStride stride = new StaticStride((int) _nudStride.Value);
                                             List<bool[]> result = manager.CreateFingerprints(proxy, Path.GetFullPath(_tbPathToFile.Text), stride);
                                             int i = -1;
-                                            int width = manager.FingerprintLength;
+                                            int width = fingerprintConfig.FingerprintLength;
                                             int height = FingerprintManager.LogBins;
                                             foreach (bool[] item in result)
                                             {
@@ -167,7 +173,7 @@ namespace Soundfingerprinting.SoundTools.DrawningTool
 #pragma warning restore 612,618
                                     {
                                         FingerprintManager manager = new FingerprintManager();
-                                        float[] data = proxy.ReadMonoFromFile(fullpath, manager.SampleRate, 0, 0);
+                                        float[] data = proxy.ReadMonoFromFile(fullpath, fingerprintConfig.SampleRate, 0, 0);
                                         Bitmap image = Imaging.GetSignalImage(data, (int) _nudWidth.Value, (int) _nudHeight.Value);
                                         image.Save(sfd.FileName, ImageFormat.Jpeg);
                                         image.Dispose();

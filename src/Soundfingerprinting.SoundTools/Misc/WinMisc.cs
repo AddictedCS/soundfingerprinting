@@ -94,7 +94,9 @@ namespace Soundfingerprinting.SoundTools.Misc
                         int topWavelets = (int) _nudTopWavelets.Value;
                         int stride = (int) _nudStride.Value;
                         IStride objStride = (_chbStride.Checked) ? (IStride) new RandomStride(0, stride) : new StaticStride(stride);
-                        FingerprintManager manager = new FingerprintManager {MinFrequency = minFreq, TopWavelets = topWavelets};
+                        DefaultFingerpringConfig config = new DefaultFingerpringConfig
+                            { MinFrequency = minFreq, TopWavelets = topWavelets };
+                        FingerprintManager manager = new FingerprintManager {FingerprintConfig = config};
                         DumpResults resultObj = new DumpResults();
                         string pathToInput = _tbPathToFile.Text;
                         string pathToOutput = _tbOutputPath.Text;
@@ -319,8 +321,9 @@ namespace Soundfingerprinting.SoundTools.Misc
         private void WinMiscLoad(object sender, EventArgs e)
         {
             FingerprintManager manager = new FingerprintManager();
-            _nudFreq.Value = manager.MinFrequency;
-            _nudTopWavelets.Value = manager.TopWavelets;
+            DefaultFingerpringConfig config = new DefaultFingerpringConfig();
+            _nudFreq.Value = config.MinFrequency;
+            _nudTopWavelets.Value = config.TopWavelets;
         }
     }
 }

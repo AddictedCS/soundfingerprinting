@@ -312,10 +312,11 @@ namespace Soundfingerprinting.SoundTools
             List<float[][]> wavelets = new List<float[][]>();
             float[][] spectrum = manager.CreateLogSpectrogram(proxy, pathToFile, 0, 0);
             int specLen = spectrum.GetLength(0);
-            int start = stride.GetFirstStride()/manager.Overlap;
+            DefaultFingerpringConfig config = new DefaultFingerpringConfig();
+            int start = stride.GetFirstStride() / config.Overlap;
             int logbins = FingerprintManager.LogBins;
-            int fingerprintLength = manager.FingerprintLength;
-            int overlap = manager.Overlap;
+            int fingerprintLength = config.FingerprintLength;
+            int overlap = config.Overlap;
             while (start + fingerprintLength < specLen)
             {
                 float[][] frames = new float[fingerprintLength][];

@@ -53,97 +53,35 @@ namespace Soundfingerprinting.Fingerprinting
 
         private readonly IFingerprintDescriptor fingerprintDescriptor;
 
+        private IFingerprintConfig fingerprintConfig;
+
         public FingerprintManager()
         {
             windowFunction = new HanningWindow();
             waveletDecomposition = new HaarWavelet();
             fingerprintDescriptor = new FingerprintDescriptor();
-            FingerprintLength = 128;
-            Overlap = 64;
-            SamplesPerFingerprint = FingerprintLength * Overlap;
-            WdftSize = 2048;
-            MinFrequency = 318;
-            MaxFrequency = 2000;
-            TopWavelets = 200;
-            SampleRate = 5512;
-            LogBase = 2;
-            logFrequenciesIndex = GenerateLogFrequencies(
-                SampleRate, MinFrequency, MaxFrequency, LogBins, WdftSize, LogBase);
+            fingerprintConfig = new DefaultFingerpringConfig();
 
-            windowArray = windowFunction.GetWindow(WdftSize);
+            logFrequenciesIndex = GenerateLogFrequencies(
+                fingerprintConfig.SampleRate, fingerprintConfig.MinFrequency, fingerprintConfig.MaxFrequency, LogBins, fingerprintConfig.WdftSize, fingerprintConfig.LogBase);
+
+            windowArray = windowFunction.GetWindow(fingerprintConfig.WdftSize);
         }
 
         public event EventHandler<FingerprintManagerEventArgs> UnhandledException;
 
-        /// <summary>
-        ///   Number of samples to read in order to create single fingerprint.
-        ///   The granularity is 1.48 seconds
-        /// </summary>
-        /// <remarks>
-        ///   Default = 8192
-        /// </remarks>
-        public int SamplesPerFingerprint { get; private set; }
+        public IFingerprintConfig FingerprintConfig
+        {
+            get
+            {
+                return fingerprintConfig;
+            }
 
-        /// <summary>
-        ///   Overlap between the sub fingerprints, 11.6 ms
-        /// </summary>
-        /// <remarks>
-        ///   Default = 64
-        /// </remarks>
-        public int Overlap { get; private set; }
-
-        /// <summary>
-        ///   Size of the WDFT block, 371 ms
-        /// </summary>
-        /// <remarks>
-        ///   Default = 2048
-        /// </remarks>
-        public int WdftSize { get; private set; }
-
-        /// <summary>
-        ///   Frequency range which is taken into account
-        /// </summary>
-        /// <remarks>
-        ///   Default = 318
-        /// </remarks>
-        public int MinFrequency { get; set; }
-
-        /// <summary>
-        ///   Frequency range which is taken into account
-        /// </summary>
-        /// <remarks>
-        ///   Default = 2000
-        /// </remarks>
-        public int MaxFrequency { get; set; }
-
-        /// <summary>
-        ///   Number of Top wavelets to consider
-        /// </summary>
-        /// <remarks>
-        ///   Default = 200
-        /// </remarks>
-        public int TopWavelets { get; set; }
-
-        /// <summary>
-        ///   Sample rate
-        /// </summary>
-        /// <remarks>
-        ///   Default = 5512
-        /// </remarks>
-        public int SampleRate { get; set; }
-
-        /// <summary>
-        ///   Log base used for computing the logarithmically spaced frequency bins
-        /// </summary>
-        /// <remarks>
-        ///   Default = 10
-        /// </remarks>
-        public double LogBase { get; set; }
-
-        /// <summary>
-        ///   Fingerprint's length
-        /// </summary>
-        public int FingerprintLength { get; set; }
+            set
+            {
+                fingerprintConfig = value;
+            }
+        }
 
         /// <summary>
         ///   Create spectrogram of the input file
@@ -156,12 +94,12 @@ namespace Soundfingerprinting.Fingerprinting
         public float[][] CreateSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds)
         {
             // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
+            float[] samples = proxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
 
             NormalizeInPlace(samples);
 
-            int overlap = Overlap;
-            int wdftSize = WdftSize;
+            int overlap = fingerprintConfig.Overlap;
+            int wdftSize = fingerprintConfig.WdftSize;
             int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
             float[][] frames = new float[width][];
             float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
@@ -194,36 +132,6 @@ namespace Soundfingerprinting.Fingerprinting
         }
 
         /// <summary>
-        ///   Create logarithmically spaced spectrogram out of the input samples (spaced according to manager's parameters)
-        /// </summary>
-        /// <param name = "samples">Samples of a song</param>
-        /// <returns>Logarithmically spaced bins within the power spectrum</returns>
-        public float[][] CreateLogSpectrogram(float[] samples)
-        {
-            NormalizeInPlace(samples);
-            int overlap = Overlap;
-            int wdftSize = WdftSize;
-            int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
-            float[][] frames = new float[width][];
-            float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
-            for (int i = 0; i < width; i++)
-            {
-                // take 371 ms each 11.6 ms (2048 samples each 64 samples)
-                for (int j = 0; j < wdftSize /*2048*/; j++)
-                {
-                    complexSignal[(2 * j)] = (float)(windowArray[j] * samples[(i * overlap) + j]); /*Weight by Hann Window*/
-                    complexSignal[(2 * j) + 1] = 0;
-                }
-
-                // FFT transform for gathering the spectrum
-                Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
-                frames[i] = ExtractLogBins(complexSignal);
-            }
-
-            return frames;
-        }
-
-        /// <summary>
         ///   Create log-spectrogram (spaced according to manager's parameters)
         /// </summary>
         /// <param name = "proxy">Proxy used in generating the spectrogram</param>
@@ -234,7 +142,7 @@ namespace Soundfingerprinting.Fingerprinting
         public float[][] CreateLogSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds)
         {
             // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = proxy.ReadMonoFromFile(filename, SampleRate, milliseconds, startmilliseconds);
+            float[] samples = proxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
             return CreateLogSpectrogram(samples);
         }
 
@@ -289,6 +197,36 @@ namespace Soundfingerprinting.Fingerprinting
         }
 
         /// <summary>
+        ///   Create logarithmically spaced spectrogram out of the input samples (spaced according to manager's parameters)
+        /// </summary>
+        /// <param name = "samples">Samples of a song</param>
+        /// <returns>Logarithmically spaced bins within the power spectrum</returns>
+        private float[][] CreateLogSpectrogram(float[] samples)
+        {
+            NormalizeInPlace(samples);
+            int overlap = fingerprintConfig.Overlap;
+            int wdftSize = fingerprintConfig.WdftSize;
+            int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
+            float[][] frames = new float[width][];
+            float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
+            for (int i = 0; i < width; i++)
+            {
+                // take 371 ms each 11.6 ms (2048 samples each 64 samples)
+                for (int j = 0; j < wdftSize /*2048*/; j++)
+                {
+                    complexSignal[(2 * j)] = (float)(windowArray[j] * samples[(i * overlap) + j]); /*Weight by Hann Window*/
+                    complexSignal[(2 * j) + 1] = 0;
+                }
+
+                // FFT transform for gathering the spectrum
+                Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
+                frames[i] = ExtractLogBins(complexSignal);
+            }
+
+            return frames;
+        }
+
+        /// <summary>
         ///   Create fingerprints according to the Google's researchers algorithm
         /// </summary>
         /// <param name = "spectrum">Spectrogram of the song</param>
@@ -296,8 +234,8 @@ namespace Soundfingerprinting.Fingerprinting
         /// <returns>Fingerprint signatures</returns>
         private List<bool[]> CreateFingerprints(float[][] spectrum, IStride stride)
         {
-            int fingerprintLength = FingerprintLength;
-            int overlap = Overlap;
+            int fingerprintLength = fingerprintConfig.FingerprintLength;
+            int overlap = fingerprintConfig.Overlap;
             int logbins = LogBins;
             int start = stride.GetFirstStride() / overlap;
             List<bool[]> fingerprints = new List<bool[]>();
@@ -314,7 +252,7 @@ namespace Soundfingerprinting.Fingerprinting
 
                 start += fingerprintLength + (stride.GetStride() / overlap);
                 waveletDecomposition.DecomposeImageInPlace(frames); /*Compute wavelets*/
-                bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets);
+                bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, fingerprintConfig.TopWavelets);
                 fingerprints.Add(image);
             }
 

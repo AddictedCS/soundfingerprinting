@@ -262,7 +262,8 @@ namespace Soundfingerprinting.SoundTools.DbFiller
             _listOfAllAlbums = _dalManager.ReadAlbums(); //Get all albums
             _unknownAlbum = _dalManager.ReadUnknownAlbum(); //Read unknown album
             int topWavelets = (int) _nudTopWav.Value;
-            _fingerManager = new FingerprintManager {TopWavelets = topWavelets};
+            _fingerManager = new FingerprintManager
+                { FingerprintConfig = new DefaultFingerpringConfig() { TopWavelets = topWavelets } };
             switch (_hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
@@ -380,12 +381,12 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         private void InsertInDatabase(int start, int end)
         {
             BassProxy proxy = new BassProxy(); //Proxy used to read from file
-
+            IFingerprintConfig config = new DefaultFingerpringConfig();
             IStride stride = null;
             Invoke(new Action(() =>
                               {
                                   stride = WinUtils.GetStride((StrideType) _cmbStrideType.SelectedIndex, //Get stride according to the underlying combo box selection
-                                      (int) _nudStride.Value, 0, _fingerManager.SamplesPerFingerprint);
+                                      (int)_nudStride.Value, 0, config.SamplesPerFingerprint);
                               }), null);
 
             Action actionInterface =

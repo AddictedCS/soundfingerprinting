@@ -156,7 +156,9 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             _topWavelets = topWavelets;
             _dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             _permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
-            _manager = new FingerprintManager {TopWavelets = topWavelets};
+
+            _manager = new FingerprintManager
+                { FingerprintConfig = new DefaultFingerpringConfig() { TopWavelets = topWavelets } };
             _dalManager.SetConnectionString(_connectionString); /*Set connection string for DAL manager*/
             _secondsToAnalyze = secondsToAnalyze; /*Number of fingerprints to analyze from each song*/
             _startSecond = startSecond;

@@ -157,6 +157,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         /// </summary>
         private void BtnStartClick(object sender, EventArgs e)
         {
+            DefaultFingerpringConfig config = new DefaultFingerpringConfig();
             Form winform;
             switch (_hashAlgorithm)
             {
@@ -166,12 +167,14 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                         MessageBox.Show(Resources.SelectFolderWithSongs, Resources.Songs, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;
                     }
+                    
                     winform = new WinQueryResults(
                         _cmbConnectionString.SelectedItem.ToString(),
                         (int) _nudNumberOfFingerprints.Value,
                         (int) _numStaratSeconds.Value,
+
                         WinUtils.GetStride((StrideType) (_cmbStrideType.SelectedIndex),
-                            (int) _nudQueryStrideMax.Value, (int) _nudQueryStrideMin.Value, new FingerprintManager().SamplesPerFingerprint),
+                            (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, config.SamplesPerFingerprint),
                         _fileList,
                         (int) _nudHashtables.Value,
                         (int) _nudKeys.Value,
@@ -190,7 +193,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                         (int) _nudNumberOfFingerprints.Value,
                         (int) _numStaratSeconds.Value,
                         WinUtils.GetStride((StrideType) (_cmbStrideType.SelectedIndex),
-                            (int) _nudQueryStrideMax.Value, (int) _nudQueryStrideMin.Value, new FingerprintManager().SamplesPerFingerprint),
+                            (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, config.SamplesPerFingerprint),
                         (int) _nudTopWavelets.Value,
                         _fileList,
                         _tbPathToEnsemble.Text);
