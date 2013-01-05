@@ -1,5 +1,7 @@
 namespace Soundfingerprinting.Fingerprinting
 {
+    using Soundfingerprinting.AudioProxies.Strides;
+
     public interface IFingerprintConfig
     {
         /// <summary>
@@ -47,5 +49,13 @@ namespace Soundfingerprinting.Fingerprinting
         ///   Gets fingerprint's length
         /// </summary>
         int FingerprintLength { get; }
+
+        /// <summary>
+        /// Gets or sets default stride size between 2 consecutive fingerprint
+        /// </summary>
+        /// <remarks>
+        ///  Default = 5115
+        /// </remarks>
+        IStride Stride { get; set; }
     }
 }

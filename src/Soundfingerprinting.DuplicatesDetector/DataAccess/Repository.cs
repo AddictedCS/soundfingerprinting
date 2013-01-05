@@ -1,17 +1,15 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Soundfingerprinting.AudioProxies.Strides;
-using Soundfingerprinting.DuplicatesDetector.Model;
-using Soundfingerprinting.Fingerprinting;
-using Soundfingerprinting.Hashing;
-
-namespace Soundfingerprinting.DuplicatesDetector.DataAccess
+﻿namespace Soundfingerprinting.DuplicatesDetector.DataAccess
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
+
+    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.DuplicatesDetector.Model;
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Hashing;
+
     /// <summary>
     ///   Singleton class for repository container
     /// </summary>
@@ -20,34 +18,29 @@ namespace Soundfingerprinting.DuplicatesDetector.DataAccess
         /// <summary>
         ///   Min hasher
         /// </summary>
-        private readonly MinHash _hasher;
+        private readonly MinHash hasher;
 
         /// <summary>
         ///   Creates fingerprints according to the theoretical constructs
         /// </summary>
-        private readonly FingerprintManager _manager;
+        private readonly IFingerprintManager manager;
 
         /// <summary>
         ///   Storage for min-hash permutations
         /// </summary>
-        private readonly IPermutations _permutations;
+        private readonly IPermutations permutations;
 
         /// <summary>
         ///   Storage for hash signatures and tracks
         /// </summary>
-        private readonly IStorage _storage;
+        private readonly IStorage storage;
 
-        /// <summary>
-        ///   Each repository should have storage for permutations and for tracks/fingerprints
-        /// </summary>
-        /// <param name = "storage">Track/Signatures storage</param>
-        /// <param name = "permutations">Permutations storage</param>
-        public Repository(IStorage storage, IPermutations permutations)
+        public Repository(IFingerprintManager fingerprintManager, IStorage storage, IPermutations permutations)
         {
-            _permutations = permutations;
-            _storage = storage;
-            _manager = new FingerprintManager();
-            _hasher = new MinHash(_permutations);
+            this.permutations = permutations;
+            this.storage = storage;
+            manager = fingerprintManager;
+            hasher = new MinHash(this.permutations);
         }
 
         /// <summary>
@@ -58,23 +51,29 @@ namespace Soundfingerprinting.DuplicatesDetector.DataAccess
         /// <param name = "stride">Stride</param>
         /// <param name = "hashTables">Number of hash tables</param>
         /// <param name = "hashKeys">Number of hash keys</param>
-        public void CreateInsertFingerprints(float[] samples,
-                                             Track track,
-                                             IStride stride,
+        public void CreateInsertFingerprints(
+            float[] samples,
+            Track track,
+            IStride stride,
                                              int hashTables,
                                              int hashKeys)
         {
-            if (track == null) return; /*track is not eligible*/
+            if (track == null)
+            {
+                return; /*track is not eligible*/
+            }
+
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
-            List<bool[]> dbFingers = _manager.CreateFingerprints(samples, stride);
-            _storage.InsertTrack(track); /*Insert track into the storage*/
+            manager.FingerprintConfig.Stride = stride;
+            List<bool[]> fingerprints = manager.CreateFingerprints(samples);
+            storage.InsertTrack(track); /*Insert track into the storage*/
             /*Get fingerprint's hash signature, and associate it to a specific track*/
-            List<HashSignature> creationalsignatures = GetSignatures(dbFingers, track, hashTables, hashKeys);
+            List<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);
             foreach (HashSignature hash in creationalsignatures)
             {
-                _storage.InsertHash(hash, HashType.Creational);
+                storage.InsertHash(hash, HashType.Creational);
                 /*Set this hashes as also the query hashes*/
-                _storage.InsertHash(hash, HashType.Query);
+                storage.InsertHash(hash, HashType.Query);
             }
             return;
         }
@@ -87,11 +86,14 @@ namespace Soundfingerprinting.DuplicatesDetector.DataAccess
             List<HashSignature> signatures = new List<HashSignature>();
             foreach (bool[] fingerprint in fingerprints)
             {
-                int[] signature = _hasher.ComputeMinHashSignature(fingerprint); /*Compute min-hash signature out of fingerprint*/
-                Dictionary<int, long> buckets = _hasher.GroupMinHashToLSHBuckets(signature, hashTables, hashKeys); /*Group Min-Hash signature into LSH buckets*/
+                int[] signature = hasher.ComputeMinHashSignature(fingerprint); /*Compute min-hash signature out of fingerprint*/
+                Dictionary<int, long> buckets = hasher.GroupMinHashToLSHBuckets(signature, hashTables, hashKeys); /*Group Min-Hash signature into LSH buckets*/
                 int[] hashSignature = new int[buckets.Count];
                 foreach (KeyValuePair<int, long> bucket in buckets)
-                    hashSignature[bucket.Key] = (int) bucket.Value;
+                {
+                    hashSignature[bucket.Key] = (int)bucket.Value;
+                }
+
                 HashSignature hash = new HashSignature(track, hashSignature); /*associate track to hash-signature*/
                 signatures.Add(hash);
             }
@@ -113,11 +115,11 @@ namespace Soundfingerprinting.DuplicatesDetector.DataAccess
             foreach (Track track in tracks)
             {
                 Dictionary<Track, int> trackDuplicates = new Dictionary<Track, int>(); /*this will be a set with duplicates*/
-                HashSet<HashSignature> fingerprints = _storage.GetHashSignatures(track, HashType.Query); /*get all existing signatures for a specific track*/
+                HashSet<HashSignature> fingerprints = storage.GetHashSignatures(track, HashType.Query); /*get all existing signatures for a specific track*/
                 int fingerthreshold = (int) ((float) fingerprints.Count/100*percentageThreshold);
                 foreach (HashSignature fingerprint in fingerprints)
                 {
-                    Dictionary<Track, int> results = _storage.GetTracks(fingerprint.Signature, threshold); /*get all duplicate track including the original track*/
+                    Dictionary<Track, int> results = storage.GetTracks(fingerprint.Signature, threshold); /*get all duplicate track including the original track*/
                     foreach (KeyValuePair<Track, int> result in results)
                     {
                         if (!trackDuplicates.ContainsKey(result.Key))
@@ -158,7 +160,7 @@ namespace Soundfingerprinting.DuplicatesDetector.DataAccess
         /// </summary>
         public void ClearStorage()
         {
-            _storage.ClearAll();
+            storage.ClearAll();
         }
     }
 }

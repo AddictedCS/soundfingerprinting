@@ -1,36 +1,32 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-
-namespace Soundfingerprinting.DbStorage.Entities
+﻿namespace Soundfingerprinting.DbStorage.Entities
 {
-    /// <summary>
-    ///   Fingerprint Entity object
-    /// </summary>
+    using System;
+    using System.Collections.Generic;
+
     [Serializable]
     public class Fingerprint
     {
-        #region Constructors
-
-        /// <summary>
-        ///   Parameter less constructor
-        /// </summary>
         public Fingerprint()
         {
             Id = Int32.MinValue;
         }
 
         /// <summary>
-        ///   Fingerprint constructor
+        /// Initializes a new instance of the <see cref="Fingerprint"/> class. 
         /// </summary>
-        /// <param name = "id">Id of the fingerprint</param>
-        /// <param name = "fingerprint">Fingerprint image</param>
-        /// <param name = "trackId">Track identifier</param>
-        /// <param name = "songOrder">Order # in the corresponding song</param>
-        public Fingerprint(int id, bool[] fingerprint, Int32 trackId, int songOrder)
+        /// <param name="id">
+        /// Id of the fingerprint
+        /// </param>
+        /// <param name="fingerprint">
+        /// Fingerprint image
+        /// </param>
+        /// <param name="trackId">
+        /// Track identifier
+        /// </param>
+        /// <param name="songOrder">
+        /// Order # in the corresponding song
+        /// </param>
+        public Fingerprint(int id, bool[] fingerprint, int trackId, int songOrder)
         {
             Id = id;
             Signature = fingerprint;
@@ -39,26 +35,29 @@ namespace Soundfingerprinting.DbStorage.Entities
         }
 
         /// <summary>
-        ///   Fingerprint constructor
+        /// Initializes a new instance of the <see cref="Fingerprint"/> class. 
         /// </summary>
-        /// <param name = "id">Id of the fingerprint</param>
-        /// <param name = "fingerprint">Fingerprint</param>
-        /// <param name = "trackId">Track identifier</param>
-        /// <param name = "totalFingerprints">Total fingerprints per track</param>
-        /// <param name = "songOrder">Order # in the corresponding song</param>
-        public Fingerprint(int id, bool[] fingerprint, Int32 trackId, int songOrder, int totalFingerprints)
+        /// <param name="id">
+        /// Id of the fingerprint
+        /// </param>
+        /// <param name="fingerprint">
+        /// Fingerprint
+        /// </param>
+        /// <param name="trackId">
+        /// Track identifier
+        /// </param>
+        /// <param name="songOrder">
+        /// Order # in the corresponding song
+        /// </param>
+        /// <param name="totalFingerprints">
+        /// Total fingerprints per track
+        /// </param>
+        public Fingerprint(int id, bool[] fingerprint, int trackId, int songOrder, int totalFingerprints)
             : this(id, fingerprint, trackId, songOrder)
         {
             TotalFingerprintsPerTrack = totalFingerprints;
         }
 
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        ///   Fingerprint value
-        /// </summary>
         public bool[] Signature { get; set; }
 
         /// <summary>
@@ -83,8 +82,6 @@ namespace Soundfingerprinting.DbStorage.Entities
         ///   Song order
         /// </summary>
         public int SongOrder { get; set; }
-
-        #endregion
 
         /// <summary>
         ///   Associate fingerprint signatures with a specific track

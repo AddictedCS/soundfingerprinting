@@ -55,9 +55,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioProxies\BassProxy.cs" />
+    <Compile Include="AudioProxies\BassAudioService.cs" />
     <Compile Include="AudioProxies\DirectSoundProxy.cs" />
-    <Compile Include="AudioProxies\IAudio.cs" />
+    <Compile Include="AudioProxies\IAudioService.cs" />
+    <Compile Include="AudioProxies\ITagService.cs" />
     <Compile Include="AudioProxies\Strides\IncrementalRandomStride.cs" />
     <Compile Include="AudioProxies\Strides\IncrementalStaticStride.cs" />
     <Compile Include="AudioProxies\Strides\IStride.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="AudioProxies\ReadStatus.cs" />
     <Compile Include="AudioProxies\Strides\StaticStride.cs" />
     <Compile Include="AudioProxies\Strides\StrideType.cs" />
+    <Compile Include="AudioProxies\TagInfo.cs" />
     <Compile Include="DbStorage\Entities\Album.cs" />
     <Compile Include="DbStorage\Utils\ArrayUtils.cs" />
     <Compile Include="DbStorage\DaoGateway.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Hashing\ConservativeSelector.cs" />
     <Compile Include="Hashing\DbPermutations.cs" />
     <Compile Include="Hashing\Hash.cs" />
+    <Compile Include="Models\Fingerprint.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainer.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainerException.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetworkPerformanceMeter.cs" />

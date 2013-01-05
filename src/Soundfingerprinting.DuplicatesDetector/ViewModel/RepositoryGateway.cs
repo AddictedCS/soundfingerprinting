@@ -1,24 +1,23 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Ninject;
-using Ninject.Parameters;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.AudioProxies.Strides;
-using Soundfingerprinting.DuplicatesDetector.DataAccess;
-using Soundfingerprinting.DuplicatesDetector.Infrastructure;
-using Soundfingerprinting.DuplicatesDetector.Model;
-using Soundfingerprinting.DuplicatesDetector.Services;
-using Soundfingerprinting.Hashing;
-
-namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
 {
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Ninject;
+    using Ninject.Parameters;
+
+    using Soundfingerprinting.AudioProxies;
+    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.DuplicatesDetector.DataAccess;
+    using Soundfingerprinting.DuplicatesDetector.Infrastructure;
+    using Soundfingerprinting.DuplicatesDetector.Model;
+    using Soundfingerprinting.DuplicatesDetector.Services;
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Hashing;
+
     /// <summary>
     ///   Class which prepares the data for Repository analysis of the tracks (does all the "dirty job")
     /// </summary>
@@ -111,43 +110,45 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         /// <summary>
         ///   Creational stride (used in hashing audio objects)
         /// </summary>
-        private readonly IStride _createStride;
+        private readonly IStride createStride;
 
         /// <summary>
         ///   Permutations provider
         /// </summary>
-        private readonly IPermutations _permutations;
+        private readonly IPermutations permutations;
 
         /// <summary>
         ///   Repository for storage, permutations, algorithm
         /// </summary>
-        private readonly Repository _repository;
+        private readonly Repository repository;
 
         /// <summary>
         ///   Storage for hash signatures and tracks
         /// </summary>
-        private readonly IStorage _storage;
+        private readonly IStorage storage;
 
         /// <summary>
         ///   Cancelation token used to abort all the processing
         /// </summary>
-        private CancellationTokenSource _cts;
+        private CancellationTokenSource cts;
 
         #endregion
 
-        /// <summary>
-        ///   Repository gateway parameter less constructor
-        /// </summary>
         public RepositoryGateway()
         {
-            _storage = ServiceContainer.Kernel.Get<IStorage>(new ConstructorArgument("numberOfHashTables", NUMBER_OF_HASH_TABLES)); /*Number of LSH Tables, used for storage purposes*/
+            storage =
+                ServiceContainer.Kernel.Get<IStorage>(
+                    new ConstructorArgument("numberOfHashTables", NUMBER_OF_HASH_TABLES));
+                /*Number of LSH Tables, used for storage purposes*/
 
-            _permutations = ServiceContainer.Kernel.Get<IPermutations>(new ConstructorArgument("pathToPermutations", PATH_TO_PERMUTATIONS),
-                new ConstructorArgument("separator", SEPARATOR)); /*Permutations*/
+            permutations =
+                ServiceContainer.Kernel.Get<IPermutations>(
+                    new ConstructorArgument("pathToPermutations", PATH_TO_PERMUTATIONS),
+                    new ConstructorArgument("separator", SEPARATOR)); /*Permutations*/
 
-            _cts = new CancellationTokenSource();
-            _repository = new Repository(_storage, _permutations);
-            _createStride = new IncrementalStaticStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT);
+            cts = new CancellationTokenSource();
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintManager>(), storage, permutations);
+            createStride = new IncrementalStaticStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT);
         }
 
         /// <summary>
@@ -180,13 +181,13 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                                       catch (AggregateException ex) /*here we are sure all consumers are done processing*/
                                       {
                                           callback.Invoke(null, null);
-                                          _repository.ClearStorage(); /*its safe to clear the storage, no more thread is executing*/
+                                          repository.ClearStorage(); /*its safe to clear the storage, no more thread is executing*/
                                       }
                                       catch (Exception ex)
                                       {
                                           callback.Invoke(tracks, ex);
                                       }
-                                  }, _cts.Token);
+                                  }, cts.Token);
         }
 
 
@@ -208,7 +209,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
             List<Track> processedtracks = new List<Track>();
             List<Task> consumers = new List<Task>();
             List<Task> producers = new List<Task>();
-            CancellationToken token = _cts.Token;
+            CancellationToken token = cts.Token;
             ConcurrentBag<string> bag = new ConcurrentBag<string>(files);
 
             int maxprod = numProcs > 2 ? 2 : numProcs;
@@ -217,7 +218,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                 producers.Add(Task.Factory.StartNew(
                     () =>
                     {
-                        using (IAudio audioProxy = ServiceContainer.Kernel.Get<IAudio>())
+                        using (IAudioService audioServiceProxy = ServiceContainer.Kernel.Get<IAudioService>())
                         {
                             while (!bag.IsEmpty)
                             {
@@ -228,8 +229,8 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                                 float[] samples;
                                 try
                                 {
-                                    track = TrackHelper.GetTrackInfo(MIN_TRACK_LENGTH, MAX_TRACK_LENGTH, file, (BassProxy)audioProxy); //lame casting I know
-                                    samples = TrackHelper.GetTrackSamples(track, audioProxy, SAMPLE_RATE, MILLISECONDS_TO_PROCESS, MILLISECONDS_START);
+                                    track = TrackHelper.GetTrackInfo(MIN_TRACK_LENGTH, MAX_TRACK_LENGTH, file, (BassAudioService)audioServiceProxy); //lame casting I know
+                                    samples = TrackHelper.GetTrackSamples(track, audioServiceProxy, SAMPLE_RATE, MILLISECONDS_TO_PROCESS, MILLISECONDS_START);
                                 }
                                 catch
                                 {
@@ -264,7 +265,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                             if (tuple != null)
                             {
                                 /*Long running procedure*/
-                                _repository.CreateInsertFingerprints(tuple.Item2, tuple.Item1, _createStride, NUMBER_OF_HASH_TABLES, NUMBER_OF_KEYS);
+                                repository.CreateInsertFingerprints(tuple.Item2, tuple.Item1, createStride, NUMBER_OF_HASH_TABLES, NUMBER_OF_KEYS);
 
                                 processedtracks.Add(tuple.Item1);
                                 if (processed != null)
@@ -286,7 +287,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         /// <returns>Set of tracks that are duplicate</returns>
         public HashSet<Track>[] FindDuplicates(List<Track> tracks, Action<Track, int, int> callback)
         {
-            return _repository.FindDuplicates(tracks, THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
+            return repository.FindDuplicates(tracks, THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
         }
 
         /// <summary>
@@ -296,7 +297,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         /// <returns>Set of tracks that are duplicate</returns>
         public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
         {
-            return _repository.FindDuplicates(_storage.GetAllTracks(), THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
+            return repository.FindDuplicates(storage.GetAllTracks(), THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
         }
 
         /// <summary>
@@ -304,8 +305,8 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         /// </summary>
         public void AbortProcessing()
         {
-            _cts.Cancel();
-            _cts = new CancellationTokenSource();
+            cts.Cancel();
+            cts = new CancellationTokenSource();
         }
     }
 }

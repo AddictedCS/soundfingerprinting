@@ -1,41 +1,36 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Windows.Forms;
-using Soundfingerprinting.SoundTools.BassResampler;
-using Soundfingerprinting.SoundTools.DbFiller;
-using Soundfingerprinting.SoundTools.DrawningTool;
-using Soundfingerprinting.SoundTools.FFMpegResampler;
-using Soundfingerprinting.SoundTools.FilePermutations;
-using Soundfingerprinting.SoundTools.Misc;
-using Soundfingerprinting.SoundTools.NetworkEnsembling;
-using Soundfingerprinting.SoundTools.NetworkTrainer;
-using Soundfingerprinting.SoundTools.PermutationGenerator;
-using Soundfingerprinting.SoundTools.Properties;
-using Soundfingerprinting.SoundTools.QueryDb;
-using Soundfingerprinting.SoundTools.WaveletDecomposition;
-
-namespace Soundfingerprinting.SoundTools
+﻿namespace Soundfingerprinting.SoundTools
 {
+    using System;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.SoundTools.BassResampler;
+    using Soundfingerprinting.SoundTools.DI;
+    using Soundfingerprinting.SoundTools.DbFiller;
+    using Soundfingerprinting.SoundTools.DrawningTool;
+    using Soundfingerprinting.SoundTools.FFMpegResampler;
+    using Soundfingerprinting.SoundTools.FilePermutations;
+    using Soundfingerprinting.SoundTools.Misc;
+    using Soundfingerprinting.SoundTools.NetworkEnsembling;
+    using Soundfingerprinting.SoundTools.NetworkTrainer;
+    using Soundfingerprinting.SoundTools.PermutationGenerator;
+    using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.SoundTools.QueryDb;
+    using Soundfingerprinting.SoundTools.WaveletDecomposition;
+
     public partial class WinMain : Form
     {
-        /// <summary>
-        ///   Main window constructor
-        /// </summary>
-        public WinMain()
+        private readonly IDependencyResolver dependencyResolver;
+
+        public WinMain(IDependencyResolver dependencyResolver)
         {
+            this.dependencyResolver = dependencyResolver;
             InitializeComponent();
             Icon = Resources.Sound;
         }
 
-        /// <summary>
-        ///   Db filler called
-        /// </summary>
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
         {
-            WinDBFiller filler = new WinDBFiller();
+            WinDBFiller filler = dependencyResolver.Get<WinDBFiller>();
             filler.Show();
         }
 
@@ -60,7 +55,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void QueryDatabaseToolStripClick(object sender, EventArgs e)
         {
-            WinCheckHashBins queryDatabase = new WinCheckHashBins();
+            WinCheckHashBins queryDatabase = dependencyResolver.Get<WinCheckHashBins>();
             queryDatabase.Show();
         }
 
@@ -69,7 +64,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void MinHashPermGeneratorToolStripClick(object sender, EventArgs e)
         {
-            WinPermGenerator win = new WinPermGenerator();
+            WinPermGenerator win = dependencyResolver.Get<WinPermGenerator>();
             win.Show();
         }
 
@@ -78,7 +73,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void AudioToolToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinDrawningTool win = new WinDrawningTool();
+            WinDrawningTool win = dependencyResolver.Get<WinDrawningTool>();
             win.Show();
         }
 
@@ -87,7 +82,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void RandomPermutationToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinFilePermutation win = new WinFilePermutation();
+            WinFilePermutation win = dependencyResolver.Get<WinFilePermutation>();
             win.ShowDialog();
         }
 
@@ -96,7 +91,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void FFMpegResamplerToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinFfMpegResampler win = new WinFfMpegResampler();
+            WinFfMpegResampler win = dependencyResolver.Get<WinFfMpegResampler>();
             win.Show();
         }
 
@@ -105,7 +100,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void BtnTrainNetworksClick(object sender, EventArgs e)
         {
-            WinNetworkTrainer win = new WinNetworkTrainer();
+            WinNetworkTrainer win = dependencyResolver.Get<WinNetworkTrainer>();
             win.Show();
         }
 
@@ -114,7 +109,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void BtnHashFingersClick(object sender, EventArgs e)
         {
-            WinEnsembleHash win = new WinEnsembleHash();
+            WinEnsembleHash win = dependencyResolver.Get<WinEnsembleHash>();
             win.Show();
         }
 
@@ -123,7 +118,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void TrainToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinNetworkTrainer win = new WinNetworkTrainer();
+            WinNetworkTrainer win = dependencyResolver.Get<WinNetworkTrainer>();
             win.Show();
         }
 
@@ -132,7 +127,7 @@ namespace Soundfingerprinting.SoundTools
         /// </summary>
         private void HashFingerprintsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinEnsembleHash win = new WinEnsembleHash();
+            WinEnsembleHash win = dependencyResolver.Get<WinEnsembleHash>();
             win.Show();
         }
 
@@ -146,19 +141,19 @@ namespace Soundfingerprinting.SoundTools
 
         private void BassResamplerToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinBassResampler win = new WinBassResampler();
+            WinBassResampler win = dependencyResolver.Get<WinBassResampler>();
             win.Show();
         }
 
         private void SimilarityCalculationToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinMisc win = new WinMisc();
+            WinMisc win = dependencyResolver.Get<WinMisc>();
             win.Show();
         }
 
         private void WaveletDecompositionToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinHaarWavelet win = new WinHaarWavelet();
+            WinHaarWavelet win = dependencyResolver.Get<WinHaarWavelet>();
             win.Show();
         }
     }

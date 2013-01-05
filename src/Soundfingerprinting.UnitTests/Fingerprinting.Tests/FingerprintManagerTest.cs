@@ -10,7 +10,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Soundfingerprinting.AudioProxies;
-    using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.DbStorage.Utils;
@@ -40,36 +39,30 @@
         [TestCleanup]
         public void TearDown()
         {
+            List<Track> tracks = dalManager.ReadTracks();
+            if (tracks != null)
+            {
+                dalManager.DeleteTrack(tracks);
+            }
         }
 
         [TestMethod]
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
         {
-
-            List<Track> tracks = dalManager.ReadTracks();
-            if (tracks != null)
-            {
-                dalManager.DeleteTrack(tracks); /*Delete the information from the database*/
-            }
-
             Album album = new Album(0, "Random");
-
             dalManager.InsertAlbum(album);
             Track track = new Track(0, "Track", "Track", album.Id);
-
             dalManager.InsertTrack(track);
-            List<Fingerprint> fingerprints = null;
-#pragma warning disable 612,618
+            List<Fingerprint> fingerprints;
             using (DirectSoundProxy proxy = new DirectSoundProxy())
-#pragma warning restore 612,618
             {
-                List<bool[]> signatures = fingerManager.CreateFingerprints(proxy, PATH_TO_WAV, StaticStride);
+                fingerManager.AudioServiceProxy = proxy;
+                List<bool[]> signatures = fingerManager.CreateFingerprints(PathToWav);
                 fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
                 dalManager.InsertFingerprint(fingerprints);
             }
 
-            List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
-                /*Read all fingerprints*/
+            List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0); /*Read all fingerprints*/
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
 
             foreach (Fingerprint fingerprint in fingerprints)
@@ -94,28 +87,21 @@
         [TestMethod]
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
         {
-            List<Track> tracks = dalManager.ReadTracks();
-            if (tracks != null)
-            {
-                dalManager.DeleteTrack(tracks); /*Delete the information from the database*/
-            }
-
             Album album = new Album(0, "Track");
-
             dalManager.InsertAlbum(album);
             Track track = new Track(0, "Random", "Random", album.Id);
 
             dalManager.InsertTrack(track);
-            List<Fingerprint> fingerprints = null;
-            using (BassProxy proxy = new BassProxy())
+            List<Fingerprint> fingerprints;
+            using (BassAudioService audioService = new BassAudioService())
             {
-                List<bool[]> signatures = fingerManager.CreateFingerprints(proxy, PATH_TO_MP3, StaticStride);
+                fingerManager.AudioServiceProxy = audioService;
+                List<bool[]> signatures = fingerManager.CreateFingerprints(PathToMp3);
                 fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
                 dalManager.InsertFingerprint(fingerprints);
             }
 
             List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
-                /*Read all fingerprints*/
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
 
             foreach (Fingerprint f in fingerprints)
@@ -134,37 +120,22 @@
             }
         }
 
-        /// <summary>
-        ///   Check whether CreateFingerprintsFromFileAndInsertInDatabase and CreateFingerprintsFromFile
-        ///   generate the same fingerprints [Direct Sound Proxy]
-        /// </summary>
         [TestMethod]
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyCheckCorrectitudeOfFingerprintsTest()
         {
-            List<Track> tracks = dalManager.ReadTracks();
-            if (tracks != null)
-            {
-                dalManager.DeleteTrack(tracks); /*Delete the information from the database*/
-            }
-
             Album album = new Album(0, "Random");
-
             dalManager.InsertAlbum(album);
-            Track track = new Track(0, "Random",
-                "Random",
-                album.Id);
-
+            Track track = new Track(0, "Random", "Random", album.Id);
             dalManager.InsertTrack(track);
-            List<Fingerprint> fingerprints = null;
-            List<Fingerprint> insertedFingerprints = null;
-#pragma warning disable 612,618
+            List<Fingerprint> fingerprints;
+            List<Fingerprint> insertedFingerprints;
             using (DirectSoundProxy proxy = new DirectSoundProxy())
-#pragma warning restore 612,618
             {
-                List<bool[]> signatures = fingerManager.CreateFingerprints(proxy, PATH_TO_WAV, StaticStride);
+                fingerManager.AudioServiceProxy = proxy;
+                List<bool[]> signatures = fingerManager.CreateFingerprints(PathToWav);
                 fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
                 dalManager.InsertFingerprint(fingerprints);
-                signatures = fingerManager.CreateFingerprints(proxy, PATH_TO_WAV, StaticStride);
+                signatures = fingerManager.CreateFingerprints(PathToWav);
                 insertedFingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
             }
 
@@ -179,50 +150,39 @@
                     {
                         Assert.AreEqual(f.Signature[i], iFingerprint.Signature[i]);
                     }
+
                     Assert.AreEqual(f.TotalFingerprintsPerTrack, iFingerprint.TotalFingerprintsPerTrack);
                     Assert.AreEqual(f.TrackId, iFingerprint.TrackId);
                 }
             }
         }
 
-        /// <summary>
-        ///   Check whether CreateFingerprintsFromFileAndInsertInDatabase and CreateFingerprintsFromFile
-        ///   generate the same fingerprints [Bass Proxy]
-        /// </summary>
         [TestMethod]
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyCheckCorrectitudeOfFingerprintsTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-            List<Track> tracks = dalManager.ReadTracks();
-            if (tracks != null)
-                dalManager.DeleteTrack(tracks); /*Delete the information from the database*/
-
-            Album album = new Album(0, name);
-
+            Album album = new Album(0, "Sample");
             dalManager.InsertAlbum(album);
-            Track track = new Track(0, name,
-                name,
-                album.Id);
+            Track track = new Track(0, "Sample", "Sample", album.Id);
 
             dalManager.InsertTrack(track);
-            List<Fingerprint> fingerprints = null;
-            List<Fingerprint> insertedFingerprints = null;
-            using (BassProxy proxy = new BassProxy())
+            List<Fingerprint> fingerprints;
+            List<Fingerprint> insertedFingerprints;
+            using (BassAudioService audioService = new BassAudioService())
             {
-                List<bool[]> signatures = fingerManager.CreateFingerprints(proxy, PATH_TO_MP3, StaticStride);
+                fingerManager.AudioServiceProxy = audioService;
+                List<bool[]> signatures = fingerManager.CreateFingerprints(PathToMp3);
                 fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
                 dalManager.InsertFingerprint(fingerprints);
-                signatures = fingerManager.CreateFingerprints(proxy, PATH_TO_MP3, StaticStride);
+                signatures = fingerManager.CreateFingerprints(PathToMp3);
                 insertedFingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
             }
 
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
 
             foreach (Fingerprint f in fingerprints)
-                foreach (Fingerprint iFingerprint in insertedFingerprints)
+            {
+                foreach (var iFingerprint in insertedFingerprints)
+                {
                     if (f.Id == iFingerprint.Id)
                     {
                         Assert.AreEqual(f.Signature.Length, iFingerprint.Signature.Length);
@@ -230,94 +190,72 @@
                         {
                             Assert.AreEqual(f.Signature[i], iFingerprint.Signature[i]);
                         }
+
                         Assert.AreEqual(f.TotalFingerprintsPerTrack, iFingerprint.TotalFingerprintsPerTrack);
                         Assert.AreEqual(f.TrackId, iFingerprint.TrackId);
                     }
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
+                }
+            }
         }
 
-        /// <summary>
-        ///   Compare fingerprints created by different proxies
-        /// </summary>
+
         [TestMethod]
         public void CompareFingerprintsCreatedByDifferentProxiesTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
 
-#pragma warning disable 612,618
             DirectSoundProxy dsProxy = new DirectSoundProxy();
-#pragma warning restore 612,618
-            BassProxy bsProxy = new BassProxy();
-            List<bool[]> dsFingers = fingerManager.CreateFingerprints(dsProxy, PATH_TO_WAV, StaticStride);
-            List<bool[]> bFingers = fingerManager.CreateFingerprints(bsProxy, PATH_TO_MP3, StaticStride);
+            BassAudioService bsAudioService = new BassAudioService();
+            fingerManager.AudioServiceProxy = bsAudioService;
+            List<bool[]> dsFingers = fingerManager.CreateFingerprints(PathToWav);
+            List<bool[]> bFingers = fingerManager.CreateFingerprints(PathToMp3);
             int unmatchedItems = 0;
             int totalmatches = 0;
             //Check how many bytes are different while comparing BASS Fingers and DS Fingers (normaly ~1%)
             for (int i = 0, n = dsFingers.Count > bFingers.Count ? bFingers.Count : dsFingers.Count; i < n; i++)
+            {
                 for (int j = 0; j < dsFingers[i].Length; j++)
                 {
-                    if (dsFingers[i][j] != bFingers[i][j])
-                        unmatchedItems++;
+                    if (dsFingers[i][j] != bFingers[i][j]) unmatchedItems++;
                     totalmatches++;
                 }
-            Assert.AreEqual(true, (float) unmatchedItems/totalmatches < 0.02); /*less than 1.5% difference*/
+            }
+
+            Assert.AreEqual(true, (float)unmatchedItems / totalmatches < 0.02); /*less than 1.5% difference*/
             Assert.AreEqual(bFingers.Count, dsFingers.Count);
             dsProxy.Dispose();
-            bsProxy.Dispose();
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
+            bsAudioService.Dispose();
         }
 
-
-        /// <summary>
-        ///   Create just several fingerprints
-        /// </summary>
         [TestMethod]
         public void CreateSeveralFingerprintsTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-#pragma warning disable 612,618
             using (DirectSoundProxy dsProxy = new DirectSoundProxy())
             {
-#pragma warning restore 612,618
-                using (BassProxy bsProxy = new BassProxy())
+                using (BassAudioService bsAudioService = new BassAudioService())
                 {
-                    const int count = 0;
-                    List<bool[]> dsFingers = fingerManager.CreateFingerprints(dsProxy, PATH_TO_WAV, StaticStride);
-                    List<bool[]> bFingers = fingerManager.CreateFingerprints(bsProxy, PATH_TO_MP3, StaticStride);
+                    fingerManager.AudioServiceProxy = dsProxy;
+                    List<bool[]> dsFingers = fingerManager.CreateFingerprints(PathToWav);
+                    fingerManager.AudioServiceProxy = bsAudioService;
+                    List<bool[]> bFingers = fingerManager.CreateFingerprints(PathToMp3);
                     Assert.AreEqual(dsFingers.Count, bFingers.Count);
                     int unmatched = 0;
-                    for (int i = 0, n = dsFingers.Count; i < n; i++)
-                        for (int j = 0; j < dsFingers[i].Length; j++)
-                            if (dsFingers[i][j] != bFingers[i][j]) unmatched++;
-                    int totalElements = dsFingers.Count*dsFingers[0].Length;
-                    Assert.AreEqual(true, (float) unmatched/totalElements < 0.02);
+                    for (int i = 0, n = dsFingers.Count; i < n; i++) for (int j = 0; j < dsFingers[i].Length; j++) if (dsFingers[i][j] != bFingers[i][j]) unmatched++;
+                    int totalElements = dsFingers.Count * dsFingers[0].Length;
+                    Assert.AreEqual(true, (float)unmatched / totalElements < 0.02);
                 }
             }
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
 
-        /// <summary>
-        ///   Get float array from byte
-        /// </summary>
         [TestMethod]
         public void GetDoubleArrayFromByteTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-            byte[] byteArray = TestUtilities.GenerateRandomInputByteArray(128*64);
+            byte[] byteArray = TestUtilities.GenerateRandomInputByteArray(128 * 64);
             bool silence = false;
-            float[] array = ArrayUtils.GetDoubleArrayFromSamples(byteArray, 128*64, ref silence);
+            float[] array = ArrayUtils.GetDoubleArrayFromSamples(byteArray, 128 * 64, ref silence);
             for (int i = 0; i < array.Length; i++)
             {
                 switch (byteArray[i])
@@ -336,38 +274,28 @@
                         break;
                 }
             }
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        /// <summary>
-        ///   Check whether the # of fingerprints returned from the creation process is Ok
-        /// </summary>
         [TestMethod]
         public void CheckFingerprintCreationAlgorithmTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-            using (BassProxy bassProxy = new BassProxy())
+            using (BassAudioService bassAudioService = new BassAudioService())
             {
                 string tempFile = Path.GetTempPath() + 0 + ".wav";
-                bassProxy.RecodeTheFile(PATH_TO_MP3, tempFile, 5512);
+                bassAudioService.RecodeTheFile(PathToMp3, tempFile, 5512);
 
                 long fileSize = new FileInfo(tempFile).Length;
-                BassProxy proxy = new BassProxy();
-                List<bool[]> list = fingerManager.CreateFingerprints(proxy, PATH_TO_MP3, new StaticStride(0));
-                //One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
-                long expected = fileSize/(fingerprintConfig.SamplesPerFingerprint*4);
+                BassAudioService audioService = new BassAudioService();
+                fingerManager.AudioServiceProxy = audioService;
+                List<bool[]> list = fingerManager.CreateFingerprints(PathToMp3);
+
+                // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
+                long expected = fileSize / (fingerprintConfig.SamplesPerFingerprint * 4);
                 Assert.AreEqual(expected, list.Count);
-                proxy.Dispose();
+                audioService.Dispose();
                 File.Delete(tempFile);
             }
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
         /// <summary>
@@ -377,53 +305,37 @@
         public void CheckFingerprintCreationAlgorithmTest1()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-            long fileSize = new FileInfo(PATH_TO_WAV).Length;
-            int startIndex = 0;
+            long fileSize = new FileInfo(PathToWav).Length;
 #pragma warning disable 612,618
-            using (IAudio proxy = new DirectSoundProxy())
+            using (IAudioService proxy = new DirectSoundProxy())
             {
 #pragma warning restore 612,618
-                List<bool[]> list = fingerManager.CreateFingerprints(proxy, PATH_TO_WAV, new StaticStride(0));
-                //One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
-                long expected = fileSize/(8192*4);
+                fingerManager.AudioServiceProxy = proxy;
+                List<bool[]> list = fingerManager.CreateFingerprints(PathToWav);
+
+                // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
+                long expected = fileSize / (8192 * 4);
                 Assert.AreEqual(expected, list.Count);
                 proxy.Dispose();
             }
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        /// <summary>
-        ///   Check whether the # of fingerprints returned from the creation process is Ok
-        /// </summary>
         [TestMethod]
         public void CheckFingerprintCreationAlgorithmTest2()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-            long fileSize = new FileInfo(PATH_TO_WAV).Length;
-            int startIndex = 0;
-            using (IAudio proxy = new BassProxy())
+             using (IAudioService proxy = new BassAudioService())
             {
-                List<bool[]> listBs = fingerManager.CreateFingerprints(proxy, PATH_TO_MP3, new StaticStride(0));
-                //One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
-#pragma warning disable 612,618
-                using (IAudio dsProxy = new DirectSoundProxy())
+                fingerManager.AudioServiceProxy = proxy;
+                List<bool[]> listBs = fingerManager.CreateFingerprints(PathToMp3);
+                // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
+                using (IAudioService directSoundProxy = new DirectSoundProxy())
                 {
-#pragma warning restore 612,618
-                    List<bool[]> listDs = fingerManager.CreateFingerprints(dsProxy, PATH_TO_WAV, new StaticStride(0));
+                    List<bool[]> listDs = fingerManager.CreateFingerprints(PathToWav);
                     Assert.AreEqual(listBs.Count, listDs.Count);
                     proxy.Dispose();
-                    dsProxy.Dispose();
+                    directSoundProxy.Dispose();
                 }
             }
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
     }
 }

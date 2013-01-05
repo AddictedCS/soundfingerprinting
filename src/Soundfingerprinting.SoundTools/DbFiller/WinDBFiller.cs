@@ -380,7 +380,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         /// <param name = "end">End index</param>
         private void InsertInDatabase(int start, int end)
         {
-            BassProxy proxy = new BassProxy(); //Proxy used to read from file
+            BassAudioService audioService = new BassAudioService(); //Proxy used to read from file
             IFingerprintConfig config = new DefaultFingerpringConfig();
             IStride stride = null;
             Invoke(new Action(() =>
@@ -414,7 +414,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                 if (_stopFlag)
                     return;
 
-                TAG_INFO tags = proxy.GetTagInfoFromFile(_fileList[i]); //Get Tags from file
+                TAG_INFO tags = audioService.GetTagInfoFromFile(_fileList[i]); //Get Tags from file
                 if (tags == null)
                 {
                     //TAGS are null
@@ -470,7 +470,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                 int count = 0;
                 try
                 {
-                    List<bool[]> images = _fingerManager.CreateFingerprints(proxy, _fileList[i], stride); //Create Fingerprints and insert them in database
+                    List<bool[]> images = _fingerManager.CreateFingerprints(_fileList[i]); //Create Fingerprints and insert them in database
                     List<Fingerprint> inserted = Fingerprint.AssociateFingerprintsToTrack(images, track.Id);
                     _dalManager.InsertFingerprint(inserted);
                     count = inserted.Count;

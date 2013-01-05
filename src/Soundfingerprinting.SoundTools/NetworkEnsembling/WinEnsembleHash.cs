@@ -2,91 +2,80 @@
 // git://github.com/AddictedCS/soundfingerprinting.git
 // Code license: CPOL v.1.02
 // ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Windows.Forms;
-using Encog.Engine.Network.Activation;
-using Encog.ML.Data.Basic;
-using Encog.Util;
-using Soundfingerprinting.DbStorage;
-using Soundfingerprinting.DbStorage.Entities;
-using Soundfingerprinting.Fingerprinting;
-using Soundfingerprinting.Hashing;
-using Soundfingerprinting.NeuralHashing;
-using Soundfingerprinting.NeuralHashing.Ensemble;
-using Soundfingerprinting.NeuralHashing.MMI;
-using Soundfingerprinting.NeuralHashing.NeuralTrainer;
-using Soundfingerprinting.SoundTools.Properties;
 
 namespace Soundfingerprinting.SoundTools.NetworkEnsembling
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.IO;
+    using System.Windows.Forms;
+
+    using Encog.Engine.Network.Activation;
+    using Encog.ML.Data.Basic;
+    using Encog.Util;
+
+    using Soundfingerprinting.DbStorage;
+    using Soundfingerprinting.DbStorage.Entities;
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.NeuralHashing;
+    using Soundfingerprinting.NeuralHashing.Ensemble;
+    using Soundfingerprinting.NeuralHashing.MMI;
+    using Soundfingerprinting.NeuralHashing.NeuralTrainer;
+    using Soundfingerprinting.SoundTools.Properties;
+
     /// <summary>
     ///   Building Hashes, Assembling networks
     /// </summary>
     public partial class WinEnsembleHash : Form
     {
-        /// <summary>
-        ///   Connection object to the underlying data source
-        /// </summary>
-        private readonly DaoGateway _dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+        private readonly DaoGateway dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
 
-        /// <summary>
-        ///   Path to networks
-        /// </summary>
-        private readonly Dictionary<string, bool> _dictionaryPathToNetworks = new Dictionary<string, bool>();
+        private readonly Dictionary<string, bool> dictionaryPathToNetworks = new Dictionary<string, bool>();
 
-        private readonly IPermutations _permutations;
+        private readonly IPermutations permutations;
 
-        /// <summary>
-        ///   Connection string to the underlying data source
-        /// </summary>
-        private string _connectionStringNeuralHasher = "";
+        private string connectionStringNeuralHasher = string.Empty;
 
-        /// <summary>
-        ///   Fingerprint manager
-        /// </summary>
-        private FingerprintManager _fingerManager = new FingerprintManager();
+        private IFingerprintManager fingerprintManager;
 
         /// <summary>
         ///   Start folder to search networks
         /// </summary>
-        private string _folderToSearchNetworks = "";
+        private string folderToSearchNetworks = string.Empty;
 
         /// <summary>
         ///   Number of hash tables (using Min Hash + LSH schema)
         /// </summary>
-        private int _numberofgroupsminhash = 20;
+        private int numberofgroupsminhash = 20;
 
         /// <summary>
         ///   Number of hash tables (using Neural hasher algorithm)
         /// </summary>
-        private int _numberofgroupsneuralhasher = 18;
+        private int numberofgroupsneuralhasher = 18;
 
         /// <summary>
         ///   Number of keys per table (using Min Hash + LSH schema)
         /// </summary>
-        private int _numberofhashesperkeyminhash = 5;
+        private int numberofhashesperkeyminhash = 5;
 
         /// <summary>
         ///   Number of keys per table (using Neural hasher algorithm)
         /// </summary>
-        private int _numberofhashesperkeyneuralhasher = 22;
+        private int numberofhashesperkeyneuralhasher = 22;
 
         /// <summary>
         ///   Name of the final ensemble
         /// </summary>
-        private string _pathToEnsemble = "Ensemble.ens";
+        private string pathToEnsemble = "Ensemble.ens";
 
-        /// <summary>
-        ///   Public parameter less constructor
-        /// </summary>
-        public WinEnsembleHash()
+        public WinEnsembleHash(IFingerprintManager fingerprintManager)
         {
+            this.fingerprintManager = fingerprintManager;
             InitializeComponent();
             Icon = Resources.Sound;
-            _permutations = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+            permutations = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
         }
 
         /// <summary>
@@ -94,13 +83,13 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void WinMinMutualInfoLoad(object sender, EventArgs e)
         {
-            _nudNumberOfGroupsNeuralHasher.Value = _numberofgroupsneuralhasher;
-            _nudNumberOfHashesPerKeyNeuralHasher.Value = _numberofhashesperkeyneuralhasher;
+            _nudNumberOfGroupsNeuralHasher.Value = numberofgroupsneuralhasher;
+            _nudNumberOfHashesPerKeyNeuralHasher.Value = numberofhashesperkeyneuralhasher;
 
-            _nudNumberOfGroupsMinHash.Value = _numberofgroupsminhash;
-            _nudNumberOfHashesPerKeyMinHash.Value = _numberofhashesperkeyminhash;
+            _nudNumberOfGroupsMinHash.Value = numberofgroupsminhash;
+            _nudNumberOfHashesPerKeyMinHash.Value = numberofhashesperkeyminhash;
 
-            _tbSaveToEnsembleFilename.Text = Path.GetFullPath(_pathToEnsemble);
+            _tbSaveToEnsembleFilename.Text = Path.GetFullPath(pathToEnsemble);
             _tbSaveToEnsembleFilename.TextChanged += TbEnsembleFilenameTextChanged;
 
             foreach (object item in ConfigurationManager.ConnectionStrings)
@@ -109,15 +98,16 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 _cmbValidationConnectionStringNeuralHasher.Items.Add(item.ToString());
                 _cmbConnectionStringMinHash.Items.Add(item.ToString());
             }
+
             _cmbConnectionStringEnsemble.SelectedIndex = 0;
-            _connectionStringNeuralHasher = ConfigurationManager.ConnectionStrings[0].ConnectionString;
+            connectionStringNeuralHasher = ConfigurationManager.ConnectionStrings[0].ConnectionString;
             int count = ConfigurationManager.AppSettings.Count;
             for (int i = 0; i < count; i++)
             {
-                _dictionaryPathToNetworks.Add(Path.GetFullPath(ConfigurationManager.AppSettings[i]), true);
+                dictionaryPathToNetworks.Add(Path.GetFullPath(ConfigurationManager.AppSettings[i]), true);
             }
             PopulateDataGridView();
-            _tbSelectedNetworks.Text = _dictionaryPathToNetworks.Count.ToString();
+            _tbSelectedNetworks.Text = dictionaryPathToNetworks.Count.ToString();
             _pbProgress.Visible = false;
             _pbMinHash.Visible = false;
             _tbStoredEnsembleFilename.ReadOnly = true;
@@ -128,7 +118,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void TbEnsembleFilenameTextChanged(object sender, EventArgs e)
         {
-            _pathToEnsemble = _tbSaveToEnsembleFilename.Text;
+            pathToEnsemble = _tbSaveToEnsembleFilename.Text;
         }
 
         /// <summary>
@@ -138,8 +128,8 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         {
             if (_sfdEnsembleSave.ShowDialog() == DialogResult.OK)
             {
-                _pathToEnsemble = _sfdEnsembleSave.FileName;
-                _tbSaveToEnsembleFilename.Text = _pathToEnsemble;
+                pathToEnsemble = _sfdEnsembleSave.FileName;
+                _tbSaveToEnsembleFilename.Text = pathToEnsemble;
             }
         }
 
@@ -150,16 +140,15 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         {
             if (_fbdSelectNetworks.ShowDialog() == DialogResult.OK)
             {
-                _folderToSearchNetworks = _fbdSelectNetworks.SelectedPath;
-                string[] networks = Directory.GetFiles(_folderToSearchNetworks, "*.ntwrk",
-                    SearchOption.AllDirectories);
-                _dictionaryPathToNetworks.Clear();
+                folderToSearchNetworks = _fbdSelectNetworks.SelectedPath;
+                string[] networks = Directory.GetFiles(folderToSearchNetworks, "*.ntwrk", SearchOption.AllDirectories);
+                dictionaryPathToNetworks.Clear();
                 foreach (string network in networks)
                 {
-                    _dictionaryPathToNetworks.Add(network, true);
+                    dictionaryPathToNetworks.Add(network, true);
                 }
                 PopulateDataGridView();
-                _tbSelectedNetworks.Text = _dictionaryPathToNetworks.Count.ToString();
+                _tbSelectedNetworks.Text = dictionaryPathToNetworks.Count.ToString();
             }
         }
 
@@ -168,25 +157,33 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void PopulateDataGridView()
         {
-            _dgvNetworks.Invoke(new Action(() =>
-                                           {
-                                               _dgvNetworks.Rows.Clear();
-                                               foreach (KeyValuePair<string, bool> pair in _dictionaryPathToNetworks)
-                                               {
-                                                   _dgvNetworks.Rows.Add(pair.Key, pair.Value);
-                                               }
-                                           }));
+            _dgvNetworks.Invoke(
+                new Action(
+                    () =>
+                        {
+                            _dgvNetworks.Rows.Clear();
+                            foreach (KeyValuePair<string, bool> pair in dictionaryPathToNetworks)
+                            {
+                                _dgvNetworks.Rows.Add(pair.Key, pair.Value);
+                            }
+                        }));
         }
 
         /// <summary>
-        ///   Check/Uncheck a network from learning
+        /// Check/Uncheck a network from learning
         /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void DgvNetworksCellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 1 && e.RowIndex != -1)
             {
-                _dictionaryPathToNetworks[_dgvNetworks.Rows[e.RowIndex].Cells[0].Value.ToString()] =
-                    !_dictionaryPathToNetworks[_dgvNetworks.Rows[e.RowIndex].Cells[0].Value.ToString()];
+                dictionaryPathToNetworks[_dgvNetworks.Rows[e.RowIndex].Cells[0].Value.ToString()] =
+                    !dictionaryPathToNetworks[_dgvNetworks.Rows[e.RowIndex].Cells[0].Value.ToString()];
                 _dgvNetworks[e.ColumnIndex, e.RowIndex].Value =
                     !Convert.ToBoolean(_dgvNetworks[e.ColumnIndex, e.RowIndex].Value);
                 int prevNumber = Convert.ToInt32(_tbSelectedNetworks.Text);
@@ -202,7 +199,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void NudNumberOfGroupsValueChanged(object sender, EventArgs e)
         {
-            _numberofgroupsneuralhasher = (int) _nudNumberOfGroupsNeuralHasher.Value;
+            numberofgroupsneuralhasher = (int) _nudNumberOfGroupsNeuralHasher.Value;
         }
 
         /// <summary>
@@ -210,7 +207,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void NudNumberOfHashesPerKeyValueChanged(object sender, EventArgs e)
         {
-            _numberofhashesperkeyneuralhasher = (int) _nudNumberOfHashesPerKeyNeuralHasher.Value;
+            numberofhashesperkeyneuralhasher = (int) _nudNumberOfHashesPerKeyNeuralHasher.Value;
         }
 
         /// <summary>
@@ -231,10 +228,10 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             /*Ensemble*/
             Action action = () =>
                             {
-                                _dalManager.SetConnectionString(_connectionStringNeuralHasher);
+                                dalManager.SetConnectionString(connectionStringNeuralHasher);
                                 List<Network> networks = new List<Network>();
                                 /*Load all the networks*/
-                                foreach (KeyValuePair<string, bool> item in _dictionaryPathToNetworks)
+                                foreach (KeyValuePair<string, bool> item in dictionaryPathToNetworks)
                                 {
                                     if (item.Value)
                                     {
@@ -243,15 +240,15 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                                             networks.RemoveAt(networks.Count - 1);
                                     }
                                 }
-                                if ((networks.Count*10 /*Number of network outputs*/) < (_numberofgroupsneuralhasher*_numberofhashesperkeyneuralhasher))
+                                if ((networks.Count*10 /*Number of network outputs*/) < (numberofgroupsneuralhasher*numberofhashesperkeyneuralhasher))
                                 {
-                                    MessageBox.Show(string.Format("Not enough networks to create an ensemble of such size {0} {1}", _numberofgroupsneuralhasher, _numberofhashesperkeyneuralhasher));
+                                    MessageBox.Show(string.Format("Not enough networks to create an ensemble of such size {0} {1}", numberofgroupsneuralhasher, numberofhashesperkeyneuralhasher));
                                     return;
                                 }
 
                                 /*Load a network trainer*/
                                 IActivationFunction function = networks[0].GetActivation(0);
-                                NetTrainer netTrainer = new NetTrainer(_dalManager);
+                                NetTrainer netTrainer = new NetTrainer(dalManager);
                                 double[][] inputs = null, outputs = null; /*Normalized input/output pairs*/
                                 Dictionary<Int32, List<BasicMLData>> trackIdFingerprints = netTrainer.GetNormalizedTrackFingerprints(function, 10, 10);
                                 double[][] binaryCodes = netTrainer.GetNormalizedBinaryCodes(function, 10);
@@ -274,10 +271,10 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
 
                                 /*At this point we have a the 10240 hash vectors [0, 400] which represent the outputs for the actual input*/
                                 /*Calculate minimal mutual information between those outputs*/
-                                MinimalMutualInfoPattern mmiPattern = new MinimalMutualInfoPattern(_numberofgroupsneuralhasher, _numberofhashesperkeyneuralhasher);
+                                MinimalMutualInfoPattern mmiPattern = new MinimalMutualInfoPattern(numberofgroupsneuralhasher, numberofhashesperkeyneuralhasher);
                                 mmiPattern.CreatePattern(outputs);
                                 nNEnsembe.HashPattern = mmiPattern;
-                                nNEnsembe.Save(_pathToEnsemble);
+                                nNEnsembe.Save(pathToEnsemble);
                             };
 
             action.BeginInvoke((result) =>
@@ -302,7 +299,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void ComboBox1SelectedIndexChanged(object sender, EventArgs e)
         {
-            _connectionStringNeuralHasher = _cmbConnectionStringEnsemble.SelectedItem.ToString();
+            connectionStringNeuralHasher = _cmbConnectionStringEnsemble.SelectedItem.ToString();
         }
 
         /// <summary>
@@ -349,7 +346,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 return;
             }
 
-            _dalManager.SetConnectionString(connectionString);
+            dalManager.SetConnectionString(connectionString);
             string path = _tbStoredEnsembleFilename.Text;
             if (String.IsNullOrEmpty(path))
             {
@@ -359,7 +356,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             }
 
             NNEnsemble ensemble = NNEnsemble.Load(path); /*Load the serialized ensemble used to create hashes*/
-            List<Track> tracks = _dalManager.ReadTracks(); /*Read all tracks from the database for which the ensemble will create hashes*/
+            List<Track> tracks = dalManager.ReadTracks(); /*Read all tracks from the database for which the ensemble will create hashes*/
             _pbProgress.Invoke(new Action(() =>
                                           {
                                               _pbProgress.Minimum = 1;
@@ -375,7 +372,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 List<Fingerprint> fingerprints;
                 try
                 {
-                    fingerprints = _dalManager.ReadFingerprintsByTrackId(track.Id, 0);
+                    fingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
                     if (fingerprints == null)
                         continue;
                 }
@@ -396,7 +393,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                         listToInsert.Add(hash);
                     }
                 }
-                _dalManager.InsertHashBin(listToInsert);
+                dalManager.InsertHashBin(listToInsert);
                 _pbProgress.Invoke(new Action(() => _pbProgress.PerformStep()));
             }
         }
@@ -426,9 +423,9 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             _btnStartMinHash.Enabled = false;
             _pbMinHash.Visible = true;
 
-            _dalManager.SetConnectionString(connectionString);
-            _numberofgroupsminhash = (int) _nudNumberOfGroupsMinHash.Value; /*L Hash tables 20*/
-            _numberofhashesperkeyminhash = (int) _nudNumberOfHashesPerKeyMinHash.Value; /*B Keys per table 5*/
+            dalManager.SetConnectionString(connectionString);
+            numberofgroupsminhash = (int) _nudNumberOfGroupsMinHash.Value; /*L Hash tables 20*/
+            numberofhashesperkeyminhash = (int) _nudNumberOfHashesPerKeyMinHash.Value; /*B Keys per table 5*/
 
             Action action = ComputeHashBinsUsingMinHash; /*Compute Hash Bins using Min Hash*/
 
@@ -450,7 +447,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void ComputeHashBinsUsingMinHash()
         {
-            List<Track> tracks = _dalManager.ReadTracks(); /*Read all tracks from the database*/
+            List<Track> tracks = dalManager.ReadTracks(); /*Read all tracks from the database*/
             _pbMinHash.Invoke(new Action(() => /*Progress bar Settings*/
                                          {
                                              _pbMinHash.Minimum = 1;
@@ -459,14 +456,14 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                                              _pbMinHash.Step = 1;
                                          }));
 
-            MinHash minHash = new MinHash(_permutations);
+            MinHash minHash = new MinHash(permutations);
             for (int index = 0; index < tracks.Count; index++)
             {
                 Track track = tracks[index];
                 List<Fingerprint> fingerprints;
                 try
                 {
-                    fingerprints = _dalManager.ReadFingerprintsByTrackId(track.Id, 0); /*Read corresponding fingerprints of a specific track*/
+                    fingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0); /*Read corresponding fingerprints of a specific track*/
                     if (fingerprints == null)
                         continue;
                 }
@@ -480,14 +477,14 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 foreach (Fingerprint fingerprint in fingerprints)
                 {
                     int[] hashBins = minHash.ComputeMinHashSignature(fingerprint.Signature); /*For each of the fingerprints*/
-                    Dictionary<int, long> hashTable = minHash.GroupMinHashToLSHBuckets(hashBins, _numberofgroupsminhash, _numberofhashesperkeyminhash);
+                    Dictionary<int, long> hashTable = minHash.GroupMinHashToLSHBuckets(hashBins, numberofgroupsminhash, numberofhashesperkeyminhash);
                     foreach (KeyValuePair<int, long> item in hashTable)
                     {
                         HashBinMinHash hash = new HashBinMinHash(-1, item.Value, item.Key, track.Id, fingerprint.Id);
                         listToInsert.Add(hash);
                     }
                 }
-                _dalManager.InsertHashBin(listToInsert); /*Actual insert*/
+                dalManager.InsertHashBin(listToInsert); /*Actual insert*/
                 _pbMinHash.Invoke(new Action(() => _pbMinHash.PerformStep()));
             }
         }

@@ -45,7 +45,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         /// <summary>
         ///   Proxy used in playing files
         /// </summary>
-        private readonly BassProxy _proxy = new BassProxy();
+        private readonly BassAudioService audioService = new BassAudioService();
 
         /// <summary>
         ///   Flag - if the player is playing something
@@ -314,19 +314,19 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                     {
                         string path = Path.GetFileName(filename);
                         Status = "Playing: " + path;
-                        _proxy.StopPlayingFile(); //stop previous play, if such
-                        _proxy.PlayFile(filename); //play file
+                        audioService.StopPlayingFile(); //stop previous play, if such
+                        audioService.PlayFile(filename); //play file
                         PlayingStatus = STATUS_STOP; //change playing status 
                         _isPlaying = true;
                     }
                 }
                 else
-                    _proxy.StopPlayingFile(); //stop previous play, if such
+                    audioService.StopPlayingFile(); //stop previous play, if such
             }
             else
             {
                 Status = "";
-                _proxy.StopPlayingFile(); //stop previous play
+                audioService.StopPlayingFile(); //stop previous play
                 _isPlaying = !_isPlaying;
                 PlayingStatus = STATUS_PLAY; //change status
             }
@@ -366,7 +366,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
         {
             if (_isPlaying)
             {
-                _proxy.StopPlayingFile(); //stop previous play
+                audioService.StopPlayingFile(); //stop previous play
                 _isPlaying = !_isPlaying;
             }
         }

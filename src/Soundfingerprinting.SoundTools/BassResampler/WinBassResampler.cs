@@ -65,7 +65,7 @@ namespace Soundfingerprinting.SoundTools.BassResampler
                 Action action =
                     () =>
                     {
-                        using (BassProxy bass = new BassProxy())
+                        using (BassAudioService bass = new BassAudioService())
                         {
                             string pathToRecoded = Path.GetFullPath(sfd.FileName);
                             bass.RecodeTheFile(_tbPathToFile.Text, pathToRecoded, (int) _nudSampleRate.Value);

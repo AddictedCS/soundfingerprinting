@@ -1,52 +1,39 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
-using System.Xml.Serialization;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.AudioProxies.Strides;
-using Soundfingerprinting.Fingerprinting;
-using Soundfingerprinting.Hashing;
-using Soundfingerprinting.SoundTools.Properties;
-
-namespace Soundfingerprinting.SoundTools.Misc
+﻿namespace Soundfingerprinting.SoundTools.Misc
 {
-    /// <summary>
-    ///   Miscellaneous empirical tests
-    /// </summary>
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.IO;
+    using System.Linq;
+    using System.Windows.Forms;
+    using System.Xml.Serialization;
+
+    using Soundfingerprinting.AudioProxies;
+    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.SoundTools.Properties;
+
     public partial class WinMisc : Form
     {
-        /// <summary>
-        ///   Constructor
-        /// </summary>
-        public WinMisc()
+        private readonly IFingerprintManager fingerprintManager;
+
+        public WinMisc(IFingerprintManager fingerprintManager)
         {
+            this.fingerprintManager = fingerprintManager;
             InitializeComponent();
             Icon = Resources.Sound;
         }
 
-        /// <summary>
-        ///   Path to *.mp3 file was selected
-        /// </summary>
         private void TbPathToFileMouseDoubleClick(object sender, MouseEventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog {Filter = Resources.MusicFilter, FileName = "music.mp3"};
+            OpenFileDialog ofd = new OpenFileDialog { Filter = Resources.MusicFilter, FileName = "music.mp3" };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _tbPathToFile.Text = ofd.FileName;
             }
         }
 
-
-        /// <summary>
-        ///   Path to output file was chosen
-        /// </summary>
         private void TbOutputPathMouseDoubleClick(object sender, MouseEventArgs e)
         {
             SaveFileDialog ofd = new SaveFileDialog {Filter = Resources.ExportFilter, FileName = "results.txt"};
@@ -56,64 +43,63 @@ namespace Soundfingerprinting.SoundTools.Misc
             }
         }
 
-        /// <summary>
-        ///   Dump information into file
-        /// </summary>
         private void BtnDumpInfoClick(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(_tbPathToFile.Text))
+            if (string.IsNullOrEmpty(_tbPathToFile.Text))
             {
                 MessageBox.Show(Resources.ErrorNoFileToAnalyze, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            if (String.IsNullOrEmpty(_tbOutputPath.Text))
+
+            if (string.IsNullOrEmpty(_tbOutputPath.Text))
             {
                 MessageBox.Show(Resources.SelectPathToDump, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
+
             if (!File.Exists(Path.GetFullPath(_tbPathToFile.Text)))
             {
                 MessageBox.Show(Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
+
             if (_chbCompare.Checked)
             {
-                if (String.IsNullOrEmpty(_tbSongToCompare.Text))
+                if (string.IsNullOrEmpty(_tbSongToCompare.Text))
                 {
                     MessageBox.Show(Resources.ErrorNoFileToAnalyze, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
             }
+
             Action action =
                 () =>
                 {
-                    using (BassProxy proxy = new BassProxy())
+                    using (BassAudioService audioService = new BassAudioService())
                     {
                         FadeControls(false);
-                        int minFreq = (int) _nudFreq.Value;
-                        int topWavelets = (int) _nudTopWavelets.Value;
-                        int stride = (int) _nudStride.Value;
-                        IStride objStride = (_chbStride.Checked) ? (IStride) new RandomStride(0, stride) : new StaticStride(stride);
-                        DefaultFingerpringConfig config = new DefaultFingerpringConfig
-                            { MinFrequency = minFreq, TopWavelets = topWavelets };
-                        FingerprintManager manager = new FingerprintManager {FingerprintConfig = config};
+                        int minFreq = (int)_nudFreq.Value;
+                        int topWavelets = (int)_nudTopWavelets.Value;
+                        DefaultFingerpringConfig config = new DefaultFingerpringConfig { MinFrequency = minFreq, TopWavelets = topWavelets };
+                        fingerprintManager.FingerprintConfig = config;
                         DumpResults resultObj = new DumpResults();
                         string pathToInput = _tbPathToFile.Text;
                         string pathToOutput = _tbOutputPath.Text;
-                        int hashTables = (int) _nudTables.Value;
-                        int hashKeys = (int) _nudKeys.Value;
-                        stride = (int) _nudQueryStride.Value;
-                        int numFingerprints = (int) _nudNumberOfSubsequent.Value;
-                        IStride queryStride = (_chbQueryStride.Checked) ? (IStride) new RandomStride(0, stride) : new StaticStride(stride);
-                        queryStride = new StaticStride(5115, 5115/2);
-                        GetFingerprintSimilarity(manager, objStride, queryStride, numFingerprints, proxy, pathToInput, resultObj);
-                        GetHashSimilarity(manager, objStride, queryStride, numFingerprints, hashTables, hashKeys, proxy, pathToInput, resultObj);
+                        int hashTables = (int)_nudTables.Value;
+                        int hashKeys = (int)_nudKeys.Value;
+                        int stride = (int)_nudQueryStride.Value;
+                        fingerprintManager.FingerprintConfig.Stride = _chbQueryStride.Checked
+                                                  ? (IStride)new RandomStride(0, stride)
+                                                  : new StaticStride(stride);
+                        GetFingerprintSimilarity(fingerprintManager, pathToInput, resultObj);
+                        GetHashSimilarity(fingerprintManager, hashTables, hashKeys, pathToInput, resultObj);
 
                         if (_chbCompare.Checked)
                         {
                             string pathToDifferent = _tbSongToCompare.Text;
-                            GetFingerprintSimilarity(manager, objStride, proxy, pathToInput, pathToDifferent, resultObj);
+                            GetFingerprintSimilarity(fingerprintManager, pathToInput, pathToDifferent, resultObj);
                         }
+
                         resultObj.Info.MinFrequency = minFreq;
                         resultObj.Info.TopWavelets = topWavelets;
                         resultObj.Info.StrideSize = stride;
@@ -121,7 +107,7 @@ namespace Soundfingerprinting.SoundTools.Misc
                         resultObj.Info.Filename = pathToInput;
                         resultObj.ComparisonDone = _chbCompare.Checked;
 
-                        XmlSerializer serializer = new XmlSerializer(typeof (DumpResults));
+                        XmlSerializer serializer = new XmlSerializer(typeof(DumpResults));
                         TextWriter writer = new StreamWriter(pathToOutput);
                         serializer.Serialize(writer, resultObj);
                         writer.Close();
@@ -132,41 +118,41 @@ namespace Soundfingerprinting.SoundTools.Misc
                 {
                     action.EndInvoke(result);
                     FadeControls(true);
-                }, null);
+                },
+                null);
         }
 
         /// <summary>
         ///   Get fingerprint similarity between 2 different songs.
         /// </summary>
         /// <param name = "manager">Fingerprint manager used in file decomposition</param>
-        /// <param name = "stride">Stride object parameter</param>
-        /// <param name = "proxy">Proxy to the audio object</param>
         /// <param name = "path">Path to first file</param>
         /// <param name = "differentPath">Path to different file</param>
         /// <param name = "results">Results object to be filled with the corresponding data</param>
-        private static void GetFingerprintSimilarity(FingerprintManager manager, IStride stride, IAudio proxy, string path, string differentPath, DumpResults results)
+        private void GetFingerprintSimilarity(IFingerprintManager manager, string path, string differentPath, DumpResults results)
         {
-            int startindex = 0;
-            int count = 0;
             double sum = 0;
 
-            List<bool[]> imglista = manager.CreateFingerprints(proxy, path, stride);
-            List<bool[]> imglistb = manager.CreateFingerprints(proxy, differentPath, stride);
+            List<bool[]> imglista = manager.CreateFingerprints(path);
+            List<bool[]> imglistb = manager.CreateFingerprints(differentPath);
 
 
-            count = imglista.Count > imglistb.Count ? imglistb.Count : imglista.Count;
+            int count = imglista.Count > imglistb.Count ? imglistb.Count : imglista.Count;
             double max = double.MinValue;
             for (int i = 0; i < count; i++)
             {
                 int j = i;
                 double value = MinHash.CalculateSimilarity(imglista[i], imglistb[j]);
                 if (value > max)
+                {
                     max = value;
+                }
+
                 sum += value;
             }
 
             results.SumJaqFingerprintSimilarityBetweenDiffertSongs = sum;
-            results.AverageJaqFingerprintsSimilarityBetweenDifferentSongs = sum/count;
+            results.AverageJaqFingerprintsSimilarityBetweenDifferentSongs = sum / count;
             results.MaxJaqFingerprintsSimilarityBetweenDifferentSongs = max;
         }
 
@@ -174,22 +160,16 @@ namespace Soundfingerprinting.SoundTools.Misc
         ///   Get fingerprint similarity of one song
         /// </summary>
         /// <param name = "manager">Fingerprint manager used in file decomposition</param>
-        /// <param name = "dbstride">Database creation stride</param>
-        /// <param name = "queryStride">Query stride</param>
-        /// <param name = "numberOfItemsToCompare">Number of subsequent elements to compare with</param>
-        /// <param name = "proxy">Proxy</param>
         /// <param name = "path">Path to first file</param>
         /// <param name = "results">Results object to be filled with the corresponding data</param>
-        private static void GetFingerprintSimilarity(FingerprintManager manager, IStride dbstride, IStride queryStride, int numberOfItemsToCompare, IAudio proxy, string path, DumpResults results)
+        private void GetFingerprintSimilarity(IFingerprintManager manager, string path, DumpResults results)
         {
-            int startindex = 0;
-            int count = 0;
             double sum = 0;
 
-            List<bool[]> list = manager.CreateFingerprints(proxy, path, dbstride);
-            List<bool[]> listToCompare = manager.CreateFingerprints(proxy, path, queryStride);
+            List<bool[]> list = manager.CreateFingerprints(path);
+            List<bool[]> listToCompare = manager.CreateFingerprints(path);
 
-            count = list.Count;
+            int count = list.Count;
             int toCompare = listToCompare.Count;
 
             double max = double.MinValue;
@@ -200,13 +180,16 @@ namespace Soundfingerprinting.SoundTools.Misc
                 {
                     double value = MinHash.CalculateSimilarity(list[i], listToCompare[j]);
                     if (value > max)
+                    {
                         max = value;
+                    }
+
                     sum += value;
                 }
             }
 
             results.Results.SumJaqFingerprintsSimilarity = sum;
-            results.Results.AverageJaqFingerprintSimilarity = sum/(count*toCompare);
+            results.Results.AverageJaqFingerprintSimilarity = sum / (count * toCompare);
             results.Results.MaxJaqFingerprintSimilarity = max;
         }
 
@@ -214,22 +197,19 @@ namespace Soundfingerprinting.SoundTools.Misc
         ///   Get hash similarity of one song
         /// </summary>
         /// <param name = "manager">Fingerprint manager</param>
-        /// <param name = "dbstride">Database stride between fingerprints</param>
-        /// <param name = "queryStride">Query stride between fingerprints</param>
-        /// <param name = "numberOfFingerprintsToAnalyze">Number of fingerprints to analyze</param>
         /// <param name = "hashTables">Number of hash tables in the LSH transformation</param>
         /// <param name = "hashKeys">Number of hash keys per table in the LSH transformation</param>
-        /// <param name = "proxy">Audio proxy</param>
         /// <param name = "path">Path to analyzed file</param>
         /// <param name = "results">Results object to be filled with the appropriate data</param>
-        private static void GetHashSimilarity(FingerprintManager manager, IStride dbstride, IStride queryStride, int numberOfFingerprintsToAnalyze, int hashTables, int hashKeys, IAudio proxy, string path, DumpResults results)
+        private void GetHashSimilarity(IFingerprintManager manager, int hashTables, int hashKeys, string path, DumpResults results)
         {
             double sum = 0;
             int hashesCount = 0;
             int startindex = 0;
 
-            List<bool[]> listDb = manager.CreateFingerprints(proxy, path, dbstride);
-            List<bool[]> listQuery = manager.CreateFingerprints(proxy, path, queryStride);
+            List<bool[]> listDb = manager.CreateFingerprints(path);
+            //TODO Do not forget to change STRIDE HERE
+            List<bool[]> listQuery = manager.CreateFingerprints(path);
             IPermutations perms = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             MinHash minHash = new MinHash(perms);
             List<int[]> minHashDb = listDb.Select(minHash.ComputeMinHashSignature).ToList();
@@ -320,10 +300,11 @@ namespace Soundfingerprinting.SoundTools.Misc
         /// </summary>
         private void WinMiscLoad(object sender, EventArgs e)
         {
-            FingerprintManager manager = new FingerprintManager();
             DefaultFingerpringConfig config = new DefaultFingerpringConfig();
             _nudFreq.Value = config.MinFrequency;
             _nudTopWavelets.Value = config.TopWavelets;
+
+            fingerprintManager.FingerprintConfig = config;
         }
     }
 }

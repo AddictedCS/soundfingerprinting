@@ -29,7 +29,7 @@ namespace Soundfingerprinting.DuplicatesDetector.Services
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
             ServiceContainer.Kernel.Bind<IPermutations>().To<LocalPermutations>();
-            ServiceContainer.Kernel.Bind<IAudio>().To<BassProxy>().InSingletonScope();
+            ServiceContainer.Kernel.Bind<IAudioService>().To<BassAudioService>().InSingletonScope();
         }
     }
 }

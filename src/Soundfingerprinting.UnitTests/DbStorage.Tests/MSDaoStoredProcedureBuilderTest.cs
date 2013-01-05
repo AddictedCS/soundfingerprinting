@@ -2,25 +2,23 @@
 // git://github.com/AddictedCS/soundfingerprinting.git
 // Code license: CPOL v.1.02
 // ciumac.sergiu@gmail.com
-using System;
-using System.Data;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Soundfingerprinting.DbStorage;
-using Soundfingerprinting.DbStorage.Entities;
 
 namespace Soundfingerprinting.UnitTests.DbStorage.Tests
 {
-    ///<summary>
-    ///  This is a test class for MSDaoStoredProcedureBuilderTest and is intended
-    ///  to contain all MSDaoStoredProcedureBuilderTest Unit Tests
-    ///</summary>
+    using System;
+    using System.Data;
+    using System.Data.Common;
+    using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Reflection;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Soundfingerprinting.DbStorage;
+    using Soundfingerprinting.DbStorage.Entities;
+
     [TestClass]
-// ReSharper disable InconsistentNaming
-    public class MSDaoStoredProcedureBuilderTest : BaseTest
-// ReSharper restore InconsistentNaming
+    public class MsDaoStoredProcedureBuilderTest : BaseTest
     {
         #region Stored Procedures Name
 
@@ -58,67 +56,26 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
 
         #endregion
 
-        ///<summary>
-        ///  Gets or sets the test context which provides
-        ///  information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext { get; set; }
-
-        ///<summary>
-        ///  A test for DaoStoredProcedureBuilder Constructor
-        ///</summary>
-        [TestMethod]
-// ReSharper disable InconsistentNaming
-        public void MSDaoStoredProcedureBuilderConstructorTest()
-// ReSharper restore InconsistentNaming
-        {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-            DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            Assert.IsNotNull(target);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
-        }
-
-        ///<summary>
-        ///  A test for GetDeleteTrackCommand
-        ///</summary>
         [TestMethod]
         public void GetDeleteTrackCommandTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            Int32 trackId = 0;
+            const int TrackId = 0;
 
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetDeleteTrackCommand(trackId, connection);
+            IDbCommand actual = target.GetDeleteTrackCommand(TrackId, connection);
 
             Assert.AreEqual(SP_DELETE_TRACK, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(1, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetInsertAlbumCommand
-        ///</summary>
         [TestMethod]
         public void GetInsertAlbumCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             Album album = new Album(0, name, 1998);
             DbConnection connection = Dbf.CreateConnection();
@@ -129,24 +86,16 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetInsertFingerprintCommand
-        ///</summary>
         [TestMethod]
         public void GetInsertFingerprintCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
 
-            DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder(); // TODO: Initialize to an appropriate value
-            Fingerprint fingerprint = new Fingerprint(0, GENERIC_FINGERPRINT, 0, 64, 100);
+            DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
+                // TODO: Initialize to an appropriate value
+            Fingerprint fingerprint = new Fingerprint(0, GenericFingerprint, 0, 64, 100);
 
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetInsertFingerprintCommand(fingerprint, connection);
@@ -156,22 +105,13 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(4, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetInsertHashBinMinHashCommand
-        ///</summary>
         [TestMethod]
         public void GetInsertHashBinMinHashCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
+        
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             HashBinMinHash hashBinMinHash = new HashBinMinHash(0, 125, 10, 0, 0);
 
@@ -183,22 +123,12 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(4, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetInsertHashBinNeuralHasherCommand
-        ///</summary>
         [TestMethod]
         public void GetInsertHashBinNeuralHasherCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             HashBinNeuralHasher hashBinNeuralHasher = new HashBinNeuralHasher(0, 45, 12, 0);
 
@@ -210,22 +140,12 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(3, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetInsertTrackCommand
-        ///</summary>
         [TestMethod]
         public void GetInsertTrackCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             Track track = new Track(0, name, name, 0, 230);
 
@@ -237,24 +157,15 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(4, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadAlbumsByIdCommand
-        ///</summary>
         [TestMethod]
         public void GetReadAlbumsByIdCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
 
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            Int32 id = 0;
+            var id = 0;
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetReadAlbumsByIdCommand(id, connection);
 
@@ -263,22 +174,12 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(1, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadAlbumsCommand
-        ///</summary>
         [TestMethod]
         public void GetReadAlbumsCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetReadAlbumsCommand(connection);
@@ -288,51 +189,33 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(0, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadAllFingerprintIdByHashTablesHashBucketsMinHash
-        ///</summary>
         [TestMethod]
         public void GetReadAllFingerprintIdByHashTablesHashBucketsMinHashTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
 
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             string hashtables = name;
             string hashbuckets = name;
             string delimiter = name;
-            const int threshold = 2;
+            const int Threshold = 2;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadAllFingerprintIdByHashTablesHashBucketsMinHash(hashtables, hashbuckets, delimiter, threshold, connection);
+            IDbCommand actual = target.GetReadAllFingerprintIdByHashTablesHashBucketsMinHash(
+                hashtables, hashbuckets, delimiter, Threshold, connection);
 
             Assert.AreEqual(SP_READ_ALL_FINGERPRINTID_BYHASHTABLES_HASHBUCKETS, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(5, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadDuplicatedTracks
-        ///</summary>
         [TestMethod]
         public void GetReadDuplicatedTracksTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetReadDuplicatedTracks(connection);
@@ -342,24 +225,14 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(0, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadFingerprintByIdCommand
-        ///</summary>
         [TestMethod]
         public void GetReadFingerprintByIdCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            Int32 id = 0;
+            var id = 0;
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetReadFingerprintByIdCommand(id, connection);
 
@@ -368,76 +241,44 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(1, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadFingerprintByTrackIdCommand
-        ///</summary>
         [TestMethod]
         public void GetReadFingerprintByTrackIdCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            Int32 id = 0;
-            const int numberOfFingerprintsToRead = 0;
+            const int Id = 0;
+            const int NumberOfFingerprintsToRead = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadFingerprintByTrackIdCommand(id, numberOfFingerprintsToRead, connection);
+            IDbCommand actual = target.GetReadFingerprintByTrackIdCommand(Id, NumberOfFingerprintsToRead, connection);
 
             Assert.AreEqual(SP_READ_FINGERPRINT_BY_TRACK_ID, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadFingerprintCadidatesByHashbinHashtable
-        ///</summary>
         [TestMethod]
         public void GetReadFingerprintCadidatesByHashbinHashtableTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const long hashBin = 10;
-            const int hashTable = 250;
+            const long HashBin = 10;
+            const int HashTable = 250;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadFingerprintCadidatesByHashbinHashtable(hashBin, hashTable, connection);
+            IDbCommand actual = target.GetReadFingerprintCadidatesByHashbinHashtable(HashBin, HashTable, connection);
 
             Assert.AreEqual(SP_READ_FINGERPRINT_CANDIDATES_BY_HASHBIN_HASHTABLE_MINHASH, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadFingerprintsCommand
-        ///</summary>
         [TestMethod]
         public void GetReadFingerprintsCommandTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetReadFingerprintsCommand(connection);
@@ -447,104 +288,60 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(0, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadHashBinByHashBucketHashTable
-        ///</summary>
         [TestMethod]
         public void GetReadHashBinByHashBucketHashTableTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const int hashBucket = 0;
-            const int hashTable = 0;
+            const int HashBucket = 0;
+            const int HashTable = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadHashBinByHashBucketHashTable(hashBucket, hashTable, connection);
+            IDbCommand actual = target.GetReadHashBinByHashBucketHashTable(HashBucket, HashTable, connection);
 
             Assert.AreEqual(SP_READ_HASHBIN_HASHBUCKET_HASHTABLE, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadHashBinMinhashRange
-        ///</summary>
         [TestMethod]
         public void GetReadHashBinMinhashRangeTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const long startInclusive = 0;
-            const long endInclusive = 0;
-            const int hashTable = 0;
+            const long StartInclusive = 0;
+            const long EndInclusive = 0;
+            const int HashTable = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadHashBinMinhashRange(startInclusive, endInclusive, hashTable, connection);
+            IDbCommand actual = target.GetReadHashBinMinhashRange(StartInclusive, EndInclusive, HashTable, connection);
 
             Assert.AreEqual(SP_READ_HASHBINMINHASH_RANGE, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(3, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadHashBinsByHashBucketAndHashTableLSH
-        ///</summary>
         [TestMethod]
         public void GetReadHashBinsByHashBinAndHashTableMinHashTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const long hashBin = 0;
-            const int hashTable = 0;
+            const long HashBin = 0;
+            const int HashTable = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadHashBinsByHashBucketAndHashTableLSH(hashBin, hashTable, connection);
+            IDbCommand actual = target.GetReadHashBinsByHashBucketAndHashTableLSH(HashBin, HashTable, connection);
 
             Assert.AreEqual(SP_READ_HASHBINS_BY_HASHBIN_HASHTABLE_MINHASH, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadHashBucketCountByHashBucket
-        ///</summary>
         [TestMethod]
         public void GetReadHashBucketCountByHashBucketTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetReadHashBucketCountByHashBucket(connection);
@@ -554,47 +351,27 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(0, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadMinMaxHashBinMinHash
-        ///</summary>
         [TestMethod]
         public void GetReadMinMaxHashBinMinHashTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const long ignore = 0;
+            const long Ignore = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadMinMaxHashBinMinHash(ignore, connection);
+            IDbCommand actual = target.GetReadMinMaxHashBinMinHash(Ignore, connection);
 
             Assert.AreEqual(SP_READ_MIN_MAX_HASHBIN_MINHASH, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(1, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadTrackByArtistAndTitleNameCommand
-        ///</summary>
         [TestMethod]
         public void GetReadTrackByArtistAndTitleNameCommandTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
 
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             string artist = name;
@@ -607,97 +384,54 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadTrackByFingerprintCommand
-        ///</summary>
         [TestMethod]
         public void GetReadTrackByFingerprintCommandTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            Int32 fingerprintId = 0;
+            const int FingerprintId = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadTrackByFingerprintCommand(fingerprintId, connection);
+            IDbCommand actual = target.GetReadTrackByFingerprintCommand(FingerprintId, connection);
             Assert.AreEqual(SP_READ_TRACK_BY_FINGERPRINT, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(1, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadTrackIdByHashBinAndHashTableNeuralHasher
-        ///</summary>
         [TestMethod]
         public void GetReadTrackIdByHashBinAndHashTableNeuralHasherTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const long hashBin = 0;
-            const int hashTable = 0;
+            const long HashBin = 0;
+            const int HashTable = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadTrackIdByHashBinAndHashTableNeuralHasher(hashBin, hashTable, connection);
+            IDbCommand actual = target.GetReadTrackIdByHashBinAndHashTableNeuralHasher(HashBin, HashTable, connection);
             Assert.AreEqual(SP_READ_TRACKID_BY_HASHBIN_HASHTABLE_NEURALHASHER, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadTracksByIdCommand
-        ///</summary>
         [TestMethod]
         public void GetReadTracksByIdCommandTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            Int32 id = 0;
+            const int Id = 0;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetReadTracksByIdCommand(id, connection);
+            IDbCommand actual = target.GetReadTracksByIdCommand(Id, connection);
             Assert.AreEqual(SP_READ_TRACK_BY_ID, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(1, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadTracksCommand
-        ///</summary>
         [TestMethod]
         public void GetReadTracksCommandTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetReadTracksCommand(connection);
@@ -707,21 +441,12 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(0, actual.Parameters.Count);
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetReadUnknownAlbum
-        ///</summary>
         [TestMethod]
         public void GetReadUnknownAlbumTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             string unknownName = name;
             DbConnection connection = Dbf.CreateConnection();
@@ -731,22 +456,12 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(1, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetUpdateAllHashBucketCountMinHash
-        ///</summary>
         [TestMethod]
         public void GetUpdateAllHashBucketCountMinHashTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             DbConnection connection = Dbf.CreateConnection();
             IDbCommand actual = target.GetUpdateAllHashBucketCountMinHash(connection);
@@ -756,93 +471,59 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(0, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetUpdateHashBucket
-        ///</summary>
         [TestMethod]
         public void GetUpdateHashBucketTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const int hashBucket = 10;
-            const long startInclusive = 20;
-            const long endExclusive = 30;
-            const int hashTable = 10;
+            const int HashBucket = 10;
+            const long StartInclusive = 20;
+            const long EndExclusive = 30;
+            const int HashTable = 10;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetUpdateHashBucket(hashBucket, startInclusive, endExclusive, hashTable, connection);
+            IDbCommand actual = target.GetUpdateHashBucket(
+                HashBucket, StartInclusive, EndExclusive, HashTable, connection);
 
             Assert.AreEqual(SP_UPDATE_HASHBUCKET_MINHASH, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(4, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetUpdateHashBucketCount
-        ///</summary>
         [TestMethod]
         public void GetUpdateHashBucketCountTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
-            const int hashBucket = 10;
-            const int hashBucketCount = 20;
+            const int HashBucket = 10;
+            const int HashBucketCount = 20;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetUpdateHashBucketCount(hashBucket, hashBucketCount, connection);
+            IDbCommand actual = target.GetUpdateHashBucketCount(HashBucket, HashBucketCount, connection);
 
             Assert.AreEqual(SP_UPDATE_HASHBUCKET_COUNT, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(2, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
 
-        ///<summary>
-        ///  A test for GetUpdateHashBucketSingle
-        ///</summary>
         [TestMethod]
         public void GetUpdateHashBucketSingleTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test started at : " + DateTime.Now);
-
-
             DaoStoredProcedureBuilder target = new DaoStoredProcedureBuilder();
             const int hashBucket = 20;
-            const long hashBin = 10;
-            const int hashTable = 30;
+            const long HashBin = 10;
+            const int HashTable = 30;
             DbConnection connection = Dbf.CreateConnection();
-            IDbCommand actual = target.GetUpdateHashBucketSingle(hashBucket, hashBin, hashTable, connection);
+            IDbCommand actual = target.GetUpdateHashBucketSingle(hashBucket, HashBin, HashTable, connection);
 
             Assert.AreEqual(SP_UPDATE_HASHBUCKET_SINGLE_MINHASH, actual.CommandText);
             Assert.AreEqual(CommandType.StoredProcedure, actual.CommandType);
             Assert.IsNotNull(actual.Connection);
             Assert.AreEqual(ConnectionState.Closed, actual.Connection.State);
             Assert.AreEqual(3, actual.Parameters.Count);
-
-            if (Bswitch.Enabled)
-                Trace.WriteLine("#" + name + " : test ended at : " + DateTime.Now);
         }
     }
 }

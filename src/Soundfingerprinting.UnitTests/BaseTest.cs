@@ -1,16 +1,14 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System.Configuration;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Soundfingerprinting.AudioProxies.Strides;
-
-namespace Soundfingerprinting.UnitTests
+﻿namespace Soundfingerprinting.UnitTests
 {
+    using System.Configuration;
+    using System.Data.Common;
+    using System.Data.SqlClient;
+    using System.Diagnostics;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Soundfingerprinting.AudioProxies.Strides;
+
     /// <summary>
     ///   Base class which has all of the required parameters
     /// </summary>
@@ -25,43 +23,38 @@ namespace Soundfingerprinting.UnitTests
         /// <summary>
         ///   Path to already re sampled file .wav
         /// </summary>
-        protected const string PATH_TO_WAV = @"Kryptonite.wav";
+        protected const string PathToWav = @"Kryptonite.wav";
 
         /// <summary>
         ///   Path to MP3 file
         /// </summary>
-        protected const string PATH_TO_MP3 = @"Kryptonite.mp3";
+        protected const string PathToMp3 = @"Kryptonite.mp3";
 
         /// <summary>
         ///   Bits per sample
         /// </summary>
-        protected const int BITS_PER_SAMPLE = 32;
+        protected const int BitsPerSample = 32;
 
         /// <summary>
         ///   Sample rate
         /// </summary>
-        protected const int SAMPLE_RATE = 5512;
+        protected const int SampleRate = 5512;
 
         /// <summary>
         ///   Wave header
         /// </summary>
-        protected const int WAVE_HEADER = 58;
+        protected const int WaveHeader = 58;
 
         /// <summary>
         ///   Samples to read
         /// </summary>
-        protected const int SAMPLES_TO_READ = 128*64;
+        protected const int SamplesToRead = 128 * 64;
 
-        protected const int MIN_YEAR = 1500;
-
-        /// <summary>
-        ///   Trace switch
-        /// </summary>
-        protected readonly BooleanSwitch Bswitch = new BooleanSwitch("trace", "Switch from config");
+        protected const int MinYear = 1500;
 
         protected readonly string ConnectionString = ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString;
 
-        protected readonly bool[] GENERIC_FINGERPRINT = new[]
+        protected readonly bool[] GenericFingerprint = new[]
                                                         {
                                                             true, false, true, false, true, false, true, false, true, false, true, false,
                                                             false, true, false, true, false, true, false, true, false, true, false, true,
@@ -84,6 +77,8 @@ namespace Soundfingerprinting.UnitTests
         ///   Static stride used in gathering the fingerprints
         /// </summary>
         protected readonly IStride StaticStride = new StaticStride(5115); /*928 ms*/
+
+        protected readonly int StrideSize = 5115;
 
         protected DbProviderFactory Dbf = SqlClientFactory.Instance;
     }

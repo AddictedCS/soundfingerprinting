@@ -1,9 +1,4 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-
-namespace Soundfingerprinting.Fingerprinting
+﻿namespace Soundfingerprinting.Fingerprinting
 {
     using System;
     using System.Collections.Generic;
@@ -14,18 +9,24 @@ namespace Soundfingerprinting.Fingerprinting
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
+    using Soundfingerprinting.Models;
 
     public interface IFingerprintManager
     {
-        /// <summary>
-        ///   Create spectrogram of the input file
-        /// </summary>
-        /// <param name = "proxy">Proxy used to read from file</param>
-        /// <param name = "filename">Filename</param>
-        /// <param name = "milliseconds"> Milliseconds to process</param>
-        /// <param name = "startmilliseconds">Starting point of the processing</param>
-        /// <returns>Spectrogram</returns>
-        float[][] CreateSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds);
+        IFingerprintConfig FingerprintConfig { get; set; }
+
+        IEnumerable<Fingerprint> CreateFingerprintsFromFile(string fileName);
+
+        List<bool[]> CreateFingerprints(string filename);
+
+        List<bool[]> CreateFingerprints(string filename, IFingerprintConfig config);
+
+        List<bool[]> CreateFingerprints(float[] samples);
+    }
+
+    public interface IFingerprintService
+    {
+        IEnumerable<Fingerprint> CreateFingerprints(float[] samples);
     }
 
     public class FingerprintManager : IFingerprintManager
@@ -45,8 +46,6 @@ namespace Soundfingerprinting.Fingerprinting
 
         private readonly double[] windowArray;
 
-        private readonly int[] logFrequenciesIndex;
-
         private readonly IWindowFunction windowFunction;
 
         private readonly IWaveletDecomposition waveletDecomposition;
@@ -55,17 +54,20 @@ namespace Soundfingerprinting.Fingerprinting
 
         private IFingerprintConfig fingerprintConfig;
 
-        public FingerprintManager()
+        private int[] logFrequenciesIndex;
+
+        public FingerprintManager(IAudioService audioService, IFingerprintConfig fingerprintConfig, IFingerprintDescriptor fingerprintDescriptor, IWindowFunction windowFunction, IWaveletDecomposition waveletDecomposition)
         {
-            windowFunction = new HanningWindow();
-            waveletDecomposition = new HaarWavelet();
-            fingerprintDescriptor = new FingerprintDescriptor();
-            fingerprintConfig = new DefaultFingerpringConfig();
+            this.windowFunction = windowFunction;
+            this.waveletDecomposition = waveletDecomposition;
+            this.fingerprintDescriptor = fingerprintDescriptor;
+            FingerprintConfig = fingerprintConfig;
+            AudioServiceProxy = audioService;
 
             logFrequenciesIndex = GenerateLogFrequencies(
-                fingerprintConfig.SampleRate, fingerprintConfig.MinFrequency, fingerprintConfig.MaxFrequency, LogBins, fingerprintConfig.WdftSize, fingerprintConfig.LogBase);
+                FingerprintConfig.SampleRate, FingerprintConfig.MinFrequency, FingerprintConfig.MaxFrequency, LogBins, FingerprintConfig.WdftSize, FingerprintConfig.LogBase);
 
-            windowArray = windowFunction.GetWindow(fingerprintConfig.WdftSize);
+            windowArray = windowFunction.GetWindow(FingerprintConfig.WdftSize);
         }
 
         public event EventHandler<FingerprintManagerEventArgs> UnhandledException;
@@ -80,21 +82,37 @@ namespace Soundfingerprinting.Fingerprinting
             set
             {
                 fingerprintConfig = value;
+                logFrequenciesIndex = GenerateLogFrequencies(
+                    fingerprintConfig.SampleRate,
+                    fingerprintConfig.MinFrequency,
+                    fingerprintConfig.MaxFrequency,
+                    LogBins,
+                    fingerprintConfig.WdftSize,
+                    fingerprintConfig.LogBase);
             }
         }
 
+        public IAudioService AudioServiceProxy { get; set; }
+
         /// <summary>
-        ///   Create spectrogram of the input file
+        /// Create spectrogram of the input file
         /// </summary>
-        /// <param name = "proxy">Proxy used to read from file</param>
-        /// <param name = "filename">Filename</param>
-        /// <param name = "milliseconds">Milliseconds to process</param>
-        /// <param name = "startmilliseconds">Starting point of the processing</param>
-        /// <returns>Spectrogram</returns>
-        public float[][] CreateSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds)
+        /// <param name="filename">
+        /// Filename
+        /// </param>
+        /// <param name="milliseconds">
+        /// Milliseconds to process
+        /// </param>
+        /// <param name="startmilliseconds">
+        /// Starting point of the processing
+        /// </param>
+        /// <returns>
+        /// Spectrogram
+        /// </returns>
+        public float[][] CreateSpectrogram(string filename, int milliseconds, int startmilliseconds)
         {
             // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = proxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
+            float[] samples = AudioServiceProxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
 
             NormalizeInPlace(samples);
 
@@ -132,59 +150,81 @@ namespace Soundfingerprinting.Fingerprinting
         }
 
         /// <summary>
-        ///   Create log-spectrogram (spaced according to manager's parameters)
+        /// Create log-spectrogram (spaced according to manager's parameters)
         /// </summary>
-        /// <param name = "proxy">Proxy used in generating the spectrogram</param>
-        /// <param name = "filename">Filename to be processed</param>
-        /// <param name = "milliseconds">Milliseconds to be analyzed</param>
-        /// <param name = "startmilliseconds">Starting point</param>
-        /// <returns>Logarithmically spaced bins within the power spectrum</returns>
-        public float[][] CreateLogSpectrogram(IAudio proxy, string filename, int milliseconds, int startmilliseconds)
+        /// <param name="filename">
+        /// Filename to be processed
+        /// </param>
+        /// <param name="milliseconds">
+        /// Milliseconds to be analyzed
+        /// </param>
+        /// <param name="startmilliseconds">
+        /// Starting point
+        /// </param>
+        /// <returns>
+        /// Logarithmically spaced bins within the power spectrum
+        /// </returns>
+        public float[][] CreateLogSpectrogram(string filename, int milliseconds, int startmilliseconds)
         {
             // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = proxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
+            float[] samples = AudioServiceProxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
             return CreateLogSpectrogram(samples);
         }
 
 
         /// <summary>
-        ///   Create fingerprints according to the Google's researchers algorithm
+        /// Create fingerprints according to the Google's researchers algorithm
         /// </summary>
-        /// <param name = "proxy">Proxy used in reading from file</param>
-        /// <param name = "filename">Filename to be analyzed</param>
-        /// <param name = "stride">Stride between 2 consecutive fingerprints</param>
-        /// <param name = "milliseconds">Milliseconds to analyze</param>
-        /// <param name = "startmilliseconds">Starting point of analysis</param>
-        /// <returns>Fingerprint signatures</returns>
-        public List<bool[]> CreateFingerprints(
-            IAudio proxy, string filename, IStride stride, int milliseconds, int startmilliseconds)
+        /// <param name="filename">
+        /// Filename to be analyzed
+        /// </param>
+        /// <param name="stride">
+        /// Stride between 2 consecutive fingerprints
+        /// </param>
+        /// <param name="milliseconds">
+        /// Milliseconds to analyze
+        /// </param>
+        /// <param name="startmilliseconds">
+        /// Starting point of analysis
+        /// </param>
+        /// <returns>
+        /// Fingerprint signatures
+        /// </returns>
+        public List<bool[]> CreateFingerprints(string filename, IStride stride, int milliseconds, int startmilliseconds)
         {
-            float[][] spectrum = CreateLogSpectrogram(proxy, filename, milliseconds, startmilliseconds);
-            return CreateFingerprints(spectrum, stride);
+            float[][] spectrum = CreateLogSpectrogram(filename, milliseconds, startmilliseconds);
+            return CreateFingerprints(spectrum);
         }
 
         /// <summary>
         ///   Create fingerprints from already written samples
         /// </summary>
         /// <param name = "samples">Samples from a song</param>
-        /// <param name = "stride">Stride between 2 consecutive fingerprints</param>
         /// <returns>Fingerprint signatures</returns>
-        public List<bool[]> CreateFingerprints(float[] samples, IStride stride)
+        public List<bool[]> CreateFingerprints(float[] samples)
         {
             float[][] spectrum = CreateLogSpectrogram(samples);
-            return CreateFingerprints(spectrum, stride);
+            return CreateFingerprints(spectrum);
         }
 
         /// <summary>
-        ///   Create fingerprints gathered from one specific song
+        /// Create fingerprints gathered from one specific song
         /// </summary>
-        /// <param name = "proxy">Proxy used in reading the audio file</param>
-        /// <param name = "filename">Filename</param>
-        /// <param name = "stride">Stride used in fingerprint creation</param>
-        /// <returns>List of fingerprint signatures</returns>
-        public List<bool[]> CreateFingerprints(IAudio proxy, string filename, IStride stride)
+        /// <param name="filename">
+        /// Filename
+        /// </param>
+        /// <returns>
+        /// List of fingerprint signatures
+        /// </returns>
+        public List<bool[]> CreateFingerprints(string filename)
         {
-            return CreateFingerprints(proxy, filename, stride, 0, 0);
+            return CreateFingerprints(filename, FingerprintConfig.Stride, 0, 0);
+        }
+
+        public List<bool[]> CreateFingerprints(string filename, IFingerprintConfig config)
+        {
+            FingerprintConfig = config;
+            return CreateFingerprints(filename);
         }
 
         protected virtual void OnUnhandledException(FingerprintManagerEventArgs eventArg)
@@ -230,14 +270,13 @@ namespace Soundfingerprinting.Fingerprinting
         ///   Create fingerprints according to the Google's researchers algorithm
         /// </summary>
         /// <param name = "spectrum">Spectrogram of the song</param>
-        /// <param name = "stride">Stride between 2 consecutive fingerprints</param>
         /// <returns>Fingerprint signatures</returns>
-        private List<bool[]> CreateFingerprints(float[][] spectrum, IStride stride)
+        private List<bool[]> CreateFingerprints(float[][] spectrum)
         {
             int fingerprintLength = fingerprintConfig.FingerprintLength;
             int overlap = fingerprintConfig.Overlap;
-            int logbins = LogBins;
-            int start = stride.GetFirstStride() / overlap;
+            const int Logbins = LogBins;
+            int start = FingerprintConfig.Stride.GetFirstStride() / overlap;
             List<bool[]> fingerprints = new List<bool[]>();
 
             int width = spectrum.GetLength(0);
@@ -246,11 +285,11 @@ namespace Soundfingerprinting.Fingerprinting
                 float[][] frames = new float[fingerprintLength][];
                 for (int i = 0; i < fingerprintLength; i++)
                 {
-                    frames[i] = new float[logbins];
-                    Array.Copy(spectrum[start + i], frames[i], logbins);
+                    frames[i] = new float[Logbins];
+                    Array.Copy(spectrum[start + i], frames[i], Logbins);
                 }
 
-                start += fingerprintLength + (stride.GetStride() / overlap);
+                start += fingerprintLength + (FingerprintConfig.Stride.GetStride() / overlap);
                 waveletDecomposition.DecomposeImageInPlace(frames); /*Compute wavelets*/
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, fingerprintConfig.TopWavelets);
                 fingerprints.Add(image);
@@ -376,6 +415,13 @@ namespace Soundfingerprinting.Fingerprinting
                 samples[i] = Math.Min(samples[i], 1);
                 samples[i] = Math.Max(samples[i], -1);
             }
+        }
+
+        public IEnumerable<Fingerprint> CreateFingerprintsFromFile(string fileName)
+        {
+            float[][] spectrum = CreateLogSpectrogram(fileName, 0, 0);
+            int orderNumber = 0;
+            return CreateFingerprints(spectrum, fingerprintConfig.Stride).Select(fingerprint => new Fingerprint { Content = fingerprint, OrderNumber = orderNumber++ }).ToList();
         }
     }
 }

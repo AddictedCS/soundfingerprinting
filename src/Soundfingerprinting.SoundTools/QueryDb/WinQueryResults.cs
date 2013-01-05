@@ -2,25 +2,28 @@
 // git://github.com/AddictedCS/soundfingerprinting.git
 // Code license: CPOL v.1.02
 // ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Drawing;
-using System.Linq;
-using System.Threading;
-using System.Windows.Forms;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.AudioProxies.Strides;
-using Soundfingerprinting.DbStorage;
-using Soundfingerprinting.DbStorage.Entities;
-using Soundfingerprinting.Fingerprinting;
-using Soundfingerprinting.Hashing;
-using Soundfingerprinting.NeuralHashing.Ensemble;
-using Soundfingerprinting.SoundTools.Properties;
-using Un4seen.Bass.AddOn.Tags;
 
 namespace Soundfingerprinting.SoundTools.QueryDb
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Drawing;
+    using System.Linq;
+    using System.Threading;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.AudioProxies;
+    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.DbStorage;
+    using Soundfingerprinting.DbStorage.Entities;
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.NeuralHashing.Ensemble;
+    using Soundfingerprinting.SoundTools.Properties;
+
+    using Un4seen.Bass.AddOn.Tags;
+
     /// <summary>
     ///   <c>WinQueryResult</c> form, which will show all the results related to the recognition process
     /// </summary>
@@ -99,9 +102,9 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         private readonly IPermutations _permStorage;
 
         /// <summary>
-        ///   Audio proxy used for reading the data from the .mp3 files
+        ///   Audio audioService used for reading the data from the .mp3 files
         /// </summary>
-        private readonly BassProxy _proxy = new BassProxy();
+        private readonly BassAudioService audioService = new BassAudioService();
 
         /// <summary>
         ///   The size of the query [E.g. 253 samples]
@@ -288,7 +291,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 IStride samplesToSkip = _queryStride;
                 long elapsedMiliseconds = 0;
 
-                TAG_INFO tags = _proxy.GetTagInfoFromFile(pathToFile); //Get Tags from file
+                TAG_INFO tags = audioService.GetTagInfoFromFile(pathToFile); //Get Tags from file
                 if (tags == null)
                 {
                     //TAGS are null
@@ -317,7 +320,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 * Returned dictionary is sorted by Values
                 * allCandidates.ElementAt(0) will return the pair with best query results
                 */
-                Dictionary<Int32, QueryStats> allCandidatesNotSorted = new Dictionary<int, QueryStats>(); //QueryFingerprintManager.QueryOneSongNeuralHasher(_ensemble, pathToFile, samplesToSkip, _proxy, _dalManager, _secondsToAnalyze, ref elapsedMiliseconds);
+                Dictionary<Int32, QueryStats> allCandidatesNotSorted = new Dictionary<int, QueryStats>(); //QueryFingerprintManager.QueryOneSongNeuralHasher(_ensemble, pathToFile, samplesToSkip, audioService, _dalManager, _secondsToAnalyze, ref elapsedMiliseconds);
 
                 if (allCandidatesNotSorted == null)
                 {
@@ -400,7 +403,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                     break;
 
                 string pathToFile = _fileList[i]; /*Path to song to recognize*/
-                TAG_INFO tags = _proxy.GetTagInfoFromFile(pathToFile); //Get Tags from file
+                TAG_INFO tags = audioService.GetTagInfoFromFile(pathToFile); //Get Tags from file
 
                 if (tags == null)
                 {
@@ -429,17 +432,24 @@ namespace Soundfingerprinting.SoundTools.QueryDb
 
                 long elapsedMiliseconds = 0;
 
-                /*Get correct track id*/
+                /*Get correct track trackId*/
                 Track actualTrack = _dalManager.ReadTrackByArtistAndTitleName(artist, title);
                 if (actualTrack == null)
                 {
                     Invoke(actionAddItems, new Object[] {title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, elapsedMiliseconds}, Color.Red);
                     continue;
                 }
-                List<bool[]> signatures = _manager.CreateFingerprints(_proxy, pathToFile, samplesToSkip, _secondsToAnalyze*1000, _startSecond*1000);
-                Dictionary<Int32, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash
-                    (signatures, _dalManager, _permStorage, _secondsToAnalyze, _hashTables, _hashKeys,
-                        _threshold, ref elapsedMiliseconds); /*Query the database using Min Hash*/
+                List<bool[]> signatures = _manager.CreateFingerprints(
+                    pathToFile, samplesToSkip, _secondsToAnalyze * 1000, _startSecond * 1000);
+                Dictionary<Int32, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash(
+                    signatures,
+                    _dalManager,
+                    _permStorage,
+                    _secondsToAnalyze,
+                    _hashTables,
+                    _hashKeys,
+                    _threshold,
+                    ref elapsedMiliseconds); /*Query the database using Min Hash*/
 
                 if (allCandidates == null) /*No candidates*/
                 {

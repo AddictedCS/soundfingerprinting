@@ -19,8 +19,8 @@ namespace Soundfingerprinting.AudioProxies
     ///   Before using this class please uncheck the Loader Lock exception from Debug/Exceptions menu, in order for the CLR be able to Load DirectSound COM components. 
     ///   x86 architecture is the only supported.
     /// </remarks>
-    [Obsolete("Use BassProxy instead")]
-    public class DirectSoundProxy : IAudio
+    [Obsolete("Use BassAudioService instead")]
+    public class DirectSoundProxy : IAudioService
     {
         #region Private Variables
 
@@ -28,7 +28,7 @@ namespace Soundfingerprinting.AudioProxies
 
         #endregion
 
-        #region IAudio Members
+        #region IAudioService Members
 
         /// <summary>
         ///   Dispose the object
@@ -43,23 +43,23 @@ namespace Soundfingerprinting.AudioProxies
         /// <summary>
         ///   Read an audio file using mono format
         /// </summary>
-        /// <param name = "filename">File to read from. Should be a .wav file</param>
-        /// <param name = "samplerate">
+        /// <param name = "fileName">File to read from. Should be a .wav file</param>
+        /// <param name = "sampleRate">
         ///   Sample rate of the file. This proxy does not support down or up sampling.
         ///   Please convert the file to appropriate sample, and then use this method.
         /// </param>
-        /// <param name = "milliseconds">Milliseconds to read</param>
-        /// <param name = "startmillisecond">Start millisecond</param>
+        /// <param name = "milliSeconds">Milliseconds to read</param>
+        /// <param name = "startMilliSeconds">Start millisecond</param>
         /// <returns>Audio samples</returns>
-        public float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmillisecond)
+        public float[] ReadMonoFromFile(string fileName, int sampleRate, int milliSeconds, int startMilliSeconds)
         {
-            int totalmilliseconds = milliseconds <= 0 ? Int32.MaxValue : milliseconds + startmillisecond;
+            int totalmilliseconds = milliSeconds <= 0 ? Int32.MaxValue : milliSeconds + startMilliSeconds;
             if (_alreadyDisposed)
                 throw new ObjectDisposedException("Object already disposed");
-            if (Path.GetExtension(filename) != ".wav")
+            if (Path.GetExtension(fileName) != ".wav")
                 throw new ArgumentException("DirectSound can read only .wav files. Please transform your input file into appropriate type.");
             Device device = new Device(new DevicesCollection()[0].DriverGuid);
-            Buffer buffer = new Buffer(Path.GetFullPath(filename), device);
+            Buffer buffer = new Buffer(Path.GetFullPath(fileName), device);
 
             /*Default sound card is used as parent Device*/
             long fileSize = buffer.Caps.BufferBytes;
@@ -70,7 +70,7 @@ namespace Soundfingerprinting.AudioProxies
             int size = 0;
             try
             {
-                while ((float) (size)/samplerate*1000 < totalmilliseconds)
+                while ((float) (size)/sampleRate*1000 < totalmilliseconds)
                 {
                     byte[] ar = (byte[]) buffer.Read(offset, typeof (byte), LockFlag.EntireBuffer, dwOutputBufferSize);
                     offset += dwOutputBufferSize;
@@ -101,10 +101,10 @@ namespace Soundfingerprinting.AudioProxies
                 device.Dispose();
             }
 
-            if ((float) (size)/samplerate*1000 < (milliseconds + startmillisecond))
+            if ((float) (size)/sampleRate*1000 < (milliSeconds + startMilliSeconds))
                 return null; /*not enough samples to return the requested data*/
-            int start = (int) ((float) startmillisecond*samplerate/1000);
-            int end = (milliseconds <= 0) ? size : (int) ((float) (startmillisecond + milliseconds)*samplerate/1000);
+            int start = (int) ((float) startMilliSeconds*sampleRate/1000);
+            int end = (milliSeconds <= 0) ? size : (int) ((float) (startMilliSeconds + milliSeconds)*sampleRate/1000);
             float[] data = new float[size];
             int index = 0;
             /*Concatenate*/
@@ -125,9 +125,9 @@ namespace Soundfingerprinting.AudioProxies
 
         #endregion
 
-        public float[] ReadMonoFromFile(string filename, int samplerate)
+        public float[] ReadMonoFromFile(string fileName, int sampleRate)
         {
-            return ReadMonoFromFile(filename, samplerate, 0, 0);
+            return ReadMonoFromFile(fileName, sampleRate, 0, 0);
         }
 
         /// <summary>

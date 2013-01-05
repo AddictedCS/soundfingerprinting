@@ -306,11 +306,11 @@ namespace Soundfingerprinting.SoundTools
         /// <returns>Image to be saved</returns>
         public static Image GetWaveletSpectralImage(string pathToFile,
                                                     IStride stride,
-                                                    IAudio proxy,
+                                                    IAudioService proxy,
                                                     FingerprintManager manager)
         {
             List<float[][]> wavelets = new List<float[][]>();
-            float[][] spectrum = manager.CreateLogSpectrogram(proxy, pathToFile, 0, 0);
+            float[][] spectrum = manager.CreateLogSpectrogram(pathToFile, 0, 0);
             int specLen = spectrum.GetLength(0);
             DefaultFingerpringConfig config = new DefaultFingerpringConfig();
             int start = stride.GetFirstStride() / config.Overlap;
@@ -325,19 +325,20 @@ namespace Soundfingerprinting.SoundTools
                     frames[i] = new float[logbins];
                     Array.Copy(spectrum[start + i], frames[i], logbins);
                 }
-                start += fingerprintLength + stride.GetStride()/overlap;
+
+                start += fingerprintLength + (stride.GetStride() / overlap);
                 wavelets.Add(frames);
             }
 
-            const int imagesPerRow = 5; /*5 bitmap images per line*/
-            const int spaceBetweenImages = 10; /*10 pixel space between images*/
+            const int ImagesPerRow = 5; /*5 bitmap images per line*/
+            const int SpaceBetweenImages = 10; /*10 pixel space between images*/
             int width = wavelets[0].GetLength(0);
             int height = wavelets[0][0].Length;
             int fingersCount = wavelets.Count;
-            int rowCount = (int) Math.Ceiling((float) fingersCount/imagesPerRow);
+            int rowCount = (int)Math.Ceiling((float)fingersCount / ImagesPerRow);
 
-            int imageWidth = imagesPerRow*(width + spaceBetweenImages) + spaceBetweenImages;
-            int imageHeight = rowCount*(height + spaceBetweenImages) + spaceBetweenImages;
+            int imageWidth = (ImagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
 
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
             /*Change the background of the bitmap*/
@@ -346,8 +347,8 @@ namespace Soundfingerprinting.SoundTools
                     image.SetPixel(i, j, Color.White);
 
             double maxValue = wavelets.Max((wavelet) => (wavelet.Max((column) => column.Max())));
-            int verticalOffset = spaceBetweenImages;
-            int horizontalOffset = spaceBetweenImages;
+            int verticalOffset = SpaceBetweenImages;
+            int horizontalOffset = SpaceBetweenImages;
             int count = 0;
             double max = wavelets.Max(wav => wav.Max(w => w.Max(v => Math.Abs(v))));
             foreach (float[][] wavelet in wavelets)
@@ -361,13 +362,13 @@ namespace Soundfingerprinting.SoundTools
                     }
                 }
                 count++;
-                if (count%imagesPerRow == 0)
+                if (count%ImagesPerRow == 0)
                 {
-                    verticalOffset += height + spaceBetweenImages;
-                    horizontalOffset = spaceBetweenImages;
+                    verticalOffset += height + SpaceBetweenImages;
+                    horizontalOffset = SpaceBetweenImages;
                 }
                 else
-                    horizontalOffset += width + spaceBetweenImages;
+                    horizontalOffset += width + SpaceBetweenImages;
             }
             return image;
         }

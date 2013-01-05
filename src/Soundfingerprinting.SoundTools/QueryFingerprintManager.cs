@@ -69,7 +69,7 @@ namespace Soundfingerprinting.SoundTools
             return stats;
         }
 
-        public static Dictionary<Int32, QueryStats> QueryOneSongMinHashFast(string pathToSong, IStride queryStride, IAudio proxy, DaoGateway dalManager,
+        public static Dictionary<Int32, QueryStats> QueryOneSongMinHashFast(string pathToSong, IStride queryStride, IAudioService proxy, DaoGateway dalManager,
                                                                             int seconds, int lHashTables, int lGroupsPerKey, int thresholdTables, int topWavelets, ref long queryTime)
         {
             ///*Fingerprint manager*/
@@ -165,7 +165,7 @@ namespace Soundfingerprinting.SoundTools
         ///// <param name = "fingerprintsToConsider">Number of fingerprints to consider</param>
         ///// <param name = "queryTime"></param>
         ///// <returns>Dictionary with Track id and it's associated query statistics</returns>
-        //public static Dictionary<Int32, QueryStats> QueryOneSongNeuralHasher(NNEnsemble ensemble, string pathToSong, IStride queryStride, IAudio proxy, DaoGateway dalManager, int fingerprintsToConsider, ref long queryTime)
+        //public static Dictionary<Int32, QueryStats> QueryOneSongNeuralHasher(NNEnsemble ensemble, string pathToSong, IStride queryStride, IAudioService proxy, DaoGateway dalManager, int fingerprintsToConsider, ref long queryTime)
         //{
         //    FingerprintManager manager = new FingerprintManager();
         //    /*Create Fingerprints from file*/

@@ -21,11 +21,11 @@ namespace Soundfingerprinting.DuplicatesDetector.Infrastructure
         /// <param name = "milliseconds">Milliseconds to gather</param>
         /// <param name = "startmilliseconds">Starting millisecond</param>
         /// <returns></returns>
-        public static float[] GetTrackSamples(Track track, IAudio proxy, int sampleRate, int milliseconds, int startmilliseconds)
+        public static float[] GetTrackSamples(Track track, IAudioService proxy, int sampleRate, int milliseconds, int startmilliseconds)
         {
             if (track == null || track.Path == null)
                 return null;
-            //read 5512 Hz, Mono, PCM, with a specific proxy
+            //read 5512 Hz, Mono, PCM, with a specific audioService
             return proxy.ReadMonoFromFile(track.Path, sampleRate, milliseconds, startmilliseconds);
         }
 
@@ -35,11 +35,11 @@ namespace Soundfingerprinting.DuplicatesDetector.Infrastructure
         /// <param name = "mintracklen">Min track length</param>
         /// <param name = "maxtracklen">Max track length</param>
         /// <param name = "filename">Filename from which to extract the requested info</param>
-        /// <param name = "proxy">Audio proxy to read tags</param>
+        /// <param name = "audioService">Audio audioService to read tags</param>
         /// <returns>Track to be analyzed further / null if the track is not eligible</returns>
-        public static Track GetTrackInfo(int mintracklen, int maxtracklen, string filename, BassProxy proxy)
+        public static Track GetTrackInfo(int mintracklen, int maxtracklen, string filename, BassAudioService audioService)
         {
-            TAG_INFO tags = proxy.GetTagInfoFromFile(filename); //get file tags
+            TAG_INFO tags = audioService.GetTagInfoFromFile(filename); //get file tags
             string artist, title;
             double duration;
             if (tags == null)

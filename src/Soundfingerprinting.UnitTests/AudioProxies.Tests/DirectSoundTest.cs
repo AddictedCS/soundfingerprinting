@@ -61,10 +61,10 @@ namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
             using (DirectSoundProxy dsproxy = new DirectSoundProxy())
 #pragma warning restore 612,618
             {
-                float[] samples = dsproxy.ReadMonoFromFile(PATH_TO_WAV, SAMPLE_RATE);
-                FileInfo info = new FileInfo(PATH_TO_WAV);
-                long expectedSize = info.Length - WAVE_HEADER;
-                long actualSize = samples.Length*(BITS_PER_SAMPLE/8);
+                float[] samples = dsproxy.ReadMonoFromFile(PathToWav, SampleRate);
+                FileInfo info = new FileInfo(PathToWav);
+                long expectedSize = info.Length - WaveHeader;
+                long actualSize = samples.Length*(BitsPerSample/8);
                 Assert.AreEqual(expectedSize, actualSize);
             }
         }

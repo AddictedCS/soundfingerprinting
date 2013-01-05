@@ -1,5 +1,7 @@
 namespace Soundfingerprinting.Fingerprinting
 {
+    using Soundfingerprinting.AudioProxies.Strides;
+
     public class DefaultFingerpringConfig : IFingerprintConfig
     {
         public DefaultFingerpringConfig()
@@ -13,6 +15,7 @@ namespace Soundfingerprinting.Fingerprinting
             TopWavelets = 200;
             SampleRate = 5512;
             LogBase = 2;
+            Stride = new StaticStride(5115);
         }
 
         /// <summary>
@@ -24,7 +27,7 @@ namespace Soundfingerprinting.Fingerprinting
         public int SamplesPerFingerprint { get;  set; }
 
         /// <summary>
-        ///   Overlap between the sub fingerprints, 11.6 ms
+        ///   Gets or sets overlap between the sub fingerprints, 11.6 ms
         /// </summary>
         /// <remarks>
         ///   Default = 64
@@ -32,7 +35,7 @@ namespace Soundfingerprinting.Fingerprinting
         public int Overlap { get;  set; }
 
         /// <summary>
-        ///   Size of the WDFT block, 371 ms
+        ///   Gets or sets size of the WDFT block, 371 ms
         /// </summary>
         /// <remarks>
         ///   Default = 2048
@@ -40,7 +43,7 @@ namespace Soundfingerprinting.Fingerprinting
         public int WdftSize { get;  set; }
 
         /// <summary>
-        ///   Frequency range which is taken into account
+        ///   Gets or sets frequency range which is taken into account when creating the fingerprint
         /// </summary>
         /// <remarks>
         ///   Default = 318
@@ -48,7 +51,7 @@ namespace Soundfingerprinting.Fingerprinting
         public int MinFrequency { get;  set; }
 
         /// <summary>
-        ///   Frequency range which is taken into account
+        ///   Gets or sets frequency range which is taken into account when creating the fingerprint
         /// </summary>
         /// <remarks>
         ///   Default = 2000
@@ -56,7 +59,7 @@ namespace Soundfingerprinting.Fingerprinting
         public int MaxFrequency { get; set; }
 
         /// <summary>
-        ///   Number of Top wavelets to consider
+        ///   Gets or sets number of Top wavelets to consider
         /// </summary>
         /// <remarks>
         ///   Default = 200
@@ -64,7 +67,7 @@ namespace Soundfingerprinting.Fingerprinting
         public int TopWavelets { get; set; }
 
         /// <summary>
-        ///   Sample rate
+        ///   Gets or sets sample rate at which the audio file will be pre-processed
         /// </summary>
         /// <remarks>
         ///   Default = 5512
@@ -72,7 +75,7 @@ namespace Soundfingerprinting.Fingerprinting
         public int SampleRate { get; set; }
 
         /// <summary>
-        ///   Log base used for computing the logarithmically spaced frequency bins
+        ///   Gets or sets log base used for computing the logarithmically spaced frequency bins
         /// </summary>
         /// <remarks>
         ///   Default = 10
@@ -80,8 +83,16 @@ namespace Soundfingerprinting.Fingerprinting
         public double LogBase { get; set; }
 
         /// <summary>
-        ///   Fingerprint's length
+        ///   Gets or sets fingerprint's length
         /// </summary>
         public int FingerprintLength { get; set; }
+
+        /// <summary>
+        /// Gets or sets default stride size between 2 consecutive fingerprint
+        /// </summary>
+        /// <remarks>
+        ///  Default = 5115
+        /// </remarks>
+        public IStride Stride { get; set; }
     }
 }

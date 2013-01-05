@@ -59,6 +59,10 @@
     <Reference Include="encog-core-cs">
       <HintPath>..\Externals\encog-core-cs.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ninject.3.0.1.10\lib\net40\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -103,6 +107,7 @@
       <DependentUpon>WinFilePermutation.cs</DependentUpon>
     </Compile>
     <Compile Include="HashAlgorithm.cs" />
+    <Compile Include="DI\IDependencyResolver.cs" />
     <Compile Include="Imaging.cs" />
     <Compile Include="Misc\DumpResults.cs" />
     <Compile Include="Misc\WinMisc.cs">
@@ -123,6 +128,7 @@
     <Compile Include="NetworkTrainer\WinNetworkTrainer.designer.cs">
       <DependentUpon>WinNetworkTrainer.cs</DependentUpon>
     </Compile>
+    <Compile Include="DI\NinjectDependencyResolver.cs" />
     <Compile Include="PermutationGenerator\WinPermGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -234,6 +240,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -250,6 +257,7 @@
       <Name>Soundfingerprinting</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>copy "$(SolutionDir)\Externals\*.*" "$(TargetDir)"</PreBuildEvent>

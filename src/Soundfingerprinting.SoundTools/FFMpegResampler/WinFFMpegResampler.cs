@@ -149,7 +149,7 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
                              richTextBox1.SelectionStart = richTextBox1.Text.Length;
                          };
 
-            using (BassProxy proxy = new BassProxy())
+            using (BassAudioService audioService = new BassAudioService())
             {
                 foreach (string f in _fileList)
                 {
@@ -174,7 +174,7 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
                     try
                     {
                         //Read Tags from the file
-                        tags = proxy.GetTagInfoFromFile(f);
+                        tags = audioService.GetTagInfoFromFile(f);
                     }
                     catch
                     {
