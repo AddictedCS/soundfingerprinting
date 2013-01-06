@@ -1,9 +1,4 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-
-namespace Soundfingerprinting.SoundTools.QueryDb
+﻿namespace Soundfingerprinting.SoundTools.QueryDb
 {
     using System;
     using System.Collections.Generic;
@@ -32,64 +27,62 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         /// <summary>
         ///   Minimum track length (in seconds)
         /// </summary>
-        private const int MIN_TRACK_LENGTH = 20;
+        private const int MinTrackLength = 20;
 
         /// <summary>
         ///   Maximum track length (in seconds)
         /// </summary>
-        private const int MAX_TRACK_LENGTH = 60*20;
+        private const int MaxTrackLength = 60 * 20;
 
         #region DataGrid Columns
 
-        private const string COL_SONG_NAME = "SongNameTitle";
-        private const string COL_RESULT_NAME = "ResultSongNameTitle";
-        private const string COL_HIT = "CounterHit";
-        private const string COL_RESULT = "Result";
-        private const string COL_POSITION = "Position";
-        private const string COL_HAMMING_AVG = "HammingAvg";
-        private const string COL_HAMMING_AVG_BY_TRACK = "HammingAvgByTrack";
-        private const string COL_MIN_HAMMING = "MinHamming";
-        private const string COL_SORT_VALUE = "SortValue";
-        private const string COL_START_QUERY_INDEX = "StartQueryIndex";
-        private const string COL_TOTAL_TABLES = "TotalTables";
-        private const string COL_TOTAL_TRACK_VOTES = "TotalTrackVotes";
-        private const string COL_ELAPSED_TIME = "ElapsedTime";
-        private const string COL_TOTAL_FINGERPRINTS = "TotalFingerprints";
-        private const string COL_MAX_PATH = "MaxPath";
-        private const string COL_SIMILARITY = "Similarity";
-        private readonly Random _random = new Random((int) unchecked(DateTime.Now.Ticks << 4));
+        private const string ColSongName = "SongNameTitle";
+        private const string ColResultName = "ResultSongNameTitle";
+        private const string ColHit = "CounterHit";
+        private const string ColResult = "Result";
+        private const string ColPosition = "Position";
+        private const string ColHammingAvg = "HammingAvg";
+        private const string ColHammingAvgByTrack = "HammingAvgByTrack";
+        private const string ColMinHamming = "MinHamming";
+        private const string ColSortValue = "SortValue";
+        private const string ColStartQueryIndex = "StartQueryIndex";
+        private const string ColTotalTables = "TotalTables";
+        private const string ColTotalTrackVotes = "TotalTrackVotes";
+        private const string ColElapsedTime = "ElapsedTime";
+        private const string ColTotalFingerprints = "TotalFingerprints";
+        private const string ColSimilarity = "Similarity";
 
         #endregion
 
         /// <summary>
         ///   Connection string to the underlying data source
         /// </summary>
-        private readonly string _connectionString;
+        private readonly string connectionString;
 
         /// <summary>
         ///   Data access manager, allows one to access the underlying data source
         /// </summary>
-        private readonly DaoGateway _dalManager;
+        private readonly DaoGateway dalManager;
 
         /// <summary>
         ///   Network ensemble
         /// </summary>
-        private readonly NNEnsemble _ensemble;
+        private readonly NNEnsemble ensemble;
 
         /// <summary>
         ///   List of files [.mp3] which are going to be recognized
         /// </summary>
-        private readonly List<string> _fileList;
+        private readonly List<string> fileList;
 
         /// <summary>
         ///   Number of hash keys per table used in MinHash + LSH schema [normally 5]
         /// </summary>
-        private readonly int _hashKeys;
+        private readonly int hashKeys;
 
         /// <summary>
         ///   Number of hash tables used in the MinHash + LSH schema [normally 20]
         /// </summary>
-        private readonly int _hashTables;
+        private readonly int hashTables;
 
         /// <summary>
         ///   Fingerprint manager
@@ -99,7 +92,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         /// <summary>
         ///   Permutation storage
         /// </summary>
-        private readonly IPermutations _permStorage;
+        private readonly IPermutations permStorage;
 
         /// <summary>
         ///   Audio audioService used for reading the data from the .mp3 files
@@ -150,73 +143,97 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         /// <param name = "stride">Stride used in the query</param>
         /// <param name = "topWavelets">Number of top wavelets to analyze</param>
         /// <param name = "fileList">List of all files to be recognized</param>
-        protected WinQueryResults(string connectionString, int secondsToAnalyze, int startSecond,
-                                  IStride stride, int topWavelets, List<string> fileList)
+        protected WinQueryResults(
+            string connectionString,
+            int secondsToAnalyze,
+            int startSecond,
+            IStride stride,
+            int topWavelets,
+            List<string> fileList)
         {
             InitializeComponent(); /*Initialize Designer Components*/
             Icon = Resources.Sound;
-            _connectionString = connectionString;
+            this.connectionString = connectionString;
             _topWavelets = topWavelets;
-            _dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
-            _permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+            dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+            permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
 
-            _dalManager.SetConnectionString(_connectionString); /*Set connection string for DAL manager*/
+            dalManager.SetConnectionString(this.connectionString); /*Set connection string for DAL manager*/
             _secondsToAnalyze = secondsToAnalyze; /*Number of fingerprints to analyze from each song*/
             _startSecond = startSecond;
-            _fileList = fileList; /*List of files to analyze*/
-            _dgvResults.Columns.Add(COL_SONG_NAME, "Initial Song");
-            _dgvResults.Columns[COL_SONG_NAME].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_RESULT_NAME, "Result Song");
-            _dgvResults.Columns[COL_RESULT_NAME].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_POSITION, "Position");
-            _dgvResults.Columns[COL_POSITION].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_RESULT, "Result");
-            _dgvResults.Columns[COL_RESULT].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_HAMMING_AVG, "Hamming Avg.");
-            _dgvResults.Columns[COL_HAMMING_AVG].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            this.fileList = fileList; /*List of files to analyze*/
+            _dgvResults.Columns.Add(ColSongName, "Initial Song");
+            _dgvResults.Columns[ColSongName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColResultName, "Result Song");
+            _dgvResults.Columns[ColResultName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColPosition, "Position");
+            _dgvResults.Columns[ColPosition].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColResult, "Result");
+            _dgvResults.Columns[ColResult].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColHammingAvg, "Hamming Avg.");
+            _dgvResults.Columns[ColHammingAvg].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _queryStride = stride;
         }
 
         /// <summary>
-        ///   Public constructor for LSH + Min Hash algorithm
+        /// Initializes a new instance of the <see cref="WinQueryResults"/> class. 
+        /// Public constructor for LSH + Min Hash algorithm
         /// </summary>
-        /// <param name = "connectionString">Connection string</param>
-        /// <param name = "secondsToAnalyze">Number of fingerprints to analyze</param>
-        /// <param name = "stride">Stride</param>
-        /// <param name = "fileList">File list</param>
-        /// <param name = "hashTables">Min hash hash tables</param>
-        /// <param name = "hashKeys">Min hash hash keys</param>
-        /// <param name = "startSecond">Starting second of analysis</param>
-        /// <param name = "thresholdTables">Number of threshold tables</param>
-        /// <param name = "topWavelets">Number of top wavelets to consider</param>
+        /// <param name="connectionString">
+        /// Connection string
+        /// </param>
+        /// <param name="secondsToAnalyze">
+        /// Number of fingerprints to analyze
+        /// </param>
+        /// <param name="startSecond">
+        /// Starting second of analysis
+        /// </param>
+        /// <param name="stride">
+        /// Stride
+        /// </param>
+        /// <param name="fileList">
+        /// File list
+        /// </param>
+        /// <param name="hashTables">
+        /// Min hash hash tables
+        /// </param>
+        /// <param name="hashKeys">
+        /// Min hash hash keys
+        /// </param>
+        /// <param name="thresholdTables">
+        /// Number of threshold tables
+        /// </param>
+        /// <param name="topWavelets">
+        /// Number of top wavelets to consider
+        /// </param>
         public WinQueryResults(string connectionString, int secondsToAnalyze, int startSecond, IStride stride, List<string> fileList, int hashTables, int hashKeys, int thresholdTables, int topWavelets)
             : this(connectionString, secondsToAnalyze, startSecond, stride, topWavelets, fileList)
         {
-            _hashTables = hashTables;
-            _hashKeys = hashKeys;
+            this.hashTables = hashTables;
+            this.hashKeys = hashKeys;
             _threshold = thresholdTables;
-            _dgvResults.Columns.Add(COL_HAMMING_AVG_BY_TRACK, "Hamming Avg. By Track");
+            _dgvResults.Columns.Add(ColHammingAvgByTrack, "Hamming Avg. By Track");
             // ReSharper disable PossibleNullReferenceException
-            _dgvResults.Columns[COL_HAMMING_AVG_BY_TRACK].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_MIN_HAMMING, "Min. Hamming");
-            _dgvResults.Columns[COL_MIN_HAMMING].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_SORT_VALUE, "Sort Value");
-            _dgvResults.Columns[COL_SORT_VALUE].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_TOTAL_TABLES, "Total Table Votes");
-            _dgvResults.Columns[COL_TOTAL_TABLES].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_TOTAL_TRACK_VOTES, "Total Track Votes");
-            _dgvResults.Columns[COL_TOTAL_TRACK_VOTES].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_START_QUERY_INDEX, "Query Index Start");
-            _dgvResults.Columns[COL_START_QUERY_INDEX].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_TOTAL_FINGERPRINTS, "Total Fingerprints");
-            _dgvResults.Columns[COL_TOTAL_FINGERPRINTS].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_SIMILARITY, "Min Similarity");
-            _dgvResults.Columns[COL_SIMILARITY].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(COL_ELAPSED_TIME, "Elapsed Time");
-            _dgvResults.Columns[COL_ELAPSED_TIME].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns[ColHammingAvgByTrack].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColMinHamming, "Min. Hamming");
+            _dgvResults.Columns[ColMinHamming].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColSortValue, "Sort Value");
+            _dgvResults.Columns[ColSortValue].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColTotalTables, "Total Table Votes");
+            _dgvResults.Columns[ColTotalTables].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColTotalTrackVotes, "Total Track Votes");
+            _dgvResults.Columns[ColTotalTrackVotes].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColStartQueryIndex, "Query Index Start");
+            _dgvResults.Columns[ColStartQueryIndex].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColTotalFingerprints, "Total Fingerprints");
+            _dgvResults.Columns[ColTotalFingerprints].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColSimilarity, "Min Similarity");
+            _dgvResults.Columns[ColSimilarity].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColElapsedTime, "Elapsed Time");
+            _dgvResults.Columns[ColElapsedTime].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             // ReSharper restore PossibleNullReferenceException
             _btnExport.Enabled = false;
-            _nudTotal.Value = _fileList.Count;
+            _nudTotal.Value = this.fileList.Count;
             Action action = ExtractCandidatesWithMinHashAlgorithm; /*Extract candidates using MinHash + LSH algorithm*/
             action.BeginInvoke(
                 (result) =>
@@ -268,11 +285,11 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         public WinQueryResults(string connectionString, int secondsToAnalyze, int startSeconds, IStride stride, int topWavelets, List<string> fileList, string pathToEnsemble)
             : this(connectionString, secondsToAnalyze, startSeconds, stride, topWavelets, fileList)
         {
-            _ensemble = NNEnsemble.Load(pathToEnsemble);
-            _dgvResults.Columns.Add(COL_HIT, "Number of hits");
-            _dgvResults.Columns[COL_HIT].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            ensemble = NNEnsemble.Load(pathToEnsemble);
+            _dgvResults.Columns.Add(ColHit, "Number of hits");
+            _dgvResults.Columns[ColHit].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Action action = ExtractCandidatesWithNeuralHasher;
-            action.BeginInvoke((result) => action.EndInvoke(result), action);
+            action.BeginInvoke(action.EndInvoke, action);
         }
 
         public IFingerprintManager FingerprintManager { get; set; }
@@ -295,7 +312,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
 
             Action<float> actionRecognition = (recognition) => _tbResults.Text = recognition.ToString();
 
-            foreach (string pathToFile in _fileList)
+            foreach (string pathToFile in fileList)
             {
                 //Samples to skip from each of the song
                 IStride samplesToSkip = _queryStride;
@@ -313,7 +330,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 string title = tags.title; //Title
                 double duration = tags.duration; //Duration
 
-                if (duration < MIN_TRACK_LENGTH || duration > MAX_TRACK_LENGTH) //Check whether the duration is ok
+                if (duration < MinTrackLength || duration > MaxTrackLength) //Check whether the duration is ok
                 {
                     //Duration too small
                     Invoke(actionAddItems, new Object[] {"BAD DURATION!", pathToFile}, Color.Red);
@@ -351,7 +368,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
 
                 bool found = false;
                 KeyValuePair<Int32, QueryStats> item = result.ElementAt(0);
-                Track track = _dalManager.ReadTrackByArtistAndTitleName(artist, title);
+                Track track = dalManager.ReadTrackByArtistAndTitleName(artist, title);
                 if (track == null)
                 {
                     Invoke(actionAddItems, new Object[] {artist + "-" + title, "No such track in the database!"}, Color.Yellow);
@@ -403,7 +420,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                                                      };
             Action<float> actionRecognition = (recognition) => _tbResults.Text = recognition.ToString();
 
-            for (int i = 0; i < _fileList.Count; i++) /*For each song in the list, query the DATABASE*/
+            for (int i = 0; i < fileList.Count; i++) /*For each song in the list, query the DATABASE*/
             {
                 if (InvokeRequired)
                     Invoke(action, i);
@@ -412,7 +429,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 if (_stopQuerying)
                     break;
 
-                string pathToFile = _fileList[i]; /*Path to song to recognize*/
+                string pathToFile = fileList[i]; /*Path to song to recognize*/
                 TAG_INFO tags = audioService.GetTagInfoFromFile(pathToFile); //Get Tags from file
 
                 if (tags == null)
@@ -426,7 +443,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 string title = tags.title; //Title
                 double duration = tags.duration; //Duration
 
-                if (duration < MIN_TRACK_LENGTH || duration > MAX_TRACK_LENGTH) //Check whether the duration is ok
+                if (duration < MinTrackLength || duration > MaxTrackLength) //Check whether the duration is ok
                 {
                     //Duration too small
                     Invoke(actionAddItems, new Object[] {"BAD DURATION", pathToFile}, Color.Red);
@@ -443,21 +460,22 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 long elapsedMiliseconds = 0;
 
                 /*Get correct track trackId*/
-                Track actualTrack = _dalManager.ReadTrackByArtistAndTitleName(artist, title);
+                Track actualTrack = dalManager.ReadTrackByArtistAndTitleName(artist, title);
                 if (actualTrack == null)
                 {
                     Invoke(actionAddItems, new Object[] {title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, elapsedMiliseconds}, Color.Red);
                     continue;
                 }
+                _manager.FingerprintConfig.Stride = samplesToSkip;
                 List<bool[]> signatures = _manager.CreateFingerprints(
-                    pathToFile, samplesToSkip, _secondsToAnalyze * 1000, _startSecond * 1000);
+                    pathToFile, _secondsToAnalyze * 1000, _startSecond * 1000);
                 Dictionary<Int32, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash(
                     signatures,
-                    _dalManager,
-                    _permStorage,
+                    dalManager,
+                    permStorage,
                     _secondsToAnalyze,
-                    _hashTables,
-                    _hashKeys,
+                    hashTables,
+                    hashKeys,
                     _threshold,
                     ref elapsedMiliseconds); /*Query the database using Min Hash*/
 
@@ -481,7 +499,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 if (order.Count() > 0)
                 {
                     KeyValuePair<Int32, QueryStats> item = order.ElementAt(0);
-                    recognizedTrack = _dalManager.ReadTrackById(item.Key);
+                    recognizedTrack = dalManager.ReadTrackById(item.Key);
                     if (actualTrack.Id == recognizedTrack.Id)
                     {
                         recognized++;
@@ -514,7 +532,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                     if (query != null && query.Count() > 0)
                     {
                         var anonymType = query.ElementAt(0);
-                        recognizedTrack = _dalManager.ReadTrackById(anonymType.Pair.Key);
+                        recognizedTrack = dalManager.ReadTrackById(anonymType.Pair.Key);
                         Invoke(actionAddItems, new Object[]
                                                {
                                                    title + "-" + artist,

@@ -1,19 +1,15 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.AudioProxies.Strides;
-using Soundfingerprinting.Fingerprinting;
-using Soundfingerprinting.Fingerprinting.Wavelets;
-
-namespace Soundfingerprinting.SoundTools
+﻿namespace Soundfingerprinting.SoundTools
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.Linq;
+
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Wavelets;
+
     /// <summary>
     ///   Class for creating images from audio file
     /// </summary>
@@ -23,29 +19,34 @@ namespace Soundfingerprinting.SoundTools
     public static class Imaging
     {
         /// <summary>
-        ///   Creates an image from top wavelet fingerprint data
+        /// Creates an image from top wavelet fingerprint data
         /// </summary>
-        /// <param name = "data">The concatenated fingerprint containing top wavelets</param>
-        /// <param name = "width">Width of the image</param>
-        /// <param name = "height">Height of the image</param>
+        /// <param name="data">
+        /// The concatenated fingerprint containing top wavelets
+        /// </param>
+        /// <param name="width">
+        /// Width of the image
+        /// </param>
+        /// <param name="height">
+        /// Height of the image
+        /// </param>
+        /// <returns>
+        /// The System.Drawing.Image.
+        /// </returns>
         public static Image GetFingerprintImage(bool[] data, int width, int height)
         {
-#if SAFE
-    // create new image
-            if (data == null)
-                throw new ArgumentException("Bitmap data was not supplied");
-#endif
             Bitmap image = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
-            //Scale the data and write to image
+
+            // Scale the data and write to image
             for (int i = 0; i < width /*128*/; i++)
             {
                 for (int j = 0; j < height - 1 /*32*/; j++)
                 {
-                    int color = data[height*i + 2*j] || data[height*i + 2*j + 1] ? 255 : 0;
+                    int color = data[(height * i) + (2 * j)] || data[(height * i) + (2 * j) + 1] ? 255 : 0;
                     image.SetPixel(i, j, Color.FromArgb(color, color, color));
                 }
             }
-            //return the image
+            
             return image;
         }
 
@@ -56,34 +57,30 @@ namespace Soundfingerprinting.SoundTools
         /// <param name = "width">Width of the image</param>
         /// <param name = "height">Height of the image</param>
         /// <returns>Bitmap representation of the fingerprints. All fingerprints in one file</returns>
+        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
         public static Bitmap GetFingerprintsImage(List<bool[]> data, int width, int height)
         {
-#if SAFE
-    // create new image
-            if (data == null)
-                throw new ArgumentException("Bitmap data was not supplied");
-            if (width < 0)
-                throw new ArgumentException("width should be bigger than 0");
-            if (height < 0)
-                throw new ArgumentException("height should be bigger than 0");
-#endif
-            const int imagesPerRow = 5; /*5 bitmap images per line*/
-            const int spaceBetweenImages = 10; /*10 pixel space between images*/
+            const int ImagesPerRow = 5; /*5 bitmap images per line*/
+            const int SpaceBetweenImages = 10; /*10 pixel space between images*/
             int fingersCount = data.Count;
-            int rowCount = (int) Math.Ceiling((float) fingersCount/imagesPerRow);
+            int rowCount = (int)Math.Ceiling((float)fingersCount / ImagesPerRow);
 
-            int imageWidth = imagesPerRow*(width + spaceBetweenImages) + spaceBetweenImages;
-            int imageHeight = rowCount*(height + spaceBetweenImages) + spaceBetweenImages;
+            int imageWidth = (ImagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
 
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
 
             /*Change the background of the bitmap*/
             for (int i = 0; i < imageWidth; i++)
+            {
                 for (int j = 0; j < imageHeight; j++)
+                {
                     image.SetPixel(i, j, Color.White);
+                }
+            }
 
-            int verticalOffset = spaceBetweenImages;
-            int horizontalOffset = spaceBetweenImages;
+            int verticalOffset = SpaceBetweenImages;
+            int horizontalOffset = SpaceBetweenImages;
             int count = 0;
             for (int z = 0; z < data.Count; z++)
             {
@@ -92,19 +89,22 @@ namespace Soundfingerprinting.SoundTools
                 {
                     for (int j = 0; j < height /*32*/; j++)
                     {
-                        int color = finger[2*height*i + 2*j] || finger[2*height*i + 2*j + 1] ? 255 : 0;
+                        int color = finger[2 * height * i + 2 * j] || finger[2 * height * i + 2 * j + 1] ? 255 : 0;
                         image.SetPixel(i + horizontalOffset, j + verticalOffset, Color.FromArgb(color, color, color));
                     }
                 }
                 count++;
-                if (count%imagesPerRow == 0)
+                if (count % ImagesPerRow == 0)
                 {
-                    verticalOffset += height + spaceBetweenImages;
-                    horizontalOffset = spaceBetweenImages;
+                    verticalOffset += height + SpaceBetweenImages;
+                    horizontalOffset = SpaceBetweenImages;
                 }
                 else
-                    horizontalOffset += width + spaceBetweenImages;
+                {
+                    horizontalOffset += width + SpaceBetweenImages;
+                }
             }
+
             return image;
         }
 
@@ -117,50 +117,48 @@ namespace Soundfingerprinting.SoundTools
         /// <returns>Bitmap</returns>
         public static Bitmap GetSignalImage(float[] data, int width, int height)
         {
-#if SAFE
-    // create new image
-            if (data == null)
-                throw new ArgumentException("Bitmap data was not supplied");
-            if (width < 0)
-                throw new ArgumentException("width should be bigger than 0");
-            if (height < 0)
-                throw new ArgumentException("height should be bigger than 0");
-#endif
             Bitmap image = new Bitmap(width, height);
             Graphics graphics = Graphics.FromImage(image);
-            /*Fill Back color*/
             using (Brush brush = new SolidBrush(Color.Black))
             {
                 graphics.FillRectangle(brush, new Rectangle(0, 0, width, height));
             }
-            const int gridline = 50; /*Every 50 pixels draw gridline*/
+
+            const int Gridline = 50; /*Every 50 pixels draw gridline*/
             /*Draw gridlines*/
             using (Pen pen = new Pen(Color.Red, 1))
             {
                 /*Draw horizontal gridlines*/
-                for (int i = 1; i < height/gridline; i++)
+                for (int i = 1; i < height / Gridline; i++)
                 {
-                    graphics.DrawLine(pen, 0, i*gridline, width, i*gridline);
+                    graphics.DrawLine(pen, 0, i * Gridline, width, i * Gridline);
                 }
 
                 /*Draw vertical gridlines*/
-                for (int i = 1; i < width/gridline; i++)
+                for (int i = 1; i < width / Gridline; i++)
                 {
-                    graphics.DrawLine(pen, i*gridline, 0, i*gridline, height);
+                    graphics.DrawLine(pen, i * Gridline, 0, i * Gridline, height);
                 }
             }
-            int center = height/2;
+
+            int center = height / 2;
             /*Draw lines*/
             using (Pen pen = new Pen(Color.MediumSpringGreen, 1))
             {
                 /*Find delta X, by which the lines will be drawn*/
-                double deltaX = (double) width/data.Length;
-                double normalizeFactor = data.Max((a) => Math.Abs(a))/((double) height/2);
+                double deltaX = (double)width / data.Length;
+                double normalizeFactor = data.Max((a) => Math.Abs(a)) / ((double)height / 2);
                 for (int i = 0, n = data.Length; i < n; i++)
                 {
-                    graphics.DrawLine(pen, (float) (i*deltaX), center, (float) (i*deltaX), (float) (center - (data[i]/normalizeFactor)));
+                    graphics.DrawLine(
+                        pen,
+                        (float)(i * deltaX),
+                        center,
+                        (float)(i * deltaX),
+                        (float)(center - (data[i] / normalizeFactor)));
                 }
             }
+
             using (Pen pen = new Pen(Color.DarkGreen, 1))
             {
                 /*Draw center line*/
@@ -176,25 +174,27 @@ namespace Soundfingerprinting.SoundTools
         }
 
         /// <summary>
-        ///   Get a spectrogram of the signal specified at the input
+        /// Get a spectrogram of the signal specified at the input
         /// </summary>
-        /// <param name = "data">Signal</param>
-        /// <param name = "width">Width of the image</param>
-        /// <param name = "height">Height of the image</param>
-        /// <returns>Spectral image of the signal</returns>
+        /// <param name="spectrum">
+        /// The spectrum.
+        /// </param>
+        /// <param name="width">
+        /// Width of the image
+        /// </param>
+        /// <param name="height">
+        /// Height of the image
+        /// </param>
+        /// <returns>
+        /// Spectral image of the signal
+        /// </returns>
         /// <remarks>
-        ///   X axis - time
+        /// X axis - time
         ///   Y axis - frequency
         ///   Color - magnitude level of corresponding band value of the signal
         /// </remarks>
         public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height)
         {
-#if SAFE
-            if (width < 0)
-                throw new ArgumentException("width should be bigger than 0");
-            if (height < 0)
-                throw new ArgumentException("height should be bigger than 0");
-#endif
             Bitmap image = new Bitmap(width, height);
             Graphics graphics = Graphics.FromImage(image);
             /*Fill Back color*/
@@ -202,6 +202,7 @@ namespace Soundfingerprinting.SoundTools
             {
                 graphics.FillRectangle(brush, new Rectangle(0, 0, width, height));
             }
+
             int bands = spectrum[0].Length;
             double max = spectrum.Max((b) => b.Max((v) => Math.Abs(v)));
             double deltaX = (double) (width - 1)/spectrum.Length; /*By how much the image will move to the left*/

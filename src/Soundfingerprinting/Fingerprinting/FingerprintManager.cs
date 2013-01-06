@@ -2,10 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Soundfingerprinting.AudioProxies;
-    using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
@@ -21,15 +19,6 @@
 
         List<bool[]> CreateFingerprints(float[] samples);
 
-        /// <summary>
-        /// Create spectrogram of the input file
-        /// </summary>
-        /// <param name="filename">
-        /// Filename
-        /// </param>
-        /// <returns>
-        /// Spectrogram
-        /// </returns>
         float[][] CreateSpectrogram(string filename);
 
         float[][] CreateLogSpectrogram(string filename);
@@ -57,8 +46,6 @@
 
         private readonly double[] windowArray;
 
-        private readonly IWindowFunction windowFunction;
-
         private readonly IWaveletDecomposition waveletDecomposition;
 
         private readonly IFingerprintDescriptor fingerprintDescriptor;
@@ -69,7 +56,6 @@
 
         public FingerprintManager(IAudioService audioService, IFingerprintConfig fingerprintConfig, IFingerprintDescriptor fingerprintDescriptor, IWindowFunction windowFunction, IWaveletDecomposition waveletDecomposition)
         {
-            this.windowFunction = windowFunction;
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
             FingerprintConfig = fingerprintConfig;
@@ -93,6 +79,7 @@
             set
             {
                 fingerprintConfig = value;
+
                 logFrequenciesIndex = GenerateLogFrequencies(
                     fingerprintConfig.SampleRate,
                     fingerprintConfig.MinFrequency,
@@ -188,9 +175,6 @@
         /// <param name="filename">
         /// Filename to be analyzed
         /// </param>
-        /// <param name="stride">
-        /// Stride between 2 consecutive fingerprints
-        /// </param>
         /// <param name="milliseconds">
         /// Milliseconds to analyze
         /// </param>
@@ -200,7 +184,7 @@
         /// <returns>
         /// Fingerprint signatures
         /// </returns>
-        public List<bool[]> CreateFingerprints(string filename, IStride stride, int milliseconds, int startmilliseconds)
+        public List<bool[]> CreateFingerprints(string filename, int milliseconds, int startmilliseconds)
         {
             float[][] spectrum = CreateLogSpectrogram(filename, milliseconds, startmilliseconds);
             return CreateFingerprints(spectrum);
@@ -228,7 +212,7 @@
         /// </returns>
         public List<bool[]> CreateFingerprints(string filename)
         {
-            return CreateFingerprints(filename, FingerprintConfig.Stride, 0, 0);
+            return CreateFingerprints(filename, 0, 0);
         }
 
         public List<bool[]> CreateFingerprints(string filename, IFingerprintConfig config)
