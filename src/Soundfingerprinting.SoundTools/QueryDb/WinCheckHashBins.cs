@@ -17,6 +17,8 @@ namespace Soundfingerprinting.SoundTools.QueryDb
 {
     public partial class WinCheckHashBins : Form
     {
+        private readonly IFingerprintManager fingerprintManager;
+
         private readonly List<string> _filters = new List<string>(new[] {"*.mp3", "*.wav", "*.ogg", "*.flac"}); /*File filters*/
 
         private List<String> _fileList;
@@ -26,8 +28,9 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         ///   Parameter less constructor
         /// </summary>
         [ConfigurationPermission(SecurityAction.Demand)]
-        public WinCheckHashBins()
+        public WinCheckHashBins(IFingerprintManager fingerprintManager)
         {
+            this.fingerprintManager = fingerprintManager;
             InitializeComponent();
 
             Icon = Resources.Sound;
@@ -158,45 +161,59 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         private void BtnStartClick(object sender, EventArgs e)
         {
             DefaultFingerpringConfig config = new DefaultFingerpringConfig();
-            Form winform;
+            WinQueryResults winform;
             switch (_hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
                     if (_fileList == null || _fileList.Count == 0)
                     {
-                        MessageBox.Show(Resources.SelectFolderWithSongs, Resources.Songs, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(
+                            Resources.SelectFolderWithSongs,
+                            Resources.Songs,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
                         break;
                     }
-                    
+
                     winform = new WinQueryResults(
                         _cmbConnectionString.SelectedItem.ToString(),
-                        (int) _nudNumberOfFingerprints.Value,
-                        (int) _numStaratSeconds.Value,
-
-                        WinUtils.GetStride((StrideType) (_cmbStrideType.SelectedIndex),
-                            (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, config.SamplesPerFingerprint),
+                        (int)_nudNumberOfFingerprints.Value,
+                        (int)_numStaratSeconds.Value,
+                        WinUtils.GetStride(
+                            (StrideType)_cmbStrideType.SelectedIndex,
+                            (int)_nudQueryStrideMax.Value,
+                            (int)_nudQueryStrideMin.Value,
+                            config.SamplesPerFingerprint),
                         _fileList,
-                        (int) _nudHashtables.Value,
-                        (int) _nudKeys.Value,
+                        (int)_nudHashtables.Value,
+                        (int)_nudKeys.Value,
                         Convert.ToInt32(_nudThreshold.Value),
-                        (int) _nudTopWavelets.Value);
+                        (int)_nudTopWavelets.Value) { FingerprintManager = fingerprintManager };
                     winform.Show();
                     break;
                 case HashAlgorithm.NeuralHasher:
                     if (_fileList == null || _fileList.Count == 0)
                     {
-                        MessageBox.Show(Resources.SelectFolderWithSongs, Resources.Songs, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(
+                            Resources.SelectFolderWithSongs,
+                            Resources.Songs,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
                         break;
                     }
 
-                    winform = new WinQueryResults(_cmbConnectionString.SelectedItem.ToString(),
-                        (int) _nudNumberOfFingerprints.Value,
-                        (int) _numStaratSeconds.Value,
-                        WinUtils.GetStride((StrideType) (_cmbStrideType.SelectedIndex),
-                            (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, config.SamplesPerFingerprint),
-                        (int) _nudTopWavelets.Value,
+                    winform = new WinQueryResults(
+                        _cmbConnectionString.SelectedItem.ToString(),
+                        (int)_nudNumberOfFingerprints.Value,
+                        (int)_numStaratSeconds.Value,
+                        WinUtils.GetStride(
+                            (StrideType)(_cmbStrideType.SelectedIndex),
+                            (int)_nudQueryStrideMax.Value,
+                            (int)_nudQueryStrideMin.Value,
+                            config.SamplesPerFingerprint),
+                        (int)_nudTopWavelets.Value,
                         _fileList,
-                        _tbPathToEnsemble.Text);
+                        _tbPathToEnsemble.Text) { FingerprintManager = fingerprintManager };
                     winform.Show();
                     break;
                 case HashAlgorithm.None:

@@ -14,7 +14,8 @@
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.DbStorage.Utils;
     using Soundfingerprinting.Fingerprinting;
-
+    using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.Fingerprinting.Windows;
 
     [TestClass]
     public class FingerprintManagerTest : BaseTest
@@ -32,7 +33,12 @@
         {
             connectionstring = ConnectionString;
             dalManager = new DaoGateway(connectionstring);
-            fingerManager = new FingerprintManager();
+            fingerManager = new FingerprintManager(
+                new BassAudioService(),
+                new DefaultFingerpringConfig(),
+                new FingerprintDescriptor(),
+                new HanningWindow(),
+                new HaarWavelet());
             fingerprintConfig = new DefaultFingerpringConfig();
         }
 

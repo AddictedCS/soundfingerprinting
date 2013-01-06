@@ -33,7 +33,7 @@ namespace Soundfingerprinting.Fingerprinting
         /// <summary>
         ///   Gets number of Top wavelets to consider
         /// </summary>
-        int TopWavelets { get; }
+        int TopWavelets { get; set; }
 
         /// <summary>
         ///   Gets sample rate

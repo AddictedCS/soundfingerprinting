@@ -501,7 +501,7 @@
             this._labThreads.Name = "_labThreads";
             this._labThreads.Size = new System.Drawing.Size(46, 13);
             this._labThreads.TabIndex = 26;
-            this._labThreads.Text = "Threads";
+            this._labThreads.Text = "MaxThreadToProcessFiles";
             // 
             // _gbMinHash
             // 

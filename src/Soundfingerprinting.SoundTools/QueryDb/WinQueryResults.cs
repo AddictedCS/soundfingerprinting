@@ -160,8 +160,6 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             _dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             _permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
 
-            _manager = new FingerprintManager
-                { FingerprintConfig = new DefaultFingerpringConfig() { TopWavelets = topWavelets } };
             _dalManager.SetConnectionString(_connectionString); /*Set connection string for DAL manager*/
             _secondsToAnalyze = secondsToAnalyze; /*Number of fingerprints to analyze from each song*/
             _startSecond = startSecond;
@@ -198,7 +196,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             _hashKeys = hashKeys;
             _threshold = thresholdTables;
             _dgvResults.Columns.Add(COL_HAMMING_AVG_BY_TRACK, "Hamming Avg. By Track");
-// ReSharper disable PossibleNullReferenceException
+            // ReSharper disable PossibleNullReferenceException
             _dgvResults.Columns[COL_HAMMING_AVG_BY_TRACK].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(COL_MIN_HAMMING, "Min. Hamming");
             _dgvResults.Columns[COL_MIN_HAMMING].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -216,35 +214,45 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             _dgvResults.Columns[COL_SIMILARITY].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(COL_ELAPSED_TIME, "Elapsed Time");
             _dgvResults.Columns[COL_ELAPSED_TIME].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-// ReSharper restore PossibleNullReferenceException
+            // ReSharper restore PossibleNullReferenceException
             _btnExport.Enabled = false;
             _nudTotal.Value = _fileList.Count;
             Action action = ExtractCandidatesWithMinHashAlgorithm; /*Extract candidates using MinHash + LSH algorithm*/
             action.BeginInvoke(
                 (result) =>
-                {
-                    try
                     {
-                        action.EndInvoke(result);
-                    }
-                    catch (ThreadAbortException)
-                    {
-                        /*Recognition aborted*/
-                        return;
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show(Resources.RecognitionEndedWithAnError + e.Message + Resources.LineFeed + e.StackTrace, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    MessageBox.Show(Resources.RecognitionEnded, Resources.RecognitionEnded, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    Invoke(new Action(
-                        () =>
+                        try
                         {
-                            _btnStop.Enabled = true;
-                            _btnExport.Enabled = true;
-                        }));
-                }, action);
+                            action.EndInvoke(result);
+                        }
+                        catch (ThreadAbortException)
+                        {
+                            /*Recognition aborted*/
+                            return;
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show(
+                                Resources.RecognitionEndedWithAnError + e.Message + Resources.LineFeed + e.StackTrace,
+                                Resources.Error,
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                            return;
+                        }
+                        MessageBox.Show(
+                            Resources.RecognitionEnded,
+                            Resources.RecognitionEnded,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                        Invoke(
+                            new Action(
+                                () =>
+                                    {
+                                        _btnStop.Enabled = true;
+                                        _btnExport.Enabled = true;
+                                    }));
+                    },
+                action);
         }
 
         /// <summary>
@@ -266,6 +274,8 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             Action action = ExtractCandidatesWithNeuralHasher;
             action.BeginInvoke((result) => action.EndInvoke(result), action);
         }
+
+        public IFingerprintManager FingerprintManager { get; set; }
 
         /// <summary>
         ///   Extract possible candidates from the data source using Neural Hasher

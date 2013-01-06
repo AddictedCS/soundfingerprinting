@@ -304,16 +304,13 @@ namespace Soundfingerprinting.SoundTools
         /// <param name = "proxy">Proxy manager</param>
         /// <param name = "manager">Fingerprint manager</param>
         /// <returns>Image to be saved</returns>
-        public static Image GetWaveletSpectralImage(string pathToFile,
-                                                    IStride stride,
-                                                    IAudioService proxy,
-                                                    FingerprintManager manager)
+        public static Image GetWaveletSpectralImage(string pathToFile, IFingerprintManager manager)
         {
             List<float[][]> wavelets = new List<float[][]>();
-            float[][] spectrum = manager.CreateLogSpectrogram(pathToFile, 0, 0);
+            float[][] spectrum = manager.CreateLogSpectrogram(pathToFile);
             int specLen = spectrum.GetLength(0);
             DefaultFingerpringConfig config = new DefaultFingerpringConfig();
-            int start = stride.GetFirstStride() / config.Overlap;
+            int start = manager.FingerprintConfig.Stride.GetFirstStride() / config.Overlap;
             int logbins = FingerprintManager.LogBins;
             int fingerprintLength = config.FingerprintLength;
             int overlap = config.Overlap;
@@ -326,7 +323,7 @@ namespace Soundfingerprinting.SoundTools
                     Array.Copy(spectrum[start + i], frames[i], logbins);
                 }
 
-                start += fingerprintLength + (stride.GetStride() / overlap);
+                start += fingerprintLength + (manager.FingerprintConfig.Stride.GetStride() / overlap);
                 wavelets.Add(frames);
             }
 

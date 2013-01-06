@@ -104,11 +104,10 @@
                     FadeControls(false);
                     Action action = () =>
                         {
-                            FingerprintManager manager = new FingerprintManager
-                                { FingerprintConfig = {  Stride = new StaticStride((int)_nudStride.Value) } };
-                            List<bool[]> result = manager.CreateFingerprints(Path.GetFullPath(_tbPathToFile.Text));
+                            fingerprintManager.FingerprintConfig.Stride = new StaticStride((int)_nudStride.Value);
+                            List<bool[]> result = fingerprintManager.CreateFingerprints(Path.GetFullPath(_tbPathToFile.Text));
                             int i = -1;
-                            int width = manager.FingerprintConfig.FingerprintLength;
+                            int width = fingerprintManager.FingerprintConfig.FingerprintLength;
                             int height = FingerprintManager.LogBins;
                             foreach (bool[] item in result)
                             {
@@ -218,9 +217,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                            float[][] data = fingerprintManager.CreateSpectrogram(Path.GetFullPath(_tbPathToFile.Text), 0, 0);
-                            double duration =
-                                tagService.GetTagInfo(Path.GetFullPath(_tbPathToFile.Text)).Duration;
+                            float[][] data = fingerprintManager.CreateSpectrogram(Path.GetFullPath(_tbPathToFile.Text));
                             Bitmap image = Imaging.GetSpectrogramImage(
                                 data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                             image.Save(sfd.FileName, ImageFormat.Jpeg);
@@ -297,15 +294,12 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        using (IAudioService proxy = new BassAudioService())
-                        {
-                            FingerprintManager manager = new FingerprintManager();
-                            StaticStride stride = new StaticStride((int)_nudStride.Value);
-                            Image image = Imaging.GetWaveletSpectralImage(
-                                Path.GetFullPath(_tbPathToFile.Text), stride, proxy, manager);
-                            image.Save(path);
-                            image.Dispose();
-                        }
+                        fingerprintManager.FingerprintConfig.Stride = new StaticStride((int)_nudStride.Value);
+                        Image image = Imaging.GetWaveletSpectralImage(
+                            Path.GetFullPath(_tbPathToFile.Text), fingerprintManager);
+                        image.Save(path);
+                        image.Dispose();
+
                     };
                 action.BeginInvoke(
                     (result) =>

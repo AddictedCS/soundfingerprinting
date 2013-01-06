@@ -64,6 +64,7 @@
             }
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
+            // TODO Refactor HERE
             manager.FingerprintConfig.Stride = stride;
             List<bool[]> fingerprints = manager.CreateFingerprints(samples);
             storage.InsertTrack(track); /*Insert track into the storage*/

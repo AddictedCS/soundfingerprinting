@@ -15,13 +15,24 @@
     {
         IFingerprintConfig FingerprintConfig { get; set; }
 
-        IEnumerable<Fingerprint> CreateFingerprintsFromFile(string fileName);
-
         List<bool[]> CreateFingerprints(string filename);
 
         List<bool[]> CreateFingerprints(string filename, IFingerprintConfig config);
 
         List<bool[]> CreateFingerprints(float[] samples);
+
+        /// <summary>
+        /// Create spectrogram of the input file
+        /// </summary>
+        /// <param name="filename">
+        /// Filename
+        /// </param>
+        /// <returns>
+        /// Spectrogram
+        /// </returns>
+        float[][] CreateSpectrogram(string filename);
+
+        float[][] CreateLogSpectrogram(string filename);
     }
 
     public interface IFingerprintService
@@ -100,19 +111,13 @@
         /// <param name="filename">
         /// Filename
         /// </param>
-        /// <param name="milliseconds">
-        /// Milliseconds to process
-        /// </param>
-        /// <param name="startmilliseconds">
-        /// Starting point of the processing
-        /// </param>
         /// <returns>
         /// Spectrogram
         /// </returns>
-        public float[][] CreateSpectrogram(string filename, int milliseconds, int startmilliseconds)
+        public float[][] CreateSpectrogram(string filename)
         {
             // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = AudioServiceProxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
+            float[] samples = AudioServiceProxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, 0, 0);
 
             NormalizeInPlace(samples);
 
@@ -147,6 +152,11 @@
             }
 
             return frames;
+        }
+
+        public float[][] CreateLogSpectrogram(string filename)
+        {
+            return CreateLogSpectrogram(filename, 0, 0);
         }
 
         /// <summary>
@@ -415,13 +425,6 @@
                 samples[i] = Math.Min(samples[i], 1);
                 samples[i] = Math.Max(samples[i], -1);
             }
-        }
-
-        public IEnumerable<Fingerprint> CreateFingerprintsFromFile(string fileName)
-        {
-            float[][] spectrum = CreateLogSpectrogram(fileName, 0, 0);
-            int orderNumber = 0;
-            return CreateFingerprints(spectrum, fingerprintConfig.Stride).Select(fingerprint => new Fingerprint { Content = fingerprint, OrderNumber = orderNumber++ }).ToList();
         }
     }
 }
