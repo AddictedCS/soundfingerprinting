@@ -29,7 +29,7 @@ namespace Soundfingerprinting.SoundTools.BassResampler
         /// </summary>
         private void TbPathToFileMouseDoubleClick(object sender, MouseEventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog {FileName = "filename.mp3", Filter = Resources.MusicFilter};
+            OpenFileDialog ofd = new OpenFileDialog {FileName = "pathToAudioFile.mp3", Filter = Resources.MusicFilter};
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _tbPathToFile.Text = ofd.FileName;

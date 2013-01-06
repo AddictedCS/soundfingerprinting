@@ -9,6 +9,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Moq;
+
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Hashing;

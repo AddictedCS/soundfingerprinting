@@ -80,7 +80,8 @@
     <Compile Include="DbStorage\Entities\Track.cs" />
     <Compile Include="Fingerprinting\AbsComparator.cs" />
     <Compile Include="Fingerprinting\ConstantQ\ConstQ.cs" />
-    <Compile Include="Fingerprinting\DefaultFingerpringConfig.cs" />
+    <Compile Include="Fingerprinting\Configuration\CustomFingerprintingConfig.cs" />
+    <Compile Include="Fingerprinting\Configuration\DefaultFingerprintingConfig.cs" />
     <Compile Include="Fingerprinting\FFT\Complex.cs" />
     <Compile Include="Fingerprinting\FFT\ComplexArray.cs" />
     <Compile Include="Fingerprinting\FFT\ComplexF.cs" />
@@ -89,8 +90,15 @@
     <Compile Include="Fingerprinting\FingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\FingerprintManager.cs" />
     <Compile Include="Fingerprinting\FingerprintManagerEventArgs.cs" />
-    <Compile Include="Fingerprinting\IFingerprintConfig.cs" />
+    <Compile Include="Fingerprinting\Configuration\IFingerprintingConfig.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
+    <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnitParameterObject.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\TargetOn.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WithConfiguration.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnit.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\IWorkUnitParameterObject.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\ITargetOn.cs" />
     <Compile Include="Fingerprinting\Wavelets\HaarWavelet.cs" />
     <Compile Include="Fingerprinting\Windows\HammingWindow.cs" />
     <Compile Include="Fingerprinting\Windows\HanningWindow.cs" />
@@ -99,6 +107,10 @@
     <Compile Include="Fingerprinting\Windows\IWindowFunction.cs" />
     <Compile Include="Fingerprinting\ConstantQ\SparKernel.cs" />
     <Compile Include="Fingerprinting\Wavelets\WaveletUtils.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\IWithConfiguration.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\IWorkUnit.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\IWorkUnitBuilder.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\WorkUnitBuilder.cs" />
     <Compile Include="Hashing\AgressiveSelector.cs" />
     <Compile Include="Hashing\ConservativeSelector.cs" />
     <Compile Include="Hashing\DbPermutations.cs" />

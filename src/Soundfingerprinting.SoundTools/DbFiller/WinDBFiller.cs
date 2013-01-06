@@ -20,6 +20,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;
@@ -35,7 +36,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
 
         private const int MinTrackLength = 20; /*20 sec - minimal track length*/
         private const int MaxTrackLength = 60*15; /*15 min - maximal track length*/
-        private readonly DaoGateway dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString); /*Dal Fingerprint manager*/
+        private readonly DaoGateway dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString); /*Dal Fingerprint service*/
         private readonly List<string> filters = new List<string>(new[] {"*.mp3", "*.wav", "*.ogg", "*.flac"}); /*File filters*/
         private readonly object lockObject = new object(); /*Cross Thread operation*/
         private readonly IPermutations permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString); /*Database permutations*/
@@ -52,7 +53,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         private bool stopFlag;
         private Album unknownAlbum;
 
-        private readonly IFingerprintManager fingerprintManager;
+        private readonly IFingerprintService fingerprintService;
 
 
         #endregion
@@ -62,9 +63,9 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         /// <summary>
         ///   Constructor
         /// </summary>
-        public WinDBFiller(IFingerprintManager fingerprintManager)
+        public WinDBFiller(IFingerprintService fingerprintService)
         {
-            this.fingerprintManager = fingerprintManager;
+            this.fingerprintService = fingerprintService;
             InitializeComponent();
             Icon = Resources.Sound;
             foreach (object item in ConfigurationManager.ConnectionStrings) /*Detect all the connection strings*/
@@ -264,7 +265,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
             unknownAlbum = dalManager.ReadUnknownAlbum(); //Read unknown album
 
             int topWavelets = (int) _nudTopWav.Value;
-            fingerprintManager.FingerprintConfig.TopWavelets = topWavelets;
+            fingerprintService.FingerprintConfig.TopWavelets = topWavelets;
              switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
@@ -382,7 +383,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         private void InsertInDatabase(int start, int end)
         {
             BassAudioService audioService = new BassAudioService(); //Proxy used to read from file
-            IFingerprintConfig config = new DefaultFingerpringConfig();
+            IFingerprintingConfig config = new DefaultFingerprintingConfig();
             IStride stride = null;
             Invoke(new Action(() =>
                               {
@@ -471,7 +472,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                 int count = 0;
                 try
                 {
-                    List<bool[]> images = fingerprintManager.CreateFingerprints(fileList[i]); //Create Fingerprints and insert them in database
+                    List<bool[]> images = fingerprintService.CreateFingerprints(fileList[i]); //Create Fingerprints and insert them in database
                     List<Fingerprint> inserted = Fingerprint.AssociateFingerprintsToTrack(images, track.Id);
                     dalManager.InsertFingerprint(inserted);
                     count = inserted.Count;

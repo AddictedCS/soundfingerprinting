@@ -11,16 +11,17 @@
     using Soundfingerprinting.AudioProxies;
     using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinMisc : Form
     {
-        private readonly IFingerprintManager fingerprintManager;
+        private readonly IFingerprintService fingerprintService;
 
-        public WinMisc(IFingerprintManager fingerprintManager)
+        public WinMisc(IFingerprintService fingerprintService)
         {
-            this.fingerprintManager = fingerprintManager;
+            this.fingerprintService = fingerprintService;
             InitializeComponent();
             Icon = Resources.Sound;
         }
@@ -80,24 +81,24 @@
                         FadeControls(false);
                         int minFreq = (int)_nudFreq.Value;
                         int topWavelets = (int)_nudTopWavelets.Value;
-                        DefaultFingerpringConfig config = new DefaultFingerpringConfig { MinFrequency = minFreq, TopWavelets = topWavelets };
-                        fingerprintManager.FingerprintConfig = config;
+                        DefaultFingerprintingConfig config = new DefaultFingerprintingConfig { MinFrequency = minFreq, TopWavelets = topWavelets };
+                        fingerprintService.FingerprintConfig = config;
                         DumpResults resultObj = new DumpResults();
                         string pathToInput = _tbPathToFile.Text;
                         string pathToOutput = _tbOutputPath.Text;
                         int hashTables = (int)_nudTables.Value;
                         int hashKeys = (int)_nudKeys.Value;
                         int stride = (int)_nudQueryStride.Value;
-                        fingerprintManager.FingerprintConfig.Stride = _chbQueryStride.Checked
+                        fingerprintService.FingerprintConfig.Stride = _chbQueryStride.Checked
                                                   ? (IStride)new RandomStride(0, stride)
                                                   : new StaticStride(stride);
-                        GetFingerprintSimilarity(fingerprintManager, pathToInput, resultObj);
-                        GetHashSimilarity(fingerprintManager, hashTables, hashKeys, pathToInput, resultObj);
+                        GetFingerprintSimilarity(fingerprintService, pathToInput, resultObj);
+                        GetHashSimilarity(fingerprintService, hashTables, hashKeys, pathToInput, resultObj);
 
                         if (_chbCompare.Checked)
                         {
                             string pathToDifferent = _tbSongToCompare.Text;
-                            GetFingerprintSimilarity(fingerprintManager, pathToInput, pathToDifferent, resultObj);
+                            GetFingerprintSimilarity(fingerprintService, pathToInput, pathToDifferent, resultObj);
                         }
 
                         resultObj.Info.MinFrequency = minFreq;
@@ -125,16 +126,16 @@
         /// <summary>
         ///   Get fingerprint similarity between 2 different songs.
         /// </summary>
-        /// <param name = "manager">Fingerprint manager used in file decomposition</param>
+        /// <param name = "service">Fingerprint service used in file decomposition</param>
         /// <param name = "path">Path to first file</param>
         /// <param name = "differentPath">Path to different file</param>
         /// <param name = "results">Results object to be filled with the corresponding data</param>
-        private void GetFingerprintSimilarity(IFingerprintManager manager, string path, string differentPath, DumpResults results)
+        private void GetFingerprintSimilarity(IFingerprintService service, string path, string differentPath, DumpResults results)
         {
             double sum = 0;
 
-            List<bool[]> imglista = manager.CreateFingerprints(path);
-            List<bool[]> imglistb = manager.CreateFingerprints(differentPath);
+            List<bool[]> imglista = service.CreateFingerprints(path);
+            List<bool[]> imglistb = service.CreateFingerprints(differentPath);
 
 
             int count = imglista.Count > imglistb.Count ? imglistb.Count : imglista.Count;
@@ -159,15 +160,15 @@
         /// <summary>
         ///   Get fingerprint similarity of one song
         /// </summary>
-        /// <param name = "manager">Fingerprint manager used in file decomposition</param>
+        /// <param name = "service">Fingerprint service used in file decomposition</param>
         /// <param name = "path">Path to first file</param>
         /// <param name = "results">Results object to be filled with the corresponding data</param>
-        private void GetFingerprintSimilarity(IFingerprintManager manager, string path, DumpResults results)
+        private void GetFingerprintSimilarity(IFingerprintService service, string path, DumpResults results)
         {
             double sum = 0;
 
-            List<bool[]> list = manager.CreateFingerprints(path);
-            List<bool[]> listToCompare = manager.CreateFingerprints(path);
+            List<bool[]> list = service.CreateFingerprints(path);
+            List<bool[]> listToCompare = service.CreateFingerprints(path);
 
             int count = list.Count;
             int toCompare = listToCompare.Count;
@@ -196,20 +197,20 @@
         /// <summary>
         ///   Get hash similarity of one song
         /// </summary>
-        /// <param name = "manager">Fingerprint manager</param>
+        /// <param name = "service">Fingerprint service</param>
         /// <param name = "hashTables">Number of hash tables in the LSH transformation</param>
         /// <param name = "hashKeys">Number of hash keys per table in the LSH transformation</param>
         /// <param name = "path">Path to analyzed file</param>
         /// <param name = "results">Results object to be filled with the appropriate data</param>
-        private void GetHashSimilarity(IFingerprintManager manager, int hashTables, int hashKeys, string path, DumpResults results)
+        private void GetHashSimilarity(IFingerprintService service, int hashTables, int hashKeys, string path, DumpResults results)
         {
             double sum = 0;
             int hashesCount = 0;
             int startindex = 0;
 
-            List<bool[]> listDb = manager.CreateFingerprints(path);
+            List<bool[]> listDb = service.CreateFingerprints(path);
             //TODO Do not forget to change STRIDE HERE
-            List<bool[]> listQuery = manager.CreateFingerprints(path);
+            List<bool[]> listQuery = service.CreateFingerprints(path);
             IPermutations perms = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             MinHash minHash = new MinHash(perms);
             List<int[]> minHashDb = listDb.Select(minHash.ComputeMinHashSignature).ToList();
@@ -300,11 +301,11 @@
         /// </summary>
         private void WinMiscLoad(object sender, EventArgs e)
         {
-            DefaultFingerpringConfig config = new DefaultFingerpringConfig();
+            DefaultFingerprintingConfig config = new DefaultFingerprintingConfig();
             _nudFreq.Value = config.MinFrequency;
             _nudTopWavelets.Value = config.TopWavelets;
 
-            fingerprintManager.FingerprintConfig = config;
+            fingerprintService.FingerprintConfig = config;
         }
     }
 }

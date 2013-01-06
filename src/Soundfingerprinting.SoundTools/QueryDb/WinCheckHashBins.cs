@@ -15,9 +15,11 @@ using Soundfingerprinting.SoundTools.Properties;
 
 namespace Soundfingerprinting.SoundTools.QueryDb
 {
+    using Soundfingerprinting.Fingerprinting.Configuration;
+
     public partial class WinCheckHashBins : Form
     {
-        private readonly IFingerprintManager fingerprintManager;
+        private readonly IFingerprintService fingerprintService;
 
         private readonly List<string> _filters = new List<string>(new[] {"*.mp3", "*.wav", "*.ogg", "*.flac"}); /*File filters*/
 
@@ -28,9 +30,9 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         ///   Parameter less constructor
         /// </summary>
         [ConfigurationPermission(SecurityAction.Demand)]
-        public WinCheckHashBins(IFingerprintManager fingerprintManager)
+        public WinCheckHashBins(IFingerprintService fingerprintService)
         {
-            this.fingerprintManager = fingerprintManager;
+            this.fingerprintService = fingerprintService;
             InitializeComponent();
 
             Icon = Resources.Sound;
@@ -160,7 +162,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         /// </summary>
         private void BtnStartClick(object sender, EventArgs e)
         {
-            DefaultFingerpringConfig config = new DefaultFingerpringConfig();
+            DefaultFingerprintingConfig config = new DefaultFingerprintingConfig();
             WinQueryResults winform;
             switch (_hashAlgorithm)
             {
@@ -188,7 +190,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
                         Convert.ToInt32(_nudThreshold.Value),
-                        (int)_nudTopWavelets.Value) { FingerprintManager = fingerprintManager };
+                        (int)_nudTopWavelets.Value) { FingerprintService = fingerprintService };
                     winform.Show();
                     break;
                 case HashAlgorithm.NeuralHasher:
@@ -213,7 +215,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                             config.SamplesPerFingerprint),
                         (int)_nudTopWavelets.Value,
                         _fileList,
-                        _tbPathToEnsemble.Text) { FingerprintManager = fingerprintManager };
+                        _tbPathToEnsemble.Text) { FingerprintService = fingerprintService };
                     winform.Show();
                     break;
                 case HashAlgorithm.None:

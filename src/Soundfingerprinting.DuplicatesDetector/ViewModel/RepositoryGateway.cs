@@ -147,7 +147,7 @@
                     new ConstructorArgument("separator", SEPARATOR)); /*Permutations*/
 
             cts = new CancellationTokenSource();
-            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintManager>(), storage, permutations);
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintService>(), storage, permutations);
             createStride = new IncrementalStaticStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT);
         }
 

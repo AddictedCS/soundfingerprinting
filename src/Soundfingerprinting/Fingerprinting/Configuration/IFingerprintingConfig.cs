@@ -1,8 +1,8 @@
-namespace Soundfingerprinting.Fingerprinting
+namespace Soundfingerprinting.Fingerprinting.Configuration
 {
     using Soundfingerprinting.AudioProxies.Strides;
 
-    public interface IFingerprintConfig
+    public interface IFingerprintingConfig
     {
         /// <summary>
         ///   Gets number of samples to read in order to create single fingerprint.
@@ -33,7 +33,7 @@ namespace Soundfingerprinting.Fingerprinting
         /// <summary>
         ///   Gets number of Top wavelets to consider
         /// </summary>
-        int TopWavelets { get; set; }
+        int TopWavelets { get; }
 
         /// <summary>
         ///   Gets sample rate
@@ -46,16 +46,21 @@ namespace Soundfingerprinting.Fingerprinting
         double LogBase { get; }
 
         /// <summary>
+        /// Gets number of logarithmically spaced bins between the frequency components computed by Fast Fourier Transform.
+        /// </summary>
+        int LogBins { get; }
+
+        /// <summary>
         ///   Gets fingerprint's length
         /// </summary>
         int FingerprintLength { get; }
 
         /// <summary>
-        /// Gets or sets default stride size between 2 consecutive fingerprint
+        /// Gets default stride size between 2 consecutive fingerprint
         /// </summary>
         /// <remarks>
         ///  Default = 5115
         /// </remarks>
-        IStride Stride { get; set; }
+        IStride Stride { get; }
     }
 }

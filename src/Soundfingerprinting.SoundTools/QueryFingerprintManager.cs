@@ -72,27 +72,27 @@ namespace Soundfingerprinting.SoundTools
         public static Dictionary<Int32, QueryStats> QueryOneSongMinHashFast(string pathToSong, IStride queryStride, IAudioService proxy, DaoGateway dalManager,
                                                                             int seconds, int lHashTables, int lGroupsPerKey, int thresholdTables, int topWavelets, ref long queryTime)
         {
-            ///*Fingerprint manager*/
-            //FingerprintManager manager = new FingerprintManager {TopWavelets = topWavelets};
+            ///*Fingerprint service*/
+            //fingerprintService service = new fingerprintService {TopWavelets = topWavelets};
             //Stopwatch stopWatch = new Stopwatch();
             //stopWatch.Start();
             //int startIndex = -1;
             //Dictionary<Int32, QueryStats> stats = new Dictionary<Int32, QueryStats>();
-            //int lenOfQuery = manager.SampleRate*seconds;
-            //double[] samples = manager.GetSamplesFromSong(proxy, pathToSong);
+            //int lenOfQuery = service.SampleRate*seconds;
+            //double[] samples = service.GetSamplesFromSong(proxy, pathToSong);
             //int startOfQuery =  Random.Next(0, samples.Length - lenOfQuery);
             //double[] querySamples = new double[lenOfQuery];
             //Array.Copy(samples, startOfQuery, querySamples, 0, lenOfQuery);
-            //startIndex = startOfQuery/manager.SampleRate;
+            //startIndex = startOfQuery/service.SampleRate;
             //MinHash minHash = new MinHash(dalManager);
 
             //IStride stride = queryStride;
             //int index = stride.GetFirstStride();
-            //while (index + manager.SamplesPerFingerprint < querySamples.Length)
+            //while (index + service.SamplesPerFingerprint < querySamples.Length)
             //{
-            //    Fingerprint f = manager.CreateFingerprintFromSamplesArray(querySamples, index);
+            //    Fingerprint f = service.CreateFingerprintFromSamplesArray(querySamples, index);
             //    if (f == null) continue;
-            //    index += manager.SamplesPerFingerprint + stride.GetStride();
+            //    index += service.SamplesPerFingerprint + stride.GetStride();
             //    int[] bin = minHash.ComputeMinHashSignature(f); /*Compute Min Hash on randomly selected fingerprints*/
             //    Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lHashTables, lGroupsPerKey); /*Find all candidates by querying the database*/
             //    long[] hashbuckets = hashes.Values.ToArray();
@@ -167,11 +167,11 @@ namespace Soundfingerprinting.SoundTools
         ///// <returns>Dictionary with Track id and it's associated query statistics</returns>
         //public static Dictionary<Int32, QueryStats> QueryOneSongNeuralHasher(NNEnsemble ensemble, string pathToSong, IStride queryStride, IAudioService proxy, DaoGateway dalManager, int fingerprintsToConsider, ref long queryTime)
         //{
-        //    FingerprintManager manager = new FingerprintManager();
+        //    fingerprintService service = new fingerprintService();
         //    /*Create Fingerprints from file*/
         //    Stopwatch watch = new Stopwatch();
         //    watch.Start();
-        //   List<bool[]> signatures = manager.CreateFingerprints(proxy, pathToSong, queryStride);
+        //   List<bool[]> signatures = service.CreateFingerprintsFromSpectrum(proxy, pathToSong, queryStride);
         //   var listOfFingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, Int32.MinValue);
         //    if (listOfFingerprints.Count == 0)
         //            return null;

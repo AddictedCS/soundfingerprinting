@@ -8,6 +8,7 @@
     using System.Linq;
 
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
 
     /// <summary>
@@ -302,17 +303,17 @@
         /// </summary>
         /// <param name = "pathToFile">Path to file to be drawn</param>
         /// <param name = "stride">Stride within the fingerprint creation</param>
-        /// <param name = "proxy">Proxy manager</param>
-        /// <param name = "manager">Fingerprint manager</param>
+        /// <param name = "proxy">Proxy service</param>
+        /// <param name = "service">Fingerprint service</param>
         /// <returns>Image to be saved</returns>
-        public static Image GetWaveletSpectralImage(string pathToFile, IFingerprintManager manager)
+        public static Image GetWaveletSpectralImage(string pathToFile, IFingerprintService service)
         {
             List<float[][]> wavelets = new List<float[][]>();
-            float[][] spectrum = manager.CreateLogSpectrogram(pathToFile);
+            float[][] spectrum = service.CreateLogSpectrogram(pathToFile);
             int specLen = spectrum.GetLength(0);
-            DefaultFingerpringConfig config = new DefaultFingerpringConfig();
-            int start = manager.FingerprintConfig.Stride.GetFirstStride() / config.Overlap;
-            int logbins = FingerprintManager.LogBins;
+            DefaultFingerprintingConfig config = new DefaultFingerprintingConfig();
+            int start = service.FingerprintConfig.Stride.GetFirstStride() / config.Overlap;
+            int logbins = FingerprintService.LogBins;
             int fingerprintLength = config.FingerprintLength;
             int overlap = config.Overlap;
             while (start + fingerprintLength < specLen)
@@ -324,7 +325,7 @@
                     Array.Copy(spectrum[start + i], frames[i], logbins);
                 }
 
-                start += fingerprintLength + (manager.FingerprintConfig.Stride.GetStride() / overlap);
+                start += fingerprintLength + (service.FingerprintConfig.Stride.GetStride() / overlap);
                 wavelets.Add(frames);
             }
 

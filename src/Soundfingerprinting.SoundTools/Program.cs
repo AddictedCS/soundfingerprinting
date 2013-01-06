@@ -5,6 +5,7 @@
 
     using Soundfingerprinting.AudioProxies;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.SoundTools.DI;
@@ -16,11 +17,11 @@
         {
             IDependencyResolver dependencyResolver = new NinjectDependencyResolver();
             dependencyResolver.Bind<IDependencyResolver>().ToConstant(dependencyResolver);
-            dependencyResolver.Bind<IFingerprintManager>().To<FingerprintManager>();
+            dependencyResolver.Bind<IFingerprintService>().To<FingerprintService>();
             dependencyResolver.Bind<IWindowFunction>().To<HanningWindow>();
             dependencyResolver.Bind<IWaveletDecomposition>().To<HaarWavelet>();
             dependencyResolver.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
-            dependencyResolver.Bind<IFingerprintConfig>().To<DefaultFingerpringConfig>();
+            dependencyResolver.Bind<IFingerprintingConfig>().To<DefaultFingerprintingConfig>();
             dependencyResolver.Bind<IAudioService>().To<BassAudioService>();
             dependencyResolver.Bind<ITagService>().To<TagService>();
 

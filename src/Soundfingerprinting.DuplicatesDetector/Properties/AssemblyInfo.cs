@@ -47,10 +47,10 @@ using System.Windows;
 //
 //      Major Version
 //      Minor Version 
-//      Build Number
+//      BuildWorkUnit Number
 //      Revision
 //
-// You can specify all the values or you can default the Build and Revision Numbers 
+// You can specify all the values or you can default the BuildWorkUnit and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 

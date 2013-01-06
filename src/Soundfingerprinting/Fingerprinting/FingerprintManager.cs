@@ -2,41 +2,25 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Threading.Tasks;
 
     using Soundfingerprinting.AudioProxies;
+    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
-    using Soundfingerprinting.Models;
-
-    public interface IFingerprintManager
-    {
-        IFingerprintConfig FingerprintConfig { get; set; }
-
-        List<bool[]> CreateFingerprints(string filename);
-
-        List<bool[]> CreateFingerprints(string filename, IFingerprintConfig config);
-
-        List<bool[]> CreateFingerprints(float[] samples);
-
-        float[][] CreateSpectrogram(string filename);
-
-        float[][] CreateLogSpectrogram(string filename);
-    }
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
 
     public interface IFingerprintService
     {
-        IEnumerable<Fingerprint> CreateFingerprints(float[] samples);
+        Task<List<bool[]>> Process(IWorkUnitParameterObject workUnitParameterObject);
     }
 
-    public class FingerprintManager : IFingerprintManager
+    public class FingerprintService : IFingerprintService
     {
         public const double HumanAuditoryThreshold = 2 * 0.000001; // 2*10^-5 Pa
-
-        /// <summary>
-        /// Number of logarithmically spaced bins between the frequency components computed by Fast Fourier Transform.
-        /// </summary>
-        public const int LogBins = 32;
 
         // normalize power (volume) of a wave file.
         // minimum and maximum rms to normalize from.
@@ -44,75 +28,38 @@
 
         private const float MaxRms = 3;
 
-        private readonly double[] windowArray;
-
         private readonly IWaveletDecomposition waveletDecomposition;
+
+        private readonly IWindowFunction windowFunction;
 
         private readonly IFingerprintDescriptor fingerprintDescriptor;
 
-        private IFingerprintConfig fingerprintConfig;
+        private readonly IAudioService audioService;
 
-        private int[] logFrequenciesIndex;
-
-        public FingerprintManager(IAudioService audioService, IFingerprintConfig fingerprintConfig, IFingerprintDescriptor fingerprintDescriptor, IWindowFunction windowFunction, IWaveletDecomposition waveletDecomposition)
+        public FingerprintService(
+            IAudioService audioService,
+            IFingerprintDescriptor fingerprintDescriptor,
+            IWindowFunction windowFunction,
+            IWaveletDecomposition waveletDecomposition)
         {
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
-            FingerprintConfig = fingerprintConfig;
-            AudioServiceProxy = audioService;
-
-            logFrequenciesIndex = GenerateLogFrequencies(
-                FingerprintConfig.SampleRate, FingerprintConfig.MinFrequency, FingerprintConfig.MaxFrequency, LogBins, FingerprintConfig.WdftSize, FingerprintConfig.LogBase);
-
-            windowArray = windowFunction.GetWindow(FingerprintConfig.WdftSize);
+            this.windowFunction = windowFunction;
+            this.audioService = audioService;
         }
 
-        public event EventHandler<FingerprintManagerEventArgs> UnhandledException;
 
-        public IFingerprintConfig FingerprintConfig
-        {
-            get
-            {
-                return fingerprintConfig;
-            }
-
-            set
-            {
-                fingerprintConfig = value;
-
-                logFrequenciesIndex = GenerateLogFrequencies(
-                    fingerprintConfig.SampleRate,
-                    fingerprintConfig.MinFrequency,
-                    fingerprintConfig.MaxFrequency,
-                    LogBins,
-                    fingerprintConfig.WdftSize,
-                    fingerprintConfig.LogBase);
-            }
-        }
-
-        public IAudioService AudioServiceProxy { get; set; }
-
-        /// <summary>
-        /// Create spectrogram of the input file
-        /// </summary>
-        /// <param name="filename">
-        /// Filename
-        /// </param>
-        /// <returns>
-        /// Spectrogram
-        /// </returns>
-        public float[][] CreateSpectrogram(string filename)
+        public float[][] CreateSpectrogram(string filename, int sampleRate, int overlap, int wdftSize)
         {
             // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = AudioServiceProxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, 0, 0);
+            float[] samples = audioService.ReadMonoFromFile(filename, sampleRate, 0, 0);
 
             NormalizeInPlace(samples);
 
-            int overlap = fingerprintConfig.Overlap;
-            int wdftSize = fingerprintConfig.WdftSize;
             int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
             float[][] frames = new float[width][];
             float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
+            double[] windowArray = windowFunction.GetWindow(wdftSize);
             for (int i = 0; i < width; i++)
             {
                 // take 371 ms each 11.6 ms (2048 samples each 64 samples)
@@ -141,136 +88,78 @@
             return frames;
         }
 
-        public float[][] CreateLogSpectrogram(string filename)
+        public Task<List<bool[]>> Process(IWorkUnitParameterObject workUnitParameterObject)
         {
-            return CreateLogSpectrogram(filename, 0, 0);
-        }
+            Debug.Assert(
+                workUnitParameterObject.AudioSamples != null
+                || string.IsNullOrEmpty(workUnitParameterObject.PathToAudioFile) == false,
+                "Audio samples or Path to file has to be specified");
 
-        /// <summary>
-        /// Create log-spectrogram (spaced according to manager's parameters)
-        /// </summary>
-        /// <param name="filename">
-        /// Filename to be processed
-        /// </param>
-        /// <param name="milliseconds">
-        /// Milliseconds to be analyzed
-        /// </param>
-        /// <param name="startmilliseconds">
-        /// Starting point
-        /// </param>
-        /// <returns>
-        /// Logarithmically spaced bins within the power spectrum
-        /// </returns>
-        public float[][] CreateLogSpectrogram(string filename, int milliseconds, int startmilliseconds)
-        {
-            // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = AudioServiceProxy.ReadMonoFromFile(filename, fingerprintConfig.SampleRate, milliseconds, startmilliseconds);
-            return CreateLogSpectrogram(samples);
-        }
-
-
-        /// <summary>
-        /// Create fingerprints according to the Google's researchers algorithm
-        /// </summary>
-        /// <param name="filename">
-        /// Filename to be analyzed
-        /// </param>
-        /// <param name="milliseconds">
-        /// Milliseconds to analyze
-        /// </param>
-        /// <param name="startmilliseconds">
-        /// Starting point of analysis
-        /// </param>
-        /// <returns>
-        /// Fingerprint signatures
-        /// </returns>
-        public List<bool[]> CreateFingerprints(string filename, int milliseconds, int startmilliseconds)
-        {
-            float[][] spectrum = CreateLogSpectrogram(filename, milliseconds, startmilliseconds);
-            return CreateFingerprints(spectrum);
-        }
-
-        /// <summary>
-        ///   Create fingerprints from already written samples
-        /// </summary>
-        /// <param name = "samples">Samples from a song</param>
-        /// <returns>Fingerprint signatures</returns>
-        public List<bool[]> CreateFingerprints(float[] samples)
-        {
-            float[][] spectrum = CreateLogSpectrogram(samples);
-            return CreateFingerprints(spectrum);
-        }
-
-        /// <summary>
-        /// Create fingerprints gathered from one specific song
-        /// </summary>
-        /// <param name="filename">
-        /// Filename
-        /// </param>
-        /// <returns>
-        /// List of fingerprint signatures
-        /// </returns>
-        public List<bool[]> CreateFingerprints(string filename)
-        {
-            return CreateFingerprints(filename, 0, 0);
-        }
-
-        public List<bool[]> CreateFingerprints(string filename, IFingerprintConfig config)
-        {
-            FingerprintConfig = config;
-            return CreateFingerprints(filename);
-        }
-
-        protected virtual void OnUnhandledException(FingerprintManagerEventArgs eventArg)
-        {
-            EventHandler<FingerprintManagerEventArgs> temp = UnhandledException;
-            if (temp != null)
+            if (!string.IsNullOrEmpty(workUnitParameterObject.PathToAudioFile))
             {
-                temp.Invoke(this, eventArg);
+                return
+                    Task.Factory.StartNew(
+                        () =>
+                        CreateFingerprints(
+                            workUnitParameterObject.PathToAudioFile,
+                            workUnitParameterObject.MillisecondsToProcess,
+                            workUnitParameterObject.StartAtMilliseconds,
+                            workUnitParameterObject.FingerprintingConfig));
             }
+
+            return
+                Task.Factory.StartNew(
+                    () =>
+                    CreateFingerprints(
+                        workUnitParameterObject.AudioSamples, workUnitParameterObject.FingerprintingConfig));
         }
 
-        /// <summary>
-        ///   Create logarithmically spaced spectrogram out of the input samples (spaced according to manager's parameters)
-        /// </summary>
-        /// <param name = "samples">Samples of a song</param>
-        /// <returns>Logarithmically spaced bins within the power spectrum</returns>
-        private float[][] CreateLogSpectrogram(float[] samples)
+        private List<bool[]> CreateFingerprints(float[] samples, IFingerprintingConfig config)
+        {
+            float[][] spectrum = CreateLogSpectrogram(
+                samples, config.Overlap, config.WdftSize, GenerateLogFrequencies(config), config.LogBins);
+            return CreateFingerprintsFromSpectrum(
+                spectrum, config.Stride, config.FingerprintLength, config.Overlap, config.LogBins, config.TopWavelets);
+        }
+
+        private List<bool[]> CreateFingerprints(
+            string pathToAudioFile, int howManyMilliseconds, int startAtMilliseconds, IFingerprintingConfig config)
+        {
+            float[] samples = audioService.ReadMonoFromFile(
+                pathToAudioFile, config.SampleRate, howManyMilliseconds, startAtMilliseconds);
+            return CreateFingerprints(samples, config);
+        }
+
+        private float[][] CreateLogSpectrogram(
+            float[] samples, int overlap, int wdftSize, int[] logFrequenciesIndex, int logBins)
         {
             NormalizeInPlace(samples);
-            int overlap = fingerprintConfig.Overlap;
-            int wdftSize = fingerprintConfig.WdftSize;
             int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
             float[][] frames = new float[width][];
             float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
+            double[] windowArray = windowFunction.GetWindow(wdftSize);
             for (int i = 0; i < width; i++)
             {
                 // take 371 ms each 11.6 ms (2048 samples each 64 samples)
                 for (int j = 0; j < wdftSize /*2048*/; j++)
                 {
-                    complexSignal[(2 * j)] = (float)(windowArray[j] * samples[(i * overlap) + j]); /*Weight by Hann Window*/
+                    complexSignal[(2 * j)] = (float)(windowArray[j] * samples[(i * overlap) + j]);
+                        /*Weight by Hann Window*/
                     complexSignal[(2 * j) + 1] = 0;
                 }
 
                 // FFT transform for gathering the spectrum
                 Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
-                frames[i] = ExtractLogBins(complexSignal);
+                frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndex, logBins);
             }
 
             return frames;
         }
 
-        /// <summary>
-        ///   Create fingerprints according to the Google's researchers algorithm
-        /// </summary>
-        /// <param name = "spectrum">Spectrogram of the song</param>
-        /// <returns>Fingerprint signatures</returns>
-        private List<bool[]> CreateFingerprints(float[][] spectrum)
+        private List<bool[]> CreateFingerprintsFromSpectrum(
+            float[][] spectrum, IStride stride, int fingerprintLength, int overlap, int logBins, int topWavelets)
         {
-            int fingerprintLength = fingerprintConfig.FingerprintLength;
-            int overlap = fingerprintConfig.Overlap;
-            const int Logbins = LogBins;
-            int start = FingerprintConfig.Stride.GetFirstStride() / overlap;
+            int start = stride.GetFirstStride() / overlap;
             List<bool[]> fingerprints = new List<bool[]>();
 
             int width = spectrum.GetLength(0);
@@ -279,28 +168,23 @@
                 float[][] frames = new float[fingerprintLength][];
                 for (int i = 0; i < fingerprintLength; i++)
                 {
-                    frames[i] = new float[Logbins];
-                    Array.Copy(spectrum[start + i], frames[i], Logbins);
+                    frames[i] = new float[logBins];
+                    Array.Copy(spectrum[start + i], frames[i], logBins);
                 }
 
-                start += fingerprintLength + (FingerprintConfig.Stride.GetStride() / overlap);
+                start += fingerprintLength + (stride.GetStride() / overlap);
                 waveletDecomposition.DecomposeImageInPlace(frames); /*Compute wavelets*/
-                bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, fingerprintConfig.TopWavelets);
+                bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, topWavelets);
                 fingerprints.Add(image);
             }
 
             return fingerprints;
         }
 
-        /// <summary>
-        ///   Logarithmic spacing of a frequency in a linear domain
-        /// </summary>
-        /// <param name = "spectrum">Spectrum to space</param>
-        /// <returns>Logarithmically spaced signal</returns>
-        private float[] ExtractLogBins(float[] spectrum)
+        private float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins)
         {
-            float[] sumFreq = new float[LogBins]; /*32*/
-            for (int i = 0; i < LogBins; i++)
+            float[] sumFreq = new float[logBins]; /*32*/
+            for (int i = 0; i < logBins; i++)
             {
                 int lowBound = logFrequenciesIndex[i];
                 int higherBound = logFrequenciesIndex[i + 1];
@@ -319,32 +203,28 @@
         }
 
         /// <summary>
-        ///   Get logarithmically spaced indices
+        /// Get logarithmically spaced indices
         /// </summary>
-        /// <param name = "sampleRate">Signal's sample rate</param>
-        /// <param name = "minFreq">Min frequency</param>
-        /// <param name = "maxFreq">Max frequency</param>
-        /// <param name = "logBins">Number of logarithmically spaced bins</param>
-        /// <param name = "fftSize">FFT Size</param>
-        /// <param name = "logarithmicBase">Logarithm base</param>
+        /// <param name="config">
+        /// The configuration for log frequencies
+        /// </param>
         /// <returns>
-        ///  Log indexes
+        /// Log indexes
         /// </returns>
-        private int [] GenerateLogFrequencies(
-            int sampleRate, int minFreq, int maxFreq, int logBins, int fftSize, double logarithmicBase)
+        private int[] GenerateLogFrequencies(IFingerprintingConfig config)
         {
-            double logMin = Math.Log(minFreq, logarithmicBase);
-            double logMax = Math.Log(maxFreq, logarithmicBase);
-            double delta = (logMax - logMin) / logBins;
+            double logMin = Math.Log(config.MinFrequency, config.LogBase);
+            double logMax = Math.Log(config.MaxFrequency, config.LogBase);
+            double delta = (logMax - logMin) / config.LogBins;
 
-            int[] indexes = new int[logBins + 1];
+            int[] indexes = new int[config.LogBins + 1];
             double accDelta = 0;
-            for (int i = 0; i <= logBins /*32 octaves*/; ++i)
+            for (int i = 0; i <= config.LogBins /*32 octaves*/; ++i)
             {
-                float freq = (float)Math.Pow(logarithmicBase, logMin + accDelta);
+                float freq = (float)Math.Pow(config.LogBase, logMin + accDelta);
                 accDelta += delta; // accDelta = delta * i
                 /*Find the start index in array from which to start the summation*/
-                indexes[i] = FreqToIndex(freq, sampleRate, fftSize);
+                indexes[i] = FreqToIndex(freq, config.SampleRate, config.WdftSize);
             }
 
             return indexes;

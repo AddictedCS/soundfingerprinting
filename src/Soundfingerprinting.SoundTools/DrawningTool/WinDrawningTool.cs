@@ -10,17 +10,18 @@
     using Soundfingerprinting.AudioProxies;
     using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinDrawningTool : Form
     {
-        private readonly IFingerprintManager fingerprintManager;
+        private readonly IFingerprintService fingerprintService;
 
         private readonly ITagService tagService;
 
-        public WinDrawningTool(IFingerprintManager fingerprintManager, ITagService tagService)
+        public WinDrawningTool(IFingerprintService fingerprintService, ITagService tagService)
         {
-            this.fingerprintManager = fingerprintManager;
+            this.fingerprintService = fingerprintService;
             this.tagService = tagService;
 
             InitializeComponent();
@@ -69,12 +70,12 @@
                     FadeControls(false);
                     Action action = () =>
                         {
-                            IFingerprintConfig config = new DefaultFingerpringConfig();
+                            IFingerprintingConfig config = new DefaultFingerprintingConfig();
                             config.Stride = new StaticStride((int)_nudStride.Value);
-                            fingerprintManager.FingerprintConfig = config;
-                            List<bool[]> fingerprints = fingerprintManager.CreateFingerprints(Path.GetFullPath(_tbPathToFile.Text));
+                            fingerprintService.FingerprintConfig = config;
+                            List<bool[]> fingerprints = fingerprintService.CreateFingerprints(Path.GetFullPath(_tbPathToFile.Text));
                             int width = config.FingerprintLength;
-                            int height = FingerprintManager.LogBins;
+                            int height = FingerprintService.LogBins;
                             Bitmap image = Imaging.GetFingerprintsImage(fingerprints, width, height);
                             image.Save(path);
                             image.Dispose();
@@ -104,11 +105,11 @@
                     FadeControls(false);
                     Action action = () =>
                         {
-                            fingerprintManager.FingerprintConfig.Stride = new StaticStride((int)_nudStride.Value);
-                            List<bool[]> result = fingerprintManager.CreateFingerprints(Path.GetFullPath(_tbPathToFile.Text));
+                            fingerprintService.FingerprintConfig.Stride = new StaticStride((int)_nudStride.Value);
+                            List<bool[]> result = fingerprintService.CreateFingerprints(Path.GetFullPath(_tbPathToFile.Text));
                             int i = -1;
-                            int width = fingerprintManager.FingerprintConfig.FingerprintLength;
-                            int height = FingerprintManager.LogBins;
+                            int width = fingerprintService.FingerprintConfig.FingerprintLength;
+                            int height = FingerprintService.LogBins;
                             foreach (bool[] item in result)
                             {
                                 Image image = Imaging.GetFingerprintImage(item, width, height);
@@ -166,7 +167,7 @@
                         using (IAudioService proxy = new BassAudioService())
                         {
                             float[] data = proxy.ReadMonoFromFile(
-                                fullpath, new DefaultFingerpringConfig().SampleRate, 0, 0);
+                                fullpath, new DefaultFingerprintingConfig().SampleRate, 0, 0);
                             Bitmap image = Imaging.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                             image.Save(sfd.FileName, ImageFormat.Jpeg);
                             image.Dispose();
@@ -217,7 +218,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                            float[][] data = fingerprintManager.CreateSpectrogram(Path.GetFullPath(_tbPathToFile.Text));
+                            float[][] data = fingerprintService.CreateSpectrogram(Path.GetFullPath(_tbPathToFile.Text));
                             Bitmap image = Imaging.GetSpectrogramImage(
                                 data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                             image.Save(sfd.FileName, ImageFormat.Jpeg);
@@ -294,9 +295,9 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        fingerprintManager.FingerprintConfig.Stride = new StaticStride((int)_nudStride.Value);
+                        fingerprintService.FingerprintConfig.Stride = new StaticStride((int)_nudStride.Value);
                         Image image = Imaging.GetWaveletSpectralImage(
-                            Path.GetFullPath(_tbPathToFile.Text), fingerprintManager);
+                            Path.GetFullPath(_tbPathToFile.Text), fingerprintService);
                         image.Save(path);
                         image.Dispose();
 

@@ -23,7 +23,7 @@
         /// <summary>
         ///   Creates fingerprints according to the theoretical constructs
         /// </summary>
-        private readonly IFingerprintManager manager;
+        private readonly IFingerprintService service;
 
         /// <summary>
         ///   Storage for min-hash permutations
@@ -35,11 +35,11 @@
         /// </summary>
         private readonly IStorage storage;
 
-        public Repository(IFingerprintManager fingerprintManager, IStorage storage, IPermutations permutations)
+        public Repository(IFingerprintService fingerprintService, IStorage storage, IPermutations permutations)
         {
             this.permutations = permutations;
             this.storage = storage;
-            manager = fingerprintManager;
+            service = fingerprintService;
             hasher = new MinHash(this.permutations);
         }
 
@@ -65,8 +65,8 @@
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
             // TODO Refactor HERE
-            manager.FingerprintConfig.Stride = stride;
-            List<bool[]> fingerprints = manager.CreateFingerprints(samples);
+            service.FingerprintConfig.Stride = stride;
+            List<bool[]> fingerprints = service.CreateFingerprints(samples);
             storage.InsertTrack(track); /*Insert track into the storage*/
             /*Get fingerprint's hash signature, and associate it to a specific track*/
             List<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);

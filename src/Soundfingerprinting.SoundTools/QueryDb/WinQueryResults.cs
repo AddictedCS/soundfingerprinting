@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
     using System.Linq;
     using System.Threading;
@@ -60,7 +61,7 @@
         private readonly string connectionString;
 
         /// <summary>
-        ///   Data access manager, allows one to access the underlying data source
+        ///   Data access service, allows one to access the underlying data source
         /// </summary>
         private readonly DaoGateway dalManager;
 
@@ -85,11 +86,6 @@
         private readonly int hashTables;
 
         /// <summary>
-        ///   Fingerprint manager
-        /// </summary>
-        private readonly FingerprintManager _manager;
-
-        /// <summary>
         ///   Permutation storage
         /// </summary>
         private readonly IPermutations permStorage;
@@ -102,47 +98,55 @@
         /// <summary>
         ///   The size of the query [E.g. 253 samples]
         /// </summary>
-        private readonly IStride _queryStride;
+        private readonly IStride queryStride;
 
         /// <summary>
         ///   Number of fingerprints to analyze
         /// </summary>
-        private readonly int _secondsToAnalyze;
+        private readonly int secondsToAnalyze;
 
         /// <summary>
         ///   Start second
         /// </summary>
-        private readonly int _startSecond;
+        private readonly int startSecond;
 
         /// <summary>
         ///   Recognition threshold 17% ~5 tables from 25 hash functions
         /// </summary>
-        private readonly int _threshold;
-
-        /// <summary>
-        ///   Number of top wavelets involved
-        /// </summary>
-        private readonly int _topWavelets;
+        private readonly int threshold;
 
         /// <summary>
         ///   Running thread allows one to Abort forcibly the recognition
         /// </summary>
-        private Thread _runningThread;
+        private Thread runningThread;
 
         /// <summary>
         ///   Flag which signalizes stop of the recognition process
         /// </summary>
-        private bool _stopQuerying;
+        private bool stopQuerying;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="WinQueryResults"/> class. 
         ///   Protected constructor of WinQueryResults class
         /// </summary>
-        /// <param name = "connectionString">Connection string used for the underlying data source</param>
-        /// <param name = "secondsToAnalyze">Number of consequent fingerprints to analyze</param>
-        /// <param name = "startSecond">Starting seconds</param>
-        /// <param name = "stride">Stride used in the query</param>
-        /// <param name = "topWavelets">Number of top wavelets to analyze</param>
-        /// <param name = "fileList">List of all files to be recognized</param>
+        /// <param name="connectionString">
+        /// Connection string used for the underlying data source
+        /// </param>
+        /// <param name="secondsToAnalyze">
+        /// Number of consequent fingerprints to analyze
+        /// </param>
+        /// <param name="startSecond">
+        /// Starting seconds
+        /// </param>
+        /// <param name="stride">
+        /// Stride used in the query
+        /// </param>
+        /// <param name="topWavelets">
+        /// Number of top wavelets to analyze
+        /// </param>
+        /// <param name="fileList">
+        /// List of all files to be recognized
+        /// </param>
         protected WinQueryResults(
             string connectionString,
             int secondsToAnalyze,
@@ -154,13 +158,12 @@
             InitializeComponent(); /*Initialize Designer Components*/
             Icon = Resources.Sound;
             this.connectionString = connectionString;
-            _topWavelets = topWavelets;
             dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
 
-            dalManager.SetConnectionString(this.connectionString); /*Set connection string for DAL manager*/
-            _secondsToAnalyze = secondsToAnalyze; /*Number of fingerprints to analyze from each song*/
-            _startSecond = startSecond;
+            dalManager.SetConnectionString(this.connectionString); /*Set connection string for DAL service*/
+            this.secondsToAnalyze = secondsToAnalyze; /*Number of fingerprints to analyze from each song*/
+            this.startSecond = startSecond;
             this.fileList = fileList; /*List of files to analyze*/
             _dgvResults.Columns.Add(ColSongName, "Initial Song");
             _dgvResults.Columns[ColSongName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -172,7 +175,7 @@
             _dgvResults.Columns[ColResult].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(ColHammingAvg, "Hamming Avg.");
             _dgvResults.Columns[ColHammingAvg].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _queryStride = stride;
+            queryStride = stride;
         }
 
         /// <summary>
@@ -206,12 +209,13 @@
         /// <param name="topWavelets">
         /// Number of top wavelets to consider
         /// </param>
+        [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "Reviewed. Suppression is OK here.")]
         public WinQueryResults(string connectionString, int secondsToAnalyze, int startSecond, IStride stride, List<string> fileList, int hashTables, int hashKeys, int thresholdTables, int topWavelets)
             : this(connectionString, secondsToAnalyze, startSecond, stride, topWavelets, fileList)
         {
             this.hashTables = hashTables;
             this.hashKeys = hashKeys;
-            _threshold = thresholdTables;
+            threshold = thresholdTables;
             _dgvResults.Columns.Add(ColHammingAvgByTrack, "Hamming Avg. By Track");
             // ReSharper disable PossibleNullReferenceException
             _dgvResults.Columns[ColHammingAvgByTrack].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -273,15 +277,30 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="WinQueryResults"/> class. 
         ///   Public constructor for NN algorithm
         /// </summary>
-        /// <param name = "connectionString">Connection string</param>
-        /// <param name = "secondsToAnalyze">Number of fingerprints to analyze</param>
-        /// <param name = "startSeconds">Starting seconds</param>
-        /// <param name = "stride">Query stride</param>
-        /// <param name = "topWavelets">Number of top wavelets</param>
-        /// <param name = "fileList">File list to analyze</param>
-        /// <param name = "pathToEnsemble">Path to ensemble</param>
+        /// <param name="connectionString">
+        /// Connection string
+        /// </param>
+        /// <param name="secondsToAnalyze">
+        /// Number of fingerprints to analyze
+        /// </param>
+        /// <param name="startSeconds">
+        /// Starting seconds
+        /// </param>
+        /// <param name="stride">
+        /// Query stride
+        /// </param>
+        /// <param name="topWavelets">
+        /// Number of top wavelets
+        /// </param>
+        /// <param name="fileList">
+        /// File list to analyze
+        /// </param>
+        /// <param name="pathToEnsemble">
+        /// Path to ensemble
+        /// </param>
         public WinQueryResults(string connectionString, int secondsToAnalyze, int startSeconds, IStride stride, int topWavelets, List<string> fileList, string pathToEnsemble)
             : this(connectionString, secondsToAnalyze, startSeconds, stride, topWavelets, fileList)
         {
@@ -292,7 +311,7 @@
             action.BeginInvoke(action.EndInvoke, action);
         }
 
-        public IFingerprintManager FingerprintManager { get; set; }
+        public IFingerprintService FingerprintService { get; set; }
 
         /// <summary>
         ///   Extract possible candidates from the data source using Neural Hasher
@@ -307,7 +326,9 @@
                     int index = _dgvResults.Rows.Add(parameters);
                     _dgvResults.FirstDisplayedScrollingRowIndex = index;
                     if (color != Color.Empty)
+                    {
                         _dgvResults.Rows[index].DefaultCellStyle.BackColor = color;
+                    }
                 };
 
             Action<float> actionRecognition = (recognition) => _tbResults.Text = recognition.ToString();
@@ -315,7 +336,7 @@
             foreach (string pathToFile in fileList)
             {
                 //Samples to skip from each of the song
-                IStride samplesToSkip = _queryStride;
+                IStride samplesToSkip = queryStride;
                 long elapsedMiliseconds = 0;
 
                 TAG_INFO tags = audioService.GetTagInfoFromFile(pathToFile); //Get Tags from file
@@ -407,9 +428,9 @@
         /// </summary>
         private void ExtractCandidatesWithMinHashAlgorithm()
         {
-            _runningThread = Thread.CurrentThread;
+            runningThread = Thread.CurrentThread;
             int recognized = 0, verified = 0;
-            IStride samplesToSkip = _queryStride;
+            IStride samplesToSkip = queryStride;
             Action<int> action = ((check) => _nudChecked.Value = check);
             Action<object[], Color> actionAddItems = (parameters, color) =>
                                                      {
@@ -426,7 +447,7 @@
                     Invoke(action, i);
                 else
                     action(i);
-                if (_stopQuerying)
+                if (stopQuerying)
                     break;
 
                 string pathToFile = fileList[i]; /*Path to song to recognize*/
@@ -466,17 +487,18 @@
                     Invoke(actionAddItems, new Object[] {title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, elapsedMiliseconds}, Color.Red);
                     continue;
                 }
-                _manager.FingerprintConfig.Stride = samplesToSkip;
-                List<bool[]> signatures = _manager.CreateFingerprints(
-                    pathToFile, _secondsToAnalyze * 1000, _startSecond * 1000);
+
+                FingerprintService.FingerprintConfig.Stride = samplesToSkip;
+                List<bool[]> signatures = FingerprintService.CreateFingerprints(
+                    pathToFile, secondsToAnalyze * 1000, startSecond * 1000);
                 Dictionary<Int32, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash(
                     signatures,
                     dalManager,
                     permStorage,
-                    _secondsToAnalyze,
+                    secondsToAnalyze,
                     hashTables,
                     hashKeys,
-                    _threshold,
+                    threshold,
                     ref elapsedMiliseconds); /*Query the database using Min Hash*/
 
                 if (allCandidates == null) /*No candidates*/
@@ -567,7 +589,7 @@
         /// </summary>
         private void BtnStopClick(object sender, EventArgs e)
         {
-            _stopQuerying = true;
+            stopQuerying = true;
             Invoke(new Action(() => { _btnStop.Enabled = false; }));
         }
 
@@ -586,8 +608,8 @@
         /// </summary>
         private void WinQueryResultsFormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_runningThread != null)
-                _runningThread.Abort();
+            if (runningThread != null)
+                runningThread.Abort();
         }
     }
 }

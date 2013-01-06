@@ -38,7 +38,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
 
         private string connectionStringNeuralHasher = string.Empty;
 
-        private IFingerprintManager fingerprintManager;
+        private IFingerprintService fingerprintService;
 
         /// <summary>
         ///   Start folder to search networks
@@ -70,9 +70,9 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private string pathToEnsemble = "Ensemble.ens";
 
-        public WinEnsembleHash(IFingerprintManager fingerprintManager)
+        public WinEnsembleHash(IFingerprintService fingerprintService)
         {
-            this.fingerprintManager = fingerprintManager;
+            this.fingerprintService = fingerprintService;
             InitializeComponent();
             Icon = Resources.Sound;
             permutations = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
