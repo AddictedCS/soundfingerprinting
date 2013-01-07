@@ -1,6 +1,7 @@
 namespace Soundfingerprinting.Fingerprinting.Configuration
 {
     using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Fingerprinting.Windows;
 
     public interface IFingerprintingConfiguration
     {
@@ -62,5 +63,10 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         ///  Default = 5115
         /// </remarks>
         IStride Stride { get; }
+
+        /// <summary>
+        /// Gets window function applied on spectrogram
+        /// </summary>
+        IWindowFunction WindowFunction { get; }
     }
 }

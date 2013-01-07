@@ -1,6 +1,7 @@
 namespace Soundfingerprinting.Fingerprinting.Configuration
 {
     using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Fingerprinting.Windows;
 
     public class CustomFingerprintingConfiguration : IFingerprintingConfiguration
     {
@@ -18,6 +19,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
             FingerprintLength = defaultFingerprinting.FingerprintLength;
             Stride = defaultFingerprinting.Stride;
             LogBins = defaultFingerprinting.LogBins;
+            WindowFunction = defaultFingerprinting.WindowFunction;
         }
 
         public int SamplesPerFingerprint { get; set; }
@@ -41,5 +43,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         public int FingerprintLength { get; set; }
 
         public IStride Stride { get; set; }
+
+        public IWindowFunction WindowFunction { get; set; }
     }
 }

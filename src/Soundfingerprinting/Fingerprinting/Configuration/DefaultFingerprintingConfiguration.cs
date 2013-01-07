@@ -1,15 +1,15 @@
 namespace Soundfingerprinting.Fingerprinting.Configuration
 {
     using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Fingerprinting.Windows;
 
     public class DefaultFingerprintingConfiguration : IFingerprintingConfiguration
     {
-       
         public DefaultFingerprintingConfiguration()
         {
             FingerprintLength = 128;
             Overlap = 64;
-            SamplesPerFingerprint = FingerprintLength * overlap;
+            SamplesPerFingerprint = FingerprintLength * Overlap;
             WdftSize = 2048;
             MinFrequency = 318;
             MaxFrequency = 2000;
@@ -18,6 +18,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
             LogBase = 2;
             Stride = new StaticStride(5115);
             LogBins = 32;
+            WindowFunction = new CachingHanningWindow(new HanningWindow());
         }
 
         /// <summary>
@@ -101,5 +102,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         ///  Default = 5115
         /// </remarks>
         public IStride Stride { get; private set; }
+
+        public IWindowFunction WindowFunction { get; private set; }
     }
 }

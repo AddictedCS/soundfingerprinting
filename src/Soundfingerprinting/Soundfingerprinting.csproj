@@ -90,9 +90,10 @@
     <Compile Include="Fingerprinting\FFT\Fourier.cs" />
     <Compile Include="Fingerprinting\FFT\FourierDirection.cs" />
     <Compile Include="Fingerprinting\FingerprintDescriptor.cs" />
-    <Compile Include="Fingerprinting\FingerprintManager.cs" />
+    <Compile Include="Fingerprinting\IFingerprintService.cs" />
     <Compile Include="Fingerprinting\FingerprintManagerEventArgs.cs" />
     <Compile Include="Fingerprinting\Configuration\IFingerprintingConfiguration.cs" />
+    <Compile Include="Fingerprinting\FingerprintService.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnitParameterObject.cs" />

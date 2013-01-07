@@ -1,29 +1,18 @@
-﻿namespace Soundfingerprinting.Fingerprinting
+namespace Soundfingerprinting.Fingerprinting
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading.Tasks;
 
     using Soundfingerprinting.AudioProxies;
     using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
-    using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
-
-    public interface IFingerprintService
-    {
-        Task<List<bool[]>> Process(IWorkUnitParameterObject details);
-    }
 
     public class FingerprintService : IFingerprintService
     {
-        public const double HumanAuditoryThreshold = 2 * 0.000001; // 2*10^-5 Pa
-
         private readonly IWaveletDecomposition waveletDecomposition;
-
-        private readonly IWindowFunction windowFunction;
 
         private readonly IFingerprintDescriptor fingerprintDescriptor;
 
@@ -32,12 +21,10 @@
         public FingerprintService(
             IAudioService audioService,
             IFingerprintDescriptor fingerprintDescriptor,
-            IWindowFunction windowFunction,
             IWaveletDecomposition waveletDecomposition)
         {
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
-            this.windowFunction = windowFunction;
             this.audioService = audioService;
         }
 
@@ -71,7 +58,7 @@
                 configuration.Overlap,
                 configuration.WdftSize,
                 GenerateLogFrequencies(configuration),
-                windowFunction.GetWindow(configuration.WdftSize),
+                configuration.WindowFunction.GetWindow(configuration.WdftSize),
                 configuration.LogBins);
 
             return CreateFingerprintsFromSpectrum(
