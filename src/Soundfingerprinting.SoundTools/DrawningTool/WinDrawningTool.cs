@@ -70,11 +70,11 @@
                     FadeControls(false);
                     Action action = () =>
                         {
-                            IFingerprintingConfig config = new DefaultFingerprintingConfig();
-                            config.Stride = new StaticStride((int)_nudStride.Value);
-                            fingerprintService.FingerprintConfig = config;
+                            IFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
+                            configuration.Stride = new StaticStride((int)_nudStride.Value);
+                            fingerprintService.FingerprintConfig = configuration;
                             List<bool[]> fingerprints = fingerprintService.CreateFingerprints(Path.GetFullPath(_tbPathToFile.Text));
-                            int width = config.FingerprintLength;
+                            int width = configuration.FingerprintLength;
                             int height = FingerprintService.LogBins;
                             Bitmap image = Imaging.GetFingerprintsImage(fingerprints, width, height);
                             image.Save(path);
@@ -167,7 +167,7 @@
                         using (IAudioService proxy = new BassAudioService())
                         {
                             float[] data = proxy.ReadMonoFromFile(
-                                fullpath, new DefaultFingerprintingConfig().SampleRate, 0, 0);
+                                fullpath, new DefaultFingerprintingConfiguration().SampleRate, 0, 0);
                             Bitmap image = Imaging.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                             image.Save(sfd.FileName, ImageFormat.Jpeg);
                             image.Dispose();

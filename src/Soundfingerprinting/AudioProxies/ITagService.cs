@@ -4,12 +4,4 @@ namespace Soundfingerprinting.AudioProxies
     {
         TagInfo GetTagInfo(string pathToAudioFile);
     }
-
-    public class TagService : ITagService
-    {
-        public TagInfo GetTagInfo(string pathToAudioFile)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
 }

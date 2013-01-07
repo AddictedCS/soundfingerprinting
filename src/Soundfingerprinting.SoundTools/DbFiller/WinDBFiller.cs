@@ -383,12 +383,12 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         private void InsertInDatabase(int start, int end)
         {
             BassAudioService audioService = new BassAudioService(); //Proxy used to read from file
-            IFingerprintingConfig config = new DefaultFingerprintingConfig();
+            IFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
             IStride stride = null;
             Invoke(new Action(() =>
                               {
                                   stride = WinUtils.GetStride((StrideType) _cmbStrideType.SelectedIndex, //Get stride according to the underlying combo box selection
-                                      (int)_nudStride.Value, 0, config.SamplesPerFingerprint);
+                                      (int)_nudStride.Value, 0, configuration.SamplesPerFingerprint);
                               }), null);
 
             Action actionInterface =

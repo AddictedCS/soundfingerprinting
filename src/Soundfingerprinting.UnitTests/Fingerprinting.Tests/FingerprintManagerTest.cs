@@ -29,7 +29,7 @@
        
         private FingerprintService fingerService;
 
-        private IFingerprintingConfig fingerprintingConfig;
+        private IFingerprintingConfiguration fingerprintingConfiguration;
 
         [TestInitialize]
         public void SetUp()
@@ -38,11 +38,11 @@
             dalManager = new DaoGateway(connectionstring);
             fingerService = new FingerprintService(
                 new BassAudioService(),
-                new DefaultFingerprintingConfig(),
+                new DefaultFingerprintingConfiguration(),
                 new FingerprintDescriptor(),
                 new HanningWindow(),
                 new HaarWavelet());
-            fingerprintingConfig = new DefaultFingerprintingConfig();
+            fingerprintingConfiguration = new DefaultFingerprintingConfiguration();
             Mock<IFingerprintService> mock = new Mock<IFingerprintService>();
             mock.SetupSet(s => s.Far = 1);
         }
@@ -65,9 +65,9 @@
             Track track = new Track(0, "Track", "Track", album.Id);
             dalManager.InsertTrack(track);
             List<Fingerprint> fingerprints;
-            using (DirectSoundProxy proxy = new DirectSoundProxy())
+            using (DirectSoundAudioService audioService = new DirectSoundAudioService())
             {
-                fingerService.AudioServiceProxy = proxy;
+                fingerService.AudioServiceProxy = audioService;
                 List<bool[]> signatures = fingerService.CreateFingerprintsFromSpectrum(PathToWav);
                 fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
                 dalManager.InsertFingerprint(fingerprints);
@@ -140,9 +140,9 @@
             dalManager.InsertTrack(track);
             List<Fingerprint> fingerprints;
             List<Fingerprint> insertedFingerprints;
-            using (DirectSoundProxy proxy = new DirectSoundProxy())
+            using (DirectSoundAudioService audioService = new DirectSoundAudioService())
             {
-                fingerService.AudioServiceProxy = proxy;
+                fingerService.AudioServiceProxy = audioService;
                 List<bool[]> signatures = fingerService.CreateFingerprintsFromSpectrum(PathToWav);
                 fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
                 dalManager.InsertFingerprint(fingerprints);
@@ -215,7 +215,7 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            DirectSoundProxy dsProxy = new DirectSoundProxy();
+            DirectSoundAudioService dsAudioService = new DirectSoundAudioService();
             BassAudioService bsAudioService = new BassAudioService();
             fingerService.AudioServiceProxy = bsAudioService;
             List<bool[]> dsFingers = fingerService.CreateFingerprintsFromSpectrum(PathToWav);
@@ -234,7 +234,7 @@
 
             Assert.AreEqual(true, (float)unmatchedItems / totalmatches < 0.02); /*less than 1.5% difference*/
             Assert.AreEqual(bFingers.Count, dsFingers.Count);
-            dsProxy.Dispose();
+            dsAudioService.Dispose();
             bsAudioService.Dispose();
         }
 
@@ -242,11 +242,11 @@
         public void CreateSeveralFingerprintsTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            using (DirectSoundProxy dsProxy = new DirectSoundProxy())
+            using (DirectSoundAudioService dsAudioService = new DirectSoundAudioService())
             {
                 using (BassAudioService bsAudioService = new BassAudioService())
                 {
-                    fingerService.AudioServiceProxy = dsProxy;
+                    fingerService.AudioServiceProxy = dsAudioService;
                     List<bool[]> dsFingers = fingerService.CreateFingerprintsFromSpectrum(PathToWav);
                     fingerService.AudioServiceProxy = bsAudioService;
                     List<bool[]> bFingers = fingerService.CreateFingerprintsFromSpectrum(PathToMp3);
@@ -302,7 +302,7 @@
                 List<bool[]> list = fingerService.CreateFingerprintsFromSpectrum(PathToMp3);
 
                 // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
-                long expected = fileSize / (fingerprintingConfig.SamplesPerFingerprint * 4);
+                long expected = fileSize / (fingerprintingConfiguration.SamplesPerFingerprint * 4);
                 Assert.AreEqual(expected, list.Count);
                 audioService.Dispose();
                 File.Delete(tempFile);
@@ -318,7 +318,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
             long fileSize = new FileInfo(PathToWav).Length;
 #pragma warning disable 612,618
-            using (IAudioService proxy = new DirectSoundProxy())
+            using (IAudioService proxy = new DirectSoundAudioService())
             {
 #pragma warning restore 612,618
                 fingerService.AudioServiceProxy = proxy;
@@ -339,7 +339,7 @@
                 fingerService.AudioServiceProxy = proxy;
                 List<bool[]> listBs = fingerService.CreateFingerprintsFromSpectrum(PathToMp3);
                 // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
-                using (IAudioService directSoundProxy = new DirectSoundProxy())
+                using (IAudioService directSoundProxy = new DirectSoundAudioService())
                 {
                     List<bool[]> listDs = fingerService.CreateFingerprintsFromSpectrum(PathToWav);
                     Assert.AreEqual(listBs.Count, listDs.Count);

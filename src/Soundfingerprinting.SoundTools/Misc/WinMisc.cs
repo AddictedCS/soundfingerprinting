@@ -81,8 +81,8 @@
                         FadeControls(false);
                         int minFreq = (int)_nudFreq.Value;
                         int topWavelets = (int)_nudTopWavelets.Value;
-                        DefaultFingerprintingConfig config = new DefaultFingerprintingConfig { MinFrequency = minFreq, TopWavelets = topWavelets };
-                        fingerprintService.FingerprintConfig = config;
+                        DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration { MinFrequency = minFreq, TopWavelets = topWavelets };
+                        fingerprintService.FingerprintConfig = configuration;
                         DumpResults resultObj = new DumpResults();
                         string pathToInput = _tbPathToFile.Text;
                         string pathToOutput = _tbOutputPath.Text;
@@ -301,11 +301,11 @@
         /// </summary>
         private void WinMiscLoad(object sender, EventArgs e)
         {
-            DefaultFingerprintingConfig config = new DefaultFingerprintingConfig();
-            _nudFreq.Value = config.MinFrequency;
-            _nudTopWavelets.Value = config.TopWavelets;
+            DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
+            _nudFreq.Value = configuration.MinFrequency;
+            _nudTopWavelets.Value = configuration.TopWavelets;
 
-            fingerprintService.FingerprintConfig = config;
+            fingerprintService.FingerprintConfig = configuration;
         }
     }
 }

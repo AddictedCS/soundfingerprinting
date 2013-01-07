@@ -55,8 +55,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioProxies\AudioService.cs" />
     <Compile Include="AudioProxies\BassAudioService.cs" />
-    <Compile Include="AudioProxies\DirectSoundProxy.cs" />
+    <Compile Include="AudioProxies\DirectSoundAudioService.cs" />
     <Compile Include="AudioProxies\IAudioService.cs" />
     <Compile Include="AudioProxies\ITagService.cs" />
     <Compile Include="AudioProxies\Strides\IncrementalRandomStride.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="AudioProxies\Strides\StaticStride.cs" />
     <Compile Include="AudioProxies\Strides\StrideType.cs" />
     <Compile Include="AudioProxies\TagInfo.cs" />
+    <Compile Include="AudioProxies\TagService.cs" />
     <Compile Include="DbStorage\Entities\Album.cs" />
     <Compile Include="DbStorage\Utils\ArrayUtils.cs" />
     <Compile Include="DbStorage\DaoGateway.cs" />
@@ -80,8 +82,8 @@
     <Compile Include="DbStorage\Entities\Track.cs" />
     <Compile Include="Fingerprinting\AbsComparator.cs" />
     <Compile Include="Fingerprinting\ConstantQ\ConstQ.cs" />
-    <Compile Include="Fingerprinting\Configuration\CustomFingerprintingConfig.cs" />
-    <Compile Include="Fingerprinting\Configuration\DefaultFingerprintingConfig.cs" />
+    <Compile Include="Fingerprinting\Configuration\CustomFingerprintingConfiguration.cs" />
+    <Compile Include="Fingerprinting\Configuration\DefaultFingerprintingConfiguration.cs" />
     <Compile Include="Fingerprinting\FFT\Complex.cs" />
     <Compile Include="Fingerprinting\FFT\ComplexArray.cs" />
     <Compile Include="Fingerprinting\FFT\ComplexF.cs" />
@@ -90,7 +92,7 @@
     <Compile Include="Fingerprinting\FingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\FingerprintManager.cs" />
     <Compile Include="Fingerprinting\FingerprintManagerEventArgs.cs" />
-    <Compile Include="Fingerprinting\Configuration\IFingerprintingConfig.cs" />
+    <Compile Include="Fingerprinting\Configuration\IFingerprintingConfiguration.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnitParameterObject.cs" />

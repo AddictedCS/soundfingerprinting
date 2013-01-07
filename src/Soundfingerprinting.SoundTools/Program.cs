@@ -21,7 +21,7 @@
             dependencyResolver.Bind<IWindowFunction>().To<HanningWindow>();
             dependencyResolver.Bind<IWaveletDecomposition>().To<HaarWavelet>();
             dependencyResolver.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
-            dependencyResolver.Bind<IFingerprintingConfig>().To<DefaultFingerprintingConfig>();
+            dependencyResolver.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
             dependencyResolver.Bind<IAudioService>().To<BassAudioService>();
             dependencyResolver.Bind<ITagService>().To<TagService>();
 

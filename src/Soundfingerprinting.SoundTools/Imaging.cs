@@ -311,11 +311,11 @@
             List<float[][]> wavelets = new List<float[][]>();
             float[][] spectrum = service.CreateLogSpectrogram(pathToFile);
             int specLen = spectrum.GetLength(0);
-            DefaultFingerprintingConfig config = new DefaultFingerprintingConfig();
-            int start = service.FingerprintConfig.Stride.GetFirstStride() / config.Overlap;
+            DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
+            int start = service.FingerprintConfig.Stride.GetFirstStride() / configuration.Overlap;
             int logbins = FingerprintService.LogBins;
-            int fingerprintLength = config.FingerprintLength;
-            int overlap = config.Overlap;
+            int fingerprintLength = configuration.FingerprintLength;
+            int overlap = configuration.Overlap;
             while (start + fingerprintLength < specLen)
             {
                 float[][] frames = new float[fingerprintLength][];

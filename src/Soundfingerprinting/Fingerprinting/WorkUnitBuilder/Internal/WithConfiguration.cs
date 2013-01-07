@@ -13,23 +13,23 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
             this.workUnitParameterObject = workUnitParameterObject;
         }
 
-        public IWorkUnit With(IFingerprintingConfig configuration)
+        public IWorkUnit With(IFingerprintingConfiguration configuration)
         {
-            workUnitParameterObject.FingerprintingConfig = configuration;
+            workUnitParameterObject.FingerprintingConfiguration = configuration;
             return new WorkUnit(workUnitParameterObject);
         }
 
-        public IWorkUnit With<T>() where T : IFingerprintingConfig, new()
+        public IWorkUnit With<T>() where T : IFingerprintingConfiguration, new()
         {
-            workUnitParameterObject.FingerprintingConfig = new T();
+            workUnitParameterObject.FingerprintingConfiguration = new T();
             return new WorkUnit(workUnitParameterObject);
         }
 
-        public IWorkUnit WithCustomConfiguration(Action<CustomFingerprintingConfig> transformation)
+        public IWorkUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> transformation)
         {
-            CustomFingerprintingConfig customFingerprintingConfig = new CustomFingerprintingConfig();
-            workUnitParameterObject.FingerprintingConfig = customFingerprintingConfig;
-            transformation(customFingerprintingConfig);
+            CustomFingerprintingConfiguration customFingerprintingConfiguration = new CustomFingerprintingConfiguration();
+            workUnitParameterObject.FingerprintingConfiguration = customFingerprintingConfiguration;
+            transformation(customFingerprintingConfiguration);
             return new WorkUnit(workUnitParameterObject);
         }
     }

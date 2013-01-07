@@ -2,7 +2,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
 {
     using Soundfingerprinting.AudioProxies.Strides;
 
-    public interface IFingerprintingConfig
+    public interface IFingerprintingConfiguration
     {
         /// <summary>
         ///   Gets number of samples to read in order to create single fingerprint.

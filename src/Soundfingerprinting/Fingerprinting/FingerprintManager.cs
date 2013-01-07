@@ -8,25 +8,18 @@
     using Soundfingerprinting.AudioProxies;
     using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
 
     public interface IFingerprintService
     {
-        Task<List<bool[]>> Process(IWorkUnitParameterObject workUnitParameterObject);
+        Task<List<bool[]>> Process(IWorkUnitParameterObject details);
     }
 
     public class FingerprintService : IFingerprintService
     {
         public const double HumanAuditoryThreshold = 2 * 0.000001; // 2*10^-5 Pa
-
-        // normalize power (volume) of a wave file.
-        // minimum and maximum rms to normalize from.
-        private const float MinRms = 0.1f;
-
-        private const float MaxRms = 3;
 
         private readonly IWaveletDecomposition waveletDecomposition;
 
@@ -48,112 +41,46 @@
             this.audioService = audioService;
         }
 
-
-        public float[][] CreateSpectrogram(string filename, int sampleRate, int overlap, int wdftSize)
+        public Task<List<bool[]>> Process(IWorkUnitParameterObject details)
         {
-            // read 5512 Hz, Mono, PCM, with a specific proxy
-            float[] samples = audioService.ReadMonoFromFile(filename, sampleRate, 0, 0);
-
-            NormalizeInPlace(samples);
-
-            int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
-            float[][] frames = new float[width][];
-            float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
-            double[] windowArray = windowFunction.GetWindow(wdftSize);
-            for (int i = 0; i < width; i++)
+            if (!string.IsNullOrEmpty(details.PathToAudioFile))
             {
-                // take 371 ms each 11.6 ms (2048 samples each 64 samples)
-                for (int j = 0; j < wdftSize; j++)
-                {
-                    complexSignal[2 * j] = (float)(windowArray[j] * samples[(i * overlap) + j]);
-                    /*Weight by Hann Window*/
-                    complexSignal[(2 * j) + 1] = 0;
-                }
-
-                Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
-
-                float[] band = new float[(wdftSize / 2) + 1];
-                for (int j = 0; j < (wdftSize / 2) + 1; j++)
-                {
-                    double re = complexSignal[2 * j];
-                    double img = complexSignal[(2 * j) + 1];
-                    re /= (float)wdftSize / 2;
-                    img /= (float)wdftSize / 2;
-                    band[j] = (float)Math.Sqrt((re * re) + (img * img));
-                }
-
-                frames[i] = band;
+                return Task.Factory.StartNew(() => CreateFingerprintsFromAudioFile(details));
             }
 
-            return frames;
+            return Task.Factory.StartNew(() => CreateFingerprintsFromAudioSamples(details.AudioSamples, details));
         }
 
-        public Task<List<bool[]>> Process(IWorkUnitParameterObject workUnitParameterObject)
-        {
-            Debug.Assert(
-                workUnitParameterObject.AudioSamples != null
-                || string.IsNullOrEmpty(workUnitParameterObject.PathToAudioFile) == false,
-                "Audio samples or Path to file has to be specified");
-
-            if (!string.IsNullOrEmpty(workUnitParameterObject.PathToAudioFile))
-            {
-                return
-                    Task.Factory.StartNew(
-                        () =>
-                        CreateFingerprints(
-                            workUnitParameterObject.PathToAudioFile,
-                            workUnitParameterObject.MillisecondsToProcess,
-                            workUnitParameterObject.StartAtMilliseconds,
-                            workUnitParameterObject.FingerprintingConfig));
-            }
-
-            return
-                Task.Factory.StartNew(
-                    () =>
-                    CreateFingerprints(
-                        workUnitParameterObject.AudioSamples, workUnitParameterObject.FingerprintingConfig));
-        }
-
-        private List<bool[]> CreateFingerprints(float[] samples, IFingerprintingConfig config)
-        {
-            float[][] spectrum = CreateLogSpectrogram(
-                samples, config.Overlap, config.WdftSize, GenerateLogFrequencies(config), config.LogBins);
-            return CreateFingerprintsFromSpectrum(
-                spectrum, config.Stride, config.FingerprintLength, config.Overlap, config.LogBins, config.TopWavelets);
-        }
-
-        private List<bool[]> CreateFingerprints(
-            string pathToAudioFile, int howManyMilliseconds, int startAtMilliseconds, IFingerprintingConfig config)
+        private List<bool[]> CreateFingerprintsFromAudioFile(IWorkUnitParameterObject param)
         {
             float[] samples = audioService.ReadMonoFromFile(
-                pathToAudioFile, config.SampleRate, howManyMilliseconds, startAtMilliseconds);
-            return CreateFingerprints(samples, config);
+                param.PathToAudioFile,
+                param.FingerprintingConfiguration.SampleRate,
+                param.MillisecondsToProcess,
+                param.StartAtMilliseconds);
+
+            return CreateFingerprintsFromAudioSamples(samples, param);
         }
 
-        private float[][] CreateLogSpectrogram(
-            float[] samples, int overlap, int wdftSize, int[] logFrequenciesIndex, int logBins)
+
+        private List<bool[]> CreateFingerprintsFromAudioSamples(float[] samples, IWorkUnitParameterObject param)
         {
-            NormalizeInPlace(samples);
-            int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
-            float[][] frames = new float[width][];
-            float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
-            double[] windowArray = windowFunction.GetWindow(wdftSize);
-            for (int i = 0; i < width; i++)
-            {
-                // take 371 ms each 11.6 ms (2048 samples each 64 samples)
-                for (int j = 0; j < wdftSize /*2048*/; j++)
-                {
-                    complexSignal[(2 * j)] = (float)(windowArray[j] * samples[(i * overlap) + j]);
-                        /*Weight by Hann Window*/
-                    complexSignal[(2 * j) + 1] = 0;
-                }
+            IFingerprintingConfiguration configuration = param.FingerprintingConfiguration;
+            float[][] spectrum = audioService.CreateLogSpectrogram(
+                samples,
+                configuration.Overlap,
+                configuration.WdftSize,
+                GenerateLogFrequencies(configuration),
+                windowFunction.GetWindow(configuration.WdftSize),
+                configuration.LogBins);
 
-                // FFT transform for gathering the spectrum
-                Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
-                frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndex, logBins);
-            }
-
-            return frames;
+            return CreateFingerprintsFromSpectrum(
+                spectrum,
+                configuration.Stride,
+                configuration.FingerprintLength,
+                configuration.Overlap,
+                configuration.LogBins,
+                configuration.TopWavelets);
         }
 
         private List<bool[]> CreateFingerprintsFromSpectrum(
@@ -181,50 +108,29 @@
             return fingerprints;
         }
 
-        private float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins)
-        {
-            float[] sumFreq = new float[logBins]; /*32*/
-            for (int i = 0; i < logBins; i++)
-            {
-                int lowBound = logFrequenciesIndex[i];
-                int higherBound = logFrequenciesIndex[i + 1];
-
-                for (int k = lowBound; k < higherBound; k++)
-                {
-                    double re = spectrum[2 * k];
-                    double img = spectrum[(2 * k) + 1];
-                    sumFreq[i] += (float)Math.Sqrt((re * re) + (img * img));
-                }
-
-                sumFreq[i] = sumFreq[i] / (higherBound - lowBound);
-            }
-
-            return sumFreq;
-        }
-
         /// <summary>
         /// Get logarithmically spaced indices
         /// </summary>
-        /// <param name="config">
+        /// <param name="configuration">
         /// The configuration for log frequencies
         /// </param>
         /// <returns>
         /// Log indexes
         /// </returns>
-        private int[] GenerateLogFrequencies(IFingerprintingConfig config)
+        private int[] GenerateLogFrequencies(IFingerprintingConfiguration configuration)
         {
-            double logMin = Math.Log(config.MinFrequency, config.LogBase);
-            double logMax = Math.Log(config.MaxFrequency, config.LogBase);
-            double delta = (logMax - logMin) / config.LogBins;
+            double logMin = Math.Log(configuration.MinFrequency, configuration.LogBase);
+            double logMax = Math.Log(configuration.MaxFrequency, configuration.LogBase);
+            double delta = (logMax - logMin) / configuration.LogBins;
 
-            int[] indexes = new int[config.LogBins + 1];
+            int[] indexes = new int[configuration.LogBins + 1];
             double accDelta = 0;
-            for (int i = 0; i <= config.LogBins /*32 octaves*/; ++i)
+            for (int i = 0; i <= configuration.LogBins /*32 octaves*/; ++i)
             {
-                float freq = (float)Math.Pow(config.LogBase, logMin + accDelta);
+                float freq = (float)Math.Pow(configuration.LogBase, logMin + accDelta);
                 accDelta += delta; // accDelta = delta * i
                 /*Find the start index in array from which to start the summation*/
-                indexes[i] = FreqToIndex(freq, config.SampleRate, config.WdftSize);
+                indexes[i] = FreqToIndex(freq, configuration.SampleRate, configuration.WdftSize);
             }
 
             return indexes;
@@ -255,40 +161,6 @@
             /*DFT N points defines [N/2 + 1] frequency points*/
             int i = (int)Math.Round(((spectrumLength / 2) + 1) * fraction);
             return i;
-        }
-
-        /// <summary>
-        ///   Normalizing the input power (volume)
-        /// </summary>
-        /// <param name = "samples">Samples of a song to be normalized</param>
-        private void NormalizeInPlace(IList<float> samples)
-        {
-            double squares = 0;
-            int nsamples = samples.Count;
-            for (int i = 0; i < nsamples; i++)
-            {
-                squares += samples[i] * samples[i];
-            }
-
-            // we don't want to normalize by the real RMS, because excessive clipping will occur
-            float rms = (float)Math.Sqrt(squares / nsamples) * 10;
-
-            if (rms < MinRms)
-            {
-                rms = MinRms;
-            }
-
-            if (rms > MaxRms)
-            {
-                rms = MaxRms;
-            }
-
-            for (int i = 0; i < nsamples; i++)
-            {
-                samples[i] /= rms;
-                samples[i] = Math.Min(samples[i], 1);
-                samples[i] = Math.Max(samples[i], -1);
-            }
         }
     }
 }

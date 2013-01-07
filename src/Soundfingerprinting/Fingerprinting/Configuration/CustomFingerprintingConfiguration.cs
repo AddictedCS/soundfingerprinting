@@ -2,11 +2,11 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
 {
     using Soundfingerprinting.AudioProxies.Strides;
 
-    public class CustomFingerprintingConfig : IFingerprintingConfig
+    public class CustomFingerprintingConfiguration : IFingerprintingConfiguration
     {
-        public CustomFingerprintingConfig()
+        public CustomFingerprintingConfiguration()
         {
-            DefaultFingerprintingConfig defaultFingerprinting = new DefaultFingerprintingConfig();
+            DefaultFingerprintingConfiguration defaultFingerprinting = new DefaultFingerprintingConfiguration();
             SamplesPerFingerprint = defaultFingerprinting.SamplesPerFingerprint;
             Overlap = defaultFingerprinting.Overlap;
             WdftSize = defaultFingerprinting.WdftSize;

@@ -58,7 +58,7 @@ namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
         public void ReadMonoFromFileTest()
         {
 #pragma warning disable 612,618
-            using (DirectSoundProxy dsproxy = new DirectSoundProxy())
+            using (DirectSoundAudioService dsproxy = new DirectSoundAudioService())
 #pragma warning restore 612,618
             {
                 float[] samples = dsproxy.ReadMonoFromFile(PathToWav, SampleRate);

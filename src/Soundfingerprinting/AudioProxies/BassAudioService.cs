@@ -18,7 +18,7 @@
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
     ///   All in a tiny DLL, under 100KB* in size.
     /// </remarks>
-    public class BassAudioService : IAudioService
+    public class BassAudioService : AudioService
     {
         private const int DefaultSampleRate = 44100;
 
@@ -71,7 +71,7 @@
             Dispose(true);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             Dispose(false);
             alreadyDisposed = true;
@@ -90,7 +90,7 @@
         ///   Seeking capabilities of Bass where not used because of the possible
         ///   timing errors on different formats.
         /// </remarks>
-        public float[] ReadMonoFromFile(string fileName, int sampleRate, int milliSeconds, int startMilliSeconds)
+        public override float[] ReadMonoFromFile(string fileName, int sampleRate, int milliSeconds, int startMilliSeconds)
         {
             int totalmilliseconds = milliSeconds <= 0 ? int.MaxValue : milliSeconds + startMilliSeconds;
             float[] data;

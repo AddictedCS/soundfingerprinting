@@ -8,7 +8,7 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
 
         public float[] AudioSamples { get; set; }
 
-        public IFingerprintingConfig FingerprintingConfig { get; set; }
+        public IFingerprintingConfiguration FingerprintingConfiguration { get; set; }
 
         public int StartAtMilliseconds { get; set; }
 

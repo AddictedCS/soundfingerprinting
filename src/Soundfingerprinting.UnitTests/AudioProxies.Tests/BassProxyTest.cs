@@ -48,10 +48,10 @@
             string name = MethodBase.GetCurrentMethod().Name;
             using (BassAudioService bassAudioService = new BassAudioService())
             {
-                using (DirectSoundProxy directSoundProxy = new DirectSoundProxy())
+                using (DirectSoundAudioService directSoundAudioService = new DirectSoundAudioService())
                 {
                     float[] bdata = bassAudioService.ReadMonoFromFile(PathToMp3, 5512);
-                    float[] ddata = directSoundProxy.ReadMonoFromFile(PathToWav, 5512);
+                    float[] ddata = directSoundAudioService.ReadMonoFromFile(PathToWav, 5512);
 
                     for (int i = 0; i < bdata.Length; i++)
                     {

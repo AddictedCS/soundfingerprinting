@@ -13,5 +13,10 @@
         /// <param name = "startMilliSeconds">Start at a specific millisecond</param>
         /// <returns>Array with data samples</returns>
         float[] ReadMonoFromFile(string fileName, int sampleRate, int milliSeconds, int startMilliSeconds);
+
+        float[][] CreateSpectrogram(string pathToFilename, int sampleRate, int overlap, int wdftSize, double[] window);
+
+        float[][] CreateLogSpectrogram(
+            float[] samples, int overlap, int wdftSize, int[] logFrequenciesIndexes, double[] window,  int logBins);
     }
 }
