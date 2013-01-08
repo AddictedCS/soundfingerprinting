@@ -7,6 +7,6 @@
 
     public interface IFingerprintService
     {
-        Task<List<bool[]>> Process(IWorkUnitParameterObject details);
+        Task<List<bool[]>> Process(WorkUnitParameterObject details);
     }
 }

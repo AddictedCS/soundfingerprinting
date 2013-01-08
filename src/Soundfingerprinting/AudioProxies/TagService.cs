@@ -14,7 +14,8 @@ namespace Soundfingerprinting.AudioProxies
                     Artist = tags.artist,
                     Title = tags.title,
                     AlbumArtist = tags.albumartist,
-                    Genre = tags.genre
+                    Genre = tags.genre,
+                    Year = tags.year
                 };
 
             return tag;

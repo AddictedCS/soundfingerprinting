@@ -13,5 +13,7 @@
         public string AlbumArtist { get; set; }
 
         public string Genre { get; set; }
+
+        public string Year { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Soundfingerprinting.SoundTools.DbFiller
 {
-    partial class WinDBFiller
+    partial class WinDbFiller
     {
         /// <summary>
         /// Required designer variable.
@@ -182,7 +182,7 @@
             this._tbRootFolder.Name = "_tbRootFolder";
             this._tbRootFolder.Size = new System.Drawing.Size(330, 20);
             this._tbRootFolder.TabIndex = 4;
-            this._tbRootFolder.TextChanged += new System.EventHandler(this.TbRootFolderTextChanged);
+            this._tbRootFolder.TextChanged += new System.EventHandler(this.RootFolderIsSelected);
             this._tbRootFolder.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.TbRootFolderMouseDoubleClick);
             // 
             // _labSelectFile
@@ -628,7 +628,7 @@
             this.Controls.Add(this._cmbDBFillerConnectionString);
             this.Controls.Add(this._labChooseConnectionString);
             this.Controls.Add(this._dgvFillDatabase);
-            this.Name = "WinDBFiller";
+            this.Name = "WinDbFiller";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Fill database";
             ((System.ComponentModel.ISupportInitialize)(this._dgvFillDatabase)).EndInit();

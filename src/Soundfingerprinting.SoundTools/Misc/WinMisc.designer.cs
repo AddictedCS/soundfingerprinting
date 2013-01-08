@@ -351,7 +351,6 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.MinimumSize = new System.Drawing.Size(380, 350);
             this.Name = "WinMisc";
             this.Text = "Miscelaneous";
-            this.Load += new System.EventHandler(this.WinMiscLoad);
             ((System.ComponentModel.ISupportInitialize)(this._nudFreq)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTopWavelets)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudStride)).EndInit();

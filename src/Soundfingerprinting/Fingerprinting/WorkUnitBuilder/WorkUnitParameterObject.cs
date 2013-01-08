@@ -1,8 +1,8 @@
-namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
+namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder
 {
     using Soundfingerprinting.Fingerprinting.Configuration;
 
-    internal class WorkUnitParameterObject : IWorkUnitParameterObject
+    public class WorkUnitParameterObject
     {
         public string PathToAudioFile { get; set; }
 

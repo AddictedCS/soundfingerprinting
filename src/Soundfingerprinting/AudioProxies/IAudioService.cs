@@ -2,6 +2,8 @@
 {
     using System;
 
+    using Soundfingerprinting.Fingerprinting.Windows;
+
     public interface IAudioService : IDisposable
     {
         /// <summary>
@@ -14,9 +16,12 @@
         /// <returns>Array with data samples</returns>
         float[] ReadMonoFromFile(string fileName, int sampleRate, int milliSeconds, int startMilliSeconds);
 
-        float[][] CreateSpectrogram(string pathToFilename, int sampleRate, int overlap, int wdftSize, double[] window);
+        float[][] CreateSpectrogram(
+            string pathToFilename, IWindowFunction windowFunction, int sampleRate, int overlap, int wdftSize);
 
         float[][] CreateLogSpectrogram(
-            float[] samples, int overlap, int wdftSize, int[] logFrequenciesIndexes, double[] window,  int logBins);
+            string pathToFilename, IWindowFunction windowFunction, AudioServiceConfiguration configuration);
+
+        float[][] CreateLogSpectrogram(float [] samples, IWindowFunction windowFunction, AudioServiceConfiguration configuration);
     }
 }

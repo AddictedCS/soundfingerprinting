@@ -30,7 +30,7 @@
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
         {
-            WinDBFiller filler = dependencyResolver.Get<WinDBFiller>();
+            WinDbFiller filler = dependencyResolver.Get<WinDbFiller>();
             filler.Show();
         }
 

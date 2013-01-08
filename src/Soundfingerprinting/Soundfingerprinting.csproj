@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioProxies\AudioServiceConfiguration.cs" />
     <Compile Include="AudioProxies\AudioService.cs" />
     <Compile Include="AudioProxies\BassAudioService.cs" />
     <Compile Include="AudioProxies\DirectSoundAudioService.cs" />
@@ -96,11 +97,10 @@
     <Compile Include="Fingerprinting\FingerprintService.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnitParameterObject.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\WorkUnitParameterObject.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\TargetOn.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WithConfiguration.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnit.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\IWorkUnitParameterObject.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\ITargetOn.cs" />
     <Compile Include="Fingerprinting\Wavelets\HaarWavelet.cs" />
     <Compile Include="Fingerprinting\Windows\HammingWindow.cs" />

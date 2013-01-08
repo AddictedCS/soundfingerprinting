@@ -49,6 +49,7 @@
                     cq[i].Im += x[j].Re * sparKernel[i][j].Im + x[j].Im * sparKernel[i][j].Re;
                 }
             }
+
             return cq.Select((item) => 20 * Math.Log10(item.GetModulus() / HumanAuditoryThreshold)).ToArray();
         }
     }

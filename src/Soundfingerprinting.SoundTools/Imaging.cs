@@ -47,7 +47,7 @@
                     image.SetPixel(i, j, Color.FromArgb(color, color, color));
                 }
             }
-            
+
             return image;
         }
 
@@ -206,19 +206,19 @@
 
             int bands = spectrum[0].Length;
             double max = spectrum.Max((b) => b.Max((v) => Math.Abs(v)));
-            double deltaX = (double) (width - 1)/spectrum.Length; /*By how much the image will move to the left*/
-            double deltaY = (double) (height - 1)/(bands + 1); /*By how much the image will move upward*/
+            double deltaX = (double)(width - 1) / spectrum.Length; /*By how much the image will move to the left*/
+            double deltaY = (double)(height - 1) / (bands + 1); /*By how much the image will move upward*/
             int prevX = 0;
             for (int i = 0, n = spectrum.Length; i < n; i++)
             {
-                double x = i*deltaX;
-                if ((int) x == prevX) continue;
+                double x = i * deltaX;
+                if ((int)x == prevX) continue;
                 for (int j = 0, m = spectrum[0].Length; j < m; j++)
                 {
-                    Color color = ValueToBlackWhiteColor(spectrum[i][j], max/10);
-                    image.SetPixel((int) x, height - (int) (deltaY*j) - 1, color);
+                    Color color = ValueToBlackWhiteColor(spectrum[i][j], max / 10);
+                    image.SetPixel((int)x, height - (int)(deltaY * j) - 1, color);
                 }
-                prevX = (int) x;
+                prevX = (int)x;
             }
 
             FontFamily font = new FontFamily("Courier New");
@@ -238,7 +238,7 @@
         /// <returns>Grey color corresponding to the value</returns>
         public static Color ValueToBlackWhiteColor(double value, double maxValue)
         {
-            int color = (int) (Math.Abs(value)*255/Math.Abs(maxValue));
+            int color = (int)(Math.Abs(value) * 255 / Math.Abs(maxValue));
             if (color > 255)
                 color = 255;
             return Color.FromArgb(color, color, color);
@@ -260,19 +260,19 @@
 
             int numColors = colors.Length;
 
-            double colorLoc = Math.Min(mag*numColors, numColors - 1);
+            double colorLoc = Math.Min(mag * numColors, numColors - 1);
 
-            int lowCol = (int) (Math.Floor(colorLoc));
-            int highCol = (int) (Math.Ceiling(colorLoc));
+            int lowCol = (int)(Math.Floor(colorLoc));
+            int highCol = (int)(Math.Ceiling(colorLoc));
             double lowStrength = (highCol - colorLoc);
             double highStrength = 1.0 - lowStrength;
 
-            int r = (int) (colors[lowCol].R*lowStrength +
-                           colors[highCol].R*highStrength);
-            int g = (int) (colors[lowCol].G*lowStrength +
-                           colors[highCol].G*highStrength);
-            int b = (int) (colors[lowCol].G*lowStrength +
-                           colors[highCol].B*highStrength);
+            int r = (int)(colors[lowCol].R * lowStrength +
+                           colors[highCol].R * highStrength);
+            int g = (int)(colors[lowCol].G * lowStrength +
+                           colors[highCol].G * highStrength);
+            int b = (int)(colors[lowCol].G * lowStrength +
+                           colors[highCol].B * highStrength);
             Color magColor = Color.FromArgb(r, g, b);
 
             return magColor;
@@ -292,7 +292,7 @@
             Bitmap transformed = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
             for (int i = 0; i < transformed.Height; i++)
                 for (int j = 0; j < transformed.Width; j++)
-                    transformed.SetPixel(j, i, Color.FromArgb((int) image[i][j]));
+                    transformed.SetPixel(j, i, Color.FromArgb((int)image[i][j]));
 
             return transformed;
         }
@@ -306,14 +306,12 @@
         /// <param name = "proxy">Proxy service</param>
         /// <param name = "service">Fingerprint service</param>
         /// <returns>Image to be saved</returns>
-        public static Image GetWaveletSpectralImage(string pathToFile, IFingerprintService service)
+        public static Image GetWaveletSpectralImage(float[][] spectrum, IFingerprintingConfiguration configuration)
         {
             List<float[][]> wavelets = new List<float[][]>();
-            float[][] spectrum = service.CreateLogSpectrogram(pathToFile);
             int specLen = spectrum.GetLength(0);
-            DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
-            int start = service.FingerprintConfig.Stride.GetFirstStride() / configuration.Overlap;
-            int logbins = FingerprintService.LogBins;
+            int start = configuration.Stride.GetFirstStride() / configuration.Overlap;
+            int logbins = configuration.LogBins;
             int fingerprintLength = configuration.FingerprintLength;
             int overlap = configuration.Overlap;
             while (start + fingerprintLength < specLen)
@@ -325,7 +323,7 @@
                     Array.Copy(spectrum[start + i], frames[i], logbins);
                 }
 
-                start += fingerprintLength + (service.FingerprintConfig.Stride.GetStride() / overlap);
+                start += fingerprintLength + (configuration.Stride.GetStride() / overlap);
                 wavelets.Add(frames);
             }
 
@@ -356,12 +354,12 @@
                 {
                     for (int j = 0; j < height /*32*/; j++)
                     {
-                        Color color = ValueToBlackWhiteColor(wavelet[i][j], max/4);
+                        Color color = ValueToBlackWhiteColor(wavelet[i][j], max / 4);
                         image.SetPixel(i + horizontalOffset, j + verticalOffset, color);
                     }
                 }
                 count++;
-                if (count%ImagesPerRow == 0)
+                if (count % ImagesPerRow == 0)
                 {
                     verticalOffset += height + SpaceBetweenImages;
                     horizontalOffset = SpaceBetweenImages;

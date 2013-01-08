@@ -12,16 +12,20 @@
     using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinMisc : Form
     {
         private readonly IFingerprintService fingerprintService;
+        private readonly IWorkUnitBuilder workUnitBuilder;
 
-        public WinMisc(IFingerprintService fingerprintService)
+        public WinMisc(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder)
         {
             this.fingerprintService = fingerprintService;
+            this.workUnitBuilder = workUnitBuilder;
+
             InitializeComponent();
             Icon = Resources.Sound;
         }
@@ -79,30 +83,53 @@
                     using (BassAudioService audioService = new BassAudioService())
                     {
                         FadeControls(false);
-                        int minFreq = (int)_nudFreq.Value;
-                        int topWavelets = (int)_nudTopWavelets.Value;
-                        DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration { MinFrequency = minFreq, TopWavelets = topWavelets };
-                        fingerprintService.FingerprintConfig = configuration;
+                        int stride = (int)_nudStride.Value;
+                        var unitOfWork = workUnitBuilder.BuildWorkUnit().On(_tbPathToFile.Text).WithCustomConfiguration(
+                                config =>
+                                    {
+                                        config.MinFrequency = (int)_nudFreq.Value;
+                                        config.TopWavelets = (int)_nudTopWavelets.Value;
+                                        config.Stride = _chbStride.Checked
+                                                            ? (IStride)new RandomStride(0, stride)
+                                                            : new StaticStride(stride);
+                                    });
+
+                        var sameUnitOfWork = workUnitBuilder.BuildWorkUnit().On(_tbPathToFile.Text).WithCustomConfiguration(
+                               config =>
+                               {
+                                   config.MinFrequency = (int)_nudFreq.Value;
+                                   config.TopWavelets = (int)_nudTopWavelets.Value;
+                                   config.Stride = new StaticStride(5115, 5115 / 2);
+                               });
+
                         DumpResults resultObj = new DumpResults();
                         string pathToInput = _tbPathToFile.Text;
                         string pathToOutput = _tbOutputPath.Text;
                         int hashTables = (int)_nudTables.Value;
                         int hashKeys = (int)_nudKeys.Value;
-                        int stride = (int)_nudQueryStride.Value;
-                        fingerprintService.FingerprintConfig.Stride = _chbQueryStride.Checked
-                                                  ? (IStride)new RandomStride(0, stride)
-                                                  : new StaticStride(stride);
-                        GetFingerprintSimilarity(fingerprintService, pathToInput, resultObj);
-                        GetHashSimilarity(fingerprintService, hashTables, hashKeys, pathToInput, resultObj);
+
+                        GetFingerprintSimilarity(fingerprintService, unitOfWork, sameUnitOfWork, resultObj);
+                        GetHashSimilarity(fingerprintService, hashTables, hashKeys, unitOfWork, sameUnitOfWork, resultObj);
 
                         if (_chbCompare.Checked)
                         {
-                            string pathToDifferent = _tbSongToCompare.Text;
-                            GetFingerprintSimilarity(fingerprintService, pathToInput, pathToDifferent, resultObj);
+                            int comparisonStride = (int)_nudQueryStride.Value;
+                            var unitOfWorkToCompareWith =
+                                workUnitBuilder.BuildWorkUnit().On(_tbSongToCompare.Text).WithCustomConfiguration(
+                                    config =>
+                                    {
+                                        config.MinFrequency = (int)_nudFreq.Value;
+                                        config.TopWavelets = (int)_nudTopWavelets.Value;
+                                        config.Stride = _chbQueryStride.Checked
+                                                            ? (IStride)new RandomStride(0, comparisonStride)
+                                                            : new StaticStride(comparisonStride);
+                                    });
+
+                            GetFingerprintSimilarity(fingerprintService, unitOfWork, unitOfWorkToCompareWith, resultObj);
                         }
 
-                        resultObj.Info.MinFrequency = minFreq;
-                        resultObj.Info.TopWavelets = topWavelets;
+                        resultObj.Info.MinFrequency = (int)_nudFreq.Value;
+                        resultObj.Info.TopWavelets = (int)_nudTopWavelets.Value;
                         resultObj.Info.StrideSize = stride;
                         resultObj.Info.RandomStride = _chbStride.Checked;
                         resultObj.Info.Filename = pathToInput;
@@ -124,18 +151,26 @@
         }
 
         /// <summary>
-        ///   Get fingerprint similarity between 2 different songs.
+        /// Get fingerprint similarity between 2 different songs.
         /// </summary>
-        /// <param name = "service">Fingerprint service used in file decomposition</param>
-        /// <param name = "path">Path to first file</param>
-        /// <param name = "differentPath">Path to different file</param>
-        /// <param name = "results">Results object to be filled with the corresponding data</param>
-        private void GetFingerprintSimilarity(IFingerprintService service, string path, string differentPath, DumpResults results)
+        /// <param name="service">
+        /// The service.
+        /// </param>
+        /// <param name="unitOfWork">
+        /// The unit Of Work.
+        /// </param>
+        /// <param name="unitOfWorkToCompareWith">
+        /// The unit Of Work To Compare With.
+        /// </param>
+        /// <param name="results">
+        /// The results.
+        /// </param>
+        private void GetFingerprintSimilarity(IFingerprintService service, IWorkUnit unitOfWork, IWorkUnit unitOfWorkToCompareWith, DumpResults results)
         {
             double sum = 0;
 
-            List<bool[]> imglista = service.CreateFingerprints(path);
-            List<bool[]> imglistb = service.CreateFingerprints(differentPath);
+            List<bool[]> imglista = unitOfWork.GetFingerprintsUsingService(service).Result;
+            List<bool[]> imglistb = unitOfWorkToCompareWith.GetFingerprintsUsingService(service).Result;
 
 
             int count = imglista.Count > imglistb.Count ? imglistb.Count : imglista.Count;
@@ -158,43 +193,6 @@
         }
 
         /// <summary>
-        ///   Get fingerprint similarity of one song
-        /// </summary>
-        /// <param name = "service">Fingerprint service used in file decomposition</param>
-        /// <param name = "path">Path to first file</param>
-        /// <param name = "results">Results object to be filled with the corresponding data</param>
-        private void GetFingerprintSimilarity(IFingerprintService service, string path, DumpResults results)
-        {
-            double sum = 0;
-
-            List<bool[]> list = service.CreateFingerprints(path);
-            List<bool[]> listToCompare = service.CreateFingerprints(path);
-
-            int count = list.Count;
-            int toCompare = listToCompare.Count;
-
-            double max = double.MinValue;
-
-            for (int i = 0; i < count; i++)
-            {
-                for (int j = 0; j < toCompare; j++)
-                {
-                    double value = MinHash.CalculateSimilarity(list[i], listToCompare[j]);
-                    if (value > max)
-                    {
-                        max = value;
-                    }
-
-                    sum += value;
-                }
-            }
-
-            results.Results.SumJaqFingerprintsSimilarity = sum;
-            results.Results.AverageJaqFingerprintSimilarity = sum / (count * toCompare);
-            results.Results.MaxJaqFingerprintSimilarity = max;
-        }
-
-        /// <summary>
         ///   Get hash similarity of one song
         /// </summary>
         /// <param name = "service">Fingerprint service</param>
@@ -202,15 +200,14 @@
         /// <param name = "hashKeys">Number of hash keys per table in the LSH transformation</param>
         /// <param name = "path">Path to analyzed file</param>
         /// <param name = "results">Results object to be filled with the appropriate data</param>
-        private void GetHashSimilarity(IFingerprintService service, int hashTables, int hashKeys, string path, DumpResults results)
+        private void GetHashSimilarity(IFingerprintService service, int hashTables, int hashKeys, IWorkUnit unitOfWork, IWorkUnit sameUnitOfWork, DumpResults results)
         {
             double sum = 0;
             int hashesCount = 0;
             int startindex = 0;
 
-            List<bool[]> listDb = service.CreateFingerprints(path);
-            //TODO Do not forget to change STRIDE HERE
-            List<bool[]> listQuery = service.CreateFingerprints(path);
+            List<bool[]> listDb = unitOfWork.GetFingerprintsUsingService(service).Result;
+            List<bool[]> listQuery = sameUnitOfWork.GetFingerprintsUsingService(service).Result;
             IPermutations perms = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             MinHash minHash = new MinHash(perms);
             List<int[]> minHashDb = listDb.Select(minHash.ComputeMinHashSignature).ToList();
@@ -294,18 +291,6 @@
             {
                 _tbSongToCompare.Text = ofd.FileName;
             }
-        }
-
-        /// <summary>
-        ///   On window form loading event
-        /// </summary>
-        private void WinMiscLoad(object sender, EventArgs e)
-        {
-            DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
-            _nudFreq.Value = configuration.MinFrequency;
-            _nudTopWavelets.Value = configuration.TopWavelets;
-
-            fingerprintService.FingerprintConfig = configuration;
         }
     }
 }

@@ -8,6 +8,7 @@
     using Soundfingerprinting.AudioProxies.Strides;
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
 
     /// <summary>
@@ -25,6 +26,8 @@
         /// </summary>
         private readonly IFingerprintService service;
 
+        private readonly IWorkUnitBuilder workUnitBuilder;
+
         /// <summary>
         ///   Storage for min-hash permutations
         /// </summary>
@@ -35,11 +38,12 @@
         /// </summary>
         private readonly IStorage storage;
 
-        public Repository(IFingerprintService fingerprintService, IStorage storage, IPermutations permutations)
+        public Repository(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, IStorage storage, IPermutations permutations)
         {
             this.permutations = permutations;
             this.storage = storage;
             service = fingerprintService;
+            this.workUnitBuilder = workUnitBuilder;
             hasher = new MinHash(this.permutations);
         }
 
@@ -64,9 +68,12 @@
             }
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
-            // TODO Refactor HERE
-            service.FingerprintConfig.Stride = stride;
-            List<bool[]> fingerprints = service.CreateFingerprints(samples);
+            List<bool[]> fingerprints = workUnitBuilder.BuildWorkUnit()
+                                                       .On(samples)
+                                                       .WithCustomConfiguration(config => config.Stride = stride)
+                                                       .GetFingerprintsUsingService(service)
+                                                       .Result;
+
             storage.InsertTrack(track); /*Insert track into the storage*/
             /*Get fingerprint's hash signature, and associate it to a specific track*/
             List<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);
@@ -76,11 +83,10 @@
                 /*Set this hashes as also the query hashes*/
                 storage.InsertHash(hash, HashType.Query);
             }
-            return;
         }
 
 
-// ReSharper disable ReturnTypeCanBeEnumerable.Local
+        // ReSharper disable ReturnTypeCanBeEnumerable.Local
         private List<HashSignature> GetSignatures(IEnumerable<bool[]> fingerprints, Track track, int hashTables, int hashKeys)
 // ReSharper restore ReturnTypeCanBeEnumerable.Local
         {

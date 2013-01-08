@@ -16,6 +16,7 @@
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
 
     /// <summary>
@@ -147,7 +148,7 @@
                     new ConstructorArgument("separator", SEPARATOR)); /*Permutations*/
 
             cts = new CancellationTokenSource();
-            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintService>(), storage, permutations);
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintService>(), ServiceContainer.Kernel.Get<IWorkUnitBuilder>(), storage, permutations);
             createStride = new IncrementalStaticStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT);
         }
 

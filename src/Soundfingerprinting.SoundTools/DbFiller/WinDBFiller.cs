@@ -1,9 +1,4 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-
-namespace Soundfingerprinting.SoundTools.DbFiller
+﻿namespace Soundfingerprinting.SoundTools.DbFiller
 {
     using System;
     using System.Collections.Generic;
@@ -21,29 +16,40 @@ namespace Soundfingerprinting.SoundTools.DbFiller
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;
 
-    using Un4seen.Bass.AddOn.Tags;
-
-    public partial class WinDBFiller : Form
+    public partial class WinDbFiller : Form
     {
-        
-        #region Private Fields
-
         private const int MaxThreadToProcessFiles = 4; /*2 MaxThreadToProcessFiles used to process the files*/
 
         private const int MinTrackLength = 20; /*20 sec - minimal track length*/
-        private const int MaxTrackLength = 60*15; /*15 min - maximal track length*/
-        private readonly DaoGateway dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString); /*Dal Fingerprint service*/
-        private readonly List<string> filters = new List<string>(new[] {"*.mp3", "*.wav", "*.ogg", "*.flac"}); /*File filters*/
+
+        private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
+
+        private readonly DaoGateway dalManager =
+            new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+                                    /*Dal Fingerprint service*/
+
+        private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
+                                      /*File filters*/
+
         private readonly object lockObject = new object(); /*Cross Thread operation*/
+
         private readonly IPermutations permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString); /*Database permutations*/
+
+        private readonly IFingerprintService fingerprintService;
+
+        private readonly IWorkUnitBuilder workUnitBuilder;
+
+        private readonly ITagService tagService;
+
         private volatile int badFiles; /*Number of Bad files*/
         private volatile int duplicates; /*Number of Duplicates*/
         private NNEnsemble ensemble;
-        private List<String> fileList; /*List of file to process*/
+        private List<string> fileList; /*List of file to process*/
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH; /*Hashing algorithm*/
         private int hashKeys;
         private int hashTables;
@@ -53,28 +59,22 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         private bool stopFlag;
         private Album unknownAlbum;
 
-        private readonly IFingerprintService fingerprintService;
-
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        ///   Constructor
-        /// </summary>
-        public WinDBFiller(IFingerprintService fingerprintService)
+        public WinDbFiller(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, ITagService tagService)
         {
             this.fingerprintService = fingerprintService;
+            this.workUnitBuilder = workUnitBuilder;
+            this.tagService = tagService;
             InitializeComponent();
             Icon = Resources.Sound;
-            foreach (object item in ConfigurationManager.ConnectionStrings) /*Detect all the connection strings*/
+            foreach (object item in ConfigurationManager.ConnectionStrings)
             {
                 _cmbDBFillerConnectionString.Items.Add(item.ToString());
             }
 
             if (_cmbDBFillerConnectionString.Items.Count > 0)
+            {
                 _cmbDBFillerConnectionString.SelectedIndex = 0;
+            }
 
             _btnStart.Enabled = false;
             _btnStop.Enabled = false;
@@ -89,42 +89,35 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                 _nudHashTables.ReadOnly = false;
             }
 
-            string[] items = Enum.GetNames(typeof (StrideType)); /*Add enumeration types in the combo box*/
+            object[] items = Enum.GetNames(typeof (StrideType)); /*Add enumeration types in the combo box*/
             _cmbStrideType.Items.AddRange(items);
             _cmbStrideType.SelectedIndex = 0;
         }
 
-        #endregion
+        
+       private void RootFolderIsSelected(object sender, EventArgs e)
+       {
+           Cursor = Cursors.WaitCursor;
+           _tbRootFolder.Enabled = false;
 
-        #region Event Handlers
+           fileList = WinUtils.GetFiles(filters, _tbRootFolder.Text);
 
-        /// <summary>
-        ///   Root folder selection (with songs to be inserted)
-        /// </summary>
-        private void TbRootFolderTextChanged(object sender, EventArgs e)
-        {
-            Cursor = Cursors.WaitCursor;
-            _tbRootFolder.Enabled = false;
-
-            fileList = WinUtils.GetFiles(filters, _tbRootFolder.Text);
-
-            Invoke(new Action(() =>
-                              {
-                                  Cursor = Cursors.Default;
-                                  _tbRootFolder.Enabled = true;
-                                  if (fileList != null)
-                                  {
-                                      _nudTotalSongs.Value = fileList.Count;
-                                      _btnStart.Enabled = true;
-                                  }
-                                  _tbSingleFile.Text = null;
-                              }));
-        }
+           Invoke(
+               new Action(
+                   () =>
+                       {
+                           Cursor = Cursors.Default;
+                           _tbRootFolder.Enabled = true;
+                           if (fileList != null)
+                           {
+                               _nudTotalSongs.Value = fileList.Count;
+                               _btnStart.Enabled = true;
+                           }
+                           _tbSingleFile.Text = null;
+                       }));
+       }
 
 
-        /// <summary>
-        ///   Root folder selection
-        /// </summary>
         [FileDialogPermission(SecurityAction.Demand)]
         private void TbRootFolderMouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -137,23 +130,22 @@ namespace Soundfingerprinting.SoundTools.DbFiller
 
                 fileList = WinUtils.GetFiles(filters, _tbRootFolder.Text);
 
-                Invoke(new Action(() =>
-                                  {
-                                      Cursor = Cursors.Default;
-                                      _tbRootFolder.Enabled = true;
-                                      if (fileList != null)
-                                      {
-                                          _nudTotalSongs.Value = fileList.Count;
-                                          _btnStart.Enabled = true;
-                                      }
-                                      _tbSingleFile.Text = null;
-                                  }));
+                Invoke(
+                    new Action(
+                        () =>
+                            {
+                                Cursor = Cursors.Default;
+                                _tbRootFolder.Enabled = true;
+                                if (fileList != null)
+                                {
+                                    _nudTotalSongs.Value = fileList.Count;
+                                    _btnStart.Enabled = true;
+                                }
+                                _tbSingleFile.Text = null;
+                            }));
             }
         }
 
-        /// <summary>
-        ///   Get a single file to be inserted into database
-        /// </summary>
         private void TbSingleFileTextChanged(object sender, EventArgs e)
         {
             if (File.Exists(_tbSingleFile.Text))
@@ -172,9 +164,6 @@ namespace Soundfingerprinting.SoundTools.DbFiller
             }
         }
 
-        /// <summary>
-        ///   Get single or multiple files
-        /// </summary>
         [FileDialogPermission(SecurityAction.Demand)]
         private void TbSingleFileMouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -246,7 +235,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
             {
                 fileList = new List<string>();
                 if (!String.IsNullOrEmpty(_tbRootFolder.Text))
-                    TbRootFolderTextChanged(this, null);
+                    RootFolderIsSelected(this, null);
                 if (!String.IsNullOrEmpty(_tbSingleFile.Text))
                     TbSingleFileTextChanged(this, null);
             }
@@ -262,10 +251,8 @@ namespace Soundfingerprinting.SoundTools.DbFiller
             int filesPerThread = fileList.Count/MaxThreadToProcessFiles;
 
             listOfAllAlbums = dalManager.ReadAlbums(); //Get all albums
-            unknownAlbum = dalManager.ReadUnknownAlbum(); //Read unknown album
+            unknownAlbum = dalManager.ReadUnknownAlbum(); //Read unknown albu
 
-            int topWavelets = (int) _nudTopWav.Value;
-            fingerprintService.FingerprintConfig.TopWavelets = topWavelets;
              switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
@@ -355,8 +342,6 @@ namespace Soundfingerprinting.SoundTools.DbFiller
             }
         }
 
-        #endregion
-
         /// <summary>
         ///   Reset all controls
         /// </summary>
@@ -382,14 +367,20 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         /// <param name = "end">End index</param>
         private void InsertInDatabase(int start, int end)
         {
-            BassAudioService audioService = new BassAudioService(); //Proxy used to read from file
-            IFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
+            int topWavelets = (int)_nudTopWav.Value;
             IStride stride = null;
-            Invoke(new Action(() =>
-                              {
-                                  stride = WinUtils.GetStride((StrideType) _cmbStrideType.SelectedIndex, //Get stride according to the underlying combo box selection
-                                      (int)_nudStride.Value, 0, configuration.SamplesPerFingerprint);
-                              }), null);
+            Invoke(
+                new Action(
+                    () =>
+                        {
+                            stride = WinUtils.GetStride(
+                                (StrideType)_cmbStrideType.SelectedIndex,
+                                //Get stride according to the underlying combo box selection
+                                (int)_nudStride.Value,
+                                0,
+                                new DefaultFingerprintingConfiguration().SamplesPerFingerprint);
+                        }),
+                null);
 
             Action actionInterface =
                 () =>
@@ -416,7 +407,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                 if (stopFlag)
                     return;
 
-                TAG_INFO tags = audioService.GetTagInfoFromFile(fileList[i]); //Get Tags from file
+                TagInfo tags = tagService.GetTagInfo(fileList[i]); //Get Tags from file
                 if (tags == null)
                 {
                     //TAGS are null
@@ -425,9 +416,9 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                     continue;
                 }
 
-                string artist = tags.artist; //Artist
-                string title = tags.title; //Title
-                double duration = tags.duration; //Duration
+                string artist = tags.Artist; //Artist
+                string title = tags.Title; //Title
+                double duration = tags.Duration; //Duration
 
                 if (duration < MinTrackLength || duration > MaxTrackLength) //Check whether the duration is ok
                 {
@@ -472,7 +463,13 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                 int count = 0;
                 try
                 {
-                    List<bool[]> images = fingerprintService.CreateFingerprints(fileList[i]); //Create Fingerprints and insert them in database
+                    var unit = workUnitBuilder.BuildWorkUnit().On(fileList[i]).WithCustomConfiguration(
+                        config =>
+                            {
+                                config.TopWavelets = topWavelets;
+                                config.Stride = stride;
+                            });
+                    List<bool[]> images = unit.GetFingerprintsUsingService(fingerprintService).Result; //Create Fingerprints and insert them in database
                     List<Fingerprint> inserted = Fingerprint.AssociateFingerprintsToTrack(images, track.Id);
                     dalManager.InsertFingerprint(inserted);
                     count = inserted.Count;
@@ -554,11 +551,11 @@ namespace Soundfingerprinting.SoundTools.DbFiller
         /// </summary>
         /// <param name = "tags">File Tags</param>
         /// <returns>Album to be used while inserting the fingerprints into the database</returns>
-        private Album GetCoresspondingAlbum(TAG_INFO tags)
+        private Album GetCoresspondingAlbum(TagInfo tags)
         {
-            string album = tags.album;
+            string album = tags.Album;
             Album albumToInsert = null;
-            if (String.IsNullOrEmpty(album)) //Check whether the album is not null
+            if (string.IsNullOrEmpty(album))  
             {
                 albumToInsert = unknownAlbum; //The album is unknown
             }
@@ -577,7 +574,7 @@ namespace Soundfingerprinting.SoundTools.DbFiller
                         int releaseYear = -1;
                         try
                         {
-                            releaseYear = Convert.ToInt32(tags.year.Split('-')[0].Trim());
+                            releaseYear = Convert.ToInt32(tags.Year.Split('-')[0].Trim());
                         }
                         catch (Exception)
                         {

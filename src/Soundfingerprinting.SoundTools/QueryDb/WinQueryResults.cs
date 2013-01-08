@@ -14,6 +14,7 @@
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;
@@ -313,6 +314,8 @@
 
         public IFingerprintService FingerprintService { get; set; }
 
+        public IWorkUnitBuilder WorkUnitBuilder { get; set; }
+
         /// <summary>
         ///   Extract possible candidates from the data source using Neural Hasher
         /// </summary>
@@ -426,12 +429,13 @@
         /// <summary>
         ///   Extract Candidates from the underlying data source using Min Hash + LSH Schema
         /// </summary>
+        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
         private void ExtractCandidatesWithMinHashAlgorithm()
         {
             runningThread = Thread.CurrentThread;
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-            Action<int> action = ((check) => _nudChecked.Value = check);
+            Action<int> action = (check) => _nudChecked.Value = check;
             Action<object[], Color> actionAddItems = (parameters, color) =>
                                                      {
                                                          int index = _dgvResults.Rows.Add(parameters);
@@ -456,7 +460,7 @@
                 if (tags == null)
                 {
                     //TAGS are null
-                    Invoke(actionAddItems, new Object[] {"TAGS ARE NULL", pathToFile}, Color.Red);
+                    Invoke(actionAddItems, new object[] {"TAGS ARE NULL", pathToFile}, Color.Red);
                     continue;
                 }
 
@@ -467,14 +471,14 @@
                 if (duration < MinTrackLength || duration > MaxTrackLength) //Check whether the duration is ok
                 {
                     //Duration too small
-                    Invoke(actionAddItems, new Object[] {"BAD DURATION", pathToFile}, Color.Red);
+                    Invoke(actionAddItems, new object[] { "BAD DURATION", pathToFile }, Color.Red);
                     continue;
                 }
 
-                if (String.IsNullOrEmpty(artist) || String.IsNullOrEmpty(title)) //Check whether the tags are properly defined
+                if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title)) //Check whether the tags are properly defined
                 {
                     //Title or Artist tag is null
-                    Invoke(actionAddItems, new Object[] {"NO TAGS", pathToFile}, Color.Red);
+                    Invoke(actionAddItems, new object[] { "NO TAGS", pathToFile }, Color.Red);
                     continue;
                 }
 
@@ -484,14 +488,24 @@
                 Track actualTrack = dalManager.ReadTrackByArtistAndTitleName(artist, title);
                 if (actualTrack == null)
                 {
-                    Invoke(actionAddItems, new Object[] {title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, elapsedMiliseconds}, Color.Red);
+                    Invoke(
+                        actionAddItems,
+                        new object[]
+                            {
+                                title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1,
+                                -1, -1, elapsedMiliseconds
+                            },
+                        Color.Red);
                     continue;
                 }
 
-                FingerprintService.FingerprintConfig.Stride = samplesToSkip;
-                List<bool[]> signatures = FingerprintService.CreateFingerprints(
-                    pathToFile, secondsToAnalyze * 1000, startSecond * 1000);
-                Dictionary<Int32, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash(
+                IWorkUnit workUnit =
+                    WorkUnitBuilder.BuildWorkUnit().On(pathToFile, secondsToAnalyze * 1000, startSecond * 1000)
+                        .WithCustomConfiguration(config => { config.Stride = samplesToSkip; });
+
+                List<bool[]> signatures = workUnit.GetFingerprintsUsingService(FingerprintService).Result;
+
+                Dictionary<int, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash(
                     signatures,
                     dalManager,
                     permStorage,
@@ -501,49 +515,55 @@
                     threshold,
                     ref elapsedMiliseconds); /*Query the database using Min Hash*/
 
-                if (allCandidates == null) /*No candidates*/
+                if (allCandidates == null) 
                 {
-                    Invoke(actionAddItems, new Object[] {title + "-" + artist, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, elapsedMiliseconds}, Color.Red);
+                    /*No candidates*/
+                    Invoke(
+                        actionAddItems,
+                        new object[]
+                            {
+                                title + "-" + artist, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1,
+                                elapsedMiliseconds
+                            },
+                        Color.Red);
                     continue;
                 }
 
                 /*Order by Hamming Similarity*/
-                OrderedParallelQuery<KeyValuePair<Int32, QueryStats>> order = allCandidates.AsParallel() /*Using PLINQ*/
-                    .OrderBy((pair) =>
-                             {
-                                 return pair.Value.OrderingValue = pair.Value.HammingDistance/pair.Value.NumberOfTotalTableVotes
-                                                                   + 0.4*pair.Value.MinHammingDistance;
-                             });
+                OrderedParallelQuery<KeyValuePair<int, QueryStats>> order = allCandidates.AsParallel() /*Using PLINQ*/
+                    .OrderBy((pair) => pair.Value.OrderingValue =
+                                       pair.Value.HammingDistance / pair.Value.NumberOfTotalTableVotes
+                                       + 0.4 * pair.Value.MinHammingDistance);
 
                 Track recognizedTrack = null;
                 bool found = false;
 
-                if (order.Count() > 0)
+                if (order.Any())
                 {
-                    KeyValuePair<Int32, QueryStats> item = order.ElementAt(0);
+                    KeyValuePair<int, QueryStats> item = order.ElementAt(0);
                     recognizedTrack = dalManager.ReadTrackById(item.Key);
                     if (actualTrack.Id == recognizedTrack.Id)
                     {
                         recognized++;
                         found = true;
                     }
-                    Invoke(actionAddItems, new Object[]
-                                           {
-                                               title + "-" + artist, /*Actual title and artist*/
-                                               recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
-                                               1, /*Position in the ordered list*/
-                                               actualTrack.Id == recognizedTrack.Id, /*Found?*/
-                                               item.Value.HammingDistance/item.Value.NumberOfTotalTableVotes, /*Average hamming distance*/
-                                               (double) item.Value.HammingDistanceByTrack/item.Value.NumberOfTrackIdOccurences,
-                                               (double) item.Value.MinHammingDistance,
-                                               item.Value.OrderingValue,
-                                               item.Value.NumberOfTotalTableVotes,
-                                               item.Value.NumberOfTrackIdOccurences,
-                                               item.Value.StartQueryIndex,
-                                               allCandidates.Count,
-                                               item.Value.Similarity,
-                                               elapsedMiliseconds
-                                           }, Color.Empty);
+
+                    Invoke(
+                        actionAddItems,
+                        new object[]
+                            {
+                                title + "-" + artist, /*Actual title and artist*/
+                                recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
+                                1, /*Position in the ordered list*/
+                                actualTrack.Id == recognizedTrack.Id, /*Found?*/
+                                item.Value.HammingDistance / item.Value.NumberOfTotalTableVotes,
+                                /*Average hamming distance*/
+                                (double)item.Value.HammingDistanceByTrack / item.Value.NumberOfTrackIdOccurences,
+                                (double)item.Value.MinHammingDistance, item.Value.OrderingValue,
+                                item.Value.NumberOfTotalTableVotes, item.Value.NumberOfTrackIdOccurences,
+                                item.Value.StartQueryIndex, allCandidates.Count, item.Value.Similarity, elapsedMiliseconds
+                            },
+                        Color.Empty);
                 }
 
                 verified++;
@@ -551,42 +571,56 @@
                 {
                     /*If the element is not found, search it in all candidates*/
                     var query = order.Select((pair, indexAt) => new {Pair = pair, IndexAt = indexAt}).Where((a) => a.Pair.Key == actualTrack.Id);
-                    if (query != null && query.Count() > 0)
+                    if (query.Any())
                     {
                         var anonymType = query.ElementAt(0);
                         recognizedTrack = dalManager.ReadTrackById(anonymType.Pair.Key);
-                        Invoke(actionAddItems, new Object[]
-                                               {
-                                                   title + "-" + artist,
-                                                   recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
-                                                   anonymType.IndexAt + 1, /*Position in the ordered list*/
-                                                   actualTrack.Id == recognizedTrack.Id, /*Found?*/
-                                                   anonymType.Pair.Value.HammingDistance/anonymType.Pair.Value.NumberOfTotalTableVotes, /*Main Criterion*/
-                                                   (double) anonymType.Pair.Value.HammingDistanceByTrack/anonymType.Pair.Value.NumberOfTrackIdOccurences,
-                                                   (double) anonymType.Pair.Value.MinHammingDistance,
-                                                   anonymType.Pair.Value.OrderingValue,
-                                                   anonymType.Pair.Value.NumberOfTotalTableVotes,
-                                                   anonymType.Pair.Value.NumberOfTrackIdOccurences,
-                                                   anonymType.Pair.Value.StartQueryIndex,
-                                                   allCandidates.Count,
-                                                   anonymType.Pair.Value.Similarity,
-                                                   elapsedMiliseconds
-                                               }, Color.Yellow);
+                        Invoke(
+                            actionAddItems,
+                            new object[]
+                                {
+                                    title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist,
+                                    /*Recognized Title Track Name*/
+                                    anonymType.IndexAt + 1, /*Position in the ordered list*/
+                                    actualTrack.Id == recognizedTrack.Id, /*Found?*/
+                                    anonymType.Pair.Value.HammingDistance
+                                    / anonymType.Pair.Value.NumberOfTotalTableVotes, /*Main Criterion*/
+                                    (double)anonymType.Pair.Value.HammingDistanceByTrack
+                                    / anonymType.Pair.Value.NumberOfTrackIdOccurences,
+                                    (double)anonymType.Pair.Value.MinHammingDistance,
+                                    anonymType.Pair.Value.OrderingValue, anonymType.Pair.Value.NumberOfTotalTableVotes,
+                                    anonymType.Pair.Value.NumberOfTrackIdOccurences,
+                                    anonymType.Pair.Value.StartQueryIndex, allCandidates.Count,
+                                    anonymType.Pair.Value.Similarity, elapsedMiliseconds
+                                },
+                            Color.Yellow);
                     }
                     else
-                        Invoke(actionAddItems, new Object[]
-                                               {
-                                                   title + "-" + artist, "Not Found", -1, /*Position in the ordered list*/
-                                                   false, -1, -1, -1, -1, -1, -1, -1, -1, -1, elapsedMiliseconds
-                                               }, Color.Yellow);
+                    {
+                        Invoke(
+                            actionAddItems,
+                            new object[]
+                                {
+                                    title + "-" + artist, "Not Found", -1, /*Position in the ordered list*/
+                                    false, -1, -1, -1, -1, -1, -1, -1, -1, -1, elapsedMiliseconds
+                                },
+                            Color.Yellow);
+                    }
                 }
-                Invoke(actionRecognition, (float) recognized/verified);
+
+                Invoke(actionRecognition, (float)recognized / verified);
             }
         }
 
         /// <summary>
-        ///   Callback invoked when <c>Stop</c> button is pressed, meaning that the recognition is over
+        /// Callback invoked when <c>Stop</c> button is pressed, meaning that the recognition is over
         /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void BtnStopClick(object sender, EventArgs e)
         {
             stopQuerying = true;
@@ -594,8 +628,14 @@
         }
 
         /// <summary>
-        ///   Callback invoked when the <c>Export</c> button is pressed
+        /// Callback invoked when the <c>Export</c> button is pressed
         /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void BtnExportClick(object sender, EventArgs e)
         {
             /*Export into CSV file*/
@@ -604,12 +644,20 @@
 
 
         /// <summary>
-        ///   Callback invoked when the Win Query results is closing
+        /// Callback invoked when the Win Query results is closing
         /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void WinQueryResultsFormClosing(object sender, FormClosingEventArgs e)
         {
             if (runningThread != null)
+            {
                 runningThread.Abort();
+            }
         }
     }
 }
