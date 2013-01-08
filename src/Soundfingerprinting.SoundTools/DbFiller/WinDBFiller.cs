@@ -10,8 +10,9 @@
     using System.Threading;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.AudioProxies;
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Models;
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;

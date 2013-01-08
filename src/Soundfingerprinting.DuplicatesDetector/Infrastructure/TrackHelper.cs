@@ -1,15 +1,13 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.IO;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.DuplicatesDetector.Model;
-using Un4seen.Bass.AddOn.Tags;
-
-namespace Soundfingerprinting.DuplicatesDetector.Infrastructure
+﻿namespace Soundfingerprinting.DuplicatesDetector.Infrastructure
 {
+    using System;
+    using System.IO;
+
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.DuplicatesDetector.Model;
+
+    using Un4seen.Bass.AddOn.Tags;
+
     public static class TrackHelper
     {
         /// <summary>

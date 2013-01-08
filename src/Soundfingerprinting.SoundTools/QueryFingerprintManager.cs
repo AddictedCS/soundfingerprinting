@@ -1,22 +1,16 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.AudioProxies.Strides;
-using Soundfingerprinting.DbStorage;
-using Soundfingerprinting.DbStorage.Entities;
-using Soundfingerprinting.Hashing;
-
-namespace Soundfingerprinting.SoundTools
+﻿namespace Soundfingerprinting.SoundTools
 {
-    /// <summary>
-    ///   Query the database
-    /// </summary>
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.DbStorage;
+    using Soundfingerprinting.DbStorage.Entities;
+    using Soundfingerprinting.Hashing;
+
     public static class QueryFingerprintManager
     {
         private static readonly Random Random = new Random(unchecked((int) DateTime.Now.Ticks));
@@ -28,8 +22,8 @@ namespace Soundfingerprinting.SoundTools
         /// <param name = "dalManager">DAL Manager used to query the underlying database</param>
         /// <param name = "permStorage">Permutation storage</param>
         /// <param name = "seconds">Fingerprints to consider as query points [1.4 sec * N]</param>
-        /// <param name = "lHashTables">Number of hash tables from the database</param>
-        /// <param name = "lGroupsPerKey">Number of groups per hash table</param>
+        /// <param name = "lshHashTables">Number of hash tables from the database</param>
+        /// <param name = "lshGroupsPerKey">Number of groups per hash table</param>
         /// <param name = "thresholdTables">Threshold percentage [0.07 for 20 LHash Tables, 0.17 for 25 LHashTables]</param>
         /// <param name = "queryTime">Set but the method, representing the query length</param>
         /// <returns>Dictionary with Tracks ID's and the Query Statistics</returns>
@@ -38,30 +32,34 @@ namespace Soundfingerprinting.SoundTools
             DaoGateway dalManager,
             IPermutations permStorage,
             int seconds,
-            int lHashTables,
-            int lGroupsPerKey,
+            int lshHashTables,
+            int lshGroupsPerKey,
             int thresholdTables,
             ref long queryTime)
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            Dictionary<Int32, QueryStats> stats = new Dictionary<Int32, QueryStats>();
+            Dictionary<int, QueryStats> stats = new Dictionary<int, QueryStats>();
             MinHash minHash = new MinHash(permStorage);
-            foreach (bool[] f in signatures)
+            foreach (bool[] signature in signatures)
             {
-                if (f == null) continue;
-                int[] bin = minHash.ComputeMinHashSignature(f); /*Compute Min Hash on randomly selected fingerprints*/
-                Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lHashTables, lGroupsPerKey); /*Find all candidates by querying the database*/
+                if (signature == null)
+                {
+                    continue;
+                }
+
+                int[] bin = minHash.ComputeMinHashSignature(signature);
+                    /*Compute Min Hash on randomly selected fingerprints*/
+                Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
                 long[] hashbuckets = hashes.Values.ToArray();
                 Dictionary<int, List<HashBinMinHash>> candidates = dalManager.ReadFingerprintsByHashBucketLSH(hashbuckets);
                 Dictionary<int, List<HashBinMinHash>> potentialCandidates = SelectPotentialMatchesOutOfEntireDataset(candidates, thresholdTables);
                 if (potentialCandidates.Count > 0)
                 {
                     List<Fingerprint> fingerprints = dalManager.ReadFingerprintById(potentialCandidates.Keys);
-                    Dictionary<Fingerprint, int> fCandidates = new Dictionary<Fingerprint, int>();
-                    foreach (Fingerprint finger in fingerprints)
-                        fCandidates.Add(finger, potentialCandidates[finger.Id].Count);
-                    ArrangeCandidatesAccordingToFingerprints(f, fCandidates, lHashTables, lGroupsPerKey, stats);
+                    Dictionary<Fingerprint, int> finalCandidates = fingerprints.ToDictionary(finger => finger, finger => potentialCandidates[finger.Id].Count);
+                    ArrangeCandidatesAccordingToFingerprints(
+                        signature, finalCandidates, lshHashTables, lshGroupsPerKey, stats);
                 }
             }
             stopWatch.Stop();
@@ -69,8 +67,17 @@ namespace Soundfingerprinting.SoundTools
             return stats;
         }
 
-        public static Dictionary<Int32, QueryStats> QueryOneSongMinHashFast(string pathToSong, IStride queryStride, IAudioService proxy, DaoGateway dalManager,
-                                                                            int seconds, int lHashTables, int lGroupsPerKey, int thresholdTables, int topWavelets, ref long queryTime)
+        public static Dictionary<Int32, QueryStats> QueryOneSongMinHashFast(
+            string pathToSong,
+            IStride queryStride,
+            IAudioService proxy,
+            DaoGateway dalManager,
+            int seconds,
+            int lshHashTables,
+            int lshGroupsPerKey,
+            int thresholdTables,
+            int topWavelets,
+            ref long queryTime)
         {
             ///*Fingerprint service*/
             //fingerprintService service = new fingerprintService {TopWavelets = topWavelets};
@@ -87,14 +94,14 @@ namespace Soundfingerprinting.SoundTools
             //MinHash minHash = new MinHash(dalManager);
 
             //IStride stride = queryStride;
-            //int index = stride.GetFirstStride();
+            //int index = stride.FirstStrideSize();
             //while (index + service.SamplesPerFingerprint < querySamples.Length)
             //{
             //    Fingerprint f = service.CreateFingerprintFromSamplesArray(querySamples, index);
             //    if (f == null) continue;
-            //    index += service.SamplesPerFingerprint + stride.GetStride();
+            //    index += service.SamplesPerFingerprint + stride.StrideSize();
             //    int[] bin = minHash.ComputeMinHashSignature(f); /*Compute Min Hash on randomly selected fingerprints*/
-            //    Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lHashTables, lGroupsPerKey); /*Find all candidates by querying the database*/
+            //    Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
             //    long[] hashbuckets = hashes.Values.ToArray();
             //    var candidates = dalManager.ReadFingerprintsByHashBucketLSH(hashbuckets, thresholdTables);
             //    if (candidates != null && candidates.Count > 0)

@@ -1,5 +1,7 @@
-namespace Soundfingerprinting.AudioProxies
+namespace Soundfingerprinting.Audio.Services
 {
+    using Soundfingerprinting.Audio.Models;
+
     using Un4seen.Bass.AddOn.Tags;
 
     public class TagService : ITagService

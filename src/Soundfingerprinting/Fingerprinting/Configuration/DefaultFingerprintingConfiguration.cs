@@ -1,6 +1,6 @@
 namespace Soundfingerprinting.Fingerprinting.Configuration
 {
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.Windows;
 
     public class DefaultFingerprintingConfiguration : IFingerprintingConfiguration

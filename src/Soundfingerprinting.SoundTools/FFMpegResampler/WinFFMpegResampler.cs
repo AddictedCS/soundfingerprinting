@@ -1,61 +1,62 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Windows.Forms;
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.SoundTools.Properties;
-using Un4seen.Bass.AddOn.Tags;
-
-namespace Soundfingerprinting.SoundTools.FFMpegResampler
+﻿namespace Soundfingerprinting.SoundTools.FFMpegResampler
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Threading;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.SoundTools.Properties;
+
+    using Un4seen.Bass.AddOn.Tags;
+
     public partial class WinFfMpegResampler : Form
     {
-        private readonly List<string> _fileList = new List<string>();
-        private int _bitRate;
-        private int _currentProceesedFiles;
-        private string _outputPath;
-        private bool _pause;
-        private string _rootPath;
-        private int _samplingRate;
-        private int _skipped;
-        private bool _stopped;
+        private readonly List<string> fileList = new List<string>();
+        private int bitRate;
+        private int currentProceesedFiles;
+        private string outputPath;
+        private bool pause;
+        private string rootPath;
+        private int samplingRate;
+        private int skipped;
+        private bool stopped;
 
         public WinFfMpegResampler()
         {
             InitializeComponent();
             Icon = Resources.Sound;
-            _currentProceesedFiles = 0;
-            _skipped = 0;
+            currentProceesedFiles = 0;
+            skipped = 0;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
-                _rootPath = folderBrowserDialog1.SelectedPath;
-                textBox1.Text = _rootPath;
-                _fileList.Clear();
-                foreach (string f in Directory.GetFiles(_rootPath, "*.mp3"))
+                rootPath = folderBrowserDialog1.SelectedPath;
+                textBox1.Text = rootPath;
+                fileList.Clear();
+                foreach (string f in Directory.GetFiles(rootPath, "*.mp3"))
                 {
-                    _fileList.Add(f);
+                    fileList.Add(f);
                 }
-                foreach (string f in Directory.GetFiles(_rootPath, "*.flac"))
+
+                foreach (string f in Directory.GetFiles(rootPath, "*.flac"))
                 {
-                    _fileList.Add(f);
+                    fileList.Add(f);
                 }
-                DirSearch(_rootPath);
-                textBox2.Text = _fileList.Count.ToString();
+
+                DirSearch(rootPath);
+                textBox2.Text = fileList.Count.ToString(CultureInfo.InvariantCulture);
                 labelTotalFiles.Text = textBox2.Text;
-                _skipped = 0;
-                _currentProceesedFiles = 0;
-                labelSkipped.Text = _skipped.ToString();
-                labelCurrentProcessed.Text = _currentProceesedFiles.ToString();
+                skipped = 0;
+                currentProceesedFiles = 0;
+                labelSkipped.Text = skipped.ToString(CultureInfo.InvariantCulture);
+                labelCurrentProcessed.Text = currentProceesedFiles.ToString(CultureInfo.InvariantCulture);
             }
         }
 
@@ -63,8 +64,8 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
         {
             if (folderBrowserDialog2.ShowDialog() == DialogResult.OK)
             {
-                _outputPath = folderBrowserDialog2.SelectedPath;
-                textBox3.Text = _outputPath;
+                outputPath = folderBrowserDialog2.SelectedPath;
+                textBox3.Text = outputPath;
                 buttonStartConversion.Enabled = true;
             }
         }
@@ -78,12 +79,14 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
                 {
                     foreach (string f in Directory.GetFiles(d, "*.mp3"))
                     {
-                        _fileList.Add(f);
+                        fileList.Add(f);
                     }
+
                     foreach (string f in Directory.GetFiles(d, "*.flac"))
                     {
-                        _fileList.Add(f);
+                        fileList.Add(f);
                     }
+
                     DirSearch(d);
                 }
             }
@@ -93,27 +96,29 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
             }
         }
 
-        private void buttonRefresh_Click(object sender, EventArgs e)
+        private void ButtonRefreshClick(object sender, EventArgs e)
         {
-            _fileList.Clear();
-            _rootPath = textBox1.Text;
-            foreach (string f in Directory.GetFiles(_rootPath, "*.mp3"))
+            fileList.Clear();
+            rootPath = textBox1.Text;
+            foreach (string f in Directory.GetFiles(rootPath, "*.mp3"))
             {
-                _fileList.Add(f);
+                fileList.Add(f);
             }
-            foreach (string f in Directory.GetFiles(_rootPath, "*.flac"))
+
+            foreach (string f in Directory.GetFiles(rootPath, "*.flac"))
             {
-                _fileList.Add(f);
+                fileList.Add(f);
             }
-            DirSearch(_rootPath);
-            textBox2.Text = _fileList.Count.ToString();
+
+            DirSearch(rootPath);
+            textBox2.Text = fileList.Count.ToString(CultureInfo.InvariantCulture);
             labelTotalFiles.Text = textBox2.Text;
             buttonStartConversion.Enabled = true;
             buttonStop.Enabled = false;
-            _currentProceesedFiles = 0;
-            _skipped = 0;
-            labelSkipped.Text = _skipped.ToString();
-            labelCurrentProcessed.Text = _currentProceesedFiles.ToString();
+            currentProceesedFiles = 0;
+            skipped = 0;
+            labelSkipped.Text = skipped.ToString();
+            labelCurrentProcessed.Text = currentProceesedFiles.ToString(CultureInfo.InvariantCulture);
         }
 
         private void ProcessFiles()
@@ -123,7 +128,7 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
                                    buttonStop.Enabled = false;
                                    buttonPause.Enabled = false;
                                    buttonStartConversion.Enabled = true;
-                                   _stopped = false;
+                                   stopped = false;
                                };
 
             Process process = new Process
@@ -142,8 +147,8 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
 
             Action del = delegate
                          {
-                             labelCurrentProcessed.Text = _currentProceesedFiles.ToString();
-                             labelSkipped.Text = _skipped.ToString();
+                             labelCurrentProcessed.Text = currentProceesedFiles.ToString();
+                             labelSkipped.Text = skipped.ToString();
                              richTextBox1.AppendText(process.StandardError.ReadToEnd() + "\n");
                              richTextBox1.Focus();
                              richTextBox1.SelectionStart = richTextBox1.Text.Length;
@@ -151,17 +156,17 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
 
             using (BassAudioService audioService = new BassAudioService())
             {
-                foreach (string f in _fileList)
+                foreach (string f in fileList)
                 {
-                    if (_stopped)
+                    if (stopped)
                     {
                         Invoke(finishDel);
                         Thread.CurrentThread.Abort();
                     }
 
-                    while (_pause)
+                    while (pause)
                     {
-                        if (_stopped)
+                        if (stopped)
                         {
                             Invoke(finishDel);
                             Thread.CurrentThread.Abort();
@@ -178,8 +183,8 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
                     }
                     catch
                     {
-                        _skipped++;
-                        _currentProceesedFiles++;
+                        skipped++;
+                        currentProceesedFiles++;
                         Invoke(del);
                         continue;
                     }
@@ -188,8 +193,8 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
                     if (String.IsNullOrEmpty(tags.title) || tags.title.Length == 0)
                     {
                         //Skip file
-                        _skipped++;
-                        _currentProceesedFiles++;
+                        skipped++;
+                        currentProceesedFiles++;
                         Invoke(del);
                         continue;
                     }
@@ -198,8 +203,8 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
                     {
                         if (tags.composer == null)
                         {
-                            _skipped++;
-                            _currentProceesedFiles++;
+                            skipped++;
+                            currentProceesedFiles++;
                             Invoke(del);
                             continue;
                         }
@@ -210,14 +215,14 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
 
                     string outfilename = tags.title + " + " + artist + ".wav";
 
-                    string outfile = _outputPath + "\\" + outfilename;
-                    string arguments = "-i \"" + f + "\" -ac 1 -ar " + _samplingRate + " -ab " +
-                                       _bitRate + " \"" + outfile + "\"";
+                    string outfile = outputPath + "\\" + outfilename;
+                    string arguments = "-i \"" + f + "\" -ac 1 -ar " + samplingRate + " -ab " +
+                                       bitRate + " \"" + outfile + "\"";
 
                     process.StartInfo.Arguments = arguments;
                     process.Start();
                     process.StandardInput.Write("n");
-                    _currentProceesedFiles++;
+                    currentProceesedFiles++;
                     Invoke(del);
                 }
             }
@@ -226,14 +231,14 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
 
         private void ButtonStartConversionClick(object sender, EventArgs e)
         {
-            if (!Int32.TryParse(textBoxSamplingRate.Text, out _samplingRate))
-                _samplingRate = 5512;
-            if (!Int32.TryParse(textBoxBitRate.Text, out _bitRate))
-                _bitRate = 64000;
+            if (!Int32.TryParse(textBoxSamplingRate.Text, out samplingRate))
+                samplingRate = 5512;
+            if (!Int32.TryParse(textBoxBitRate.Text, out bitRate))
+                bitRate = 64000;
             Thread thread = new Thread(ProcessFiles);
             thread.Start();
-            _currentProceesedFiles = 0;
-            labelCurrentProcessed.Text = _currentProceesedFiles.ToString();
+            currentProceesedFiles = 0;
+            labelCurrentProcessed.Text = currentProceesedFiles.ToString();
             buttonPause.Enabled = true;
             buttonStartConversion.Enabled = false;
             buttonStop.Enabled = true;
@@ -241,12 +246,12 @@ namespace Soundfingerprinting.SoundTools.FFMpegResampler
 
         private void buttonPause_Click(object sender, EventArgs e)
         {
-            _pause = !_pause;
+            pause = !pause;
         }
 
         private void buttonStop_Click(object sender, EventArgs e)
         {
-            _stopped = true;
+            stopped = true;
             buttonStop.Enabled = false;
         }
     }

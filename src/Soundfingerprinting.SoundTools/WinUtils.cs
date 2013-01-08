@@ -8,11 +8,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Soundfingerprinting.AudioProxies.Strides;
+
 using Soundfingerprinting.SoundTools.Properties;
 
 namespace Soundfingerprinting.SoundTools
 {
+    using Soundfingerprinting.Audio.Strides;
+
     internal static class WinUtils
     {
         /// <summary>

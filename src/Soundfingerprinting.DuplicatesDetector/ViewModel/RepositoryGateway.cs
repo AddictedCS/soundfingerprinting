@@ -9,8 +9,8 @@
     using Ninject;
     using Ninject.Parameters;
 
-    using Soundfingerprinting.AudioProxies;
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.DuplicatesDetector.DataAccess;
     using Soundfingerprinting.DuplicatesDetector.Infrastructure;
     using Soundfingerprinting.DuplicatesDetector.Model;
@@ -29,17 +29,17 @@
         /// <summary>
         ///   Maximum track length (track's bigger than this value will be discarded)
         /// </summary>
-        private const int MAX_TRACK_LENGTH = 60*10; /*10 min - maximal track length*/
+        private const int MaxTrackLength = 60 * 10; /*10 min - maximal track length*/
 
         /// <summary>
         ///   Number of milliseconds to process from each song
         /// </summary>
-        private const int MILLISECONDS_TO_PROCESS = 10*1000;
+        private const int MillisecondsToProcess = 10 * 1000;
 
         /// <summary>
         ///   Starting processing point
         /// </summary>
-        private const int MILLISECONDS_START = 20*1000;
+        private const int MillisecondsStart = 20 * 1000;
 
         /// <summary>
         ///   Buffer size of the application reading songs
@@ -48,53 +48,53 @@
         ///   Represented in MB.
         ///   Max 100MB will be reserved for the samples read from songs
         /// </remarks>
-        private const int BUFFER_SIZE = 100;
+        private const int BufferSize = 100;
 
         /// <summary>
         ///   Minimum track length (track's less than this value will be discarded)
         /// </summary>
-        private const int MIN_TRACK_LENGTH = (MILLISECONDS_TO_PROCESS + MILLISECONDS_START)/1000 + 1;
+        private const int MinTrackLength = ((MillisecondsToProcess + MillisecondsStart) / 1000) + 1;
 
         /// <summary>
         ///   Incremental static stride size (1024 samples from the start)
         /// </summary>
-        private const int STRIDE_SIZE_INCREMENTAL = 1024;
+        private const int StrideSizeIncremental = 1024;
 
         /// <summary>
         ///   Number of LSH tables
         /// </summary>
-        private const int NUMBER_OF_HASH_TABLES = 25;
+        private const int NumberOfHashTables = 25;
 
         /// <summary>
         ///   Number of Min Hash keys per 1 hash function (1 LSH table)
         /// </summary>
-        private const int NUMBER_OF_KEYS = 4;
+        private const int NumberOfKeys = 4;
 
         /// <summary>
         ///   Path to permutations (generated using greedy algorithm)
         /// </summary>
-        private const string PATH_TO_PERMUTATIONS = "perms.csv";
+        private const string PathToPermutations = "perms.csv";
 
         /// <summary>
         ///   Number of threshold votes for a file to be considerate a duplicate
         /// </summary>
-        private const int THRESHOLD_VOTES = 5;
+        private const int ThresholdVotes = 5;
 
         /// <summary>
         ///   Value of threshold percentage of fingerprints that needs to be gathered
         ///   in order to be considered a possible result
         /// </summary>
-        private const double THRESHOLD_PERCENTAGE = 6;
+        private const double ThresholdPercentage = 6;
 
         /// <summary>
         ///   Separator in the .csv files
         /// </summary>
-        private const string SEPARATOR = ",";
+        private const string Separator = ",";
 
         /// <summary>
         ///   Number of samples per fingerprint (8192 correspond to 1.48 sec granularity)
         /// </summary>
-        private const int SAMPLES_IN_FINGERPRINT = 8192;
+        private const int SamplesInFingerprint = 8192;
 
         /// <summary>
         ///   Down sampling rate
@@ -102,7 +102,7 @@
         /// <remarks>
         ///   If you want to change this, contact ciumac.sergiu@gmail.com
         /// </remarks>
-        private const int SAMPLE_RATE = 5512;
+        private const int SampleRate = 5512;
 
         #endregion
 
@@ -139,17 +139,17 @@
         {
             storage =
                 ServiceContainer.Kernel.Get<IStorage>(
-                    new ConstructorArgument("numberOfHashTables", NUMBER_OF_HASH_TABLES));
+                    new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
                 /*Number of LSH Tables, used for storage purposes*/
 
             permutations =
                 ServiceContainer.Kernel.Get<IPermutations>(
-                    new ConstructorArgument("pathToPermutations", PATH_TO_PERMUTATIONS),
-                    new ConstructorArgument("separator", SEPARATOR)); /*Permutations*/
+                    new ConstructorArgument("pathToPermutations", PathToPermutations),
+                    new ConstructorArgument("separator", Separator)); /*Permutations*/
 
             cts = new CancellationTokenSource();
             repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintService>(), ServiceContainer.Kernel.Get<IWorkUnitBuilder>(), storage, permutations);
-            createStride = new IncrementalStaticStride(STRIDE_SIZE_INCREMENTAL, SAMPLES_IN_FINGERPRINT);
+            createStride = new IncrementalStaticStride(StrideSizeIncremental, SamplesInFingerprint);
         }
 
         /// <summary>
@@ -159,22 +159,30 @@
         /// <param name = "fileFilters">File filters used</param>
         /// <param name = "callback">Callback invoked once processing ends</param>
         /// <param name = "trackProcessed">Callback invoked once 1 track is processed</param>
-        public void ProcessTracksAsync(IEnumerable<Item> paths, string[] fileFilters,
-                                       Action<List<Track>, Exception> callback, Action<Track> trackProcessed)
+        public void ProcessTracksAsync(
+            IEnumerable<Item> paths,
+            string[] fileFilters,
+            Action<List<Track>, Exception> callback,
+            Action<Track> trackProcessed)
         {
             List<string> files = new List<string>();
             foreach (Item path in paths)
             {
                 if (path.IsFolder)
+                {
                     files.AddRange(Helper.GetMusicFiles(path.Path, fileFilters, true)); //get music file names
+                }
                 else
+                {
                     files.Add(path.Path);
+                }
             }
 
             List<Track> tracks = null;
-            Task.Factory.StartNew(() =>
-                                  {
-                                      try
+            Task.Factory.StartNew(
+                () =>
+                    {
+                        try
                                       {
                                           tracks = ProcessFiles(files, trackProcessed);
                                           callback.Invoke(tracks, null);
@@ -188,9 +196,39 @@
                                       {
                                           callback.Invoke(tracks, ex);
                                       }
-                                  }, cts.Token);
+                    },
+                cts.Token);
         }
 
+        /// <summary>
+        ///   Find duplicate files for specific tracks
+        /// </summary>
+        /// <param name = "tracks">Tracks to search in</param>
+        /// <param name = "callback">Callback invoked at each processed track</param>
+        /// <returns>Set of tracks that are duplicate</returns>
+        public HashSet<Track>[] FindDuplicates(List<Track> tracks, Action<Track, int, int> callback)
+        {
+            return repository.FindDuplicates(tracks, ThresholdVotes, ThresholdPercentage, callback);
+        }
+
+        /// <summary>
+        ///   Find all duplicate files from the storage
+        /// </summary>
+        /// <param name = "callback">Callback invoked at each processed track</param>
+        /// <returns>Set of tracks that are duplicate</returns>
+        public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
+        {
+            return repository.FindDuplicates(storage.GetAllTracks(), ThresholdVotes, ThresholdPercentage, callback);
+        }
+
+        /// <summary>
+        ///   Abort processing the files (at any stage)
+        /// </summary>
+        public void AbortProcessing()
+        {
+            cts.Cancel();
+            cts = new CancellationTokenSource();
+        }
 
         /// <summary>
         ///   Process files (get fingerprint signatures, hash them into storage)
@@ -203,10 +241,13 @@
             /*preprocessing stage ended, now make sure to do the actual job*/
 
             int numProcs = Environment.ProcessorCount;
-            //1024 (Kb) * BufferSize / SampleRate * SecondsRead * 4 (1 float = 4 bytes) / 1024 (Kb)
-            const int buffersize = (int) ((1024.0*BUFFER_SIZE)/((double) SAMPLE_RATE*MILLISECONDS_TO_PROCESS/1000*4/1024));
-            //~317 songs are allowed for 15 seconds snippet at 5512 Hz sample rate
-            BlockingCollection<Tuple<Track, float[]>> buffer = new BlockingCollection<Tuple<Track, float[]>>(buffersize);
+
+            // 1024 (Kb) * BufferSize / SampleRate * SecondsRead * 4 (1 float = 4 bytes) / 1024 (Kb)
+            const int Buffersize =
+                (int)((1024.0 * BufferSize) / ((double)SampleRate * MillisecondsToProcess / 1000 * 4 / 1024));
+
+            // ~317 songs are allowed for 15 seconds snippet at 5512 Hz sample rate
+            BlockingCollection<Tuple<Track, float[]>> buffer = new BlockingCollection<Tuple<Track, float[]>>(Buffersize);
             List<Track> processedtracks = new List<Track>();
             List<Task> consumers = new List<Task>();
             List<Task> producers = new List<Task>();
@@ -214,7 +255,7 @@
             ConcurrentBag<string> bag = new ConcurrentBag<string>(files);
 
             int maxprod = numProcs > 2 ? 2 : numProcs;
-            for (int i = 0; i < maxprod; i++) /*producers*/
+            for (var i = 0; i < maxprod; i++) /*producers*/
             {
                 producers.Add(Task.Factory.StartNew(
                     () =>
@@ -223,15 +264,23 @@
                         {
                             while (!bag.IsEmpty)
                             {
-                                if (token.IsCancellationRequested) return;
+                                if (token.IsCancellationRequested)
+                                {
+                                    return;
+                                }
+
                                 string file;
-                                if (!bag.TryTake(out file)) return;
+                                if (!bag.TryTake(out file))
+                                {
+                                    return;
+                                }
+
                                 Track track;
                                 float[] samples;
                                 try
                                 {
-                                    track = TrackHelper.GetTrackInfo(MIN_TRACK_LENGTH, MAX_TRACK_LENGTH, file, (BassAudioService)audioServiceProxy); //lame casting I know
-                                    samples = TrackHelper.GetTrackSamples(track, audioServiceProxy, SAMPLE_RATE, MILLISECONDS_TO_PROCESS, MILLISECONDS_START);
+                                    track = TrackHelper.GetTrackInfo(MinTrackLength, MaxTrackLength, file, (BassAudioService)audioServiceProxy); //lame casting I know
+                                    samples = TrackHelper.GetTrackSamples(track, audioServiceProxy, SampleRate, MillisecondsToProcess, MillisecondsStart);
                                 }
                                 catch
                                 {
@@ -250,7 +299,8 @@
                                 }
                             }
                         }
-                    }, token));
+                    },
+                    token));
             }
 
             /*When all producers ended with their operations, call the CompleteAdding() to tell Consumers no more items are available*/
@@ -266,48 +316,22 @@
                             if (tuple != null)
                             {
                                 /*Long running procedure*/
-                                repository.CreateInsertFingerprints(tuple.Item2, tuple.Item1, createStride, NUMBER_OF_HASH_TABLES, NUMBER_OF_KEYS);
+                                repository.CreateInsertFingerprints(
+                                    tuple.Item2, tuple.Item1, createStride, NumberOfHashTables, NumberOfKeys);
 
                                 processedtracks.Add(tuple.Item1);
                                 if (processed != null)
+                                {
                                     processed.Invoke(tuple.Item1);
+                                }
                             }
                         }
-                    }, token));
+                    },
+                    token));
             }
-            
+
             Task.WaitAll(consumers.ToArray()); /*wait for all consumers to end*/
             return processedtracks;
-        }
-
-        /// <summary>
-        ///   Find duplicate files for specific tracks
-        /// </summary>
-        /// <param name = "tracks">Tracks to search in</param>
-        /// <param name = "callback">Callback invoked at each processed track</param>
-        /// <returns>Set of tracks that are duplicate</returns>
-        public HashSet<Track>[] FindDuplicates(List<Track> tracks, Action<Track, int, int> callback)
-        {
-            return repository.FindDuplicates(tracks, THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
-        }
-
-        /// <summary>
-        ///   Find all duplicate files from the storage
-        /// </summary>
-        /// <param name = "callback">Callback invoked at each processed track</param>
-        /// <returns>Set of tracks that are duplicate</returns>
-        public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
-        {
-            return repository.FindDuplicates(storage.GetAllTracks(), THRESHOLD_VOTES, THRESHOLD_PERCENTAGE, callback);
-        }
-
-        /// <summary>
-        ///   Abort processing the files (at any stage)
-        /// </summary>
-        public void AbortProcessing()
-        {
-            cts.Cancel();
-            cts = new CancellationTokenSource();
         }
     }
 }

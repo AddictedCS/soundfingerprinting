@@ -55,21 +55,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioProxies\AudioServiceConfiguration.cs" />
-    <Compile Include="AudioProxies\AudioService.cs" />
-    <Compile Include="AudioProxies\BassAudioService.cs" />
-    <Compile Include="AudioProxies\DirectSoundAudioService.cs" />
-    <Compile Include="AudioProxies\IAudioService.cs" />
-    <Compile Include="AudioProxies\ITagService.cs" />
-    <Compile Include="AudioProxies\Strides\IncrementalRandomStride.cs" />
-    <Compile Include="AudioProxies\Strides\IncrementalStaticStride.cs" />
-    <Compile Include="AudioProxies\Strides\IStride.cs" />
-    <Compile Include="AudioProxies\Strides\RandomStride.cs" />
-    <Compile Include="AudioProxies\ReadStatus.cs" />
-    <Compile Include="AudioProxies\Strides\StaticStride.cs" />
-    <Compile Include="AudioProxies\Strides\StrideType.cs" />
-    <Compile Include="AudioProxies\TagInfo.cs" />
-    <Compile Include="AudioProxies\TagService.cs" />
+    <Compile Include="Audio\Models\AudioServiceConfiguration.cs" />
+    <Compile Include="Audio\Services\AudioService.cs" />
+    <Compile Include="Audio\Services\BassAudioService.cs" />
+    <Compile Include="Audio\Services\DirectSoundAudioService.cs" />
+    <Compile Include="Audio\Services\IAudioService.cs" />
+    <Compile Include="Audio\Services\ITagService.cs" />
+    <Compile Include="Audio\Strides\IncrementalRandomStride.cs" />
+    <Compile Include="Audio\Strides\IncrementalStaticStride.cs" />
+    <Compile Include="Audio\Strides\IStride.cs" />
+    <Compile Include="Audio\Strides\RandomStride.cs" />
+    <Compile Include="Audio\Models\ReadStatus.cs" />
+    <Compile Include="Audio\Strides\StaticStride.cs" />
+    <Compile Include="Audio\Strides\StrideType.cs" />
+    <Compile Include="Audio\Models\TagInfo.cs" />
+    <Compile Include="Audio\Services\TagService.cs" />
     <Compile Include="DbStorage\Entities\Album.cs" />
     <Compile Include="DbStorage\Utils\ArrayUtils.cs" />
     <Compile Include="DbStorage\DaoGateway.cs" />

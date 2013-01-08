@@ -299,18 +299,22 @@
 
 
         /// <summary>
-        ///   Gets the spectrum of the wavelet decomposition before extracting top wavelets and binary transformation
+        /// Gets the spectrum of the wavelet decomposition before extracting top wavelets and binary transformation
         /// </summary>
-        /// <param name = "pathToFile">Path to file to be drawn</param>
-        /// <param name = "stride">Stride within the fingerprint creation</param>
-        /// <param name = "proxy">Proxy service</param>
-        /// <param name = "service">Fingerprint service</param>
-        /// <returns>Image to be saved</returns>
+        /// <param name="spectrum">
+        /// The spectrum.
+        /// </param>
+        /// <param name="configuration">
+        /// The configuration.
+        /// </param>
+        /// <returns>
+        /// Image to be saved
+        /// </returns>
         public static Image GetWaveletSpectralImage(float[][] spectrum, IFingerprintingConfiguration configuration)
         {
             List<float[][]> wavelets = new List<float[][]>();
             int specLen = spectrum.GetLength(0);
-            int start = configuration.Stride.GetFirstStride() / configuration.Overlap;
+            int start = configuration.Stride.FirstStrideSize / configuration.Overlap;
             int logbins = configuration.LogBins;
             int fingerprintLength = configuration.FingerprintLength;
             int overlap = configuration.Overlap;
@@ -323,7 +327,7 @@
                     Array.Copy(spectrum[start + i], frames[i], logbins);
                 }
 
-                start += fingerprintLength + (configuration.Stride.GetStride() / overlap);
+                start += fingerprintLength + (configuration.Stride.StrideSize / overlap);
                 wavelets.Add(frames);
             }
 
@@ -340,10 +344,14 @@
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
             /*Change the background of the bitmap*/
             for (int i = 0; i < imageWidth; i++)
+            {
                 for (int j = 0; j < imageHeight; j++)
+                {
                     image.SetPixel(i, j, Color.White);
+                }
+            }
 
-            double maxValue = wavelets.Max((wavelet) => (wavelet.Max((column) => column.Max())));
+            double maxValue = wavelets.Max((wavelet) => wavelet.Max((column) => column.Max()));
             int verticalOffset = SpaceBetweenImages;
             int horizontalOffset = SpaceBetweenImages;
             int count = 0;
@@ -365,8 +373,11 @@
                     horizontalOffset = SpaceBetweenImages;
                 }
                 else
+                {
                     horizontalOffset += width + SpaceBetweenImages;
+                }
             }
+
             return image;
         }
     }

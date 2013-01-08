@@ -4,8 +4,9 @@ namespace Soundfingerprinting.Fingerprinting
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using Soundfingerprinting.AudioProxies;
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Models;
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
@@ -79,7 +80,7 @@ namespace Soundfingerprinting.Fingerprinting
         private List<bool[]> CreateFingerprintsFromSpectrum(
             float[][] spectrum, IStride stride, int fingerprintLength, int overlap, int logBins, int topWavelets)
         {
-            int start = stride.GetFirstStride() / overlap;
+            int start = stride.FirstStrideSize / overlap;
             List<bool[]> fingerprints = new List<bool[]>();
 
             int width = spectrum.GetLength(0);
@@ -92,7 +93,7 @@ namespace Soundfingerprinting.Fingerprinting
                     Array.Copy(spectrum[start + i], frames[i], logBins);
                 }
 
-                start += fingerprintLength + (stride.GetStride() / overlap);
+                start += fingerprintLength + (stride.StrideSize / overlap);
                 waveletDecomposition.DecomposeImageInPlace(frames); /*Compute wavelets*/
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, topWavelets);
                 fingerprints.Add(image);

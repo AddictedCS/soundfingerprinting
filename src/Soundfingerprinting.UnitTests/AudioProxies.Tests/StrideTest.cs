@@ -1,12 +1,10 @@
 ﻿namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
 {
     using System;
-    using System.Diagnostics;
-    using System.Reflection;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Strides;
 
     [TestClass]
     public class StrideClassesTest : BaseTest
@@ -16,7 +14,7 @@
         {
             const int Value = 5115;
             StaticStride stride = new StaticStride(Value);
-            Assert.AreEqual(Value, stride.GetStride());
+            Assert.AreEqual(Value, stride.StrideSize);
         }
 
         [TestMethod]
@@ -28,7 +26,7 @@
             const int Count = 1024;
             for (int i = 0; i < Count; i++)
             {
-                int skip = randomStride.GetStride();
+                int skip = randomStride.StrideSize;
                 Assert.IsTrue(skip <= Max);
                 Assert.IsTrue(skip >= Min);
             }

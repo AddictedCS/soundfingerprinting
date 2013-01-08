@@ -7,11 +7,11 @@
     using System.IO;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.AudioProxies;
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Models;
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.SoundTools.Properties;
 

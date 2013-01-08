@@ -7,7 +7,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Strides;
 
     /// <summary>
     ///   Base class which has all of the required parameters

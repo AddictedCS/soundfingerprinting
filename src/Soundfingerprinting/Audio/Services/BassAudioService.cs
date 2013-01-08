@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.AudioProxies
+﻿namespace Soundfingerprinting.Audio.Services
 {
     using System;
     using System.Collections.Generic;

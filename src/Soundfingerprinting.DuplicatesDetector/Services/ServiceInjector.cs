@@ -1,13 +1,10 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using Soundfingerprinting.AudioProxies;
-using Soundfingerprinting.DuplicatesDetector.DataAccess;
-using Soundfingerprinting.Hashing;
-
-namespace Soundfingerprinting.DuplicatesDetector.Services
+﻿namespace Soundfingerprinting.DuplicatesDetector.Services
 {
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.DuplicatesDetector.DataAccess;
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Hashing;
+
     /// <summary>
     ///   Service injector loads all the services into Service Container on Application startup
     /// </summary>
@@ -28,6 +25,7 @@ namespace Soundfingerprinting.DuplicatesDetector.Services
             ServiceContainer.Kernel.Bind<IWindowService>().To<WindowService>();
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
+            ServiceContainer.Kernel.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
             ServiceContainer.Kernel.Bind<IPermutations>().To<LocalPermutations>();
             ServiceContainer.Kernel.Bind<IAudioService>().To<BassAudioService>().InSingletonScope();
         }

@@ -1,7 +1,8 @@
-namespace Soundfingerprinting.AudioProxies
+namespace Soundfingerprinting.Audio.Services
 {
     using System;
 
+    using Soundfingerprinting.Audio.Models;
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Windows;
 

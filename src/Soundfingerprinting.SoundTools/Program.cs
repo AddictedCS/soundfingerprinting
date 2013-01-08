@@ -3,11 +3,12 @@
     using System;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.AudioProxies;
+    using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
+    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.SoundTools.DI;
 
     internal static class Program
@@ -24,6 +25,7 @@
             dependencyResolver.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
             dependencyResolver.Bind<IAudioService>().To<BassAudioService>();
             dependencyResolver.Bind<ITagService>().To<TagService>();
+            dependencyResolver.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

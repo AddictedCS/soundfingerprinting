@@ -8,10 +8,9 @@
     using System.Windows.Forms;
     using System.Xml.Serialization;
 
-    using Soundfingerprinting.AudioProxies;
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting;
-    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.SoundTools.Properties;

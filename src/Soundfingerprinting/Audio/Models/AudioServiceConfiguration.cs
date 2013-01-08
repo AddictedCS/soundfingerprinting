@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.AudioProxies
+﻿namespace Soundfingerprinting.Audio.Models
 {
     public struct AudioServiceConfiguration
     {

@@ -6,7 +6,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.AudioProxies;
+    using Soundfingerprinting.Audio.Services;
 
     using Un4seen.Bass.AddOn.Tags;
 

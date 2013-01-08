@@ -5,7 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
-    using Soundfingerprinting.AudioProxies.Strides;
+    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
