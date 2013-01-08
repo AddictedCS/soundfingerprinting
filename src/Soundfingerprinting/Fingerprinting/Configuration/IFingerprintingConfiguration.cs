@@ -6,7 +6,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
     public interface IFingerprintingConfiguration
     {
         /// <summary>
-        ///   Gets number of samples to read in order to create single fingerprint.
+        ///   Gets number of samples to read in order to create single signature.
         ///   The granularity is 1.48 seconds
         /// </summary>
         int SamplesPerFingerprint { get; }
@@ -52,12 +52,12 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         int LogBins { get; }
 
         /// <summary>
-        ///   Gets fingerprint's length
+        ///   Gets signature's length
         /// </summary>
         int FingerprintLength { get; }
 
         /// <summary>
-        /// Gets default stride size between 2 consecutive fingerprint
+        /// Gets default stride size between 2 consecutive signature
         /// </summary>
         /// <remarks>
         ///  Default = 5115

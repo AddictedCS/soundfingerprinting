@@ -65,7 +65,7 @@
             List<bool[]> signatures =
                 workUnitBuilder.BuildWorkUnit().On(PathToWav).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithDirectSound).Result;
-            List<Fingerprint> fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
+            List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             dalManager.InsertFingerprint(fingerprints);
             List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
             /*Read all fingerprints*/
@@ -105,7 +105,7 @@
                 workUnitBuilder.BuildWorkUnit().On(PathToMp3).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithBass).Result;
 
-            List<Fingerprint> fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
+            List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             dalManager.InsertFingerprint(fingerprints);
 
 
@@ -144,7 +144,7 @@
                 workUnitBuilder.BuildWorkUnit().On(PathToWav).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithDirectSound).Result;
 
-            List<Fingerprint> fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
+            List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             dalManager.InsertFingerprint(fingerprints);
 
             List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
@@ -182,10 +182,10 @@
                 workUnitBuilder.BuildWorkUnit().On(PathToMp3).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithBass).Result;
 
-            List<Fingerprint> fingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
+            List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             dalManager.InsertFingerprint(fingerprints);
 
-            List<Fingerprint> insertedFingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, track.Id);
+            List<Fingerprint> insertedFingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
 
             foreach (Fingerprint fingerprint in fingerprints)
@@ -350,6 +350,20 @@
                 workUnitForDirectSound.GetFingerprintsUsingService(fingerprintingServiceWithDirectSound).Result;
 
             Assert.AreEqual(bassFingerprints.Count, directSoundFingerprints.Count);
+        }
+
+        private List<Fingerprint> AssociateFingerprintsToTrack(IEnumerable<bool[]> fingerprintSignatures, int trackId)
+        {
+            const int FakeId = -1;
+            List<Fingerprint> fingers = new List<Fingerprint>();
+            int c = 0;
+            foreach (bool[] signature in fingerprintSignatures)
+            {
+                fingers.Add(new Fingerprint(FakeId, signature, trackId, c));
+                c++;
+            }
+
+            return fingers;
         }
     }
 }

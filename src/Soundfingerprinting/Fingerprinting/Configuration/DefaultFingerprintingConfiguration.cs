@@ -22,7 +22,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         }
 
         /// <summary>
-        ///   Gets number of samples to read in order to create single fingerprint. The granularity is 1.48 seconds
+        ///   Gets number of samples to read in order to create single signature. The granularity is 1.48 seconds
         /// </summary>
         /// <remarks>
         ///   Default = 8192
@@ -46,7 +46,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         public int WdftSize { get; private set; }
 
         /// <summary>
-        ///   Gets frequency range which is taken into account when creating the fingerprint
+        ///   Gets frequency range which is taken into account when creating the signature
         /// </summary>
         /// <remarks>
         ///   Default = 318
@@ -54,7 +54,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         public int MinFrequency { get; private set; }
 
         /// <summary>
-        ///   Gets frequency range which is taken into account when creating the fingerprint
+        ///   Gets frequency range which is taken into account when creating the signature
         /// </summary>
         /// <remarks>
         ///   Default = 2000
@@ -91,12 +91,12 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         public int LogBins { get; private set; }
 
         /// <summary>
-        ///   Gets fingerprint's length
+        ///   Gets signature's length
         /// </summary>
         public int FingerprintLength { get; private set; }
 
         /// <summary>
-        /// Gets default stride size between 2 consecutive fingerprint
+        /// Gets default stride size between 2 consecutive signature
         /// </summary>
         /// <remarks>
         ///  Default = 5115

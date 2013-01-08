@@ -123,9 +123,9 @@
         }
 
         /// <summary>
-        ///   Arrange candidates according to the corresponding calculation between initial fingerprint and actual fingerprint
+        ///   Arrange candidates according to the corresponding calculation between initial signature and actual signature
         /// </summary>
-        /// <param name = "f">Actual fingerprint gathered from the song</param>
+        /// <param name = "f">Actual signature gathered from the song</param>
         /// <param name = "potentialCandidates">Potential fingerprints returned from the database</param>
         /// <param name = "lHashTables">Number of L Hash tables</param>
         /// <param name = "kKeys">Number of keys per table</param>
@@ -139,7 +139,7 @@
             {
                 Fingerprint fingerprint = pair.Key;
                 int tableVotes = pair.Value;
-                /*Compute Hamming Distance of actual and read fingerprint*/
+                /*Compute Hamming Distance of actual and read signature*/
                 int hammingDistance = MinHash.CalculateHammingDistance(f, fingerprint.Signature)*tableVotes;
                 double jaqSimilarity = MinHash.CalculateSimilarity(f, fingerprint.Signature);
                 /*Add to sample set*/

@@ -413,7 +413,7 @@
                 {
                     //TAGS are null
                     badFiles++;
-                    Invoke(actionAddItems, new Object[] {"TAGS ARE NULL", fileList[i], 0, 0}, Color.Red);
+                    Invoke(actionAddItems, new object[] {"TAGS ARE NULL", fileList[i], 0, 0}, Color.Red);
                     continue;
                 }
 
@@ -425,15 +425,15 @@
                 {
                     //Duration too small
                     badFiles++;
-                    Invoke(actionAddItems, new Object[] {"BAD DURATION", fileList[i], 0, 0}, Color.Red);
+                    Invoke(actionAddItems, new object[] {"BAD DURATION", fileList[i], 0, 0}, Color.Red);
                     continue;
                 }
 
-                if (String.IsNullOrEmpty(artist) || String.IsNullOrEmpty(title)) //Check whether the tags are properly defined
+                if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title)) //Check whether the tags are properly defined
                 {
                     //Title or Artist tag is null
                     badFiles++;
-                    Invoke(actionAddItems, new Object[] {"TAGS MISSING", fileList[i], 0, 0}, Color.Red);
+                    Invoke(actionAddItems, new object[] {"TAGS MISSING", fileList[i], 0, 0}, Color.Red);
                     continue;
                 }
 
@@ -470,14 +470,14 @@
                                 config.TopWavelets = topWavelets;
                                 config.Stride = stride;
                             });
-                    List<bool[]> images = unit.GetFingerprintsUsingService(fingerprintService).Result; //Create Fingerprints and insert them in database
-                    List<Fingerprint> inserted = Fingerprint.AssociateFingerprintsToTrack(images, track.Id);
+                    List<bool[]> images = unit.GetFingerprintsUsingService(fingerprintService).Result; // Create Fingerprints and insert them in database
+                    List<Fingerprint> inserted = AssociateFingerprintsToTrack(images, track.Id);
                     dalManager.InsertFingerprint(inserted);
                     count = inserted.Count;
 
-                    switch (hashAlgorithm) //Hash if there is a need in doing so
+                    switch (hashAlgorithm) // Hash if there is a need in doing so
                     {
-                        case HashAlgorithm.LSH: //LSH + Min Hash has been chosen
+                        case HashAlgorithm.LSH: // LSH + Min Hash has been chosen
                             HashFingerprintsUsingMinHash(inserted, track, hashTables, hashKeys);
                             break;
                         case HashAlgorithm.NeuralHasher:
@@ -489,17 +489,39 @@
                 }
                 catch (Exception e)
                 {
-                    //catch any exception and abort the insertion
+                    // catch any exception and abort the insertion
                     MessageBox.Show(e.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                Invoke(actionAddItems, new Object[] {artist, title, album.Name, duration, count}, Color.Empty);
+
+                Invoke(actionAddItems, new object[] { artist, title, album.Name, duration, count }, Color.Empty);
                 left--;
                 processed++;
 
                 Invoke(actionInterface);
             }
         }
+
+
+        /// <summary>
+        ///   Associate fingerprint signatures with a specific track
+        /// </summary>
+        /// <param name = "fingerprintSignatures">Signatures built from one track</param>
+        /// <param name = "trackId">Track id, which is the parent for this fingerprints</param>        
+        /// <returns>List of fingerprint entity objects</returns>
+        private List<Fingerprint> AssociateFingerprintsToTrack(IEnumerable<bool[]> fingerprintSignatures, int trackId)
+         {
+             const int FakeId = -1;
+             List<Fingerprint> fingers = new List<Fingerprint>();
+             int c = 0;
+             foreach (bool[] signature in fingerprintSignatures)
+             {
+                 fingers.Add(new Fingerprint(FakeId, signature, trackId, c));
+                 c++;
+             }
+
+             return fingers;
+         }
 
         /// <summary>
         ///   Hash Fingerprints using Min-Hash algorithm

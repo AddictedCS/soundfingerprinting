@@ -14,6 +14,7 @@ namespace Soundfingerprinting.UnitTests.DbStorage.Tests
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Soundfingerprinting.Dao.Internal;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
 

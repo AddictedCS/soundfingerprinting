@@ -150,7 +150,7 @@
         }
 
         /// <summary>
-        /// Get fingerprint similarity between 2 different songs.
+        /// Get signature similarity between 2 different songs.
         /// </summary>
         /// <param name="service">
         /// The service.

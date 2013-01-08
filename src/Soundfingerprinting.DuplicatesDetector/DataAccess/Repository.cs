@@ -75,7 +75,7 @@
                                                        .Result;
 
             storage.InsertTrack(track); /*Insert track into the storage*/
-            /*Get fingerprint's hash signature, and associate it to a specific track*/
+            /*Get signature's hash signature, and associate it to a specific track*/
             List<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);
             foreach (HashSignature hash in creationalsignatures)
             {
@@ -93,7 +93,7 @@
             List<HashSignature> signatures = new List<HashSignature>();
             foreach (bool[] fingerprint in fingerprints)
             {
-                int[] signature = hasher.ComputeMinHashSignature(fingerprint); /*Compute min-hash signature out of fingerprint*/
+                int[] signature = hasher.ComputeMinHashSignature(fingerprint); /*Compute min-hash signature out of signature*/
                 Dictionary<int, long> buckets = hasher.GroupMinHashToLSHBuckets(signature, hashTables, hashKeys); /*Group Min-Hash signature into LSH buckets*/
                 int[] hashSignature = new int[buckets.Count];
                 foreach (KeyValuePair<int, long> bucket in buckets)

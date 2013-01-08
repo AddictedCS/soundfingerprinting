@@ -24,7 +24,7 @@
         /// Max step in samples
         /// </param>
         /// <param name="samplesPerFingerprint">
-        /// Samples per fingerprint
+        /// Samples per signature
         /// </param>
         public IncrementalRandomStride(int min, int max, int samplesPerFingerprint)
         {
@@ -45,7 +45,7 @@
         public int Max { get; set; }
 
         /// <summary>
-        ///   Gets or sets number of samples per fingerprint
+        ///   Gets or sets number of samples per signature
         /// </summary>
         public int SamplesPerFingerprint { get; set; }
 

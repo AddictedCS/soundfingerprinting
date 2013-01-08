@@ -133,7 +133,7 @@ namespace Soundfingerprinting.SoundTools
         /// <param name = "type">Type of the stride</param>
         /// <param name = "maxStride">Maximum stride value</param>
         /// <param name = "minStride">Minimum stride value</param>
-        /// <param name = "samplesPerFingerprint">Samples per fingerprint</param>
+        /// <param name = "samplesPerFingerprint">Samples per signature</param>
         /// <returns>Stride object</returns>
         public static IStride GetStride(StrideType type, int maxStride, int minStride, int samplesPerFingerprint)
         {

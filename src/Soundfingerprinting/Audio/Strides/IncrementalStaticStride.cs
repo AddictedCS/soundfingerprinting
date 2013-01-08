@@ -19,7 +19,7 @@
         /// Increment by parameter in audio samples
         /// </param>
         /// <param name="samplesInFingerprint">
-        /// Number of samples in one fingerprint [normally 8192]
+        /// Number of samples in one signature [normally 8192]
         /// </param>
         public IncrementalStaticStride(int incrementBy, int samplesInFingerprint)
         {

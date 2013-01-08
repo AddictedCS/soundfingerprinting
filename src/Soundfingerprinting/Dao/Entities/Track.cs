@@ -2,8 +2,6 @@
 {
     public class Track
     {
-        private int albumId;
-
         private string artist;
 
         private string title;
@@ -68,11 +66,7 @@
             }
         }
 
-        public int AlbumId
-        {
-            get { return albumId; }
-            set { albumId = value; }
-        }
+        public int AlbumId { get; set; }
 
         public int TrackLength
         {
