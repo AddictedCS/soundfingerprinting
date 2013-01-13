@@ -16,7 +16,7 @@
             const int TrackId = -1;
             HashBinNeuralHasher target = new HashBinNeuralHasher(Id, HashBin, HashTable, TrackId);
             Assert.AreEqual(Id, target.Id);
-            Assert.AreEqual(HashBin, target.Hashbin);
+            Assert.AreEqual(HashBin, target.Bin);
             Assert.AreEqual(HashTable, target.HashTable);
             Assert.AreEqual(TrackId, target.TrackId);
         }

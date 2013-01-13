@@ -194,7 +194,7 @@
         /// <summary>
         ///   Get hash similarity of one song
         /// </summary>
-        /// <param name = "service">Fingerprint service</param>
+        /// <param name = "service">Signature service</param>
         /// <param name = "hashTables">Number of hash tables in the LSH transformation</param>
         /// <param name = "hashKeys">Number of hash keys per table in the LSH transformation</param>
         /// <param name = "path">Path to analyzed file</param>

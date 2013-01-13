@@ -6,7 +6,7 @@
 
         private string title;
 
-        private int trackLength;
+        private int trackLengthSec;
 
         public Track()
         {
@@ -23,7 +23,7 @@
         public Track(int trackId, string artist, string title, int albumId, int trackLength)
             : this(trackId, artist, title, albumId)
         {
-            TrackLength = trackLength;
+            TrackLengthSec = trackLength;
         }
 
         public int Id { get; set; }
@@ -68,11 +68,11 @@
 
         public int AlbumId { get; set; }
 
-        public int TrackLength
+        public int TrackLengthSec
         {
             get
             {
-                return trackLength;
+                return trackLengthSec;
             }
 
             set
@@ -82,7 +82,7 @@
                     throw new FingerprintEntityException("Track's Length cannot be less than 0");
                 }
 
-                trackLength = value;
+                trackLengthSec = value;
             }
         }
     }

@@ -7,6 +7,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Dao;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.DbStorage.Utils;
@@ -18,9 +19,7 @@
     [TestClass]
     public class FingerprintManagerTest : BaseTest
     {
-        private string connectionstring;
-
-        private DaoGateway dalManager;
+        private ModelService modelService;
 
         private IFingerprintService fingerprintingServiceWithBass;
 
@@ -33,8 +32,8 @@
         [TestInitialize]
         public void SetUp()
         {
-            connectionstring = ConnectionString;
-            dalManager = new DaoGateway(connectionstring);
+            modelService = new ModelService(
+               new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
             fingerprintingServiceWithBass = new FingerprintService(
                 new BassAudioService(), new FingerprintDescriptor(), new HaarWavelet());
 
@@ -48,10 +47,10 @@
         [TestCleanup]
         public void TearDown()
         {
-            List<Track> tracks = dalManager.ReadTracks();
+            IList<Track> tracks = modelService.ReadTracks();
             if (tracks != null)
             {
-                dalManager.DeleteTrack(tracks);
+                modelService.DeleteTrack(tracks);
             }
         }
 
@@ -59,15 +58,15 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
         {
             Album album = new Album(0, "Random");
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(0, "Track", "Track", album.Id);
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
             List<bool[]> signatures =
                 workUnitBuilder.BuildWorkUnit().On(PathToWav).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithDirectSound).Result;
             List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
-            dalManager.InsertFingerprint(fingerprints);
-            List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
+            modelService.InsertFingerprint(fingerprints);
+            IList<Fingerprint> insertedFingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
             /*Read all fingerprints*/
 
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
@@ -96,20 +95,20 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
         {
             Album album = new Album(0, "Track");
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(0, "Random", "Random", album.Id);
 
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
 
             List<bool[]> signatures =
                 workUnitBuilder.BuildWorkUnit().On(PathToMp3).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithBass).Result;
 
             List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
-            dalManager.InsertFingerprint(fingerprints);
+            modelService.InsertFingerprint(fingerprints);
 
 
-            List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
+            IList<Fingerprint> insertedFingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
 
             foreach (Fingerprint fingerprint in fingerprints)
@@ -136,18 +135,18 @@
             CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyCheckCorrectitudeOfFingerprintsTest()
         {
             Album album = new Album(0, "Random");
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(0, "Random", "Random", album.Id);
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
 
             List<bool[]> signatures =
                 workUnitBuilder.BuildWorkUnit().On(PathToWav).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithDirectSound).Result;
 
             List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
-            dalManager.InsertFingerprint(fingerprints);
+            modelService.InsertFingerprint(fingerprints);
 
-            List<Fingerprint> insertedFingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
+            IList<Fingerprint> insertedFingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
 
             foreach (Fingerprint fingerprint in fingerprints)
@@ -173,17 +172,17 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyCheckCorrectitudeOfFingerprintsTest()
         {
             Album album = new Album(0, "Sample");
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(0, "Sample", "Sample", album.Id);
 
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
 
             var signatures =
                 workUnitBuilder.BuildWorkUnit().On(PathToMp3).With(fingerprintingConfiguration).
                     GetFingerprintsUsingService(fingerprintingServiceWithBass).Result;
 
             List<Fingerprint> fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
-            dalManager.InsertFingerprint(fingerprints);
+            modelService.InsertFingerprint(fingerprints);
 
             List<Fingerprint> insertedFingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);

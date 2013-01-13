@@ -15,7 +15,8 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
     using Encog.ML.Data.Basic;
     using Encog.Util;
 
-    using Soundfingerprinting.DbStorage;
+    using Soundfingerprinting.Dao;
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Hashing;
@@ -30,8 +31,6 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
     /// </summary>
     public partial class WinEnsembleHash : Form
     {
-        private readonly DaoGateway dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
-
         private readonly Dictionary<string, bool> dictionaryPathToNetworks = new Dictionary<string, bool>();
 
         private readonly IPermutations permutations;
@@ -39,6 +38,8 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         private string connectionStringNeuralHasher = string.Empty;
 
         private IFingerprintService fingerprintService;
+
+        private readonly ModelService modelService;
 
         /// <summary>
         ///   Start folder to search networks
@@ -70,9 +71,10 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private string pathToEnsemble = "Ensemble.ens";
 
-        public WinEnsembleHash(IFingerprintService fingerprintService)
+        public WinEnsembleHash(IFingerprintService fingerprintService, ModelService modelService)
         {
             this.fingerprintService = fingerprintService;
+            this.modelService = modelService;
             InitializeComponent();
             Icon = Resources.Sound;
             permutations = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
@@ -228,7 +230,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             /*Ensemble*/
             Action action = () =>
                             {
-                                dalManager.SetConnectionString(connectionStringNeuralHasher);
+                                modelService.SetConnectionString(connectionStringNeuralHasher);
                                 List<Network> networks = new List<Network>();
                                 /*Load all the networks*/
                                 foreach (KeyValuePair<string, bool> item in dictionaryPathToNetworks)
@@ -248,7 +250,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
 
                                 /*Load a network trainer*/
                                 IActivationFunction function = networks[0].GetActivation(0);
-                                NetTrainer netTrainer = new NetTrainer(dalManager);
+                                NetTrainer netTrainer = new NetTrainer(modelService);
                                 double[][] inputs = null, outputs = null; /*Normalized input/output pairs*/
                                 Dictionary<Int32, List<BasicMLData>> trackIdFingerprints = netTrainer.GetNormalizedTrackFingerprints(function, 10, 10);
                                 double[][] binaryCodes = netTrainer.GetNormalizedBinaryCodes(function, 10);
@@ -346,7 +348,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 return;
             }
 
-            dalManager.SetConnectionString(connectionString);
+            modelService.SetConnectionString(connectionString);
             string path = _tbStoredEnsembleFilename.Text;
             if (String.IsNullOrEmpty(path))
             {
@@ -356,7 +358,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             }
 
             NNEnsemble ensemble = NNEnsemble.Load(path); /*Load the serialized ensemble used to create hashes*/
-            List<Track> tracks = dalManager.ReadTracks(); /*Read all tracks from the database for which the ensemble will create hashes*/
+            List<Track> tracks = modelService.ReadTracks(); /*Read all tracks from the database for which the ensemble will create hashes*/
             _pbProgress.Invoke(new Action(() =>
                                           {
                                               _pbProgress.Minimum = 1;
@@ -372,7 +374,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 List<Fingerprint> fingerprints;
                 try
                 {
-                    fingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0);
+                    fingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
                     if (fingerprints == null)
                         continue;
                 }
@@ -393,7 +395,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                         listToInsert.Add(hash);
                     }
                 }
-                dalManager.InsertHashBin(listToInsert);
+                modelService.InsertHashBin(listToInsert);
                 _pbProgress.Invoke(new Action(() => _pbProgress.PerformStep()));
             }
         }
@@ -423,7 +425,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             _btnStartMinHash.Enabled = false;
             _pbMinHash.Visible = true;
 
-            dalManager.SetConnectionString(connectionString);
+            modelService.SetConnectionString(connectionString);
             numberofgroupsminhash = (int) _nudNumberOfGroupsMinHash.Value; /*L Hash tables 20*/
             numberofhashesperkeyminhash = (int) _nudNumberOfHashesPerKeyMinHash.Value; /*B Keys per table 5*/
 
@@ -447,7 +449,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void ComputeHashBinsUsingMinHash()
         {
-            List<Track> tracks = dalManager.ReadTracks(); /*Read all tracks from the database*/
+            List<Track> tracks = modelService.ReadTracks(); /*Read all tracks from the database*/
             _pbMinHash.Invoke(new Action(() => /*Progress bar Settings*/
                                          {
                                              _pbMinHash.Minimum = 1;
@@ -463,7 +465,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 List<Fingerprint> fingerprints;
                 try
                 {
-                    fingerprints = dalManager.ReadFingerprintsByTrackId(track.Id, 0); /*Read corresponding fingerprints of a specific track*/
+                    fingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0); /*Read corresponding fingerprints of a specific track*/
                     if (fingerprints == null)
                         continue;
                 }
@@ -484,7 +486,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                         listToInsert.Add(hash);
                     }
                 }
-                dalManager.InsertHashBin(listToInsert); /*Actual insert*/
+                modelService.InsertHashBin(listToInsert); /*Actual insert*/
                 _pbMinHash.Invoke(new Action(() => _pbMinHash.PerformStep()));
             }
         }

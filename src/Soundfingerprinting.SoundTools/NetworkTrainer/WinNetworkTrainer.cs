@@ -18,6 +18,8 @@ using Soundfingerprinting.SoundTools.Properties;
 
 namespace Soundfingerprinting.SoundTools.NetworkTrainer
 {
+    using Soundfingerprinting.Dao;
+
     /// <summary>
     ///   Network trainer GUI
     /// </summary>
@@ -51,9 +53,9 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
         private const string ACTIVATION_LINEAR = "ActivationLinear";
 
         /// <summary>
-        ///   DaoGateway used to access the music storage
+        ///   ModelService used to access the music storage
         /// </summary>
-        private readonly DaoGateway _dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+        private readonly ModelService _dalManager = new ModelService(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
 
 
         /// <summary>

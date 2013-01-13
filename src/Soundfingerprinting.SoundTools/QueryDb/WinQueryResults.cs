@@ -11,6 +11,7 @@
 
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Dao;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
@@ -64,7 +65,7 @@
         /// <summary>
         ///   Data access service, allows one to access the underlying data source
         /// </summary>
-        private readonly DaoGateway dalManager;
+        private readonly ModelService dalManager;
 
         /// <summary>
         ///   Network ensemble
@@ -159,7 +160,7 @@
             InitializeComponent(); /*Initialize Designer Components*/
             Icon = Resources.Sound;
             this.connectionString = connectionString;
-            dalManager = new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+            dalManager = new ModelService(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
 
             dalManager.SetConnectionString(this.connectionString); /*Set connection string for DAL service*/

@@ -4,7 +4,7 @@ namespace Soundfingerprinting.Fingerprinting
     using System.Linq;
 
     /// <summary>
-    ///  Fingerprint image encoder/decoder
+    ///  Signature image encoder/decoder
     /// </summary>
     /// <description>
     ///  Negative Numbers = 01
@@ -30,7 +30,7 @@ namespace Soundfingerprinting.Fingerprinting
         /// The top Wavelets.
         /// </param>
         /// <returns>
-        /// Fingerprint signature. Array of encoded Boolean elements (wavelet signature)
+        /// Signature signature. Array of encoded Boolean elements (wavelet signature)
         /// </returns>
         /// <remarks>
         ///   Negative Numbers = 01

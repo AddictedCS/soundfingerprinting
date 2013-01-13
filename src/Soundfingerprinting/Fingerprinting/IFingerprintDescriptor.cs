@@ -28,7 +28,7 @@ namespace Soundfingerprinting.Fingerprinting
         /// The top Wavelets.
         /// </param>
         /// <returns>
-        /// Fingerprint signature. Array of encoded Boolean elements (wavelet signature)
+        /// Signature signature. Array of encoded Boolean elements (wavelet signature)
         /// </returns>
         /// <remarks>
         ///   Negative Numbers = 01

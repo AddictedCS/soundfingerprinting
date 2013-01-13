@@ -31,11 +31,7 @@ namespace Soundfingerprinting.Dao.Internal
         public T AsScalar<T>()
         {
             return SafeExec(
-                () =>
-                    {
-                        command.Connection.Open();
-                        return (T)command.ExecuteScalar();
-                    });
+                () => (T)ExecuteScalar());
         }
 
         public T As<T>()
@@ -136,10 +132,6 @@ namespace Soundfingerprinting.Dao.Internal
             try
             {
                 return func();
-            }
-            catch (Exception e)
-            {
-                throw new DataManagerException(e, command);
             }
             finally
             {

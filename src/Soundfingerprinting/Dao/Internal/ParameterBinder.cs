@@ -72,10 +72,10 @@ namespace Soundfingerprinting.Dao.Internal
 
                 command.Parameters.Add(parameter);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Dispose();
-                throw new DataManagerException(e, command);
+                throw;
             }
         }
 

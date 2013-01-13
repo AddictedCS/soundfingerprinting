@@ -3,43 +3,43 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Moq;
-
+    using Soundfingerprinting.Dao;
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Hashing;
 
     [TestClass]
-    public class DaoGatewayTest : BaseTest
+    public class ModelServiceTest : BaseTest
     {
         private readonly string connectionstring;
 
-        private readonly DaoGateway dalManager;
+        private readonly ModelService modelService;
 
-        public DaoGatewayTest()
+        public ModelServiceTest()
         {
             connectionstring = ConnectionString;
-            dalManager = new DaoGateway(connectionstring);
+            modelService = new ModelService(
+                new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
         }
 
         #region Insert/Read/Delete Album objects tests
 
-        [TestMethod]
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here."),TestMethod]
         public void InsertReadAlbumTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway manager = new DaoGateway(connectionstring);
             const int FakeId = int.MinValue;
             Album album = new Album { Id = FakeId, Name = name, ReleaseYear = 1986 };
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Assert.AreNotEqual(FakeId, album.Id);
-            List<Album> albums = manager.ReadAlbums(); // read all albums
+            var albums = modelService.ReadAlbums(); // read all albums
             bool found = false;
             int id = 0;
 
@@ -50,7 +50,7 @@
             }
 
             Assert.IsTrue(found); // check if it was inserted
-            Album b = manager.ReadAlbumById(id);
+            Album b = modelService.ReadAlbumById(id);
             Assert.AreEqual(id, b.Id);
             Assert.AreEqual(album.Name, b.Name);
             Assert.AreEqual(album.ReleaseYear, b.ReleaseYear);
@@ -62,14 +62,14 @@
                 listAlbums.Add(a);
             }
 
-            manager.InsertAlbum(listAlbums); /*Insert a list of albums*/
+            modelService.InsertAlbum(listAlbums); /*Insert a list of albums*/
             foreach (Album item in listAlbums)
             {
                 Assert.AreNotEqual(FakeId, item.Id);
                 lId.Add(item.Id);
             }
 
-            List<Album> readAlbums = manager.ReadAlbums(); /*read all albums*/
+            var readAlbums = modelService.ReadAlbums(); /*read all albums*/
             List<int> lReadIds = readAlbums.Select(a => a.Id).ToList();
             foreach (int i in lId)
             {
@@ -81,7 +81,7 @@
         [ExpectedException(typeof(ArgumentException))]
         public void InsertEmptyCollectionInAlbumsTest()
         {
-            dalManager.InsertAlbum(new List<Album>());
+            modelService.InsertAlbum(new List<Album>());
         }
 
         [TestMethod]
@@ -90,9 +90,9 @@
             string name = MethodBase.GetCurrentMethod().Name;
             string albumName = Guid.NewGuid().ToString();
             Album album = new Album(int.MinValue, albumName);
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Assert.AreNotEqual(int.MinValue, album.Id);
-            Album readAlbum = dalManager.ReadAlbumByName(albumName);
+            Album readAlbum = modelService.ReadAlbumByName(albumName);
             Assert.IsNotNull(readAlbum);
             Assert.AreEqual(album.Id, readAlbum.Id);
         }
@@ -102,7 +102,7 @@
         public void InsertAlbumNull()
         {
             Album a = null;
-            dalManager.InsertAlbum(a);
+            modelService.InsertAlbum(a);
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@
         public void ReadUnknownAlbumTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = dalManager.ReadUnknownAlbum();
+            Album album = modelService.ReadUnknownAlbum();
             Assert.AreNotEqual(null, album);
             Assert.IsTrue(album.Id > 0);
             Assert.AreEqual("UNKNOWN", album.Name);
@@ -134,14 +134,13 @@
         public void InsertReadTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway manager = dalManager;
             Album album = new Album(int.MinValue, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Assert.AreNotEqual(int.MinValue, album.Id);
             Track track = new Track(int.MinValue, name, name, album.Id, 360);
-            manager.InsertTrack(track);
+            modelService.InsertTrack(track);
             Assert.AreNotEqual(int.MinValue, track.Id);
-            List<Track> listOfTracks = manager.ReadTracks();
+            var listOfTracks = modelService.ReadTracks();
             bool found = false;
             foreach (Track temp in listOfTracks)
             {
@@ -153,19 +152,19 @@
                 }
             }
             Assert.AreEqual(true, found);
-            Track t = manager.ReadTrackById(track.Id);
+            Track t = modelService.ReadTrackById(track.Id);
             Assert.AreEqual(track.Id, t.Id);
             Assert.AreEqual(track.AlbumId, t.AlbumId);
             Assert.AreEqual(track.Artist, t.Artist);
             Assert.AreEqual(track.Title, t.Title);
-            Assert.AreEqual(track.TrackLength, t.TrackLength);
+            Assert.AreEqual(track.TrackLengthSec, t.TrackLengthSec);
             List<Album> listAlbums = new List<Album>();
             for (int i = 0; i < 10; i++)
             {
                 Album a = new Album(int.MinValue, name + i, i + 1986);
                 listAlbums.Add(a);
             }
-            manager.InsertAlbum(listAlbums);
+            modelService.InsertAlbum(listAlbums);
             foreach (Album a in listAlbums)
             {
                 Assert.AreNotEqual(int.MinValue, a.Id);
@@ -179,13 +178,13 @@
                 listTracks.Add(a);
             }
 
-            manager.InsertTrack(listTracks);
+            modelService.InsertTrack(listTracks);
             foreach (Track item in listTracks)
             {
                 Assert.AreNotEqual(int.MinValue, item.Id);
             }
 
-            List<Track> readTracks = manager.ReadTracks();
+            var readTracks = modelService.ReadTracks();
             List<int> lReadIds = readTracks.Select(a => a.Id).ToList();
             foreach (int i in lId)
             {
@@ -197,36 +196,35 @@
         public void ReadDuplicatedTracksTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = dalManager.ReadUnknownAlbum();
+            Album album = modelService.ReadUnknownAlbum();
             const int Count = 10;
             const int FakeId = int.MinValue;
             List<Track> tracks = new List<Track>();
             for (int i = 0; i < Count; i++) tracks.Add(new Track(FakeId, name, name, album.Id));
-            dalManager.InsertTrack(tracks);
+            modelService.InsertTrack(tracks);
             foreach (Track item in tracks) Assert.AreNotEqual(FakeId, item.Id);
-            Dictionary<Track, int> result = dalManager.ReadDuplicatedTracks();
+            var result = modelService.ReadDuplicatedTracks();
             Assert.IsNotNull(result);
             if (result.Any(item => item.Key.Artist == name && item.Key.Title == name))
             {
                 Assert.AreEqual(Count, result.Count);
             }
 
-            dalManager.DeleteTrack(tracks);
+            modelService.DeleteTrack(tracks);
         }
 
         [TestMethod]
         public void ReadTrackByArtistAndTitle()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-
-            Album album = dalManager.ReadUnknownAlbum();
+            Album album = modelService.ReadUnknownAlbum();
             string artistName = name;
             string titleName = name;
             const int FakeId = int.MinValue;
             Track track = new Track(FakeId, artistName, titleName, album.Id);
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
             Assert.AreNotEqual(FakeId, track.Id);
-            Track readTrack = dalManager.ReadTrackByArtistAndTitleName(artistName, titleName);
+            Track readTrack = modelService.ReadTrackByArtistAndTitleName(artistName, titleName);
             Assert.IsNotNull(readTrack);
             Assert.AreEqual(artistName, readTrack.Artist);
             Assert.AreEqual(titleName, readTrack.Title);
@@ -236,71 +234,36 @@
         public void ReadTrackByFingerprintInexistantIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway manager = dalManager;
             const int FakeId = int.MinValue;
             Album album = new Album(FakeId, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(FakeId, name, name, album.Id, 360);
-            manager.InsertTrack(track);
+            modelService.InsertTrack(track);
             Fingerprint f = new Fingerprint(FakeId, GenericFingerprint, track.Id, 0);
-            List<Track> list = manager.ReadTrackByFingerprint(f.Id);
+            var list = modelService.ReadTrackByFingerprint(f.Id);
             Assert.AreEqual(null, list);
-        }
-
-        [TestMethod]
-        public void ReadTrackIdByHashBinAndHashTableTest()
-        {
-            Album album = dalManager.ReadUnknownAlbum();
-            Track track = new Track(
-                0, "#ReadTrackIdByHashBinAndHashTableTest", "#ReadTrackIdByHashBinAndHashTableTest", album.Id);
-            dalManager.InsertTrack(track);
-            List<HashBinNeuralHasher> list = new List<HashBinNeuralHasher>();
-            const int Count = 20;
-            long[] hashbins = new long[Count];
-            int[] hashtables = new int[Count];
-            Random rand = new Random();
-            const int FakeId = int.MinValue;
-            for (int i = 0; i < Count; i++)
-            {
-                hashbins[i] = rand.Next();
-                hashtables[i] = i;
-                list.Add(new HashBinNeuralHasher(FakeId, hashbins[i], hashtables[i], track.Id));
-            }
-
-            dalManager.InsertHashBin(list);
-            foreach (HashBinNeuralHasher item in list)
-            {
-                Assert.AreNotEqual(FakeId, item.Id);
-            }
-
-            Dictionary<int, int> result = dalManager.ReadTrackIdCandidatesByHashBinAndHashTableNeuralHasher(
-                hashbins, hashtables);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(true, result.ContainsKey(track.Id));
-            Assert.AreEqual(Count, result[track.Id]);
         }
 
         [TestMethod]
         public void ReadTrackByFingerprintTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway manager = dalManager;
             Album album = new Album(int.MinValue, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(int.MinValue, name, name, album.Id, 360);
-            manager.InsertTrack(track);
+            modelService.InsertTrack(track);
             const int FakeId = int.MinValue;
             Fingerprint f = new Fingerprint(FakeId, GenericFingerprint, track.Id, int.MinValue);
-            manager.InsertFingerprint(f);
+            modelService.InsertFingerprint(f);
             Assert.AreNotEqual(FakeId, f.Id);
-            List<Track> list = manager.ReadTrackByFingerprint(f.Id);
+            var list = modelService.ReadTrackByFingerprint(f.Id);
             Track readT = list.FirstOrDefault(temp => temp.Id == track.Id);
             Assert.AreNotEqual(null, readT);
             Assert.AreEqual(track.Id, readT.Id);
             Assert.AreEqual(track.AlbumId, readT.AlbumId);
             Assert.AreEqual(track.Artist, readT.Artist);
             Assert.AreEqual(track.Title, readT.Title);
-            Assert.AreEqual(track.TrackLength, readT.TrackLength);
+            Assert.AreEqual(track.TrackLengthSec, readT.TrackLengthSec);
         }
 
         [TestMethod]
@@ -309,7 +272,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
 
             Album album = new Album(int.MinValue, name, 1986);
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             List<Track> listTracks = new List<Track>();
 
             List<int> lId = new List<int>();
@@ -318,19 +281,19 @@
                 Track a = new Track(int.MinValue, name + i, name + i, album.Id);
                 listTracks.Add(a);
             }
-            dalManager.InsertTrack(listTracks);
+            modelService.InsertTrack(listTracks);
             List<Fingerprint> fingerprintList = new List<Fingerprint>();
             for (int j = 0; j < 100; j++)
             {
                 fingerprintList.Add(new Fingerprint(0, GenericFingerprint, listTracks[j / 10].Id, 0));
             }
 
-            dalManager.InsertFingerprint(fingerprintList);
-            List<Track> listOfTracks = dalManager.ReadTracks();
+            modelService.InsertFingerprint(fingerprintList);
+            var listOfTracks = modelService.ReadTracks();
             Assert.AreEqual(0, (listOfTracks == null) ? 0 : listOfTracks.Count);
-            Album ab = dalManager.ReadAlbumById(album.Id);
+            Album ab = modelService.ReadAlbumById(album.Id);
             Assert.AreEqual(0, (ab == null) ? 0 : 1);
-            List<Fingerprint> list = dalManager.ReadFingerprints();
+            var list = modelService.ReadFingerprints();
             Assert.AreEqual(0, (list == null) ? 0 : list.Count);
         }
 
@@ -339,12 +302,12 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = new Album(0, name, 1986);
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(0, name, name, album.Id);
-            dalManager.InsertTrack(track);
-            dalManager.DeleteTrack(track);
-            Assert.AreEqual(null, dalManager.ReadAlbumById(album.Id));
-            Assert.AreEqual(null, dalManager.ReadTrackById(track.Id));
+            modelService.InsertTrack(track);
+            modelService.DeleteTrack(track);
+            Assert.AreEqual(null, modelService.ReadAlbumById(album.Id));
+            Assert.AreEqual(null, modelService.ReadTrackById(track.Id));
         }
 
         [TestMethod]
@@ -353,14 +316,14 @@
             string name = MethodBase.GetCurrentMethod().Name;
             const int FakeId = int.MinValue;
             Album album = new Album(FakeId, name, 1986);
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Assert.AreNotEqual(FakeId, album.Id);
             Track track = new Track(FakeId, name, name, album.Id);
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
             Assert.AreNotEqual(FakeId, track.Id);
-            dalManager.DeleteTrack(track.Id);
-            Assert.AreEqual(null, dalManager.ReadAlbumById(album.Id));
-            Assert.AreEqual(null, dalManager.ReadTrackById(track.Id));
+            modelService.DeleteTrack(track.Id);
+            Assert.AreEqual(null, modelService.ReadAlbumById(album.Id));
+            Assert.AreEqual(null, modelService.ReadTrackById(track.Id));
 
         }
 
@@ -370,7 +333,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
             const int FakeId = int.MinValue;
             Album album = new Album(FakeId, name, 1986);
-            dalManager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Assert.AreNotEqual(FakeId, album.Id);
             List<Track> listTracks = new List<Track>();
 
@@ -380,20 +343,20 @@
                 listTracks.Add(a);
             }
 
-            dalManager.InsertTrack(listTracks);
+            modelService.InsertTrack(listTracks);
             foreach (Track track in listTracks) Assert.AreNotEqual(FakeId, track.Id);
             List<Fingerprint> fingerprintList = new List<Fingerprint>();
             for (int j = 0; j < 100; j++) fingerprintList.Add(new Fingerprint(FakeId, GenericFingerprint, listTracks[j / 10].Id, 0));
 
-            dalManager.InsertFingerprint(fingerprintList);
+            modelService.InsertFingerprint(fingerprintList);
             foreach (Fingerprint finger in fingerprintList) Assert.AreNotEqual(FakeId, finger.Id);
-            List<Track> listOfTracks = dalManager.ReadTracks();
+            var listOfTracks = modelService.ReadTracks();
             List<int> lId = listOfTracks.Select(t => t.Id).ToList();
-            listOfTracks = dalManager.ReadTracks();
+            listOfTracks = modelService.ReadTracks();
             Assert.AreEqual(0, (listOfTracks == null) ? 0 : listOfTracks.Count);
-            Album ab = dalManager.ReadAlbumById(album.Id);
+            Album ab = modelService.ReadAlbumById(album.Id);
             Assert.AreEqual(0, (ab == null) ? 0 : 1);
-            List<Fingerprint> list = dalManager.ReadFingerprints();
+            var list = modelService.ReadFingerprints();
             Assert.AreEqual(0, (list == null) ? 0 : list.Count);
         }
 
@@ -402,7 +365,7 @@
         public void DeleteTrackNullParamTest()
         {
             Track t = null;
-            dalManager.DeleteTrack(t);
+            modelService.DeleteTrack(t);
         }
 
         [TestMethod]
@@ -410,7 +373,7 @@
         public void DeleteTrackNullListTest()
         {
             List<Track> t = null;
-            dalManager.DeleteTrack(t);
+            modelService.DeleteTrack(t);
         }
 
         [TestMethod]
@@ -418,7 +381,7 @@
         public void DeleteTrackEmptyListTest()
         {
             List<Track> t = new List<Track>();
-            dalManager.DeleteTrack(t);
+            modelService.DeleteTrack(t);
         }
 
         [TestMethod]
@@ -426,25 +389,24 @@
         public void DeleteTrackNullListOfTracksTest()
         {
             List<int> t = null;
-            dalManager.DeleteTrack(t);
+            modelService.DeleteTrack(t);
         }
 
         #endregion
 
-        #region Insert/Read/Delete Fingerprint objects tests
+        #region Insert/Read/Delete Signature objects tests
 
         [TestMethod]
         public void InsertReadFingerprintTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway manager = dalManager;
             Album album = new Album(0, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(0, name, name, album.Id, 360);
-            manager.InsertTrack(track);
+            modelService.InsertTrack(track);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
-            manager.InsertFingerprint(f);
-            List<Fingerprint> allFingerprints = manager.ReadFingerprints();
+            modelService.InsertFingerprint(f);
+            var allFingerprints = modelService.ReadFingerprints();
             List<int> lGuid = allFingerprints.Select(temp => temp.Id).ToList();
 
             Assert.AreEqual(true, lGuid.Contains(f.Id));
@@ -455,8 +417,8 @@
                 addList.Add(new Fingerprint(0, GenericFingerprint, track.Id, 0));
             }
 
-            manager.InsertFingerprint(addList);
-            allFingerprints = manager.ReadFingerprints();
+            modelService.InsertFingerprint(addList);
+            allFingerprints = modelService.ReadFingerprints();
             lGuid.Clear();
             lGuid.AddRange(allFingerprints.Select(temp => temp.Id));
             
@@ -471,18 +433,17 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            DaoGateway manager = dalManager;
             const int fakeId = int.MinValue;
             Album album = new Album(fakeId, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Assert.AreNotEqual(fakeId, album);
             Track track = new Track(fakeId, name, name, album.Id, 360);
-            manager.InsertTrack(track);
+            modelService.InsertTrack(track);
             Assert.AreNotEqual(fakeId, track.Id);
             Fingerprint f = new Fingerprint(fakeId, GenericFingerprint, track.Id, 0);
-            manager.InsertFingerprint(f);
+            modelService.InsertFingerprint(f);
             Assert.AreNotEqual(fakeId, f.Id);
-            Fingerprint readF = manager.ReadFingerprintById(f.Id);
+            Fingerprint readF = modelService.ReadFingerprintById(f.Id);
             Assert.AreEqual(f.Id, readF.Id);
             Assert.AreEqual(f.Signature.Length, readF.Signature.Length);
             for (int i = 0; i < f.Signature.Length; i++)
@@ -499,9 +460,9 @@
             string name = MethodBase.GetCurrentMethod().Name;
 
             List<Fingerprint> listOfFingers = new List<Fingerprint>();
-            Album album = dalManager.ReadUnknownAlbum();
+            Album album = modelService.ReadUnknownAlbum();
             Track track = new Track(0, name, name, album.Id);
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
             const int Count = 100;
             List<int> listOfGuids = new List<int>();
             const int FakeId = int.MinValue;
@@ -509,9 +470,9 @@
             {
                 listOfFingers.Add(new Fingerprint(FakeId, GenericFingerprint, track.Id, 0));
             }
-            dalManager.InsertFingerprint(listOfFingers);
+            modelService.InsertFingerprint(listOfFingers);
             listOfGuids.AddRange(listOfFingers.Select((f) => f.Id));
-            List<Fingerprint> readFingers = dalManager.ReadFingerprintById(listOfGuids);
+            var readFingers = modelService.ReadFingerprintById(listOfGuids);
             Assert.AreEqual(readFingers.Count, listOfFingers.Count);
         }
 
@@ -520,15 +481,14 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            DaoGateway manager = dalManager;
             Album album = new Album(0, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track = new Track(0, name, name, album.Id, 360);
-            manager.InsertTrack(track);
+            modelService.InsertTrack(track);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
-            manager.InsertFingerprint(f);
+            modelService.InsertFingerprint(f);
 
-            List<Fingerprint> list = manager.ReadFingerprintsByTrackId(track.Id, 0);
+            var list = modelService.ReadFingerprintsByTrackId(track.Id, 0);
             Fingerprint readF = list.FirstOrDefault(temp => temp.Id == f.Id);
             Assert.AreNotEqual(null, readF);
             Assert.AreEqual(f.Id, readF.Id);
@@ -545,42 +505,40 @@
         public void ReadFingerprintByMultipleTrackIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-
-            DaoGateway manager = dalManager;
             Album album = new Album(0, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             Track track0 = new Track(0, name, name, album.Id, 360);
-            manager.InsertTrack(track0);
+            modelService.InsertTrack(track0);
             Track track1 = new Track(0, name, name, album.Id, 360);
-            manager.InsertTrack(track1);
+            modelService.InsertTrack(track1);
             Track track2 = new Track(0, name, name, album.Id, 360);
-            manager.InsertTrack(track2);
+            modelService.InsertTrack(track2);
 
             Fingerprint f0 = new Fingerprint(0, GenericFingerprint, track0.Id, 0);
-            manager.InsertFingerprint(f0);
+            modelService.InsertFingerprint(f0);
             Fingerprint f1 = new Fingerprint(0, GenericFingerprint, track0.Id, 1);
-            manager.InsertFingerprint(f1);
+            modelService.InsertFingerprint(f1);
             Fingerprint f2 = new Fingerprint(0, GenericFingerprint, track1.Id, 2);
-            manager.InsertFingerprint(f2);
+            modelService.InsertFingerprint(f2);
             Fingerprint f3 = new Fingerprint(0, GenericFingerprint, track1.Id, 3);
-            manager.InsertFingerprint(f3);
+            modelService.InsertFingerprint(f3);
             Fingerprint f4 = new Fingerprint(0, GenericFingerprint, track2.Id, 4);
-            manager.InsertFingerprint(f4);
+            modelService.InsertFingerprint(f4);
             Fingerprint f5 = new Fingerprint(0, GenericFingerprint, track2.Id, 5);
-            manager.InsertFingerprint(f5);
+            modelService.InsertFingerprint(f5);
             Fingerprint f6 = new Fingerprint(0, GenericFingerprint, track0.Id, 6);
-            manager.InsertFingerprint(f6);
+            modelService.InsertFingerprint(f6);
             Fingerprint f7 = new Fingerprint(0, GenericFingerprint, track1.Id, 7);
-            manager.InsertFingerprint(f7);
+            modelService.InsertFingerprint(f7);
             Fingerprint f8 = new Fingerprint(0, GenericFingerprint, track2.Id, 8);
-            manager.InsertFingerprint(f8);
+            modelService.InsertFingerprint(f8);
 
-            Dictionary<int, List<Fingerprint>> dict =
-                manager.ReadFingerprintsByMultipleTrackId(new List<Track> { track0, track1, track2 }, 0);
+            var dict =
+                modelService.ReadFingerprintsByMultipleTrackId(new List<Track> { track0, track1, track2 }, 0);
 
             Assert.AreNotEqual(null, dict);
             Assert.AreEqual(3, dict.Keys.Count);
-            foreach (KeyValuePair<int, List<Fingerprint>> item in dict)
+            foreach (var item in dict)
             {
                 Assert.AreEqual(3, item.Value.Count);
             }
@@ -589,7 +547,7 @@
             Assert.AreEqual(true, dict.ContainsKey(track1.Id));
             Assert.AreEqual(true, dict.ContainsKey(track2.Id));
 
-            foreach (KeyValuePair<int, List<Fingerprint>> pair in dict)
+            foreach (var pair in dict)
             {
                 Assert.AreEqual(3, pair.Value.Count);
             }
@@ -600,9 +558,8 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            DaoGateway manager = dalManager;
             Album album = new Album(0, name, 1986);
-            manager.InsertAlbum(album);
+            modelService.InsertAlbum(album);
             const int NumberOfTracks = 1153;
             const int NumberOfFingerprintsPerTrack = 10;
 
@@ -612,7 +569,7 @@
             {
                 Track track0 = new Track(0, name, name, album.Id, 360);
                 listTrack.Add(track0);
-                manager.InsertTrack(track0);
+                modelService.InsertTrack(track0);
                 for (int j = 0; j < NumberOfFingerprintsPerTrack; j++)
                 {
                     Fingerprint f0 = new Fingerprint(0, GenericFingerprint, track0.Id, 0);
@@ -620,9 +577,9 @@
                 }
             }
 
-            manager.InsertFingerprint(listOfFingerprints);
+            modelService.InsertFingerprint(listOfFingerprints);
 
-            Dictionary<int, List<Fingerprint>> dict = manager.ReadFingerprintsByMultipleTrackId(listTrack, 0);
+            var dict = modelService.ReadFingerprintsByMultipleTrackId(listTrack, 0);
 
             Assert.AreNotEqual(null, dict);
             Assert.AreEqual(NumberOfTracks, dict.Keys.Count);
@@ -641,140 +598,33 @@
             Album a = new Album(0, name, 1990);
             Track track = new Track(0, name, name, a.Id);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
-            dalManager.InsertFingerprint(f);
+            modelService.InsertFingerprint(f);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void InsertFingerprintNullTest()
         {
-            dalManager.InsertFingerprint((Fingerprint)null);
+            modelService.InsertFingerprint((Fingerprint)null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void InsertEmptyCollectionInFingerprints()
         {
-            dalManager.InsertFingerprint(new List<Fingerprint>());
+            modelService.InsertFingerprint(new List<Fingerprint>());
         }
 
         #endregion
 
-        #region Insert/Read/Delete HashBin objects tests
-
-        [TestMethod]
-        public void InsertReadHashBinMinHashTest()
-        {
-            string name = MethodBase.GetCurrentMethod().Name;
-            Album album = dalManager.ReadUnknownAlbum();
-            Track track = new Track(0, name, name, album.Id);
-            dalManager.InsertTrack(track);
-            Fingerprint finger = new Fingerprint(0, GenericFingerprint, track.Id, 0);
-            dalManager.InsertFingerprint(finger);
-            const long Hashbin = 100000;
-            const int Hashtable = 20;
-            HashBinMinHash hashbinminhash = new HashBinMinHash(0, Hashbin, Hashtable, track.Id, finger.Id);
-            dalManager.InsertHashBin(hashbinminhash);
-            Dictionary<int, List<HashBinMinHash>> result =
-                dalManager.ReadFingerprintsByHashBucketAndHashTableLSH(new[] { Hashbin }, new[] { Hashtable });
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(true, result.ContainsKey(finger.Id));
-            Assert.AreEqual(1, result[finger.Id].Count);
-            Assert.AreEqual(hashbinminhash.Id, result[finger.Id][0].Id);
-            dalManager.DeleteTrack(track.Id);
-        }
-
-        [TestMethod]
-        public void InsertReadHashBinNeuralHasherTest()
-        {
-            string name = MethodBase.GetCurrentMethod().Name;
-
-            Album album = dalManager.ReadUnknownAlbum();
-            Track track = new Track(0, name, name, album.Id);
-            dalManager.InsertTrack(track);
-            Fingerprint finger = new Fingerprint(0, GenericFingerprint, track.Id, 0);
-            dalManager.InsertFingerprint(finger);
-            const long Hashbin = 100000;
-            const int Hashtable = 20;
-            HashBinNeuralHasher hashbinminhash = new HashBinNeuralHasher(0, Hashbin, Hashtable, track.Id);
-            dalManager.InsertHashBin(hashbinminhash);
-            List<int> result = dalManager.ReadTrackIdByHashBinAndHashTableNeuralHasher(Hashbin, Hashtable);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(track.Id, result[0]);
-            dalManager.DeleteTrack(track.Id);
-        }
-
-        [TestMethod]
-        public void InsertReadHashBinMinHashesTest()
-        {
-            string name = MethodBase.GetCurrentMethod().Name;
-
-            Album album = dalManager.ReadUnknownAlbum();
-            Track track = new Track(0, name, name, album.Id);
-            dalManager.InsertTrack(track);
-            Fingerprint finger = new Fingerprint(0, GenericFingerprint, track.Id, 0);
-            dalManager.InsertFingerprint(finger);
-            const long Hashbin = 100000;
-            const int Hashtable = 20;
-            List<HashBinMinHash> list = new List<HashBinMinHash>();
-            const int Count = 20;
-            for (int i = 0; i < Count; i++)
-            {
-                HashBinMinHash hashbinminhash = new HashBinMinHash(0, Hashbin, Hashtable, track.Id, finger.Id);
-                list.Add(hashbinminhash);
-            }
-
-            dalManager.InsertHashBin(list);
-            Dictionary<int, List<HashBinMinHash>> result =
-                dalManager.ReadFingerprintsByHashBucketAndHashTableLSH(new[] { Hashbin }, new[] { Hashtable });
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(true, result.ContainsKey(finger.Id));
-            Assert.AreEqual(Count, result[finger.Id].Count);
-            dalManager.DeleteTrack(track.Id);
-        }
-
-        [TestMethod]
-        public void InsertReadHashBinNeuralHashesTest()
-        {
-            string name = MethodBase.GetCurrentMethod().Name;
-            Album album = dalManager.ReadUnknownAlbum();
-            Track track = new Track(0, name, name, album.Id);
-            dalManager.InsertTrack(track);
-            Fingerprint finger = new Fingerprint(0, GenericFingerprint, track.Id, 0);
-            dalManager.InsertFingerprint(finger);
-            const long Hashbin = 100000;
-            const int Hashtable = 20;
-            List<HashBinNeuralHasher> list = new List<HashBinNeuralHasher>();
-            const int Count = 20;
-            for (int i = 0; i < Count; i++)
-            {
-                HashBinNeuralHasher hashbinminhash = new HashBinNeuralHasher(0, Hashbin, Hashtable, track.Id);
-                list.Add(hashbinminhash);
-            }
-
-            dalManager.InsertHashBin(list);
-            List<int> result = dalManager.ReadTrackIdByHashBinAndHashTableNeuralHasher(Hashbin, Hashtable);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(Count, result.Count);
-            dalManager.DeleteTrack(track.Id);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void InsertNullHashBinTest()
-        {
-            dalManager.InsertHashBin(null);
-        }
+        #region Insert/Read/Delete Bin objects tests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void InsertEmptyCollectionInHashBinMinHash()
         {
             List<HashBinMinHash> list = new List<HashBinMinHash>();
-            dalManager.InsertHashBin(list);
+            modelService.InsertHashBin(list);
         }
 
         [TestMethod]
@@ -782,14 +632,14 @@
         public void InsertTrackNullTest()
         {
             Track t = null;
-            dalManager.InsertTrack(t);
+            modelService.InsertTrack(t);
         }
 
         [TestMethod]
         [ExpectedException(typeof(FingerprintEntityException))]
         public void CheckTrackLengthConstraints()
         {
-            Track track = new Track { TrackLength = int.MinValue };
+            Track track = new Track { TrackLengthSec = int.MinValue };
         }
 
         [TestMethod]
@@ -800,7 +650,7 @@
 
             Album a = new Album(int.MinValue, name, 1990);
             Track track = new Track(int.MinValue, name, name, a.Id);
-            dalManager.InsertTrack(track);
+            modelService.InsertTrack(track);
         }
 
         #endregion
@@ -808,61 +658,46 @@
         #region False positive analisys
 
         [TestMethod]
-        public void DaoGatewayConstructorTest()
-        {
-            DaoGateway target = new DaoGateway(connectionstring);
-            Assert.IsNotNull(target);
-        }
-
-        ///<summary>
-        ///  A test for DeleteTrack. Delete a list of not-existent track, and check if 0 elements have been changed in the DB
-        ///</summary>
-        [TestMethod]
         public void DeleteTrackFalseTest()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             IEnumerable<int> collection = new List<int> { 0 };
             const int Expected = 0;
-            int actual = target.DeleteTrack(collection);
+            int actual = modelService.DeleteTrack(collection);
             Assert.AreEqual(Expected, actual);
         }
 
         [TestMethod]
         public void DeleteTrackFalseTest1()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             Track track = new Track();
             const int Expected = 0;
-            int actual = target.DeleteTrack(track);
+            int actual = modelService.DeleteTrack(track);
             Assert.AreEqual(Expected, actual);
         }
 
         [TestMethod]
         public void DeleteTrackFalseTest2()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             IEnumerable<Track> collection = new List<Track> { new Track() };
             const int Expected = 0;
-            int actual = target.DeleteTrack(collection);
+            int actual = modelService.DeleteTrack(collection);
             Assert.AreEqual(Expected, actual);
         }
 
         [TestMethod]
         public void DeleteTrackFalseTest3()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             const int TrackId = 0;
             const int Expected = 0;
-            int actual = target.DeleteTrack(TrackId);
+            int actual = modelService.DeleteTrack(TrackId);
             Assert.AreEqual(Expected, actual);
         }
 
         [TestMethod]
         public void ReadAlbumByIdFalseTest()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             const int Id = 0;
-            Album actual = target.ReadAlbumById(Id);
+            Album actual = modelService.ReadAlbumById(Id);
             Assert.IsNull(actual);
         }
 
@@ -870,46 +705,23 @@
         public void ReadAlbumByNameFalseTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway target = new DaoGateway(connectionstring);
-            Album actual = target.ReadAlbumByName(name);
+            Album actual = modelService.ReadAlbumByName(name);
             Assert.IsNull(actual);
         }
 
         [TestMethod]
         public void ReadFingerprintByIdFalseTest()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             const int Id = 0;
-            Fingerprint actual = target.ReadFingerprintById(Id);
+            Fingerprint actual = modelService.ReadFingerprintById(Id);
             Assert.IsNull(actual);
         }
 
         [TestMethod]
         public void ReadFingerprintByIdFalseTest1()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             IEnumerable<int> ids = new List<int> { 0 };
-            List<Fingerprint> actual = target.ReadFingerprintById(ids);
-            Assert.IsNull(actual);
-        }
-
-        [TestMethod]
-        public void ReadFingerprintByIdConcurrentFalseTest()
-        {
-            DaoGateway target = new DaoGateway(connectionstring);
-            IEnumerable<int> ids = new List<int> { 0 };
-            List<Fingerprint> actual = target.ReadFingerprintByIdConcurrent(ids);
-            Assert.IsNull(actual);
-        }
-
-        [TestMethod]
-        public void ReadFingerprintIdByHashBinAndHashTableMinHashFalseTest()
-        {
-            DaoGateway target = new DaoGateway(connectionstring);
-            long[] hashBins = new long[] { 1, 2, 3, 4, 5, 6 };
-            int[] hashTables = new[] { 100, 101, 102, 103, 104, 105 };
-            Dictionary<int, List<HashBinMinHash>> actual = target.ReadFingerprintsByHashBucketAndHashTableLSH(
-                hashBins, hashTables);
+            var actual = modelService.ReadFingerprintById(ids);
             Assert.IsNull(actual);
         }
 
@@ -917,23 +729,21 @@
         public void ReadFingerprintsTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway target = new DaoGateway(connectionstring);
-            Album album = target.ReadUnknownAlbum();
+            Album album = modelService.ReadUnknownAlbum();
             Track t = new Track(0, name, name, album.Id);
-            target.InsertTrack(t);
+            modelService.InsertTrack(t);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, t.Id, 10);
-            target.InsertFingerprint(f);
-            List<Fingerprint> actual = target.ReadFingerprints();
+            modelService.InsertFingerprint(f);
+            var actual = modelService.ReadFingerprints();
             Assert.IsTrue(actual.Count >= 1);
         }
 
         [TestMethod]
         public void ReadFingerprintsByMultipleTrackIdTest()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             List<Track> tracks = new List<Track> { new Track(), new Track(), new Track(), new Track() };
             const int NumberOfFingerprintsToRead = 10;
-            Dictionary<int, List<Fingerprint>> actual = target.ReadFingerprintsByMultipleTrackId(
+            var actual = modelService.ReadFingerprintsByMultipleTrackId(
                 tracks, NumberOfFingerprintsToRead);
             Assert.IsNull(actual);
         }
@@ -941,10 +751,9 @@
         [TestMethod]
         public void ReadFingerprintsByTrackIdTest()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             const int TrackId = 0;
             const int NumberOfFingerprintsToRead = 10;
-            List<Fingerprint> actual = target.ReadFingerprintsByTrackId(TrackId, NumberOfFingerprintsToRead);
+            var actual = modelService.ReadFingerprintsByTrackId(TrackId, NumberOfFingerprintsToRead);
             Assert.IsNull(actual);
         }
 
@@ -960,49 +769,25 @@
         public void ReadTrackByArtistAndTitleNameTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            DaoGateway target = new DaoGateway(connectionstring);
             string artist = name;
             string title = name;
-            Track actual = target.ReadTrackByArtistAndTitleName(artist, title);
+            Track actual = modelService.ReadTrackByArtistAndTitleName(artist, title);
             Assert.IsNull(actual);
         }
 
         [TestMethod]
         public void ReadTrackByFingerprintFalseTest()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             const int Id = 0;
-            List<Track> actual = target.ReadTrackByFingerprint(Id);
+            var actual = modelService.ReadTrackByFingerprint(Id);
             Assert.IsNull(actual);
         }
 
         [TestMethod]
         public void ReadTrackByIdTest()
         {
-            DaoGateway target = new DaoGateway(connectionstring);
             const int Id = 0;
-            Track actual = target.ReadTrackById(Id);
-            Assert.IsNull(actual);
-        }
-
-        [TestMethod]
-        public void ReadTrackIdByHashBinAndHashTableNeuralHasherTest()
-        {
-            DaoGateway target = new DaoGateway(connectionstring);
-            const long HashBin = 0;
-            const int HashTable = 100;
-            List<int> actual = target.ReadTrackIdByHashBinAndHashTableNeuralHasher(HashBin, HashTable);
-            Assert.IsNull(actual);
-        }
-
-        [TestMethod]
-        public void ReadTrackIdCandidatesByHashBinAndHashTableNeuralHasherTest()
-        {
-            DaoGateway target = new DaoGateway(connectionstring);
-            long[] hashBins = new long[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            int[] hashTables = new[] { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 };
-            Dictionary<int, int> actual = target.ReadTrackIdCandidatesByHashBinAndHashTableNeuralHasher(
-                hashBins, hashTables);
+            Track actual = modelService.ReadTrackById(Id);
             Assert.IsNull(actual);
         }
 

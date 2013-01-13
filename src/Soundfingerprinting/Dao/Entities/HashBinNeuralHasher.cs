@@ -2,6 +2,8 @@
 {
     using System;
 
+    using Soundfingerprinting.Dao.Entities;
+
     [Serializable]
     public class HashBinNeuralHasher : HashBin
     {

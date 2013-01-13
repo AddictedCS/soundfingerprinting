@@ -60,7 +60,7 @@ namespace Soundfingerprinting.SoundTools.Misc
         public string Filename { get; set; }
 
         /// <summary>
-        ///   Fingerprint Managers minimal frequency value
+        ///   Signature Managers minimal frequency value
         /// </summary>
         public int MinFrequency { get; set; }
 

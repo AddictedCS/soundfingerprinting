@@ -63,11 +63,10 @@
     <Compile Include="AudioProxies.Tests\DirectSoundTest.cs" />
     <Compile Include="AudioProxies.Tests\StrideTest.cs" />
     <Compile Include="BaseTest.cs" />
-    <Compile Include="DbStorage.Tests\DaoGatewayTest.cs" />
+    <Compile Include="DbStorage.Tests\ModelServiceTest.cs" />
     <Compile Include="DbStorage.Tests\HashBinMinHashTest.cs" />
     <Compile Include="DbStorage.Tests\HashBinNeuralHasherTest.cs" />
     <Compile Include="DbStorage.Tests\HashBinTest.cs" />
-    <Compile Include="DbStorage.Tests\MSDaoStoredProcedureBuilderTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintDescriptorTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintManagerTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintUtilsTest.cs" />
@@ -75,7 +74,6 @@
     <Compile Include="Fingerprinting.Tests\Windows\HanningWindowTest.cs" />
     <Compile Include="NeuralHashing.Tests\BecnhmarkNetTest.cs" />
     <Compile Include="NeuralHashing.Tests\BinaryOutputUtilTest.cs" />
-    <Compile Include="NeuralHashing.Tests\NetTrainerTest.cs" />
     <Compile Include="NeuralHashing.Tests\TestSFNeural.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Fingerprinting.Tests\ConstantQ\SparKernelTest.cs" />

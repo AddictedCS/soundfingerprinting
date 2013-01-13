@@ -59,7 +59,7 @@
         /// <summary>
         ///   Get byte array from it's corresponding float
         /// </summary>
-        /// <param name = "array">Fingerprint array in float representation</param>
+        /// <param name = "array">Signature array in float representation</param>
         /// <returns>Byte associate</returns>
         public static byte[] GetByteArrayFromFloat(float[] array)
         {

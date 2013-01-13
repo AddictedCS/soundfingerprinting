@@ -7,7 +7,8 @@
 
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
-    using Soundfingerprinting.DbStorage;
+    using Soundfingerprinting.Dao;
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Hashing;
 
@@ -18,7 +19,7 @@
         /// <summary>
         ///   Query one specific song using MinHash algorithm. ConnectionString is set by the caller.
         /// </summary>
-        /// <param name = "signatures">Fingerprint signatures from a song</param>
+        /// <param name = "signatures">Signature signatures from a song</param>
         /// <param name = "dalManager">DAL Manager used to query the underlying database</param>
         /// <param name = "permStorage">Permutation storage</param>
         /// <param name = "seconds">Fingerprints to consider as query points [1.4 sec * N]</param>
@@ -29,7 +30,7 @@
         /// <returns>Dictionary with Tracks ID's and the Query Statistics</returns>
         public static Dictionary<Int32, QueryStats> QueryOneSongMinHash(
             IEnumerable<bool[]> signatures,
-            DaoGateway dalManager,
+            ModelService dalManager,
             IPermutations permStorage,
             int seconds,
             int lshHashTables,
@@ -52,11 +53,11 @@
                     /*Compute Min Hash on randomly selected fingerprints*/
                 Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
                 long[] hashbuckets = hashes.Values.ToArray();
-                Dictionary<int, List<HashBinMinHash>> candidates = dalManager.ReadFingerprintsByHashBucketLSH(hashbuckets);
-                Dictionary<int, List<HashBinMinHash>> potentialCandidates = SelectPotentialMatchesOutOfEntireDataset(candidates, thresholdTables);
+                IDictionary<int, IList<HashBinMinHash>> candidates = dalManager.ReadFingerprintsByHashBucketLsh(hashbuckets);
+                Dictionary<int, IList<HashBinMinHash>> potentialCandidates = SelectPotentialMatchesOutOfEntireDataset(candidates, thresholdTables);
                 if (potentialCandidates.Count > 0)
                 {
-                    List<Fingerprint> fingerprints = dalManager.ReadFingerprintById(potentialCandidates.Keys);
+                    IList<Fingerprint> fingerprints = dalManager.ReadFingerprintById(potentialCandidates.Keys);
                     Dictionary<Fingerprint, int> finalCandidates = fingerprints.ToDictionary(finger => finger, finger => potentialCandidates[finger.Id].Count);
                     ArrangeCandidatesAccordingToFingerprints(
                         signature, finalCandidates, lshHashTables, lshGroupsPerKey, stats);
@@ -71,7 +72,7 @@
             string pathToSong,
             IStride queryStride,
             IAudioService proxy,
-            DaoGateway dalManager,
+            ModelService dalManager,
             int seconds,
             int lshHashTables,
             int lshGroupsPerKey,
@@ -79,7 +80,7 @@
             int topWavelets,
             ref long queryTime)
         {
-            ///*Fingerprint service*/
+            ///*Signature service*/
             //fingerprintService service = new fingerprintService {TopWavelets = topWavelets};
             //Stopwatch stopWatch = new Stopwatch();
             //stopWatch.Start();
@@ -97,7 +98,7 @@
             //int index = stride.FirstStrideSize();
             //while (index + service.SamplesPerFingerprint < querySamples.Length)
             //{
-            //    Fingerprint f = service.CreateFingerprintFromSamplesArray(querySamples, index);
+            //    Signature f = service.CreateFingerprintFromSamplesArray(querySamples, index);
             //    if (f == null) continue;
             //    index += service.SamplesPerFingerprint + stride.StrideSize();
             //    int[] bin = minHash.ComputeMinHashSignature(f); /*Compute Min Hash on randomly selected fingerprints*/
@@ -172,20 +173,20 @@
         ///// <param name = "fingerprintsToConsider">Number of fingerprints to consider</param>
         ///// <param name = "queryTime"></param>
         ///// <returns>Dictionary with Track id and it's associated query statistics</returns>
-        //public static Dictionary<Int32, QueryStats> QueryOneSongNeuralHasher(NNEnsemble ensemble, string pathToSong, IStride queryStride, IAudioService proxy, DaoGateway dalManager, int fingerprintsToConsider, ref long queryTime)
+        //public static Dictionary<Int32, QueryStats> QueryOneSongNeuralHasher(NNEnsemble ensemble, string pathToSong, IStride queryStride, IAudioService proxy, ModelService dalManager, int fingerprintsToConsider, ref long queryTime)
         //{
         //    fingerprintService service = new fingerprintService();
         //    /*Create Fingerprints from file*/
         //    Stopwatch watch = new Stopwatch();
         //    watch.Start();
         //   List<bool[]> signatures = service.CreateFingerprintsFromSpectrum(proxy, pathToSong, queryStride);
-        //   var listOfFingerprints = Fingerprint.AssociateFingerprintsToTrack(signatures, Int32.MinValue);
+        //   var listOfFingerprints = Signature.AssociateFingerprintsToTrack(signatures, Int32.MinValue);
         //    if (listOfFingerprints.Count == 0)
         //            return null;
         //    Dictionary<Int32, QueryStats> allCandidates = new Dictionary<Int32, QueryStats>();
         //    for (int index = 0; index < fingerprintsToConsider; index++)
         //    {
-        //        Fingerprint f = listOfFingerprints[index];
+        //        Signature f = listOfFingerprints[index];
         //        ensemble.ComputeHash(ArrayUtils.GetFloatArrayFromByte(ArrayUtils.GetByteArrayFromBool(f.Signature)));
         //        long[] bin = ensemble.ExtractHashBins();
         //        int[] tables = new int[bin.Length];
@@ -212,13 +213,15 @@
         /// <param name = "dataset">Dataset to consider</param>
         /// <param name = "thresholdTables">Threshold tables</param>
         /// <returns>Sub dictionary</returns>
-        public static Dictionary<Int32, List<HashBinMinHash>>
-            SelectPotentialMatchesOutOfEntireDataset(Dictionary<Int32, List<HashBinMinHash>> dataset, int thresholdTables)
+        public static Dictionary<int, IList<HashBinMinHash>> SelectPotentialMatchesOutOfEntireDataset(IDictionary<int, IList<HashBinMinHash>> dataset, int thresholdTables)
         {
-            Dictionary<Int32, List<HashBinMinHash>> result = new Dictionary<Int32, List<HashBinMinHash>>();
-            if (dataset == null) return result;
+            Dictionary<int, IList<HashBinMinHash>> result = new Dictionary<int, IList<HashBinMinHash>>();
+            if (dataset == null)
+            {
+                return result;
+            }
 
-            foreach (KeyValuePair<Int32, List<HashBinMinHash>> item in dataset)
+            foreach (var item in dataset)
             {
                 if (item.Value.Count >= thresholdTables)
                 {
@@ -226,12 +229,18 @@
                     foreach (HashBinMinHash hashes in item.Value)
                     {
                         if (!tables.Contains(hashes.HashTable))
+                        {
                             tables.Add(hashes.HashTable);
+                        }
                     }
+
                     if (tables.Count >= thresholdTables)
+                    {
                         result.Add(item.Key, item.Value);
+                    }
                 }
             }
+
             return result;
         }
     }

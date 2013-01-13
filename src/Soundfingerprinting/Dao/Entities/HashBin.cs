@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DbStorage.Entities
+﻿namespace Soundfingerprinting.Dao.Entities
 {
     using System;
 
@@ -13,14 +13,14 @@
         public HashBin(int id, long hashBin, int hashTable, int trackId)
         {
             Id = id;
-            Hashbin = hashBin;
+            Bin = hashBin;
             HashTable = hashTable;
             TrackId = trackId;
         }
 
         public int Id { get; set; }
 
-        public long Hashbin { get; set; }
+        public long Bin { get; set; }
 
         public int HashTable { get; set; }
 

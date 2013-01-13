@@ -1,10 +1,10 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace Soundfingerprinting.Dao
 {
     using System.Data;
 
     using Soundfingerprinting.Dao.Conditions;
 
-    internal interface IModelBinderFactory
+    public interface IModelBinderFactory
     {
         IModelBinder<TModel> Create<TModel>(params ICondition<TModel>[] conditions) where TModel : new();
 

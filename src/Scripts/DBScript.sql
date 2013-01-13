@@ -43,7 +43,7 @@ GO
 CREATE TABLE Fingerprints
 (
 	Id  INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	Fingerprint VARBINARY(4096) NOT NULL,								   -- -- MAX = SIZE OF BLOB (2GB) 4096
+	Signature VARBINARY(4096) NOT NULL,								   -- -- MAX = SIZE OF BLOB (2GB) 4096
 	TotalFingerprintsPerTrack INT NOT NULL,
 	SongOrder INT NOT NULL,
 	TrackId INT FOREIGN KEY REFERENCES dbo.Tracks(Id)
@@ -54,7 +54,7 @@ GO
 CREATE TABLE HashBins
 (
 	Id INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-	HashBin BIGINT NOT NULL,								   
+	Bin BIGINT NOT NULL,								   
 	HashTable INT NOT NULL,
 	TrackId INT FOREIGN KEY REFERENCES dbo.Tracks(Id)
 )
@@ -64,7 +64,7 @@ GO
 CREATE TABLE HashBinsMinHash
 (
 	Id INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-	HashBin BIGINT NOT NULL,								    
+	Bin BIGINT NOT NULL,								    
 	HashTable INT NOT NULL,
 	TrackId INT FOREIGN KEY REFERENCES dbo.Tracks(Id),
 	FingerprintId INT FOREIGN KEY REFERENCES dbo.Fingerprints(Id)
@@ -87,9 +87,9 @@ GO
 -- --------------------------------------------------------------------------
 CREATE INDEX IX_TrackIdLookup ON Fingerprints(TrackId) 
 GO
-CREATE INDEX IX_NeuralHashLookUp ON HashBins(HashBin, HashTable) 
+CREATE INDEX IX_NeuralHashLookUp ON HashBins(Bin, HashTable) 
 GO
-CREATE INDEX IX_MinHashLookUp ON HashBinsMinHash(HashBin, HashTable)
+CREATE INDEX IX_MinHashLookUp ON HashBinsMinHash(Bin, HashTable)
 GO
 --CREATE CLUSTERED INDEX IX_ClusteredFingerprintsSearch ON Fingerprints(TrackId)
 --GO
@@ -103,18 +103,18 @@ IF OBJECT_ID('sp_InsertHashBin','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertHashBin
 GO
 CREATE PROCEDURE sp_InsertHashBin
-	@HashBin BIGINT,
+	@Bin BIGINT,
 	@HashTable INT,
 	@TrackId INT
 AS
 INSERT INTO HashBins (
-	HashBin,
+	Bin,
 	HashTable,
 	TrackId
 	) OUTPUT inserted.Id
 VALUES
 (
-	@HashBin, @HashTable, @TrackId
+	@Bin, @HashTable, @TrackId
 );
 GO
 
@@ -123,20 +123,20 @@ IF OBJECT_ID('sp_InsertHashBinMinHash','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertHashBinMinHash
 GO
 CREATE PROCEDURE sp_InsertHashBinMinHash
-	@HashBin BIGINT,
+	@Bin BIGINT,
 	@HashTable INT,
 	@TrackId INT,
 	@FingerprintId INT
 AS
 INSERT INTO HashBinsMinHash (
-	HashBin,
+	Bin,
 	HashTable,
 	TrackId,
 	FingerprintId
 	) OUTPUT inserted.Id
 VALUES
 (
-	@HashBin, @HashTable, @TrackId, @FingerprintId
+	@Bin, @HashTable, @TrackId, @FingerprintId
 );
 GO
 
@@ -185,21 +185,21 @@ IF OBJECT_ID('sp_InsertFingerprint','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertFingerprint
 GO
 CREATE PROCEDURE sp_InsertFingerprint
-	@Fingerprint VARBINARY(4096),
+	@Signature VARBINARY(4096),
 	@TrackId INT,
 	@SongOrder INT,
 	@TotalFingerprintsPerTrack Int
 AS
 BEGIN
 INSERT INTO Fingerprints (
-	Fingerprint,
+	Signature,
 	TrackId,
 	SongOrder,
 	TotalFingerprintsPerTrack
 	) OUTPUT inserted.Id
 VALUES
 (
-	@Fingerprint, @TrackId, @SongOrder, @TotalFingerprintsPerTrack
+	@Signature, @TrackId, @SongOrder, @TotalFingerprintsPerTrack
 );
 END
 GO
@@ -295,10 +295,10 @@ IF OBJECT_ID('sp_ReadHashBinsByHashBinAndHashTable','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadHashBinsByHashBinAndHashTable
 GO
 CREATE PROCEDURE sp_ReadHashBinsByHashBinAndHashTable
-	@HashBin BIGINT,
+	@Bin BIGINT,
 	@HashTable INT
 AS
-SELECT TrackId FROM HashBins WHERE HashBin = @HashBin AND HashTable = @HashTable
+SELECT TrackId FROM HashBins WHERE Bin = @Bin AND HashTable = @HashTable
 GO
 
 -- READ HASHBINS FROM THE HASHBINMINHASH TABLE [FOR MIN-HASH + LSH SCHEMA]
@@ -306,10 +306,10 @@ IF OBJECT_ID('sp_ReadHashBinsByHashBinAndHashTableMinHash','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadHashBinsByHashBinAndHashTableMinHash
 GO
 CREATE PROCEDURE sp_ReadHashBinsByHashBinAndHashTableMinHash
-	@HashBin BIGINT,
+	@Bin BIGINT,
 	@HashTable INT
 AS
-SELECT Id, TrackId, FingerprintId FROM HashBinsMinHash WHERE HashBin = @HashBin AND HashTable = @HashTable
+SELECT Id, TrackId, FingerprintId FROM HashBinsMinHash WHERE Bin = @Bin AND HashTable = @HashTable
 GO
 -- READ HASHBINS FROM THE HASHBINMINHASH TABLE [FOR MIN-HASH + LSH SCHEMA] 
 -- NEW METHOD OF READING HASHBINS ACCORDING ONLY TO THE BUKCET AND NOT TO TABLE
@@ -319,9 +319,9 @@ IF OBJECT_ID('sp_ReadHashBinsByHashBinsMinHash','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadHashBinsByHashBinsMinHash
 GO
 CREATE PROCEDURE sp_ReadHashBinsByHashBinsMinHash
-	@HashBin BIGINT
+	@Bin BIGINT
 AS
-SELECT Id, TrackId, FingerprintId, HashTable FROM HashBinsMinHash WHERE HashBin = @HashBin
+SELECT Id, TrackId, FingerprintId, HashTable FROM HashBinsMinHash WHERE Bin = @Bin
 GO
 --- ------------------------------------------------------------------------------------------------------------
 --- READ HASHBINS BY HASHBINS AND THRESHOLD TABLE
@@ -338,7 +338,7 @@ CREATE PROCEDURE sp_ReadFingerprintsByHashBinAndThreshold
 AS
 SELECT FingerprintId, TrackId, COUNT(HashTable) as Votes FROM HashBinsMinHash,
 	(SELECT CAST(Value AS INT) AS Value FROM Split(@ConcatHashBucket, @Delimiter)) AS HASH_BUCKETS 
-WHERE HashBin = HASH_BUCKETS.Value GROUP BY FingerprintId, TrackId HAVING COUNT(HashTable) >= @Threshold
+WHERE Bin = HASH_BUCKETS.Value GROUP BY FingerprintId, TrackId HAVING COUNT(HashTable) >= @Threshold
 -- ------------------------------------------------------------------------------------------------------------
 
 --- ------------------------------------------------------------------------------------
@@ -349,12 +349,12 @@ IF OBJECT_ID('sp_ReadFingerprintCandidatesByHashBinHashTableMinHash','P') IS NOT
 	DROP PROCEDURE sp_ReadFingerprintCandidatesByHashBinHashTableMinHash
 GO
 CREATE PROCEDURE sp_ReadFingerprintCandidatesByHashBinHashTableMinHash
-	@HashBin BIGINT,
+	@Bin BIGINT,
 	@HashTable INT
 AS
-SELECT Fingerprints.Fingerprint, Fingerprints.Id, Fingerprints.SongOrder, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId
+SELECT Fingerprints.Signature, Fingerprints.Id, Fingerprints.SongOrder, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId
 FROM HashBinsMinHash, Fingerprints 
-WHERE HashBinsMinHash.FingerprintId = Fingerprints.Id AND HashBin = @HashBin AND HashTable = @HashTable
+WHERE HashBinsMinHash.FingerprintId = Fingerprints.Id AND Bin = @Bin AND HashTable = @HashTable
 GO
 
 
@@ -363,7 +363,7 @@ IF OBJECT_ID('sp_ReadFingerprints','P') IS NOT NULL
 GO
 CREATE PROCEDURE sp_ReadFingerprints
 AS
-SELECT Fingerprints.Id, Fingerprints.Fingerprint, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId, Fingerprints.SongOrder FROM Fingerprints
+SELECT Fingerprints.Id, Fingerprints.Signature, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId, Fingerprints.SongOrder FROM Fingerprints
 GO
 
 IF OBJECT_ID('sp_ReadFingerprintById','P') IS NOT NULL
@@ -372,7 +372,7 @@ GO
 CREATE PROCEDURE sp_ReadFingerprintById
 	@Id INT
 AS
-SELECT Fingerprints.Id, Fingerprints.Fingerprint, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId, Fingerprints.SongOrder FROM Fingerprints WHERE Fingerprints.Id = @Id
+SELECT Fingerprints.Id, Fingerprints.Signature, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId, Fingerprints.SongOrder FROM Fingerprints WHERE Fingerprints.Id = @Id
 GO
 
 
@@ -394,16 +394,16 @@ IF @NumberOfFingerprintsToRead <> 0
 	SELECT @SKIP_END =  @TOTAL/2 - @NumberOfFingerprintsToRead/2 + @NumberOfFingerprintsToRead 
 	
 	SELECT @STR_TO_EXECUTE = 
-		N'SELECT Id, Fingerprint, TotalFingerprintsPerTrack, TrackId, SongOrder ' + 
-		N'FROM (SELECT TOP '+ CAST(@NumberOfFingerprintsToRead AS VARCHAR(10)) + N' Id, Fingerprint, TotalFingerprintsPerTrack, TrackId, SongOrder '+
-		N'FROM (SELECT TOP '+ CAST(@SKIP_END AS VARCHAR(10)) + N' Id, Fingerprint, TotalFingerprintsPerTrack, TrackId, SongOrder FROM Fingerprints '+
+		N'SELECT Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder ' + 
+		N'FROM (SELECT TOP '+ CAST(@NumberOfFingerprintsToRead AS VARCHAR(10)) + N' Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder '+
+		N'FROM (SELECT TOP '+ CAST(@SKIP_END AS VARCHAR(10)) + N' Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder FROM Fingerprints '+
 		N'WHERE Fingerprints.TrackId = @Id ORDER BY SongOrder ASC) as rel1 ORDER BY SongOrder DESC ) as rel2 ORDER BY SongOrder ASC'
 	SELECT @PARAMS = N'@Id INT'
 	EXEC sp_executesql @STR_TO_EXECUTE, @PARAMS, @Id
 	END
 ELSE
 	BEGIN
-	SELECT Id, Fingerprint, TotalFingerprintsPerTrack, TrackId, SongOrder FROM Fingerprints WHERE Fingerprints.TrackId = @Id ORDER BY SongOrder ASC
+	SELECT Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder FROM Fingerprints WHERE Fingerprints.TrackId = @Id ORDER BY SongOrder ASC
 	END
 END
 GO
@@ -441,9 +441,9 @@ GO
 CREATE PROCEDURE sp_ReadMaxMinHashBin
 	@Ignore BIGINT
 AS
-SELECT MIN(HashBin) As MinHashBin, MAX(HashBin) As MaxHashBin, HashTable  
+SELECT MIN(Bin) As MinHashBin, MAX(Bin) As MaxHashBin, HashTable  
 FROM HashBinsMinHash 
-WHERE HashBin <> @Ignore GROUP BY HashTable ORDER BY HashTable
+WHERE Bin <> @Ignore GROUP BY HashTable ORDER BY HashTable
 GO
 
 IF OBJECT_ID('sp_HashBinMinHashRange','P') IS NOT NULL
@@ -455,7 +455,7 @@ CREATE PROCEDURE sp_HashBinMinHashRange
 	@HashTable INT
 AS
 SELECT Id FROM HashBinsMinHash
-WHERE HashTable = @HashTable AND (HashBin >= @Min AND HashBin < @Max) 
+WHERE HashTable = @HashTable AND (Bin >= @Min AND Bin < @Max) 
 
 GO
 

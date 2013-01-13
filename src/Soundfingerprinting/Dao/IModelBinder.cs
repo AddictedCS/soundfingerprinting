@@ -1,8 +1,10 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace Soundfingerprinting.Dao
 {
     using System;
 
-    internal interface IModelBinder<TModel>
+    using Soundfingerprinting.Dao.Internal;
+
+    public interface IModelBinder<TModel>
     {
         void BindWriter(TModel model, IParameterBinder storedProcedure);
 

@@ -2,6 +2,7 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Entities;
 
     [TestClass]
@@ -23,7 +24,7 @@
             const int TrackId = 0;
             HashBin target = new HashBin(Id, HashBin, HashTable, TrackId);
             Assert.AreEqual(Id, target.Id);
-            Assert.AreEqual(HashBin, target.Hashbin);
+            Assert.AreEqual(HashBin, target.Bin);
             Assert.AreEqual(HashTable, target.HashTable);
             Assert.AreEqual(TrackId, target.TrackId);
         }
@@ -43,8 +44,8 @@
         {
             HashBin target = new HashBin();
             const long Expected = 60;
-            target.Hashbin = Expected;
-            long actual = target.Hashbin;
+            target.Bin = Expected;
+            long actual = target.Bin;
             Assert.AreEqual(Expected, actual);
         }
     }

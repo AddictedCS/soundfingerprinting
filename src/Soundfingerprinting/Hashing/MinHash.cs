@@ -78,7 +78,7 @@ namespace Soundfingerprinting.Hashing
         /// <summary>
         ///   Compute Min Hash signature of a fingerprint
         /// </summary>
-        /// <param name = "fingerprint">Fingerprint</param>
+        /// <param name = "fingerprint">Signature</param>
         /// <returns>MinHashes [concatenated of size PERMUTATION SIZE]</returns>
         /// <remarks>
         ///   The basic idea in the Min Hashing scheme is to randomly permute the rows and for each 
@@ -135,8 +135,8 @@ namespace Soundfingerprinting.Hashing
         /// <summary>
         ///   Calculate Hamming Distance between two fingerprints
         /// </summary>
-        /// <param name = "a">Fingerprint 'A'</param>
-        /// <param name = "b">Fingerprint 'B'</param>
+        /// <param name = "a">Signature 'A'</param>
+        /// <param name = "b">Signature 'B'</param>
         /// <returns>Hamming distance</returns>
         public static int CalculateHammingDistance(bool[] a, bool[] b)
         {
@@ -168,8 +168,8 @@ namespace Soundfingerprinting.Hashing
         /// <summary>
         ///   Calculate similarity between 2 fingerprints.
         /// </summary>
-        /// <param name = "x">Fingerprint x</param>
-        /// <param name = "y">Fingerprint y</param>
+        /// <param name = "x">Signature x</param>
+        /// <param name = "y">Signature y</param>
         /// <returns></returns>
         /// <remarks>
         ///   Similarity defined as  (A intersection B)/(A union B)

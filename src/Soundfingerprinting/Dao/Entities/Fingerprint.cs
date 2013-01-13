@@ -12,13 +12,13 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Fingerprint"/> class. 
+        /// Initializes a new instance of the <see cref="Entities.Fingerprint"/> class. 
         /// </summary>
         /// <param name="id">
         /// Id of the signature
         /// </param>
         /// <param name="signature">
-        /// Fingerprint image
+        /// Signature image
         /// </param>
         /// <param name="trackId">
         /// Track identifier
@@ -35,13 +35,13 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Fingerprint"/> class. 
+        /// Initializes a new instance of the <see cref="Entities.Fingerprint"/> class. 
         /// </summary>
         /// <param name="id">
         /// Id of the signature
         /// </param>
         /// <param name="signature">
-        /// Fingerprint
+        /// Signature
         /// </param>
         /// <param name="trackId">
         /// Track identifier

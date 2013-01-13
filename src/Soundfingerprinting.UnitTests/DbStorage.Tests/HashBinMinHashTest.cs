@@ -6,6 +6,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Entities;
 
     [TestClass]
@@ -23,10 +24,10 @@
             const int HashedFingerprint = -1;
             HashBinMinHash target = new HashBinMinHash(Id, HashBin, HashTable, TrackId, HashedFingerprint);
             Assert.AreEqual(Id, target.Id);
-            Assert.AreEqual(HashBin, target.Hashbin);
+            Assert.AreEqual(HashBin, target.Bin);
             Assert.AreEqual(HashTable, target.HashTable);
             Assert.AreEqual(TrackId, target.TrackId);
-            Assert.AreEqual(HashedFingerprint, target.HashedFingerprint);
+            Assert.AreEqual(HashedFingerprint, target.FingerprintId);
         }
 
         [TestMethod]
@@ -39,8 +40,8 @@
             const int HashedFingerprint = 0;
             HashBinMinHash target = new HashBinMinHash(Id, HashBin, HashTable, TrackId, HashedFingerprint);
             const int Expected = 0;
-            target.HashedFingerprint = Expected;
-            int actual = target.HashedFingerprint;
+            target.FingerprintId = Expected;
+            int actual = target.FingerprintId;
             Assert.AreEqual(Expected, actual);
         }
     }

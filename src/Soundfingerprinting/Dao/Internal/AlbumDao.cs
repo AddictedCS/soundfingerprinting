@@ -1,53 +1,68 @@
 ﻿namespace Soundfingerprinting.Dao.Internal
 {
-    using System.Data;
+    using System.Collections.Generic;
 
     using Soundfingerprinting.DbStorage.Entities;
 
-    internal abstract class AbstractDao
-    {
-        private const int CommandTimeoutInSeconds = 600;
-
-        private readonly IDatabaseProviderFactory databaseProvider;
-
-        private readonly IModelBinderFactory modelBinderFactory;
-
-        protected AbstractDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
-        {
-            this.databaseProvider = databaseProvider;
-            this.modelBinderFactory = modelBinderFactory;
-        }
-
-        public IParameterBinder PrepareStoredProcedure(string nameOfStoredProcedure)
-        {
-            IDbConnection connection = databaseProvider.CreateConnection();
-            IDbCommand databaseCommand = connection.CreateCommand();
-            databaseCommand.CommandText = nameOfStoredProcedure;
-            databaseCommand.CommandType = CommandType.StoredProcedure;
-            databaseCommand.CommandTimeout = CommandTimeoutInSeconds;
-            return new ParameterBinder(connection, databaseCommand, modelBinderFactory);
-        }
-
-    }
-
     internal class AlbumDao : AbstractDao
     {
+        private const string UknownAlbumName = "UNKNOWN";
+
         private const string SpInsertAlbum = "sp_InsertAlbum";
         private const string SpReadAlbums = "sp_ReadAlbums";
-
-
+        private const string SpReadUnknownAlbums = "sp_ReadAlbumUnknown";
+        private const string SpReadAlbumById = "sp_ReadAlbumById";
 
         public AlbumDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
         }
 
-        public void InsertAlbum(Album album)
+        public void Insert(Album album)
         {
             album.Id = PrepareStoredProcedure(SpInsertAlbum)
                         .WithParametersFromModel(album)
                         .Execute()
                         .AsScalar<int>();
+        }
+         
+        public void Insert(IEnumerable<Album> collection)
+        {
+            foreach (var album in collection)
+            {
+                Insert(album);
+            }
+        }
+
+        public IList<Album> Read()
+        {
+            return PrepareStoredProcedure(SpReadAlbums)
+                    .Execute()
+                    .AsListOfModel<Album>();
+        }
+
+        public Album ReadAlbumByName(string name)
+        {
+            return PrepareStoredProcedure(SpReadUnknownAlbums)
+                    .WithParameter("Name", name)
+                    .Execute()
+                    .AsModel<Album>();
+        }
+
+        public Album ReadUnknownAlbum()
+        {
+            return PrepareStoredProcedure(SpReadUnknownAlbums)
+                    .WithParameter("Name", UknownAlbumName)
+                    .Execute()
+                    .AsModel<Album>();
+        }
+
+        public Album ReadById(int id)
+        {
+            return PrepareStoredProcedure(SpReadAlbumById)
+                    .WithParameter("Id", id)
+                    .Execute()
+                    .AsModel<Album>();
         }
     }
 }

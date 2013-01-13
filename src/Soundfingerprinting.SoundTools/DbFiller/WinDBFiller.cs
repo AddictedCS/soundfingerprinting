@@ -13,6 +13,8 @@
     using Soundfingerprinting.Audio.Models;
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Dao;
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
@@ -30,9 +32,9 @@
 
         private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
 
-        private readonly DaoGateway dalManager =
-            new DaoGateway(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
-                                    /*Dal Fingerprint service*/
+        private readonly ModelService dalManager =
+            new ModelService(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+                                    /*Dal Signature service*/
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
                                       /*File filters*/
@@ -609,7 +611,7 @@
                         {
                             dalManager.InsertAlbum(albumToInsert); //Insert new ALBUM
                         }
-                        catch (DalGatewayException ex)
+                        catch (Exception ex)
                         {
                             if (MessageBox.Show(ex.Message + "\n Continue?", Resources.ExceptioInDal, MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.Cancel)
                                 return null;

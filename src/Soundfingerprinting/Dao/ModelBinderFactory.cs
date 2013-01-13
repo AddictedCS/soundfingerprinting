@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace Soundfingerprinting.Dao
 {
     using System;
     using System.Collections;
@@ -8,8 +8,9 @@ namespace Soundfingerprinting.Dao.Internal
     using System.Reflection;
 
     using Soundfingerprinting.Dao.Conditions;
+    using Soundfingerprinting.Dao.Internal;
 
-    internal class ModelBinderFactory : IModelBinderFactory
+    public class ModelBinderFactory : IModelBinderFactory
     {
         private readonly Dictionary<Type, DbType> databaseTypes = new Dictionary<Type, DbType>
             {
