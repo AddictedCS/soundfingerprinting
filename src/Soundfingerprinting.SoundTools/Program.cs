@@ -4,6 +4,7 @@
     using System.Windows.Forms;
 
     using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Dao;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
@@ -26,6 +27,11 @@
             dependencyResolver.Bind<IAudioService>().To<BassAudioService>();
             dependencyResolver.Bind<ITagService>().To<TagService>();
             dependencyResolver.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
+            dependencyResolver.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
+            dependencyResolver.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
+            dependencyResolver.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
+            dependencyResolver.Bind<IModelBinderFactory>().To<ModelBinderFactory>().WhenInjectedInto<CachedModelBinderFactory>();
+
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

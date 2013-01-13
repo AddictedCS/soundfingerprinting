@@ -358,7 +358,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             }
 
             NNEnsemble ensemble = NNEnsemble.Load(path); /*Load the serialized ensemble used to create hashes*/
-            List<Track> tracks = modelService.ReadTracks(); /*Read all tracks from the database for which the ensemble will create hashes*/
+            IList<Track> tracks = modelService.ReadTracks(); /*Read all tracks from the database for which the ensemble will create hashes*/
             _pbProgress.Invoke(new Action(() =>
                                           {
                                               _pbProgress.Minimum = 1;
@@ -371,7 +371,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             for (int index = 0; index < tracks.Count; index++)
             {
                 Track track = tracks[index];
-                List<Fingerprint> fingerprints;
+                IList<Fingerprint> fingerprints;
                 try
                 {
                     fingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
@@ -384,7 +384,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                     return;
                 }
 
-                List<HashBinNeuralHasher> listToInsert = new List<HashBinNeuralHasher>();
+                IList<HashBinNeuralHasher> listToInsert = new List<HashBinNeuralHasher>();
                 foreach (Fingerprint fingerprint in fingerprints) /*For each track's fingerprint create hash*/
                 {
                     ensemble.ComputeHash(descriptor.DecodeFingerprint(fingerprint.Signature));
@@ -395,7 +395,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                         listToInsert.Add(hash);
                     }
                 }
-                modelService.InsertHashBin(listToInsert);
+               // modelService.InsertHashBin(listToInsert);
                 _pbProgress.Invoke(new Action(() => _pbProgress.PerformStep()));
             }
         }
@@ -449,7 +449,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private void ComputeHashBinsUsingMinHash()
         {
-            List<Track> tracks = modelService.ReadTracks(); /*Read all tracks from the database*/
+            IList<Track> tracks = modelService.ReadTracks(); /*Read all tracks from the database*/
             _pbMinHash.Invoke(new Action(() => /*Progress bar Settings*/
                                          {
                                              _pbMinHash.Minimum = 1;
@@ -462,7 +462,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             for (int index = 0; index < tracks.Count; index++)
             {
                 Track track = tracks[index];
-                List<Fingerprint> fingerprints;
+                IList<Fingerprint> fingerprints;
                 try
                 {
                     fingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0); /*Read corresponding fingerprints of a specific track*/

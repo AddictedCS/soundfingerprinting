@@ -1,14 +1,14 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace Soundfingerprinting.Dao
 {
     using System.Collections.Generic;
     using System.Data;
 
     using Soundfingerprinting.Dao.Conditions;
 
-    internal class CachedModelBinderFactory : IModelBinderFactory
+    public class CachedModelBinderFactory : IModelBinderFactory
     {
         private readonly IModelBinderFactory modelBinderFactory;
-        private readonly Dictionary<string, object> cache;
+        private readonly Dictionary<string, object> cache = new Dictionary<string, object>();
 
         public CachedModelBinderFactory(IModelBinderFactory modelBinderFactory)
         {

@@ -32,9 +32,7 @@
 
         private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
 
-        private readonly ModelService dalManager =
-            new ModelService(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
-                                    /*Dal Signature service*/
+        private readonly ModelService modelService;                             /*Dal Signature service*/
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
                                       /*File filters*/
@@ -62,8 +60,9 @@
         private bool stopFlag;
         private Album unknownAlbum;
 
-        public WinDbFiller(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, ITagService tagService)
+        public WinDbFiller(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, ITagService tagService, IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
+            modelService = new ModelService(databaseProviderFactory, modelBinderFactory);
             this.fingerprintService = fingerprintService;
             this.workUnitBuilder = workUnitBuilder;
             this.tagService = tagService;
@@ -218,15 +217,12 @@
             }
         }
 
-        /// <summary>
-        ///   Start inserting into the database
-        /// </summary>
         private void BtnStartClick(object sender, EventArgs e)
         {
             string connectionString = _cmbDBFillerConnectionString.SelectedItem.ToString(); //Set Connection String
             try
             {
-                dalManager.SetConnectionString(connectionString); //Try Connection String
+                modelService.SetConnectionString(connectionString); //Try Connection String
             }
             catch (Exception ex)
             {
@@ -253,8 +249,8 @@
             int rest = fileList.Count%MaxThreadToProcessFiles;
             int filesPerThread = fileList.Count/MaxThreadToProcessFiles;
 
-            listOfAllAlbums = dalManager.ReadAlbums(); //Get all albums
-            unknownAlbum = dalManager.ReadUnknownAlbum(); //Read unknown albu
+            listOfAllAlbums = modelService.ReadAlbums(); //Get all albums
+            unknownAlbum = modelService.ReadUnknownAlbum(); //Read unknown albu
 
              switch (hashAlgorithm)
             {
@@ -447,14 +443,14 @@
                 {
                     try
                     {
-                        if (dalManager.ReadTrackByArtistAndTitleName(artist, title) != null) // Check if this file is already in the database
+                        if (modelService.ReadTrackByArtistAndTitleName(artist, title) != null) // Check if this file is already in the database
                         {
                             duplicates++; //There is such file in the database
                             continue;
                         }
 
                         track = new Track(-1, artist, title, album.Id, (int) duration); //Create New Track
-                        dalManager.InsertTrack(track); //Insert new Track in the database
+                        modelService.InsertTrack(track); //Insert new Track in the database
                     }
                     catch (Exception e)
                     {
@@ -474,7 +470,7 @@
                             });
                     List<bool[]> images = unit.GetFingerprintsUsingService(fingerprintService).Result; // Create Fingerprints and insert them in database
                     List<Fingerprint> inserted = AssociateFingerprintsToTrack(images, track.Id);
-                    dalManager.InsertFingerprint(inserted);
+                    modelService.InsertFingerprint(inserted);
                     count = inserted.Count;
 
                     switch (hashAlgorithm) // Hash if there is a need in doing so
@@ -546,7 +542,7 @@
                     listToInsert.Add(hash);
                 }
             }
-            dalManager.InsertHashBin(listToInsert); //Insert 
+            modelService.InsertHashBin(listToInsert); //Insert 
         }
 
         /// <summary>
@@ -568,7 +564,7 @@
                     listToInsert.Add(hash);
                 }
             }
-            dalManager.InsertHashBin(listToInsert);
+            modelService.InsertHashBin(listToInsert);
         }
 
         /// <summary>
@@ -609,7 +605,7 @@
                         albumToInsert = (releaseYear < 1900 || releaseYear > 2200) ? new Album(-1, album) : new Album(-1, album, releaseYear);
                         try
                         {
-                            dalManager.InsertAlbum(albumToInsert); //Insert new ALBUM
+                            modelService.InsertAlbum(albumToInsert); //Insert new ALBUM
                         }
                         catch (Exception ex)
                         {
