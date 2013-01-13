@@ -1,122 +1,109 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
-using System.Windows.Forms;
-using Encog.Engine.Network.Activation;
-using Encog.Neural.Networks.Layers;
-using Encog.Util;
-using Soundfingerprinting.DbStorage;
-using Soundfingerprinting.NeuralHashing;
-using Soundfingerprinting.NeuralHashing.NeuralTrainer;
-using Soundfingerprinting.SoundTools.Properties;
-
-namespace Soundfingerprinting.SoundTools.NetworkTrainer
+﻿namespace Soundfingerprinting.SoundTools.NetworkTrainer
 {
-    using Soundfingerprinting.Dao;
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Windows.Forms;
 
-    /// <summary>
-    ///   Network trainer GUI
-    /// </summary>
+    using Encog.Engine.Network.Activation;
+    using Encog.Neural.Networks.Layers;
+    using Encog.Util;
+
+    using Soundfingerprinting.Dao;
+    using Soundfingerprinting.NeuralHashing;
+    using Soundfingerprinting.NeuralHashing.NeuralTrainer;
+    using Soundfingerprinting.SoundTools.Properties;
+
     public partial class WinNetworkTrainer : Form
     {
         /// <summary>
         ///   Default input counts
         /// </summary>
-        private const int INPUTS_COUNT = 4096;
+        private const int InputsCount = 4096;
 
         /// <summary>
         ///   Default output counts
         /// </summary>
-        private const int OUTPUTS_COUNT = 10;
+        private const int OutputsCount = 10;
 
         /// <summary>
         ///   Default comma separator
         /// </summary>
-        private const string COMMA_SEPARATOR = ",";
+        private const string CommaSeparator = ",";
 
         /// <summary>
         ///   Activation bipolar function
         /// </summary>
-        private const string ACTIVATION_TANH = "ActivationTANH";
+        private const string ActivationTanh = "ActivationTANH";
 
         /// <summary>
         ///   Activation sigmoid function
         /// </summary>
-        private const string ACTIVATION_SIGMOID = "ActivationSigmoid";
+        private const string ActivationSigmoid = "ActivationSigmoid";
 
-        private const string ACTIVATION_LINEAR = "ActivationLinear";
+        private const string ActivationLinear = "ActivationLinear";
 
         /// <summary>
         ///   ModelService used to access the music storage
         /// </summary>
-        private readonly ModelService _dalManager = new ModelService(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
-
+        private readonly IModelService modelService;
 
         /// <summary>
         ///   Types of Possible Activation Functions used in Training
         /// </summary>
-        private readonly object[] _dataProvider =
+        private readonly object[] dataProvider =
             {
-                ACTIVATION_TANH,
-                ACTIVATION_SIGMOID,
-                ACTIVATION_LINEAR
+                ActivationTanh,
+                ActivationSigmoid,
+                ActivationLinear
             };
 
         /// <summary>
         ///   Duration of the training
         /// </summary>
-        private TimeSpan _duration = new TimeSpan(0);
+        private TimeSpan duration = new TimeSpan(0);
 
         /// <summary>
         ///   Logger
         /// </summary>
-        private StreamWriter _logger;
+        private StreamWriter logger;
 
         /// <summary>
         ///   Network to train
         /// </summary>
-        private Network _netToTrain;
+        private Network netToTrain;
 
         /// <summary>
         ///   Network trainer
         /// </summary>
-        private NetTrainer _netTrainer;
+        private NetTrainer netTrainer;
 
         /// <summary>
         ///   Paused
         /// </summary>
-        private bool _paused;
+        private bool paused;
 
         /// <summary>
         ///   Start time
         /// </summary>
-        private DateTime _startTime;
+        private DateTime startTime;
 
-        /// <summary>
-        ///   Stop flag
-        /// </summary>
-        private bool _stopped;
+        private bool stopped;
 
         #region Constructors
 
-        /// <summary>
-        ///   Parameter less constructor
-        /// </summary>
-        public WinNetworkTrainer()
+        public WinNetworkTrainer(IModelService modelService)
         {
+            this.modelService = modelService;
             InitializeComponent();
             Icon = Resources.Sound;
-            _cmbActivationFunction.DataSource = new List<Object>(_dataProvider);
+            _cmbActivationFunction.DataSource = new List<Object>(dataProvider);
             _cmbActivationFunction.SelectedIndex = 0;
-            _cmbActivationFunctionHidden.DataSource = new List<Object>(_dataProvider);
+            _cmbActivationFunctionHidden.DataSource = new List<Object>(dataProvider);
             _cmbActivationFunctionHidden.SelectedIndex = 0;
-            _cmbActivationFunctionOutput.DataSource = new List<Object>(_dataProvider);
+            _cmbActivationFunctionOutput.DataSource = new List<Object>(dataProvider);
             _cmbActivationFunctionOutput.SelectedIndex = 0;
         }
 
@@ -124,21 +111,18 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
 
         #region Event Handlers
 
-        /// <summary>
-        ///   Save the network
-        /// </summary>
         private void BtnSaveClick(object sender, EventArgs e)
         {
             string hiddenUnits = _tbHiddenUnits.Text;
             string correctOutputs = Convert.ToDouble(_tbCorrectOutputs.Text).ToString();
             SaveFileDialog sfdSaveNetwork = new SaveFileDialog
-                                            {
-                                                FileName = hiddenUnits + "_hidden_" + correctOutputs + Resources.NetworkExtension,
-                                                Filter = "(*" + Resources.NetworkExtension + ")|*" + Resources.NetworkExtension
-                                            };
+                {
+                    FileName = hiddenUnits + "_hidden_" + correctOutputs + Resources.NetworkExtension,
+                    Filter = "(*" + Resources.NetworkExtension + ")|*" + Resources.NetworkExtension
+                };
             if (sfdSaveNetwork.ShowDialog() == DialogResult.OK)
             {
-                SerializeObject.Save(Path.GetFullPath(sfdSaveNetwork.FileName), _netToTrain);
+                SerializeObject.Save(Path.GetFullPath(sfdSaveNetwork.FileName), netToTrain);
             }
         }
 
@@ -149,19 +133,19 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
         {
             // Create Network
             int hiddenNeuronsCount = Convert.ToInt32(_tbHiddenUnits.Text);
-            _netToTrain = new Network();
+            netToTrain = new Network();
             Type typeInput = GetActivationFunctionType(_cmbActivationFunction.SelectedItem.ToString());
             Type typeHidden = GetActivationFunctionType(_cmbActivationFunctionHidden.SelectedItem.ToString());
             Type typeOutput = GetActivationFunctionType(_cmbActivationFunctionOutput.SelectedItem.ToString());
-            _netToTrain.AddLayer(new BasicLayer((IActivationFunction) Activator.CreateInstance(typeInput), true, INPUTS_COUNT)); /*4096*/
-            _netToTrain.AddLayer(new BasicLayer((IActivationFunction) Activator.CreateInstance(typeHidden), true, hiddenNeuronsCount));
-            _netToTrain.AddLayer(new BasicLayer((IActivationFunction) Activator.CreateInstance(typeOutput), false, OUTPUTS_COUNT)); /*10*/
-            _netToTrain.Structure.FinalizeStructure();
-            _netToTrain.Reset();
+            netToTrain.AddLayer(new BasicLayer((IActivationFunction) Activator.CreateInstance(typeInput), true, InputsCount)); /*4096*/
+            netToTrain.AddLayer(new BasicLayer((IActivationFunction) Activator.CreateInstance(typeHidden), true, hiddenNeuronsCount));
+            netToTrain.AddLayer(new BasicLayer((IActivationFunction) Activator.CreateInstance(typeOutput), false, OutputsCount)); /*10*/
+            netToTrain.Structure.FinalizeStructure();
+            netToTrain.Reset();
             _buttonStart.Enabled = true;
             _buttonSave.Enabled = true;
             if (_cbLog.Checked)
-                _logger = new StreamWriter(hiddenNeuronsCount + "_hidden_log.csv", true);
+                logger = new StreamWriter(hiddenNeuronsCount + "_hidden_log.csv", true);
         }
 
         /// <summary>
@@ -169,7 +153,7 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
         /// </summary>
         private void ButtonStartClick(object sender, EventArgs e)
         {
-            _netTrainer = new NetTrainer(_dalManager);
+            netTrainer = new NetTrainer(modelService);
             _tbLearningRate.Enabled = false;
             _tbMomentum.Enabled = false;
             _buttonStart.Enabled = false;
@@ -180,10 +164,10 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
             _cmbActivationFunction.Enabled = false;
             _cmbActivationFunctionHidden.Enabled = false;
             _cmbActivationFunctionOutput.Enabled = false;
-            _startTime = DateTime.Now;
+            startTime = DateTime.Now;
             _tElapsedTime.Enabled = true;
             _tElapsedTime.Start();
-            _netTrainer.StartTrainingAsync(_netToTrain, CallBack);
+            netTrainer.StartTrainingAsync(netToTrain, CallBack);
         }
 
 
@@ -208,7 +192,7 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
                 try
                 {
                     if (_cbLog.Checked)
-                        _logger.Close();
+                        logger.Close();
                     _tElapsedTime.Stop();
                 }
                 catch (Exception ex)
@@ -224,7 +208,7 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
                 return;
             }
             if (_cbLog.Enabled)
-                _logger.WriteLine(iteration + COMMA_SEPARATOR + correctOutputs);
+                logger.WriteLine(iteration + CommaSeparator + correctOutputs);
             Invoke(new Action(
                 () =>
                 {
@@ -240,13 +224,13 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
         /// </summary>
         private void ButtonAbortClick(object sender, EventArgs e)
         {
-            _netTrainer.AbortTraining();
-            _stopped = true;
+            netTrainer.AbortTraining();
+            stopped = true;
             _tElapsedTime.Stop();
             _buttonStart.Enabled = true;
             _buttonPause.Enabled = false;
             _buttonAbort.Enabled = false;
-            _textBoxTimer.Text = _duration.ToString();
+            _textBoxTimer.Text = duration.ToString();
         }
 
         /// <summary>
@@ -254,10 +238,10 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
         /// </summary>
         private void Timer1Tick(object sender, EventArgs e)
         {
-            if (!_paused && !_stopped)
+            if (!paused && !stopped)
             {
-                _duration = DateTime.Now - _startTime;
-                _textBoxTimer.Text = _duration.ToString();
+                duration = DateTime.Now - startTime;
+                _textBoxTimer.Text = duration.ToString();
             }
         }
 
@@ -266,15 +250,15 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
         /// </summary>
         private void ButtonPauseClick(object sender, EventArgs e)
         {
-            if (!_paused)
+            if (!paused)
             {
-                _paused = true;
-                _netTrainer.PauseTraining();
+                paused = true;
+                netTrainer.PauseTraining();
             }
             else
             {
-                _paused = false;
-                _netTrainer.ResumeTraining();
+                paused = false;
+                netTrainer.ResumeTraining();
             }
         }
 
@@ -297,11 +281,11 @@ namespace Soundfingerprinting.SoundTools.NetworkTrainer
         /// <returns>Type of activation function</returns>
         public static Type GetActivationFunctionType(string type)
         {
-            if (type.Equals(ACTIVATION_TANH, StringComparison.InvariantCulture))
+            if (type.Equals(ActivationTanh, StringComparison.InvariantCulture))
                 return typeof (ActivationTANH);
-            if (type.Equals(ACTIVATION_SIGMOID, StringComparison.InvariantCulture))
+            if (type.Equals(ActivationSigmoid, StringComparison.InvariantCulture))
                 return typeof (ActivationSigmoid);
-            if (type.Equals(ACTIVATION_LINEAR, StringComparison.InvariantCulture))
+            if (type.Equals(ActivationLinear, StringComparison.InvariantCulture))
                 return typeof (ActivationLinear);
             throw new ArgumentOutOfRangeException("No such type for activation function found: " + type);
         }

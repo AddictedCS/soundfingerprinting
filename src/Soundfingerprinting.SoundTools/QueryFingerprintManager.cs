@@ -14,13 +14,11 @@
 
     public static class QueryFingerprintManager
     {
-        private static readonly Random Random = new Random(unchecked((int) DateTime.Now.Ticks));
-
         /// <summary>
         ///   Query one specific song using MinHash algorithm. ConnectionString is set by the caller.
         /// </summary>
         /// <param name = "signatures">Signature signatures from a song</param>
-        /// <param name = "dalManager">DAL Manager used to query the underlying database</param>
+        /// <param name = "modelService">DAL Manager used to query the underlying database</param>
         /// <param name = "permStorage">Permutation storage</param>
         /// <param name = "seconds">Fingerprints to consider as query points [1.4 sec * N]</param>
         /// <param name = "lshHashTables">Number of hash tables from the database</param>
@@ -30,7 +28,7 @@
         /// <returns>Dictionary with Tracks ID's and the Query Statistics</returns>
         public static Dictionary<Int32, QueryStats> QueryOneSongMinHash(
             IEnumerable<bool[]> signatures,
-            ModelService dalManager,
+            IModelService modelService,
             IPermutations permStorage,
             int seconds,
             int lshHashTables,
@@ -53,11 +51,11 @@
                     /*Compute Min Hash on randomly selected fingerprints*/
                 Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
                 long[] hashbuckets = hashes.Values.ToArray();
-                IDictionary<int, IList<HashBinMinHash>> candidates = dalManager.ReadFingerprintsByHashBucketLsh(hashbuckets);
+                IDictionary<int, IList<HashBinMinHash>> candidates = modelService.ReadFingerprintsByHashBucketLsh(hashbuckets);
                 Dictionary<int, IList<HashBinMinHash>> potentialCandidates = SelectPotentialMatchesOutOfEntireDataset(candidates, thresholdTables);
                 if (potentialCandidates.Count > 0)
                 {
-                    IList<Fingerprint> fingerprints = dalManager.ReadFingerprintById(potentialCandidates.Keys);
+                    IList<Fingerprint> fingerprints = modelService.ReadFingerprintById(potentialCandidates.Keys);
                     Dictionary<Fingerprint, int> finalCandidates = fingerprints.ToDictionary(finger => finger, finger => potentialCandidates[finger.Id].Count);
                     ArrangeCandidatesAccordingToFingerprints(
                         signature, finalCandidates, lshHashTables, lshGroupsPerKey, stats);
@@ -72,7 +70,7 @@
             string pathToSong,
             IStride queryStride,
             IAudioService proxy,
-            ModelService dalManager,
+            IModelService dalManager,
             int seconds,
             int lshHashTables,
             int lshGroupsPerKey,
@@ -92,7 +90,7 @@
             //double[] querySamples = new double[lenOfQuery];
             //Array.Copy(samples, startOfQuery, querySamples, 0, lenOfQuery);
             //startIndex = startOfQuery/service.SampleRate;
-            //MinHash minHash = new MinHash(dalManager);
+            //MinHash minHash = new MinHash(modelService);
 
             //IStride stride = queryStride;
             //int index = stride.FirstStrideSize();
@@ -104,7 +102,7 @@
             //    int[] bin = minHash.ComputeMinHashSignature(f); /*Compute Min Hash on randomly selected fingerprints*/
             //    Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
             //    long[] hashbuckets = hashes.Values.ToArray();
-            //    var candidates = dalManager.ReadFingerprintsByHashBucketLSH(hashbuckets, thresholdTables);
+            //    var candidates = modelService.ReadFingerprintsByHashBucketLSH(hashbuckets, thresholdTables);
             //    if (candidates != null && candidates.Count > 0)
             //    {               
             //        var query = (from candidate in candidates
@@ -169,11 +167,11 @@
         ///// <param name = "pathToSong">Path to song</param>
         ///// <param name = "queryStride">Query stride</param>
         ///// <param name = "proxy">DSP Proxy used to read from file</param>
-        ///// <param name = "dalManager">Dal Manager used to query the database</param>
+        ///// <param name = "modelService">Dal Manager used to query the database</param>
         ///// <param name = "fingerprintsToConsider">Number of fingerprints to consider</param>
         ///// <param name = "queryTime"></param>
         ///// <returns>Dictionary with Track id and it's associated query statistics</returns>
-        //public static Dictionary<Int32, QueryStats> QueryOneSongNeuralHasher(NNEnsemble ensemble, string pathToSong, IStride queryStride, IAudioService proxy, ModelService dalManager, int fingerprintsToConsider, ref long queryTime)
+        //public static Dictionary<Int32, QueryStats> QueryOneSongNeuralHasher(NNEnsemble ensemble, string pathToSong, IStride queryStride, IAudioService proxy, ModelService modelService, int fingerprintsToConsider, ref long queryTime)
         //{
         //    fingerprintService service = new fingerprintService();
         //    /*Create Fingerprints from file*/
@@ -192,7 +190,7 @@
         //        int[] tables = new int[bin.Length];
         //        for (int i = 0; i < bin.Length; i++)
         //            tables[i] = i;
-        //        Dictionary<Int32, int> candidates = dalManager.ReadTrackIdCandidatesByHashBinAndHashTableNeuralHasher(bin, tables);
+        //        Dictionary<Int32, int> candidates = modelService.ReadTrackIdCandidatesByHashBinAndHashTableNeuralHasher(bin, tables);
         //        if (candidates == null)
         //            continue;
         //        foreach (KeyValuePair<Int32, int> item in candidates)

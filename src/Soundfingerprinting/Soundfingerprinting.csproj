@@ -72,6 +72,7 @@
     <Compile Include="Audio\Services\TagService.cs" />
     <Compile Include="Dao\DefaultConnectionStringFactory.cs" />
     <Compile Include="Dao\IConnectionStringFactory.cs" />
+    <Compile Include="Dao\IModelService.cs" />
     <Compile Include="Dao\Internal\AbstractDao.cs" />
     <Compile Include="Dao\Internal\AlbumDao.cs" />
     <Compile Include="Dao\Entities\Album.cs" />

@@ -15,7 +15,6 @@
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
@@ -32,7 +31,7 @@
 
         private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
 
-        private readonly ModelService modelService;                             /*Dal Signature service*/
+        private readonly IModelService modelService;                             /*Dal Signature service*/
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
                                       /*File filters*/
@@ -55,14 +54,14 @@
         private int hashKeys;
         private int hashTables;
         private volatile int left; /*Number of left items*/
-        private List<Album> listOfAllAlbums = new List<Album>(); /*List of all albums*/
+        private IList<Album> listOfAllAlbums = new List<Album>(); /*List of all albums*/
         private volatile int processed; /*Number of Processed files*/
         private bool stopFlag;
         private Album unknownAlbum;
 
-        public WinDbFiller(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, ITagService tagService, IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
+        public WinDbFiller(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, ITagService tagService, IModelService modelService)
         {
-            modelService = new ModelService(databaseProviderFactory, modelBinderFactory);
+            this.modelService = modelService;
             this.fingerprintService = fingerprintService;
             this.workUnitBuilder = workUnitBuilder;
             this.tagService = tagService;
@@ -219,35 +218,30 @@
 
         private void BtnStartClick(object sender, EventArgs e)
         {
-            string connectionString = _cmbDBFillerConnectionString.SelectedItem.ToString(); //Set Connection String
-            try
-            {
-                modelService.SetConnectionString(connectionString); //Try Connection String
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                FadeAllControls(false);
-                return;
-            }
-            if (!String.IsNullOrEmpty(_tbRootFolder.Text) || !String.IsNullOrEmpty(_tbSingleFile.Text) && fileList == null)
+            if (!string.IsNullOrEmpty(_tbRootFolder.Text) || !string.IsNullOrEmpty(_tbSingleFile.Text) && fileList == null)
             {
                 fileList = new List<string>();
-                if (!String.IsNullOrEmpty(_tbRootFolder.Text))
+                if (!string.IsNullOrEmpty(_tbRootFolder.Text))
+                {
                     RootFolderIsSelected(this, null);
-                if (!String.IsNullOrEmpty(_tbSingleFile.Text))
+                }
+
+                if (!string.IsNullOrEmpty(_tbSingleFile.Text))
+                {
                     TbSingleFileTextChanged(this, null);
+                }
             }
+
             if (fileList == null || fileList.Count == 0)
             {
                 MessageBox.Show(Resources.FileListEmpty, Resources.FileListEmptyCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            FadeAllControls(true); //Fade all controls
+            FadeAllControls(true); // Fade all controls
 
-            int rest = fileList.Count%MaxThreadToProcessFiles;
-            int filesPerThread = fileList.Count/MaxThreadToProcessFiles;
+            int rest = fileList.Count % MaxThreadToProcessFiles;
+            int filesPerThread = fileList.Count / MaxThreadToProcessFiles;
 
             listOfAllAlbums = modelService.ReadAlbums(); //Get all albums
             unknownAlbum = modelService.ReadUnknownAlbum(); //Read unknown albu
@@ -564,7 +558,8 @@
                     listToInsert.Add(hash);
                 }
             }
-            modelService.InsertHashBin(listToInsert);
+            throw new NotImplementedException();
+            //modelService.InsertHashBin(listToInsert);
         }
 
         /// <summary>

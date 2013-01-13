@@ -7,7 +7,7 @@
     using Soundfingerprinting.Dao.Internal;
     using Soundfingerprinting.DbStorage.Entities;
 
-    public class ModelService
+    public class ModelService : IModelService
     {
         private readonly AlbumDao albumDao;
 

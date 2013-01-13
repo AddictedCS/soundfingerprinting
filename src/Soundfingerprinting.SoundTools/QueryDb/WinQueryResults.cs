@@ -58,21 +58,6 @@
         #endregion
 
         /// <summary>
-        ///   Connection string to the underlying data source
-        /// </summary>
-        private readonly string connectionString;
-
-        /// <summary>
-        ///   Data access service, allows one to access the underlying data source
-        /// </summary>
-        private readonly ModelService dalManager;
-
-        /// <summary>
-        ///   Network ensemble
-        /// </summary>
-        private readonly NNEnsemble ensemble;
-
-        /// <summary>
         ///   List of files [.mp3] which are going to be recognized
         /// </summary>
         private readonly List<string> fileList;
@@ -159,11 +144,8 @@
         {
             InitializeComponent(); /*Initialize Designer Components*/
             Icon = Resources.Sound;
-            this.connectionString = connectionString;
-            dalManager = new ModelService(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
             permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
 
-            dalManager.SetConnectionString(this.connectionString); /*Set connection string for DAL service*/
             this.secondsToAnalyze = secondsToAnalyze; /*Number of fingerprints to analyze from each song*/
             this.startSecond = startSecond;
             this.fileList = fileList; /*List of files to analyze*/
@@ -306,7 +288,6 @@
         public WinQueryResults(string connectionString, int secondsToAnalyze, int startSeconds, IStride stride, int topWavelets, List<string> fileList, string pathToEnsemble)
             : this(connectionString, secondsToAnalyze, startSeconds, stride, topWavelets, fileList)
         {
-            ensemble = NNEnsemble.Load(pathToEnsemble);
             _dgvResults.Columns.Add(ColHit, "Number of hits");
             _dgvResults.Columns[ColHit].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Action action = ExtractCandidatesWithNeuralHasher;
@@ -316,6 +297,8 @@
         public IFingerprintService FingerprintService { get; set; }
 
         public IWorkUnitBuilder WorkUnitBuilder { get; set; }
+
+        public IModelService ModelService { get; set; }
 
         /// <summary>
         ///   Extract possible candidates from the data source using Neural Hasher
@@ -393,7 +376,7 @@
 
                 bool found = false;
                 KeyValuePair<Int32, QueryStats> item = result.ElementAt(0);
-                Track track = dalManager.ReadTrackByArtistAndTitleName(artist, title);
+                Track track = ModelService.ReadTrackByArtistAndTitleName(artist, title);
                 if (track == null)
                 {
                     Invoke(actionAddItems, new Object[] {artist + "-" + title, "No such track in the database!"}, Color.Yellow);
@@ -486,7 +469,7 @@
                 long elapsedMiliseconds = 0;
 
                 /*Get correct track trackId*/
-                Track actualTrack = dalManager.ReadTrackByArtistAndTitleName(artist, title);
+                Track actualTrack = ModelService.ReadTrackByArtistAndTitleName(artist, title);
                 if (actualTrack == null)
                 {
                     Invoke(
@@ -508,7 +491,7 @@
 
                 Dictionary<int, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash(
                     signatures,
-                    dalManager,
+                    ModelService,
                     permStorage,
                     secondsToAnalyze,
                     hashTables,
@@ -542,7 +525,7 @@
                 if (order.Any())
                 {
                     KeyValuePair<int, QueryStats> item = order.ElementAt(0);
-                    recognizedTrack = dalManager.ReadTrackById(item.Key);
+                    recognizedTrack = ModelService.ReadTrackById(item.Key);
                     if (actualTrack.Id == recognizedTrack.Id)
                     {
                         recognized++;
@@ -575,7 +558,7 @@
                     if (query.Any())
                     {
                         var anonymType = query.ElementAt(0);
-                        recognizedTrack = dalManager.ReadTrackById(anonymType.Pair.Key);
+                        recognizedTrack = ModelService.ReadTrackById(anonymType.Pair.Key);
                         Invoke(
                             actionAddItems,
                             new object[]

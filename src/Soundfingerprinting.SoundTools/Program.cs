@@ -31,7 +31,7 @@
             dependencyResolver.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
             dependencyResolver.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
             dependencyResolver.Bind<IModelBinderFactory>().To<ModelBinderFactory>().WhenInjectedInto<CachedModelBinderFactory>();
-
+            dependencyResolver.Bind<IModelService>().To<ModelService>();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

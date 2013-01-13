@@ -62,7 +62,7 @@
         /// </summary>
         private const int Efixed = 500;
 
-        private readonly ModelService modelService;
+        private readonly IModelService modelService;
 
         private readonly Semaphore pauseSem;
 
@@ -74,7 +74,7 @@
     
         private Thread workingThread;
 
-        public NetTrainer(ModelService modelService)
+        public NetTrainer(IModelService modelService)
         {
             Network net = new Network();
             net.AddLayer(new BasicLayer(new ActivationTANH(), true, DefaultFingerprintSize));

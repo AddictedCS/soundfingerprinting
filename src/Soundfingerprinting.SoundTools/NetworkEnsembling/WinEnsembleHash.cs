@@ -39,7 +39,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
 
         private IFingerprintService fingerprintService;
 
-        private readonly ModelService modelService;
+        private readonly IModelService modelService;
 
         /// <summary>
         ///   Start folder to search networks
@@ -71,7 +71,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
         /// </summary>
         private string pathToEnsemble = "Ensemble.ens";
 
-        public WinEnsembleHash(IFingerprintService fingerprintService, ModelService modelService)
+        public WinEnsembleHash(IFingerprintService fingerprintService, IModelService modelService)
         {
             this.fingerprintService = fingerprintService;
             this.modelService = modelService;
@@ -230,7 +230,6 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             /*Ensemble*/
             Action action = () =>
                             {
-                                modelService.SetConnectionString(connectionStringNeuralHasher);
                                 List<Network> networks = new List<Network>();
                                 /*Load all the networks*/
                                 foreach (KeyValuePair<string, bool> item in dictionaryPathToNetworks)
@@ -348,7 +347,6 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 return;
             }
 
-            modelService.SetConnectionString(connectionString);
             string path = _tbStoredEnsembleFilename.Text;
             if (String.IsNullOrEmpty(path))
             {
@@ -425,7 +423,6 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
             _btnStartMinHash.Enabled = false;
             _pbMinHash.Visible = true;
 
-            modelService.SetConnectionString(connectionString);
             numberofgroupsminhash = (int) _nudNumberOfGroupsMinHash.Value; /*L Hash tables 20*/
             numberofhashesperkeyminhash = (int) _nudNumberOfHashesPerKeyMinHash.Value; /*B Keys per table 5*/
 
