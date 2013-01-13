@@ -1,6 +1,7 @@
 namespace Soundfingerprinting.Dao.Internal
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
 
     using Soundfingerprinting.Dao.Conditions;
@@ -15,7 +16,8 @@ namespace Soundfingerprinting.Dao.Internal
 
         IParameterBinder WithParameter(string name, DateTime value);
 
-        IParameterBinder WithParametersFromModel<TModel>(TModel model, params ICondition<TModel>[] conditions) where TModel : new();
+        IParameterBinder WithParametersFromModel<TModel>(TModel model, params ICondition<TModel>[] conditions)
+            where TModel : new();
 
         void WithParameter(string name, DbType type, object value);
 

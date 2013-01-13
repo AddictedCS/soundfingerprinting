@@ -4,7 +4,7 @@
     using System.Collections;
 
     /// <summary>
-    ///   Class for array convertion utilities
+    ///   Class for bools convertion utilities
     /// </summary>
     public static class ArrayUtils
     {
@@ -44,7 +44,7 @@
         ///   Get float [] from sbyte[]
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>Float array</returns>
+        /// <returns>Float bools</returns>
         public static float[] GetFloatArrayFromSByte(sbyte[] array)
         {
             float[] result = new float[array.Length];
@@ -57,9 +57,9 @@
         }
 
         /// <summary>
-        ///   Get byte array from it's corresponding float
+        ///   Get byte bools from it's corresponding float
         /// </summary>
-        /// <param name = "array">Signature array in float representation</param>
+        /// <param name = "array">Signature bools in float representation</param>
         /// <returns>Byte associate</returns>
         public static byte[] GetByteArrayFromFloat(float[] array)
         {
@@ -76,7 +76,7 @@
         ///   Get sbyte [] from float []
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>Sbyte array</returns>
+        /// <returns>Sbyte bools</returns>
         public static sbyte[] GetSByteArrayFromFloat(float[] array)
         {
             sbyte[] result = new sbyte[array.Length];
@@ -92,7 +92,7 @@
         ///   Get sbyte [] from byte [] [memory hack is used, unsafe method]
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>sbyte [] array</returns>
+        /// <returns>sbyte [] bools</returns>
         public static sbyte[] GetSByteArrayFromByte(byte[] array)
         {
             sbyte[] result = new sbyte[array.Length];
@@ -104,7 +104,7 @@
         ///   Get byte[] from sbyte[] [memory hack is used, unsafe method]
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>Byte array</returns>
+        /// <returns>Byte bools</returns>
         public static byte[] GetByteArrayFromSByte(sbyte[] array)
         {
             byte[] result = new byte[array.Length];
@@ -113,23 +113,31 @@
         }
 
         /// <summary>
-        ///   Get bytes array from Boolean values.
+        ///   Get bytes bools from Boolean values.
         /// </summary>
-        /// <param name = "array">Array to be packed</param>
-        /// <returns>Bytes array</returns>
-        public static byte[] GetByteArrayFromBool(bool[] array)
+        /// <param name = "bools">Array to be packed</param>
+        /// <returns>Bytes bools</returns>
+        public static byte[] GetByteArrayFromBool(bool[] bools)
         {
-            BitArray b = new BitArray(array);
-            byte[] bytesArr = new byte[array.Length / 8];
-            b.CopyTo(bytesArr, 0);
-            return bytesArr;
+            BitArray bits = new BitArray(bools);
+            byte[] bytes = new byte[bools.Length / 8];
+            bits.CopyTo(bytes, 0);
+            return bytes;
+        }
+
+        public static bool[] GetBoolArrayFromByte(byte[] bytes)
+        {
+            bool[] bools = new bool[bytes.Length * 8];
+            BitArray bits = new BitArray(bytes);
+            bits.CopyTo(bools, 0);
+            return bools;
         }
 
         /// <summary>
         ///   Get double [] from sbyte[]
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>Double array</returns>
+        /// <returns>Double bools</returns>
         public static double[] GetDoubleArrayFromSByte(sbyte[] array)
         {
             double[] result = new double[array.Length];
@@ -142,11 +150,11 @@
         }
 
         /// <summary>
-        ///   Get Double[] array from Byte[] of samples, read from file
+        ///   Get Double[] bools from Byte[] of samples, read from file
         /// </summary>
-        /// <param name = "array">Byte[] array to convert [containing # of samples specified in the next parameter]</param>
+        /// <param name = "array">Byte[] bools to convert [containing # of samples specified in the next parameter]</param>
         /// <param name = "samplesRead">Number of samples contained within byte[]</param>
-        /// <param name = "silence">Set to true if array contains silece [sum = 0]</param>
+        /// <param name = "silence">Set to true if bools contains silece [sum = 0]</param>
         /// <returns>Double [] of specific values</returns>
         public static float[] GetDoubleArrayFromSamples(byte[] array, int samplesRead, ref bool silence)
         {
@@ -190,7 +198,7 @@
         ///   Get alligned byte [] from float []
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>Byte array</returns>
+        /// <returns>Byte bools</returns>
         public static byte[] GetAllignedByteArrayFromFloat(float[] array)
         {
             const int Size = sizeof(float);
@@ -209,7 +217,7 @@
         ///   Get Alligned float [] from byte[]
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>Float array</returns>
+        /// <returns>Float bools</returns>
         public static float[] GetAllignedFloatArrayFromByte(byte[] array)
         {
             const int Size = sizeof(float);
@@ -227,7 +235,7 @@
         ///   Get float [] from double []
         /// </summary>
         /// <param name = "array">Array to convert</param>
-        /// <returns>Float array</returns>
+        /// <returns>Float bools</returns>
         public static float[] GetFloatArrayFromDouble(double[] array)
         {
             float[] result = new float[array.Length];

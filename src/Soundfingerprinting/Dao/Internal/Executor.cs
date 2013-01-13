@@ -19,13 +19,9 @@ namespace Soundfingerprinting.Dao.Internal
             this.modelBinderFactory = modelBinderFactory;
         }
 
-        public void AsNonQuery()
+        public int AsNonQuery()
         {
-            SafeExec<object>(() =>
-                {
-                    ExecuteNonQuery();
-                    return null;
-                });
+            return SafeExec(ExecuteNonQuery);
         }
 
         public T AsScalar<T>()
@@ -139,10 +135,10 @@ namespace Soundfingerprinting.Dao.Internal
             }
         }
 
-        private void ExecuteNonQuery()
+        private int ExecuteNonQuery()
         {
             command.Connection.Open();
-            command.ExecuteNonQuery();
+            return command.ExecuteNonQuery();
         }
 
         private Reader ExecuteReader()

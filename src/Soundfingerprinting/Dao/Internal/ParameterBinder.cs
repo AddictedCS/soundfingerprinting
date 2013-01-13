@@ -1,6 +1,7 @@
 namespace Soundfingerprinting.Dao.Internal
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
 
     using Soundfingerprinting.Dao.Conditions;

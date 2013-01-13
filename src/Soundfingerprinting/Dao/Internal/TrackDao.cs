@@ -67,7 +67,7 @@ namespace Soundfingerprinting.Dao.Internal
 
         public int DeleteTrack(int trackId)
         {
-            return PrepareStoredProcedure(SpDeleteTrack).WithParameter("Id", trackId).Execute().AsScalar<int>();
+            return PrepareStoredProcedure(SpDeleteTrack).WithParameter("Id", trackId).Execute().AsNonQuery();
         }
     }
 }

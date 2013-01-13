@@ -3,35 +3,28 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
-    using Soundfingerprinting.Hashing;
 
     [TestClass]
     public class ModelServiceTest : BaseTest
     {
-        private readonly string connectionstring;
-
         private readonly ModelService modelService;
 
         public ModelServiceTest()
         {
-            connectionstring = ConnectionString;
             modelService = new ModelService(
                 new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
         }
 
         #region Insert/Read/Delete Album objects tests
 
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here."),TestMethod]
         public void InsertReadAlbumTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
@@ -70,24 +63,16 @@
             }
 
             var readAlbums = modelService.ReadAlbums(); /*read all albums*/
-            List<int> lReadIds = readAlbums.Select(a => a.Id).ToList();
+            List<int> readIds = readAlbums.Select(a => a.Id).ToList();
             foreach (int i in lId)
             {
-                Assert.AreEqual(true, lReadIds.Contains(i));
+                Assert.AreEqual(true, readIds.Contains(i));
             }
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void InsertEmptyCollectionInAlbumsTest()
-        {
-            modelService.InsertAlbum(new List<Album>());
         }
 
         [TestMethod]
         public void ReadAlbumByNameTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
             string albumName = Guid.NewGuid().ToString();
             Album album = new Album(int.MinValue, albumName);
             modelService.InsertAlbum(album);
@@ -98,18 +83,9 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void InsertAlbumNull()
-        {
-            Album a = null;
-            modelService.InsertAlbum(a);
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(FingerprintEntityException))]
         public void CheckReleaseYearConstraintsAlbum()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
             Album a = new Album();
             Assert.AreEqual(true, !string.IsNullOrEmpty(a.Name));
             Assert.AreEqual(MinYear /*Default value*/, a.ReleaseYear);
@@ -119,7 +95,6 @@
         [TestMethod]
         public void ReadUnknownAlbumTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
             Album album = modelService.ReadUnknownAlbum();
             Assert.AreNotEqual(null, album);
             Assert.IsTrue(album.Id > 0);
@@ -198,11 +173,8 @@
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = modelService.ReadUnknownAlbum();
             const int Count = 10;
-            const int FakeId = int.MinValue;
-            List<Track> tracks = new List<Track>();
-            for (int i = 0; i < Count; i++) tracks.Add(new Track(FakeId, name, name, album.Id));
+            List<Track> tracks = GetRandomListOfTracks(album, Count);
             modelService.InsertTrack(tracks);
-            foreach (Track item in tracks) Assert.AreNotEqual(FakeId, item.Id);
             var result = modelService.ReadDuplicatedTracks();
             Assert.IsNotNull(result);
             if (result.Any(item => item.Key.Artist == name && item.Key.Title == name))
@@ -234,14 +206,11 @@
         public void ReadTrackByFingerprintInexistantIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            const int FakeId = int.MinValue;
-            Album album = new Album(FakeId, name, 1986);
+            Album album = new Album(int.MinValue, name, 1986);
             modelService.InsertAlbum(album);
-            Track track = new Track(FakeId, name, name, album.Id, 360);
+            Track track = new Track(int.MinValue, name, name, album.Id, 360);
             modelService.InsertTrack(track);
-            Fingerprint f = new Fingerprint(FakeId, GenericFingerprint, track.Id, 0);
-            var list = modelService.ReadTrackByFingerprint(f.Id);
-            Assert.AreEqual(null, list);
+            Assert.AreEqual(0,  modelService.ReadTrackByFingerprint(int.MinValue).Count);
         }
 
         [TestMethod]
@@ -267,38 +236,19 @@
         }
 
         [TestMethod]
-        public void DeleteTrackListTest()
+        public void DeleteCollectionOfTracksTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-
-            Album album = new Album(int.MinValue, name, 1986);
-            modelService.InsertAlbum(album);
-            List<Track> listTracks = new List<Track>();
-
-            List<int> lId = new List<int>();
-            for (int i = 0; i < 10; i++)
-            {
-                Track a = new Track(int.MinValue, name + i, name + i, album.Id);
-                listTracks.Add(a);
-            }
-            modelService.InsertTrack(listTracks);
-            List<Fingerprint> fingerprintList = new List<Fingerprint>();
-            for (int j = 0; j < 100; j++)
-            {
-                fingerprintList.Add(new Fingerprint(0, GenericFingerprint, listTracks[j / 10].Id, 0));
-            }
-
-            modelService.InsertFingerprint(fingerprintList);
-            var listOfTracks = modelService.ReadTracks();
-            Assert.AreEqual(0, (listOfTracks == null) ? 0 : listOfTracks.Count);
-            Album ab = modelService.ReadAlbumById(album.Id);
-            Assert.AreEqual(0, (ab == null) ? 0 : 1);
-            var list = modelService.ReadFingerprints();
-            Assert.AreEqual(0, (list == null) ? 0 : list.Count);
+            List<Track> tracks = GetRandomListOfTracks(InsertRandomAlbum(name), 10);
+            modelService.InsertTrack(tracks);
+            var allTracks = modelService.ReadTracks();
+            Assert.IsTrue(allTracks.Count > 0);
+            modelService.DeleteTrack(allTracks);
+            Assert.IsTrue(modelService.ReadTracks().Count == 0);
         }
 
         [TestMethod]
-        public void DeleteTrackTest()
+        public void DeleteOneTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = new Album(0, name, 1986);
@@ -311,85 +261,38 @@
         }
 
         [TestMethod]
-        public void DeleteTrackByIdTest()
+        public void DeleteCollectionOfTracksIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            const int FakeId = int.MinValue;
-            Album album = new Album(FakeId, name, 1986);
+            Album album = new Album(int.MinValue, name, 1986);
             modelService.InsertAlbum(album);
-            Assert.AreNotEqual(FakeId, album.Id);
-            Track track = new Track(FakeId, name, name, album.Id);
+            Assert.AreNotEqual(int.MinValue, album.Id);
+            Track track = new Track(int.MinValue, name, name, album.Id);
             modelService.InsertTrack(track);
-            Assert.AreNotEqual(FakeId, track.Id);
+            Assert.AreNotEqual(int.MinValue, track.Id);
             modelService.DeleteTrack(track.Id);
             Assert.AreEqual(null, modelService.ReadAlbumById(album.Id));
             Assert.AreEqual(null, modelService.ReadTrackById(track.Id));
-
         }
 
         [TestMethod]
         public void DeleteTrackListOfIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            const int FakeId = int.MinValue;
-            Album album = new Album(FakeId, name, 1986);
-            modelService.InsertAlbum(album);
-            Assert.AreNotEqual(FakeId, album.Id);
-            List<Track> listTracks = new List<Track>();
-
-            for (int i = 0; i < 10; i++)
-            {
-                Track a = new Track(FakeId, name + i, name + i, album.Id);
-                listTracks.Add(a);
-            }
+            var listTracks = GetRandomListOfTracks(InsertRandomAlbum(name), 10);
 
             modelService.InsertTrack(listTracks);
-            foreach (Track track in listTracks) Assert.AreNotEqual(FakeId, track.Id);
-            List<Fingerprint> fingerprintList = new List<Fingerprint>();
-            for (int j = 0; j < 100; j++) fingerprintList.Add(new Fingerprint(FakeId, GenericFingerprint, listTracks[j / 10].Id, 0));
 
-            modelService.InsertFingerprint(fingerprintList);
-            foreach (Fingerprint finger in fingerprintList) Assert.AreNotEqual(FakeId, finger.Id);
-            var listOfTracks = modelService.ReadTracks();
-            List<int> lId = listOfTracks.Select(t => t.Id).ToList();
-            listOfTracks = modelService.ReadTracks();
-            Assert.AreEqual(0, (listOfTracks == null) ? 0 : listOfTracks.Count);
-            Album ab = modelService.ReadAlbumById(album.Id);
-            Assert.AreEqual(0, (ab == null) ? 0 : 1);
-            var list = modelService.ReadFingerprints();
-            Assert.AreEqual(0, (list == null) ? 0 : list.Count);
-        }
+            foreach (Track track in listTracks)
+            {
+                Assert.AreNotEqual(int.MinValue, track.Id);
+            }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void DeleteTrackNullParamTest()
-        {
-            Track t = null;
-            modelService.DeleteTrack(t);
-        }
+            var allTracks = modelService.ReadTracks();
+            Assert.IsTrue(allTracks.Count > 0);
+            modelService.DeleteTrack(allTracks.Select(t => t.Id));
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void DeleteTrackNullListTest()
-        {
-            List<Track> t = null;
-            modelService.DeleteTrack(t);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void DeleteTrackEmptyListTest()
-        {
-            List<Track> t = new List<Track>();
-            modelService.DeleteTrack(t);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void DeleteTrackNullListOfTracksTest()
-        {
-            List<int> t = null;
-            modelService.DeleteTrack(t);
+            Assert.IsTrue(modelService.ReadTracks().Count == 0);
         }
 
         #endregion
@@ -601,39 +504,9 @@
             modelService.InsertFingerprint(f);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void InsertFingerprintNullTest()
-        {
-            modelService.InsertFingerprint((Fingerprint)null);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void InsertEmptyCollectionInFingerprints()
-        {
-            modelService.InsertFingerprint(new List<Fingerprint>());
-        }
-
         #endregion
 
         #region Insert/Read/Delete Bin objects tests
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void InsertEmptyCollectionInHashBinMinHash()
-        {
-            List<HashBinMinHash> list = new List<HashBinMinHash>();
-            modelService.InsertHashBin(list);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void InsertTrackNullTest()
-        {
-            Track t = null;
-            modelService.InsertTrack(t);
-        }
 
         [TestMethod]
         [ExpectedException(typeof(FingerprintEntityException))]
@@ -722,7 +595,7 @@
         {
             IEnumerable<int> ids = new List<int> { 0 };
             var actual = modelService.ReadFingerprintById(ids);
-            Assert.IsNull(actual);
+            Assert.IsTrue(actual.Count == 0);
         }
 
         [TestMethod]
@@ -743,9 +616,8 @@
         {
             List<Track> tracks = new List<Track> { new Track(), new Track(), new Track(), new Track() };
             const int NumberOfFingerprintsToRead = 10;
-            var actual = modelService.ReadFingerprintsByMultipleTrackId(
-                tracks, NumberOfFingerprintsToRead);
-            Assert.IsNull(actual);
+            var actual = modelService.ReadFingerprintsByMultipleTrackId(tracks, NumberOfFingerprintsToRead);
+            Assert.IsTrue(actual.Count == 0);
         }
 
         [TestMethod]
@@ -754,15 +626,7 @@
             const int TrackId = 0;
             const int NumberOfFingerprintsToRead = 10;
             var actual = modelService.ReadFingerprintsByTrackId(TrackId, NumberOfFingerprintsToRead);
-            Assert.IsNull(actual);
-        }
-
-        [TestMethod]
-        public void ReadPermutationsTest()
-        {
-            IPermutations perms = new DbPermutations(connectionstring);
-            int[][] actual = perms.GetPermutations();
-            Assert.IsNull(actual);
+            Assert.IsTrue(actual.Count == 0);
         }
 
         [TestMethod]
@@ -776,11 +640,10 @@
         }
 
         [TestMethod]
-        public void ReadTrackByFingerprintFalseTest()
+        public void ReadTrackByNonExistentFingerprintId()
         {
             const int Id = 0;
-            var actual = modelService.ReadTrackByFingerprint(Id);
-            Assert.IsNull(actual);
+            Assert.IsTrue(modelService.ReadTrackByFingerprint(Id).Count == 0);
         }
 
         [TestMethod]
@@ -792,5 +655,25 @@
         }
 
         #endregion
+
+        private Album InsertRandomAlbum(string name)
+        {
+            Album album = new Album(int.MinValue, name, 1986);
+            modelService.InsertAlbum(album);
+            return album;
+        }
+
+        private List<Track> GetRandomListOfTracks(Album album, int count)
+        {
+            var tracks = new List<Track>();
+
+            for (int i = 0; i < count; i++)
+            {
+                Track a = new Track(int.MinValue, album.Name, album.Name, album.Id);
+                tracks.Add(a);
+            }
+
+            return tracks;
+        }
     }
 }

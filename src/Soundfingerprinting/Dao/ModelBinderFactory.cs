@@ -32,8 +32,9 @@ namespace Soundfingerprinting.Dao
                 { typeof(Guid), DbType.Guid },
                 { typeof(TimeSpan), DbType.Time },
                 { typeof(Enum), DbType.String },
+                { typeof(byte[]), DbType.Binary }
             };
-
+        
         public IModelBinder<TModel> Create<TModel>(params ICondition<TModel>[] conditions) where TModel : new()
         {
             var modelType = typeof(TModel);
@@ -69,11 +70,6 @@ namespace Soundfingerprinting.Dao
 
             foreach (var propertyInfo in properties)
             {
-                if (ShouldBeIgnored(propertyInfo))
-                {
-                    continue;
-                }
-
                 var subParentProperties = new LinkedList<PropertyInfo>(parentProperties);
                 subParentProperties.AddLast(propertyInfo);
 
@@ -94,16 +90,6 @@ namespace Soundfingerprinting.Dao
                     Create(propertyInfo.PropertyType, subPrefix, readerBuilder, writerBuilder, subParentProperties, conditions);
                 }
             }
-        }
-
-        private bool ShouldBeIgnored(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.PropertyType.IsArray || (IsNotString(propertyInfo) && typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType));
-        }
-
-        private bool IsNotString(PropertyInfo propertyInfo)
-        {
-            return !typeof(string).IsAssignableFrom(propertyInfo.PropertyType);
         }
 
         private string GetSubPrefix(string prefix, PropertyInfo propertyInfo)

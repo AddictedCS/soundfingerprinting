@@ -1,10 +1,10 @@
 namespace Soundfingerprinting.Dao.Internal
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using Soundfingerprinting.DbStorage.Entities;
+    using Soundfingerprinting.DbStorage.Utils;
 
     internal class FingerprintDao : AbstractDao
     {
@@ -21,7 +21,7 @@ namespace Soundfingerprinting.Dao.Internal
         public void Insert(Fingerprint fingerprint)
         {
             fingerprint.Id = PrepareStoredProcedure(SpInsertFingerprint)
-                                .WithParametersFromModel(fingerprint)
+                                .WithParametersFromModel(new FingerprintDto(fingerprint))
                                 .Execute()
                                 .AsScalar<int>();
         }
@@ -38,7 +38,9 @@ namespace Soundfingerprinting.Dao.Internal
         {
             return PrepareStoredProcedure(SpReadFingerprints)
                     .Execute()
-                    .AsListOfModel<Fingerprint>();
+                    .AsListOfModel<FingerprintDto>()
+                    .Select(fingerprintDto => fingerprintDto.ToFingerprint())
+                    .ToList();
         }
 
         public IList<Fingerprint> ReadFingerprintsByTrackId(int trackId, int numberOfFingerprintsToRead)
@@ -47,20 +49,24 @@ namespace Soundfingerprinting.Dao.Internal
                     .WithParameter("Id", trackId)
                     .WithParameter("NumberOfFingerprintsToRead", numberOfFingerprintsToRead)
                     .Execute()
-                    .AsListOfModel<Fingerprint>();
+                    .AsListOfModel<FingerprintDto>()
+                    .Select(fingerprintDto => fingerprintDto.ToFingerprint())
+                    .ToList();
         }
 
         public Fingerprint ReadById(int id)
         {
-            return PrepareStoredProcedure(SpReadFingerprintById)
+            FingerprintDto fingerprintDto = PrepareStoredProcedure(SpReadFingerprintById)
                     .WithParameter("Id", id)
                     .Execute()
-                    .AsModel<Fingerprint>();
+                    .AsModel<FingerprintDto>();
+
+            return fingerprintDto != null ? fingerprintDto.ToFingerprint() : null;
         }
 
         public IList<Fingerprint> ReadById(IEnumerable<int> ids)
         {
-            return ids.Select(ReadById).ToList();
+            return ids.Select(ReadById).Where(fingerprint => fingerprint != null).ToList();
         }
 
         public IDictionary<int, IList<Fingerprint>> ReadFingerprintsByMultipleTrackId(IEnumerable<Track> tracks, int numberOfFingerprintsToRead)
@@ -73,12 +79,62 @@ namespace Soundfingerprinting.Dao.Internal
                         .WithParameter("Id", track.Id)
                         .WithParameter("NumberOfFingerprintsToRead", numberOfFingerprintsToRead)
                         .Execute()
-                        .AsListOfModel<Fingerprint>();
+                        .AsListOfModel<FingerprintDto>()
+                        .Select(fingerprintDto => fingerprintDto.ToFingerprint())
+                        .Where(fingerprint => fingerprint != null)
+                        .ToList();
 
-                result.Add(track.Id, fingerprints);
+                if (fingerprints.Count == 0)
+                {
+                    continue;
+                }
+
+                if (result.ContainsKey(track.Id))
+                {
+                    foreach (var fingerprint in fingerprints)
+                    {
+                        result[track.Id].Add(fingerprint);
+                    }
+                }
+                else
+                {
+                    result.Add(track.Id, fingerprints);
+                }
             }
 
             return result;
+        }
+
+        private class FingerprintDto
+        {
+            public FingerprintDto()
+            {
+            }
+
+            public FingerprintDto(Fingerprint fingerprint)
+            {
+                Id = fingerprint.Id;
+                TrackId = fingerprint.TrackId;
+                TotalFingerprintsPerTrack = fingerprint.TotalFingerprintsPerTrack;
+                SongOrder = fingerprint.SongOrder;
+                Signature = ArrayUtils.GetByteArrayFromBool(fingerprint.Signature);
+            }
+
+            public int Id { get; set; }
+
+            public int TrackId { get; set; }
+
+            public int TotalFingerprintsPerTrack { get; set; }
+
+            public int SongOrder { get; set; }
+
+            public byte[] Signature { get; set; }
+
+            public Fingerprint ToFingerprint()
+            {
+                return new Fingerprint(
+                    Id, ArrayUtils.GetBoolArrayFromByte(Signature), TrackId, SongOrder, TotalFingerprintsPerTrack);
+            }
         }
     }
 }

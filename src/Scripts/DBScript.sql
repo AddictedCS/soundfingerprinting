@@ -103,6 +103,7 @@ IF OBJECT_ID('sp_InsertHashBin','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertHashBin
 GO
 CREATE PROCEDURE sp_InsertHashBin
+	@Id INT,
 	@Bin BIGINT,
 	@HashTable INT,
 	@TrackId INT
@@ -123,6 +124,7 @@ IF OBJECT_ID('sp_InsertHashBinMinHash','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertHashBinMinHash
 GO
 CREATE PROCEDURE sp_InsertHashBinMinHash
+	@Id INT,
 	@Bin BIGINT,
 	@HashTable INT,
 	@TrackId INT,
@@ -145,6 +147,7 @@ IF OBJECT_ID('sp_InsertAlbum','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertAlbum
 GO
 CREATE PROCEDURE sp_InsertAlbum
+	@Id INT,
 	@Name VARCHAR(255),
 	@ReleaseYear INT
 AS
@@ -163,6 +166,7 @@ IF OBJECT_ID('sp_InsertTrack','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertTrack
 GO
 CREATE PROCEDURE sp_InsertTrack
+	@Id INT,
 	@Artist VARCHAR(255),
 	@Title VARCHAR(255),
 	@AlbumId INT,
@@ -185,6 +189,7 @@ IF OBJECT_ID('sp_InsertFingerprint','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertFingerprint
 GO
 CREATE PROCEDURE sp_InsertFingerprint
+	@Id INT,
 	@Signature VARBINARY(4096),
 	@TrackId INT,
 	@SongOrder INT,

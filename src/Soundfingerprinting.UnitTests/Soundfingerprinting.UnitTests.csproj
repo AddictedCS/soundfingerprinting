@@ -92,6 +92,10 @@
   <ItemGroup>
     <Folder Include="Fingerprinting.Tests\Hash\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestEnvironment\Kryptonite.mp3" />
+    <Content Include="TestEnvironment\Kryptonite.wav" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>copy "$(SolutionDir)\Externals\*.dll" "$(TargetDir)"

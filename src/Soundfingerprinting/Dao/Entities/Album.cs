@@ -23,13 +23,13 @@
         public Album()
         {
             Id = int.MinValue;
-            releaseYear = 1500; /*Check docs*/
+            releaseYear = 1501; /*Check docs*/
             name = "Unknown";
         }
 
         public Album(int id, string name)
         {
-            releaseYear = 1500; /*Check docs*/
+            releaseYear = 1501; /*Check docs*/
             Id = id;
             this.name = name;
         }

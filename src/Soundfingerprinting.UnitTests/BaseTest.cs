@@ -23,12 +23,12 @@
         /// <summary>
         ///   Path to already re sampled file .wav
         /// </summary>
-        protected const string PathToWav = @"Kryptonite.wav";
+        protected const string PathToWav = @"\TestEnvironment\Kryptonite.wav";
 
         /// <summary>
         ///   Path to MP3 file
         /// </summary>
-        protected const string PathToMp3 = @"Kryptonite.mp3";
+        protected const string PathToMp3 = @"\TestEnvironment\Kryptonite.mp3";
 
         /// <summary>
         ///   Bits per sample
@@ -50,7 +50,7 @@
         /// </summary>
         protected const int SamplesToRead = 128 * 64;
 
-        protected const int MinYear = 1500;
+        protected const int MinYear = 1501;
 
         protected readonly string ConnectionString = ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString;
 

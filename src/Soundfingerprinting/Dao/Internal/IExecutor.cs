@@ -7,7 +7,7 @@ namespace Soundfingerprinting.Dao.Internal
 
     public interface IExecutor
     {
-        void AsNonQuery();
+        int AsNonQuery();
 
         T AsScalar<T>();
 
