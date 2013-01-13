@@ -44,7 +44,7 @@
             // Set Sample Rate / MONO
             if (
                 !Bass.BASS_Init(
-                    -1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero)) 
+                    0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero)) 
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
@@ -172,27 +172,6 @@
         public float[] ReadMonoFromFile(string fileName, int sampleRate)
         {
             return ReadMonoFromFile(fileName, sampleRate, 0, 0);
-        }
-
-        /// <summary>
-        ///   Get's tag info from file
-        /// </summary>
-        /// <param name = "filename">Filename to decode</param>
-        /// <returns>TAG_INFO structure</returns>
-        /// <remarks>
-        ///   The tags can be extracted using the following code:
-        ///   <code>
-        ///     tags.album
-        ///     tags.albumartist
-        ///     tags.artist
-        ///     tags.title
-        ///     tags.duration
-        ///     tags.genre, and so on.
-        ///   </code>
-        /// </remarks>
-        public TAG_INFO GetTagInfoFromFile(string filename)
-        {
-            return BassTags.BASS_TAG_GetFromFile(filename);
         }
 
         /// <summary>

@@ -2,31 +2,14 @@
 {
     using System;
     using System.IO;
-    using System.Reflection;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Soundfingerprinting.Audio.Services;
 
-    using Un4seen.Bass.AddOn.Tags;
-
     [TestClass]
-    public class BassProxyTest : BaseTest
+    public class BassAudioServiceTest : BaseTest
     {
-       [TestMethod]
-        public void GetTagInfoFromFileTest()
-       {
-           string name = MethodBase.GetCurrentMethod().Name;
-           using (BassAudioService audioService = new BassAudioService())
-           {
-               TAG_INFO tags = audioService.GetTagInfoFromFile(Path.GetFullPath(PathToMp3));
-               Assert.IsNotNull(tags);
-               Assert.IsNotNull(tags.artist);
-               Assert.IsNotNull(tags.title);
-               Assert.IsNotNull(tags.duration);
-           }
-       }
-
         [TestMethod]
         public void ReadMonoFromFileTest()
         {
@@ -45,7 +28,6 @@
         [TestMethod]
         public void ReadMonoFromFileUsingBothProxiesTest()
         {
-            string name = MethodBase.GetCurrentMethod().Name;
             using (BassAudioService bassAudioService = new BassAudioService())
             {
                 using (DirectSoundAudioService directSoundAudioService = new DirectSoundAudioService())

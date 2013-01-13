@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -59,14 +60,12 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioProxies.Tests\BassProxyTest.cs" />
+    <Compile Include="AudioProxies.Tests\BassAudioServiceTest.cs" />
     <Compile Include="AudioProxies.Tests\DirectSoundTest.cs" />
     <Compile Include="AudioProxies.Tests\StrideTest.cs" />
+    <Compile Include="AudioProxies.Tests\TagServiceTest.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="DbStorage.Tests\ModelServiceTest.cs" />
-    <Compile Include="DbStorage.Tests\HashBinMinHashTest.cs" />
-    <Compile Include="DbStorage.Tests\HashBinNeuralHasherTest.cs" />
-    <Compile Include="DbStorage.Tests\HashBinTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintDescriptorTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintManagerTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintUtilsTest.cs" />

@@ -133,6 +133,8 @@
         /// </summary>
         private CancellationTokenSource cts;
 
+        private ITagService tagService;
+
         #endregion
 
         public RepositoryGateway()
@@ -146,6 +148,7 @@
                 ServiceContainer.Kernel.Get<IPermutations>(
                     new ConstructorArgument("pathToPermutations", PathToPermutations),
                     new ConstructorArgument("separator", Separator)); /*Permutations*/
+            tagService = ServiceContainer.Kernel.Get<ITagService>();
 
             cts = new CancellationTokenSource();
             repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintService>(), ServiceContainer.Kernel.Get<IWorkUnitBuilder>(), storage, permutations);
@@ -279,7 +282,7 @@
                                 float[] samples;
                                 try
                                 {
-                                    track = TrackHelper.GetTrackInfo(MinTrackLength, MaxTrackLength, file, (BassAudioService)audioServiceProxy); //lame casting I know
+                                    track = TrackHelper.GetTrackInfo(MinTrackLength, MaxTrackLength, file, tagService); //lame casting I know
                                     samples = TrackHelper.GetTrackSamples(track, audioServiceProxy, SampleRate, MillisecondsToProcess, MillisecondsStart);
                                 }
                                 catch

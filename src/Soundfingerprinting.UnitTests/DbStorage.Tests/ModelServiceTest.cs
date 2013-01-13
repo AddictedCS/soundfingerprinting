@@ -20,7 +20,8 @@
         public ModelServiceTest()
         {
             modelService = new ModelService(
-                new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
+                new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()),
+                new CachedModelBinderFactory(new ModelBinderFactory()));
         }
 
         #region Insert/Read/Delete Album objects tests
@@ -32,11 +33,11 @@
             Album album = new Album { Id = FakeId, Name = name, ReleaseYear = 1986 };
             modelService.InsertAlbum(album);
             Assert.AreNotEqual(FakeId, album.Id);
-            var albums = modelService.ReadAlbums(); // read all albums
+            var allAlbums = modelService.ReadAlbums(); // read all albums
             bool found = false;
             int id = 0;
 
-            if (albums.Any(a => a.Id == album.Id))
+            if (allAlbums.Any(a => a.Id == album.Id))
             {
                 found = true;
                 id = album.Id;
@@ -47,26 +48,21 @@
             Assert.AreEqual(id, b.Id);
             Assert.AreEqual(album.Name, b.Name);
             Assert.AreEqual(album.ReleaseYear, b.ReleaseYear);
-            List<Album> listAlbums = new List<Album>();
-            List<int> lId = new List<int>();
-            for (int i = 0; i < 10; i++)
+            
+            var albums = GetRandomAlbums(name, 10);
+            modelService.InsertAlbum(albums);
+            foreach (var alb in albums)
             {
-                Album a = new Album(FakeId, name + ":" + i, i + 1986);
-                listAlbums.Add(a);
+                Assert.AreNotEqual(FakeId, alb.Id);
             }
 
-            modelService.InsertAlbum(listAlbums); /*Insert a list of albums*/
-            foreach (Album item in listAlbums)
-            {
-                Assert.AreNotEqual(FakeId, item.Id);
-                lId.Add(item.Id);
-            }
+            List<int> albumIds = albums.Select(a => a.Id).ToList();
 
             var readAlbums = modelService.ReadAlbums(); /*read all albums*/
-            List<int> readIds = readAlbums.Select(a => a.Id).ToList();
-            foreach (int i in lId)
+            var readAlbumIds = readAlbums.Select(a => a.Id).ToList();
+            foreach (int albumId in albumIds)
             {
-                Assert.AreEqual(true, readIds.Contains(i));
+                Assert.AreEqual(true, readAlbumIds.Contains(albumId));
             }
         }
 
@@ -160,10 +156,10 @@
             }
 
             var readTracks = modelService.ReadTracks();
-            List<int> lReadIds = readTracks.Select(a => a.Id).ToList();
+            List<int> readIds = readTracks.Select(a => a.Id).ToList();
             foreach (int i in lId)
             {
-                Assert.AreEqual(true, lReadIds.Contains(i));
+                Assert.AreEqual(true, readIds.Contains(i));
             }
         }
 
@@ -310,9 +306,9 @@
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
             var allFingerprints = modelService.ReadFingerprints();
-            List<int> lGuid = allFingerprints.Select(temp => temp.Id).ToList();
+            List<int> fingerprintIds = allFingerprints.Select(temp => temp.Id).ToList();
 
-            Assert.AreEqual(true, lGuid.Contains(f.Id));
+            Assert.AreEqual(true, fingerprintIds.Contains(f.Id));
 
             List<Fingerprint> addList = new List<Fingerprint>();
             for (int i = 0; i < 10; i++)
@@ -322,12 +318,12 @@
 
             modelService.InsertFingerprint(addList);
             allFingerprints = modelService.ReadFingerprints();
-            lGuid.Clear();
-            lGuid.AddRange(allFingerprints.Select(temp => temp.Id));
+            fingerprintIds.Clear();
+            fingerprintIds.AddRange(allFingerprints.Select(temp => temp.Id));
             
             foreach (Fingerprint finger in addList)
             {
-                Assert.AreEqual(true, lGuid.Contains(finger.Id));
+                Assert.AreEqual(true, fingerprintIds.Contains(finger.Id));
             }
         }
 
@@ -674,6 +670,18 @@
             }
 
             return tracks;
+        }
+
+        private List<Album> GetRandomAlbums(string name, int count)
+        {
+            List<Album> albums = new List<Album>();
+            for (int i = 0; i < count; i++)
+            {
+                Album a = new Album(int.MinValue, name + ":" + i, i + 1986);
+                albums.Add(a);
+            }
+
+            return albums;
         }
     }
 }

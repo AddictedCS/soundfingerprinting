@@ -9,6 +9,7 @@
     using System.Threading;
     using System.Windows.Forms;
 
+    using Soundfingerprinting.Audio.Models;
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
@@ -300,6 +301,8 @@
 
         public IModelService ModelService { get; set; }
 
+        public ITagService TagService { get; set; }
+
         /// <summary>
         ///   Extract possible candidates from the data source using Neural Hasher
         /// </summary>
@@ -326,7 +329,7 @@
                 IStride samplesToSkip = queryStride;
                 long elapsedMiliseconds = 0;
 
-                TAG_INFO tags = audioService.GetTagInfoFromFile(pathToFile); //Get Tags from file
+                TagInfo tags = TagService.GetTagInfo(pathToFile); //Get Tags from file
                 if (tags == null)
                 {
                     //TAGS are null
@@ -334,9 +337,9 @@
                     continue;
                 }
 
-                string artist = tags.artist; //Artist
-                string title = tags.title; //Title
-                double duration = tags.duration; //Duration
+                string artist = tags.Artist; //Artist
+                string title = tags.Title; //Title
+                double duration = tags.Duration; //Duration
 
                 if (duration < MinTrackLength || duration > MaxTrackLength) //Check whether the duration is ok
                 {
@@ -439,7 +442,7 @@
                     break;
 
                 string pathToFile = fileList[i]; /*Path to song to recognize*/
-                TAG_INFO tags = audioService.GetTagInfoFromFile(pathToFile); //Get Tags from file
+                TagInfo tags = TagService.GetTagInfo(pathToFile); //Get Tags from file
 
                 if (tags == null)
                 {
@@ -448,9 +451,9 @@
                     continue;
                 }
 
-                string artist = tags.artist; //Artist
-                string title = tags.title; //Title
-                double duration = tags.duration; //Duration
+                string artist = tags.Artist; //Artist
+                string title = tags.Title; //Title
+                double duration = tags.Duration; //Duration
 
                 if (duration < MinTrackLength || duration > MaxTrackLength) //Check whether the duration is ok
                 {

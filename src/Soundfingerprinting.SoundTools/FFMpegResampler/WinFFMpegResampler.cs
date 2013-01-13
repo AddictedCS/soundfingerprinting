@@ -8,6 +8,7 @@
     using System.Threading;
     using System.Windows.Forms;
 
+    using Soundfingerprinting.Audio.Models;
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.SoundTools.Properties;
 
@@ -15,6 +16,8 @@
 
     public partial class WinFfMpegResampler : Form
     {
+        private readonly ITagService tagService;
+
         private readonly List<string> fileList = new List<string>();
         private int bitRate;
         private int currentProceesedFiles;
@@ -25,8 +28,9 @@
         private int skipped;
         private bool stopped;
 
-        public WinFfMpegResampler()
+        public WinFfMpegResampler(ITagService tagService)
         {
+            this.tagService = tagService;
             InitializeComponent();
             Icon = Resources.Sound;
             currentProceesedFiles = 0;
@@ -174,12 +178,12 @@
                         Thread.Sleep(1000);
                     }
 
-                    TAG_INFO tags = null;
+                    TagInfo tags = null;
 
                     try
                     {
                         //Read Tags from the file
-                        tags = audioService.GetTagInfoFromFile(f);
+                        tags = tagService.GetTagInfo(f);
                     }
                     catch
                     {
@@ -190,7 +194,7 @@
                     }
 
                     //Compose the output name of the wav file
-                    if (String.IsNullOrEmpty(tags.title) || tags.title.Length == 0)
+                    if (String.IsNullOrEmpty(tags.Title) || tags.Title.Length == 0)
                     {
                         //Skip file
                         skipped++;
@@ -199,21 +203,21 @@
                         continue;
                     }
                     string artist = "";
-                    if (String.IsNullOrEmpty(tags.artist))
+                    if (String.IsNullOrEmpty(tags.Artist))
                     {
-                        if (tags.composer == null)
+                        if (tags.Composer == null)
                         {
                             skipped++;
                             currentProceesedFiles++;
                             Invoke(del);
                             continue;
                         }
-                        artist = tags.composer;
+                        artist = tags.Composer;
                     }
                     else
-                        artist = tags.artist;
+                        artist = tags.Artist;
 
-                    string outfilename = tags.title + " + " + artist + ".wav";
+                    string outfilename = tags.Title + " + " + artist + ".wav";
 
                     string outfile = outputPath + "\\" + outfilename;
                     string arguments = "-i \"" + f + "\" -ac 1 -ar " + samplingRate + " -ab " +

@@ -3,7 +3,7 @@
     using System.Configuration;
     using System.Data.Common;
     using System.Data.SqlClient;
-    using System.Diagnostics;
+    using System.IO;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,16 +21,6 @@
     public class BaseTest
     {
         /// <summary>
-        ///   Path to already re sampled file .wav
-        /// </summary>
-        protected const string PathToWav = @"\TestEnvironment\Kryptonite.wav";
-
-        /// <summary>
-        ///   Path to MP3 file
-        /// </summary>
-        protected const string PathToMp3 = @"\TestEnvironment\Kryptonite.mp3";
-
-        /// <summary>
         ///   Bits per sample
         /// </summary>
         protected const int BitsPerSample = 32;
@@ -46,6 +36,16 @@
         protected const int WaveHeader = 58;
 
         /// <summary>
+        ///   Path to already re sampled file .wav
+        /// </summary>
+        protected const string PathToWav = @"Kryptonite.wav";
+
+        /// <summary>
+        ///   Path to MP3 file
+        /// </summary>
+        protected const string PathToMp3 = @"Kryptonite.mp3";
+
+        /// <summary>
         ///   Samples to read
         /// </summary>
         protected const int SamplesToRead = 128 * 64;
@@ -55,18 +55,16 @@
         protected readonly string ConnectionString = ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString;
 
         protected readonly bool[] GenericFingerprint = new[]
-                                                        {
-                                                            true, false, true, false, true, false, true, false, true, false, true, false,
-                                                            false, true, false, true, false, true, false, true, false, true, false, true,
-                                                            true, false, true, false, true, false, true, false, true, false, true, false,
-                                                            false, true, false, true, false, true, false, true, false, true, false, true,
-                                                            true, false, true, false, true, false, true, false, true, false, true, false,
-                                                            false, true, false, true, false, true, false, true, false, true, false, true,
-                                                            true, false, true, false, true, false, true, false, true, false, true, false,
-                                                            false, true, false, true, false, true, false, true, false, true, false, true,
-                                                            true, false, true, false, true, false, true, false, true, false, true, false,
-                                                            false, true, false, true, false, true, false, true, false, true, false, true
-                                                        };
+            {
+                true, false, true, false, true, false, true, false, true, false, true, false, false, true, false, true,
+                false, true, false, true, false, true, false, true, true, false, true, false, true, false, true, false,
+                true, false, true, false, false, true, false, true, false, true, false, true, false, true, false, true,
+                true, false, true, false, true, false, true, false, true, false, true, false, false, true, false, true,
+                false, true, false, true, false, true, false, true, true, false, true, false, true, false, true, false,
+                true, false, true, false, false, true, false, true, false, true, false, true, false, true, false, true,
+                true, false, true, false, true, false, true, false, true, false, true, false, false, true, false, true,
+                false, true, false, true, false, true, false, true
+            };
 
         /// <summary>
         ///   Random stride used in gathering the fingerprints
@@ -80,6 +78,5 @@
 
         protected readonly int StrideSize = 5115;
 
-        protected DbProviderFactory Dbf = SqlClientFactory.Instance;
     }
 }
