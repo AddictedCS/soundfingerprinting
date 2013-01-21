@@ -16,11 +16,6 @@ namespace Soundfingerprinting.Audio.Services
             // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
             BassNet.Registration("ciumac.sergiu@gmail.com", "2X155323152222");
 
-            // Dummy calls made for loading the assemblies
-            int bassVersion = Bass.BASS_GetVersion();
-            int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
-            int bassfxVersion = BassFx.BASS_FX_GetVersion();
-
             if (!Bass.BASS_Init(0, 5512, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());

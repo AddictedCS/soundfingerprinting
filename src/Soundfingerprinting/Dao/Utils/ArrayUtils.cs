@@ -169,6 +169,7 @@
                     {
                         sum += result[i] = unchecked((sbyte)array[i]);
                     }
+
                     break;
                 case 2:
                     /*10240 samples read at 16 BitPerSample rate: 1 sample = 16 bits = 2 byte*/
@@ -177,6 +178,7 @@
                     {
                         sum += result[i] = BitConverter.ToInt16(array, i * 2); /*2 byte in 1 short*/
                     }
+
                     break;
                 case 4:
                     result = new float[array.Length / 4];
@@ -185,6 +187,7 @@
                     {
                         sum += result[i] = BitConverter.ToInt32(array, i * 4); /*2 byte in 1 short*/
                     }
+
                     break;
                 default:
                     throw new ArgumentException("Samples read do not correspond to bit rate");

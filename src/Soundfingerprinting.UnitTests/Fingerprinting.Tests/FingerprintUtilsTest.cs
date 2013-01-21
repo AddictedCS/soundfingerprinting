@@ -1,9 +1,6 @@
 ﻿namespace Soundfingerprinting.UnitTests.Fingerprinting.Tests
 {
     using System;
-    using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Reflection;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,7 +9,7 @@
     [TestClass]
     public class FingerprintUtilsTest : BaseTest
     {
-        private const double EPSILON = 0.0001;
+        private const double Epsilon = 0.0001;
         
         [TestMethod]
         public void ConvertToFloatArrayTest()
@@ -23,15 +20,15 @@
 
             for (int i = 0; i < SamplesToRead; i++)
             {
-                if (Math.Abs(floatArray[i] - 1) < EPSILON)
+                if (Math.Abs(floatArray[i] - 1) < Epsilon)
                 {
                     Assert.AreEqual(1, byteArray[i]);
                 }
-                else if (Math.Abs(floatArray[i] - 0) < EPSILON)
+                else if (Math.Abs(floatArray[i] - 0) < Epsilon)
                 {
                     Assert.AreEqual(0, byteArray[i]);
                 }
-                else if (Math.Abs(floatArray[i] - -1) < EPSILON)
+                else if (Math.Abs(floatArray[i] - -1) < Epsilon)
                 {
                     Assert.AreEqual(255, byteArray[i]);
                 }
@@ -86,7 +83,7 @@
             float[] d = ArrayUtils.GetDoubleArrayFromSamples(signal, SamplesToRead, ref silence);
             for (int i = 0; i < d.Length; i++)
             {
-                Assert.AreEqual(d[i], BitConverter.ToSingle(signal, i * 4));
+                Assert.AreEqual(d[i], BitConverter.ToSingle(signal, i * 8));
             }
         }
 
@@ -107,15 +104,15 @@
             Assert.AreEqual(f.Length, b.Length);
             for (int i = 0; i < f.Length; i++)
             {
-                if (Math.Abs(f[i] - 0) < EPSILON)
+                if (Math.Abs(f[i] - 0) < Epsilon)
                 {
                     Assert.AreEqual(0, b[i]);
                 }
-                else if (Math.Abs(f[i] - -1) < EPSILON)
+                else if (Math.Abs(f[i] - -1) < Epsilon)
                 {
                     Assert.AreEqual(255, b[i]);
                 }
-                else if (Math.Abs(f[i] - 1) < EPSILON)
+                else if (Math.Abs(f[i] - 1) < Epsilon)
                 {
                     Assert.AreEqual(1, b[i]);
                 }
@@ -126,19 +123,6 @@
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void GetByteArrayFromFloatExceptionTest()
-        {
-            ArrayUtils.GetByteArrayFromFloat(null);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void GetFloatArrayFromByteExceptionTest()
-        {
-            ArrayUtils.GetFloatArrayFromByte(null);
-        }
 
         public void GetSByteArrayFromByteTest()
         {

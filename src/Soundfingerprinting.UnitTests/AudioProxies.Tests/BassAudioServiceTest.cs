@@ -15,7 +15,7 @@
         {
             using (BassAudioService bass = new BassAudioService())
             {
-                string tempFile = Path.GetTempPath() + "\\" + 0 + ".wav";
+                string tempFile = string.Format(@"{0}\{1}", Path.GetTempPath(), "0.wav");
                 bass.RecodeTheFile(PathToMp3, tempFile, 5512);
                 float[] samples = bass.ReadMonoFromFile(PathToMp3, SampleRate);
                 FileInfo info = new FileInfo(tempFile);
@@ -28,24 +28,27 @@
         [TestMethod]
         public void ReadMonoFromFileUsingBothProxiesTest()
         {
-            using (BassAudioService bassAudioService = new BassAudioService())
+            var bassAudioService = new BassAudioService();
+
+            #pragma warning disable 612,618
+            var directSoundAudioService = new DirectSoundAudioService();
+            #pragma warning restore 612,618
+
+            float[] bdata = bassAudioService.ReadMonoFromFile(PathToMp3, 5512);
+            float[] ddata = directSoundAudioService.ReadMonoFromFile(PathToWav, 5512);
+
+            for (int i = 0; i < bdata.Length; i++)
             {
-                using (DirectSoundAudioService directSoundAudioService = new DirectSoundAudioService())
+                if ((Math.Abs(bdata[i] - ddata[i]) / int.MaxValue) > 1)
                 {
-                    float[] bdata = bassAudioService.ReadMonoFromFile(PathToMp3, 5512);
-                    float[] ddata = directSoundAudioService.ReadMonoFromFile(PathToWav, 5512);
-
-                    for (int i = 0; i < bdata.Length; i++)
-                    {
-                        if ((Math.Abs(bdata[i] - ddata[i]) / int.MaxValue) > 1)
-                        {
-                            Assert.Fail("Data arrays are different: " + bdata[i] + ":" + ddata[i] + " at " + i);
-                        }
-                    }
-
-                    Assert.AreEqual(bdata.Length, ddata.Length);
+                    Assert.Fail("Data arrays are different: " + bdata[i] + ":" + ddata[i] + " at " + i);
                 }
             }
+
+            Assert.AreEqual(bdata.Length, ddata.Length);
+
+            bassAudioService.Dispose();
+            directSoundAudioService.Dispose();
         }
     }
 }

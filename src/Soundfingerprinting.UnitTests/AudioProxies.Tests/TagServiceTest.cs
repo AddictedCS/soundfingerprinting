@@ -1,7 +1,5 @@
 ﻿namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
 {
-    using System.IO;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Soundfingerprinting.Audio.Models;

@@ -9,15 +9,12 @@
     [TestClass]
     public class DirectSoundTest : BaseTest
     {
-        /// <summary>
-        ///   Read Mono data from the file test
-        /// </summary>
         [TestMethod]
         public void ReadMonoFromFileTest()
         {
-#pragma warning disable 612,618
+            #pragma warning disable 612,618
             using (DirectSoundAudioService directSoundAudioService = new DirectSoundAudioService())
-#pragma warning restore 612,618
+            #pragma warning restore 612,618
             {
                 float[] samples = directSoundAudioService.ReadMonoFromFile(PathToWav, SampleRate);
                 FileInfo info = new FileInfo(PathToWav);
