@@ -47,7 +47,7 @@
             decimal sumFrameLocal = framesLocal.Sum(target => target.Sum(d => (decimal)Math.Abs(d)));
 
             Assert.AreEqual(true, Math.Abs(sumFrames - sumFrameLocal) > (decimal)0.1);
-            DecomposeImage(framesLocal);
+            DecomposeImageLocal(framesLocal);
             for (int i = 0; i < Rows; i++)
             {
                 for (var j = 0; j < Cols; j++)
@@ -57,11 +57,7 @@
             }
         }
 
-        /// <summary>
-        ///   Local implementation of the algorithm
-        /// </summary>
-        /// <param name = "array">Array to be decomposed</param>
-        private void DecomposeArray(float[] array)
+        private void DecomposeArrayLocal(float[] array)
         {
             int h = array.Length;
             for (int i = 0; i < h; i++)
@@ -87,17 +83,13 @@
             }
         }
 
-        /// <summary>
-        ///   Local implementation of the algorithm
-        /// </summary>
-        /// <param name = "array">Array to be sorted</param>
-        private void DecomposeImage(float[][] array)
+        private void DecomposeImageLocal(float[][] array)
         {
             int rows = array.GetLength(0);
             int cols = array[0].Length;
             for (int i = 0; i < rows; i++)
             {
-                DecomposeArray(array[i]);
+                DecomposeArrayLocal(array[i]);
             }
 
             for (int i = 0; i < cols; i++)
@@ -108,7 +100,7 @@
                     temp[j] = array[j][i];
                 }
 
-                DecomposeArray(temp);
+                DecomposeArrayLocal(temp);
                 for (int j = 0; j < rows; j++)
                 {
                     array[j][i] = temp[j];

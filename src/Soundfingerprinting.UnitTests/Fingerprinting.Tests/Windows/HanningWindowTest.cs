@@ -34,13 +34,6 @@
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void WeightByHanningWindowSmallArrayTest()
-        {
-            windowFunction.WindowInPlace(new float[1], 1);
-        }
-
         private void WeightByHanningWindow(float[] outerspace)
         {
             for (int i = 0; i < outerspace.Length; i++)
