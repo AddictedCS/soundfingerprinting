@@ -1,33 +1,24 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Windows.Forms;
-using Soundfingerprinting.Hashing;
-using Soundfingerprinting.SoundTools.Properties;
-
-namespace Soundfingerprinting.SoundTools.FilePermutations
+﻿namespace Soundfingerprinting.SoundTools.FilePermutations
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.SoundTools.Properties;
+
     public partial class WinFilePermutation : Form
     {
-        /// <summary>
-        ///   Result list
-        /// </summary>
-        private readonly List<string> _fileEndList = new List<string>();
+        private readonly IPermutationGeneratorService permutationGeneratorService;
 
-        /// <summary>
-        ///   Start list with paths to initial files
-        /// </summary>
-        private List<string> _fileStartList = new List<string>();
+        private readonly List<string> fileEndList = new List<string>();
 
-        /// <summary>
-        ///   Constructor
-        /// </summary>
-        public WinFilePermutation()
+        private List<string> fileStartList = new List<string>();
+
+        public WinFilePermutation(IPermutationGeneratorService permutationGeneratorService)
         {
+            this.permutationGeneratorService = permutationGeneratorService;
             InitializeComponent();
             Icon = Resources.Sound;
             _btnPermute.Enabled = false;
@@ -44,11 +35,11 @@ namespace Soundfingerprinting.SoundTools.FilePermutations
             try
             {
                 string rootPath = _tbStartFolder.Text;
-                _fileStartList.Clear();
+                fileStartList.Clear();
                 foreach (string f in Directory.GetFiles(rootPath, "*.mp3", SearchOption.AllDirectories))
-                    _fileStartList.Add(f);
+                    fileStartList.Add(f);
 
-                if (_fileEndList.Count > 0)
+                if (fileEndList.Count > 0)
                     _btnPermute.Enabled = true;
             }
             catch
@@ -67,12 +58,12 @@ namespace Soundfingerprinting.SoundTools.FilePermutations
             try
             {
                 string rootPath = _tbEndFolder.Text;
-                _fileEndList.Clear();
+                fileEndList.Clear();
                 foreach (string f in Directory.GetFiles(rootPath, "*.mp3", SearchOption.AllDirectories))
                 {
-                    _fileEndList.Add(f);
+                    fileEndList.Add(f);
                 }
-                if (_fileStartList.Count > 0)
+                if (fileStartList.Count > 0)
                     _btnPermute.Enabled = true;
             }
             catch
@@ -88,19 +79,21 @@ namespace Soundfingerprinting.SoundTools.FilePermutations
         {
             _btnPermute.Enabled = false;
             if (_chbDeletePrevious.Checked)
-                foreach (string file in _fileEndList)
+                foreach (string file in fileEndList)
                     File.Delete(file);
             const int numberOfShuffles = 5;
-            string[] array = _fileStartList.ToArray();
+            string[] array = fileStartList.ToArray();
             for (int i = 0; i < numberOfShuffles; i++)
-                PermGenerator.RandomShuffleInPlace(array);
-            _fileStartList = new List<string>(array);
+            {
+                permutationGeneratorService.RandomShuffleInPlace(array);
+            }
+            fileStartList = new List<string>(array);
             string rootPath = _tbEndFolder.Text;
             for (int i = 0; i < _nudItems.Value; i++)
             {
                 try
                 {
-                    File.Copy(_fileStartList[i], rootPath + "\\" + Path.GetFileName(_fileStartList[i]));
+                    File.Copy(fileStartList[i], rootPath + "\\" + Path.GetFileName(fileStartList[i]));
                 }
                 catch (Exception ex)
                 {

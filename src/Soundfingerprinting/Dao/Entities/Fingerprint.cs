@@ -1,7 +1,6 @@
 ﻿namespace Soundfingerprinting.DbStorage.Entities
 {
     using System;
-    using System.Collections.Generic;
 
     [Serializable]
     public class Fingerprint

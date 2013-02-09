@@ -4,8 +4,8 @@
     using System.Windows.Forms;
 
     using Soundfingerprinting.SoundTools.BassResampler;
-    using Soundfingerprinting.SoundTools.DI;
     using Soundfingerprinting.SoundTools.DbFiller;
+    using Soundfingerprinting.SoundTools.DI;
     using Soundfingerprinting.SoundTools.DrawningTool;
     using Soundfingerprinting.SoundTools.FFMpegResampler;
     using Soundfingerprinting.SoundTools.FilePermutations;

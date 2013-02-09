@@ -47,8 +47,9 @@
                     continue;
                 }
 
+                /*Compute Min Hash on randomly selected fingerprints*/
                 int[] bin = minHash.ComputeMinHashSignature(signature);
-                    /*Compute Min Hash on randomly selected fingerprints*/
+                   
                 Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
                 long[] hashbuckets = hashes.Values.ToArray();
                 IDictionary<int, IList<HashBinMinHash>> candidates = modelService.ReadFingerprintsByHashBucketLsh(hashbuckets);
@@ -61,6 +62,7 @@
                         signature, finalCandidates, lshHashTables, lshGroupsPerKey, stats);
                 }
             }
+
             stopWatch.Stop();
             queryTime = stopWatch.ElapsedMilliseconds; /*Set the query Time parameter*/
             return stats;

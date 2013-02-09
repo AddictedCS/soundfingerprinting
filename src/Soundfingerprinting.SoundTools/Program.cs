@@ -10,6 +10,7 @@
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Hashing;
     using Soundfingerprinting.SoundTools.DI;
 
     internal static class Program
@@ -32,6 +33,7 @@
             dependencyResolver.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
             dependencyResolver.Bind<IModelBinderFactory>().To<ModelBinderFactory>().WhenInjectedInto<CachedModelBinderFactory>();
             dependencyResolver.Bind<IModelService>().To<ModelService>();
+            dependencyResolver.Bind<IPermutationGeneratorService>().To<PermutationGeneratorService>();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

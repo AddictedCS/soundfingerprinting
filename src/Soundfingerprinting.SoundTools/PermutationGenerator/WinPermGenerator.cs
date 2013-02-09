@@ -1,17 +1,14 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Windows.Forms;
-using Soundfingerprinting.Hashing;
-using Soundfingerprinting.SoundTools.Properties;
-
-namespace Soundfingerprinting.SoundTools.PermutationGenerator
+﻿namespace Soundfingerprinting.SoundTools.PermutationGenerator
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.SoundTools.Properties;
+
     /// <summary>
     ///   Permutation generator algorithm
     /// </summary>
@@ -38,49 +35,48 @@ namespace Soundfingerprinting.SoundTools.PermutationGenerator
         ConservativeSelector = 3
     }
 
-    /// <summary>
-    ///   Win perm generator
-    /// </summary>
     public partial class WinPermGenerator : Form
     {
+        private readonly IPermutationGeneratorService permutationGeneratorService;
+
         /// <summary>
         ///   From
         /// </summary>
-        private int _from;
+        private int @from;
 
         /// <summary>
         ///   Keys per table (r-rows, or b-keys)
         /// </summary>
-        private int _keysPerTale = 5;
+        private int keysPerTale = 5;
 
         /// <summary>
         ///   L hash tables
         /// </summary>
-        private int _lHashTables = 20;
+        private int hashTables = 20;
 
         /// <summary>
         ///   Permutations
         /// </summary>
-        private string _permutations;
+        private string permutations;
 
         /// <summary>
         ///   Indexes
         /// </summary>
-        private int _to = 4096*2;
-
+        private int to = 4096 * 2;
 
         /// <summary>
         ///   Parameter less constructor
         /// </summary>
-        public WinPermGenerator()
+        public WinPermGenerator(IPermutationGeneratorService permutationGeneratorService)
         {
+            this.permutationGeneratorService = permutationGeneratorService;
             InitializeComponent();
             Icon = Resources.Sound;
-            _nudLTables.Value = _lHashTables; /*20 hash tables*/
-            _nudKeys.Value = _keysPerTale; /*4-5 keys per table*/
-            _nudFrom.Value = _from; /*0*/
-            _nudTo.Value = _to; /*8192*/
-            _nudPermsCount.Value = _lHashTables*_keysPerTale; /*100*/
+            _nudLTables.Value = hashTables; /*20 hash tables*/
+            _nudKeys.Value = keysPerTale; /*4-5 keys per table*/
+            _nudFrom.Value = @from; /*0*/
+            _nudTo.Value = to; /*8192*/
+            _nudPermsCount.Value = hashTables*keysPerTale; /*100*/
             _pbProgress.Visible = false;
             _btnSv.Enabled = false;
             _cbmAlgorithm.SelectedIndex = 3; /*Conservative*/
@@ -101,7 +97,7 @@ namespace Soundfingerprinting.SoundTools.PermutationGenerator
                 (result) =>
                 {
                     /*End of processing here!*/
-                    _permutations = action.EndInvoke(result);
+                    permutations = action.EndInvoke(result);
                     Invoke(new Action(() =>
                                       {
                                           _pbProgress.MarqueeAnimationSpeed = 0;
@@ -121,10 +117,10 @@ namespace Soundfingerprinting.SoundTools.PermutationGenerator
         private string Generate(PermutationAlgorithm algorithm)
         {
             const string begin = "INSERT INTO Permutations VALUES (";
-            _from = (int) _nudFrom.Value;
-            _to = (int) _nudTo.Value;
-            _lHashTables = (int) _nudLTables.Value;
-            _keysPerTale = (int) _nudKeys.Value;
+            @from = (int) _nudFrom.Value;
+            to = (int) _nudTo.Value;
+            hashTables = (int) _nudLTables.Value;
+            keysPerTale = (int) _nudKeys.Value;
             StringBuilder final = new StringBuilder();
 
             Dictionary<int, int[]> perms = null;
@@ -132,21 +128,19 @@ namespace Soundfingerprinting.SoundTools.PermutationGenerator
             switch (algorithm)
             {
                 case PermutationAlgorithm.UniqueIndexesAcrossPermutation: /*Unique random permutations*/
-                    perms = PermGenerator.GenerateRandomPermutationsUsingUniqueIndexes(_lHashTables, _keysPerTale, _from, _to);
+                    perms = permutationGeneratorService.GenerateRandomPermutationsUsingUniqueIndexes(hashTables, keysPerTale, @from, to);
                     break;
                 case PermutationAlgorithm.AgressiveSelector: /*Aggressive selector*/
                     selector = new AgressiveSelector();
-                    perms = PermGenerator.GeneratePermutationsUsingMinMutualInformation(_lHashTables, _keysPerTale, _from, _to, selector);
+                    perms = permutationGeneratorService.GeneratePermutationsUsingMinMutualInformation(hashTables, keysPerTale, @from, to, selector);
                     break;
                 case PermutationAlgorithm.SummedAccrossSelector: /*SummedAccross selector*/
                     selector = new SummedAcrossSelector();
-                    perms = PermGenerator.GeneratePermutationsUsingMinMutualInformation(_lHashTables, _keysPerTale, _from, _to, selector);
+                    perms = permutationGeneratorService.GeneratePermutationsUsingMinMutualInformation(hashTables, keysPerTale, @from, to, selector);
                     break;
                 case PermutationAlgorithm.ConservativeSelector: /*Conservative selector*/
                     selector = new ConservativeSelector();
-                    perms = PermGenerator.GeneratePermutationsUsingMinMutualInformation(_lHashTables, _keysPerTale, _from, _to, selector);
-                    break;
-                default:
+                    perms = permutationGeneratorService.GeneratePermutationsUsingMinMutualInformation(hashTables, keysPerTale, @from, to, selector);
                     break;
             }
 
@@ -172,7 +166,7 @@ namespace Soundfingerprinting.SoundTools.PermutationGenerator
         {
             using (SaveFileDialog saveFile = new SaveFileDialog
                                              {
-                                                 FileName = _cbmAlgorithm.SelectedItem + "_" + _lHashTables + "_" + _keysPerTale + ".txt",
+                                                 FileName = _cbmAlgorithm.SelectedItem + "_" + hashTables + "_" + keysPerTale + ".txt",
                                                  Filter = Resources.TextFiles
                                              })
             {
@@ -180,7 +174,7 @@ namespace Soundfingerprinting.SoundTools.PermutationGenerator
                 {
                     using (StreamWriter writer = new StreamWriter(saveFile.FileName))
                     {
-                        writer.Write(_permutations);
+                        writer.Write(permutations);
                     }
                 }
             }

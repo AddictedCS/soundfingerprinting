@@ -143,6 +143,7 @@
     <Compile Include="Hashing\ConservativeSelector.cs" />
     <Compile Include="Hashing\DbPermutations.cs" />
     <Compile Include="Hashing\Hash.cs" />
+    <Compile Include="Hashing\IPermutationGeneratorService.cs" />
     <Compile Include="Models\Fingerprint.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainer.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainerException.cs" />
@@ -157,7 +158,7 @@
     <Compile Include="Hashing\IPrecisionSupport.cs" />
     <Compile Include="Hashing\LocalPermutations.cs" />
     <Compile Include="Hashing\MinHash.cs" />
-    <Compile Include="Hashing\PermGenerator.cs" />
+    <Compile Include="Hashing\PermutationGeneratorService.cs" />
     <Compile Include="Hashing\Precision.cs" />
     <Compile Include="Hashing\SignalUtils.cs" />
     <Compile Include="Hashing\Statistics.cs" />

@@ -5,8 +5,6 @@ namespace Soundfingerprinting.Audio.Services
     using Soundfingerprinting.Audio.Models;
 
     using Un4seen.Bass;
-    using Un4seen.Bass.AddOn.Fx;
-    using Un4seen.Bass.AddOn.Mix;
     using Un4seen.Bass.AddOn.Tags;
 
     public class TagService : ITagService
@@ -18,7 +16,8 @@ namespace Soundfingerprinting.Audio.Services
 
             if (!Bass.BASS_Init(0, 5512, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
             {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                //swalow as already initialized
+                // throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
         }
 
