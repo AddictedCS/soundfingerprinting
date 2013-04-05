@@ -4,6 +4,6 @@
     {
         public int OrderNumber { get; set; }
 
-        public bool[] Content { get; set; }
+        public bool[] Signature { get; set; }
     }
 }

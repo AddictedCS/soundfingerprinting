@@ -1,6 +1,7 @@
 namespace Soundfingerprinting.Fingerprinting
 {
     using System;
+    using System.Linq;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace Soundfingerprinting.Fingerprinting
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Models;
 
     public class FingerprintService : IFingerprintService
     {
@@ -27,6 +29,12 @@ namespace Soundfingerprinting.Fingerprinting
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
             this.audioService = audioService;
+        }
+
+        public async Task<List<Fingerprint>> ProcessEx(WorkUnitParameterObject details)
+        {
+            List<bool[]> fingerprints = await Process(details);
+            return fingerprints.Select((bools, i) => new Fingerprint { OrderNumber = i, Signature = bools }).ToList();
         }
 
         public Task<List<bool[]>> Process(WorkUnitParameterObject details)

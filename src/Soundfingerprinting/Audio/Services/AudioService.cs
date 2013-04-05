@@ -8,8 +8,9 @@ namespace Soundfingerprinting.Audio.Services
 
     public abstract class AudioService : IAudioService
     {
-        // normalize power (volume) of a wave file.
+        // normalize power (volume) of an audio file.
         // minimum and maximum rms to normalize from.
+        // these values has been detected empirically
         private const float MinRms = 0.1f;
 
         private const float MaxRms = 3;
@@ -28,15 +29,13 @@ namespace Soundfingerprinting.Audio.Services
 
             int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
             float[][] frames = new float[width][];
-            float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img*/
-            double[] window = windowFunction.GetWindow(wdftSize);
+            float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img, thats how Exocortex works*/
             for (int i = 0; i < width; i++)
             {
                 // take 371 ms each 11.6 ms (2048 samples each 64 samples)
                 for (int j = 0; j < wdftSize; j++)
                 {
-                    complexSignal[2 * j] = (float)(window[j] * samples[(i * overlap) + j]);
-                    /*Weight by Hann Window*/
+                    complexSignal[2 * j] = samples[(i * overlap) + j];
                     complexSignal[(2 * j) + 1] = 0;
                 }
 
@@ -47,9 +46,11 @@ namespace Soundfingerprinting.Audio.Services
                 {
                     double re = complexSignal[2 * j];
                     double img = complexSignal[(2 * j) + 1];
+
                     re /= (float)wdftSize / 2;
                     img /= (float)wdftSize / 2;
-                    band[j] = (float)Math.Sqrt((re * re) + (img * img));
+
+                    band[j] = (float)((re * re) + (img * img));
                 }
 
                 frames[i] = band;
@@ -68,23 +69,24 @@ namespace Soundfingerprinting.Audio.Services
             float[] samples, IWindowFunction windowFunction, AudioServiceConfiguration configuration)
         {
             NormalizeInPlace(samples);
+
             int width = (samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
             float[][] frames = new float[width][];
             float[] complexSignal = new float[2 * configuration.WdftSize]; /*even - Re, odd - Img*/
-            double[] window = windowFunction.GetWindow(configuration.WdftSize);
             int[] logFrequenciesIndexes = GenerateLogFrequencies(configuration);
+            
             for (int i = 0; i < width; i++)
             {
                 // take 371 ms each 11.6 ms (2048 samples each 64 samples)
                 for (int j = 0; j < configuration.WdftSize /*2048*/; j++)
                 {
-                    complexSignal[(2 * j)] = (float)(window[j] * samples[(i * configuration.Overlap) + j]);
-                    /*Weight by Hann Window*/
+                    complexSignal[2 * j] = samples[(i * configuration.Overlap) + j];
                     complexSignal[(2 * j) + 1] = 0;
                 }
 
                 // FFT transform for gathering the spectrum
                 Fourier.FFT(complexSignal, configuration.WdftSize, FourierDirection.Forward);
+
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
             }
 
@@ -94,14 +96,12 @@ namespace Soundfingerprinting.Audio.Services
         private void NormalizeInPlace(float[] samples)
         {
             double squares = 0;
-            int nsamples = samples.Length;
-            for (int i = 0; i < nsamples; i++)
+            for (int i = 0; i < samples.Length; i++)
             {
                 squares += samples[i] * samples[i];
             }
 
-            // we don't want to normalize by the real RMS, because excessive clipping will occur
-            float rms = (float)Math.Sqrt(squares / nsamples) * 10;
+            float rms = (float)Math.Sqrt(squares / samples.Length) * 10;
 
             if (rms < MinRms)
             {
@@ -113,7 +113,7 @@ namespace Soundfingerprinting.Audio.Services
                 rms = MaxRms;
             }
 
-            for (int i = 0; i < nsamples; i++)
+            for (int i = 0; i < samples.Length; i++)
             {
                 samples[i] /= rms;
                 samples[i] = Math.Min(samples[i], 1);
@@ -123,6 +123,7 @@ namespace Soundfingerprinting.Audio.Services
 
         private float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins)
         {
+            int width = spectrum.Length / 2;
             float[] sumFreq = new float[logBins]; /*32*/
             for (int i = 0; i < logBins; i++)
             {
@@ -131,9 +132,9 @@ namespace Soundfingerprinting.Audio.Services
 
                 for (int k = lowBound; k < higherBound; k++)
                 {
-                    double re = spectrum[2 * k];
-                    double img = spectrum[(2 * k) + 1];
-                    sumFreq[i] += (float)Math.Sqrt((re * re) + (img * img));
+                    double re = spectrum[2 * k] / (width / 2);
+                    double img = spectrum[(2 * k) + 1] / (width / 2);
+                    sumFreq[i] += (float)((re * re) + (img * img));
                 }
 
                 sumFreq[i] = sumFreq[i] / (higherBound - lowBound);
