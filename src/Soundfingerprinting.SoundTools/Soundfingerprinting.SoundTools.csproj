@@ -111,7 +111,7 @@
     <Compile Include="HashAlgorithm.cs" />
     <Compile Include="DI\IDependencyResolver.cs" />
     <Compile Include="Imaging.cs" />
-    <Compile Include="Misc\DumpResults.cs" />
+    <Compile Include="Misc\SimilarityResult.cs" />
     <Compile Include="Misc\WinMisc.cs">
       <SubType>Form</SubType>
     </Compile>

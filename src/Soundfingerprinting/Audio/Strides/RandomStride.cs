@@ -41,7 +41,7 @@
 
             minStride = minStrideSize;
             maxStride = maxStrideSize;
-            firstStride = 0;
+            firstStride = Random.Next(minStride, maxStride);
         }
 
         /// <summary>

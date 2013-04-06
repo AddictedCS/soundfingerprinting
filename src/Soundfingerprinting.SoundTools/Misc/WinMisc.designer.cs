@@ -38,13 +38,13 @@ namespace Soundfingerprinting.SoundTools.Misc
             this._tbOutputPath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this._nudFreq = new System.Windows.Forms.NumericUpDown();
+            this._nudMinFrequency = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this._nudTopWavelets = new System.Windows.Forms.NumericUpDown();
             this._btnDumpInfo = new System.Windows.Forms.Button();
-            this._nudStride = new System.Windows.Forms.NumericUpDown();
+            this._nudDatabaseStride = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
-            this._chbStride = new System.Windows.Forms.CheckBox();
+            this._chbDatabaseStride = new System.Windows.Forms.CheckBox();
             this._chbCompare = new System.Windows.Forms.CheckBox();
             this._tbSongToCompare = new System.Windows.Forms.TextBox();
             this._nudTables = new System.Windows.Forms.NumericUpDown();
@@ -55,14 +55,20 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.label7 = new System.Windows.Forms.Label();
             this._chbQueryStride = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
-            this._nudNumberOfSubsequent = new System.Windows.Forms.NumericUpDown();
-            ((System.ComponentModel.ISupportInitialize)(this._nudFreq)).BeginInit();
+            this._nudCandidateThreshold = new System.Windows.Forms.NumericUpDown();
+            this._nudSecondsToProcess = new System.Windows.Forms.NumericUpDown();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this._nudStartAtSecond = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this._nudMinFrequency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTopWavelets)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudStride)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudDatabaseStride)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTables)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudKeys)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStride)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudNumberOfSubsequent)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudCandidateThreshold)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudSecondsToProcess)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudStartAtSecond)).BeginInit();
             this.SuspendLayout();
             // 
             // _tbPathToFile
@@ -108,18 +114,18 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.label2.TabIndex = 5;
             this.label2.Text = "Min Freq";
             // 
-            // _nudFreq
+            // _nudMinFrequency
             // 
-            this._nudFreq.Location = new System.Drawing.Point(12, 117);
-            this._nudFreq.Maximum = new decimal(new int[] {
+            this._nudMinFrequency.Location = new System.Drawing.Point(12, 117);
+            this._nudMinFrequency.Maximum = new decimal(new int[] {
             3000,
             0,
             0,
             0});
-            this._nudFreq.Name = "_nudFreq";
-            this._nudFreq.Size = new System.Drawing.Size(120, 20);
-            this._nudFreq.TabIndex = 6;
-            this._nudFreq.Value = new decimal(new int[] {
+            this._nudMinFrequency.Name = "_nudMinFrequency";
+            this._nudMinFrequency.Size = new System.Drawing.Size(120, 20);
+            this._nudMinFrequency.TabIndex = 6;
+            this._nudMinFrequency.Value = new decimal(new int[] {
             318,
             0,
             0,
@@ -153,7 +159,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             // 
             // _btnDumpInfo
             // 
-            this._btnDumpInfo.Location = new System.Drawing.Point(277, 281);
+            this._btnDumpInfo.Location = new System.Drawing.Point(277, 299);
             this._btnDumpInfo.Name = "_btnDumpInfo";
             this._btnDumpInfo.Size = new System.Drawing.Size(75, 23);
             this._btnDumpInfo.TabIndex = 9;
@@ -161,18 +167,18 @@ namespace Soundfingerprinting.SoundTools.Misc
             this._btnDumpInfo.UseVisualStyleBackColor = true;
             this._btnDumpInfo.Click += new System.EventHandler(this.BtnDumpInfoClick);
             // 
-            // _nudStride
+            // _nudDatabaseStride
             // 
-            this._nudStride.Location = new System.Drawing.Point(148, 117);
-            this._nudStride.Maximum = new decimal(new int[] {
+            this._nudDatabaseStride.Location = new System.Drawing.Point(148, 117);
+            this._nudDatabaseStride.Maximum = new decimal(new int[] {
             5512,
             0,
             0,
             0});
-            this._nudStride.Name = "_nudStride";
-            this._nudStride.Size = new System.Drawing.Size(120, 20);
-            this._nudStride.TabIndex = 10;
-            this._nudStride.Value = new decimal(new int[] {
+            this._nudDatabaseStride.Name = "_nudDatabaseStride";
+            this._nudDatabaseStride.Size = new System.Drawing.Size(120, 20);
+            this._nudDatabaseStride.TabIndex = 10;
+            this._nudDatabaseStride.Value = new decimal(new int[] {
             5115,
             0,
             0,
@@ -187,20 +193,20 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.label4.TabIndex = 11;
             this.label4.Text = "DB stride size";
             // 
-            // _chbStride
+            // _chbDatabaseStride
             // 
-            this._chbStride.AutoSize = true;
-            this._chbStride.Location = new System.Drawing.Point(274, 120);
-            this._chbStride.Name = "_chbStride";
-            this._chbStride.Size = new System.Drawing.Size(66, 17);
-            this._chbStride.TabIndex = 12;
-            this._chbStride.Text = "Random";
-            this._chbStride.UseVisualStyleBackColor = true;
+            this._chbDatabaseStride.AutoSize = true;
+            this._chbDatabaseStride.Location = new System.Drawing.Point(274, 120);
+            this._chbDatabaseStride.Name = "_chbDatabaseStride";
+            this._chbDatabaseStride.Size = new System.Drawing.Size(66, 17);
+            this._chbDatabaseStride.TabIndex = 12;
+            this._chbDatabaseStride.Text = "Random";
+            this._chbDatabaseStride.UseVisualStyleBackColor = true;
             // 
             // _chbCompare
             // 
             this._chbCompare.AutoSize = true;
-            this._chbCompare.Location = new System.Drawing.Point(12, 260);
+            this._chbCompare.Location = new System.Drawing.Point(12, 278);
             this._chbCompare.Name = "_chbCompare";
             this._chbCompare.Size = new System.Drawing.Size(155, 17);
             this._chbCompare.TabIndex = 13;
@@ -211,7 +217,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             // _tbSongToCompare
             // 
             this._tbSongToCompare.Enabled = false;
-            this._tbSongToCompare.Location = new System.Drawing.Point(12, 283);
+            this._tbSongToCompare.Location = new System.Drawing.Point(12, 301);
             this._tbSongToCompare.Name = "_tbSongToCompare";
             this._tbSongToCompare.Size = new System.Drawing.Size(252, 20);
             this._tbSongToCompare.TabIndex = 14;
@@ -219,7 +225,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             // 
             // _nudTables
             // 
-            this._nudTables.Location = new System.Drawing.Point(12, 234);
+            this._nudTables.Location = new System.Drawing.Point(12, 252);
             this._nudTables.Name = "_nudTables";
             this._nudTables.Size = new System.Drawing.Size(120, 20);
             this._nudTables.TabIndex = 15;
@@ -231,7 +237,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             // 
             // _nudKeys
             // 
-            this._nudKeys.Location = new System.Drawing.Point(148, 234);
+            this._nudKeys.Location = new System.Drawing.Point(148, 252);
             this._nudKeys.Name = "_nudKeys";
             this._nudKeys.Size = new System.Drawing.Size(120, 20);
             this._nudKeys.TabIndex = 16;
@@ -244,7 +250,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 218);
+            this.label5.Location = new System.Drawing.Point(12, 236);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(48, 13);
             this.label5.TabIndex = 17;
@@ -253,7 +259,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(148, 218);
+            this.label6.Location = new System.Drawing.Point(145, 236);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(40, 13);
             this.label6.TabIndex = 18;
@@ -300,20 +306,67 @@ namespace Soundfingerprinting.SoundTools.Misc
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(148, 179);
+            this.label8.Location = new System.Drawing.Point(274, 236);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(109, 13);
+            this.label8.Size = new System.Drawing.Size(120, 13);
             this.label8.TabIndex = 22;
-            this.label8.Text = "# of items to compare";
+            this.label8.Text = "# of votes for candidate";
             // 
-            // _nudNumberOfSubsequent
+            // _nudCandidateThreshold
             // 
-            this._nudNumberOfSubsequent.Location = new System.Drawing.Point(148, 195);
-            this._nudNumberOfSubsequent.Name = "_nudNumberOfSubsequent";
-            this._nudNumberOfSubsequent.Size = new System.Drawing.Size(120, 20);
-            this._nudNumberOfSubsequent.TabIndex = 23;
-            this._nudNumberOfSubsequent.Value = new decimal(new int[] {
-            7,
+            this._nudCandidateThreshold.Location = new System.Drawing.Point(277, 252);
+            this._nudCandidateThreshold.Name = "_nudCandidateThreshold";
+            this._nudCandidateThreshold.Size = new System.Drawing.Size(120, 20);
+            this._nudCandidateThreshold.TabIndex = 23;
+            this._nudCandidateThreshold.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            // 
+            // _nudSecondsToProcess
+            // 
+            this._nudSecondsToProcess.Location = new System.Drawing.Point(12, 203);
+            this._nudSecondsToProcess.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this._nudSecondsToProcess.Name = "_nudSecondsToProcess";
+            this._nudSecondsToProcess.Size = new System.Drawing.Size(120, 20);
+            this._nudSecondsToProcess.TabIndex = 24;
+            this._nudSecondsToProcess.Value = new decimal(new int[] {
+            25,
+            0,
+            0,
+            0});
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(9, 187);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(101, 13);
+            this.label9.TabIndex = 25;
+            this.label9.Text = "Seconds to process";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(148, 187);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(79, 13);
+            this.label10.TabIndex = 26;
+            this.label10.Text = "Start at second";
+            // 
+            // _nudStartAtSecond
+            // 
+            this._nudStartAtSecond.Location = new System.Drawing.Point(148, 203);
+            this._nudStartAtSecond.Name = "_nudStartAtSecond";
+            this._nudStartAtSecond.Size = new System.Drawing.Size(120, 20);
+            this._nudStartAtSecond.TabIndex = 27;
+            this._nudStartAtSecond.Value = new decimal(new int[] {
+            20,
             0,
             0,
             0});
@@ -322,8 +375,12 @@ namespace Soundfingerprinting.SoundTools.Misc
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(364, 312);
-            this.Controls.Add(this._nudNumberOfSubsequent);
+            this.ClientSize = new System.Drawing.Size(576, 335);
+            this.Controls.Add(this._nudStartAtSecond);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this._nudSecondsToProcess);
+            this.Controls.Add(this._nudCandidateThreshold);
             this.Controls.Add(this.label8);
             this.Controls.Add(this._chbQueryStride);
             this.Controls.Add(this.label7);
@@ -334,30 +391,31 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.Controls.Add(this._nudTables);
             this.Controls.Add(this._tbSongToCompare);
             this.Controls.Add(this._chbCompare);
-            this.Controls.Add(this._chbStride);
+            this.Controls.Add(this._chbDatabaseStride);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this._nudStride);
+            this.Controls.Add(this._nudDatabaseStride);
             this.Controls.Add(this._btnDumpInfo);
             this.Controls.Add(this._nudTopWavelets);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this._nudFreq);
+            this.Controls.Add(this._nudMinFrequency);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this._tbOutputPath);
             this.Controls.Add(this._labSim);
             this.Controls.Add(this._tbPathToFile);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(380, 350);
             this.MinimumSize = new System.Drawing.Size(380, 350);
             this.Name = "WinMisc";
             this.Text = "Miscelaneous";
-            ((System.ComponentModel.ISupportInitialize)(this._nudFreq)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudMinFrequency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTopWavelets)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudStride)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudDatabaseStride)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTables)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudKeys)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStride)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudNumberOfSubsequent)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudCandidateThreshold)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudSecondsToProcess)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudStartAtSecond)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -370,13 +428,13 @@ namespace Soundfingerprinting.SoundTools.Misc
         private System.Windows.Forms.TextBox _tbOutputPath;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.NumericUpDown _nudFreq;
+        private System.Windows.Forms.NumericUpDown _nudMinFrequency;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown _nudTopWavelets;
         private System.Windows.Forms.Button _btnDumpInfo;
-        private System.Windows.Forms.NumericUpDown _nudStride;
+        private System.Windows.Forms.NumericUpDown _nudDatabaseStride;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.CheckBox _chbStride;
+        private System.Windows.Forms.CheckBox _chbDatabaseStride;
         private System.Windows.Forms.CheckBox _chbCompare;
         private System.Windows.Forms.TextBox _tbSongToCompare;
         private System.Windows.Forms.NumericUpDown _nudTables;
@@ -387,6 +445,10 @@ namespace Soundfingerprinting.SoundTools.Misc
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.CheckBox _chbQueryStride;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.NumericUpDown _nudNumberOfSubsequent;
+        private System.Windows.Forms.NumericUpDown _nudCandidateThreshold;
+        private System.Windows.Forms.NumericUpDown _nudSecondsToProcess;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.NumericUpDown _nudStartAtSecond;
     }
 }

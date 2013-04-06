@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class MinHash
+    public class MinHash : IHashingService<bool[], int[]>
     {
         /// <summary>
         ///   Maximum number of hash buckets in the database
@@ -180,19 +180,17 @@
         ///   -1 = 01
         ///   0 = 00
         /// </remarks>
-        public static double CalculateSimilarity(bool[] x, bool[] y)
+        public static double CalculateJaqSimilarity(bool[] x, bool[] y)
         {
             int a = 0, b = 0;
             for (int i = 0, n = x.Length; i < n; i++)
             {
-                if (x[i] == y[i] && x[i]) 
+                if (x[i] && y[i]) // 1 1
                 {
-                    /*1 1*/
                     a++;
                 }
-                else if (x[i] != y[i]) 
+                else if ((x[i] && !y[i]) || (!x[i] && y[i])) // 1 0 || 0 1 
                 {
-                    /*1 0 0 1*/
                     b++;
                 }
             }
@@ -240,5 +238,15 @@
 
             return (double)a / (a + b);
         }
+
+        public int[] Hash(bool[] source)
+        {
+            return ComputeMinHashSignature(source);
+        }
+    }
+
+    public interface IHashingService<S, T>
+    {
+        T Hash(S source);
     }
 }

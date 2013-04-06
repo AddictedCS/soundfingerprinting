@@ -142,7 +142,7 @@
                 int tableVotes = pair.Value;
                 /*Compute Hamming Distance of actual and read signature*/
                 int hammingDistance = MinHash.CalculateHammingDistance(f, fingerprint.Signature)*tableVotes;
-                double jaqSimilarity = MinHash.CalculateSimilarity(f, fingerprint.Signature);
+                double jaqSimilarity = MinHash.CalculateJaqSimilarity(f, fingerprint.Signature);
                 /*Add to sample set*/
                 Int32 trackId = fingerprint.TrackId;
                 if (!trackIdQueryStats.ContainsKey(trackId))
