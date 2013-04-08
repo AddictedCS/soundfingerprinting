@@ -3,6 +3,8 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Soundfingerprinting.Fingerprinting.Configuration;
+
     internal class WorkUnit : IWorkUnit
     {
         private readonly WorkUnitParameterObject workUnitParameterObject;
@@ -10,6 +12,14 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
         public WorkUnit(WorkUnitParameterObject workUnitParameterObject)
         {
             this.workUnitParameterObject = workUnitParameterObject;
+        }
+
+        public IFingerprintingConfiguration Configuration
+        {
+            get
+            {
+                return workUnitParameterObject.FingerprintingConfiguration;
+            }
         }
 
         public Task<List<bool[]>> GetFingerprintsUsingService(IFingerprintService service)

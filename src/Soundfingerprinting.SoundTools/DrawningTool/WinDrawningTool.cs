@@ -5,6 +5,7 @@
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.IO;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
 
     using Soundfingerprinting.Audio.Models;
@@ -12,6 +13,7 @@
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.SoundTools.Properties;
 
@@ -70,86 +72,107 @@
                 return;
             }
 
-            if (_lbImageTypes.SelectedIndex == 0)
+            string songName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text);
+            string songFileName = Path.GetFullPath(_tbPathToFile.Text);
+            int strideSize = (int)_nudStride.Value;
+ 
+            if (DrawSongAsASingleImage())
             {
-                string fileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text);
-                SaveFileDialog sfd = new SaveFileDialog
-                    { FileName = fileName + "_fingerprints_" + ".jpg", Filter = Resources.FileFilterJPeg };
-                if (sfd.ShowDialog() == DialogResult.OK)
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                    { 
+                        FileName = songName + "_fingerprints_" + ".jpg", Filter = Resources.FileFilterJPeg 
+                    };
+                
+                if (IsFileSelected(saveFileDialog))
                 {
-                    string path = Path.GetFullPath(sfd.FileName);
                     FadeControls(false);
-                    Action action = () =>
+
+                    string imageFilename = Path.GetFullPath(saveFileDialog.FileName);
+                    bool normalize = _cbNormalize.Checked;
+                    bool noWindow = _cbWindow.Checked;
+
+                    Task.Factory.StartNew(() =>
                         {
-                            var unit =
-                                workUnitBuilder.BuildWorkUnit().On(Path.GetFullPath(_tbPathToFile.Text)).
-                                    WithCustomConfiguration(
-                                        config => { config.Stride = new StaticStride((int)_nudStride.Value); });
+                            var songToDraw = workUnitBuilder.BuildWorkUnit()
+                                               .On(songFileName)
+                                               .WithCustomConfiguration(config =>
+                                               {
+                                                   config.Stride = new StaticStride(strideSize);
+                                                   config.NormalizeSignal = normalize;
+                                                   config.WindowFunction = noWindow ? new CachingHanningWindow(new NoWindow()) : new CachingHanningWindow(new HanningWindow());
+                                               });
 
-                            List<bool[]> fingerprints = unit.GetFingerprintsUsingService(fingerprintService).Result;
-                            IFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
-                            int width = configuration.FingerprintLength;
-                            int height = configuration.LogBins;
-                            Bitmap image = Imaging.GetFingerprintsImage(fingerprints, width, height);
-                            image.Save(path);
-                            image.Dispose();
-                        };
-
-                    action.BeginInvoke(
-                        (result) =>
+                            List<bool[]> fingerprints = songToDraw.GetFingerprintsUsingService(fingerprintService).Result;
+                            int width = songToDraw.Configuration.FingerprintLength;
+                            int height = songToDraw.Configuration.LogBins;
+                            using (Bitmap image = Imaging.GetFingerprintsImage(fingerprints, width, height))
                             {
-                                FadeControls(true);
-                                MessageBox.Show(
-                                    Resources.ImageIsDrawn,
-                                    Resources.Finished,
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-                                action.EndInvoke(result);
-                            },
-                        action);
+                                image.Save(imageFilename);
+                            }
+                        }).ContinueWith(result =>
+                        {
+                            FadeControls(true);
+                            ShowImageWasDrawnDialog();
+                        });
                 }
             }
-            else if (_lbImageTypes.SelectedIndex == 1)
+            else if (DrawSongAsSeparateImages())
             {
-                FolderBrowserDialog fbd = new FolderBrowserDialog();
-                if (fbd.ShowDialog() == DialogResult.OK)
+                FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string path = fbd.SelectedPath;
-                    string fileName = Path.GetFileName(_tbPathToFile.Text);
+                    string path = folderBrowserDialog.SelectedPath;
                     FadeControls(false);
-                    Action action = () =>
+                    Task.Factory.StartNew(() =>
                         {
-                            var unit =
-                               workUnitBuilder.BuildWorkUnit().On(Path.GetFullPath(_tbPathToFile.Text)).
-                                   WithCustomConfiguration(
-                                       config => { config.Stride = new StaticStride((int)_nudStride.Value); });
-                            List<bool[]> result = unit.GetFingerprintsUsingService(fingerprintService).Result;
-
+                            var songToDraw = workUnitBuilder.BuildWorkUnit()
+                                                .On(songFileName)
+                                                .WithCustomConfiguration(config => 
+                                                { 
+                                                    config.Stride = new StaticStride(strideSize); 
+                                                });
+                            List<bool[]> result = songToDraw.GetFingerprintsUsingService(fingerprintService).Result;
                             int i = -1;
-                            IFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
-                            int width = configuration.FingerprintLength;
-                            int height = configuration.LogBins;
+                            int width = songToDraw.Configuration.FingerprintLength;
+                            int height = songToDraw.Configuration.LogBins;
                             foreach (bool[] item in result)
                             {
-                                Image image = Imaging.GetFingerprintImage(item, width, height);
-                                image.Save(path + "\\" + fileName + i++ + ".jpg", ImageFormat.Jpeg);
+                                using (Image image = Imaging.GetFingerprintImage(item, width, height))
+                                {
+                                    image.Save(path + "\\" + songName + i++ + ".jpg", ImageFormat.Jpeg);
+                                }
                             }
-
-                        };
-                    action.BeginInvoke(
-                        (result) =>
-                            {
-                                FadeControls(true);
-                                MessageBox.Show(
-                                    Resources.ImageIsDrawn,
-                                    Resources.Finished,
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Information);
-                                action.EndInvoke(result);
-                            },
-                        action);
+                        }).ContinueWith(result =>
+                                {
+                                    FadeControls(true);
+                                    ShowImageWasDrawnDialog();
+                                });
                 }
             }
+        }
+
+        private static bool IsFileSelected(SaveFileDialog saveFileDialog)
+        {
+            return saveFileDialog.ShowDialog() == DialogResult.OK;
+        }
+
+        private bool DrawSongAsSeparateImages()
+        {
+            return _lbImageTypes.SelectedIndex == 1;
+        }
+
+        private static DialogResult ShowImageWasDrawnDialog()
+        {
+            return MessageBox.Show(
+                Resources.ImageIsDrawn,
+                Resources.Finished,
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        private bool DrawSongAsASingleImage()
+        {
+            return _lbImageTypes.SelectedIndex == 0;
         }
 
         private void BtnDrawSignalClick(object sender, EventArgs e)

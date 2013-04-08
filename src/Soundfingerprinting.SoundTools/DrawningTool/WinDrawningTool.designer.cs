@@ -41,6 +41,8 @@
             this._labHeight = new System.Windows.Forms.Label();
             this._labWidth = new System.Windows.Forms.Label();
             this._btnDrawWavelets = new System.Windows.Forms.Button();
+            this._cbNormalize = new System.Windows.Forms.CheckBox();
+            this._cbWindow = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this._nudStride)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudWidth)).BeginInit();
@@ -48,11 +50,11 @@
             // 
             // _tbPathToFile
             // 
-            this._tbPathToFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this._tbPathToFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._tbPathToFile.Location = new System.Drawing.Point(15, 25);
             this._tbPathToFile.Name = "_tbPathToFile";
-            this._tbPathToFile.Size = new System.Drawing.Size(337, 20);
+            this._tbPathToFile.Size = new System.Drawing.Size(333, 20);
             this._tbPathToFile.TabIndex = 0;
             this._tbPathToFile.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.TbPathToFileMouseDoubleClick);
             // 
@@ -68,7 +70,7 @@
             // _btnDraw
             // 
             this._btnDraw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnDraw.Location = new System.Drawing.Point(15, 178);
+            this._btnDraw.Location = new System.Drawing.Point(15, 312);
             this._btnDraw.Name = "_btnDraw";
             this._btnDraw.Size = new System.Drawing.Size(123, 23);
             this._btnDraw.TabIndex = 2;
@@ -107,13 +109,13 @@
             this._lbImageTypes.FormattingEnabled = true;
             this._lbImageTypes.Location = new System.Drawing.Point(15, 90);
             this._lbImageTypes.Name = "_lbImageTypes";
-            this._lbImageTypes.Size = new System.Drawing.Size(123, 82);
+            this._lbImageTypes.Size = new System.Drawing.Size(123, 56);
             this._lbImageTypes.TabIndex = 17;
             // 
             // _btnDrawSignal
             // 
             this._btnDrawSignal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnDrawSignal.Location = new System.Drawing.Point(227, 120);
+            this._btnDrawSignal.Location = new System.Drawing.Point(218, 312);
             this._btnDrawSignal.Name = "_btnDrawSignal";
             this._btnDrawSignal.Size = new System.Drawing.Size(125, 23);
             this._btnDrawSignal.TabIndex = 18;
@@ -124,7 +126,7 @@
             // _btnDrawSpectrum
             // 
             this._btnDrawSpectrum.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnDrawSpectrum.Location = new System.Drawing.Point(227, 149);
+            this._btnDrawSpectrum.Location = new System.Drawing.Point(218, 341);
             this._btnDrawSpectrum.Name = "_btnDrawSpectrum";
             this._btnDrawSpectrum.Size = new System.Drawing.Size(125, 23);
             this._btnDrawSpectrum.TabIndex = 19;
@@ -134,7 +136,7 @@
             // 
             // _nudHeight
             // 
-            this._nudHeight.Location = new System.Drawing.Point(227, 64);
+            this._nudHeight.Location = new System.Drawing.Point(218, 66);
             this._nudHeight.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -151,7 +153,7 @@
             // 
             // _nudWidth
             // 
-            this._nudWidth.Location = new System.Drawing.Point(227, 90);
+            this._nudWidth.Location = new System.Drawing.Point(218, 90);
             this._nudWidth.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -169,7 +171,7 @@
             // _labHeight
             // 
             this._labHeight.AutoSize = true;
-            this._labHeight.Location = new System.Drawing.Point(183, 66);
+            this._labHeight.Location = new System.Drawing.Point(177, 71);
             this._labHeight.Name = "_labHeight";
             this._labHeight.Size = new System.Drawing.Size(38, 13);
             this._labHeight.TabIndex = 22;
@@ -178,7 +180,7 @@
             // _labWidth
             // 
             this._labWidth.AutoSize = true;
-            this._labWidth.Location = new System.Drawing.Point(183, 92);
+            this._labWidth.Location = new System.Drawing.Point(177, 92);
             this._labWidth.Name = "_labWidth";
             this._labWidth.Size = new System.Drawing.Size(35, 13);
             this._labWidth.TabIndex = 23;
@@ -186,7 +188,7 @@
             // 
             // _btnDrawWavelets
             // 
-            this._btnDrawWavelets.Location = new System.Drawing.Point(15, 207);
+            this._btnDrawWavelets.Location = new System.Drawing.Point(12, 341);
             this._btnDrawWavelets.Name = "_btnDrawWavelets";
             this._btnDrawWavelets.Size = new System.Drawing.Size(123, 23);
             this._btnDrawWavelets.TabIndex = 24;
@@ -194,11 +196,37 @@
             this._btnDrawWavelets.UseVisualStyleBackColor = true;
             this._btnDrawWavelets.Click += new System.EventHandler(this.BtnDrawWaveletsClick);
             // 
+            // _cbNormalize
+            // 
+            this._cbNormalize.AutoSize = true;
+            this._cbNormalize.Checked = true;
+            this._cbNormalize.CheckState = System.Windows.Forms.CheckState.Checked;
+            this._cbNormalize.Location = new System.Drawing.Point(15, 153);
+            this._cbNormalize.Name = "_cbNormalize";
+            this._cbNormalize.Size = new System.Drawing.Size(72, 17);
+            this._cbNormalize.TabIndex = 25;
+            this._cbNormalize.Text = "Normalize";
+            this._cbNormalize.UseVisualStyleBackColor = true;
+            // 
+            // _cbWindow
+            // 
+            this._cbWindow.AutoSize = true;
+            this._cbWindow.Checked = true;
+            this._cbWindow.CheckState = System.Windows.Forms.CheckState.Checked;
+            this._cbWindow.Location = new System.Drawing.Point(15, 177);
+            this._cbWindow.Name = "_cbWindow";
+            this._cbWindow.Size = new System.Drawing.Size(82, 17);
+            this._cbWindow.TabIndex = 26;
+            this._cbWindow.Text = "No Window";
+            this._cbWindow.UseVisualStyleBackColor = true;
+            // 
             // WinDrawningTool
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 245);
+            this.ClientSize = new System.Drawing.Size(355, 372);
+            this.Controls.Add(this._cbWindow);
+            this.Controls.Add(this._cbNormalize);
             this.Controls.Add(this._btnDrawWavelets);
             this.Controls.Add(this._labWidth);
             this.Controls.Add(this._labHeight);
@@ -238,5 +266,7 @@
         private System.Windows.Forms.Label _labHeight;
         private System.Windows.Forms.Label _labWidth;
         private System.Windows.Forms.Button _btnDrawWavelets;
+        private System.Windows.Forms.CheckBox _cbNormalize;
+        private System.Windows.Forms.CheckBox _cbWindow;
     }
 }

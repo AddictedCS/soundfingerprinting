@@ -70,7 +70,9 @@ namespace Soundfingerprinting.Fingerprinting
                     MinFrequency = configuration.MinFrequency,
                     Overlap = configuration.Overlap,
                     SampleRate = configuration.SampleRate,
-                    WdftSize = configuration.WdftSize
+                    WdftSize = configuration.WdftSize,
+                    NormalizeSignal = configuration.NormalizeSignal,
+                    UseDynamicLogBase = configuration.UseDynamicLogBase
                 };
 
             float[][] spectrum = audioService.CreateLogSpectrogram(

@@ -124,6 +124,7 @@
     <Compile Include="Fingerprinting\FingerprintService.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
+    <Compile Include="Fingerprinting\Windows\NoWindow.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\WorkUnitParameterObject.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\TargetOn.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WithConfiguration.cs" />

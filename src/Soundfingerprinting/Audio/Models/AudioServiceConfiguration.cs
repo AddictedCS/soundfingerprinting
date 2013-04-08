@@ -15,5 +15,9 @@
         public int WdftSize { get; set; }
 
         public int Overlap { get; set; }
+
+        public bool NormalizeSignal { get; set; }
+
+        public bool UseDynamicLogBase { get; set; }
     }
 }

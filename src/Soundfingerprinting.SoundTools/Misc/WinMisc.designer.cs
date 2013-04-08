@@ -60,6 +60,14 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this._nudStartAtSecond = new System.Windows.Forms.NumericUpDown();
+            this.label11 = new System.Windows.Forms.Label();
+            this._cbUseNoWindow = new System.Windows.Forms.CheckBox();
+            this._cbNormalize = new System.Windows.Forms.CheckBox();
+            this._nudIterations = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
+            this._nudFirstQueryStride = new System.Windows.Forms.NumericUpDown();
+            this.label13 = new System.Windows.Forms.Label();
+            this._cbDynamicLog = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this._nudMinFrequency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTopWavelets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudDatabaseStride)).BeginInit();
@@ -69,6 +77,8 @@ namespace Soundfingerprinting.SoundTools.Misc
             ((System.ComponentModel.ISupportInitialize)(this._nudCandidateThreshold)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudSecondsToProcess)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudStartAtSecond)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudIterations)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudFirstQueryStride)).BeginInit();
             this.SuspendLayout();
             // 
             // _tbPathToFile
@@ -159,7 +169,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             // 
             // _btnDumpInfo
             // 
-            this._btnDumpInfo.Location = new System.Drawing.Point(277, 299);
+            this._btnDumpInfo.Location = new System.Drawing.Point(435, 298);
             this._btnDumpInfo.Name = "_btnDumpInfo";
             this._btnDumpInfo.Size = new System.Drawing.Size(75, 23);
             this._btnDumpInfo.TabIndex = 9;
@@ -277,7 +287,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             this._nudQueryStride.Size = new System.Drawing.Size(120, 20);
             this._nudQueryStride.TabIndex = 19;
             this._nudQueryStride.Value = new decimal(new int[] {
-            254,
+            253,
             0,
             0,
             0});
@@ -371,11 +381,109 @@ namespace Soundfingerprinting.SoundTools.Misc
             0,
             0});
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(277, 187);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(87, 13);
+            this.label11.TabIndex = 29;
+            this.label11.Text = "Window function";
+            // 
+            // _cbUseNoWindow
+            // 
+            this._cbUseNoWindow.AutoSize = true;
+            this._cbUseNoWindow.Checked = true;
+            this._cbUseNoWindow.CheckState = System.Windows.Forms.CheckState.Checked;
+            this._cbUseNoWindow.Location = new System.Drawing.Point(280, 204);
+            this._cbUseNoWindow.Name = "_cbUseNoWindow";
+            this._cbUseNoWindow.Size = new System.Drawing.Size(82, 17);
+            this._cbUseNoWindow.TabIndex = 30;
+            this._cbUseNoWindow.Text = "No Window";
+            this._cbUseNoWindow.UseVisualStyleBackColor = true;
+            // 
+            // _cbNormalize
+            // 
+            this._cbNormalize.AutoSize = true;
+            this._cbNormalize.Checked = true;
+            this._cbNormalize.CheckState = System.Windows.Forms.CheckState.Checked;
+            this._cbNormalize.Location = new System.Drawing.Point(390, 204);
+            this._cbNormalize.Name = "_cbNormalize";
+            this._cbNormalize.Size = new System.Drawing.Size(102, 17);
+            this._cbNormalize.TabIndex = 31;
+            this._cbNormalize.Text = "Normalize signal";
+            this._cbNormalize.UseVisualStyleBackColor = true;
+            // 
+            // _nudIterations
+            // 
+            this._nudIterations.Location = new System.Drawing.Point(390, 117);
+            this._nudIterations.Name = "_nudIterations";
+            this._nudIterations.Size = new System.Drawing.Size(120, 20);
+            this._nudIterations.TabIndex = 32;
+            this._nudIterations.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(390, 101);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(50, 13);
+            this.label12.TabIndex = 33;
+            this.label12.Text = "Iterations";
+            // 
+            // _nudFirstQueryStride
+            // 
+            this._nudFirstQueryStride.Location = new System.Drawing.Point(390, 156);
+            this._nudFirstQueryStride.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this._nudFirstQueryStride.Name = "_nudFirstQueryStride";
+            this._nudFirstQueryStride.Size = new System.Drawing.Size(120, 20);
+            this._nudFirstQueryStride.TabIndex = 34;
+            this._nudFirstQueryStride.Value = new decimal(new int[] {
+            2557,
+            0,
+            0,
+            0});
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(387, 140);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(83, 13);
+            this.label13.TabIndex = 35;
+            this.label13.Text = "First query stride";
+            // 
+            // _cbDynamicLog
+            // 
+            this._cbDynamicLog.AutoSize = true;
+            this._cbDynamicLog.Location = new System.Drawing.Point(390, 187);
+            this._cbDynamicLog.Name = "_cbDynamicLog";
+            this._cbDynamicLog.Size = new System.Drawing.Size(111, 17);
+            this._cbDynamicLog.TabIndex = 36;
+            this._cbDynamicLog.Text = "Dynamic Logbase";
+            this._cbDynamicLog.UseVisualStyleBackColor = true;
+            // 
             // WinMisc
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(576, 335);
+            this.ClientSize = new System.Drawing.Size(520, 335);
+            this.Controls.Add(this._cbDynamicLog);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this._nudFirstQueryStride);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this._nudIterations);
+            this.Controls.Add(this._cbNormalize);
+            this.Controls.Add(this._cbUseNoWindow);
+            this.Controls.Add(this.label11);
             this.Controls.Add(this._nudStartAtSecond);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label9);
@@ -416,6 +524,8 @@ namespace Soundfingerprinting.SoundTools.Misc
             ((System.ComponentModel.ISupportInitialize)(this._nudCandidateThreshold)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudSecondsToProcess)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudStartAtSecond)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudIterations)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._nudFirstQueryStride)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -450,5 +560,13 @@ namespace Soundfingerprinting.SoundTools.Misc
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.NumericUpDown _nudStartAtSecond;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.CheckBox _cbUseNoWindow;
+        private System.Windows.Forms.CheckBox _cbNormalize;
+        private System.Windows.Forms.NumericUpDown _nudIterations;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.NumericUpDown _nudFirstQueryStride;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.CheckBox _cbDynamicLog;
     }
 }

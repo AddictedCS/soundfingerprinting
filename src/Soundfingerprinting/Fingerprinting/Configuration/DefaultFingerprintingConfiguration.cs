@@ -19,7 +19,9 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
             LogBase = 2;
             Stride = new StaticStride(5115);
             LogBins = 32;
-            WindowFunction = new CachingHanningWindow(new HanningWindow());
+            WindowFunction = new CachingHanningWindow(new NoWindow());
+            NormalizeSignal = true;
+            UseDynamicLogBase = false;
         }
 
         /// <summary>
@@ -105,5 +107,9 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         public IStride Stride { get; private set; }
 
         public IWindowFunction WindowFunction { get; private set; }
+
+        public bool NormalizeSignal { get; private set; }
+
+        public bool UseDynamicLogBase { get; private set; }
     }
 }

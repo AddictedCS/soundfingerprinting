@@ -1,8 +1,4 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-namespace Soundfingerprinting.Fingerprinting.Wavelets
+﻿namespace Soundfingerprinting.Fingerprinting.Wavelets
 {
     public class IntegralImage : IWaveletDecomposition
     {

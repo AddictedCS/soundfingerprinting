@@ -4,10 +4,12 @@
     {
         public SimilarityResult()
         {
-            Info = new FingerprintInformatio();
+            Info = new FingerprintInformation();
+            MaxJaqSimilarityBetweenDatabaseAndQuerySong = double.MinValue;
+            MinJaqSimilarityBetweenDatabaseAndQuerySong = double.MaxValue;
         }
 
-        public FingerprintInformatio Info { get; set; }
+        public FingerprintInformation Info { get; set; }
 
         public bool ComparisonDone { get; set; }
 
@@ -27,7 +29,7 @@
 
         public int NumberOfAnalizedFingerprints { get; set; }
 
-        public class FingerprintInformatio
+        public class FingerprintInformation
         {
             public string Filename { get; set; }
 
@@ -35,9 +37,24 @@
 
             public int TopWavelets { get; set; }
 
-            public int StrideSize { get; set; }
+            public int QueryStrideSize { get; set; }
 
-            public bool RandomStride { get; set; }
+            public bool IsQueryStrideRandom { get; set; }
+
+            public bool IsDatabaseStrideRandom { get; set; }
+
+            public int DatabaseStrideSize { get; set; }
+
+            public int QueryFirstStrideSize { get; set; }
+
+            public int Iterations { get; set; }
+
+            public int HashTables { get; set; }
+
+            public int HashKeys { get; set; }
+
+            public string ComparedWithFile { get; set; }
+
         }
     }
 }

@@ -68,5 +68,15 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
         /// Gets window function applied on spectrogram
         /// </summary>
         IWindowFunction WindowFunction { get; }
+
+        /// <summary>
+        /// Gets a flag that normalizes the audio signal or not
+        /// </summary>
+        bool NormalizeSignal { get; }
+
+        /// <summary>
+        /// Use dynamic logarithmic base
+        /// </summary>
+        bool UseDynamicLogBase { get; }
     }
 }

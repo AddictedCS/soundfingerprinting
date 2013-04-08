@@ -1,6 +1,7 @@
 namespace Soundfingerprinting.Audio.Services
 {
     using System;
+    using System.Diagnostics;
 
     using Soundfingerprinting.Audio.Models;
     using Soundfingerprinting.Fingerprinting.FFT;
@@ -30,12 +31,13 @@ namespace Soundfingerprinting.Audio.Services
             int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
             float[][] frames = new float[width][];
             float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img, thats how Exocortex works*/
+            double[] window = windowFunction.GetWindow(wdftSize);
             for (int i = 0; i < width; i++)
             {
                 // take 371 ms each 11.6 ms (2048 samples each 64 samples)
                 for (int j = 0; j < wdftSize; j++)
                 {
-                    complexSignal[2 * j] = samples[(i * overlap) + j];
+                    complexSignal[2 * j] = (float)window[j] * samples[(i * overlap) + j];
                     complexSignal[(2 * j) + 1] = 0;
                 }
 
@@ -68,19 +70,22 @@ namespace Soundfingerprinting.Audio.Services
         public float[][] CreateLogSpectrogram(
             float[] samples, IWindowFunction windowFunction, AudioServiceConfiguration configuration)
         {
-            NormalizeInPlace(samples);
+            if (configuration.NormalizeSignal)
+            {
+                NormalizeInPlace(samples);
+            }
 
             int width = (samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
             float[][] frames = new float[width][];
             float[] complexSignal = new float[2 * configuration.WdftSize]; /*even - Re, odd - Img*/
             int[] logFrequenciesIndexes = GenerateLogFrequencies(configuration);
-            
+            double[] window = windowFunction.GetWindow(configuration.WdftSize);
             for (int i = 0; i < width; i++)
             {
                 // take 371 ms each 11.6 ms (2048 samples each 64 samples)
                 for (int j = 0; j < configuration.WdftSize /*2048*/; j++)
                 {
-                    complexSignal[2 * j] = samples[(i * configuration.Overlap) + j];
+                    complexSignal[2 * j] = (float)window[j] * samples[(i * configuration.Overlap) + j];
                     complexSignal[(2 * j) + 1] = 0;
                 }
 
@@ -103,6 +108,8 @@ namespace Soundfingerprinting.Audio.Services
 
             float rms = (float)Math.Sqrt(squares / samples.Length) * 10;
 
+            Debug.WriteLine("10 RMS: {0}", rms);
+            
             if (rms < MinRms)
             {
                 rms = MinRms;
@@ -132,15 +139,32 @@ namespace Soundfingerprinting.Audio.Services
 
                 for (int k = lowBound; k < higherBound; k++)
                 {
-                    double re = spectrum[2 * k] / (width / 2);
-                    double img = spectrum[(2 * k) + 1] / (width / 2);
+                    double re = spectrum[2 * k] / ((float)width / 2);
+                    double img = spectrum[(2 * k) + 1] / ((float)width / 2);
                     sumFreq[i] += (float)((re * re) + (img * img));
                 }
 
-                sumFreq[i] = sumFreq[i] / (higherBound - lowBound);
+                sumFreq[i] /= higherBound - lowBound;
             }
 
             return sumFreq;
+        }
+
+        private int[] GenerateLogFrequenciesDynamicBase(AudioServiceConfiguration configuration)
+        {
+            double logBase =
+                Math.Exp(
+                    Math.Log((float)configuration.MaxFrequency / configuration.MinFrequency) / configuration.LogBins);
+            double mincoef = (float)configuration.WdftSize / configuration.SampleRate * configuration.MinFrequency;
+            int[] indexes = new int[configuration.LogBins + 1];
+            for (int j = 0; j < configuration.LogBins + 1; j++)
+            {
+                int start = (int)((Math.Pow(logBase, j) - 1.0) * mincoef);
+                int end = (int)((Math.Pow(logBase, j + 1.0f) - 1.0) * mincoef);
+                indexes[j] = start + (int)mincoef;
+            }
+
+            return indexes;
         }
 
         /// <summary>
@@ -154,8 +178,19 @@ namespace Soundfingerprinting.Audio.Services
         /// </returns>
         private int[] GenerateLogFrequencies(AudioServiceConfiguration configuration)
         {
+            if(configuration.UseDynamicLogBase)
+            {
+                return GenerateLogFrequenciesDynamicBase(configuration);
+            }
+
+            return GenerateStaticLogFrequencies(configuration);
+        }
+
+        private int[] GenerateStaticLogFrequencies(AudioServiceConfiguration configuration)
+        {
             double logMin = Math.Log(configuration.MinFrequency, configuration.LogBase);
             double logMax = Math.Log(configuration.MaxFrequency, configuration.LogBase);
+
             double delta = (logMax - logMin) / configuration.LogBins;
 
             int[] indexes = new int[configuration.LogBins + 1];

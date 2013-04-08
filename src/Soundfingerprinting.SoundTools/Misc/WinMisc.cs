@@ -3,12 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using System.Windows.Forms;
     using System.Xml.Serialization;
 
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.SoundTools.Properties;
@@ -118,8 +121,13 @@
             Task.Factory.StartNew(
                 () =>
                     {
+                        IWindowFunction windowFunction = GetWindowFunction();
+                        bool normalizeSignal = _cbNormalize.Checked;
+
                         int millisecondsToProcess = (int)_nudSecondsToProcess.Value * 1000;
                         int startAtMillisecond = (int)_nudStartAtSecond.Value * 1000;
+                        int firstQueryStride = (int)_nudFirstQueryStride.Value;
+
                         var databaseSong =
                             workUnitBuilder.BuildWorkUnit().On(
                                 _tbPathToFile.Text, millisecondsToProcess, startAtMillisecond).WithCustomConfiguration(
@@ -131,8 +139,11 @@
                                                                 ? (IStride)
                                                                   new RandomStride(0, (int)_nudDatabaseStride.Value)
                                                                 : new StaticStride((int)_nudDatabaseStride.Value);
+                                            config.WindowFunction = windowFunction;
+                                            config.NormalizeSignal = normalizeSignal;
+                                            config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                         });
-                        
+
                         IWorkUnit querySong;
                         if (_chbCompare.Checked)
                         {
@@ -142,13 +153,16 @@
                                     _tbSongToCompare.Text, millisecondsToProcess, startAtMillisecond).
                                     WithCustomConfiguration(
                                         config =>
-                                        {
-                                            config.MinFrequency = (int)_nudMinFrequency.Value;
-                                            config.TopWavelets = (int)_nudTopWavelets.Value;
-                                            config.Stride = _chbQueryStride.Checked
-                                                                ? (IStride)new RandomStride(0, comparisonStride)
-                                                                : new StaticStride(comparisonStride);
-                                        });
+                                            {
+                                                config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                config.TopWavelets = (int)_nudTopWavelets.Value;
+                                                config.Stride = _chbQueryStride.Checked
+                                                                    ? (IStride)new RandomStride(0, comparisonStride, firstQueryStride)
+                                                                    : new StaticStride(comparisonStride, firstQueryStride);
+                                                config.WindowFunction = windowFunction;
+                                                config.NormalizeSignal = normalizeSignal;
+                                                config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                            });
                         }
                         else
                         {
@@ -162,45 +176,50 @@
                                                 config.TopWavelets = (int)_nudTopWavelets.Value;
                                                 config.Stride = _chbQueryStride.Checked
                                                                     ? (IStride)
-                                                                      new RandomStride(0, (int)_nudQueryStride.Value)
-                                                                    : new StaticStride((int)_nudQueryStride.Value);
+                                                                      new RandomStride(0, (int)_nudQueryStride.Value, firstQueryStride)
+                                                                    : new StaticStride((int)_nudQueryStride.Value, firstQueryStride);
+                                                config.WindowFunction = windowFunction;
+                                                config.NormalizeSignal = normalizeSignal;
+                                                config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                             });
                         }
 
                         SimilarityResult similarityResult = new SimilarityResult();
                         string pathToInput = _tbPathToFile.Text;
                         string pathToOutput = _tbOutputPath.Text;
-
-                        GetFingerprintSimilarity(fingerprintService, databaseSong, querySong, similarityResult);
-
+                        int iterations = (int)_nudIterations.Value;
                         int hashTables = (int)_nudTables.Value;
                         int hashKeys = (int)_nudKeys.Value;
 
-                        similarityResult.AtLeastOneTableWillVoteForTheCandidate = 1
-                                                                                  -
-                                                                                  Math.Pow(
-                                                                                      1
-                                                                                      -
-                                                                                      Math.Pow(
-                                                                                          similarityResult.
-                                                                                          AverageJaqSimilarityBetweenDatabaseAndQuerySong,
-                                                                                          hashKeys),
-                                                                                      hashTables);
-                        similarityResult.AtLeastOneHashbucketFromHashtableWillBeConsideredACandidate =
-                            Math.Pow(similarityResult.AverageJaqSimilarityBetweenDatabaseAndQuerySong, hashKeys);
-
-                        similarityResult.WillBecomeACandidateByPassingThreshold =
-                            Math.Pow(
-                                similarityResult.AtLeastOneHashbucketFromHashtableWillBeConsideredACandidate,
-                                (int)_nudCandidateThreshold.Value);
-
+                        for (int i = 0; i < iterations; i++)
+                        {
+                            GetFingerprintSimilarity(fingerprintService, databaseSong, querySong, similarityResult);
+                        }
 
                         similarityResult.Info.MinFrequency = (int)_nudMinFrequency.Value;
                         similarityResult.Info.TopWavelets = (int)_nudTopWavelets.Value;
-                        similarityResult.Info.RandomStride = _chbDatabaseStride.Checked;
+                        similarityResult.Info.IsQueryStrideRandom = _chbQueryStride.Checked;
+                        similarityResult.Info.IsDatabaseStrideRandom = _chbDatabaseStride.Checked;
                         similarityResult.Info.Filename = pathToInput;
+                        similarityResult.Info.QueryStrideSize = (int)_nudQueryStride.Value;
+                        similarityResult.Info.DatabaseStrideSize = (int)_nudDatabaseStride.Value;
+                        similarityResult.Info.QueryFirstStrideSize = (int)_nudFirstQueryStride.Value;
+                        similarityResult.Info.Iterations = iterations;
+                        similarityResult.Info.HashTables = hashTables;
+                        similarityResult.Info.HashKeys = hashKeys;
                         similarityResult.ComparisonDone = _chbCompare.Checked;
                         
+                        if (_chbCompare.Checked)
+                        {
+                            similarityResult.Info.ComparedWithFile = _tbSongToCompare.Text;
+                        }
+
+                        similarityResult.SumJaqSimilarityBetweenDatabaseAndQuerySong /= iterations;
+                        similarityResult.AverageJaqSimilarityBetweenDatabaseAndQuerySong /= iterations;
+                        similarityResult.AtLeastOneTableWillVoteForTheCandidate = 1 - Math.Pow(1 - Math.Pow(similarityResult.AverageJaqSimilarityBetweenDatabaseAndQuerySong, hashKeys), hashTables);
+                        similarityResult.AtLeastOneHashbucketFromHashtableWillBeConsideredACandidate = Math.Pow(similarityResult.AverageJaqSimilarityBetweenDatabaseAndQuerySong, hashKeys);
+                        similarityResult.WillBecomeACandidateByPassingThreshold = Math.Pow(similarityResult.AtLeastOneHashbucketFromHashtableWillBeConsideredACandidate, (int)_nudCandidateThreshold.Value);
+
                         using (TextWriter writer = new StreamWriter(pathToOutput))
                         {
                             XmlSerializer serializer = new XmlSerializer(typeof(SimilarityResult));
@@ -210,41 +229,59 @@
                     }).ContinueWith(result => FadeControls(true));
         }
 
+        private IWindowFunction GetWindowFunction()
+        {
+            if (_cbUseNoWindow.Checked)
+            {
+                return new NoWindow();
+            }
+
+            return new HanningWindow();
+        }
+
         private void GetFingerprintSimilarity(IFingerprintService service, IWorkUnit databaseSong, IWorkUnit querySong, SimilarityResult results)
         {
             double sum = 0;
 
             List<bool[]> fingerprintsDatabaseSong = databaseSong.GetFingerprintsUsingService(service).Result;
             List<bool[]> fingerprintsQuerySong = querySong.GetFingerprintsUsingService(service).Result;
-
-            int count = fingerprintsDatabaseSong.Count > fingerprintsQuerySong.Count
-                            ? fingerprintsQuerySong.Count
-                            : fingerprintsDatabaseSong.Count;
-
+            
             double max = double.MinValue;
             double min = double.MaxValue;
-            for (int i = 0; i < count; i++)
+            int comparisonsCount = 0;
+            for (int i = 0; i < fingerprintsDatabaseSong.Count; i++)
             {
-                int j = i;
-                double value = MinHash.CalculateJaqSimilarity(fingerprintsDatabaseSong[i], fingerprintsQuerySong[j]);
-                if (value > max)
+                for (int j = 0; j < fingerprintsQuerySong.Count; j++)
                 {
-                    max = value;
-                }
+                    double value = MinHash.CalculateJaqSimilarity(fingerprintsDatabaseSong[i], fingerprintsQuerySong[j]);
+                    if (value > max)
+                    {
+                        max = value;
+                    }
 
-                if (value < min)
-                {
-                    min = value;
-                }
+                    if (value < min)
+                    {
+                        min = value;
+                    }
 
-                sum += value;
+                    sum += value;
+                    comparisonsCount++;
+                }
             }
 
-            results.SumJaqSimilarityBetweenDatabaseAndQuerySong = sum;
-            results.AverageJaqSimilarityBetweenDatabaseAndQuerySong = sum / count;
-            results.MaxJaqSimilarityBetweenDatabaseAndQuerySong = max;
-            results.MinJaqSimilarityBetweenDatabaseAndQuerySong = min;
-            results.NumberOfAnalizedFingerprints = count;
+            results.SumJaqSimilarityBetweenDatabaseAndQuerySong += sum;
+            results.AverageJaqSimilarityBetweenDatabaseAndQuerySong += sum / comparisonsCount;
+            if (max > results.MaxJaqSimilarityBetweenDatabaseAndQuerySong)
+            {
+                results.MaxJaqSimilarityBetweenDatabaseAndQuerySong = max;
+            }
+
+            if (min < results.MinJaqSimilarityBetweenDatabaseAndQuerySong)
+            {
+                results.MinJaqSimilarityBetweenDatabaseAndQuerySong = min;
+            }
+
+            results.NumberOfAnalizedFingerprints = comparisonsCount;
         }
     }
 }
