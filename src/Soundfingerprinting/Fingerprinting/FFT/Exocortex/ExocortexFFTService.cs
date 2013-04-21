@@ -2,6 +2,8 @@
 {
     public class ExocortexFFTService : IFFTService
     {
+        private readonly object lockObject = new object();
+
         public float[] FFTForward(float[] signal, int startIndex, int length, double [] window)
         {
             float[] complexSignal = new float[2 * length]; /*even - Re, odd - Img, thats how Exocortex works*/
@@ -13,7 +15,11 @@
                 complexSignal[(2 * i) + 1] = 0;
             }
 
-            Fourier.FFT(complexSignal, length, FourierDirection.Forward);
+            lock (lockObject)
+            {
+                Fourier.FFT(complexSignal, length, FourierDirection.Forward);
+            }
+
             return complexSignal;
         }
     }

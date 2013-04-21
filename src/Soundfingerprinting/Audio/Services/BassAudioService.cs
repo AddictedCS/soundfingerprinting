@@ -69,21 +69,6 @@
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="BassAudioService"/> class.
-        /// </summary>
-        ~BassAudioService()
-        {
-            Dispose(true);
-        }
-
-        public override void Dispose()
-        {
-            Dispose(false);
-            alreadyDisposed = true;
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
         ///   Read mono from file
         /// </summary>
         /// <param name = "pathToFile">Name of the file</param>
@@ -224,6 +209,21 @@
 
                 // Bass.BASS_Free();
             }
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="BassAudioService"/> class.
+        /// </summary>
+        ~BassAudioService()
+        {
+            Dispose(true);
+        }
+
+        public override void Dispose()
+        {
+            Dispose(false);
+            alreadyDisposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

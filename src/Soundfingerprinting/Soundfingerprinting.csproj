@@ -119,6 +119,10 @@
     <Compile Include="Fingerprinting\FFT\Exocortex\ExocortexFFTService.cs" />
     <Compile Include="Fingerprinting\FFT\Exocortex\Fourier.cs" />
     <Compile Include="Fingerprinting\FFT\Exocortex\FourierDirection.cs" />
+    <Compile Include="Fingerprinting\FFT\FFTW\CachedFFTWService.cs" />
+    <Compile Include="Fingerprinting\FFT\FFTW\FFTWArray.cs" />
+    <Compile Include="Fingerprinting\FFT\FFTW\Interop.cs" />
+    <Compile Include="Fingerprinting\FFT\FFTW\FFTWService.cs" />
     <Compile Include="Fingerprinting\FFT\IFFTService.cs" />
     <Compile Include="Fingerprinting\FingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\IFingerprintService.cs" />

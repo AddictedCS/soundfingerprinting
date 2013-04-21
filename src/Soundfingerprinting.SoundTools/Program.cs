@@ -9,6 +9,7 @@
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
+    using Soundfingerprinting.Fingerprinting.FFT.FFTW;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
@@ -29,7 +30,7 @@
             dependencyResolver.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
             dependencyResolver.Bind<IAudioService>().To<BassAudioService>();
             dependencyResolver.Bind<IExtendedAudioService>().To<BassAudioService>();
-            dependencyResolver.Bind<IFFTService>().To<ExocortexFFTService>();
+            dependencyResolver.Bind<IFFTService>().To<CachedFFTWService>();
             dependencyResolver.Bind<ITagService>().To<TagService>();
             dependencyResolver.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
             dependencyResolver.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
