@@ -16,6 +16,7 @@
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;
     using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
 
@@ -56,11 +57,6 @@
         private const int MinTrackLength = ((MillisecondsToProcess + MillisecondsStart) / 1000) + 1;
 
         /// <summary>
-        ///   Incremental static stride size (1024 samples from the start)
-        /// </summary>
-        private const int StrideSizeIncremental = 1024;
-
-        /// <summary>
         ///   Number of LSH tables
         /// </summary>
         private const int NumberOfHashTables = 25;
@@ -84,17 +80,12 @@
         ///   Value of threshold percentage of fingerprints that needs to be gathered
         ///   in order to be considered a possible result
         /// </summary>
-        private const double ThresholdPercentage = 6;
+        private const double ThresholdPercentage = 0;
 
         /// <summary>
         ///   Separator in the .csv files
         /// </summary>
         private const string Separator = ",";
-
-        /// <summary>
-        ///   Number of samples per fingerprint (8192 correspond to 1.48 sec granularity)
-        /// </summary>
-        private const int SamplesInFingerprint = 8192;
 
         /// <summary>
         ///   Down sampling rate
@@ -133,7 +124,9 @@
         /// </summary>
         private CancellationTokenSource cts;
 
-        private ITagService tagService;
+        private readonly ITagService tagService;
+
+        private readonly IExtendedAudioService audioService;
 
         #endregion
 
@@ -148,11 +141,14 @@
                 ServiceContainer.Kernel.Get<IPermutations>(
                     new ConstructorArgument("pathToPermutations", PathToPermutations),
                     new ConstructorArgument("separator", Separator)); /*Permutations*/
+
+            audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
+
             tagService = ServiceContainer.Kernel.Get<ITagService>();
 
             cts = new CancellationTokenSource();
             repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintService>(), ServiceContainer.Kernel.Get<IWorkUnitBuilder>(), storage, permutations);
-            createStride = new IncrementalStaticStride(StrideSizeIncremental, SamplesInFingerprint);
+            createStride = new StaticStride(0);
         }
 
         /// <summary>
@@ -263,9 +259,7 @@
                 producers.Add(Task.Factory.StartNew(
                     () =>
                     {
-                        using (IAudioService audioServiceProxy = ServiceContainer.Kernel.Get<IAudioService>())
-                        {
-                            while (!bag.IsEmpty)
+                        while (!bag.IsEmpty)
                             {
                                 if (token.IsCancellationRequested)
                                 {
@@ -283,7 +277,7 @@
                                 try
                                 {
                                     track = TrackHelper.GetTrackInfo(MinTrackLength, MaxTrackLength, file, tagService); //lame casting I know
-                                    samples = TrackHelper.GetTrackSamples(track, audioServiceProxy, SampleRate, MillisecondsToProcess, MillisecondsStart);
+                                    samples = TrackHelper.GetTrackSamples(track, audioService, SampleRate, MillisecondsToProcess, MillisecondsStart);
                                 }
                                 catch
                                 {
@@ -301,7 +295,7 @@
                                     break;
                                 }
                             }
-                        }
+                        
                     },
                     token));
             }

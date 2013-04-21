@@ -2,6 +2,12 @@
 {
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.DuplicatesDetector.DataAccess;
+    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
+    using Soundfingerprinting.Fingerprinting.FFT.FFTW;
+    using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
 
@@ -27,7 +33,13 @@
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
             ServiceContainer.Kernel.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
             ServiceContainer.Kernel.Bind<IPermutations>().To<LocalPermutations>();
-            ServiceContainer.Kernel.Bind<IAudioService>().To<BassAudioService>().InSingletonScope();
+            ServiceContainer.Kernel.Bind<IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
+            ServiceContainer.Kernel.Bind<ITagService>().To<TagService>();
+            ServiceContainer.Kernel.Bind<IFingerprintService>().To<FingerprintService>();
+            ServiceContainer.Kernel.Bind<IFFTService>().To<CachedFFTWService>();
+            ServiceContainer.Kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
+            ServiceContainer.Kernel.Bind<IWaveletDecomposition>().To<HaarWavelet>();
+            ServiceContainer.Kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
         }
     }
 }

@@ -60,7 +60,6 @@
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
-
         }
 
         public BassAudioService(IFFTService fftService)

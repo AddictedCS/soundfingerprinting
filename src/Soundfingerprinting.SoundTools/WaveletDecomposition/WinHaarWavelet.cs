@@ -1,8 +1,4 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -12,9 +8,6 @@ using Soundfingerprinting.SoundTools.Properties;
 
 namespace Soundfingerprinting.SoundTools.WaveletDecomposition
 {
-    /// <summary>
-    ///   Class for Haar Wavelet decomposition test
-    /// </summary>
     public partial class WinHaarWavelet : Form
     {
         public WinHaarWavelet()
@@ -23,9 +16,6 @@ namespace Soundfingerprinting.SoundTools.WaveletDecomposition
             Icon = Resources.Sound;
         }
 
-        /// <summary>
-        ///   Decompose the image
-        /// </summary>
         private void BtnDecomposeClick(object sender, EventArgs e)
         {
             if (String.IsNullOrEmpty(_tbImageToDecompose.Text))
@@ -62,6 +52,7 @@ namespace Soundfingerprinting.SoundTools.WaveletDecomposition
                         for (int j = 0; j < bmp.Width; j++)
                             argb[i][j] = bmp.GetPixel(j, i).ToArgb();
                     }
+
                     Image image = Imaging.GetWaveletTransformation(new HaarWavelet(), argb);
                     image.Save(_tbSaveImage.Text, ImageFormat.Jpeg);
                     img.Dispose();

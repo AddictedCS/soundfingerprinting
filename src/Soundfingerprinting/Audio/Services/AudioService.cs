@@ -2,6 +2,7 @@ namespace Soundfingerprinting.Audio.Services
 {
     using System;
     using System.Diagnostics;
+    using System.Linq;
 
     using Soundfingerprinting.Audio.Models;
     using Soundfingerprinting.Fingerprinting.FFT;
@@ -97,11 +98,7 @@ namespace Soundfingerprinting.Audio.Services
 
         private void NormalizeInPlace(float[] samples)
         {
-            double squares = 0;
-            for (int i = 0; i < samples.Length; i++)
-            {
-                squares += samples[i] * samples[i];
-            }
+            double squares = samples.AsParallel().Aggregate<float, double>(0, (current, t) => current + t * t);
 
             float rms = (float)Math.Sqrt(squares / samples.Length) * 10;
 

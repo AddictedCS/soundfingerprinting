@@ -129,11 +129,11 @@ namespace Soundfingerprinting.DuplicatesDetector.DataAccess
             for (int i = 0; i < _numberOfHashTables; i++) //loop through all 25 hash tables
             {
                 voted.Clear();
-                for (int j = 0; j < _numberOfHashTables; j++) //lookup all 25 hash buckets in all 25 tables
+                //for (int j = 0; j < _numberOfHashTables; j++) //lookup all 25 hash buckets in all 25 tables
                 {
-                    if (_hashTables[i].ContainsKey(hashSignature[j]))
+                    if (_hashTables[i].ContainsKey(hashSignature[i]))
                     {
-                        HashSet<Track> tracks = _hashTables[i][hashSignature[j]]; //get the set of tracks that map to a specific hash signature
+                        HashSet<Track> tracks = _hashTables[i][hashSignature[i]]; //get the set of tracks that map to a specific hash signature
                         foreach (Track track in tracks.Where(track => !voted.Contains(track))) //select those that hasn't been voted by this table yet
                         {
                             if (!result.ContainsKey(track))

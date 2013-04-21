@@ -9,14 +9,14 @@ namespace Soundfingerprinting.Audio.Services
 
     public class TagService : ITagService
     {
-        public TagService()
+        static TagService()
         {
             // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
-            BassNet.Registration("ciumac.sergiu@gmail.com", "2X155323152222");
+            BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
 
             if (!Bass.BASS_Init(0, 5512, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
             {
-                //swalow as already initialized
+                // swalow as already initialized
                 // throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
         }

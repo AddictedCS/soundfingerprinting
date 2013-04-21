@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     using Soundfingerprinting.Audio.Strides;
@@ -151,7 +150,7 @@
                 for (int j = i + 1; j < duplicates.Count; j++)
                 {
                     IEnumerable<Track> result = set.Intersect(duplicates[j]);
-                    if (result.Count() > 0)
+                    if (result.Any())
                     {
                         duplicates.RemoveAt(j); /*Remove the duplicate set*/
                         i = -1; /*Start iterating from the beginning*/

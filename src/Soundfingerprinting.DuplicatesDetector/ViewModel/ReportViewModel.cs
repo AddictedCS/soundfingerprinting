@@ -10,6 +10,8 @@
     using System.Windows.Forms;
     using System.Windows.Input;
 
+    using Ninject;
+
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.DuplicatesDetector.Infrastructure;
     using Soundfingerprinting.DuplicatesDetector.Model;
@@ -43,7 +45,7 @@
         /// <summary>
         ///   Proxy used in playing files
         /// </summary>
-        private readonly IExtendedAudioService audioService = new BassAudioService(new ExocortexFFTService());
+        private readonly IExtendedAudioService audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
 
         /// <summary>
         ///   Flag - if the player is playing something

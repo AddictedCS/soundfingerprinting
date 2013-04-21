@@ -94,12 +94,11 @@ namespace Soundfingerprinting.Fingerprinting
             List<bool[]> fingerprints = new List<bool[]>();
 
             int width = spectrum.GetLength(0);
+            float[][] frames = AllocateMemoryForFingerprintImage(fingerprintLength, logBins);
             while (start + fingerprintLength < width)
             {
-                float[][] frames = new float[fingerprintLength][];
                 for (int i = 0; i < fingerprintLength; i++)
                 {
-                    frames[i] = new float[logBins];
                     Array.Copy(spectrum[start + i], frames[i], logBins);
                 }
 
@@ -110,6 +109,17 @@ namespace Soundfingerprinting.Fingerprinting
             }
 
             return fingerprints;
+        }
+
+        private float[][] AllocateMemoryForFingerprintImage(int fingerprintLength, int logBins)
+        {
+            float[][] frames = new float[fingerprintLength][];
+            for (int i = 0; i < fingerprintLength; i++)
+            {
+                frames[i] = new float[logBins];
+            }
+
+            return frames;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Soundfingerprinting.Fingerprinting.Wavelets
         {
             int h = array.Length;
             for (int i = 0; i < h; i++) /*doesn't introduce any change in the final fingerprint image*/
-                array[i] /= (float) Math.Sqrt(h); /*because works as a linear normalize*/
+                array[i] /= (float) Math.Sqrt(h); /*because works as a linear normalizer*/
             float[] temp = new float[h];
 
             while (h > 1)
@@ -62,13 +62,18 @@ namespace Soundfingerprinting.Fingerprinting.Wavelets
             int cols = image[0].Length; /*32*/
 
             for (int row = 0; row < rows /*128*/; row++) /*Decomposition of each row*/
+            {
                 DecomposeArray(image[row]);
+            }
 
             for (int col = 0; col < cols /*32*/; col++) /*Decomposition of each column*/
             {
                 float[] column = new float[rows]; /*Length of each column is equal to number of rows*/
                 for (int row = 0; row < rows; row++)
+                {
                     column[row] = image[row][col]; /*Copying Column vector*/
+                }
+
                 DecomposeArray(column);
                 for (int row = 0; row < rows; row++)
                     image[row][col] = column[row];
