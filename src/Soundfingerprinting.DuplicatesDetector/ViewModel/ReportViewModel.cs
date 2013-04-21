@@ -14,6 +14,7 @@
     using Soundfingerprinting.DuplicatesDetector.Infrastructure;
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
 
     /// <summary>
     ///   Report view-model
@@ -42,7 +43,7 @@
         /// <summary>
         ///   Proxy used in playing files
         /// </summary>
-        private readonly BassAudioService audioService = new BassAudioService();
+        private readonly IExtendedAudioService audioService = new BassAudioService(new ExocortexFFTService());
 
         /// <summary>
         ///   Flag - if the player is playing something
@@ -93,6 +94,8 @@
         ///   Status of the player (Show which file is currently playing)
         /// </summary>
         private string _status;
+
+        private int currentlyPlayingStream;
 
         #endregion
 
@@ -311,19 +314,19 @@
                     {
                         string path = Path.GetFileName(filename);
                         Status = "Playing: " + path;
-                        audioService.StopPlayingFile(); //stop previous play, if such
-                        audioService.PlayFile(filename); //play file
+                        audioService.StopPlayingFile(currentlyPlayingStream); //stop previous play, if such
+                        currentlyPlayingStream = audioService.PlayFile(filename); //play file
                         PlayingStatus = STATUS_STOP; //change playing status 
                         _isPlaying = true;
                     }
                 }
                 else
-                    audioService.StopPlayingFile(); //stop previous play, if such
+                    audioService.StopPlayingFile(currentlyPlayingStream); //stop previous play, if such
             }
             else
             {
                 Status = "";
-                audioService.StopPlayingFile(); //stop previous play
+                audioService.StopPlayingFile(currentlyPlayingStream); //stop previous play
                 _isPlaying = !_isPlaying;
                 PlayingStatus = STATUS_PLAY; //change status
             }
@@ -363,7 +366,7 @@
         {
             if (_isPlaying)
             {
-                audioService.StopPlayingFile(); //stop previous play
+                audioService.StopPlayingFile(currentlyPlayingStream); //stop previous play
                 _isPlaying = !_isPlaying;
             }
         }

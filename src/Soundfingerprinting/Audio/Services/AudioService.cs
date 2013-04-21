@@ -9,6 +9,13 @@ namespace Soundfingerprinting.Audio.Services
 
     public abstract class AudioService : IAudioService
     {
+        private readonly IFFTService fftService;
+
+        protected AudioService(IFFTService fftService)
+        {
+            this.fftService = fftService;
+        }
+
         // normalize power (volume) of an audio file.
         // minimum and maximum rms to normalize from.
         // these values has been detected empirically
@@ -19,7 +26,7 @@ namespace Soundfingerprinting.Audio.Services
         public abstract void Dispose();
 
         public abstract float[] ReadMonoFromFile(
-            string fileName, int sampleRate, int milliSeconds, int startMilliSeconds);
+            string pathToFile, int sampleRate, int milliSeconds, int startMilliSeconds);
 
         public float[][] CreateSpectrogram(string pathToFilename, IWindowFunction windowFunction, int sampleRate, int overlap, int wdftSize)
         {
@@ -77,21 +84,11 @@ namespace Soundfingerprinting.Audio.Services
 
             int width = (samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
             float[][] frames = new float[width][];
-            float[] complexSignal = new float[2 * configuration.WdftSize]; /*even - Re, odd - Img*/
             int[] logFrequenciesIndexes = GenerateLogFrequencies(configuration);
             double[] window = windowFunction.GetWindow(configuration.WdftSize);
             for (int i = 0; i < width; i++)
             {
-                // take 371 ms each 11.6 ms (2048 samples each 64 samples)
-                for (int j = 0; j < configuration.WdftSize /*2048*/; j++)
-                {
-                    complexSignal[2 * j] = (float)window[j] * samples[(i * configuration.Overlap) + j];
-                    complexSignal[(2 * j) + 1] = 0;
-                }
-
-                // FFT transform for gathering the spectrum
-                Fourier.FFT(complexSignal, configuration.WdftSize, FourierDirection.Forward);
-
+                float[] complexSignal = fftService.FFTForward(samples, i * configuration.Overlap, configuration.WdftSize, window);
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
             }
 
@@ -231,6 +228,17 @@ namespace Soundfingerprinting.Audio.Services
             /*DFT N points defines [N/2 + 1] frequency points*/
             int i = (int)Math.Round(((spectrumLength / 2) + 1) * fraction);
             return i;
+        }
+
+        /// <summary>
+        ///   Read data from file
+        /// </summary>
+        /// <param name = "pathToFile">Filename to be read</param>
+        /// <param name = "sampleRate">Sample rate at which to perform reading</param>
+        /// <returns>Array with data</returns>
+        public float[] ReadMonoFromFile(string pathToFile, int sampleRate)
+        {
+            return ReadMonoFromFile(pathToFile, sampleRate, 0, 0);
         }
     }
 }

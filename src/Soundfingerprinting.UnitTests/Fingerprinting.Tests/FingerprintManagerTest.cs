@@ -30,10 +30,10 @@
         public void SetUp()
         {
             modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
-            serviceWithBass = new FingerprintService(new BassAudioService(), new FingerprintDescriptor(), new HaarWavelet());
+            serviceWithBass = new FingerprintService(new BassAudioService(FFTService), new FingerprintDescriptor(), new HaarWavelet());
 
             #pragma warning disable 612,618
-            serviceWithDirectSound = new FingerprintService(new DirectSoundAudioService(), new FingerprintDescriptor(), new HaarWavelet());
+            serviceWithDirectSound = new FingerprintService(new DirectSoundAudioService(FFTService), new FingerprintDescriptor(), new HaarWavelet());
             #pragma warning restore 612,618
 
             defaultConfiguration = new DefaultFingerprintingConfiguration();
@@ -127,7 +127,7 @@
         [TestMethod]
         public void CheckFingerprintCreationAlgorithmTest()
         {
-            using (BassAudioService bassAudioService = new BassAudioService())
+            using (BassAudioService bassAudioService = new BassAudioService(FFTService))
             {
                 string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
                 bassAudioService.RecodeTheFile(PathToMp3, tempFile, 5512);

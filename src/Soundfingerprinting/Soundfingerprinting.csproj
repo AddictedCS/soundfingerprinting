@@ -62,6 +62,7 @@
     <Compile Include="Audio\Services\BassAudioService.cs" />
     <Compile Include="Audio\Services\DirectSoundAudioService.cs" />
     <Compile Include="Audio\Services\IAudioService.cs" />
+    <Compile Include="Audio\Services\IExtendedAudioService.cs" />
     <Compile Include="Audio\Services\ITagService.cs" />
     <Compile Include="Audio\Strides\IncrementalRandomStride.cs" />
     <Compile Include="Audio\Strides\IncrementalStaticStride.cs" />
@@ -112,11 +113,13 @@
     <Compile Include="Fingerprinting\ConstantQ\ConstQ.cs" />
     <Compile Include="Fingerprinting\Configuration\CustomFingerprintingConfiguration.cs" />
     <Compile Include="Fingerprinting\Configuration\DefaultFingerprintingConfiguration.cs" />
-    <Compile Include="Fingerprinting\FFT\Complex.cs" />
-    <Compile Include="Fingerprinting\FFT\ComplexArray.cs" />
-    <Compile Include="Fingerprinting\FFT\ComplexF.cs" />
-    <Compile Include="Fingerprinting\FFT\Fourier.cs" />
-    <Compile Include="Fingerprinting\FFT\FourierDirection.cs" />
+    <Compile Include="Fingerprinting\FFT\Exocortex\Complex.cs" />
+    <Compile Include="Fingerprinting\FFT\Exocortex\ComplexArray.cs" />
+    <Compile Include="Fingerprinting\FFT\Exocortex\ComplexF.cs" />
+    <Compile Include="Fingerprinting\FFT\Exocortex\ExocortexFFTService.cs" />
+    <Compile Include="Fingerprinting\FFT\Exocortex\Fourier.cs" />
+    <Compile Include="Fingerprinting\FFT\Exocortex\FourierDirection.cs" />
+    <Compile Include="Fingerprinting\FFT\IFFTService.cs" />
     <Compile Include="Fingerprinting\FingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\IFingerprintService.cs" />
     <Compile Include="Fingerprinting\FingerprintManagerEventArgs.cs" />

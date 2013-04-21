@@ -2,6 +2,9 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
+
     [DeploymentItem(@"bass.dll")]
     [DeploymentItem(@"bass_fx.dll")]
     [DeploymentItem(@"bassmix.dll")]
@@ -35,5 +38,7 @@
                 true, false, true, false, true, false, true, false, true, false, true, false, false, true, false, true,
                 false, true, false, true, false, true, false, true
             };
+
+        protected IFFTService FFTService = new ExocortexFFTService();
     }
 }

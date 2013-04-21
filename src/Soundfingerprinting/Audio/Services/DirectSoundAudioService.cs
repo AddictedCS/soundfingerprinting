@@ -6,6 +6,8 @@
 
     using Microsoft.DirectX.DirectSound;
 
+    using Soundfingerprinting.Fingerprinting.FFT;
+
     using Buffer = Microsoft.DirectX.DirectSound.Buffer;
 
     /// <summary>
@@ -21,6 +23,11 @@
     public class DirectSoundAudioService : AudioService
     {
         private bool alreadyDisposed; /*Disposed state param*/
+
+        public DirectSoundAudioService(IFFTService fftService)
+            : base(fftService)
+        {
+        }
 
         /// <summary>
         /// Finalizes an instance of the <see cref="DirectSoundAudioService"/> class. 
@@ -43,7 +50,7 @@
         /// <summary>
         ///   Read an audio file using mono format
         /// </summary>
-        /// <param name = "fileName">File to read from. Should be a .wav file</param>
+        /// <param name = "pathToFile">File to read from. Should be a .wav file</param>
         /// <param name = "sampleRate">
         ///   Sample rate of the file. This proxy does not support down or up sampling.
         ///   Please convert the file to appropriate sample, and then use this method.
@@ -51,7 +58,7 @@
         /// <param name = "milliSeconds">Milliseconds to read</param>
         /// <param name = "startMilliSeconds">Start millisecond</param>
         /// <returns>Audio samples</returns>
-        public override float[] ReadMonoFromFile(string fileName, int sampleRate, int milliSeconds, int startMilliSeconds)
+        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int milliSeconds, int startMilliSeconds)
         {
             int totalmilliseconds = milliSeconds <= 0 ? int.MaxValue : milliSeconds + startMilliSeconds;
             if (alreadyDisposed)
@@ -59,14 +66,14 @@
                 throw new ObjectDisposedException("Object already disposed");
             }
 
-            if (Path.GetExtension(fileName) != ".wav")
+            if (Path.GetExtension(pathToFile) != ".wav")
             {
                 throw new ArgumentException(
                     "DirectSound can read only .wav files. Please transform your input file into appropriate type.");
             }
 
             Device device = new Device(new DevicesCollection()[0].DriverGuid);
-            Buffer buffer = new Buffer(Path.GetFullPath(fileName), device);
+            Buffer buffer = new Buffer(Path.GetFullPath(pathToFile), device);
 
             /*Default sound card is used as parent Device*/
             long fileSize = buffer.Caps.BufferBytes;
@@ -133,11 +140,6 @@
                 data = temp;
             }
             return data;
-        }
-
-        public float[] ReadMonoFromFile(string fileName, int sampleRate)
-        {
-            return ReadMonoFromFile(fileName, sampleRate, 0, 0);
         }
 
         /// <summary>

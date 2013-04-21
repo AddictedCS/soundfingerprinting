@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
 
+    using Soundfingerprinting.Fingerprinting.FFT;
+
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Fx;
     using Un4seen.Bass.AddOn.Mix;
@@ -18,13 +20,11 @@
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
     ///   All in a tiny DLL, under 100KB* in size.
     /// </remarks>
-    public class BassAudioService : AudioService
+    public class BassAudioService : AudioService, IExtendedAudioService
     {
         private const int DefaultSampleRate = 44100;
 
         private bool alreadyDisposed;
-
-        private int currentlyPlayingStream;
 
         static BassAudioService()
         {
@@ -63,6 +63,11 @@
 
         }
 
+        public BassAudioService(IFFTService fftService)
+            : base(fftService)
+        {
+        }
+
         /// <summary>
         /// Finalizes an instance of the <see cref="BassAudioService"/> class.
         /// </summary>
@@ -81,7 +86,7 @@
         /// <summary>
         ///   Read mono from file
         /// </summary>
-        /// <param name = "fileName">Name of the file</param>
+        /// <param name = "pathToFile">Name of the file</param>
         /// <param name = "sampleRate">Output sample rate</param>
         /// <param name = "milliSeconds">Milliseconds to read</param>
         /// <param name = "startMilliSeconds">Start millisecond</param>
@@ -90,13 +95,13 @@
         ///   Seeking capabilities of Bass where not used because of the possible
         ///   timing errors on different formats.
         /// </remarks>
-        public override float[] ReadMonoFromFile(string fileName, int sampleRate, int milliSeconds, int startMilliSeconds)
+        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int milliSeconds, int startMilliSeconds)
         {
             int totalmilliseconds = milliSeconds <= 0 ? int.MaxValue : milliSeconds + startMilliSeconds;
             float[] data;
 
             // create streams for re-sampling
-            int stream = Bass.BASS_StreamCreateFile(fileName, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT); // Decode the stream
+            int stream = Bass.BASS_StreamCreateFile(pathToFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT); // Decode the stream
             if (stream == 0)
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
@@ -163,51 +168,30 @@
             return data;
         }
 
-        /// <summary>
-        ///   Read data from file
-        /// </summary>
-        /// <param name = "fileName">Filename to be read</param>
-        /// <param name = "sampleRate">Sample rate at which to perform reading</param>
-        /// <returns>Array with data</returns>
-        public float[] ReadMonoFromFile(string fileName, int sampleRate)
-        {
-            return ReadMonoFromFile(fileName, sampleRate, 0, 0);
-        }
-
-        /// <summary>
-        ///   Play file
-        /// </summary>
-        /// <param name = "filename">Filename</param>
-        public void PlayFile(string filename)
+        public int PlayFile(string filename)
         {
             int stream = Bass.BASS_StreamCreateFile(filename, 0, 0, BASSFlag.BASS_DEFAULT);
             Bass.BASS_ChannelPlay(stream, false);
-            currentlyPlayingStream = stream;
+            return stream;
         }
 
-        public void StopPlayingFile()
+        public void StopPlayingFile(int stream)
         {
-            if (currentlyPlayingStream != 0)
+            if (stream != 0)
             {
-                Bass.BASS_StreamFree(currentlyPlayingStream);
+                Bass.BASS_StreamFree(stream);
             }
         }
 
-        /// <summary>
-        ///   Recode the file
-        /// </summary>
-        /// <param name = "fileName">Initial file</param>
-        /// <param name = "outFileName">Target file</param>
-        /// <param name = "targetSampleRate">Target sample rate</param>
-        public void RecodeTheFile(string fileName, string outFileName, int targetSampleRate)
+        public void RecodeTheFile(string pathToFile, string outputPathToFile, int targetSampleRate)
         {
-            int stream = Bass.BASS_StreamCreateFile(fileName, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+            int stream = Bass.BASS_StreamCreateFile(pathToFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
             TAG_INFO tags = new TAG_INFO();
             BassTags.BASS_TAG_GetFromFile(stream, tags);
             int mixerStream = BassMix.BASS_Mixer_StreamCreate(targetSampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
             if (BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
             {
-                WaveWriter waveWriter = new WaveWriter(outFileName, mixerStream, true);
+                WaveWriter waveWriter = new WaveWriter(outputPathToFile, mixerStream, true);
                 const int Length = 5512 * 10 * 4;
                 float[] buffer = new float[Length];
                 while (true)
@@ -229,10 +213,6 @@
             }
         }
 
-        /// <summary>
-        ///   Dispose the resources
-        /// </summary>
-        /// <param name = "isDisposing">If value is disposing</param>
         protected virtual void Dispose(bool isDisposing)
         {
             if (!alreadyDisposed)

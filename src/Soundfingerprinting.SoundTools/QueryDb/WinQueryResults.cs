@@ -13,15 +13,11 @@
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.DbStorage;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;
-
-    using Un4seen.Bass.AddOn.Tags;
 
     /// <summary>
     ///   <c>WinQueryResult</c> form, which will show all the results related to the recognition process
@@ -79,11 +75,6 @@
         private readonly IPermutations permStorage;
 
         /// <summary>
-        ///   Audio audioService used for reading the data from the .mp3 files
-        /// </summary>
-        private readonly BassAudioService audioService = new BassAudioService();
-
-        /// <summary>
         ///   The size of the query [E.g. 253 samples]
         /// </summary>
         private readonly IStride queryStride;
@@ -117,9 +108,6 @@
         /// Initializes a new instance of the <see cref="WinQueryResults"/> class. 
         ///   Protected constructor of WinQueryResults class
         /// </summary>
-        /// <param name="connectionString">
-        /// Connection string used for the underlying data source
-        /// </param>
         /// <param name="secondsToAnalyze">
         /// Number of consequent fingerprints to analyze
         /// </param>
@@ -129,18 +117,12 @@
         /// <param name="stride">
         /// Stride used in the query
         /// </param>
-        /// <param name="topWavelets">
-        /// Number of top wavelets to analyze
-        /// </param>
         /// <param name="fileList">
         /// List of all files to be recognized
         /// </param>
-        protected WinQueryResults(
-            string connectionString,
-            int secondsToAnalyze,
+        protected WinQueryResults(int secondsToAnalyze,
             int startSecond,
             IStride stride,
-            int topWavelets,
             List<string> fileList)
         {
             InitializeComponent(); /*Initialize Designer Components*/
@@ -167,9 +149,6 @@
         /// Initializes a new instance of the <see cref="WinQueryResults"/> class. 
         /// Public constructor for LSH + Min Hash algorithm
         /// </summary>
-        /// <param name="connectionString">
-        /// Connection string
-        /// </param>
         /// <param name="secondsToAnalyze">
         /// Number of fingerprints to analyze
         /// </param>
@@ -191,12 +170,9 @@
         /// <param name="thresholdTables">
         /// Number of threshold tables
         /// </param>
-        /// <param name="topWavelets">
-        /// Number of top wavelets to consider
-        /// </param>
         [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "Reviewed. Suppression is OK here.")]
-        public WinQueryResults(string connectionString, int secondsToAnalyze, int startSecond, IStride stride, List<string> fileList, int hashTables, int hashKeys, int thresholdTables, int topWavelets)
-            : this(connectionString, secondsToAnalyze, startSecond, stride, topWavelets, fileList)
+        public WinQueryResults(int secondsToAnalyze, int startSecond, IStride stride, List<string> fileList, int hashTables, int hashKeys, int thresholdTables)
+            : this(secondsToAnalyze, startSecond, stride, fileList)
         {
             this.hashTables = hashTables;
             this.hashKeys = hashKeys;
@@ -225,7 +201,7 @@
             _nudTotal.Value = this.fileList.Count;
             Action action = ExtractCandidatesWithMinHashAlgorithm; /*Extract candidates using MinHash + LSH algorithm*/
             action.BeginInvoke(
-                (result) =>
+                result =>
                     {
                         try
                         {
@@ -287,7 +263,7 @@
         /// Path to ensemble
         /// </param>
         public WinQueryResults(string connectionString, int secondsToAnalyze, int startSeconds, IStride stride, int topWavelets, List<string> fileList, string pathToEnsemble)
-            : this(connectionString, secondsToAnalyze, startSeconds, stride, topWavelets, fileList)
+            : this(secondsToAnalyze, startSeconds, stride, fileList)
         {
             _dgvResults.Columns.Add(ColHit, "Number of hits");
             _dgvResults.Columns[ColHit].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -327,7 +303,6 @@
             {
                 //Samples to skip from each of the song
                 IStride samplesToSkip = queryStride;
-                long elapsedMiliseconds = 0;
 
                 TagInfo tags = TagService.GetTagInfo(pathToFile); //Get Tags from file
                 if (tags == null)

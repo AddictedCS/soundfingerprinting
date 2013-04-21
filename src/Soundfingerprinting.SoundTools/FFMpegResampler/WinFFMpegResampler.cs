@@ -12,11 +12,11 @@
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.SoundTools.Properties;
 
-    using Un4seen.Bass.AddOn.Tags;
-
     public partial class WinFfMpegResampler : Form
     {
         private readonly ITagService tagService;
+
+        private readonly IExtendedAudioService audioService;
 
         private readonly List<string> fileList = new List<string>();
         private int bitRate;
@@ -28,9 +28,10 @@
         private int skipped;
         private bool stopped;
 
-        public WinFfMpegResampler(ITagService tagService)
+        public WinFfMpegResampler(ITagService tagService, IExtendedAudioService audioService)
         {
             this.tagService = tagService;
+            this.audioService = audioService;
             InitializeComponent();
             Icon = Resources.Sound;
             currentProceesedFiles = 0;
@@ -128,108 +129,106 @@
         private void ProcessFiles()
         {
             Action finishDel = delegate
-                               {
-                                   buttonStop.Enabled = false;
-                                   buttonPause.Enabled = false;
-                                   buttonStartConversion.Enabled = true;
-                                   stopped = false;
-                               };
+                {
+                    buttonStop.Enabled = false;
+                    buttonPause.Enabled = false;
+                    buttonStartConversion.Enabled = true;
+                    stopped = false;
+                };
 
             Process process = new Process
-                              {
-                                  StartInfo =
-                                      {
-                                          FileName = "ffmpeg.exe",
-                                          CreateNoWindow = true,
-                                          WindowStyle = ProcessWindowStyle.Hidden,
-                                          RedirectStandardInput = true,
-                                          RedirectStandardError = true,
-                                          RedirectStandardOutput = true,
-                                          UseShellExecute = false
-                                      }
-                              };
+                {
+                    StartInfo =
+                        {
+                            FileName = "ffmpeg.exe",
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                            RedirectStandardInput = true,
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true,
+                            UseShellExecute = false
+                        }
+                };
 
             Action del = delegate
-                         {
-                             labelCurrentProcessed.Text = currentProceesedFiles.ToString();
-                             labelSkipped.Text = skipped.ToString();
-                             richTextBox1.AppendText(process.StandardError.ReadToEnd() + "\n");
-                             richTextBox1.Focus();
-                             richTextBox1.SelectionStart = richTextBox1.Text.Length;
-                         };
+                {
+                    labelCurrentProcessed.Text = currentProceesedFiles.ToString();
+                    labelSkipped.Text = skipped.ToString();
+                    richTextBox1.AppendText(process.StandardError.ReadToEnd() + "\n");
+                    richTextBox1.Focus();
+                    richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                };
 
-            using (BassAudioService audioService = new BassAudioService())
+
+            foreach (string f in fileList)
             {
-                foreach (string f in fileList)
+                if (stopped)
+                {
+                    Invoke(finishDel);
+                    Thread.CurrentThread.Abort();
+                }
+
+                while (pause)
                 {
                     if (stopped)
                     {
                         Invoke(finishDel);
                         Thread.CurrentThread.Abort();
                     }
+                    Thread.Sleep(1000);
+                }
 
-                    while (pause)
-                    {
-                        if (stopped)
-                        {
-                            Invoke(finishDel);
-                            Thread.CurrentThread.Abort();
-                        }
-                        Thread.Sleep(1000);
-                    }
+                TagInfo tags = null;
 
-                    TagInfo tags = null;
-
-                    try
-                    {
-                        //Read Tags from the file
-                        tags = tagService.GetTagInfo(f);
-                    }
-                    catch
-                    {
-                        skipped++;
-                        currentProceesedFiles++;
-                        Invoke(del);
-                        continue;
-                    }
-
-                    //Compose the output name of the wav file
-                    if (String.IsNullOrEmpty(tags.Title) || tags.Title.Length == 0)
-                    {
-                        //Skip file
-                        skipped++;
-                        currentProceesedFiles++;
-                        Invoke(del);
-                        continue;
-                    }
-                    string artist = "";
-                    if (String.IsNullOrEmpty(tags.Artist))
-                    {
-                        if (tags.Composer == null)
-                        {
-                            skipped++;
-                            currentProceesedFiles++;
-                            Invoke(del);
-                            continue;
-                        }
-                        artist = tags.Composer;
-                    }
-                    else
-                        artist = tags.Artist;
-
-                    string outfilename = tags.Title + " + " + artist + ".wav";
-
-                    string outfile = outputPath + "\\" + outfilename;
-                    string arguments = "-i \"" + f + "\" -ac 1 -ar " + samplingRate + " -ab " +
-                                       bitRate + " \"" + outfile + "\"";
-
-                    process.StartInfo.Arguments = arguments;
-                    process.Start();
-                    process.StandardInput.Write("n");
+                try
+                {
+                    //Read Tags from the file
+                    tags = tagService.GetTagInfo(f);
+                }
+                catch
+                {
+                    skipped++;
                     currentProceesedFiles++;
                     Invoke(del);
+                    continue;
                 }
+
+                //Compose the output name of the wav file
+                if (String.IsNullOrEmpty(tags.Title) || tags.Title.Length == 0)
+                {
+                    //Skip file
+                    skipped++;
+                    currentProceesedFiles++;
+                    Invoke(del);
+                    continue;
+                }
+                string artist = "";
+                if (String.IsNullOrEmpty(tags.Artist))
+                {
+                    if (tags.Composer == null)
+                    {
+                        skipped++;
+                        currentProceesedFiles++;
+                        Invoke(del);
+                        continue;
+                    }
+                    artist = tags.Composer;
+                }
+                else artist = tags.Artist;
+
+                string outfilename = tags.Title + " + " + artist + ".wav";
+
+                string outfile = outputPath + "\\" + outfilename;
+                string arguments = "-i \"" + f + "\" -ac 1 -ar " + samplingRate + " -ab " + bitRate + " \"" + outfile
+                                   + "\"";
+
+                process.StartInfo.Arguments = arguments;
+                process.Start();
+                process.StandardInput.Write("n");
+                currentProceesedFiles++;
+                Invoke(del);
             }
+
             Invoke(finishDel);
         }
 

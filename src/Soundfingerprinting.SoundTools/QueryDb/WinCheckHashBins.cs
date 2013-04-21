@@ -178,9 +178,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                         break;
                     }
 
-                    winform = new WinQueryResults(
-                        _cmbConnectionString.SelectedItem.ToString(),
-                        (int)_nudNumberOfFingerprints.Value,
+                    winform = new WinQueryResults((int)_nudNumberOfFingerprints.Value,
                         (int)_numStaratSeconds.Value,
                         WinUtils.GetStride(
                             (StrideType)_cmbStrideType.SelectedIndex,
@@ -190,8 +188,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                         _fileList,
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
-                        Convert.ToInt32(_nudThreshold.Value),
-                        (int)_nudTopWavelets.Value) { FingerprintService = fingerprintService };
+                        Convert.ToInt32(_nudThreshold.Value)) { FingerprintService = fingerprintService };
                     winform.Show();
                     break;
                 case HashAlgorithm.NeuralHasher:

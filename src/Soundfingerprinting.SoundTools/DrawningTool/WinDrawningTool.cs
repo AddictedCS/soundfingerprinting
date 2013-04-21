@@ -29,7 +29,7 @@
 
         private readonly IFingerprintingConfiguration fingerprintingConfiguration;
 
-        public WinDrawningTool(IFingerprintService fingerprintService, IAudioService audioService, ITagService tagService, IWorkUnitBuilder workUnitBuilder, IFingerprintingConfiguration fingerprintingConfiguration)
+        public WinDrawningTool(IFingerprintService fingerprintService, IExtendedAudioService audioService, ITagService tagService, IWorkUnitBuilder workUnitBuilder, IFingerprintingConfiguration fingerprintingConfiguration)
         {
             this.fingerprintService = fingerprintService;
             this.audioService = audioService;
@@ -206,18 +206,16 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        using (IAudioService proxy = new BassAudioService())
-                        {
-                            float[] data = proxy.ReadMonoFromFile(
-                                fullpath, new DefaultFingerprintingConfiguration().SampleRate, 0, 0);
-                            Bitmap image = Imaging.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
-                            image.Save(sfd.FileName, ImageFormat.Jpeg);
-                            image.Dispose();
-                        }
+
+                        float[] data = audioService.ReadMonoFromFile(
+                            fullpath, new DefaultFingerprintingConfiguration().SampleRate, 0, 0);
+                        Bitmap image = Imaging.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
+                        image.Save(sfd.FileName, ImageFormat.Jpeg);
+                        image.Dispose();
                     };
 
                 action.BeginInvoke(
-                    (result) =>
+                    result =>
                         {
                             FadeControls(true);
                             action.EndInvoke(result);
