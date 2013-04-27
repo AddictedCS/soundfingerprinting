@@ -29,22 +29,26 @@ namespace Soundfingerprinting.Fingerprinting.Wavelets
         ///   Wavelets for Computer Graphics: A Primer Part by Eric J. Stollnitz Tony D. DeRose David H. Salesin
         /// </summary>
         /// <param name = "array">Array to be decomposed</param>
-        private static void DecomposeArray(float[] vec, int n, int w)
+        private static void DecomposeArray(float[] array)
         {
-            int i = 0;
-            float[] vecp = new float[n];
-            for (i = 0; i < n; i++)
-                vecp[i] = 0;
+            int h = array.Length;
+            for (int i = 0; i < h; i++) /*doesn't introduce any change in the final fingerprint image*/
+                array[i] /= (float) Math.Sqrt(h); /*because works as a linear normalizer*/
+            float[] temp = new float[h];
 
-            w /= 2;
-            for (i = 0; i < w; i++)
+            while (h > 1)
             {
-                vecp[i] = (float)((vec[2 * i] + vec[2 * i + 1]) / Math.Sqrt(2.0));
-                vecp[i + w] = (float)((vec[2 * i] - vec[2 * i + 1]) / Math.Sqrt(2.0));
+                h /= 2;
+                for (int i = 0; i < h; i++)
+                {
+                    temp[i] = (float) ((array[2*i] + array[2*i + 1])/Math.Sqrt(2));
+                    temp[h + i] = (float) ((array[2*i] - array[2*i + 1])/Math.Sqrt(2));
+                }
+                for (int i = 0; i < 2*h; i++)
+                {
+                    array[i] = temp[i];
+                }
             }
-
-            for (i = 0; i < (w * 2); i++)
-                vec[i] = vecp[i];
         }
 
         /// <summary>
@@ -56,43 +60,23 @@ namespace Soundfingerprinting.Fingerprinting.Wavelets
         {
             int rows = image.GetLength(0); /*128*/
             int cols = image[0].Length; /*32*/
-            float[] temp_row = new float[cols];
-            float[] temp_col = new float[rows];
 
-            int i = 0, j = 0;
-            int w = cols, h = rows;
-            while (w > 1 || h > 1)
+            for (int row = 0; row < rows /*128*/; row++) /*Decomposition of each row*/
             {
-                if (w > 1)
+                DecomposeArray(image[row]);
+            }
+
+            for (int col = 0; col < cols /*32*/; col++) /*Decomposition of each column*/
+            {
+                float[] column = new float[rows]; /*Length of each column is equal to number of rows*/
+                for (int row = 0; row < rows; row++)
                 {
-                    for (i = 0; i < h; i++)
-                    {
-                        for (j = 0; j < cols; j++)
-                            temp_row[j] = image[i][j];
-
-                        DecomposeArray(temp_row, cols, w);
-
-                        for (j = 0; j < cols; j++)
-                            image[i][j] = temp_row[j];
-                    }
+                    column[row] = image[row][col]; /*Copying Column vector*/
                 }
 
-                if (h > 1)
-                {
-                    for (i = 0; i < w; i++)
-                    {
-                        for (j = 0; j < rows; j++)
-                            temp_col[j] = image[j][i];
-                        DecomposeArray(temp_col, rows, h);
-                        for (j = 0; j < rows; j++)
-                            image[j][i] = temp_col[j];
-                    }
-                }
-
-                if (w > 1)
-                    w /= 2;
-                if (h > 1)
-                    h /= 2;
+                DecomposeArray(column);
+                for (int row = 0; row < rows; row++)
+                    image[row][col] = column[row];
             }
         }
     }
