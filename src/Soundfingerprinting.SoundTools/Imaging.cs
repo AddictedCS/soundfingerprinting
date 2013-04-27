@@ -7,7 +7,6 @@
     using System.Drawing.Imaging;
     using System.Linq;
 
-    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Wavelets;
 
@@ -19,22 +18,7 @@
     /// </remarks>
     public static class Imaging
     {
-        /// <summary>
-        /// Creates an image from top wavelet fingerprint data
-        /// </summary>
-        /// <param name="data">
-        /// The concatenated fingerprint containing top wavelets
-        /// </param>
-        /// <param name="width">
-        /// Width of the image
-        /// </param>
-        /// <param name="height">
-        /// Height of the image
-        /// </param>
-        /// <returns>
-        /// The System.Drawing.Image.
-        /// </returns>
-        public static Image GetFingerprintImage(bool[] data, int width, int height)
+       public static Image GetFingerprintImage(bool[] data, int width, int height)
         {
             Bitmap image = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
 
@@ -203,9 +187,9 @@
             {
                 graphics.FillRectangle(brush, new Rectangle(0, 0, width, height));
             }
-
+            
             int bands = spectrum[0].Length;
-            double max = spectrum.Max((b) => b.Max((v) => Math.Abs(v)));
+            //double max = spectrum.Max((b) => b.Max((v) => Math.Abs(v)));
             double deltaX = (double)(width - 1) / spectrum.Length; /*By how much the image will move to the left*/
             double deltaY = (double)(height - 1) / (bands + 1); /*By how much the image will move upward*/
             int prevX = 0;
@@ -215,7 +199,8 @@
                 if ((int)x == prevX) continue;
                 for (int j = 0, m = spectrum[0].Length; j < m; j++)
                 {
-                    Color color = ValueToBlackWhiteColor(spectrum[i][j], max / 10);
+                    double max = spectrum[j].Max(v => Math.Abs(v));
+                    Color color = ValueToBlackWhiteColor(spectrum[i][j], max);
                     image.SetPixel((int)x, height - (int)(deltaY * j) - 1, color);
                 }
                 prevX = (int)x;
@@ -291,26 +276,18 @@
             wavelet.DecomposeImageInPlace(image);
             Bitmap transformed = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
             for (int i = 0; i < transformed.Height; i++)
+            {
                 for (int j = 0; j < transformed.Width; j++)
+                {
                     transformed.SetPixel(j, i, Color.FromArgb((int)image[i][j]));
+                }
+            }
 
             return transformed;
         }
 
 
-        /// <summary>
-        /// Gets the spectrum of the wavelet decomposition before extracting top wavelets and binary transformation
-        /// </summary>
-        /// <param name="spectrum">
-        /// The spectrum.
-        /// </param>
-        /// <param name="configuration">
-        /// The configuration.
-        /// </param>
-        /// <returns>
-        /// Image to be saved
-        /// </returns>
-        public static Image GetWaveletSpectralImage(float[][] spectrum, IFingerprintingConfiguration configuration)
+        public static Image GetLogSpectralImage(float[][] spectrum, IFingerprintingConfiguration configuration)
         {
             List<float[][]> wavelets = new List<float[][]>();
             int specLen = spectrum.GetLength(0);
@@ -351,18 +328,17 @@
                 }
             }
 
-            double maxValue = wavelets.Max((wavelet) => wavelet.Max((column) => column.Max()));
             int verticalOffset = SpaceBetweenImages;
             int horizontalOffset = SpaceBetweenImages;
             int count = 0;
-            double max = wavelets.Max(wav => wav.Max(w => w.Max(v => Math.Abs(v))));
             foreach (float[][] wavelet in wavelets)
             {
+                double max = wavelet.Max(wav => wav.Max(v => Math.Abs(v)));
                 for (int i = 0; i < width /*128*/; i++)
                 {
                     for (int j = 0; j < height /*32*/; j++)
                     {
-                        Color color = ValueToBlackWhiteColor(wavelet[i][j], max / 4);
+                        Color color = ValueToBlackWhiteColor(wavelet[i][j], max / 20);
                         image.SetPixel(i + horizontalOffset, j + verticalOffset, color);
                     }
                 }
@@ -379,6 +355,39 @@
             }
 
             return image;
+        }
+
+        private static void ThrowAway(float[][] frames, double percentage)
+        {
+            const int MaxIter = 250;
+            double high = frames.Max(array => array.Max(v => Math.Abs(v)));
+            double low = high;
+
+            double thresh = 0;
+            /* binary search */
+            for (int i = 0; i < MaxIter; i++)
+            {
+                thresh = (low + high) / 2.0;
+                double loss = PercentageOut(frames, thresh);
+
+                if (loss < percentage) low = thresh;
+                else high = thresh;
+
+                if (Math.Abs(loss - percentage) < 0.01) i = MaxIter;
+                if (Math.Abs(low - high) < 0.0000001) i = MaxIter;
+            }
+
+            /* zero out anything too low */
+            for (int j = 0; j < frames.Length; j++) for (int i = 0; i < frames[0].Length; i++) if (Math.Abs(frames[j][i]) < thresh) frames[j][i] = (float)0.0;
+        }
+
+        private static double PercentageOut(float[][] data, double amount)
+        {
+            int numThrown = 0, x, y;
+
+            for (y = 0; y < data.Length; y++) for (x = 0; x < data[0].Length; x++) if (Math.Abs(data[y][x]) <= amount) numThrown++;
+
+            return (100 * numThrown) / (float)(data.Length * data[0].Length);
         }
     }
 }

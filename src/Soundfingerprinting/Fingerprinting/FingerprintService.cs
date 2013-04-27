@@ -1,8 +1,8 @@
 namespace Soundfingerprinting.Fingerprinting
 {
     using System;
-    using System.Linq;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Soundfingerprinting.Audio.Models;
@@ -57,7 +57,6 @@ namespace Soundfingerprinting.Fingerprinting
 
             return CreateFingerprintsFromAudioSamples(samples, param);
         }
-
 
         private List<bool[]> CreateFingerprintsFromAudioSamples(float[] samples, WorkUnitParameterObject param)
         {

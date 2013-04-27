@@ -50,9 +50,6 @@ namespace Soundfingerprinting.Fingerprinting
 
             int[] indexes = Enumerable.Range(0, concatenated.Length).ToArray();
             Array.Sort(concatenated, indexes, absComparator);
-            Debug.WriteLine(
-                "Top Wavelets: " + String.Join(",", concatenated.Where((x, index) => indexes.Contains(index))));
-
             bool[] result = EncodeFingerprint(concatenated, indexes, topWavelets);
             return result;
         }

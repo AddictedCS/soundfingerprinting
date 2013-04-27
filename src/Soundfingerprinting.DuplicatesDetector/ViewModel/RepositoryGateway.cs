@@ -182,19 +182,19 @@
                 () =>
                     {
                         try
-                                      {
-                                          tracks = ProcessFiles(files, trackProcessed);
-                                          callback.Invoke(tracks, null);
-                                      }
-                                      catch (AggregateException ex) /*here we are sure all consumers are done processing*/
-                                      {
-                                          callback.Invoke(null, null);
-                                          repository.ClearStorage(); /*its safe to clear the storage, no more thread is executing*/
-                                      }
-                                      catch (Exception ex)
-                                      {
-                                          callback.Invoke(tracks, ex);
-                                      }
+                        {
+                            tracks = ProcessFiles(files, trackProcessed);
+                            callback.Invoke(tracks, null);
+                        }
+                        catch (AggregateException ex) /*here we are sure all consumers are done processing*/
+                        {
+                            callback.Invoke(null, null);
+                            repository.ClearStorage(); /*its safe to clear the storage, no more thread is executing*/
+                        }
+                        catch (Exception ex)
+                        {
+                            callback.Invoke(tracks, ex);
+                        }
                     },
                 cts.Token);
         }

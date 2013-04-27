@@ -5,7 +5,6 @@
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
     using Soundfingerprinting.Fingerprinting.FFT.FFTW;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
@@ -38,7 +37,7 @@
             ServiceContainer.Kernel.Bind<IFingerprintService>().To<FingerprintService>();
             ServiceContainer.Kernel.Bind<IFFTService>().To<CachedFFTWService>();
             ServiceContainer.Kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
-            ServiceContainer.Kernel.Bind<IWaveletDecomposition>().To<HaarWavelet>();
+            ServiceContainer.Kernel.Bind<IWaveletDecomposition>().To<DiscreteHaarWaveletDecomposition>();
             ServiceContainer.Kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
         }
     }

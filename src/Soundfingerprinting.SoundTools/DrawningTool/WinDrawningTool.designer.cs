@@ -40,9 +40,10 @@
             this._nudWidth = new System.Windows.Forms.NumericUpDown();
             this._labHeight = new System.Windows.Forms.Label();
             this._labWidth = new System.Windows.Forms.Label();
-            this._btnDrawWavelets = new System.Windows.Forms.Button();
+            this._btnDrawLogSpectrum = new System.Windows.Forms.Button();
             this._cbNormalize = new System.Windows.Forms.CheckBox();
             this._cbWindow = new System.Windows.Forms.CheckBox();
+            this._btnDrawWavelets = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this._nudStride)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudWidth)).BeginInit();
@@ -70,7 +71,7 @@
             // _btnDraw
             // 
             this._btnDraw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnDraw.Location = new System.Drawing.Point(15, 312);
+            this._btnDraw.Location = new System.Drawing.Point(15, 275);
             this._btnDraw.Name = "_btnDraw";
             this._btnDraw.Size = new System.Drawing.Size(123, 23);
             this._btnDraw.TabIndex = 2;
@@ -115,7 +116,7 @@
             // _btnDrawSignal
             // 
             this._btnDrawSignal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnDrawSignal.Location = new System.Drawing.Point(218, 312);
+            this._btnDrawSignal.Location = new System.Drawing.Point(218, 246);
             this._btnDrawSignal.Name = "_btnDrawSignal";
             this._btnDrawSignal.Size = new System.Drawing.Size(125, 23);
             this._btnDrawSignal.TabIndex = 18;
@@ -126,7 +127,7 @@
             // _btnDrawSpectrum
             // 
             this._btnDrawSpectrum.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnDrawSpectrum.Location = new System.Drawing.Point(218, 341);
+            this._btnDrawSpectrum.Location = new System.Drawing.Point(218, 275);
             this._btnDrawSpectrum.Name = "_btnDrawSpectrum";
             this._btnDrawSpectrum.Size = new System.Drawing.Size(125, 23);
             this._btnDrawSpectrum.TabIndex = 19;
@@ -186,15 +187,15 @@
             this._labWidth.TabIndex = 23;
             this._labWidth.Text = "Width";
             // 
-            // _btnDrawWavelets
+            // _btnDrawLogSpectrum
             // 
-            this._btnDrawWavelets.Location = new System.Drawing.Point(12, 341);
-            this._btnDrawWavelets.Name = "_btnDrawWavelets";
-            this._btnDrawWavelets.Size = new System.Drawing.Size(123, 23);
-            this._btnDrawWavelets.TabIndex = 24;
-            this._btnDrawWavelets.Text = "Draw wavelets!";
-            this._btnDrawWavelets.UseVisualStyleBackColor = true;
-            this._btnDrawWavelets.Click += new System.EventHandler(this.BtnDrawWaveletsClick);
+            this._btnDrawLogSpectrum.Location = new System.Drawing.Point(15, 217);
+            this._btnDrawLogSpectrum.Name = "_btnDrawLogSpectrum";
+            this._btnDrawLogSpectrum.Size = new System.Drawing.Size(123, 23);
+            this._btnDrawLogSpectrum.TabIndex = 24;
+            this._btnDrawLogSpectrum.Text = "Draw log spectrum!";
+            this._btnDrawLogSpectrum.UseVisualStyleBackColor = true;
+            this._btnDrawLogSpectrum.Click += new System.EventHandler(this.BtnDrawWaveletsClick);
             // 
             // _cbNormalize
             // 
@@ -220,14 +221,25 @@
             this._cbWindow.Text = "No Window";
             this._cbWindow.UseVisualStyleBackColor = true;
             // 
+            // _btnDrawWavelets
+            // 
+            this._btnDrawWavelets.Location = new System.Drawing.Point(15, 246);
+            this._btnDrawWavelets.Name = "_btnDrawWavelets";
+            this._btnDrawWavelets.Size = new System.Drawing.Size(123, 23);
+            this._btnDrawWavelets.TabIndex = 27;
+            this._btnDrawWavelets.Text = "Draw wavelets!";
+            this._btnDrawWavelets.UseVisualStyleBackColor = true;
+            this._btnDrawWavelets.Click += new System.EventHandler(this._btnDrawWavelets_Click);
+            // 
             // WinDrawningTool
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(355, 372);
+            this.ClientSize = new System.Drawing.Size(355, 317);
+            this.Controls.Add(this._btnDrawWavelets);
             this.Controls.Add(this._cbWindow);
             this.Controls.Add(this._cbNormalize);
-            this.Controls.Add(this._btnDrawWavelets);
+            this.Controls.Add(this._btnDrawLogSpectrum);
             this.Controls.Add(this._labWidth);
             this.Controls.Add(this._labHeight);
             this.Controls.Add(this._nudWidth);
@@ -265,8 +277,9 @@
         private System.Windows.Forms.NumericUpDown _nudWidth;
         private System.Windows.Forms.Label _labHeight;
         private System.Windows.Forms.Label _labWidth;
-        private System.Windows.Forms.Button _btnDrawWavelets;
+        private System.Windows.Forms.Button _btnDrawLogSpectrum;
         private System.Windows.Forms.CheckBox _cbNormalize;
         private System.Windows.Forms.CheckBox _cbWindow;
+        private System.Windows.Forms.Button _btnDrawWavelets;
     }
 }

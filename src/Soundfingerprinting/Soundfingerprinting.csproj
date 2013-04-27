@@ -50,6 +50,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -130,6 +131,8 @@
     <Compile Include="Fingerprinting\Configuration\IFingerprintingConfiguration.cs" />
     <Compile Include="Fingerprinting\FingerprintService.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
+    <Compile Include="Fingerprinting\Wavelets\DiscreteHaarWaveletDecomposition.cs" />
+    <Compile Include="Fingerprinting\Wavelets\IWaveletService.cs" />
     <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
     <Compile Include="Fingerprinting\Windows\NoWindow.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\WorkUnitParameterObject.cs" />
@@ -154,6 +157,7 @@
     <Compile Include="Hashing\DbPermutations.cs" />
     <Compile Include="Hashing\Hash.cs" />
     <Compile Include="Hashing\IPermutationGeneratorService.cs" />
+    <Compile Include="Image\IImageService.cs" />
     <Compile Include="Models\Fingerprint.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainer.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainerException.cs" />

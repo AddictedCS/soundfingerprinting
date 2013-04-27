@@ -304,7 +304,7 @@
                             _btnDraw.Enabled = isVisible;
                             _btnDrawSignal.Enabled = isVisible;
                             _btnDrawSpectrum.Enabled = isVisible;
-                            _btnDrawWavelets.Enabled = isVisible;
+                            _btnDrawLogSpectrum.Enabled = isVisible;
                         }));
         }
 
@@ -338,7 +338,7 @@
                 Action action = () =>
                     {
                         Image image =
-                            Imaging.GetWaveletSpectralImage(
+                            Imaging.GetLogSpectralImage(
                                 audioService.CreateLogSpectrogram(
                                     Path.GetFullPath(_tbPathToFile.Text),
                                     fingerprintingConfiguration.WindowFunction,
@@ -370,6 +370,11 @@
                         },
                     action);
             }
+        }
+
+        private void _btnDrawWavelets_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
