@@ -98,7 +98,7 @@ namespace Soundfingerprinting.Audio.Services
 
         private void NormalizeInPlace(float[] samples)
         {
-            double squares = samples.AsParallel().Aggregate<float, double>(0, (current, t) => current + t * t);
+            double squares = samples.AsParallel().Aggregate<float, double>(0, (current, t) => current + (t * t));
 
             float rms = (float)Math.Sqrt(squares / samples.Length) * 10;
 

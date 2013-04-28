@@ -8,12 +8,12 @@
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
     using Soundfingerprinting.Fingerprinting.FFT.FFTW;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.DI;
 
     internal static class Program
@@ -25,7 +25,7 @@
             dependencyResolver.Bind<IDependencyResolver>().ToConstant(dependencyResolver);
             dependencyResolver.Bind<IFingerprintService>().To<FingerprintService>();
             dependencyResolver.Bind<IWindowFunction>().To<HanningWindow>();
-            dependencyResolver.Bind<IWaveletDecomposition>().To<HaarWavelet>();
+            dependencyResolver.Bind<IWaveletDecomposition>().To<DiscreteHaarWaveletDecomposition>();
             dependencyResolver.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
             dependencyResolver.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
             dependencyResolver.Bind<IAudioService>().To<BassAudioService>();
@@ -39,6 +39,9 @@
             dependencyResolver.Bind<IModelBinderFactory>().To<ModelBinderFactory>().WhenInjectedInto<CachedModelBinderFactory>();
             dependencyResolver.Bind<IModelService>().To<ModelService>();
             dependencyResolver.Bind<IPermutationGeneratorService>().To<PermutationGeneratorService>();
+            dependencyResolver.Bind<IImageService>().To<ImageService>();
+            dependencyResolver.Bind<ISpectrumService>().To<SpectrumService>();
+            dependencyResolver.Bind<IWaveletService>().To<WaveletService>();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

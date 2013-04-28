@@ -1,13 +1,14 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Windows.Forms;
-using Soundfingerprinting.Fingerprinting.Wavelets;
-using Soundfingerprinting.SoundTools.Properties;
-
-namespace Soundfingerprinting.SoundTools.WaveletDecomposition
+﻿namespace Soundfingerprinting.SoundTools.WaveletDecomposition
 {
+    using System;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.IO;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.SoundTools.Properties;
+
     public partial class WinHaarWavelet : Form
     {
         public WinHaarWavelet()

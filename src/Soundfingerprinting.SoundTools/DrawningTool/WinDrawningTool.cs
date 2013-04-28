@@ -15,6 +15,7 @@
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinDrawningTool : Form
@@ -29,13 +30,22 @@
 
         private readonly IFingerprintingConfiguration fingerprintingConfiguration;
 
-        public WinDrawningTool(IFingerprintService fingerprintService, IExtendedAudioService audioService, ITagService tagService, IWorkUnitBuilder workUnitBuilder, IFingerprintingConfiguration fingerprintingConfiguration)
+        private readonly IImageService imageService;
+
+        public WinDrawningTool(
+            IFingerprintService fingerprintService,
+            IExtendedAudioService audioService,
+            ITagService tagService,
+            IWorkUnitBuilder workUnitBuilder,
+            IFingerprintingConfiguration fingerprintingConfiguration,
+            IImageService imageService)
         {
             this.fingerprintService = fingerprintService;
             this.audioService = audioService;
             this.tagService = tagService;
             this.workUnitBuilder = workUnitBuilder;
             this.fingerprintingConfiguration = fingerprintingConfiguration;
+            this.imageService = imageService;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -96,7 +106,7 @@
                             var songToDraw = workUnitBuilder.BuildWorkUnit()
                                                .On(songFileName)
                                                .WithCustomConfiguration(config =>
-                                               {
+                                                   {
                                                    config.Stride = new StaticStride(strideSize);
                                                    config.NormalizeSignal = normalize;
                                                    config.WindowFunction = noWindow ? new CachingHanningWindow(new NoWindow()) : new CachingHanningWindow(new HanningWindow());
@@ -105,7 +115,7 @@
                             List<bool[]> fingerprints = songToDraw.GetFingerprintsUsingService(fingerprintService).Result;
                             int width = songToDraw.Configuration.FingerprintLength;
                             int height = songToDraw.Configuration.LogBins;
-                            using (Bitmap image = Imaging.GetFingerprintsImage(fingerprints, width, height))
+                            using (Image image = imageService.GetImageForFingerprints(fingerprints, width, height, 5))
                             {
                                 image.Save(imageFilename);
                             }
@@ -137,7 +147,7 @@
                             int height = songToDraw.Configuration.LogBins;
                             foreach (bool[] item in result)
                             {
-                                using (Image image = Imaging.GetFingerprintImage(item, width, height))
+                                using (Image image = imageService.GetImageForFingerprint(item, width, height))
                                 {
                                     image.Save(path + "\\" + songName + i++ + ".jpg", ImageFormat.Jpeg);
                                 }
@@ -209,9 +219,10 @@
 
                         float[] data = audioService.ReadMonoFromFile(
                             fullpath, new DefaultFingerprintingConfiguration().SampleRate, 0, 0);
-                        Bitmap image = Imaging.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
-                        image.Save(sfd.FileName, ImageFormat.Jpeg);
-                        image.Dispose();
+                        using (Image image = imageService.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value))
+                        {
+                            image.Save(sfd.FileName, ImageFormat.Jpeg);
+                        }
                     };
 
                 action.BeginInvoke(
@@ -266,7 +277,7 @@
                             fingerprintingConfiguration.Overlap,
                             fingerprintingConfiguration.WdftSize);
 
-                        Bitmap image = Imaging.GetSpectrogramImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
+                        Image image = imageService.GetSpectrogramImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                         image.Save(sfd.FileName, ImageFormat.Jpeg);
                         image.Dispose();
                     };
@@ -338,7 +349,7 @@
                 Action action = () =>
                     {
                         Image image =
-                            Imaging.GetLogSpectralImage(
+                            imageService.GetLogSpectralImages(
                                 audioService.CreateLogSpectrogram(
                                     Path.GetFullPath(_tbPathToFile.Text),
                                     fingerprintingConfiguration.WindowFunction,
@@ -346,16 +357,22 @@
                                         {
                                             LogBase = fingerprintingConfiguration.LogBase,
                                             LogBins = fingerprintingConfiguration.LogBins,
-                                            MaxFrequency = fingerprintingConfiguration.MaxFrequency,
-                                            MinFrequency = fingerprintingConfiguration.MinFrequency,
+                                            MaxFrequency =
+                                                fingerprintingConfiguration.MaxFrequency,
+                                            MinFrequency =
+                                                fingerprintingConfiguration.MinFrequency,
                                             Overlap = fingerprintingConfiguration.Overlap,
-                                            SampleRate = fingerprintingConfiguration.SampleRate,
+                                            SampleRate =
+                                                fingerprintingConfiguration.SampleRate,
                                             WdftSize = fingerprintingConfiguration.WdftSize
                                         }),
-                                fingerprintingConfiguration);
+                                new StaticStride((int)_nudStride.Value),
+                                fingerprintingConfiguration.FingerprintLength,
+                                fingerprintingConfiguration.Overlap,
+                                5);
+
                         image.Save(path);
                         image.Dispose();
-
                     };
                 action.BeginInvoke(
                     (result) =>
@@ -374,7 +391,72 @@
 
         private void _btnDrawWavelets_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(_tbPathToFile.Text))
+            {
+                MessageBox.Show(
+                    Resources.SelectAPathToBeDrawn,
+                    Resources.SelectFile,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
 
+            if (!File.Exists(Path.GetFullPath(_tbPathToFile.Text)))
+            {
+                MessageBox.Show(
+                    Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+
+            string fileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text);
+            SaveFileDialog sfd = new SaveFileDialog { FileName = fileName + ".jpg", Filter = Resources.FileFilterJPeg };
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                string path = Path.GetFullPath(sfd.FileName);
+                FadeControls(false);
+                Action action = () =>
+                {
+                    Image image =
+                        imageService.GetWaveletsImages(
+                            audioService.CreateLogSpectrogram(
+                                Path.GetFullPath(_tbPathToFile.Text),
+                                fingerprintingConfiguration.WindowFunction,
+                                new AudioServiceConfiguration()
+                                {
+                                    LogBase = fingerprintingConfiguration.LogBase,
+                                    LogBins = fingerprintingConfiguration.LogBins,
+                                    MaxFrequency =
+                                        fingerprintingConfiguration.MaxFrequency,
+                                    MinFrequency =
+                                        fingerprintingConfiguration.MinFrequency,
+                                    Overlap = fingerprintingConfiguration.Overlap,
+                                    SampleRate =
+                                        fingerprintingConfiguration.SampleRate,
+                                    WdftSize = fingerprintingConfiguration.WdftSize
+                                }),
+                            new StaticStride((int)_nudStride.Value),
+                            fingerprintingConfiguration.FingerprintLength,
+                            fingerprintingConfiguration.Overlap,
+                            5);
+
+                    image.Save(path);
+                    image.Dispose();
+                };
+                action.BeginInvoke(
+                    (result) =>
+                    {
+                        FadeControls(true);
+                        MessageBox.Show(
+                            Resources.ImageIsDrawn,
+                            Resources.Finished,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                        action.EndInvoke(result);
+                    },
+                    action);
+            }
         }
     }
 }

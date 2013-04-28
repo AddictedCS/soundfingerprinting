@@ -157,64 +157,7 @@
             graphics.DrawString("https://code.google.com/p/soundfingerprinting/", f, textbrush, coordinate);
             return image;
         }
-
-        /// <summary>
-        /// Get a spectrogram of the signal specified at the input
-        /// </summary>
-        /// <param name="spectrum">
-        /// The spectrum.
-        /// </param>
-        /// <param name="width">
-        /// Width of the image
-        /// </param>
-        /// <param name="height">
-        /// Height of the image
-        /// </param>
-        /// <returns>
-        /// Spectral image of the signal
-        /// </returns>
-        /// <remarks>
-        /// X axis - time
-        ///   Y axis - frequency
-        ///   Color - magnitude level of corresponding band value of the signal
-        /// </remarks>
-        public static Bitmap GetSpectrogramImage(float[][] spectrum, int width, int height)
-        {
-            Bitmap image = new Bitmap(width, height);
-            Graphics graphics = Graphics.FromImage(image);
-            /*Fill Back color*/
-            using (Brush brush = new SolidBrush(Color.Black))
-            {
-                graphics.FillRectangle(brush, new Rectangle(0, 0, width, height));
-            }
-            
-            int bands = spectrum[0].Length;
-            //double max = spectrum.Max((b) => b.Max((v) => Math.Abs(v)));
-            double deltaX = (double)(width - 1) / spectrum.Length; /*By how much the image will move to the left*/
-            double deltaY = (double)(height - 1) / (bands + 1); /*By how much the image will move upward*/
-            int prevX = 0;
-            for (int i = 0, n = spectrum.Length; i < n; i++)
-            {
-                double x = i * deltaX;
-                if ((int)x == prevX) continue;
-                for (int j = 0, m = spectrum[0].Length; j < m; j++)
-                {
-                    double max = spectrum[j].Max(v => Math.Abs(v));
-                    Color color = ValueToBlackWhiteColor(spectrum[i][j], max);
-                    image.SetPixel((int)x, height - (int)(deltaY * j) - 1, color);
-                }
-                prevX = (int)x;
-            }
-
-            FontFamily font = new FontFamily("Courier New");
-            Font f = new Font(font, 10);
-            Brush textbrush = Brushes.Orange;
-            Point coordinate = new Point(10, 10);
-            graphics.DrawString("https://code.google.com/p/soundfingerprinting/", f, textbrush, coordinate);
-
-            return image;
-        }
-
+        
         /// <summary>
         ///   Get corresponding grey pallet color of the spectrogram
         /// </summary>
@@ -333,15 +276,16 @@
             int count = 0;
             foreach (float[][] wavelet in wavelets)
             {
-                double max = wavelet.Max(wav => wav.Max(v => Math.Abs(v)));
+                double average = wavelet.Average(col => col.Average(v => Math.Abs(v)));
                 for (int i = 0; i < width /*128*/; i++)
                 {
                     for (int j = 0; j < height /*32*/; j++)
                     {
-                        Color color = ValueToBlackWhiteColor(wavelet[i][j], max / 20);
+                        Color color = ValueToBlackWhiteColor(wavelet[i][j], average);
                         image.SetPixel(i + horizontalOffset, j + verticalOffset, color);
                     }
                 }
+
                 count++;
                 if (count % ImagesPerRow == 0)
                 {
