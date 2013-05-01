@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using System.Windows.Forms;
     using System.Xml.Serialization;
@@ -145,9 +143,9 @@
                                         });
 
                         IWorkUnit querySong;
+                        int comparisonStride = (int)_nudQueryStride.Value;
                         if (_chbCompare.Checked)
                         {
-                            int comparisonStride = (int)_nudQueryStride.Value;
                             querySong =
                                 workUnitBuilder.BuildWorkUnit().On(
                                     _tbSongToCompare.Text, millisecondsToProcess, startAtMillisecond).
@@ -157,8 +155,8 @@
                                                 config.MinFrequency = (int)_nudMinFrequency.Value;
                                                 config.TopWavelets = (int)_nudTopWavelets.Value;
                                                 config.Stride = _chbQueryStride.Checked
-                                                                    ? (IStride)new RandomStride(0, comparisonStride, firstQueryStride)
-                                                                    : new StaticStride(comparisonStride, firstQueryStride);
+                                                                    ? (IStride)new IncrementalRandomStride(0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
+                                                                    : new IncrementalStaticStride(comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
                                                 config.WindowFunction = windowFunction;
                                                 config.NormalizeSignal = normalizeSignal;
                                                 config.UseDynamicLogBase = _cbDynamicLog.Checked;
@@ -175,9 +173,8 @@
                                                 config.MinFrequency = (int)_nudMinFrequency.Value;
                                                 config.TopWavelets = (int)_nudTopWavelets.Value;
                                                 config.Stride = _chbQueryStride.Checked
-                                                                    ? (IStride)
-                                                                      new RandomStride(0, (int)_nudQueryStride.Value, firstQueryStride)
-                                                                    : new StaticStride((int)_nudQueryStride.Value, firstQueryStride);
+                                                                     ? (IStride)new IncrementalRandomStride(0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
+                                                                    : new IncrementalStaticStride(comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
                                                 config.WindowFunction = windowFunction;
                                                 config.NormalizeSignal = normalizeSignal;
                                                 config.UseDynamicLogBase = _cbDynamicLog.Checked;

@@ -14,6 +14,7 @@
     using Soundfingerprinting.DbStorage.Utils;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
 
@@ -30,10 +31,18 @@
         public void SetUp()
         {
             modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
-            serviceWithBass = new FingerprintService(new BassAudioService(FFTService), new FingerprintDescriptor(), new StandardHaarWaveletDecomposition());
+            serviceWithBass = new FingerprintService(
+                new BassAudioService(FFTService),
+                new FingerprintDescriptor(),
+                new SpectrumService(),
+                new WaveletService(new StandardHaarWaveletDecomposition()));
 
             #pragma warning disable 612,618
-            serviceWithDirectSound = new FingerprintService(new DirectSoundAudioService(FFTService), new FingerprintDescriptor(), new StandardHaarWaveletDecomposition());
+            serviceWithDirectSound = new FingerprintService(
+                new DirectSoundAudioService(FFTService),
+                new FingerprintDescriptor(),
+                new SpectrumService(),
+                new WaveletService(new StandardHaarWaveletDecomposition()));
             #pragma warning restore 612,618
 
             defaultConfiguration = new DefaultFingerprintingConfiguration();

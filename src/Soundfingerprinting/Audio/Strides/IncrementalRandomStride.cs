@@ -34,6 +34,12 @@
             firstStride = 0;
         }
 
+        public IncrementalRandomStride(int min, int max, int samplesPerFingerprint, int firstStride)
+            : this(min, max, samplesPerFingerprint)
+        {
+            this.firstStride = firstStride;
+        }
+
         /// <summary>
         ///  Gets or sets minimal step between consecutive strides
         /// </summary>

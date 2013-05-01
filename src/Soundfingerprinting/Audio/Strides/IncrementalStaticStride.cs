@@ -27,6 +27,11 @@
             firstStride = 0;
         }
 
+        public IncrementalStaticStride(int incrementBy, int samplesInFingerprint, int firstStride) : this(incrementBy, samplesInFingerprint)
+        {
+            this.firstStride = firstStride;
+        }
+
         #region IStride Members
         
         public int StrideSize
