@@ -8,7 +8,7 @@
 
         protected void DecompositionStep(float[] array, int h)
         {
-            float[] temp = new float[array.Length];
+            float[] temp = new float[h];
 
             h /= 2;
             for (int i = 0; i < h; i++)

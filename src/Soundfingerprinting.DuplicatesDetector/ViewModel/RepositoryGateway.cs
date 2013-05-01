@@ -147,7 +147,7 @@
 
             cts = new CancellationTokenSource();
             repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintService>(), ServiceContainer.Kernel.Get<IWorkUnitBuilder>(), storage, permutations);
-            createStride = new StaticStride(0);
+            createStride = new IncrementalStaticStride(5115, 128 * 64);
         }
 
         /// <summary>

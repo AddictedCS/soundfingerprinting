@@ -24,7 +24,6 @@
             IDependencyResolver dependencyResolver = new NinjectDependencyResolver();
             dependencyResolver.Bind<IDependencyResolver>().ToConstant(dependencyResolver);
             dependencyResolver.Bind<IFingerprintService>().To<FingerprintService>();
-            dependencyResolver.Bind<IWindowFunction>().To<HanningWindow>();
             dependencyResolver.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
             dependencyResolver.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
             dependencyResolver.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();

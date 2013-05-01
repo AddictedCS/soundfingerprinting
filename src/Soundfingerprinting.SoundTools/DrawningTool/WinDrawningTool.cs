@@ -85,7 +85,6 @@
             string songName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text);
             string songFileName = Path.GetFullPath(_tbPathToFile.Text);
             int strideSize = (int)_nudStride.Value;
- 
             if (DrawSongAsASingleImage())
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog
@@ -107,7 +106,7 @@
                                                .On(songFileName)
                                                .WithCustomConfiguration(config =>
                                                    {
-                                                   config.Stride = new StaticStride(strideSize);
+                                                   config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                                    config.NormalizeSignal = normalize;
                                                    config.WindowFunction = noWindow ? new CachingHanningWindow(new NoWindow()) : new CachingHanningWindow(new HanningWindow());
                                                });
@@ -138,8 +137,8 @@
                             var songToDraw = workUnitBuilder.BuildWorkUnit()
                                                 .On(songFileName)
                                                 .WithCustomConfiguration(config => 
-                                                { 
-                                                    config.Stride = new StaticStride(strideSize); 
+                                                {
+                                                    config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                                 });
                             List<bool[]> result = songToDraw.GetFingerprintsUsingService(fingerprintService).Result;
                             int i = -1;
@@ -366,7 +365,7 @@
                                                 fingerprintingConfiguration.SampleRate,
                                             WdftSize = fingerprintingConfiguration.WdftSize
                                         }),
-                                new StaticStride((int)_nudStride.Value),
+                                new IncrementalStaticStride((int)_nudStride.Value, fingerprintingConfiguration.SamplesPerFingerprint),
                                 fingerprintingConfiguration.FingerprintLength,
                                 fingerprintingConfiguration.Overlap,
                                 5);
@@ -436,7 +435,7 @@
                                         fingerprintingConfiguration.SampleRate,
                                     WdftSize = fingerprintingConfiguration.WdftSize
                                 }),
-                            new StaticStride((int)_nudStride.Value),
+                            new IncrementalStaticStride((int)_nudStride.Value, fingerprintingConfiguration.SamplesPerFingerprint),
                             fingerprintingConfiguration.FingerprintLength,
                             fingerprintingConfiguration.Overlap,
                             5);
@@ -445,7 +444,7 @@
                     image.Dispose();
                 };
                 action.BeginInvoke(
-                    (result) =>
+                    result =>
                     {
                         FadeControls(true);
                         MessageBox.Show(

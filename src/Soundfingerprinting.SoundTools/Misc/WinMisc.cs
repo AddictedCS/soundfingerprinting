@@ -137,8 +137,8 @@
                                             config.TopWavelets = (int)_nudTopWavelets.Value;
                                             config.Stride = _chbDatabaseStride.Checked
                                                                 ? (IStride)
-                                                                  new RandomStride(0, (int)_nudDatabaseStride.Value)
-                                                                : new StaticStride((int)_nudDatabaseStride.Value);
+                                                                  new IncrementalRandomStride(0, (int)_nudDatabaseStride.Value, config.SamplesPerFingerprint)
+                                                                : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
                                             config.WindowFunction = windowFunction;
                                             config.NormalizeSignal = normalizeSignal;
                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;

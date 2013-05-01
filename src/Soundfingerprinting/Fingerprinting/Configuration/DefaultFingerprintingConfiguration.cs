@@ -17,7 +17,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
             SamplesPerFingerprint = 5512;
             SampleRate = 5512;
             LogBase = 2;
-            Stride = new StaticStride(5115);
+            Stride = new IncrementalStaticStride(5115, FingerprintLength * Overlap);
             LogBins = 32;
             WindowFunction = new CachingHanningWindow(new NoWindow());
             NormalizeSignal = true;
