@@ -9,24 +9,26 @@ namespace Soundfingerprinting.Fingerprinting
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Fingerprinting.Spectrum;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Models;
 
     public class FingerprintService : IFingerprintService
     {
-        private readonly IWaveletDecomposition waveletDecomposition;
-
-        private readonly IFingerprintDescriptor fingerprintDescriptor;
-
         private readonly IAudioService audioService;
-
+        private readonly IWaveletService waveletService;
+        private readonly ISpectrumService spectrumService;
+        private readonly IFingerprintDescriptor fingerprintDescriptor;
+        
         public FingerprintService(
             IAudioService audioService,
             IFingerprintDescriptor fingerprintDescriptor,
-            IWaveletDecomposition waveletDecomposition)
+            IWaveletService waveletService,
+            ISpectrumService spectrumService)
         {
-            this.waveletDecomposition = waveletDecomposition;
+            this.waveletService = waveletService;
+            this.spectrumService = spectrumService;
             this.fingerprintDescriptor = fingerprintDescriptor;
             this.audioService = audioService;
         }
@@ -77,48 +79,30 @@ namespace Soundfingerprinting.Fingerprinting
             float[][] spectrum = audioService.CreateLogSpectrogram(
                 samples, configuration.WindowFunction, audioServiceConfiguration);
 
-            return CreateFingerprintsFromSpectrum(
+            return this.CreateFingerprintsFromLogSpectrum(
                 spectrum,
                 configuration.Stride,
                 configuration.FingerprintLength,
                 configuration.Overlap,
-                configuration.LogBins,
                 configuration.TopWavelets);
         }
 
-        private List<bool[]> CreateFingerprintsFromSpectrum(
-            float[][] spectrum, IStride stride, int fingerprintLength, int overlap, int logBins, int topWavelets)
+        private List<bool[]> CreateFingerprintsFromLogSpectrum(
+            float[][] logarithmizedSpectrum, IStride stride, int fingerprintLength, int overlap, int topWavelets)
         {
-            int start = stride.FirstStrideSize / overlap;
+            List<float[][]> spectralImages = spectrumService.CutLogarithmizedSpectrum(
+                logarithmizedSpectrum, stride, fingerprintLength, overlap);
+
+            waveletService.ApplyWaveletTransformInPlace(spectralImages);
+
             List<bool[]> fingerprints = new List<bool[]>();
-
-            int width = spectrum.GetLength(0);
-            float[][] frames = AllocateMemoryForFingerprintImage(fingerprintLength, logBins);
-            while (start + fingerprintLength < width)
+            foreach (var waveletDecomposedImage in spectralImages)
             {
-                for (int i = 0; i < fingerprintLength; i++)
-                {
-                    Array.Copy(spectrum[start + i], frames[i], logBins);
-                }
-
-                start += fingerprintLength + (stride.StrideSize / overlap);
-                waveletDecomposition.DecomposeImageInPlace(frames); /*Compute wavelets*/
-                bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, topWavelets);
+                bool[] image = fingerprintDescriptor.ExtractTopWavelets(waveletDecomposedImage, topWavelets);
                 fingerprints.Add(image);
             }
 
             return fingerprints;
-        }
-
-        private float[][] AllocateMemoryForFingerprintImage(int fingerprintLength, int logBins)
-        {
-            float[][] frames = new float[fingerprintLength][];
-            for (int i = 0; i < fingerprintLength; i++)
-            {
-                frames[i] = new float[logBins];
-            }
-
-            return frames;
         }
     }
 }

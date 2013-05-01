@@ -133,9 +133,9 @@
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
     <Compile Include="Fingerprinting\Wavelets\NonStandardHaarWaveletDecomposition.cs" />
     <Compile Include="Fingerprinting\Wavelets\HaarWaveletDecomposition.cs" />
-    <Compile Include="Fingerprinting\Wavelets\ISpectrumService.cs" />
+    <Compile Include="Fingerprinting\Spectrum\ISpectrumService.cs" />
     <Compile Include="Fingerprinting\Wavelets\IWaveletService.cs" />
-    <Compile Include="Fingerprinting\Wavelets\SpectrumService.cs" />
+    <Compile Include="Fingerprinting\Spectrum\SpectrumService.cs" />
     <Compile Include="Fingerprinting\Wavelets\WaveletService.cs" />
     <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
     <Compile Include="Fingerprinting\Windows\NoWindow.cs" />

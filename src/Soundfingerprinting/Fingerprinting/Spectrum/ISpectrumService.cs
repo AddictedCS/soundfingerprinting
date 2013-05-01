@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Fingerprinting.Wavelets
+﻿namespace Soundfingerprinting.Fingerprinting.Spectrum
 {
     using System.Collections.Generic;
 
