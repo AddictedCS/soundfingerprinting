@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Fingerprinting.Wavelets
+﻿namespace Soundfingerprinting.Fingerprinting.FFT
 {
     using System.Collections.Generic;
 

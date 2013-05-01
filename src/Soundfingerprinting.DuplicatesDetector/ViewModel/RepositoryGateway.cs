@@ -16,7 +16,6 @@
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;
     using Soundfingerprinting.Fingerprinting;
-    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
 

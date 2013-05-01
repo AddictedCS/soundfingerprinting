@@ -8,6 +8,7 @@
     using System.Linq;
 
     using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
 
     public class ImageService : IImageService
@@ -190,7 +191,7 @@
         {
             List<float[][]> spetralImages = spectrumService.CutLogarithmizedSpectrum(
                 spectrum, strideBetweenConsecutiveImages, fingerprintLength, overlap);
-            waveletService.ApplyWaveletTransform(spetralImages);
+            waveletService.ApplyWaveletTransformInPlace(spetralImages);
 
             int width = spetralImages[0].GetLength(0);
             int height = spetralImages[0][0].Length;

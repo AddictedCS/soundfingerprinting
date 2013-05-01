@@ -11,7 +11,7 @@
             this.waveletDecomposition = waveletDecomposition;
         }
 
-        public void ApplyWaveletTransform(List<float[][]> logarithmizedSpectrum)
+        public void ApplyWaveletTransformInPlace(List<float[][]> logarithmizedSpectrum)
         {
             foreach (var image in logarithmizedSpectrum)
             {

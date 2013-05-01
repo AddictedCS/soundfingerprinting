@@ -6,7 +6,6 @@
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.FFT.FFTW;
-    using Soundfingerprinting.Fingerprinting.Spectrum;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
