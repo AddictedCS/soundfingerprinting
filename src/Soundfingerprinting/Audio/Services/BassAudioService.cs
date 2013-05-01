@@ -99,14 +99,14 @@
 
             if (BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
             {
-                int bufferSize = sampleRate * 20 * 4; /*read 20 seconds at each iteration*/
+                int bufferSize = sampleRate * 60 * 4; /*read 60 seconds at each iteration*/
                 float[] buffer = new float[bufferSize];
                 List<float[]> chunks = new List<float[]>();
                 int size = 0;
                 while ((float)size / sampleRate * 1000 < totalmilliseconds)
                 {
                     // get re-sampled/mono data
-                    int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, bufferSize);
+                    int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, bufferSize * 4);
                     if (bytesRead == 0)
                     {
                         break;

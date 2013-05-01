@@ -32,7 +32,7 @@
             dependencyResolver.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
             dependencyResolver.Bind<IAudioService>().To<BassAudioService>();
             dependencyResolver.Bind<IExtendedAudioService>().To<BassAudioService>();
-            dependencyResolver.Bind<IFFTService>().To<ExocortexFFTService>();
+            dependencyResolver.Bind<IFFTService>().To<CachedFFTWService>();
             dependencyResolver.Bind<ITagService>().To<TagService>();
             dependencyResolver.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
             dependencyResolver.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
