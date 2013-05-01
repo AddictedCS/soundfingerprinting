@@ -9,26 +9,24 @@ namespace Soundfingerprinting.Fingerprinting
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.Spectrum;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Models;
 
     public class FingerprintService : IFingerprintService
     {
-        private readonly IAudioService audioService;
-        private readonly IWaveletService waveletService;
-        private readonly ISpectrumService spectrumService;
+        private readonly IWaveletDecomposition waveletDecomposition;
+
         private readonly IFingerprintDescriptor fingerprintDescriptor;
-        
+
+        private readonly IAudioService audioService;
+
         public FingerprintService(
             IAudioService audioService,
             IFingerprintDescriptor fingerprintDescriptor,
-            IWaveletService waveletService,
-            ISpectrumService spectrumService)
+            IWaveletDecomposition waveletDecomposition)
         {
-            this.waveletService = waveletService;
-            this.spectrumService = spectrumService;
+            this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
             this.audioService = audioService;
         }
@@ -79,30 +77,48 @@ namespace Soundfingerprinting.Fingerprinting
             float[][] spectrum = audioService.CreateLogSpectrogram(
                 samples, configuration.WindowFunction, audioServiceConfiguration);
 
-            return this.CreateFingerprintsFromLogSpectrum(
+            return CreateFingerprintsFromSpectrum(
                 spectrum,
                 configuration.Stride,
                 configuration.FingerprintLength,
                 configuration.Overlap,
+                configuration.LogBins,
                 configuration.TopWavelets);
         }
 
-        private List<bool[]> CreateFingerprintsFromLogSpectrum(
-            float[][] logarithmizedSpectrum, IStride stride, int fingerprintLength, int overlap, int topWavelets)
+        private List<bool[]> CreateFingerprintsFromSpectrum(
+            float[][] spectrum, IStride stride, int fingerprintLength, int overlap, int logBins, int topWavelets)
         {
-            List<float[][]> spectralImages = spectrumService.CutLogarithmizedSpectrum(
-                logarithmizedSpectrum, stride, fingerprintLength, overlap);
-
-            waveletService.ApplyWaveletTransformInPlace(spectralImages);
-
+            int start = stride.FirstStrideSize / overlap;
             List<bool[]> fingerprints = new List<bool[]>();
-            foreach (var waveletDecomposedImage in spectralImages)
+
+            int width = spectrum.GetLength(0);
+            float[][] frames = AllocateMemoryForFingerprintImage(fingerprintLength, logBins);
+            while (start + fingerprintLength < width)
             {
-                bool[] image = fingerprintDescriptor.ExtractTopWavelets(waveletDecomposedImage, topWavelets);
+                for (int i = 0; i < fingerprintLength; i++)
+                {
+                    Array.Copy(spectrum[start + i], frames[i], logBins);
+                }
+
+                start += fingerprintLength + (stride.StrideSize / overlap);
+                waveletDecomposition.DecomposeImageInPlace(frames); /*Compute wavelets*/
+                bool[] image = fingerprintDescriptor.ExtractTopWavelets(frames, topWavelets);
                 fingerprints.Add(image);
             }
 
             return fingerprints;
+        }
+
+        private float[][] AllocateMemoryForFingerprintImage(int fingerprintLength, int logBins)
+        {
+            float[][] frames = new float[fingerprintLength][];
+            for (int i = 0; i < fingerprintLength; i++)
+            {
+                frames[i] = new float[logBins];
+            }
+
+            return frames;
         }
     }
 }

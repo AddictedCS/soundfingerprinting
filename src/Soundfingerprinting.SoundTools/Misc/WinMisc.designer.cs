@@ -287,7 +287,7 @@ namespace Soundfingerprinting.SoundTools.Misc
             this._nudQueryStride.Size = new System.Drawing.Size(120, 20);
             this._nudQueryStride.TabIndex = 19;
             this._nudQueryStride.Value = new decimal(new int[] {
-            5515,
+            253,
             0,
             0,
             0});
@@ -304,6 +304,8 @@ namespace Soundfingerprinting.SoundTools.Misc
             // _chbQueryStride
             // 
             this._chbQueryStride.AutoSize = true;
+            this._chbQueryStride.Checked = true;
+            this._chbQueryStride.CheckState = System.Windows.Forms.CheckState.Checked;
             this._chbQueryStride.Location = new System.Drawing.Point(274, 159);
             this._chbQueryStride.Name = "_chbQueryStride";
             this._chbQueryStride.Size = new System.Drawing.Size(66, 17);
@@ -462,8 +464,6 @@ namespace Soundfingerprinting.SoundTools.Misc
             // _cbDynamicLog
             // 
             this._cbDynamicLog.AutoSize = true;
-            this._cbDynamicLog.Checked = true;
-            this._cbDynamicLog.CheckState = System.Windows.Forms.CheckState.Checked;
             this._cbDynamicLog.Location = new System.Drawing.Point(390, 187);
             this._cbDynamicLog.Name = "_cbDynamicLog";
             this._cbDynamicLog.Size = new System.Drawing.Size(111, 17);

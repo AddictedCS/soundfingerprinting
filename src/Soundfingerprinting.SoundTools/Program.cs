@@ -8,9 +8,7 @@
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
     using Soundfingerprinting.Fingerprinting.FFT.FFTW;
-    using Soundfingerprinting.Fingerprinting.Spectrum;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;

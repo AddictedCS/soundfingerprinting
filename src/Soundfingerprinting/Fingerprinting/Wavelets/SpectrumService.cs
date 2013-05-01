@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Fingerprinting.Spectrum
+﻿namespace Soundfingerprinting.Fingerprinting.Wavelets
 {
     using System;
     using System.Collections.Generic;
@@ -18,7 +18,7 @@
             
             while (start + fingerprintImageLength < width)
             {
-                float[][] spectralImage = this.AllocateMemoryForFingerprintImage(fingerprintImageLength, logarithmicBins);
+                float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, logarithmicBins);
                 for (int i = 0; i < fingerprintImageLength; i++)
                 {
                     Array.Copy(logarithmizedSpectrum[start + i], spectralImage[i], logarithmicBins);
