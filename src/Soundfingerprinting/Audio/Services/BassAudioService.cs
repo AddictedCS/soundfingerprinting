@@ -99,7 +99,7 @@
 
             if (BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
             {
-                int bufferSize = sampleRate * 20 * 4; /*read 20 seconds at each iteration*/
+                int bufferSize = sampleRate * 30 * 4; /*read 30 seconds at each iteration*/
                 float[] buffer = new float[bufferSize];
                 List<float[]> chunks = new List<float[]>();
                 int size = 0;

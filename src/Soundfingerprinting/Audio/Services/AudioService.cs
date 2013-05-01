@@ -10,13 +10,6 @@ namespace Soundfingerprinting.Audio.Services
 
     public abstract class AudioService : IAudioService
     {
-        private readonly IFFTService fftService;
-
-        protected AudioService(IFFTService fftService)
-        {
-            this.fftService = fftService;
-        }
-
         // normalize power (volume) of an audio file.
         // minimum and maximum rms to normalize from.
         // these values has been detected empirically
@@ -24,12 +17,20 @@ namespace Soundfingerprinting.Audio.Services
 
         private const float MaxRms = 3;
 
+        private readonly IFFTService fftService;
+
+        protected AudioService(IFFTService fftService)
+        {
+            this.fftService = fftService;
+        }
+
         public abstract void Dispose();
 
         public abstract float[] ReadMonoFromFile(
             string pathToFile, int sampleRate, int milliSeconds, int startMilliSeconds);
 
-        public float[][] CreateSpectrogram(string pathToFilename, IWindowFunction windowFunction, int sampleRate, int overlap, int wdftSize)
+        public float[][] CreateSpectrogram(
+            string pathToFilename, IWindowFunction windowFunction, int sampleRate, int overlap, int wdftSize)
         {
             // read 5512 Hz, Mono, PCM, with a specific proxy
             float[] samples = ReadMonoFromFile(pathToFilename, sampleRate, 0, 0);
@@ -37,20 +38,12 @@ namespace Soundfingerprinting.Audio.Services
             NormalizeInPlace(samples);
 
             int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
+
             float[][] frames = new float[width][];
-            float[] complexSignal = new float[2 * wdftSize]; /*even - Re, odd - Img, thats how Exocortex works*/
-            double[] window = windowFunction.GetWindow(wdftSize);
             for (int i = 0; i < width; i++)
             {
-                // take 371 ms each 11.6 ms (2048 samples each 64 samples)
-                for (int j = 0; j < wdftSize; j++)
-                {
-                    complexSignal[2 * j] = (float)window[j] * samples[(i * overlap) + j];
-                    complexSignal[(2 * j) + 1] = 0;
-                }
-
-                Fourier.FFT(complexSignal, wdftSize, FourierDirection.Forward);
-
+                float[] complexSignal = fftService.FFTForward(
+                    samples, i * overlap, wdftSize, windowFunction.GetWindow(wdftSize));
                 float[] band = new float[(wdftSize / 2) + 1];
                 for (int j = 0; j < (wdftSize / 2) + 1; j++)
                 {
@@ -94,6 +87,11 @@ namespace Soundfingerprinting.Audio.Services
             }
 
             return frames;
+        }
+
+        public float[] ReadMonoFromFile(string pathToFile, int sampleRate)
+        {
+            return ReadMonoFromFile(pathToFile, sampleRate, 0, 0);
         }
 
         private void NormalizeInPlace(float[] samples)
@@ -154,7 +152,6 @@ namespace Soundfingerprinting.Audio.Services
             for (int j = 0; j < configuration.LogBins + 1; j++)
             {
                 int start = (int)((Math.Pow(logBase, j) - 1.0) * mincoef);
-                int end = (int)((Math.Pow(logBase, j + 1.0f) - 1.0) * mincoef);
                 indexes[j] = start + (int)mincoef;
             }
 
@@ -172,7 +169,7 @@ namespace Soundfingerprinting.Audio.Services
         /// </returns>
         private int[] GenerateLogFrequencies(AudioServiceConfiguration configuration)
         {
-            if(configuration.UseDynamicLogBase)
+            if (configuration.UseDynamicLogBase)
             {
                 return GenerateLogFrequenciesDynamicBase(configuration);
             }
@@ -225,17 +222,6 @@ namespace Soundfingerprinting.Audio.Services
             /*DFT N points defines [N/2 + 1] frequency points*/
             int i = (int)Math.Round(((spectrumLength / 2) + 1) * fraction);
             return i;
-        }
-
-        /// <summary>
-        ///   Read data from file
-        /// </summary>
-        /// <param name = "pathToFile">Filename to be read</param>
-        /// <param name = "sampleRate">Sample rate at which to perform reading</param>
-        /// <returns>Array with data</returns>
-        public float[] ReadMonoFromFile(string pathToFile, int sampleRate)
-        {
-            return ReadMonoFromFile(pathToFile, sampleRate, 0, 0);
         }
     }
 }
