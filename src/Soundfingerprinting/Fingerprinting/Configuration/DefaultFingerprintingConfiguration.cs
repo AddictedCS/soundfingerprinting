@@ -14,7 +14,6 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
             MinFrequency = 318;
             MaxFrequency = 2000;
             TopWavelets = 200;
-            SamplesPerFingerprint = 5512;
             SampleRate = 5512;
             LogBase = 2;
             Stride = new IncrementalStaticStride(5115, FingerprintLength * Overlap);
