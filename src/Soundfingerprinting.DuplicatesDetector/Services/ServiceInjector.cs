@@ -37,7 +37,7 @@
             ServiceContainer.Kernel.Bind<IFingerprintService>().To<FingerprintService>();
             ServiceContainer.Kernel.Bind<IFFTService>().To<CachedFFTWService>();
             ServiceContainer.Kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
-            ServiceContainer.Kernel.Bind<IWaveletDecomposition>().To<DiscreteHaarWaveletDecomposition>();
+            ServiceContainer.Kernel.Bind<IWaveletDecomposition>().To<NonStandardHaarWaveletDecomposition>();
             ServiceContainer.Kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
         }
     }

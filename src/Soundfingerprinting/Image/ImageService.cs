@@ -232,6 +232,23 @@
             return image;
         }
 
+        public Image GetWaveletTransformedImage(float[][] image, IWaveletDecomposition wavelet)
+        {
+            int width = image[0].Length;
+            int height = image.Length;
+            wavelet.DecomposeImageInPlace(image);
+            Bitmap transformed = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
+            for (int i = 0; i < transformed.Height; i++)
+            {
+                for (int j = 0; j < transformed.Width; j++)
+                {
+                    transformed.SetPixel(j, i, Color.FromArgb((int)image[i][j]));
+                }
+            }
+
+            return transformed;
+        }
+
         private Color ValueToBlackWhiteColor(double value, double maxValue)
         {
             int color = (int)(Math.Abs(value) * 255 / Math.Abs(maxValue));

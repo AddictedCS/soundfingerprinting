@@ -30,10 +30,10 @@
         public void SetUp()
         {
             modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
-            serviceWithBass = new FingerprintService(new BassAudioService(FFTService), new FingerprintDescriptor(), new HaarWavelet());
+            serviceWithBass = new FingerprintService(new BassAudioService(FFTService), new FingerprintDescriptor(), new StandardHaarWaveletDecomposition());
 
             #pragma warning disable 612,618
-            serviceWithDirectSound = new FingerprintService(new DirectSoundAudioService(FFTService), new FingerprintDescriptor(), new HaarWavelet());
+            serviceWithDirectSound = new FingerprintService(new DirectSoundAudioService(FFTService), new FingerprintDescriptor(), new StandardHaarWaveletDecomposition());
             #pragma warning restore 612,618
 
             defaultConfiguration = new DefaultFingerprintingConfiguration();

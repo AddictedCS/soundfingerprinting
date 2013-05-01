@@ -131,7 +131,8 @@
     <Compile Include="Fingerprinting\Configuration\IFingerprintingConfiguration.cs" />
     <Compile Include="Fingerprinting\FingerprintService.cs" />
     <Compile Include="Fingerprinting\IFingerprintDescriptor.cs" />
-    <Compile Include="Fingerprinting\Wavelets\DiscreteHaarWaveletDecomposition.cs" />
+    <Compile Include="Fingerprinting\Wavelets\NonStandardHaarWaveletDecomposition.cs" />
+    <Compile Include="Fingerprinting\Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="Fingerprinting\Wavelets\ISpectrumService.cs" />
     <Compile Include="Fingerprinting\Wavelets\IWaveletService.cs" />
     <Compile Include="Fingerprinting\Wavelets\SpectrumService.cs" />
@@ -143,7 +144,7 @@
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WithConfiguration.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnit.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\ITargetOn.cs" />
-    <Compile Include="Fingerprinting\Wavelets\HaarWavelet.cs" />
+    <Compile Include="Fingerprinting\Wavelets\StandardHaarWaveletDecomposition.cs" />
     <Compile Include="Fingerprinting\Windows\HammingWindow.cs" />
     <Compile Include="Fingerprinting\Windows\HanningWindow.cs" />
     <Compile Include="Fingerprinting\Wavelets\IntegralImage.cs" />

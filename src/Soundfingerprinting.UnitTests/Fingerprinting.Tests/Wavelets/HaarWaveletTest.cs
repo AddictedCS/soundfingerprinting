@@ -15,7 +15,7 @@
         [TestInitialize]
         public void SetUp()
         {
-            waveletDecomposition = new HaarWavelet();
+            waveletDecomposition = new StandardHaarWaveletDecomposition();
         }
 
         [TestMethod]

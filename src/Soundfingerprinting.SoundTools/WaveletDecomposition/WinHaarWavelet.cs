@@ -7,12 +7,16 @@
     using System.Windows.Forms;
 
     using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinHaarWavelet : Form
     {
-        public WinHaarWavelet()
+        private readonly IImageService imageService;
+
+        public WinHaarWavelet(IImageService imageService)
         {
+            this.imageService = imageService;
             InitializeComponent();
             Icon = Resources.Sound;
         }
@@ -21,28 +25,32 @@
         {
             if (String.IsNullOrEmpty(_tbImageToDecompose.Text))
             {
-                MessageBox.Show(Resources.SelectFile, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    Resources.SelectFile, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (!File.Exists(Path.GetFullPath(_tbImageToDecompose.Text)))
             {
-                MessageBox.Show(Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             if (String.IsNullOrEmpty(_tbSaveImage.Text))
             {
-                SaveFileDialog sfd = new SaveFileDialog {Filter = Resources.FileFilterJPeg, FileName = "transformed.jpg"};
+                SaveFileDialog sfd = new SaveFileDialog
+                                         {
+                                             Filter = Resources.FileFilterJPeg,
+                                             FileName = "transformed.jpg"
+                                         };
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     _tbSaveImage.Text = Path.GetFullPath(sfd.FileName);
                 }
-                else
-                    return;
+                else return;
             }
             FadeControls(false);
-            Action action =
-                () =>
+            Action action = () =>
                 {
                     Image img = Image.FromFile(_tbImageToDecompose.Text);
                     Bitmap bmp = new Bitmap(img);
@@ -50,11 +58,10 @@
                     for (int i = 0; i < bmp.Height; i++)
                     {
                         argb[i] = new float[bmp.Width];
-                        for (int j = 0; j < bmp.Width; j++)
-                            argb[i][j] = bmp.GetPixel(j, i).ToArgb();
+                        for (int j = 0; j < bmp.Width; j++) argb[i][j] = bmp.GetPixel(j, i).ToArgb();
                     }
 
-                    Image image = Imaging.GetWaveletTransformation(new HaarWavelet(), argb);
+                    Image image = imageService.GetWaveletTransformedImage(argb, new StandardHaarWaveletDecomposition());
                     image.Save(_tbSaveImage.Text, ImageFormat.Jpeg);
                     img.Dispose();
                     bmp.Dispose();
@@ -62,11 +69,16 @@
                 };
             action.BeginInvoke(
                 (result) =>
-                {
-                    action.EndInvoke(result);
-                    FadeControls(true);
-                    MessageBox.Show(Resources.ImageDecomposedSuccessfuly, Resources.Success, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }, null);
+                    {
+                        action.EndInvoke(result);
+                        FadeControls(true);
+                        MessageBox.Show(
+                            Resources.ImageDecomposedSuccessfuly,
+                            Resources.Success,
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    },
+                null);
         }
 
         /// <summary>

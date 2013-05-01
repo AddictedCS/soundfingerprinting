@@ -4,6 +4,7 @@
     using System.Drawing;
 
     using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Fingerprinting.Wavelets;
 
     public interface IImageService
     {
@@ -28,5 +29,7 @@
             int fingerprintLength,
             int overlap,
             int imagesPerRow);
+
+        Image GetWaveletTransformedImage(float[][] image, IWaveletDecomposition wavelet);
     }
 }
