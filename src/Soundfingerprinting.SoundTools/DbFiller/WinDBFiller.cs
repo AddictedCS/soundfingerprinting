@@ -20,6 +20,7 @@
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;
 
@@ -32,6 +33,8 @@
         private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
 
         private readonly IModelService modelService;                             /*Dal Signature service*/
+
+        private readonly ICombinedHashingAlgoritm combinedHashingAlgorithm;
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
                                       /*File filters*/
@@ -59,9 +62,15 @@
         private bool stopFlag;
         private Album unknownAlbum;
 
-        public WinDbFiller(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, ITagService tagService, IModelService modelService)
+        public WinDbFiller(
+            IFingerprintService fingerprintService,
+            IWorkUnitBuilder workUnitBuilder,
+            ITagService tagService,
+            IModelService modelService,
+            ICombinedHashingAlgoritm combinedHashingAlgorithm)
         {
             this.modelService = modelService;
+            this.combinedHashingAlgorithm = combinedHashingAlgorithm;
             this.fingerprintService = fingerprintService;
             this.workUnitBuilder = workUnitBuilder;
             this.tagService = tagService;
@@ -90,13 +99,13 @@
                 _nudHashTables.ReadOnly = false;
             }
 
-            object[] items = Enum.GetNames(typeof (StrideType)); /*Add enumeration types in the combo box*/
+            object[] items = Enum.GetNames(typeof(StrideType)); /*Add enumeration types in the combo box*/
             _cmbStrideType.Items.AddRange(items);
             _cmbStrideType.SelectedIndex = 0;
         }
 
-        
-       private void RootFolderIsSelected(object sender, EventArgs e)
+
+        private void RootFolderIsSelected(object sender, EventArgs e)
        {
            Cursor = Cursors.WaitCursor;
            _tbRootFolder.Enabled = false;
@@ -522,21 +531,22 @@
         /// <param name = "track">Track of the corresponding fingerprints</param>
         /// <param name = "hashTables">Number of hash tables</param>
         /// <param name = "hashKeys">Number of hash keys</param>
-        private void HashFingerprintsUsingMinHash(IEnumerable<Fingerprint> listOfFingerprintsToHash, Track track, int hashTables, int hashKeys)
+        private void HashFingerprintsUsingMinHash(
+            IEnumerable<Fingerprint> listOfFingerprintsToHash, Track track, int hashTables, int hashKeys)
         {
             List<HashBinMinHash> listToInsert = new List<HashBinMinHash>();
-            MinHash minHash = new MinHash(permStorage);
             foreach (Fingerprint fingerprint in listOfFingerprintsToHash)
             {
-                int[] hashBins = minHash.ComputeMinHashSignature(fingerprint.Signature); //Compute Min Hashes
-                Dictionary<int, long> hashTable = minHash.GroupMinHashToLSHBuckets(hashBins, hashTables, hashKeys);
-                foreach (KeyValuePair<int, long> item in hashTable)
+                long[] buckets = combinedHashingAlgorithm.Hash(fingerprint.Signature, hashTables, hashKeys);
+                int tableCount = 0;
+                foreach (long bucket in buckets)
                 {
-                    HashBinMinHash hash = new HashBinMinHash(-1, item.Value, item.Key, track.Id, fingerprint.Id);
+                    HashBinMinHash hash = new HashBinMinHash(-1, bucket, tableCount++, track.Id, fingerprint.Id);
                     listToInsert.Add(hash);
                 }
             }
-            modelService.InsertHashBin(listToInsert); //Insert 
+
+            modelService.InsertHashBin(listToInsert);
         }
 
         /// <summary>

@@ -10,6 +10,8 @@ using Soundfingerprinting.Hashing;
 
 namespace Soundfingerprinting.NeuralHashing.MMI
 {
+    using Soundfingerprinting.Hashing.Utils;
+
     [Serializable]
     public class MinimalMutualInfoPattern
     {

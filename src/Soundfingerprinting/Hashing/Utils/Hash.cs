@@ -1,12 +1,8 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Security.Cryptography;
-
-namespace Soundfingerprinting.Hashing
+﻿namespace Soundfingerprinting.Hashing.Utils
 {
+    using System;
+    using System.Security.Cryptography;
+
     /// <summary>
     ///   Hash class used in hashing purposes (projection hash with random permutations used)
     /// </summary>
@@ -36,12 +32,12 @@ namespace Soundfingerprinting.Hashing
         /// <param name = "max">Max value in the matrix</param>
         private void GenerateRandomMatrixOfComponents(int cols, int rows, int min, int max)
         {
-            lock (_lock)
+            lock (this._lock)
             {
-                if (_randomMatrix == null)
+                if (this._randomMatrix == null)
                 {
                     byte[] seed = new byte[32];
-                    _rng.GetBytes(seed);
+                    this._rng.GetBytes(seed);
                     Random random = new Random(BitConverter.ToInt32(seed, 0));
                     int[][] randomArray = new int[rows][];
 
@@ -51,7 +47,7 @@ namespace Soundfingerprinting.Hashing
                         for (int j = 0; j < cols; j++)
                             randomArray[i][j] = random.Next(min, max);
                     }
-                    _randomMatrix = randomArray;
+                    this._randomMatrix = randomArray;
                 }
             }
         }
@@ -66,9 +62,9 @@ namespace Soundfingerprinting.Hashing
         /// <returns>Random matrix</returns>
         public int[][] GetRandomMatrix(int cols, int rows, int min, int max)
         {
-            if (_randomMatrix == null)
-                GenerateRandomMatrixOfComponents(cols, rows, min, max);
-            return _randomMatrix;
+            if (this._randomMatrix == null)
+                this.GenerateRandomMatrixOfComponents(cols, rows, min, max);
+            return this._randomMatrix;
         }
 
         /// <summary>
@@ -77,7 +73,7 @@ namespace Soundfingerprinting.Hashing
         /// <param name = "randomVector"></param>
         public void SetRandomMatrix(int[][] randomVector)
         {
-            _randomMatrix = randomVector;
+            this._randomMatrix = randomVector;
         }
 
         /// <summary>
@@ -99,7 +95,7 @@ namespace Soundfingerprinting.Hashing
             {
                 for (int j = 0; j < hashKeys /*r min hash signatures*/; j++)
                 {
-                    hashes[i] += (signature[i*hashKeys + j]*_randomMatrix[i][j] + b);
+                    hashes[i] += (signature[i*hashKeys + j]*this._randomMatrix[i][j] + b);
                 }
                 hashes[i] /= w;
             }

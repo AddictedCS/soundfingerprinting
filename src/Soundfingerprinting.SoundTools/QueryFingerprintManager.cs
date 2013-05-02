@@ -11,6 +11,7 @@
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
 
     public static class QueryFingerprintManager
     {
@@ -36,36 +37,37 @@
             int thresholdTables,
             ref long queryTime)
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-            Dictionary<int, QueryStats> stats = new Dictionary<int, QueryStats>();
-            MinHash minHash = new MinHash(permStorage);
-            foreach (bool[] signature in signatures)
-            {
-                if (signature == null)
-                {
-                    continue;
-                }
+            throw new NotImplementedException();
+            //Stopwatch stopWatch = new Stopwatch();
+            //stopWatch.Start();
+            //Dictionary<int, QueryStats> stats = new Dictionary<int, QueryStats>();
+            //MinHashService minHashService = new MinHashService(permStorage);
+            //foreach (bool[] signature in signatures)
+            //{
+            //    if (signature == null)
+            //    {
+            //        continue;
+            //    }
 
-                /*Compute Min Hash on randomly selected fingerprints*/
-                int[] bin = minHash.ComputeMinHashSignature(signature);
+            //    /*Compute Min Hash on randomly selected fingerprints*/
+            //    byte[] bin = minHashService.ComputeMinHashSignature(signature);
                    
-                Dictionary<int, long> hashes = minHash.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
-                long[] hashbuckets = hashes.Values.ToArray();
-                IDictionary<int, IList<HashBinMinHash>> candidates = modelService.ReadFingerprintsByHashBucketLsh(hashbuckets);
-                Dictionary<int, IList<HashBinMinHash>> potentialCandidates = SelectPotentialMatchesOutOfEntireDataset(candidates, thresholdTables);
-                if (potentialCandidates.Count > 0)
-                {
-                    IList<Fingerprint> fingerprints = modelService.ReadFingerprintById(potentialCandidates.Keys);
-                    Dictionary<Fingerprint, int> finalCandidates = fingerprints.ToDictionary(finger => finger, finger => potentialCandidates[finger.Id].Count);
-                    ArrangeCandidatesAccordingToFingerprints(
-                        signature, finalCandidates, lshHashTables, lshGroupsPerKey, stats);
-                }
-            }
+            //    Dictionary<int, long> hashes = minHashService.GroupMinHashToLSHBuckets(bin, lshHashTables, lshGroupsPerKey); /*Find all candidates by querying the database*/
+            //    long[] hashbuckets = hashes.Values.ToArray();
+            //    IDictionary<int, IList<HashBinMinHash>> candidates = modelService.ReadFingerprintsByHashBucketLsh(hashbuckets);
+            //    Dictionary<int, IList<HashBinMinHash>> potentialCandidates = SelectPotentialMatchesOutOfEntireDataset(candidates, thresholdTables);
+            //    if (potentialCandidates.Count > 0)
+            //    {
+            //        IList<Fingerprint> fingerprints = modelService.ReadFingerprintById(potentialCandidates.Keys);
+            //        Dictionary<Fingerprint, int> finalCandidates = fingerprints.ToDictionary(finger => finger, finger => potentialCandidates[finger.Id].Count);
+            //        ArrangeCandidatesAccordingToFingerprints(
+            //            signature, finalCandidates, lshHashTables, lshGroupsPerKey, stats);
+            //    }
+            //}
 
-            stopWatch.Stop();
-            queryTime = stopWatch.ElapsedMilliseconds; /*Set the query Time parameter*/
-            return stats;
+            //stopWatch.Stop();
+            //queryTime = stopWatch.ElapsedMilliseconds; /*Set the query Time parameter*/
+            //return stats;
         }
 
         public static Dictionary<Int32, QueryStats> QueryOneSongMinHashFast(
@@ -135,31 +137,32 @@
         private static Dictionary<Int32, QueryStats> ArrangeCandidatesAccordingToFingerprints(bool[] f, Dictionary<Fingerprint, int> potentialCandidates,
                                                                                               int lHashTables, int kKeys, Dictionary<Int32, QueryStats> trackIdQueryStats)
         {
-            /*Most time consuming method while performing the necessary calculation*/
-            foreach (KeyValuePair<Fingerprint, int> pair in potentialCandidates)
-            {
-                Fingerprint fingerprint = pair.Key;
-                int tableVotes = pair.Value;
-                /*Compute Hamming Distance of actual and read signature*/
-                int hammingDistance = MinHash.CalculateHammingDistance(f, fingerprint.Signature)*tableVotes;
-                double jaqSimilarity = MinHash.CalculateJaqSimilarity(f, fingerprint.Signature);
-                /*Add to sample set*/
-                Int32 trackId = fingerprint.TrackId;
-                if (!trackIdQueryStats.ContainsKey(trackId))
-                    trackIdQueryStats.Add(trackId, new QueryStats(0, 0, 0, -1, -1, 0, Int32.MinValue, 0, Int32.MaxValue, Int32.MinValue, Int32.MinValue, Double.MaxValue));
-                QueryStats stats = trackIdQueryStats[trackId];
-                stats.HammingDistance += hammingDistance; /*Sum hamming distance of each potential candidate*/
-                stats.NumberOfTrackIdOccurences++; /*Increment occurrence count*/
-                stats.NumberOfTotalTableVotes += tableVotes; /*Find total table votes*/
-                stats.HammingDistanceByTrack += hammingDistance/tableVotes; /*Find hamming distance by track id occurrence*/
-                if (stats.MinHammingDistance > hammingDistance/tableVotes) /*Find minimal hamming distance over the entire set*/
-                    stats.MinHammingDistance = hammingDistance/tableVotes;
-                if (stats.MaxTableVote < tableVotes) /*Find maximal table vote*/
-                    stats.MaxTableVote = tableVotes;
-                if (stats.Similarity > jaqSimilarity)
-                    stats.Similarity = jaqSimilarity;
-            }
-            return trackIdQueryStats;
+            throw new NotImplementedException();
+            ///*Most time consuming method while performing the necessary calculation*/
+            //foreach (KeyValuePair<Fingerprint, int> pair in potentialCandidates)
+            //{
+            //    Fingerprint fingerprint = pair.Key;
+            //    int tableVotes = pair.Value;
+            //    /*Compute Hamming Distance of actual and read signature*/
+            //    int hammingDistance = MinHashService.CalculateHammingDistance(f, fingerprint.Signature)*tableVotes;
+            //    double jaqSimilarity = MinHashService.CalculateJaqSimilarity(f, fingerprint.Signature);
+            //    /*Add to sample set*/
+            //    Int32 trackId = fingerprint.TrackId;
+            //    if (!trackIdQueryStats.ContainsKey(trackId))
+            //        trackIdQueryStats.Add(trackId, new QueryStats(0, 0, 0, -1, -1, 0, Int32.MinValue, 0, Int32.MaxValue, Int32.MinValue, Int32.MinValue, Double.MaxValue));
+            //    QueryStats stats = trackIdQueryStats[trackId];
+            //    stats.HammingDistance += hammingDistance; /*Sum hamming distance of each potential candidate*/
+            //    stats.NumberOfTrackIdOccurences++; /*Increment occurrence count*/
+            //    stats.NumberOfTotalTableVotes += tableVotes; /*Find total table votes*/
+            //    stats.HammingDistanceByTrack += hammingDistance/tableVotes; /*Find hamming distance by track id occurrence*/
+            //    if (stats.MinHammingDistance > hammingDistance/tableVotes) /*Find minimal hamming distance over the entire set*/
+            //        stats.MinHammingDistance = hammingDistance/tableVotes;
+            //    if (stats.MaxTableVote < tableVotes) /*Find maximal table vote*/
+            //        stats.MaxTableVote = tableVotes;
+            //    if (stats.Similarity > jaqSimilarity)
+            //        stats.Similarity = jaqSimilarity;
+            //}
+            //return trackIdQueryStats;
         }
 
         ///// <summary>

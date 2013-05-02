@@ -1,14 +1,10 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-
-namespace Soundfingerprinting.Hashing
+﻿namespace Soundfingerprinting.Hashing.MinHash
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+
     /// <summary>
     ///   Class for reading local permutations from file
     /// </summary>
@@ -36,8 +32,8 @@ namespace Soundfingerprinting.Hashing
         /// <param name = "separator">Separator between 2 consecutive permutations</param>
         public LocalPermutations(string pathToPermutations, string separator)
         {
-            _pathToPerms = pathToPermutations;
-            _separator = separator;
+            this._pathToPerms = pathToPermutations;
+            this._separator = separator;
         }
 
         #region IPermutations Members
@@ -48,17 +44,17 @@ namespace Soundfingerprinting.Hashing
         /// <returns>Permutations read from file</returns>
         public int[][] GetPermutations()
         {
-            if (_perms != null)
-                return _perms;
+            if (this._perms != null)
+                return this._perms;
             List<int[]> result = new List<int[]>();
-            using (StreamReader reader = new StreamReader(_pathToPerms))
+            using (StreamReader reader = new StreamReader(this._pathToPerms))
             {
                 while (reader.Peek() != -1)
                 {
                     string line = reader.ReadLine();
                     if (line != null)
                     {
-                        string[] ints = line.Split(new[] {_separator}, StringSplitOptions.RemoveEmptyEntries);
+                        string[] ints = line.Split(new[] {this._separator}, StringSplitOptions.RemoveEmptyEntries);
                         int[] permutation = new int[ints.Length];
                         int i = 0;
                         foreach (string item in ints)
@@ -69,8 +65,8 @@ namespace Soundfingerprinting.Hashing
                     }
                 }
             }
-            _perms = result.ToArray();
-            return _perms;
+            this._perms = result.ToArray();
+            return this._perms;
         }
 
         #endregion

@@ -1,12 +1,8 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-
-namespace Soundfingerprinting.Hashing
+﻿namespace Soundfingerprinting.Hashing.Utils
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     ///   Utilities for working with floating point numbers.
     /// </summary>

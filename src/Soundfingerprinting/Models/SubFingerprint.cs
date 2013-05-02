@@ -1,13 +1,11 @@
 ﻿namespace Soundfingerprinting.Models
 {
-    public class Fingerprint
+    public class SubFingerprint
     {
-        public int OrderNumber { get; set; }
-
         public int StartAtSecond { get; set; }
 
         public int EndAtSecond { get; set; }
 
-        public bool[] Signature { get; set; }
+        public byte[] Signature { get; set; }
     }
 }

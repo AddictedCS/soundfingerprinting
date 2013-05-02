@@ -9,6 +9,7 @@
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
 
     /// <summary>
     ///   Service injector loads all the services into Service Container on Application startup

@@ -16,34 +16,29 @@
     public class Repository
     {
         /// <summary>
-        ///   Min hasher
-        /// </summary>
-        private readonly MinHash hasher;
-
-        /// <summary>
         ///   Creates fingerprints according to the theoretical constructs
         /// </summary>
         private readonly IFingerprintService service;
 
         private readonly IWorkUnitBuilder workUnitBuilder;
 
-        /// <summary>
-        ///   Storage for min-hash permutations
-        /// </summary>
-        private readonly IPermutations permutations;
+        private readonly ICombinedHashingAlgoritm combinedHashingAlgorithm;
 
         /// <summary>
         ///   Storage for hash signatures and tracks
         /// </summary>
         private readonly IStorage storage;
 
-        public Repository(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder, IStorage storage, IPermutations permutations)
+        public Repository(
+            IFingerprintService fingerprintService,
+            IWorkUnitBuilder workUnitBuilder,
+            IStorage storage,
+            ICombinedHashingAlgoritm combinedHashingAlgorithm)
         {
-            this.permutations = permutations;
+            this.combinedHashingAlgorithm = combinedHashingAlgorithm;
             this.storage = storage;
             service = fingerprintService;
             this.workUnitBuilder = workUnitBuilder;
-            hasher = new MinHash(this.permutations);
         }
 
         /// <summary>
@@ -75,7 +70,7 @@
 
             storage.InsertTrack(track); /*Insert track into the storage*/
             /*Get signature's hash signature, and associate it to a specific track*/
-            List<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);
+            IEnumerable<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);
             foreach (HashSignature hash in creationalsignatures)
             {
                 storage.InsertHash(hash, HashType.Creational);
@@ -85,24 +80,24 @@
         }
 
 
-        // ReSharper disable ReturnTypeCanBeEnumerable.Local
-        private List<HashSignature> GetSignatures(IEnumerable<bool[]> fingerprints, Track track, int hashTables, int hashKeys)
-// ReSharper restore ReturnTypeCanBeEnumerable.Local
+        private IEnumerable<HashSignature> GetSignatures(IEnumerable<bool[]> fingerprints, Track track, int hashTables, int hashKeys)
         {
             List<HashSignature> signatures = new List<HashSignature>();
             foreach (bool[] fingerprint in fingerprints)
             {
-                int[] signature = hasher.ComputeMinHashSignature(fingerprint); /*Compute min-hash signature out of signature*/
-                Dictionary<int, long> buckets = hasher.GroupMinHashToLSHBuckets(signature, hashTables, hashKeys); /*Group Min-Hash signature into LSH buckets*/
-                int[] hashSignature = new int[buckets.Count];
-                foreach (KeyValuePair<int, long> bucket in buckets)
+                long[] buckets = combinedHashingAlgorithm.Hash(fingerprint, hashTables, hashKeys);
+
+                int[] hashSignature = new int[buckets.Length];
+                int tableCount = 0;
+                foreach (long bucket in buckets)
                 {
-                    hashSignature[bucket.Key] = (int)bucket.Value;
+                    hashSignature[tableCount++] = (int)bucket;
                 }
 
                 HashSignature hash = new HashSignature(track, hashSignature); /*associate track to hash-signature*/
                 signatures.Add(hash);
             }
+
             return signatures; /*Return the signatures*/
         }
 

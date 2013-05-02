@@ -12,6 +12,8 @@ using Soundfingerprinting.Hashing;
 
 namespace Soundfingerprinting.NeuralHashing
 {
+    using Soundfingerprinting.Hashing.Utils;
+
     /// <summary>
     ///   Network - represent a collection of connected layers
     /// </summary>

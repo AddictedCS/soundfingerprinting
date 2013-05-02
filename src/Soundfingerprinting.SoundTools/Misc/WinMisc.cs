@@ -12,6 +12,8 @@
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
+    using Soundfingerprinting.Hashing.Utils;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinMisc : Form
@@ -250,7 +252,7 @@
             {
                 for (int j = 0; j < fingerprintsQuerySong.Count; j++)
                 {
-                    double value = MinHash.CalculateJaqSimilarity(fingerprintsDatabaseSong[i], fingerprintsQuerySong[j]);
+                    double value = HashingUtils.CalculateJaqSimilarity(fingerprintsDatabaseSong[i], fingerprintsQuerySong[j]);
                     if (value > max)
                     {
                         max = value;

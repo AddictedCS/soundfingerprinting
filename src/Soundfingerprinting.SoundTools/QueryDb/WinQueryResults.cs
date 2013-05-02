@@ -17,6 +17,7 @@
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.SoundTools.Properties;
 
     /// <summary>
@@ -280,7 +281,7 @@
         public ITagService TagService { get; set; }
 
         /// <summary>
-        ///   Extract possible candidates from the data source using Neural Hasher
+        ///   Extract possible candidates from the data fingerprint using Neural Hasher
         /// </summary>
         private void ExtractCandidatesWithNeuralHasher()
         {
@@ -389,7 +390,7 @@
         }
 
         /// <summary>
-        ///   Extract Candidates from the underlying data source using Min Hash + LSH Schema
+        ///   Extract Candidates from the underlying data fingerprint using Min Hash + LSH Schema
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
         private void ExtractCandidatesWithMinHashAlgorithm()

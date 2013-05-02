@@ -8,14 +8,24 @@ using System.Linq;
 
 namespace Soundfingerprinting.Hashing
 {
+    using Soundfingerprinting.Hashing.MinHash;
+    using Soundfingerprinting.Hashing.Utils;
+
     /// <summary>
-    ///   Conservative selection of LGroups of permutations according to the minimal mutual information 
+    ///   Summed accross selection of LGroups of permutations according to the minimal mutual information 
     ///   spread accross the elements of the group
     /// </summary>
-    public class ConservativeSelector : IMinMutualSelector
+    public class SummedAcrossSelector : IMinMutualSelector
     {
         #region IMinMutualSelector Members
 
+        /// <summary>
+        ///   Get permutations using summed across technique
+        /// </summary>
+        /// <param name = "randomPermutationPool">Random permutation pool</param>
+        /// <param name = "lHashTable">L Hash tables</param>
+        /// <param name = "bKeysPerTable">K keys per table</param>
+        /// <returns>LGroups of permutation specific to LHashtables</returns>
         public Dictionary<int, List<int[]>> GetPermutations(Dictionary<int, int[]> randomPermutationPool, int lHashTable, int bKeysPerTable)
         {
             List<int> possibleIndexes = randomPermutationPool.Keys.ToList(); /*[0, poolcount]*/
@@ -47,7 +57,7 @@ namespace Soundfingerprinting.Hashing
                 count++;
             }
 
-            /*Conservative selection*/
+            /*Summed accros selection*/
             while (true)
             {
                 double minMutualInfo = Double.MaxValue;
@@ -64,18 +74,14 @@ namespace Soundfingerprinting.Hashing
                             groupcount++;
                             continue;
                         }
-                        double maxMutualInfo = Double.MinValue; /*Find the Maximum accross the Group*/
+                        double totalMinMutualInfo = 0;
                         foreach (int[] groupMember in group.Value)
-                        {
-                            double mi = SignalUtils.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
-                            if (maxMutualInfo < mi) /*Find the maximum of a Group G*/
-                                maxMutualInfo = mi;
-                        }
+                            totalMinMutualInfo += SignalUtils.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
 
-                        /*Select the minimum of the permutation across all the Groups G and Unselected permutations S*/
-                        if (minMutualInfo > maxMutualInfo)
+                        /*Actual summed accross selection*/
+                        if (minMutualInfo > totalMinMutualInfo)
                         {
-                            minMutualInfo = maxMutualInfo;
+                            minMutualInfo = totalMinMutualInfo;
                             permIndex = permutationIndex;
                             lGroupIndex = groupcount;
                         }

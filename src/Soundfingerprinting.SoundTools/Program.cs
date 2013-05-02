@@ -13,6 +13,7 @@
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.DI;
 

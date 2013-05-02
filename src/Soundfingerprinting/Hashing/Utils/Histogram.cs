@@ -1,13 +1,9 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Soundfingerprinting.Hashing
+﻿namespace Soundfingerprinting.Hashing.Utils
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+
     /// <summary>
     /// A <see cref="Histogram"/> consists of a series of <see cref="Bucket"/>s, 
     /// each representing a region limited by a lower bound (exclusive) and an upper bound (inclusive).
@@ -90,9 +86,9 @@ namespace Soundfingerprinting.Hashing
                 throw new ArgumentOutOfRangeException("ArgumentMustBePositive");
             }
 
-            LowerBound = lowerBound;
-            UpperBound = upperBound;
-            Count = count;
+            this.LowerBound = lowerBound;
+            this.UpperBound = upperBound;
+            this.Count = count;
         }
 
         /// <summary>
@@ -101,7 +97,7 @@ namespace Soundfingerprinting.Hashing
         /// <returns>A cloned Bucket object.</returns>
         public object Clone()
         {
-            return new Bucket(LowerBound, UpperBound, Count);
+            return new Bucket(this.LowerBound, this.UpperBound, this.Count);
         }
 
         /// <summary>
@@ -109,7 +105,7 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         public double Width
         {
-            get { return UpperBound - LowerBound; }
+            get { return this.UpperBound - this.LowerBound; }
         }
 
         /// <summary>
@@ -128,9 +124,9 @@ namespace Soundfingerprinting.Hashing
         ///   smaller than the bucket, +1 if the point is larger than the bucket.</returns>
         public int Contains(double x)
         {
-            if (LowerBound < x)
+            if (this.LowerBound < x)
             {
-                if (UpperBound >= x)
+                if (this.UpperBound >= x)
                 {
                     return 0;
                 }
@@ -146,18 +142,18 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         public int CompareTo(Bucket bucket)
         {
-            if (UpperBound > bucket.LowerBound && LowerBound < bucket.LowerBound)
+            if (this.UpperBound > bucket.LowerBound && this.LowerBound < bucket.LowerBound)
             {
                 throw new ArgumentException("PartialOrderException");
             }
 
-            if (UpperBound.AlmostEqual(bucket.UpperBound)
-                && LowerBound.AlmostEqual(bucket.LowerBound))
+            if (this.UpperBound.AlmostEqual(bucket.UpperBound)
+                && this.LowerBound.AlmostEqual(bucket.LowerBound))
             {
                 return 0;
             }
 
-            if (bucket.UpperBound <= LowerBound)
+            if (bucket.UpperBound <= this.LowerBound)
             {
                 return 1;
             }
@@ -177,9 +173,9 @@ namespace Soundfingerprinting.Hashing
             }
 
             Bucket b = (Bucket) obj;
-            return LowerBound.AlmostEqual(b.LowerBound)
-                   && UpperBound.AlmostEqual(b.UpperBound)
-                   && Count.AlmostEqual(b.Count);
+            return this.LowerBound.AlmostEqual(b.LowerBound)
+                   && this.UpperBound.AlmostEqual(b.UpperBound)
+                   && this.Count.AlmostEqual(b.Count);
         }
 
         /// <summary>
@@ -187,7 +183,7 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         public override int GetHashCode()
         {
-            return LowerBound.GetHashCode() ^ UpperBound.GetHashCode() ^ Count.GetHashCode();
+            return this.LowerBound.GetHashCode() ^ this.UpperBound.GetHashCode() ^ this.Count.GetHashCode();
         }
 
         /// <summary>
@@ -196,7 +192,7 @@ namespace Soundfingerprinting.Hashing
         /// <returns></returns>
         public override string ToString()
         {
-            return "(" + LowerBound + ";" + UpperBound + "] = " + Count;
+            return "(" + this.LowerBound + ";" + this.UpperBound + "] = " + this.Count;
         }
     }
 
@@ -223,8 +219,8 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         public Histogram()
         {
-            buckets = new List<Bucket>();
-            areBucketsSorted = true;
+            this.buckets = new List<Bucket>();
+            this.areBucketsSorted = true;
         }
 
         /// <summary>
@@ -247,13 +243,13 @@ namespace Soundfingerprinting.Hashing
 
             // Add buckets for each bin; the smallest bucket's lowerbound must be slightly smaller
             // than the minimal element.
-            AddBucket(new Bucket(lower.Decrement(), lower + width));
+            this.AddBucket(new Bucket(lower.Decrement(), lower + width));
             for (int n = 1; n < nbuckets; n++)
             {
-                AddBucket(new Bucket(lower + n*width, lower + (n + 1)*width));
+                this.AddBucket(new Bucket(lower + n*width, lower + (n + 1)*width));
             }
 
-            AddData(data);
+            this.AddData(data);
         }
 
         /// <summary>
@@ -281,10 +277,10 @@ namespace Soundfingerprinting.Hashing
             // Add buckets for each bin.
             for (int n = 0; n < nbuckets; n++)
             {
-                AddBucket(new Bucket(lower + n*width, lower + (n + 1)*width));
+                this.AddBucket(new Bucket(lower + n*width, lower + (n + 1)*width));
             }
 
-            AddData(data);
+            this.AddData(data);
         }
 
         /// <summary>
@@ -295,30 +291,30 @@ namespace Soundfingerprinting.Hashing
         public void AddData(double d)
         {
             // Sort if needed.
-            LazySort();
+            this.LazySort();
 
-            if (d < LowerBound)
+            if (d < this.LowerBound)
             {
                 // Make the lower bound just slightly smaller than the datapoint so it is contained in this bucket.
-                buckets[0].LowerBound = d.Decrement();
-                buckets[0].Count++;
+                this.buckets[0].LowerBound = d.Decrement();
+                this.buckets[0].Count++;
             }
-            else if (d > UpperBound)
+            else if (d > this.UpperBound)
             {
-                buckets[BucketCount - 1].UpperBound = d;
-                buckets[BucketCount - 1].Count++;
+                this.buckets[this.BucketCount - 1].UpperBound = d;
+                this.buckets[this.BucketCount - 1].Count++;
             }
-            else if (d == LowerBound && d == UpperBound)
+            else if (d == this.LowerBound && d == this.UpperBound)
             {
-                buckets[BucketCount/2].Count++;
+                this.buckets[this.BucketCount/2].Count++;
             }
-            else if (Math.Abs(d - LowerBound) < 0.000001)
+            else if (Math.Abs(d - this.LowerBound) < 0.000001)
             {
-                buckets[0].Count++;
+                this.buckets[0].Count++;
             }
             else
             {
-                buckets[GetBucketIndexOf(d)].Count++;
+                this.buckets[this.GetBucketIndexOf(d)].Count++;
             }
         }
 
@@ -331,7 +327,7 @@ namespace Soundfingerprinting.Hashing
         {
             foreach (double d in data)
             {
-                AddData(d);
+                this.AddData(d);
             }
         }
 
@@ -340,8 +336,8 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         public void AddBucket(Bucket bucket)
         {
-            buckets.Add(bucket);
-            areBucketsSorted = false;
+            this.buckets.Add(bucket);
+            this.areBucketsSorted = false;
         }
 
         /// <summary>
@@ -349,10 +345,10 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         private void LazySort()
         {
-            if (!areBucketsSorted)
+            if (!this.areBucketsSorted)
             {
-                buckets.Sort();
-                areBucketsSorted = true;
+                this.buckets.Sort();
+                this.areBucketsSorted = true;
             }
         }
 
@@ -363,7 +359,7 @@ namespace Soundfingerprinting.Hashing
         /// <returns>A copy of the bucket containing point <paramref name = "v" />.</returns>
         public Bucket GetBucketOf(double v)
         {
-            return (Bucket) buckets[GetBucketIndexOf(v)].Clone();
+            return (Bucket) this.buckets[this.GetBucketIndexOf(v)].Clone();
         }
 
         /// <summary>
@@ -375,10 +371,10 @@ namespace Soundfingerprinting.Hashing
         public int GetBucketIndexOf(double v)
         {
             // Sort if needed.
-            LazySort();
+            this.LazySort();
 
             // Binary search for the bucket index.
-            int index = buckets.BinarySearch(new Bucket(v, v), Bucket.DefaultPointComparer);
+            int index = this.buckets.BinarySearch(new Bucket(v, v), Bucket.DefaultPointComparer);
 
             if (index < 0)
             {
@@ -395,8 +391,8 @@ namespace Soundfingerprinting.Hashing
         {
             get
             {
-                LazySort();
-                return buckets[0].LowerBound;
+                this.LazySort();
+                return this.buckets[0].LowerBound;
             }
         }
 
@@ -407,8 +403,8 @@ namespace Soundfingerprinting.Hashing
         {
             get
             {
-                LazySort();
-                return buckets[buckets.Count - 1].UpperBound;
+                this.LazySort();
+                return this.buckets[this.buckets.Count - 1].UpperBound;
             }
         }
 
@@ -421,8 +417,8 @@ namespace Soundfingerprinting.Hashing
         {
             get
             {
-                LazySort();
-                return (Bucket) buckets[n].Clone();
+                this.LazySort();
+                return (Bucket) this.buckets[n].Clone();
             }
         }
 
@@ -431,7 +427,7 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         public int BucketCount
         {
-            get { return buckets.Count; }
+            get { return this.buckets.Count; }
         }
 
         /// <summary>
@@ -443,7 +439,7 @@ namespace Soundfingerprinting.Hashing
             {
                 double totalCount = 0;
 
-                for (int i = 0; i < BucketCount; i++)
+                for (int i = 0; i < this.BucketCount; i++)
                 {
                     totalCount += this[i].Count;
                 }
@@ -459,7 +455,7 @@ namespace Soundfingerprinting.Hashing
         {
             StringBuilder sb = new StringBuilder();
 
-            foreach (Bucket b in buckets)
+            foreach (Bucket b in this.buckets)
             {
                 sb.Append(b.ToString());
             }

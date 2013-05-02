@@ -1,15 +1,11 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-
-namespace Soundfingerprinting.Hashing
+﻿namespace Soundfingerprinting.Hashing.MinHash
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Data.SqlClient;
+    using System.Linq;
+
     public class DbPermutations : IPermutations
     {
         private const int COMMAND_TIMEOUT = 60*10; /*600 sec*/
@@ -29,8 +25,8 @@ namespace Soundfingerprinting.Hashing
         /// </summary>
         public DbPermutations(string connectionstring)
         {
-            _connString = connectionstring;
-            _connection = new SqlConnection(_connString);
+            this._connString = connectionstring;
+            this._connection = new SqlConnection(this._connString);
         }
 
         #region Connection Management
@@ -43,7 +39,7 @@ namespace Soundfingerprinting.Hashing
         /// <returns>SQL Connection object</returns>
         private IDbConnection GetConnection()
         {
-            return _connection;
+            return this._connection;
         }
 
         #endregion
@@ -56,7 +52,7 @@ namespace Soundfingerprinting.Hashing
         /// <returns></returns>
         public int[][] GetPermutations()
         {
-            return ReadPermutations();
+            return this.ReadPermutations();
         }
 
         #endregion
@@ -99,9 +95,9 @@ namespace Soundfingerprinting.Hashing
         /// <returns>Dictionary of permutations</returns>
         public int[][] ReadPermutations()
         {
-            if (_cachedPermutations != null)
-                return _cachedPermutations;
-            IDbCommand sqlCommand = GetReadPermutations(GetConnection());
+            if (this._cachedPermutations != null)
+                return this._cachedPermutations;
+            IDbCommand sqlCommand = this.GetReadPermutations(this.GetConnection());
             IDataReader reader = null;
             Dictionary<int, int[]> result = null;
             try
@@ -132,13 +128,13 @@ namespace Soundfingerprinting.Hashing
 
             if (result != null)
             {
-                _cachedPermutations = new int[result.Count][];
+                this._cachedPermutations = new int[result.Count][];
                 for (int i = 0; i < result.Count; i++)
                 {
-                    _cachedPermutations[i] = result.ElementAt(i).Value;
+                    this._cachedPermutations[i] = result.ElementAt(i).Value;
                 }
             }
-            return _cachedPermutations;
+            return this._cachedPermutations;
         }
     }
 }

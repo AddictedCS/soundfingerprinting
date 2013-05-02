@@ -1,11 +1,8 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System.Collections.Generic;
-
-namespace Soundfingerprinting.Hashing
+﻿namespace Soundfingerprinting.Hashing.MinHash
 {
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+
     /// <summary>
     ///   Minimal mutual information selector
     /// </summary>
@@ -18,6 +15,7 @@ namespace Soundfingerprinting.Hashing
         /// <param name = "lHashTable">L hash tables</param>
         /// <param name = "bKeysPerTable">B keys per table</param>
         /// <returns>Permutation set</returns>
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         Dictionary<int, List<int[]>> GetPermutations(Dictionary<int, int[]> randomPermutationPool, int lHashTable, int bKeysPerTable);
     }
 }

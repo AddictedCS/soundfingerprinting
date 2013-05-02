@@ -20,6 +20,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.NeuralHashing;
     using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.NeuralHashing.MMI;
@@ -455,7 +456,7 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                                              _pbMinHash.Step = 1;
                                          }));
 
-            MinHash minHash = new MinHash(permutations);
+            MinHashService minHashService = new MinHashService(permutations);
             for (int index = 0; index < tracks.Count; index++)
             {
                 Track track = tracks[index];
@@ -475,13 +476,14 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
                 List<HashBinMinHash> listToInsert = new List<HashBinMinHash>(); /*Generate Min Hash signatures*/
                 foreach (Fingerprint fingerprint in fingerprints)
                 {
-                    int[] hashBins = minHash.ComputeMinHashSignature(fingerprint.Signature); /*For each of the fingerprints*/
-                    Dictionary<int, long> hashTable = minHash.GroupMinHashToLSHBuckets(hashBins, numberofgroupsminhash, numberofhashesperkeyminhash);
-                    foreach (KeyValuePair<int, long> item in hashTable)
-                    {
-                        HashBinMinHash hash = new HashBinMinHash(-1, item.Value, item.Key, track.Id, fingerprint.Id);
-                        listToInsert.Add(hash);
-                    }
+                    throw new NotImplementedException();
+                    //int[] hashBins = minHashService.ComputeMinHashSignature(fingerprint.Signature); /*For each of the fingerprints*/
+                    //Dictionary<int, long> hashTable = minHashService.GroupMinHashToLSHBuckets(hashBins, numberofgroupsminhash, numberofhashesperkeyminhash);
+                    //foreach (KeyValuePair<int, long> item in hashTable)
+                    //{
+                    //    HashBinMinHash hash = new HashBinMinHash(-1, item.Value, item.Key, track.Id, fingerprint.Id);
+                    //    listToInsert.Add(hash);
+                    //}
                 }
                 modelService.InsertHashBin(listToInsert); /*Actual insert*/
                 _pbMinHash.Invoke(new Action(() => _pbMinHash.PerformStep()));
