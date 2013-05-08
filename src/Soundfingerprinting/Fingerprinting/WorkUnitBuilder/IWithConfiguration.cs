@@ -6,10 +6,10 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder
 
     public interface IWithConfiguration
     {
-        IWorkUnit With(IFingerprintingConfiguration configuration);
+        IFingerprintingUnit With(IFingerprintingConfiguration configuration);
 
-        IWorkUnit With<T>() where T : IFingerprintingConfiguration, new();
+        IFingerprintingUnit With<T>() where T : IFingerprintingConfiguration, new();
 
-        IWorkUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> transformation);
+        IFingerprintingUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> transformation);
     }
 }

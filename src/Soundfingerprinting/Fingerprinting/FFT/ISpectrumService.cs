@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Fingerprinting.Configuration;
 
     public interface ISpectrumService
     {
@@ -15,5 +16,9 @@
         /// <param name="overlap">Overlap between consecutive spectral images, taken previously (64 ~ 11.6ms)</param>
         /// <returns>List of logarithmic images</returns>
         List<float[][]> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, IStride strideBetweenConsecutiveImages, int fingerprintImageLength, int overlap);
+
+        float[][] CreateSpectrogram(float[] samples, int overlap, int wdftSize);
+
+        float[][] CreateLogSpectrogram(float[] samples, IFingerprintingConfiguration configuration);
     }
 }

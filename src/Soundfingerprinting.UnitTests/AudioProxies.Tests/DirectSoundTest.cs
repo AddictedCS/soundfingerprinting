@@ -12,9 +12,9 @@
         [TestMethod]
         public void ReadMonoFromFileTest()
         {
-            #pragma warning disable 612,618
-            using (DirectSoundAudioService directSoundAudioService = new DirectSoundAudioService(FFTService))
-            #pragma warning restore 612,618
+#pragma warning disable 612,618
+            using (DirectSoundAudioService directSoundAudioService = new DirectSoundAudioService())
+#pragma warning restore 612,618
             {
                 float[] samples = directSoundAudioService.ReadMonoFromFile(PathToWav, SampleRate);
                 FileInfo info = new FileInfo(PathToWav);

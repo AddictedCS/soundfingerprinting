@@ -104,12 +104,10 @@
             return trackDao.Read();
         }
 
-
         public Track ReadTrackById(int id)
         {
             return trackDao.ReadById(id);
         }
-
 
         public Track ReadTrackByArtistAndTitleName(string artist, string title)
         {

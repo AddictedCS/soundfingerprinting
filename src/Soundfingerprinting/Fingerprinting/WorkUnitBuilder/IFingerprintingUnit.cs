@@ -5,10 +5,10 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder
 
     using Soundfingerprinting.Fingerprinting.Configuration;
 
-    public interface IWorkUnit
+    public interface IFingerprintingUnit
     {
         IFingerprintingConfiguration Configuration { get; }
 
-        Task<List<bool[]>> GetFingerprintsUsingService(IFingerprintService service);
+        Task<List<bool[]>> RunAlgorithm();
     }
 }

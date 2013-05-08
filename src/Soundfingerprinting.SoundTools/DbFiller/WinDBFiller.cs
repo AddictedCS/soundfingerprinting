@@ -45,7 +45,7 @@
 
         private readonly IFingerprintService fingerprintService;
 
-        private readonly IWorkUnitBuilder workUnitBuilder;
+        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
 
         private readonly ITagService tagService;
 
@@ -64,7 +64,7 @@
 
         public WinDbFiller(
             IFingerprintService fingerprintService,
-            IWorkUnitBuilder workUnitBuilder,
+            IFingerprintingUnitsBuilder fingerprintingUnitsBuilder,
             ITagService tagService,
             IModelService modelService,
             ICombinedHashingAlgoritm combinedHashingAlgorithm)
@@ -72,7 +72,7 @@
             this.modelService = modelService;
             this.combinedHashingAlgorithm = combinedHashingAlgorithm;
             this.fingerprintService = fingerprintService;
-            this.workUnitBuilder = workUnitBuilder;
+            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
             this.tagService = tagService;
             InitializeComponent();
             Icon = Resources.Sound;
@@ -465,13 +465,13 @@
                 int count = 0;
                 try
                 {
-                    var unit = workUnitBuilder.BuildWorkUnit().On(fileList[i]).WithCustomConfiguration(
+                    var unit = this.fingerprintingUnitsBuilder.BuildFingerprints().On(fileList[i]).WithCustomConfiguration(
                         config =>
                             {
                                 config.TopWavelets = topWavelets;
                                 config.Stride = stride;
                             });
-                    List<bool[]> images = unit.GetFingerprintsUsingService(fingerprintService).Result; // Create Fingerprints and insert them in database
+                    List<bool[]> images = unit.RunAlgorithm().Result; // Create Fingerprints and insert them in database
                     List<Fingerprint> inserted = AssociateFingerprintsToTrack(images, track.Id);
                     modelService.InsertFingerprint(inserted);
                     count = inserted.Count;

@@ -229,7 +229,7 @@
             this._btnDrawWavelets.TabIndex = 27;
             this._btnDrawWavelets.Text = "Draw wavelets!";
             this._btnDrawWavelets.UseVisualStyleBackColor = true;
-            this._btnDrawWavelets.Click += new System.EventHandler(this._btnDrawWavelets_Click);
+            this._btnDrawWavelets.Click += new System.EventHandler(this.BtnDrawWavelets_Click);
             // 
             // WinDrawningTool
             // 

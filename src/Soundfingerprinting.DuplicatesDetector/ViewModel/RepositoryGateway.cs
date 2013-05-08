@@ -15,7 +15,6 @@
     using Soundfingerprinting.DuplicatesDetector.Infrastructure;
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;
-    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.Hashing.LSH;
@@ -149,9 +148,7 @@
 
             cts = new CancellationTokenSource();
 
-            repository = new Repository(
-                ServiceContainer.Kernel.Get<IFingerprintService>(),
-                ServiceContainer.Kernel.Get<IWorkUnitBuilder>(),
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintingUnitsBuilder>(),
                 storage,
                 new CombinedHashingAlgorithm(new MinHashService(permutations), new LSHService()));
                 

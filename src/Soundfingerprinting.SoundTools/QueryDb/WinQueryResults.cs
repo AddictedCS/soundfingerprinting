@@ -274,7 +274,7 @@
 
         public IFingerprintService FingerprintService { get; set; }
 
-        public IWorkUnitBuilder WorkUnitBuilder { get; set; }
+        public IFingerprintingUnitsBuilder FingerprintingUnitsBuilder { get; set; }
 
         public IModelService ModelService { get; set; }
 
@@ -462,11 +462,11 @@
                     continue;
                 }
 
-                IWorkUnit workUnit =
-                    WorkUnitBuilder.BuildWorkUnit().On(pathToFile, secondsToAnalyze * 1000, startSecond * 1000)
+                IFingerprintingUnit fingerprintingUnit =
+                    this.FingerprintingUnitsBuilder.BuildFingerprints().On(pathToFile, secondsToAnalyze * 1000, startSecond * 1000)
                         .WithCustomConfiguration(config => { config.Stride = samplesToSkip; });
 
-                List<bool[]> signatures = workUnit.GetFingerprintsUsingService(FingerprintService).Result;
+                List<bool[]> signatures = fingerprintingUnit.RunAlgorithm().Result;
 
                 Dictionary<int, QueryStats> allCandidates = QueryFingerprintManager.QueryOneSongMinHash(
                     signatures,

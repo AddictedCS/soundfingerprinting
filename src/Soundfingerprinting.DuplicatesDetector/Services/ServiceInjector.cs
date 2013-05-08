@@ -31,7 +31,7 @@
             ServiceContainer.Kernel.Bind<IWindowService>().To<WindowService>();
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
-            ServiceContainer.Kernel.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
+            ServiceContainer.Kernel.Bind<IFingerprintingUnitsBuilder>().To<FingerprintingUnitsBuilder>();
             ServiceContainer.Kernel.Bind<IPermutations>().To<LocalPermutations>();
             ServiceContainer.Kernel.Bind<IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
             ServiceContainer.Kernel.Bind<ITagService>().To<TagService>();

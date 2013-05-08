@@ -6,7 +6,6 @@
 
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.DuplicatesDetector.Model;
-    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
 
@@ -15,12 +14,7 @@
     /// </summary>
     public class Repository
     {
-        /// <summary>
-        ///   Creates fingerprints according to the theoretical constructs
-        /// </summary>
-        private readonly IFingerprintService service;
-
-        private readonly IWorkUnitBuilder workUnitBuilder;
+        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
 
         private readonly ICombinedHashingAlgoritm combinedHashingAlgorithm;
 
@@ -29,16 +23,11 @@
         /// </summary>
         private readonly IStorage storage;
 
-        public Repository(
-            IFingerprintService fingerprintService,
-            IWorkUnitBuilder workUnitBuilder,
-            IStorage storage,
-            ICombinedHashingAlgoritm combinedHashingAlgorithm)
+        public Repository(IFingerprintingUnitsBuilder fingerprintingUnitsBuilder, IStorage storage, ICombinedHashingAlgoritm combinedHashingAlgorithm)
         {
             this.combinedHashingAlgorithm = combinedHashingAlgorithm;
             this.storage = storage;
-            service = fingerprintService;
-            this.workUnitBuilder = workUnitBuilder;
+            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
         }
 
         /// <summary>
@@ -49,12 +38,7 @@
         /// <param name = "stride">Stride</param>
         /// <param name = "hashTables">Number of hash tables</param>
         /// <param name = "hashKeys">Number of hash keys</param>
-        public void CreateInsertFingerprints(
-            float[] samples,
-            Track track,
-            IStride stride,
-                                             int hashTables,
-                                             int hashKeys)
+        public void CreateInsertFingerprints(float[] samples, Track track, IStride stride, int hashTables, int hashKeys)
         {
             if (track == null)
             {
@@ -62,10 +46,10 @@
             }
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
-            List<bool[]> fingerprints = workUnitBuilder.BuildWorkUnit()
+            List<bool[]> fingerprints = fingerprintingUnitsBuilder.BuildFingerprints()
                                                        .On(samples)
                                                        .WithCustomConfiguration(config => config.Stride = stride)
-                                                       .GetFingerprintsUsingService(service)
+                                                       .RunAlgorithm()
                                                        .Result;
 
             storage.InsertTrack(track); /*Insert track into the storage*/

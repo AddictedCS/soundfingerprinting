@@ -3,10 +3,10 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Fingerprinting.Configuration;
 
     public interface IFingerprintService
     {
-        Task<List<bool[]>> Process(WorkUnitParameterObject details);
+        Task<List<bool[]>> CreateFingerprints(float[] samples, IFingerprintingConfiguration fingerprintingConfiguration);
     }
 }

@@ -58,7 +58,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Audio\Models\AudioServiceConfiguration.cs" />
     <Compile Include="Audio\Services\AudioService.cs" />
     <Compile Include="Audio\Services\BassAudioService.cs" />
     <Compile Include="Audio\Services\DirectSoundAudioService.cs" />
@@ -139,10 +138,7 @@
     <Compile Include="Fingerprinting\Wavelets\WaveletService.cs" />
     <Compile Include="Fingerprinting\Windows\CachingHanningWindow.cs" />
     <Compile Include="Fingerprinting\Windows\NoWindow.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\WorkUnitParameterObject.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\TargetOn.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WithConfiguration.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\WorkUnit.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\Internal\FingerprintingUnit.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\ITargetOn.cs" />
     <Compile Include="Fingerprinting\Wavelets\StandardHaarWaveletDecomposition.cs" />
     <Compile Include="Fingerprinting\Windows\HammingWindow.cs" />
@@ -153,9 +149,9 @@
     <Compile Include="Fingerprinting\ConstantQ\SparKernel.cs" />
     <Compile Include="Fingerprinting\Wavelets\WaveletUtils.cs" />
     <Compile Include="Fingerprinting\WorkUnitBuilder\IWithConfiguration.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\IWorkUnit.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\IWorkUnitBuilder.cs" />
-    <Compile Include="Fingerprinting\WorkUnitBuilder\WorkUnitBuilder.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\IFingerprintingUnit.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\IFingerprintingUnitsBuilder.cs" />
+    <Compile Include="Fingerprinting\WorkUnitBuilder\FingerprintingUnitsBuilder.cs" />
     <Compile Include="Hashing\ICombinedHashingAlgoritm.cs" />
     <Compile Include="Hashing\LSH\BoundedLSHService.cs" />
     <Compile Include="Hashing\LSH\ILSHService.cs" />
@@ -209,6 +205,18 @@
     <Compile Include="NeuralHashing\MMI\MutualInformation.cs" />
     <Compile Include="NeuralHashing\Utils\NormalizeUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\FingerprintQueryBuilder.cs" />
+    <Compile Include="Query\Internal\FingerprintQueryUnit.cs" />
+    <Compile Include="Query\IFingerprintingQueryUnit.cs" />
+    <Compile Include="Query\IFingerprintQueryBuilder.cs" />
+    <Compile Include="Query\IOngoingQuery.cs" />
+    <Compile Include="Query\IOngoingQueryConfiguration.cs" />
+    <Compile Include="Query\IOngoingQueryConfigurationWithFingerprinting.cs" />
+    <Compile Include="Query\IQueryConfiguration.cs" />
+    <Compile Include="Query\IQueryFingerprintService.cs" />
+    <Compile Include="Query\QueryConfiguration.cs" />
+    <Compile Include="Query\QueryFingerprintService.cs" />
+    <Compile Include="Query\QueryResult.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

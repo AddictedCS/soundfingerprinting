@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
 
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
@@ -11,7 +9,6 @@
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Hashing.MinHash;
 
     public static class QueryFingerprintManager
     {

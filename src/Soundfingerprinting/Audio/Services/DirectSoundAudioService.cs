@@ -24,11 +24,6 @@
     {
         private bool alreadyDisposed; /*Disposed state param*/
 
-        public DirectSoundAudioService(IFFTService fftService)
-            : base(fftService)
-        {
-        }
-
         /// <summary>
         /// Finalizes an instance of the <see cref="DirectSoundAudioService"/> class. 
         /// </summary>
@@ -55,12 +50,12 @@
         ///   Sample rate of the file. This proxy does not support down or up sampling.
         ///   Please convert the file to appropriate sample, and then use this method.
         /// </param>
-        /// <param name = "milliSeconds">Milliseconds to read</param>
-        /// <param name = "startMilliSeconds">Start millisecond</param>
+        /// <param name = "millisecondsToRead">Milliseconds to read</param>
+        /// <param name = "startAtMillisecond">Start millisecond</param>
         /// <returns>Audio samples</returns>
-        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int milliSeconds, int startMilliSeconds)
+        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int millisecondsToRead, int startAtMillisecond)
         {
-            int totalmilliseconds = milliSeconds <= 0 ? int.MaxValue : milliSeconds + startMilliSeconds;
+            int totalmilliseconds = millisecondsToRead <= 0 ? int.MaxValue : millisecondsToRead + startAtMillisecond;
             if (alreadyDisposed)
             {
                 throw new ObjectDisposedException("Object already disposed");
@@ -102,6 +97,7 @@
                                 break;
                         }
                     }
+
                     chunks.Add(result);
                     size += result.Length;
                     if (offset > fileSize)
@@ -117,13 +113,13 @@
                 device.Dispose();
             }
 
-            if ((float)size / sampleRate * 1000 < (milliSeconds + startMilliSeconds))
+            if ((float)size / sampleRate * 1000 < (millisecondsToRead + startAtMillisecond))
             {
                 return null; /*not enough samples to return the requested data*/
             }
 
-            int start = (int)((float)startMilliSeconds * sampleRate / 1000);
-            int end = (milliSeconds <= 0) ? size : (int)((float)(startMilliSeconds + milliSeconds) * sampleRate / 1000);
+            int start = (int)((float)startAtMillisecond * sampleRate / 1000);
+            int end = (millisecondsToRead <= 0) ? size : (int)((float)(startAtMillisecond + millisecondsToRead) * sampleRate / 1000);
             float[] data = new float[size];
             int index = 0;
             /*Concatenate*/
@@ -132,6 +128,7 @@
                 Array.Copy(chunk, 0, data, index, chunk.Length);
                 index += chunk.Length;
             }
+
             /*Select specific part of the song*/
             if (start != 0 || end != size)
             {
@@ -139,6 +136,7 @@
                 Array.Copy(data, start, temp, 0, end - start);
                 data = temp;
             }
+
             return data;
         }
 

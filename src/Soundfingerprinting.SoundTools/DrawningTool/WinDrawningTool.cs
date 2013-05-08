@@ -8,11 +8,10 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio.Models;
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
-    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Image;
@@ -20,32 +19,32 @@
 
     public partial class WinDrawningTool : Form
     {
-        private readonly IFingerprintService fingerprintService;
-
         private readonly IAudioService audioService;
 
         private readonly ITagService tagService;
 
-        private readonly IWorkUnitBuilder workUnitBuilder;
+        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
 
         private readonly IFingerprintingConfiguration fingerprintingConfiguration;
 
         private readonly IImageService imageService;
 
+        private readonly ISpectrumService spectrumService;
+
         public WinDrawningTool(
-            IFingerprintService fingerprintService,
-            IExtendedAudioService audioService,
+            IAudioService audioService,
             ITagService tagService,
-            IWorkUnitBuilder workUnitBuilder,
+            IFingerprintingUnitsBuilder fingerprintingUnitsBuilder,
             IFingerprintingConfiguration fingerprintingConfiguration,
-            IImageService imageService)
+            IImageService imageService,
+            ISpectrumService spectrumService)
         {
-            this.fingerprintService = fingerprintService;
             this.audioService = audioService;
             this.tagService = tagService;
-            this.workUnitBuilder = workUnitBuilder;
+            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
             this.fingerprintingConfiguration = fingerprintingConfiguration;
             this.imageService = imageService;
+            this.spectrumService = spectrumService;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -67,18 +66,13 @@
         {
             if (string.IsNullOrEmpty(_tbPathToFile.Text))
             {
-                MessageBox.Show(
-                    Resources.SelectAPathToBeDrawn,
-                    Resources.SelectFile,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(Resources.SelectAPathToBeDrawn, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (!File.Exists(Path.GetFullPath(_tbPathToFile.Text)))
             {
-                MessageBox.Show(
-                    Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -87,11 +81,8 @@
             int strideSize = (int)_nudStride.Value;
             if (DrawSongAsASingleImage())
             {
-                SaveFileDialog saveFileDialog = new SaveFileDialog
-                    { 
-                        FileName = songName + "_fingerprints_" + ".jpg", Filter = Resources.FileFilterJPeg 
-                    };
-                
+                SaveFileDialog saveFileDialog = new SaveFileDialog { FileName = songName + "_fingerprints_" + ".jpg", Filter = Resources.FileFilterJPeg };
+
                 if (IsFileSelected(saveFileDialog))
                 {
                     FadeControls(false);
@@ -100,29 +91,30 @@
                     bool normalize = _cbNormalize.Checked;
                     bool noWindow = _cbWindow.Checked;
 
-                    Task.Factory.StartNew(() =>
-                        {
-                            var songToDraw = workUnitBuilder.BuildWorkUnit()
-                                               .On(songFileName)
-                                               .WithCustomConfiguration(config =>
-                                                   {
-                                                   config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
-                                                   config.NormalizeSignal = normalize;
-                                                   config.WindowFunction = noWindow ? new CachingHanningWindow(new NoWindow()) : new CachingHanningWindow(new HanningWindow());
-                                               });
-
-                            List<bool[]> fingerprints = songToDraw.GetFingerprintsUsingService(fingerprintService).Result;
-                            int width = songToDraw.Configuration.FingerprintLength;
-                            int height = songToDraw.Configuration.LogBins;
-                            using (Image image = imageService.GetImageForFingerprints(fingerprints, width, height, 5))
+                    Task.Factory.StartNew(
+                        () =>
                             {
-                                image.Save(imageFilename);
-                            }
-                        }).ContinueWith(result =>
-                        {
-                            FadeControls(true);
-                            ShowImageWasDrawnDialog();
-                        });
+                                var songToDraw = fingerprintingUnitsBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
+                                    config =>
+                                        {
+                                            config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
+                                            config.NormalizeSignal = normalize;
+                                            config.WindowFunction = noWindow ? new CachingHanningWindow(new NoWindow()) : new CachingHanningWindow(new HanningWindow());
+                                        });
+
+                                List<bool[]> fingerprints = songToDraw.RunAlgorithm().Result;
+                                int width = songToDraw.Configuration.FingerprintLength;
+                                int height = songToDraw.Configuration.LogBins;
+                                using (Image image = imageService.GetImageForFingerprints(fingerprints, width, height, 5))
+                                {
+                                    image.Save(imageFilename);
+                                }
+                            }).ContinueWith(
+                                result =>
+                                    {
+                                        FadeControls(true);
+                                        ShowImageWasDrawnDialog();
+                                    });
                 }
             }
             else if (DrawSongAsSeparateImages())
@@ -132,30 +124,28 @@
                 {
                     string path = folderBrowserDialog.SelectedPath;
                     FadeControls(false);
-                    Task.Factory.StartNew(() =>
-                        {
-                            var songToDraw = workUnitBuilder.BuildWorkUnit()
-                                                .On(songFileName)
-                                                .WithCustomConfiguration(config => 
-                                                {
-                                                    config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
-                                                });
-                            List<bool[]> result = songToDraw.GetFingerprintsUsingService(fingerprintService).Result;
-                            int i = -1;
-                            int width = songToDraw.Configuration.FingerprintLength;
-                            int height = songToDraw.Configuration.LogBins;
-                            foreach (bool[] item in result)
+                    Task.Factory.StartNew(
+                        () =>
                             {
-                                using (Image image = imageService.GetImageForFingerprint(item, width, height))
+                                var songToDraw = this.fingerprintingUnitsBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
+                                    config => { config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint); });
+                                List<bool[]> result = songToDraw.RunAlgorithm().Result;
+                                int i = -1;
+                                int width = songToDraw.Configuration.FingerprintLength;
+                                int height = songToDraw.Configuration.LogBins;
+                                foreach (bool[] item in result)
                                 {
-                                    image.Save(path + "\\" + songName + i++ + ".jpg", ImageFormat.Jpeg);
+                                    using (Image image = imageService.GetImageForFingerprint(item, width, height))
+                                    {
+                                        image.Save(path + "\\" + songName + i++ + ".jpg", ImageFormat.Jpeg);
+                                    }
                                 }
-                            }
-                        }).ContinueWith(result =>
-                                {
-                                    FadeControls(true);
-                                    ShowImageWasDrawnDialog();
-                                });
+                            }).ContinueWith(
+                                result =>
+                                    {
+                                        FadeControls(true);
+                                        ShowImageWasDrawnDialog();
+                                    });
                 }
             }
         }
@@ -172,11 +162,7 @@
 
         private static DialogResult ShowImageWasDrawnDialog()
         {
-            return MessageBox.Show(
-                Resources.ImageIsDrawn,
-                Resources.Finished,
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            return MessageBox.Show(Resources.ImageIsDrawn, Resources.Finished, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private bool DrawSongAsASingleImage()
@@ -188,26 +174,21 @@
         {
             if (string.IsNullOrEmpty(_tbPathToFile.Text))
             {
-                MessageBox.Show(
-                    Resources.SelectAPathToBeDrawn,
-                    Resources.SelectFile,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(Resources.SelectAPathToBeDrawn, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (!File.Exists(Path.GetFullPath(_tbPathToFile.Text)))
             {
-                MessageBox.Show(
-                    Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             SaveFileDialog sfd = new SaveFileDialog
-                {
-                    Filter = Resources.FileFilterJPeg,
-                    FileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text) + "_signal_" + ".jpg"
-                };
+                                     {
+                                         Filter = Resources.FileFilterJPeg,
+                                         FileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text) + "_signal_" + ".jpg"
+                                     };
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
@@ -215,9 +196,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-
-                        float[] data = audioService.ReadMonoFromFile(
-                            fullpath, new DefaultFingerprintingConfiguration().SampleRate, 0, 0);
+                        float[] data = audioService.ReadMonoFromFile(fullpath, new DefaultFingerprintingConfiguration().SampleRate, 0, 0);
                         using (Image image = imageService.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value))
                         {
                             image.Save(sfd.FileName, ImageFormat.Jpeg);
@@ -229,11 +208,7 @@
                         {
                             FadeControls(true);
                             action.EndInvoke(result);
-                            MessageBox.Show(
-                                Resources.ImageIsDrawn,
-                                Resources.Finished,
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                            MessageBox.Show(Resources.ImageIsDrawn, Resources.Finished, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         },
                     null);
             }
@@ -243,54 +218,40 @@
         {
             if (string.IsNullOrEmpty(_tbPathToFile.Text))
             {
-                MessageBox.Show(
-                    Resources.SelectAPathToBeDrawn,
-                    Resources.SelectFile,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(Resources.SelectAPathToBeDrawn, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (!File.Exists(Path.GetFullPath(_tbPathToFile.Text)))
             {
-                MessageBox.Show(
-                    Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             SaveFileDialog sfd = new SaveFileDialog
-                {
-                    Filter = Resources.FileFilterJPeg,
-                    FileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text) + "_spectrum_" + ".jpg"
-                };
+                                     {
+                                         Filter = Resources.FileFilterJPeg,
+                                         FileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text) + "_spectrum_" + ".jpg"
+                                     };
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[][] data = audioService.CreateSpectrogram(
-                            Path.GetFullPath(_tbPathToFile.Text),
-                            fingerprintingConfiguration.WindowFunction,
-                            fingerprintingConfiguration.SampleRate,
-                            fingerprintingConfiguration.Overlap,
-                            fingerprintingConfiguration.WdftSize);
-
+                        float[] samples = audioService.ReadMonoFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintingConfiguration.SampleRate);
+                        float[][] data = spectrumService.CreateSpectrogram(samples, fingerprintingConfiguration.Overlap, fingerprintingConfiguration.WdftSize);
                         Image image = imageService.GetSpectrogramImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                         image.Save(sfd.FileName, ImageFormat.Jpeg);
                         image.Dispose();
                     };
 
                 action.BeginInvoke(
-                    (result) =>
+                    result =>
                         {
                             FadeControls(true);
                             action.EndInvoke(result);
-                            MessageBox.Show(
-                                Resources.ImageIsDrawn,
-                                Resources.Finished,
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                            MessageBox.Show(Resources.ImageIsDrawn, Resources.Finished, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         },
                     null);
             }
@@ -322,21 +283,15 @@
         {
             if (string.IsNullOrEmpty(_tbPathToFile.Text))
             {
-                MessageBox.Show(
-                    Resources.SelectAPathToBeDrawn,
-                    Resources.SelectFile,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(Resources.SelectAPathToBeDrawn, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (!File.Exists(Path.GetFullPath(_tbPathToFile.Text)))
             {
-                MessageBox.Show(
-                    Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
 
             string fileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text);
             SaveFileDialog sfd = new SaveFileDialog { FileName = fileName + ".jpg", Filter = Resources.FileFilterJPeg };
@@ -347,66 +302,41 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        Image image =
-                            imageService.GetLogSpectralImages(
-                                audioService.CreateLogSpectrogram(
-                                    Path.GetFullPath(_tbPathToFile.Text),
-                                    fingerprintingConfiguration.WindowFunction,
-                                    new AudioServiceConfiguration()
-                                        {
-                                            LogBase = fingerprintingConfiguration.LogBase,
-                                            LogBins = fingerprintingConfiguration.LogBins,
-                                            MaxFrequency =
-                                                fingerprintingConfiguration.MaxFrequency,
-                                            MinFrequency =
-                                                fingerprintingConfiguration.MinFrequency,
-                                            Overlap = fingerprintingConfiguration.Overlap,
-                                            SampleRate =
-                                                fingerprintingConfiguration.SampleRate,
-                                            WdftSize = fingerprintingConfiguration.WdftSize
-                                        }),
-                                new IncrementalStaticStride((int)_nudStride.Value, fingerprintingConfiguration.SamplesPerFingerprint),
-                                fingerprintingConfiguration.FingerprintLength,
-                                fingerprintingConfiguration.Overlap,
-                                5);
+                        float[] samples = audioService.ReadMonoFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintingConfiguration.SampleRate);
+                        Image image = imageService.GetLogSpectralImages(
+                            spectrumService.CreateLogSpectrogram(samples, fingerprintingConfiguration),
+                            new IncrementalStaticStride((int)_nudStride.Value, fingerprintingConfiguration.SamplesPerFingerprint),
+                            fingerprintingConfiguration.FingerprintLength,
+                            fingerprintingConfiguration.Overlap,
+                            5);
 
                         image.Save(path);
                         image.Dispose();
                     };
                 action.BeginInvoke(
-                    (result) =>
+                    result =>
                         {
                             FadeControls(true);
-                            MessageBox.Show(
-                                Resources.ImageIsDrawn,
-                                Resources.Finished,
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                            MessageBox.Show(Resources.ImageIsDrawn, Resources.Finished, MessageBoxButtons.OK, MessageBoxIcon.Information);
                             action.EndInvoke(result);
                         },
                     action);
             }
         }
 
-        private void _btnDrawWavelets_Click(object sender, EventArgs e)
+        private void BtnDrawWavelets_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(_tbPathToFile.Text))
             {
-                MessageBox.Show(
-                    Resources.SelectAPathToBeDrawn,
-                    Resources.SelectFile,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(Resources.SelectAPathToBeDrawn, Resources.SelectFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (!File.Exists(Path.GetFullPath(_tbPathToFile.Text)))
             {
-                MessageBox.Show(
-                    Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Resources.NoSuchFile, Resources.NoSuchFile, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
 
             string fileName = Path.GetFileNameWithoutExtension(_tbPathToFile.Text);
             SaveFileDialog sfd = new SaveFileDialog { FileName = fileName + ".jpg", Filter = Resources.FileFilterJPeg };
@@ -416,44 +346,25 @@
                 string path = Path.GetFullPath(sfd.FileName);
                 FadeControls(false);
                 Action action = () =>
-                {
-                    Image image =
-                        imageService.GetWaveletsImages(
-                            audioService.CreateLogSpectrogram(
-                                Path.GetFullPath(_tbPathToFile.Text),
-                                fingerprintingConfiguration.WindowFunction,
-                                new AudioServiceConfiguration()
-                                {
-                                    LogBase = fingerprintingConfiguration.LogBase,
-                                    LogBins = fingerprintingConfiguration.LogBins,
-                                    MaxFrequency =
-                                        fingerprintingConfiguration.MaxFrequency,
-                                    MinFrequency =
-                                        fingerprintingConfiguration.MinFrequency,
-                                    Overlap = fingerprintingConfiguration.Overlap,
-                                    SampleRate =
-                                        fingerprintingConfiguration.SampleRate,
-                                    WdftSize = fingerprintingConfiguration.WdftSize
-                                }),
+                    {
+                        float[] samples = audioService.ReadMonoFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintingConfiguration.SampleRate);
+                        Image image = imageService.GetWaveletsImages(
+                            spectrumService.CreateLogSpectrogram(samples, fingerprintingConfiguration),
                             new IncrementalStaticStride((int)_nudStride.Value, fingerprintingConfiguration.SamplesPerFingerprint),
                             fingerprintingConfiguration.FingerprintLength,
                             fingerprintingConfiguration.Overlap,
                             5);
 
-                    image.Save(path);
-                    image.Dispose();
-                };
+                        image.Save(path);
+                        image.Dispose();
+                    };
                 action.BeginInvoke(
                     result =>
-                    {
-                        FadeControls(true);
-                        MessageBox.Show(
-                            Resources.ImageIsDrawn,
-                            Resources.Finished,
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
-                        action.EndInvoke(result);
-                    },
+                        {
+                            FadeControls(true);
+                            MessageBox.Show(Resources.ImageIsDrawn, Resources.Finished, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            action.EndInvoke(result);
+                        },
                     action);
             }
         }

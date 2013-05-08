@@ -32,7 +32,7 @@
             dependencyResolver.Bind<IExtendedAudioService>().To<BassAudioService>();
             dependencyResolver.Bind<IFFTService>().To<CachedFFTWService>();
             dependencyResolver.Bind<ITagService>().To<TagService>();
-            dependencyResolver.Bind<IWorkUnitBuilder>().To<WorkUnitBuilder>();
+            dependencyResolver.Bind<IFingerprintingUnitsBuilder>().To<FingerprintingUnitsBuilder>();
             dependencyResolver.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
             dependencyResolver.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
             dependencyResolver.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();

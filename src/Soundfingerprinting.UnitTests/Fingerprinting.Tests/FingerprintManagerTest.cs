@@ -15,6 +15,7 @@
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.FFTW;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
 
@@ -22,31 +23,21 @@
     public class FingerprintManagerTest : BaseTest
     {
         private ModelService modelService;
-        private IFingerprintService serviceWithBass;
-        private IFingerprintService serviceWithDirectSound;
-        private IWorkUnitBuilder workUnitBuilder;
+        private IFingerprintService fingerprintService;
+        private IFingerprintingUnitsBuilder fingerprintingUnitsBuilderWithBass;
+        private IFingerprintingUnitsBuilder fingerprintingUnitsBuilderWithDirectSound;
         private IFingerprintingConfiguration defaultConfiguration;
 
         [TestInitialize]
         public void SetUp()
         {
             modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
-            serviceWithBass = new FingerprintService(
-                new BassAudioService(FFTService),
-                new FingerprintDescriptor(),
-                new SpectrumService(),
-                new WaveletService(new StandardHaarWaveletDecomposition()));
-
-            #pragma warning disable 612,618
-            serviceWithDirectSound = new FingerprintService(
-                new DirectSoundAudioService(FFTService),
-                new FingerprintDescriptor(),
-                new SpectrumService(),
-                new WaveletService(new StandardHaarWaveletDecomposition()));
-            #pragma warning restore 612,618
-
+            fingerprintService = new FingerprintService(new FingerprintDescriptor(), new SpectrumService(new CachedFFTWService()), new WaveletService(new StandardHaarWaveletDecomposition()));
             defaultConfiguration = new DefaultFingerprintingConfiguration();
-            workUnitBuilder = new WorkUnitBuilder();
+            fingerprintingUnitsBuilderWithBass = new FingerprintingUnitsBuilder(fingerprintService, new BassAudioService());
+#pragma warning disable 612,618
+            fingerprintingUnitsBuilderWithDirectSound = new FingerprintingUnitsBuilder(fingerprintService, new DirectSoundAudioService());
+#pragma warning restore 612,618
         }
 
         [TestCleanup]
@@ -63,10 +54,10 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
         {
             var track = InsertTrack();
-            var signatures = workUnitBuilder.BuildWorkUnit()
+            var signatures = fingerprintingUnitsBuilderWithDirectSound.BuildFingerprints()
                                             .On(PathToWav)
                                             .With(defaultConfiguration)
-                                            .GetFingerprintsUsingService(serviceWithDirectSound)
+                                            .RunAlgorithm()
                                             .Result;
 
             var fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
@@ -80,10 +71,10 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
         {
             var track = InsertTrack();
-            var signatures = workUnitBuilder.BuildWorkUnit()
+            var signatures = fingerprintingUnitsBuilderWithBass.BuildFingerprints()
                                             .On(PathToMp3)
                                             .With(defaultConfiguration)
-                                            .GetFingerprintsUsingService(serviceWithBass)
+                                            .RunAlgorithm()
                                             .Result;
 
             var fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
@@ -96,16 +87,16 @@
         [TestMethod]
         public void CompareFingerprintsCreatedByDifferentProxiesTest()
         {
-            var directSoundFingerprints = workUnitBuilder.BuildWorkUnit()
+            var directSoundFingerprints = fingerprintingUnitsBuilderWithDirectSound.BuildFingerprints()
                                                         .On(PathToWav)
                                                         .With(defaultConfiguration)
-                                                        .GetFingerprintsUsingService(serviceWithDirectSound)
+                                                        .RunAlgorithm()
                                                         .Result;
 
-            var bassFingerprints = workUnitBuilder.BuildWorkUnit()
+            var bassFingerprints = fingerprintingUnitsBuilderWithBass.BuildFingerprints()
                                                  .On(PathToMp3)
                                                  .With(defaultConfiguration)
-                                                 .GetFingerprintsUsingService(serviceWithBass)
+                                                 .RunAlgorithm()
                                                  .Result;
             int unmatchedItems = 0;
             int totalmatches = 0;
@@ -136,16 +127,16 @@
         [TestMethod]
         public void CheckFingerprintCreationAlgorithmTest()
         {
-            using (BassAudioService bassAudioService = new BassAudioService(FFTService))
+            using (BassAudioService bassAudioService = new BassAudioService())
             {
                 string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
                 bassAudioService.RecodeTheFile(PathToMp3, tempFile, 5512);
 
                 long fileSize = new FileInfo(tempFile).Length;
-                var list = workUnitBuilder.BuildWorkUnit()
+                var list = fingerprintingUnitsBuilderWithBass.BuildFingerprints()
                                           .On(PathToMp3)
                                           .WithCustomConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
-                                          .GetFingerprintsUsingService(serviceWithBass)
+                                          .RunAlgorithm()
                                           .Result;
                 long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
                 Assert.AreEqual(expected, list.Count);

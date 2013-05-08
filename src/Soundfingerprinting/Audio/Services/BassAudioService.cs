@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Fingerprinting.FFT;
-
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Fx;
     using Un4seen.Bass.AddOn.Mix;
@@ -62,26 +60,21 @@
             }
         }
 
-        public BassAudioService(IFFTService fftService)
-            : base(fftService)
-        {
-        }
-
         /// <summary>
         ///   Read mono from file
         /// </summary>
         /// <param name = "pathToFile">Name of the file</param>
         /// <param name = "sampleRate">Output sample rate</param>
-        /// <param name = "milliSeconds">Milliseconds to read</param>
-        /// <param name = "startMilliSeconds">Start millisecond</param>
+        /// <param name = "millisecondsToRead">Milliseconds to read</param>
+        /// <param name = "startAtMillisecond">Start millisecond</param>
         /// <returns>Array of samples</returns>
         /// <remarks>
         ///   Seeking capabilities of Bass where not used because of the possible
         ///   timing errors on different formats.
         /// </remarks>
-        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int milliSeconds, int startMilliSeconds)
+        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int millisecondsToRead, int startAtMillisecond)
         {
-            int totalmilliseconds = milliSeconds <= 0 ? int.MaxValue : milliSeconds + startMilliSeconds;
+            int totalmilliseconds = millisecondsToRead <= 0 ? int.MaxValue : millisecondsToRead + startAtMillisecond;
             float[] data;
 
             // create streams for re-sampling
@@ -118,13 +111,13 @@
                     size += bytesRead / 4; // size of the data
                 }
 
-                if ((float)size / sampleRate * 1000 < (milliSeconds + startMilliSeconds))
+                if ((float)size / sampleRate * 1000 < (millisecondsToRead + startAtMillisecond))
                 {
                     return null; /*not enough samples to return the requested data*/
                 }
 
-                int start = (int)((float)startMilliSeconds * sampleRate / 1000);
-                int end = (milliSeconds <= 0) ? size : (int)((float)(startMilliSeconds + milliSeconds) * sampleRate / 1000);
+                int start = (int)((float)startAtMillisecond * sampleRate / 1000);
+                int end = (millisecondsToRead <= 0) ? size : (int)((float)(startAtMillisecond + millisecondsToRead) * sampleRate / 1000);
                 data = new float[size];
                 int index = 0;
                 /*Concatenate*/

@@ -19,12 +19,12 @@
     public partial class WinMisc : Form
     {
         private readonly IFingerprintService fingerprintService;
-        private readonly IWorkUnitBuilder workUnitBuilder;
+        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
 
-        public WinMisc(IFingerprintService fingerprintService, IWorkUnitBuilder workUnitBuilder)
+        public WinMisc(IFingerprintService fingerprintService, IFingerprintingUnitsBuilder fingerprintingUnitsBuilder)
         {
             this.fingerprintService = fingerprintService;
-            this.workUnitBuilder = workUnitBuilder;
+            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -129,7 +129,7 @@
                         int firstQueryStride = (int)_nudFirstQueryStride.Value;
 
                         var databaseSong =
-                            workUnitBuilder.BuildWorkUnit().On(
+                            fingerprintingUnitsBuilder.BuildFingerprints().On(
                                 _tbPathToFile.Text, millisecondsToProcess, startAtMillisecond).WithCustomConfiguration(
                                     config =>
                                         {
@@ -144,43 +144,49 @@
                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                         });
 
-                        IWorkUnit querySong;
+                        IFingerprintingUnit querySong;
                         int comparisonStride = (int)_nudQueryStride.Value;
                         if (_chbCompare.Checked)
                         {
                             querySong =
-                                workUnitBuilder.BuildWorkUnit().On(
-                                    _tbSongToCompare.Text, millisecondsToProcess, startAtMillisecond).
-                                    WithCustomConfiguration(
-                                        config =>
-                                            {
-                                                config.MinFrequency = (int)_nudMinFrequency.Value;
-                                                config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                config.Stride = _chbQueryStride.Checked
-                                                                    ? (IStride)new IncrementalRandomStride(0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
-                                                                    : new IncrementalStaticStride(comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
-                                                config.WindowFunction = windowFunction;
-                                                config.NormalizeSignal = normalizeSignal;
-                                                config.UseDynamicLogBase = _cbDynamicLog.Checked;
-                                            });
+                                fingerprintingUnitsBuilder.BuildFingerprints()
+                                                          .On(_tbSongToCompare.Text, millisecondsToProcess, startAtMillisecond)
+                                                          .WithCustomConfiguration(
+                                                              config =>
+                                                                  {
+                                                                      config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                                      config.TopWavelets = (int)_nudTopWavelets.Value;
+                                                                      config.Stride = _chbQueryStride.Checked
+                                                                                          ? (IStride)
+                                                                                            new IncrementalRandomStride(
+                                                                                                0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
+                                                                                          : new IncrementalStaticStride(
+                                                                                                comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
+                                                                      config.WindowFunction = windowFunction;
+                                                                      config.NormalizeSignal = normalizeSignal;
+                                                                      config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                                  });
                         }
                         else
                         {
                             querySong =
-                                workUnitBuilder.BuildWorkUnit().On(
-                                    _tbPathToFile.Text, millisecondsToProcess, startAtMillisecond).
-                                    WithCustomConfiguration(
-                                        config =>
-                                            {
-                                                config.MinFrequency = (int)_nudMinFrequency.Value;
-                                                config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                config.Stride = _chbQueryStride.Checked
-                                                                     ? (IStride)new IncrementalRandomStride(0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
-                                                                    : new IncrementalStaticStride(comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
-                                                config.WindowFunction = windowFunction;
-                                                config.NormalizeSignal = normalizeSignal;
-                                                config.UseDynamicLogBase = _cbDynamicLog.Checked;
-                                            });
+                                fingerprintingUnitsBuilder.BuildFingerprints()
+                                                          .On(_tbPathToFile.Text, millisecondsToProcess, startAtMillisecond)
+                                                          .WithCustomConfiguration(
+                                                              config =>
+                                                                  {
+                                                                      config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                                      config.TopWavelets = (int)_nudTopWavelets.Value;
+                                                                      config.Stride = _chbQueryStride.Checked
+                                                                                          ? (IStride)
+                                                                                            new IncrementalRandomStride(
+                                                                                                0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
+                                                                                          : new IncrementalStaticStride(
+                                                                                                comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
+                                                                      config.WindowFunction = windowFunction;
+                                                                      config.NormalizeSignal = normalizeSignal;
+                                                                      config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                                  });
                         }
 
                         SimilarityResult similarityResult = new SimilarityResult();
@@ -192,7 +198,7 @@
 
                         for (int i = 0; i < iterations; i++)
                         {
-                            GetFingerprintSimilarity(fingerprintService, databaseSong, querySong, similarityResult);
+                            GetFingerprintSimilarity(databaseSong, querySong, similarityResult);
                         }
 
                         similarityResult.Info.MinFrequency = (int)_nudMinFrequency.Value;
@@ -238,12 +244,12 @@
             return new HanningWindow();
         }
 
-        private void GetFingerprintSimilarity(IFingerprintService service, IWorkUnit databaseSong, IWorkUnit querySong, SimilarityResult results)
+        private void GetFingerprintSimilarity(IFingerprintingUnit databaseSong, IFingerprintingUnit querySong, SimilarityResult results)
         {
             double sum = 0;
 
-            List<bool[]> fingerprintsDatabaseSong = databaseSong.GetFingerprintsUsingService(service).Result;
-            List<bool[]> fingerprintsQuerySong = querySong.GetFingerprintsUsingService(service).Result;
+            List<bool[]> fingerprintsDatabaseSong = databaseSong.RunAlgorithm().Result;
+            List<bool[]> fingerprintsQuerySong = querySong.RunAlgorithm().Result;
             
             double max = double.MinValue;
             double min = double.MaxValue;

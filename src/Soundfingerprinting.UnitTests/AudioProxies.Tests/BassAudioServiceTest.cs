@@ -13,7 +13,7 @@
         [TestMethod]
         public void ReadMonoFromFileTest()
         {
-            using (BassAudioService bass = new BassAudioService(FFTService))
+            using (BassAudioService bass = new BassAudioService())
             {
                 string tempFile = string.Format(@"{0}\{1}", Path.GetTempPath(), "0.wav");
                 bass.RecodeTheFile(PathToMp3, tempFile, 5512);
@@ -28,10 +28,10 @@
         [TestMethod]
         public void ReadMonoFromFileUsingBothProxiesTest()
         {
-            var bassAudioService = new BassAudioService(FFTService);
+            var bassAudioService = new BassAudioService();
 
             #pragma warning disable 612,618
-            var directSoundAudioService = new DirectSoundAudioService(FFTService);
+            var directSoundAudioService = new DirectSoundAudioService();
             #pragma warning restore 612,618
 
             float[] bdata = bassAudioService.ReadMonoFromFile(PathToMp3, 5512);
