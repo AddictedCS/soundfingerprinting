@@ -10,7 +10,7 @@
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.DbStorage.Entities;
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Utils;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
