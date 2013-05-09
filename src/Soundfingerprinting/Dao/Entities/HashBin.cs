@@ -10,12 +10,11 @@
             Id = int.MinValue;
         }
 
-        public HashBin(int id, long hashBin, int hashTable, int trackId)
+        public HashBin(int id, long hashBin, int hashTable)
         {
             Id = id;
             Bin = hashBin;
             HashTable = hashTable;
-            TrackId = trackId;
         }
 
         public int Id { get; set; }
@@ -23,7 +22,5 @@
         public long Bin { get; set; }
 
         public int HashTable { get; set; }
-
-        public int TrackId { get; set; }
     }
 }

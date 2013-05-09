@@ -1,7 +1,9 @@
 ﻿namespace Soundfingerprinting.Hashing
 {
+    using System;
+
     public interface ICombinedHashingAlgoritm
     {
-        long[] Hash(bool[] fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable);
+        Tuple<byte[], long[]> Hash(bool[] fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable);
     }
 }

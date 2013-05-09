@@ -42,7 +42,7 @@
             // Set Sample Rate / MONO
             if (
                 !Bass.BASS_Init(
-                    0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero)) 
+                    -1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero)) 
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }

@@ -24,6 +24,20 @@
             return distance;
         }
 
+        public static int CalculateHammingDistance(byte[] a, byte[] b)
+        {
+            int distance = 0;
+            for (int i = 0, n = a.Length; i < n; i++)
+            {
+                if (a[i] != b[i])
+                {
+                    distance++;
+                }
+            }
+
+            return distance;
+        }
+
         /// <summary>
         ///   Calculate hamming distance between 2 longs
         /// </summary>

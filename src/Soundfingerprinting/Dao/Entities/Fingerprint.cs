@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DbStorage.Entities
+﻿namespace Soundfingerprinting.Dao.Entities
 {
     using System;
 
@@ -10,47 +10,19 @@
             Id = int.MinValue;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Entities.Fingerprint"/> class. 
-        /// </summary>
-        /// <param name="id">
-        /// Id of the signature
-        /// </param>
-        /// <param name="signature">
-        /// Signature image
-        /// </param>
-        /// <param name="trackId">
-        /// Track identifier
-        /// </param>
-        /// <param name="songOrder">
-        /// Order # in the corresponding song
-        /// </param>
-        public Fingerprint(int id, bool[] signature, int trackId, int songOrder)
+        public Fingerprint(bool[] signature, int trackId, int songOrder) : this()
         {
-            Id = id;
             Signature = signature;
             TrackId = trackId;
             SongOrder = songOrder;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Entities.Fingerprint"/> class. 
-        /// </summary>
-        /// <param name="id">
-        /// Id of the signature
-        /// </param>
-        /// <param name="signature">
-        /// Signature
-        /// </param>
-        /// <param name="trackId">
-        /// Track identifier
-        /// </param>
-        /// <param name="songOrder">
-        /// Order # in the corresponding song
-        /// </param>
-        /// <param name="totalFingerprints">
-        /// Total fingerprints per track
-        /// </param>
+        public Fingerprint(int id, bool[] signature, int trackId, int songOrder)
+            : this(signature, trackId, songOrder)
+        {
+            Id = id;
+        }
+
         public Fingerprint(int id, bool[] signature, int trackId, int songOrder, int totalFingerprints)
             : this(id, signature, trackId, songOrder)
         {

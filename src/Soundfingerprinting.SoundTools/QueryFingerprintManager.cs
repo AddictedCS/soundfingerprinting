@@ -7,7 +7,6 @@
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Hashing;
 
     public static class QueryFingerprintManager

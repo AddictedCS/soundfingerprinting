@@ -63,13 +63,12 @@
             }
         }
 
-
         private IEnumerable<HashSignature> GetSignatures(IEnumerable<bool[]> fingerprints, Track track, int hashTables, int hashKeys)
         {
             List<HashSignature> signatures = new List<HashSignature>();
             foreach (bool[] fingerprint in fingerprints)
             {
-                long[] buckets = combinedHashingAlgorithm.Hash(fingerprint, hashTables, hashKeys);
+                long[] buckets = combinedHashingAlgorithm.Hash(fingerprint, hashTables, hashKeys).Item2;
 
                 int[] hashSignature = new int[buckets.Length];
                 int tableCount = 0;

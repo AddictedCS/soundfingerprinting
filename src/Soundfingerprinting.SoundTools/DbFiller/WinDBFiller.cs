@@ -15,7 +15,6 @@
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
@@ -537,11 +536,11 @@
             List<HashBinMinHash> listToInsert = new List<HashBinMinHash>();
             foreach (Fingerprint fingerprint in listOfFingerprintsToHash)
             {
-                long[] buckets = combinedHashingAlgorithm.Hash(fingerprint.Signature, hashTables, hashKeys);
+                var tupple = combinedHashingAlgorithm.Hash(fingerprint.Signature, hashTables, hashKeys);
                 int tableCount = 0;
-                foreach (long bucket in buckets)
+                foreach (long bucket in tupple.Item2)
                 {
-                    HashBinMinHash hash = new HashBinMinHash(-1, bucket, tableCount++, track.Id, fingerprint.Id);
+                    HashBinMinHash hash = new HashBinMinHash(-1, bucket, tableCount++, fingerprint.Id);
                     listToInsert.Add(hash);
                 }
             }

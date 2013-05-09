@@ -1,11 +1,11 @@
 ﻿namespace Soundfingerprinting.Dao
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.Dao.Internal;
-    using Soundfingerprinting.DbStorage.Entities;
 
     public class ModelService : IModelService
     {
@@ -15,14 +15,14 @@
 
         private readonly TrackDao trackDao;
 
-        private readonly HashBinDao hashBinDao;
+        private readonly HashBinMinHashDao hashBinMinHashDao;
 
         public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
             albumDao = new AlbumDao(databaseProviderFactory, modelBinderFactory);
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
             fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
-            hashBinDao = new HashBinDao(databaseProviderFactory, modelBinderFactory);
+            hashBinMinHashDao = new HashBinMinHashDao(databaseProviderFactory, modelBinderFactory);
         }
 
         public void InsertFingerprint(Fingerprint fingerprint)
@@ -57,7 +57,7 @@
 
         public void InsertHashBin(HashBinMinHash hashBin)
         {
-            hashBinDao.Insert(hashBin);
+            hashBinMinHashDao.Insert(hashBin);
         }
 
         public void InsertHashBin(IEnumerable<HashBinMinHash> collection)
@@ -66,6 +66,16 @@
             {
                 InsertHashBin(hashBinMinHash);
             }
+        }
+
+        public IEnumerable<HashBinMinHash> ReadAll()
+        {
+            return hashBinMinHashDao.ReadAll();
+        }
+
+        public IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold)
+        {
+            return hashBinMinHashDao.ReadSubFingerprintsByHashBucketsHavingThreshold(buckets, threshold);
         }
 
         public IDictionary<Track, int> ReadDuplicatedTracks()
@@ -137,11 +147,6 @@
         public IList<Track> ReadTrackByFingerprint(int id)
         {
             return trackDao.ReadTrackByFingerprintId(id);
-        }
-
-        public IDictionary<int, IList<HashBinMinHash>> ReadFingerprintsByHashBucketLsh(long[] hashBucket)
-        {
-            return hashBinDao.ReadFingerprintsByHashBucketLSH(hashBucket);
         }
 
         public int DeleteTrack(int trackId)

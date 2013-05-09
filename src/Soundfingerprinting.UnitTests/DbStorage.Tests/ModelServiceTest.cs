@@ -9,8 +9,8 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Soundfingerprinting.Dao;
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage;
-    using Soundfingerprinting.DbStorage.Entities;
 
     [TestClass]
     public class ModelServiceTest : BaseTest

@@ -1,5 +1,7 @@
 ﻿namespace Soundfingerprinting.Hashing
 {
+    using System;
+
     using Soundfingerprinting.Hashing.LSH;
     using Soundfingerprinting.Hashing.MinHash;
 
@@ -16,10 +18,10 @@
             this.lshService = lshService;
         }
 
-        public long[] Hash(bool[] fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable)
+        public Tuple<byte[], long[]> Hash(bool[] fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable)
         {
-            byte[] subFingerprint = this.minHashService.Hash(fingerprint);
-            return lshService.Hash(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable);
+            byte[] subFingerprint = minHashService.Hash(fingerprint);
+            return new Tuple<byte[], long[]>(subFingerprint, lshService.Hash(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable));
         }
     }
 }

@@ -5,6 +5,7 @@
 
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.Utils;
 
     public class QueryFingerprintService : IQueryFingerprintService
     {
@@ -19,8 +20,28 @@
 
         public Task<QueryResult> Query(IEnumerable<bool[]> fingerprints, IQueryConfiguration queryConfiguration)
         {
-            // no op
-            return null;
+            return Task.Factory.StartNew(
+                () =>
+                    {
+                        int bestMatch = 0;
+                        foreach (var fingerprint in fingerprints)
+                        {
+                            var tuple = hashingAlgorithm.Hash(fingerprint, queryConfiguration.NumberOfLSHTables, queryConfiguration.NumberOfMinHashesPerTable);
+                            var subFingerprints = modelService.ReadSubFingerprintsByHashBucketsHavingThreshold(tuple.Item2, queryConfiguration.ThresholdVotes);
+                            int minDistance = int.MaxValue;
+                            foreach (var subFingerprint in subFingerprints)
+                            {
+                                int distance = HashingUtils.CalculateHammingDistance(tuple.Item1, subFingerprint.Item1.Signature);
+                                if (minDistance > distance)
+                                {
+                                    bestMatch = subFingerprint.Item1.TrackId;
+                                    minDistance = distance;
+                                }
+                            }
+                        }
+
+                        return new QueryResult { BestMatch = modelService.ReadTrackById(bestMatch) };
+                    });
         }
     }
 }

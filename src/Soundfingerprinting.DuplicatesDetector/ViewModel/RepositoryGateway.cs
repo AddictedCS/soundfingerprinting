@@ -80,7 +80,7 @@
         ///   Value of threshold percentage of fingerprints that needs to be gathered
         ///   in order to be considered a possible result
         /// </summary>
-        private const double ThresholdPercentage = 0;
+        private const double ThresholdPercentage = 4;
 
         /// <summary>
         ///   Separator in the .csv files
@@ -152,7 +152,7 @@
                 storage,
                 new CombinedHashingAlgorithm(new MinHashService(permutations), new LSHService()));
                 
-            createStride = new IncrementalRandomStride(1, 5115, 128 * 64);
+            createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DbStorage.Entities
+﻿namespace Soundfingerprinting.Dao.Entities
 {
     public class Track
     {
@@ -6,10 +6,9 @@
 
         private string title;
 
-        private int trackLengthSec;
-
         public Track()
         {
+            // no op
         }
 
         public Track(int trackId, string artist, string title, int albumId)
@@ -37,13 +36,7 @@
 
             set
             {
-                if (value.Length > 255)
-                {
-                    throw new FingerprintEntityException(
-                        "Artist's length cannot exceed a predefined value. Check the documentation");
-                }
-
-                artist = value;
+                artist = value.Length > 255 ? value.Substring(0, 255) : value;
             }
         }
 
@@ -56,34 +49,12 @@
 
             set
             {
-                if (value.Length > 255)
-                {
-                    throw new FingerprintEntityException(
-                        "Title's length cannot exceed a predefined value. Check the documentation");
-                }
-
-                title = value;
+                title = value.Length > 255 ? value.Substring(0, 255) : value;
             }
         }
 
         public int AlbumId { get; set; }
 
-        public int TrackLengthSec
-        {
-            get
-            {
-                return trackLengthSec;
-            }
-
-            set
-            {
-                if (value < 0)
-                {
-                    throw new FingerprintEntityException("Track's Length cannot be less than 0");
-                }
-
-                trackLengthSec = value;
-            }
-        }
+        public int TrackLengthSec { get; set; }
     }
 }

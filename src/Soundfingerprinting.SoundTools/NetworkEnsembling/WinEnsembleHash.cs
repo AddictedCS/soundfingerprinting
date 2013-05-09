@@ -17,7 +17,6 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
 
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.DbStorage.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.Hashing.MinHash;

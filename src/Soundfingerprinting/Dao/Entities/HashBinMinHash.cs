@@ -2,22 +2,18 @@
 {
     using System;
 
-    using Soundfingerprinting.DbStorage.Entities;
-
-    /// <summary>
-    ///   Bin for Min-Hash + LSH schema
-    /// </summary>
     [Serializable]
     public class HashBinMinHash : HashBin
     {
         public HashBinMinHash()
         {
+            // no op
         }
 
-        public HashBinMinHash(int id, long hashBin, int hashTable, int trackId, int hashedFingerprint)
-            : base(id, hashBin, hashTable, trackId)
+        public HashBinMinHash(int id, long hashBin, int hashTable, int fingerprintId)
+            : base(id, hashBin, hashTable)
         {
-            FingerprintId = hashedFingerprint;
+            FingerprintId = fingerprintId;
         }
 
         public int FingerprintId { get; set; }

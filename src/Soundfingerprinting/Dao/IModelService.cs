@@ -1,9 +1,9 @@
 namespace Soundfingerprinting.Dao
 {
+    using System;
     using System.Collections.Generic;
 
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.DbStorage.Entities;
 
     public interface IModelService
     {
@@ -52,8 +52,6 @@ namespace Soundfingerprinting.Dao
 
         IList<Track> ReadTrackByFingerprint(int id);
 
-        IDictionary<int, IList<HashBinMinHash>> ReadFingerprintsByHashBucketLsh(long[] hashBucket);
-
         int DeleteTrack(int trackId);
 
         int DeleteTrack(Track track);
@@ -61,5 +59,9 @@ namespace Soundfingerprinting.Dao
         int DeleteTrack(IEnumerable<int> collection);
 
         int DeleteTrack(IEnumerable<Track> collection);
+
+        IEnumerable<HashBinMinHash> ReadAll();
+
+        IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold);
     }
 }

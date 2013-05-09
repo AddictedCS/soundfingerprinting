@@ -13,7 +13,7 @@
     using Encog.Neural.Networks.Training.Propagation.Resilient;
 
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.DbStorage.Entities;
+    using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.NeuralHashing.Utils;
 

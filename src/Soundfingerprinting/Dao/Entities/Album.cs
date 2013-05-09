@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DbStorage.Entities
+﻿namespace Soundfingerprinting.Dao.Entities
 {
     using System;
     using System.Diagnostics;
@@ -8,28 +8,30 @@
     /// </summary>
     /// <remarks>
     ///   This class represents an album instance. Default values for member fields:
-    ///   <c>Id = -1</c>
-    ///   <c>ReleaseYear = 1900</c>
+    ///   <c>Id = Int.MinValue</c>
+    ///   <c>ReleaseYear = 0</c>
     ///   <c>Name = "Unknown"</c>
     /// </remarks>
     [Serializable]
     [DebuggerDisplay("Name={_name}, Year={_releaseYear}")]
     public class Album
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private string name;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string name;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private int releaseYear;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private int releaseYear;
 
         public Album()
         {
             Id = int.MinValue;
-            releaseYear = 1501; /*Check docs*/
+            releaseYear = 0;
             name = "Unknown";
         }
 
         public Album(int id, string name)
         {
-            releaseYear = 1501; /*Check docs*/
+            releaseYear = 0;
             Id = id;
             this.name = name;
         }
@@ -49,13 +51,7 @@
 
             set
             {
-                if (value.Length > 255 /*DB Size Item*/)
-                {
-                    throw new FingerprintEntityException(
-                        "Name length cannot exceed a predefined value. Check the documentation");
-                }
-
-                name = value;
+                name = value.Length > 255 ? value.Substring(0, 255) : value;
             }
         }
 
@@ -70,15 +66,7 @@
 
             set
             {
-                if (value > 1500 && value < 2100)
-                {
-                    releaseYear = value;
-                }
-                else
-                {
-                    throw new FingerprintEntityException(
-                        "ReleaseYear does not match a predefined range. Check the documentation");
-                }
+                releaseYear = value;
             }
         }
     }

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.DbStorage.Entities;
+    using Soundfingerprinting.Dao.Entities;
 
     internal class AlbumDao : AbstractDao
     {

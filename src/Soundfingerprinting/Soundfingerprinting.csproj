@@ -74,6 +74,7 @@
     <Compile Include="Audio\Models\TagInfo.cs" />
     <Compile Include="Audio\Services\TagService.cs" />
     <Compile Include="Dao\DefaultConnectionStringFactory.cs" />
+    <Compile Include="Dao\Entities\SubFingerprint.cs" />
     <Compile Include="Dao\IConnectionStringFactory.cs" />
     <Compile Include="Dao\IModelService.cs" />
     <Compile Include="Dao\Internal\AbstractDao.cs" />
@@ -86,7 +87,7 @@
     <Compile Include="Dao\Internal\Extensions.cs" />
     <Compile Include="Dao\Conditions\ICondition.cs" />
     <Compile Include="Dao\Internal\FingerprintDao.cs" />
-    <Compile Include="Dao\Internal\HashBinDao.cs" />
+    <Compile Include="Dao\Internal\HashBinMinHashDao.cs" />
     <Compile Include="Dao\Internal\IExecutor.cs" />
     <Compile Include="Dao\IModelBinder.cs" />
     <Compile Include="Dao\IModelBinderFactory.cs" />
