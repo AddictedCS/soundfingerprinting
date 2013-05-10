@@ -1,12 +1,9 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System.Collections.Generic;
-using Soundfingerprinting.DuplicatesDetector.Model;
-
-namespace Soundfingerprinting.DuplicatesDetector.DataAccess
+﻿namespace Soundfingerprinting.DuplicatesDetector.DataAccess
 {
+    using System.Collections.Generic;
+
+    using Soundfingerprinting.DuplicatesDetector.Model;
+
     /// <summary>
     ///   Storage used for hashes and tracks
     /// </summary>
@@ -37,7 +34,7 @@ namespace Soundfingerprinting.DuplicatesDetector.DataAccess
         /// <param name = "hashSignature">Hash signature</param>
         /// <param name = "hashTableThreshold">Hash threshold</param>
         /// <returns>Tracks that correspond to the hash</returns>
-        Dictionary<Track, int> GetTracks(int[] hashSignature, int hashTableThreshold);
+        Dictionary<Track, int> GetTracks(HashSignature hashSignature, int hashTableThreshold);
 
         /// <summary>
         ///   Get all hash signatures from a specific track

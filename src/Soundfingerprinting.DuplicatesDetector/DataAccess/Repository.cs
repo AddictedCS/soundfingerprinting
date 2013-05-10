@@ -33,7 +33,7 @@
         /// <summary>
         ///   Create fingerprints out of down sampled samples
         /// </summary>
-        /// <param name = "samples">Down sampled to 5512 samples </param>
+        /// <param name = "samples">Down sampled to 5512 samples</param>
         /// <param name = "track">Track</param>
         /// <param name = "stride">Stride</param>
         /// <param name = "hashTables">Number of hash tables</param>
@@ -63,6 +63,80 @@
             }
         }
 
+        /// <summary>
+        ///   Find duplicates between existing tracks in the database
+        /// </summary>
+        /// <param name = "tracks">Tracks to be processed (this list should contain only tracks that have been inserted previously)</param>
+        /// <param name = "threshold">Number of threshold tables</param>
+        /// <param name = "numberOfFingerprintThreshold">Number of fingerprints threshold</param>
+        /// <param name = "callback">Callback invoked at each processed track</param>
+        /// <returns>Sets of duplicates</returns>
+        public HashSet<Track>[] FindDuplicates(List<Track> tracks, int threshold, int numberOfFingerprintThreshold, Action<Track, int, int> callback)
+        {
+            List<HashSet<Track>> duplicates = new List<HashSet<Track>>();
+            int total = tracks.Count, current = 0;
+            foreach (Track track in tracks)
+            {
+                Dictionary<Track, int> trackDuplicates = new Dictionary<Track, int>(); /*this will be a set with duplicates*/
+                HashSet<HashSignature> fingerprints = storage.GetHashSignatures(track, HashType.Query); /*get all existing signatures for a specific track*/
+                foreach (HashSignature fingerprint in fingerprints)
+                {
+                    Dictionary<Track, int> results = storage.GetTracks(fingerprint, threshold); /*get all duplicate track without the original track*/
+                    foreach (KeyValuePair<Track, int> result in results)
+                    {
+                        if (!trackDuplicates.ContainsKey(result.Key))
+                        {
+                            trackDuplicates.Add(result.Key, 1);
+                        }
+                        else
+                        {
+                            trackDuplicates[result.Key]++;
+                        }
+                    }
+                }
+
+                if (trackDuplicates.Any())
+                {
+                    IEnumerable<KeyValuePair<Track, int>> d = trackDuplicates.Where(pair => pair.Value > numberOfFingerprintThreshold);
+                    if (d.Any())
+                    {
+                        HashSet<Track> duplicatePair = new HashSet<Track>(d.Select(pair => pair.Key)) { track };
+                        duplicates.Add(duplicatePair);
+                    }
+                }
+
+                if (callback != null)
+                {
+                    callback.Invoke(track, total, ++current);
+                }
+            }
+
+            for (int i = 0; i < duplicates.Count - 1; i++)
+            {
+                HashSet<Track> set = duplicates[i];
+                for (int j = i + 1; j < duplicates.Count; j++)
+                {
+                    IEnumerable<Track> result = set.Intersect(duplicates[j]);
+                    if (result.Any())
+                    {
+                        duplicates.RemoveAt(j); /*Remove the duplicate set*/
+                        i = -1; /*Start iterating from the beginning*/
+                        break;
+                    }
+                }
+            }
+
+            return duplicates.ToArray();
+        }
+
+        /// <summary>
+        ///   Clear current storage
+        /// </summary>
+        public void ClearStorage()
+        {
+            storage.ClearAll();
+        }
+
         private IEnumerable<HashSignature> GetSignatures(IEnumerable<bool[]> fingerprints, Track track, int hashTables, int hashKeys)
         {
             List<HashSignature> signatures = new List<HashSignature>();
@@ -82,69 +156,6 @@
             }
 
             return signatures; /*Return the signatures*/
-        }
-
-        /// <summary>
-        ///   Find duplicates between existing tracks in the database
-        /// </summary>
-        /// <param name = "tracks">Tracks to be processed (this list should contain only tracks that have been inserted previously)</param>
-        /// <param name = "threshold">Number of threshold tables</param>
-        /// <param name = "percentageThreshold">Percentage of fingerprints threshold</param>
-        /// <param name = "callback">Callback invoked at each processed track</param>
-        /// <returns>Sets of duplicates</returns>
-        public HashSet<Track>[] FindDuplicates(List<Track> tracks, int threshold, double percentageThreshold, Action<Track, int, int> callback)
-        {
-            List<HashSet<Track>> duplicates = new List<HashSet<Track>>();
-            int total = tracks.Count, current = 0;
-            foreach (Track track in tracks)
-            {
-                Dictionary<Track, int> trackDuplicates = new Dictionary<Track, int>(); /*this will be a set with duplicates*/
-                HashSet<HashSignature> fingerprints = storage.GetHashSignatures(track, HashType.Query); /*get all existing signatures for a specific track*/
-                int fingerthreshold = (int) ((float) fingerprints.Count/100*percentageThreshold);
-                foreach (HashSignature fingerprint in fingerprints)
-                {
-                    Dictionary<Track, int> results = storage.GetTracks(fingerprint.Signature, threshold); /*get all duplicate track including the original track*/
-                    foreach (KeyValuePair<Track, int> result in results)
-                    {
-                        if (!trackDuplicates.ContainsKey(result.Key))
-                            trackDuplicates.Add(result.Key, 1);
-                        else
-                            trackDuplicates[result.Key]++;
-                    }
-                }
-                if (trackDuplicates.Count > 1)
-                {
-                    IEnumerable<KeyValuePair<Track, int>> d = trackDuplicates.Where((pair) => pair.Value > fingerthreshold);
-                    if (d.Count() > 1)
-                        duplicates.Add(new HashSet<Track>(d.Select((pair) => pair.Key)));
-                }
-                if (callback != null)
-                    callback.Invoke(track, total, ++current);
-            }
-
-            for (int i = 0; i < duplicates.Count - 1; i++)
-            {
-                HashSet<Track> set = duplicates[i];
-                for (int j = i + 1; j < duplicates.Count; j++)
-                {
-                    IEnumerable<Track> result = set.Intersect(duplicates[j]);
-                    if (result.Any())
-                    {
-                        duplicates.RemoveAt(j); /*Remove the duplicate set*/
-                        i = -1; /*Start iterating from the beginning*/
-                        break;
-                    }
-                }
-            }
-            return duplicates.ToArray();
-        }
-
-        /// <summary>
-        ///   Clear current storage
-        /// </summary>
-        public void ClearStorage()
-        {
-            storage.ClearAll();
         }
     }
 }

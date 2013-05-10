@@ -80,7 +80,7 @@
         ///   Value of threshold percentage of fingerprints that needs to be gathered
         ///   in order to be considered a possible result
         /// </summary>
-        private const double ThresholdPercentage = 4;
+        private const int ThresholdFingerprintsToVote = 2;
 
         /// <summary>
         ///   Separator in the .csv files
@@ -98,6 +98,10 @@
         #endregion
 
         #region Read-only components
+
+        private readonly ITagService tagService;
+
+        private readonly IExtendedAudioService audioService;
 
         /// <summary>
         ///   Creational stride (used in hashing audio objects)
@@ -124,10 +128,6 @@
         /// </summary>
         private CancellationTokenSource cts;
 
-        private readonly ITagService tagService;
-
-        private readonly IExtendedAudioService audioService;
-
         #endregion
 
         public RepositoryGateway()
@@ -148,9 +148,8 @@
 
             cts = new CancellationTokenSource();
 
-            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintingUnitsBuilder>(),
-                storage,
-                new CombinedHashingAlgorithm(new MinHashService(permutations), new LSHService()));
+            repository = new Repository(
+                ServiceContainer.Kernel.Get<IFingerprintingUnitsBuilder>(), storage, new CombinedHashingAlgorithm(new MinHashService(permutations), new LSHService()));
                 
             createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
         }
@@ -173,7 +172,7 @@
             {
                 if (path.IsFolder)
                 {
-                    files.AddRange(Helper.GetMusicFiles(path.Path, fileFilters, true)); //get music file names
+                    files.AddRange(Helper.GetMusicFiles(path.Path, fileFilters, true)); // get music file names
                 }
                 else
                 {
@@ -190,7 +189,7 @@
                             tracks = ProcessFiles(files, trackProcessed);
                             callback.Invoke(tracks, null);
                         }
-                        catch (AggregateException ex) /*here we are sure all consumers are done processing*/
+                        catch (AggregateException) /*here we are sure all consumers are done processing*/
                         {
                             callback.Invoke(null, null);
                             repository.ClearStorage(); /*its safe to clear the storage, no more thread is executing*/
@@ -204,24 +203,13 @@
         }
 
         /// <summary>
-        ///   Find duplicate files for specific tracks
-        /// </summary>
-        /// <param name = "tracks">Tracks to search in</param>
-        /// <param name = "callback">Callback invoked at each processed track</param>
-        /// <returns>Set of tracks that are duplicate</returns>
-        public HashSet<Track>[] FindDuplicates(List<Track> tracks, Action<Track, int, int> callback)
-        {
-            return repository.FindDuplicates(tracks, ThresholdVotes, ThresholdPercentage, callback);
-        }
-
-        /// <summary>
         ///   Find all duplicate files from the storage
         /// </summary>
         /// <param name = "callback">Callback invoked at each processed track</param>
         /// <returns>Set of tracks that are duplicate</returns>
         public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
         {
-            return repository.FindDuplicates(storage.GetAllTracks(), ThresholdVotes, ThresholdPercentage, callback);
+            return repository.FindDuplicates(storage.GetAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
         }
 
         /// <summary>
@@ -258,8 +246,9 @@
             ConcurrentBag<string> bag = new ConcurrentBag<string>(files);
 
             int maxprod = numProcs > 2 ? 2 : numProcs;
-            for (var i = 0; i < maxprod; i++) /*producers*/
+            for (var i = 0; i < maxprod; i++)
             {
+                /*producers*/
                 producers.Add(Task.Factory.StartNew(
                     () =>
                     {
@@ -280,7 +269,7 @@
                                 float[] samples;
                                 try
                                 {
-                                    track = TrackHelper.GetTrackInfo(MinTrackLength, MaxTrackLength, file, tagService); //lame casting I know
+                                    track = TrackHelper.GetTrackInfo(MinTrackLength, MaxTrackLength, file, tagService); // lame casting I know
                                     samples = TrackHelper.GetTrackSamples(track, audioService, SampleRate, MillisecondsToProcess, MillisecondsStart);
                                 }
                                 catch
@@ -289,6 +278,7 @@
                                     /*Continue processing even if getting samples failed*/
                                     /*the failing might be caused by a bunch of File I/O factors, that cannot be considered critical*/
                                 }
+
                                 try
                                 {
                                     buffer.TryAdd(new Tuple<Track, float[]>(track, samples), 1, token); /*producer*/
@@ -299,16 +289,16 @@
                                     break;
                                 }
                             }
-                        
                     },
                     token));
             }
 
             /*When all producers ended with their operations, call the CompleteAdding() to tell Consumers no more items are available*/
-            Task.Factory.ContinueWhenAll(producers.ToArray(), (p) => buffer.CompleteAdding());
+            Task.Factory.ContinueWhenAll(producers.ToArray(), p => buffer.CompleteAdding());
 
-            for (int i = 0; i < numProcs * 4; i++) /*consumer*/
+            for (int i = 0; i < numProcs * 4; i++) 
             {
+                /*consumer*/
                 consumers.Add(Task.Factory.StartNew(
                     () =>
                     {

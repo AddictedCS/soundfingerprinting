@@ -424,10 +424,10 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                             }
                         });
                 }).ContinueWith( /*Update the UI*/
-                (task) =>
+                task =>
                 {
                     ProcessingStep = SETP_GENERATING_REPORT;
-                    ReportViewModel report = new ReportViewModel {Sets = duplicates};
+                    ReportViewModel report = new ReportViewModel { Sets = duplicates };
                     GenericViewModel viewModel = new GenericViewModel();
                     viewModel.Workspaces.Add(report);
                     IGenericViewWindow view = GetService<IGenericViewWindow>();
