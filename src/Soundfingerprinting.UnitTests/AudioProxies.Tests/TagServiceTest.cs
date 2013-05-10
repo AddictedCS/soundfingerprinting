@@ -13,7 +13,7 @@
         [TestInitialize]
         public void SetUp()
         {
-            tagService = new TagService();
+            tagService = new BassAudioService();
         }
 
         [TestMethod]

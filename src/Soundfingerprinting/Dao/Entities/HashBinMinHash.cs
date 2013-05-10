@@ -3,7 +3,7 @@
     using System;
 
     [Serializable]
-    public class HashBinMinHash : HashBin
+    public class HashBinMinHash : AbstractHashBin
     {
         public HashBinMinHash()
         {

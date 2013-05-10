@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
 
+    using Soundfingerprinting.Audio.Models;
+
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Fx;
     using Un4seen.Bass.AddOn.Mix;
@@ -18,7 +20,7 @@
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
     ///   All in a tiny DLL, under 100KB* in size.
     /// </remarks>
-    public class BassAudioService : AudioService, IExtendedAudioService
+    public class BassAudioService : AudioService, IExtendedAudioService, ITagService
     {
         private const int DefaultSampleRate = 44100;
 
@@ -188,6 +190,24 @@
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
+        }
+
+        public TagInfo GetTagInfo(string pathToAudioFile)
+        {
+            TAG_INFO tags = BassTags.BASS_TAG_GetFromFile(pathToAudioFile);
+            TagInfo tag = new TagInfo
+            {
+                Duration = tags.duration,
+                Album = tags.album,
+                Artist = tags.artist,
+                Title = tags.title,
+                AlbumArtist = tags.albumartist,
+                Genre = tags.genre,
+                Year = tags.year,
+                Composer = tags.composer
+            };
+
+            return tag;
         }
 
         protected virtual void Dispose(bool isDisposing)

@@ -7,7 +7,7 @@
     {
         public SubFingerprint()
         {
-            Id = long.MinValue;
+            Id = 0;
         }
 
         public SubFingerprint(byte[] signature, int trackId) : this()

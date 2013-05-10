@@ -45,9 +45,10 @@ namespace Soundfingerprinting.Dao.Internal
 
         public Track ReadTrackByArtistAndTitleName(string artist, string title)
         {
-            return
-                PrepareStoredProcedure(SpReadTrackByArtistSongName).WithParameter("Artist", artist).WithParameter(
-                    "Title", title).Execute().AsModel<Track>();
+            return PrepareStoredProcedure(SpReadTrackByArtistSongName)
+                        .WithParameter("Artist", artist)
+                        .WithParameter("Title", title)
+                        .Execute().AsModel<Track>();
         }
 
         public IList<Track> ReadTrackByFingerprintId(int id)

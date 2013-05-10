@@ -18,7 +18,7 @@
             subFingerprint.Id = PrepareStoredProcedure(SpInsertSubFingerprint)
                                 .WithParametersFromModel(subFingerprint)
                                 .Execute()
-                                .AsScalar<int>();
+                                .AsScalar<long>();
         }
 
         public void Insert(IEnumerable<SubFingerprint> collection)

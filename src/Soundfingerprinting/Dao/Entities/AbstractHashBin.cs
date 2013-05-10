@@ -3,23 +3,23 @@
     using System;
 
     [Serializable]
-    public class HashBin
+    public abstract class AbstractHashBin
     {
-        public HashBin()
+        protected AbstractHashBin()
         {
             Id = int.MinValue;
         }
 
-        public HashBin(int id, long hashBin, int hashTable)
+        protected AbstractHashBin(int id, long hashBin, int hashTable)
         {
             Id = id;
-            Bin = hashBin;
+            HashBin = hashBin;
             HashTable = hashTable;
         }
 
         public int Id { get; set; }
 
-        public long Bin { get; set; }
+        public long HashBin { get; set; }
 
         public int HashTable { get; set; }
     }

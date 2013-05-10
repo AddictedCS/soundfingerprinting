@@ -147,7 +147,7 @@ CREATE PROCEDURE sp_InsertHashBinMinHash
 	@Id INT,
 	@HashBin BIGINT,
 	@HashTable INT,
-	@SubFingerprintId INT
+	@SubFingerprintId BIGINT
 AS
 INSERT INTO HashBinsMinHash (
 	HashBin,
@@ -232,12 +232,12 @@ IF OBJECT_ID('sp_InsertSubFingerprint','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertSubFingerprint
 GO
 CREATE PROCEDURE sp_InsertSubFingerprint
-	@Id INT,
+	@Id BIGINT,
 	@Signature VARBINARY(100),
 	@TrackId INT
 AS
 BEGIN
-INSERT INTO Fingerprints (
+INSERT INTO SubFingerprints (
 	Signature,
 	TrackId
 	) OUTPUT inserted.Id

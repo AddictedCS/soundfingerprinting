@@ -72,7 +72,6 @@
     <Compile Include="Audio\Strides\StaticStride.cs" />
     <Compile Include="Audio\Strides\StrideType.cs" />
     <Compile Include="Audio\Models\TagInfo.cs" />
-    <Compile Include="Audio\Services\TagService.cs" />
     <Compile Include="Dao\DefaultConnectionStringFactory.cs" />
     <Compile Include="Dao\Entities\SubFingerprint.cs" />
     <Compile Include="Dao\IConnectionStringFactory.cs" />
@@ -107,7 +106,7 @@
     <Compile Include="Dao\ModelService.cs" />
     <Compile Include="Dao\Entities\Fingerprint.cs" />
     <Compile Include="Dao\FingerprintEntityException.cs" />
-    <Compile Include="Dao\Entities\HashBin.cs" />
+    <Compile Include="Dao\Entities\AbstractHashBin.cs" />
     <Compile Include="Dao\Entities\HashBinMinHash.cs" />
     <Compile Include="Dao\Entities\HashBinNeuralHasher.cs" />
     <Compile Include="Dao\Entities\Track.cs" />

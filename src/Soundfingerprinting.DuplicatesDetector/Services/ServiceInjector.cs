@@ -41,8 +41,7 @@
                             .WithConstructorArgument("pathToPermutations", PathToPermutations)
                             .WithConstructorArgument("separator", Separator);
 
-            ServiceContainer.Kernel.Bind<IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
-            ServiceContainer.Kernel.Bind<ITagService>().To<TagService>();
+            ServiceContainer.Kernel.Bind<IAudioService, IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
             ServiceContainer.Kernel.Bind<IFingerprintService>().To<FingerprintService>();
             ServiceContainer.Kernel.Bind<IFFTService>().To<CachedFFTWService>();
             ServiceContainer.Kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();

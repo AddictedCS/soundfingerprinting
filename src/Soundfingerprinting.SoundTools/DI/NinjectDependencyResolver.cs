@@ -44,6 +44,16 @@ namespace Soundfingerprinting.SoundTools.DI
             return kernel.Bind<T>();
         }
 
+        public IBindingToSyntax<T1, T2> Bind<T1, T2>()
+        {
+            return kernel.Bind<T1, T2>();
+        }
+
+        public IBindingToSyntax<T1, T2, T3> Bind<T1, T2, T3>()
+        {
+            return kernel.Bind<T1, T2, T3>();
+        }
+        
         public T Get<T>()
         {
             return kernel.Get<T>();
