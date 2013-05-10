@@ -31,7 +31,7 @@
             Min = min;
             Max = max;
             SamplesPerFingerprint = samplesPerFingerprint;
-            firstStride = 0;
+            firstStride = Random.Next(min, max);
         }
 
         public IncrementalRandomStride(int min, int max, int samplesPerFingerprint, int firstStride)

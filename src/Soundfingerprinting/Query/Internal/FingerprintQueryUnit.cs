@@ -7,6 +7,7 @@
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing.MinHash;
+    using Soundfingerprinting.Query.Configuration;
 
     internal sealed class FingerprintingQueryUnit : IOngoingQuery, IOngoingQueryConfiguration, IOngoingQueryConfigurationWithFingerprinting, IFingerprintingQueryUnit
     {
@@ -53,6 +54,23 @@
         {
             queryConfiguration = configuration;
             createFingerprintMethod = () => fingerprintingMethodFromSelector().With(fingerprintingConfiguration);
+            return this;
+        }
+
+        public IFingerprintingQueryUnit With<T1, T2>() where T1 : IFingerprintingConfiguration, new() where T2 : IQueryConfiguration, new()
+        {
+            queryConfiguration = new T2();
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().With<T1>();
+            return this;
+        }
+
+        public IFingerprintingQueryUnit WithCustomConfigurations(
+            Action<CustomFingerprintingConfiguration> fingerprintingConfigurationTransformation, Action<CustomQueryConfiguration> queryConfigurationTransformation)
+        {
+            CustomQueryConfiguration customQueryConfiguration = new CustomQueryConfiguration();
+            queryConfiguration = customQueryConfiguration;
+            queryConfigurationTransformation(customQueryConfiguration);
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithCustomConfiguration(fingerprintingConfigurationTransformation);
             return this;
         }
 

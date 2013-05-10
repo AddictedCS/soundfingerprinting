@@ -487,7 +487,7 @@
             foreach (SubFingerprint subFingerprint in listOfSubFingerprintsToHash)
             {
                 long[] buckets = lshService.Hash(subFingerprint.Signature, hashTables, hashKeys);
-                int tableCount = 0;
+                int tableCount = 1;
                 foreach (long bucket in buckets)
                 {
                     HashBinMinHash hash = new HashBinMinHash(0, bucket, tableCount++, subFingerprint.Id);

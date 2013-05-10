@@ -17,8 +17,6 @@
     using Soundfingerprinting.DuplicatesDetector.Services;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Hashing.LSH;
-    using Soundfingerprinting.Hashing.MinHash;
 
     /// <summary>
     ///   Class which prepares the data for Repository analysis of the tracks (does all the "dirty job")

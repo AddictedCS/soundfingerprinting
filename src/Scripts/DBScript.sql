@@ -366,9 +366,17 @@ CREATE PROCEDURE sp_ReadFingerprintsByHashBinHashTableAndThreshold
 	@Delimiter NVARCHAR(10),
 	@Threshold INT
 AS
-SELECT SubFingerprint.Id, SubFingerprint.TrackId, SubFingerprint.Signature, COUNT(HashTable) AS Votes FROM HashBinsMinHash,
-	(SELECT CAST(Value AS INT) AS HashBin, ROW_NUMBER() OVER (ORDER BY Value ASC) AS HashTable FROM Split(@ConcatHashBucket, @Delimiter)) AS HASH_BUCKETS, SubFingerprints
-WHERE HashBin = HASH_BUCKETS.HashBin AND HashTable = HASH_BUCKETS.HashTable GROUP BY SubFingerprintId HAVING COUNT(HashTable) >= @Threshold AND HashBinsMinHash.SubFingerprintId = SubFingerprints.Id 
+
+SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature, THRESHOLDED.Votes FROM SubFingerprints,
+(
+	SELECT SubFingerprintId, COUNT(HashBinsMinHash.HashTable) AS Votes 
+	FROM HashBinsMinHash, (SELECT CAST(Value AS BIGINT) AS HashBin, [Key] AS HashTable 
+							  FROM Split(@ConcatHashBucket, @Delimiter)) AS HASH_BUCKETS
+	WHERE HashBinsMinHash.HashBin = HASH_BUCKETS.HashBin AND HashBinsMinHash.HashTable = HASH_BUCKETS.HashTable 
+	GROUP BY SubFingerprintId 
+	HAVING COUNT(HashBinsMinHash.HashTable) >= @Threshold
+) AS THRESHOLDED
+WHERE SubFingerprints.Id = THRESHOLDED.SubFingerprintId
 -- ------------------------------------------------------------------------------------------------------------
 GO
 
@@ -522,12 +530,13 @@ create function dbo.Split(
  @String nvarchar (4000),
  @Delimiter nvarchar (10)
  )
-returns @ValueTable table ([Value] nvarchar(4000))
+returns @ValueTable table ([Key] int, [Value] nvarchar(4000))
 begin
  declare @NextString nvarchar(4000)
  declare @Pos int
  declare @NextPos int
  declare @CommaCheck nvarchar(1)
+ declare @KeyCount int
  
  --Initialize
  set @NextString = ''
@@ -542,16 +551,18 @@ begin
  set @NextPos = 1
  
  --Loop while there is still a comma in the String of levels
+ set @KeyCount = 1;
  while (@pos <>  0)  
  begin
   set @NextString = substring(@String,1,@Pos - 1)
  
-  insert into @ValueTable ( [Value]) Values (@NextString)
+  insert into @ValueTable ([Key], [Value]) Values (@KeyCount, @NextString)
  
   set @String = substring(@String,@pos +1,len(@String))
   
   set @NextPos = @Pos
   set @pos  = charindex(@Delimiter,@String)
+  set @KeyCount = @KeyCount + 1
  end
  
  return

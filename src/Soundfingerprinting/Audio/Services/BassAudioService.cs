@@ -219,8 +219,15 @@
                     // release managed resources
                 }
 
-                // Bass.BASS_Free();
+                Bass.BASS_Free();
             }
+        }
+
+        public override void Dispose()
+        {
+            Dispose(false);
+            alreadyDisposed = true;
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -229,13 +236,6 @@
         ~BassAudioService()
         {
             Dispose(true);
-        }
-
-        public override void Dispose()
-        {
-            Dispose(false);
-            alreadyDisposed = true;
-            GC.SuppressFinalize(this);
         }
     }
 }

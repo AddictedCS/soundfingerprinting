@@ -47,7 +47,7 @@ namespace Soundfingerprinting.Dao.Internal
                     .Execute()
                     .AsList(reader =>
                         {
-                            int id = reader.GetInt32("Id");
+                            long id = reader.GetInt64("Id");
                             byte[] signature = (byte[])reader.GetRaw("Signature");
                             int trackId = reader.GetInt32("TrackId");
                             int votes = reader.GetInt32("Votes");

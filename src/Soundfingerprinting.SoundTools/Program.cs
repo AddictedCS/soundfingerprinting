@@ -15,6 +15,7 @@
     using Soundfingerprinting.Hashing.LSH;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.Image;
+    using Soundfingerprinting.Query;
     using Soundfingerprinting.SoundTools.DI;
 
     internal static class Program
@@ -47,6 +48,8 @@
             dependencyResolver.Bind<IPermutations>()
                               .To<DbPermutations>()
                               .WithConstructorArgument("connectionString", dependencyResolver.Get<IConnectionStringFactory>().GetConnectionString());
+            dependencyResolver.Bind<IFingerprintQueryBuilder>().To<FingerprintQueryBuilder>();
+            dependencyResolver.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

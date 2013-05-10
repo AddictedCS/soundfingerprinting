@@ -41,7 +41,7 @@
 
             this.minStride = minStride;
             this.maxStride = maxStride;
-            firstStride = Random.Next();
+            firstStride = Random.Next(minStride, maxStride);
         }
 
         public RandomStride(int minStride, int maxStride, int firstStride) : this(minStride, maxStride)

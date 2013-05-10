@@ -1,51 +1,61 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Security.Permissions;
-using System.Windows.Forms;
-
-using Soundfingerprinting.Fingerprinting;
-using Soundfingerprinting.SoundTools.Properties;
-
-namespace Soundfingerprinting.SoundTools.QueryDb
+﻿namespace Soundfingerprinting.SoundTools.QueryDb
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Permissions;
+    using System.Windows.Forms;
+
+    using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Dao;
+    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Query;
+    using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinCheckHashBins : Form
     {
-        private readonly IFingerprintService fingerprintService;
+        private readonly IFingerprintQueryBuilder queryBuilder;
 
-        private readonly List<string> _filters = new List<string>(new[] {"*.mp3", "*.wav", "*.ogg", "*.flac"}); /*File filters*/
+        private readonly ITagService tagService;
 
-        private List<String> _fileList;
-        private HashAlgorithm _hashAlgorithm = HashAlgorithm.LSH; /*Locality sensitive hashing component*/
+        private readonly IModelService modelService;
 
-        /// <summary>
-        ///   Parameter less constructor
-        /// </summary>
-        [ConfigurationPermission(SecurityAction.Demand)]
-        public WinCheckHashBins(IFingerprintService fingerprintService)
+        private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); // File filters
+
+        private List<string> fileList = new List<string>();
+
+        private HashAlgorithm _hashAlgorithm = HashAlgorithm.LSH; // Locality sensitive hashing component
+
+        public WinCheckHashBins(IFingerprintQueryBuilder queryBuilder, ITagService tagService, IModelService modelService)
         {
-            this.fingerprintService = fingerprintService;
+            this.queryBuilder = queryBuilder;
+            this.tagService = tagService;
+            this.modelService = modelService;
             InitializeComponent();
 
             Icon = Resources.Sound;
-            foreach (object item in ConfigurationManager.ConnectionStrings) /*Detect all the connection strings*/
+            /*Detect all the connection strings*/
+            foreach (object item in ConfigurationManager.ConnectionStrings) 
+            {
                 _cmbConnectionString.Items.Add(item.ToString());
+            }
 
-            if (_cmbConnectionString.Items.Count > 0) /*Set connection string*/
+            /*Set connection string*/
+            if (_cmbConnectionString.Items.Count > 0)
+            {
                 _cmbConnectionString.SelectedIndex = 0;
-            /*Setting default values*/
-            _cmbAlgorithm.SelectedIndex = (int) _hashAlgorithm;
+            }
 
-            string[] items = Enum.GetNames(typeof (StrideType)); /*Add enumeration types in the combo box*/
+            /*Setting default values*/
+            _cmbAlgorithm.SelectedIndex = (int)_hashAlgorithm;
+
+            /*Add enumeration types in the combo box*/
+            string[] items = Enum.GetNames(typeof(StrideType)); 
+
             _cmbStrideType.Items.AddRange(items);
             _cmbStrideType.SelectedIndex = 0;
 
@@ -66,9 +76,6 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             }
         }
 
-        /// <summary>
-        ///   Select an algorithm for KNN components
-        /// </summary>
         private void CmbAlgorithmSelectedIndexChanged(object sender, EventArgs e)
         {
             _hashAlgorithm = (HashAlgorithm) _cmbAlgorithm.SelectedIndex;
@@ -92,9 +99,6 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             }
         }
 
-        /// <summary>
-        ///   Browse root folder with the songs to be queried
-        /// </summary>
         private void BtnBrowseFolderClick(object sender, EventArgs e)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
@@ -103,19 +107,18 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 Cursor = Cursors.WaitCursor;
                 _tbRootFolder.Enabled = false;
                 _tbRootFolder.Text = fbd.SelectedPath;
-                _fileList = WinUtils.GetFiles(_filters, _tbRootFolder.Text);
+                fileList = WinUtils.GetFiles(filters, _tbRootFolder.Text);
 
-                Invoke(new Action(() =>
-                                  {
-                                      Cursor = Cursors.Default;
-                                      _tbRootFolder.Enabled = true;
-                                      if (_fileList != null)
-                                      {
-                                          _nudTotalSongs.Value = _fileList.Count;
-                                          _btnStart.Enabled = true;
-                                      }
-                                      _tbSingleFile.Text = null;
-                                  }));
+                Invoke(
+                    new Action(
+                        () =>
+                            {
+                                Cursor = Cursors.Default;
+                                _tbRootFolder.Enabled = true;
+                                _nudTotalSongs.Value = fileList.Count;
+                                _btnStart.Enabled = true;
+                                _tbSingleFile.Text = null;
+                            }));
             }
         }
 
@@ -125,7 +128,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         [FileDialogPermission(SecurityAction.Demand)]
         private void BtnBrowseSongClick(object sender, EventArgs e)
         {
-            string filter = WinUtils.GetMultipleFilter("Audio files", _filters);
+            string filter = WinUtils.GetMultipleFilter("Audio files", filters);
             OpenFileDialog ofd = new OpenFileDialog {Filter = filter, Multiselect = true};
 
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -134,14 +137,14 @@ namespace Soundfingerprinting.SoundTools.QueryDb
                 foreach (string file in ofd.FileNames)
                     _tbSingleFile.Text += "\"" + Path.GetFileName(file) + "\" ";
 
-                if (_fileList == null)
-                    _fileList = new List<string>();
-                foreach (string file in ofd.FileNames.Where(file => !_fileList.Contains(file)))
+                if (fileList == null)
+                    fileList = new List<string>();
+                foreach (string file in ofd.FileNames.Where(file => !fileList.Contains(file)))
                 {
                     _btnStart.Enabled = true;
-                    _fileList.Add(file);
+                    fileList.Add(file);
                 }
-                _nudTotalSongs.Value = _fileList.Count;
+                _nudTotalSongs.Value = fileList.Count;
             }
         }
 
@@ -151,7 +154,7 @@ namespace Soundfingerprinting.SoundTools.QueryDb
         [FileDialogPermission(SecurityAction.Demand)]
         private void BtnSelectClick(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog {FileName = "Ensemble", Filter = Resources.FileFilterEnsemble};
+            OpenFileDialog ofd = new OpenFileDialog { FileName = "Ensemble", Filter = Resources.FileFilterEnsemble };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _tbPathToEnsemble.Text = ofd.FileName;
@@ -168,52 +171,39 @@ namespace Soundfingerprinting.SoundTools.QueryDb
             switch (_hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
-                    if (_fileList == null || _fileList.Count == 0)
+                    if (fileList == null || fileList.Count == 0)
                     {
-                        MessageBox.Show(
-                            Resources.SelectFolderWithSongs,
-                            Resources.Songs,
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
-                        break;
-                    }
-
-                    winform = new WinQueryResults((int)_nudNumberOfFingerprints.Value,
-                        (int)_numStaratSeconds.Value,
-                        WinUtils.GetStride(
-                            (StrideType)_cmbStrideType.SelectedIndex,
-                            (int)_nudQueryStrideMax.Value,
-                            (int)_nudQueryStrideMin.Value,
-                            configuration.SamplesPerFingerprint),
-                        _fileList,
-                        (int)_nudHashtables.Value,
-                        (int)_nudKeys.Value,
-                        Convert.ToInt32(_nudThreshold.Value)) { FingerprintService = fingerprintService };
-                    winform.Show();
-                    break;
-                case HashAlgorithm.NeuralHasher:
-                    if (_fileList == null || _fileList.Count == 0)
-                    {
-                        MessageBox.Show(
-                            Resources.SelectFolderWithSongs,
-                            Resources.Songs,
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                        MessageBox.Show(Resources.SelectFolderWithSongs, Resources.Songs, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;
                     }
 
                     winform = new WinQueryResults(
-                        _cmbConnectionString.SelectedItem.ToString(),
                         (int)_nudNumberOfFingerprints.Value,
                         (int)_numStaratSeconds.Value,
                         WinUtils.GetStride(
-                            (StrideType)(_cmbStrideType.SelectedIndex),
-                            (int)_nudQueryStrideMax.Value,
-                            (int)_nudQueryStrideMin.Value,
-                            configuration.SamplesPerFingerprint),
-                        (int)_nudTopWavelets.Value,
-                        _fileList,
-                        _tbPathToEnsemble.Text) { FingerprintService = fingerprintService };
+                            (StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
+                        fileList,
+                        (int)_nudHashtables.Value,
+                        (int)_nudKeys.Value,
+                        Convert.ToInt32(_nudThreshold.Value)) { FingerprintQueryBuilder = queryBuilder, TagService = tagService, ModelService = modelService };
+                    winform.Show();
+                    break;
+                case HashAlgorithm.NeuralHasher:
+                    if (fileList == null || fileList.Count == 0)
+                    {
+                        MessageBox.Show(Resources.SelectFolderWithSongs, Resources.Songs, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+                    }
+
+                    winform = new WinQueryResults(
+                        (int)_nudNumberOfFingerprints.Value,
+                        (int)_numStaratSeconds.Value,
+                        WinUtils.GetStride(
+                            (StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
+                        fileList,
+                        (int)_nudHashtables.Value,
+                        (int)_nudKeys.Value,
+                        (int)_nudThreshold.Value) { FingerprintQueryBuilder = queryBuilder, TagService = tagService, ModelService = modelService };
                     winform.Show();
                     break;
                 case HashAlgorithm.None:

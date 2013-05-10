@@ -4,6 +4,8 @@
 
     public class QueryResult
     {
+        public bool IsSuccessful { get; set; }
+
         public Track BestMatch { get; set; }
     }
 }
