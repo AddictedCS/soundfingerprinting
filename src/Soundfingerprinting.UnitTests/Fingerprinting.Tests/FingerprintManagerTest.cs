@@ -7,6 +7,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Moq;
+
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
@@ -18,6 +20,8 @@
     using Soundfingerprinting.Fingerprinting.FFT.FFTW;
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.MinHash;
 
     [TestClass]
     public class FingerprintManagerTest : BaseTest
@@ -27,6 +31,7 @@
         private IFingerprintingUnitsBuilder fingerprintingUnitsBuilderWithBass;
         private IFingerprintingUnitsBuilder fingerprintingUnitsBuilderWithDirectSound;
         private IFingerprintingConfiguration defaultConfiguration;
+        private IPermutations permutations;
 
         [TestInitialize]
         public void SetUp()
@@ -34,9 +39,12 @@
             modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
             fingerprintService = new FingerprintService(new FingerprintDescriptor(), new SpectrumService(new CachedFFTWService()), new WaveletService(new StandardHaarWaveletDecomposition()));
             defaultConfiguration = new DefaultFingerprintingConfiguration();
-            fingerprintingUnitsBuilderWithBass = new FingerprintingUnitsBuilder(fingerprintService, new BassAudioService());
+            var mockedPermutations = new Mock<IPermutations>();
+            mockedPermutations.Setup(perms => perms.GetPermutations()).Returns(new int[1][]);
+            permutations = mockedPermutations.Object;
+            fingerprintingUnitsBuilderWithBass = new FingerprintingUnitsBuilder(fingerprintService, new BassAudioService(), new MinHashService(permutations));
 #pragma warning disable 612,618
-            fingerprintingUnitsBuilderWithDirectSound = new FingerprintingUnitsBuilder(fingerprintService, new DirectSoundAudioService());
+            fingerprintingUnitsBuilderWithDirectSound = new FingerprintingUnitsBuilder(fingerprintService, new DirectSoundAudioService(), new MinHashService(permutations));
 #pragma warning restore 612,618
         }
 

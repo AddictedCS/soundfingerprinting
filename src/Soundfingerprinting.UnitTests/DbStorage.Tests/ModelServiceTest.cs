@@ -10,7 +10,6 @@
 
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.DbStorage;
 
     [TestClass]
     public class ModelServiceTest : BaseTest
@@ -76,16 +75,6 @@
             Album readAlbum = modelService.ReadAlbumByName(albumName);
             Assert.IsNotNull(readAlbum);
             Assert.AreEqual(album.Id, readAlbum.Id);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(FingerprintEntityException))]
-        public void CheckReleaseYearConstraintsAlbum()
-        {
-            Album a = new Album();
-            Assert.AreEqual(true, !string.IsNullOrEmpty(a.Name));
-            Assert.AreEqual(MinYear /*Default value*/, a.ReleaseYear);
-            a.ReleaseYear = 0; /*Release Year (1500..2100]*/
         }
 
         [TestMethod]
@@ -503,13 +492,6 @@
         #endregion
 
         #region Insert/Read/Delete Bin objects tests
-
-        [TestMethod]
-        [ExpectedException(typeof(FingerprintEntityException))]
-        public void CheckTrackLengthConstraints()
-        {
-            Track track = new Track { TrackLengthSec = int.MinValue };
-        }
 
         [TestMethod]
         [ExpectedException(typeof(SqlException))]

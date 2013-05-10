@@ -9,6 +9,9 @@
     [DeploymentItem(@"bass_fx.dll")]
     [DeploymentItem(@"bassmix.dll")]
     [DeploymentItem(@"bassflac.dll")]
+    [DeploymentItem(@"libfftw3-3.dll")]
+    [DeploymentItem(@"libfftw3f-3.dll")]
+    [DeploymentItem(@"libfftw3l-3.dll")]
     [DeploymentItem(@"Kryptonite.mp3")]
     [DeploymentItem(@"Kryptonite.wav")]
     public class BaseTest

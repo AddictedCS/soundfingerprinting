@@ -6,20 +6,23 @@
 
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Hashing.MinHash;
 
     internal sealed class FingerprintingQueryUnit : IOngoingQuery, IOngoingQueryConfiguration, IOngoingQueryConfigurationWithFingerprinting, IFingerprintingQueryUnit
     {
         private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
+        private readonly IMinHashService minHashService;
 
         private Func<IWithConfiguration> fingerprintingMethodFromSelector;
         private Func<IFingerprintingUnit> createFingerprintMethod;
         private IQueryConfiguration queryConfiguration;
 
-        public FingerprintingQueryUnit(IFingerprintingUnitsBuilder fingerprintingUnitsBuilder, IQueryFingerprintService queryFingerprintService)
+        public FingerprintingQueryUnit(IFingerprintingUnitsBuilder fingerprintingUnitsBuilder, IQueryFingerprintService queryFingerprintService, IMinHashService minHashService)
         {
             this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
             this.queryFingerprintService = queryFingerprintService;
+            this.minHashService = minHashService;
         }
 
         public IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile)
@@ -42,7 +45,7 @@
 
         public IOngoingQueryConfiguration From(bool[] fingerprint)
         {
-            fingerprintingMethodFromSelector = () => new EmptyWithConfiguration(fingerprint);
+            fingerprintingMethodFromSelector = () => new EmptyWithConfiguration(fingerprint, minHashService);
             return this;
         }
 
@@ -72,33 +75,39 @@
         {
             private readonly bool[] fingerprint;
 
-            public EmptyWithConfiguration(bool[] fingerprint)
+            private readonly IMinHashService minHashService;
+
+            public EmptyWithConfiguration(bool[] fingerprint, IMinHashService minHashService)
             {
                 this.fingerprint = fingerprint;
+                this.minHashService = minHashService;
             }
 
             public IFingerprintingUnit With(IFingerprintingConfiguration configuration)
             {
-                return new EmptyFingerprintingUnit(fingerprint);
+                return new EmptyFingerprintingUnit(fingerprint, minHashService);
             }
 
             public IFingerprintingUnit With<T>() where T : IFingerprintingConfiguration, new()
             {
-                return new EmptyFingerprintingUnit(fingerprint);
+                return new EmptyFingerprintingUnit(fingerprint, minHashService);
             }
 
             public IFingerprintingUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> transformation)
             {
-                return new EmptyFingerprintingUnit(fingerprint);
+                return new EmptyFingerprintingUnit(fingerprint, minHashService);
             }
 
             private class EmptyFingerprintingUnit : IFingerprintingUnit
             {
                 private readonly bool[] fingerprint;
 
-                public EmptyFingerprintingUnit(bool[] fingerprint)
+                private readonly IMinHashService minHashService;
+
+                public EmptyFingerprintingUnit(bool[] fingerprint, IMinHashService minHashService)
                 {
                     this.fingerprint = fingerprint;
+                    this.minHashService = minHashService;
                 }
 
                 public IFingerprintingConfiguration Configuration { get; set; }
@@ -107,6 +116,13 @@
                 {
                     TaskCompletionSource<List<bool[]>> tcs = new TaskCompletionSource<List<bool[]>>();
                     tcs.SetResult(new List<bool[]> { fingerprint });
+                    return tcs.Task;
+                }
+
+                public Task<List<byte[]>> RunAlgorithmWithHashing()
+                {
+                    TaskCompletionSource<List<byte[]>> tcs = new TaskCompletionSource<List<byte[]>>();
+                    tcs.SetResult(new List<byte[]> { minHashService.Hash(fingerprint) });
                     return tcs.Task;
                 }
             }

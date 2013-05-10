@@ -108,9 +108,9 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                 string msg = "Invalid property name: " + propertyName;
 
                 if (THROW_ON_INVALID_PROPERTY_NAME)
+                {
                     throw new Exception(msg);
-                else
-                    Debug.Fail(msg);
+                }
             }
         }
 

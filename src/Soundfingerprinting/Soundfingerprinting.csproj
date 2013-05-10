@@ -94,6 +94,7 @@
     <Compile Include="Dao\Internal\IParameterBinder.cs" />
     <Compile Include="Dao\Internal\IReader.cs" />
     <Compile Include="Dao\Internal\ModelBinder.cs" />
+    <Compile Include="Dao\Internal\SubFingerprintDao.cs" />
     <Compile Include="Dao\ModelBinderFactory.cs" />
     <Compile Include="Dao\Internal\ModelReaderBuilder.cs" />
     <Compile Include="Dao\Internal\ModelWriterBuilder.cs" />

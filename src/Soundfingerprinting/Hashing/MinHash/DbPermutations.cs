@@ -23,9 +23,9 @@
         ///   Instantiate data access manager using FingerprintConnectionString read from the App.Config.
         ///   If no such string is found in the App.Config, connection string is set to Empty
         /// </summary>
-        public DbPermutations(string connectionstring)
+        public DbPermutations(string connectionString)
         {
-            this._connString = connectionstring;
+            this._connString = connectionString;
             this._connection = new SqlConnection(this._connString);
         }
 

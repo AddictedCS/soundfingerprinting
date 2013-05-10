@@ -67,11 +67,6 @@
         private const int NumberOfKeys = 4;
 
         /// <summary>
-        ///   Path to permutations (generated using greedy algorithm)
-        /// </summary>
-        private const string PathToPermutations = "perms.csv";
-
-        /// <summary>
         ///   Number of threshold votes for a file to be considerate a duplicate
         /// </summary>
         private const int ThresholdVotes = 5;
@@ -81,11 +76,6 @@
         ///   in order to be considered a possible result
         /// </summary>
         private const int ThresholdFingerprintsToVote = 2;
-
-        /// <summary>
-        ///   Separator in the .csv files
-        /// </summary>
-        private const string Separator = ",";
 
         /// <summary>
         ///   Down sampling rate
@@ -109,11 +99,6 @@
         private readonly IStride createStride;
 
         /// <summary>
-        ///   Permutations provider
-        /// </summary>
-        private readonly IPermutations permutations;
-
-        /// <summary>
         ///   Repository for storage, permutations, algorithm
         /// </summary>
         private readonly Repository repository;
@@ -132,25 +117,11 @@
 
         public RepositoryGateway()
         {
-            storage =
-                ServiceContainer.Kernel.Get<IStorage>(
-                    new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
-                /*Number of LSH Tables, used for storage purposes*/
-
-            permutations =
-                ServiceContainer.Kernel.Get<IPermutations>(
-                    new ConstructorArgument("pathToPermutations", PathToPermutations),
-                    new ConstructorArgument("separator", Separator)); /*Permutations*/
-
+            storage = ServiceContainer.Kernel.Get<IStorage>(new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
             audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
-
             tagService = ServiceContainer.Kernel.Get<ITagService>();
-
             cts = new CancellationTokenSource();
-
-            repository = new Repository(
-                ServiceContainer.Kernel.Get<IFingerprintingUnitsBuilder>(), storage, new CombinedHashingAlgorithm(new MinHashService(permutations), new LSHService()));
-                
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintingUnitsBuilder>(), storage, ServiceContainer.Kernel.Get<ICombinedHashingAlgoritm>());
             createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
         }
 

@@ -10,5 +10,7 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder
         IFingerprintingConfiguration Configuration { get; }
 
         Task<List<bool[]>> RunAlgorithm();
+
+        Task<List<byte[]>> RunAlgorithmWithHashing();
     }
 }

@@ -17,12 +17,25 @@
 
         private readonly HashBinMinHashDao hashBinMinHashDao;
 
+        private readonly SubFingerprintDao subFingerprintDao;
+
         public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
             albumDao = new AlbumDao(databaseProviderFactory, modelBinderFactory);
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
             fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
             hashBinMinHashDao = new HashBinMinHashDao(databaseProviderFactory, modelBinderFactory);
+            subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
+        }
+
+        public void InsertSubFingerprint(SubFingerprint subFingerprint)
+        {
+            subFingerprintDao.Insert(subFingerprint);
+        }
+
+        public void InsertSubFingerprint(IEnumerable<SubFingerprint> subFingerprints)
+        {
+            subFingerprintDao.Insert(subFingerprints);
         }
 
         public void InsertFingerprint(Fingerprint fingerprint)

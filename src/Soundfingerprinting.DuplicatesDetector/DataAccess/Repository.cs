@@ -143,7 +143,6 @@
             foreach (bool[] fingerprint in fingerprints)
             {
                 long[] buckets = combinedHashingAlgorithm.Hash(fingerprint, hashTables, hashKeys).Item2;
-
                 int[] hashSignature = new int[buckets.Length];
                 int tableCount = 0;
                 foreach (long bucket in buckets)

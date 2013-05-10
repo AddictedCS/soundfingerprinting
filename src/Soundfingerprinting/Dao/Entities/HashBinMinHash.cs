@@ -10,12 +10,12 @@
             // no op
         }
 
-        public HashBinMinHash(int id, long hashBin, int hashTable, int fingerprintId)
+        public HashBinMinHash(int id, long hashBin, int hashTable, long subFingerprintId)
             : base(id, hashBin, hashTable)
         {
-            FingerprintId = fingerprintId;
+            SubFingerprintId = subFingerprintId;
         }
 
-        public int FingerprintId { get; set; }
+        public long SubFingerprintId { get; set; }
     }
 }

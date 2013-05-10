@@ -63,5 +63,9 @@ namespace Soundfingerprinting.Dao
         IEnumerable<HashBinMinHash> ReadAll();
 
         IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold);
+
+        void InsertSubFingerprint(SubFingerprint subFingerprint);
+
+        void InsertSubFingerprint(IEnumerable<SubFingerprint> subFingerprints);
     }
 }

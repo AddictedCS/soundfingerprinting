@@ -9,6 +9,7 @@
     using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.LSH;
     using Soundfingerprinting.Hashing.MinHash;
 
     /// <summary>
@@ -24,6 +25,9 @@
         /// </summary>
         public static void InjectServices()
         {
+             const string PathToPermutations = "perms.csv";
+             const string Separator = ",";
+
             ServiceContainer.Kernel.Bind<IFolderBrowserDialogService>().To<FolderBrowserDialogService>();
             ServiceContainer.Kernel.Bind<IMessageBoxService>().To<MessageBoxService>();
             ServiceContainer.Kernel.Bind<IOpenFileDialogService>().To<OpenFileDialogService>();
@@ -32,7 +36,11 @@
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
             ServiceContainer.Kernel.Bind<IFingerprintingUnitsBuilder>().To<FingerprintingUnitsBuilder>();
-            ServiceContainer.Kernel.Bind<IPermutations>().To<LocalPermutations>();
+            ServiceContainer.Kernel.Bind<IPermutations>()
+                            .To<LocalPermutations>()
+                            .WithConstructorArgument("pathToPermutations", PathToPermutations)
+                            .WithConstructorArgument("separator", Separator);
+
             ServiceContainer.Kernel.Bind<IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
             ServiceContainer.Kernel.Bind<ITagService>().To<TagService>();
             ServiceContainer.Kernel.Bind<IFingerprintService>().To<FingerprintService>();
@@ -42,6 +50,9 @@
             ServiceContainer.Kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
             ServiceContainer.Kernel.Bind<IWaveletService>().To<WaveletService>();
             ServiceContainer.Kernel.Bind<ISpectrumService>().To<SpectrumService>();
+            ServiceContainer.Kernel.Bind<IMinHashService>().To<MinHashService>();
+            ServiceContainer.Kernel.Bind<ILSHService>().To<LSHService>();
+            ServiceContainer.Kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
         }
     }
 }

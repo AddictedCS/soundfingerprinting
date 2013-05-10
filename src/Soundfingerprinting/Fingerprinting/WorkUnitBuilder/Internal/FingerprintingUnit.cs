@@ -6,18 +6,21 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
 
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Hashing.MinHash;
 
     internal sealed class FingerprintingUnit : ITargetOn, IWithConfiguration, IFingerprintingUnit
     {
         private readonly IAudioService audioService;
+        private readonly IMinHashService minHashService;
         private readonly IFingerprintService fingerprintService;
 
         private Func<Task<List<bool[]>>> createFingerprintsMethod;
 
-        public FingerprintingUnit(IFingerprintService fingerprintService, IAudioService audioService)
+        public FingerprintingUnit(IFingerprintService fingerprintService, IAudioService audioService, IMinHashService minHashService)
         {
             this.fingerprintService = fingerprintService;
             this.audioService = audioService;
+            this.minHashService = minHashService;
         }
 
         public IFingerprintingConfiguration Configuration { get; private set; }
@@ -25,6 +28,22 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
         public Task<List<bool[]>> RunAlgorithm()
         {
             return createFingerprintsMethod();
+        }
+
+        public Task<List<byte[]>> RunAlgorithmWithHashing()
+        {
+            return createFingerprintsMethod().ContinueWith(
+                task =>
+                    {
+                        List<bool[]> fingerprints = task.Result;
+                        List<byte[]> subFingerprints = new List<byte[]>();
+                        foreach (var fingerprint in fingerprints)
+                        {
+                            subFingerprints.Add(minHashService.Hash(fingerprint));
+                        }
+
+                        return subFingerprints;
+                    });
         }
 
         public IWithConfiguration On(string pathToAudioFile)

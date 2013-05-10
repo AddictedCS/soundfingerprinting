@@ -10,9 +10,9 @@
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.FFT.FFTW;
     using Soundfingerprinting.Fingerprinting.Wavelets;
-    using Soundfingerprinting.Fingerprinting.Windows;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Hashing.LSH;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.DI;
@@ -42,6 +42,12 @@
             dependencyResolver.Bind<IImageService>().To<ImageService>();
             dependencyResolver.Bind<ISpectrumService>().To<SpectrumService>();
             dependencyResolver.Bind<IWaveletService>().To<WaveletService>();
+            dependencyResolver.Bind<IMinHashService>().To<MinHashService>();
+            dependencyResolver.Bind<ILSHService>().To<LSHService>();
+            dependencyResolver.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
+            dependencyResolver.Bind<IPermutations>()
+                              .To<DbPermutations>()
+                              .WithConstructorArgument("connectionString", dependencyResolver.Get<IConnectionStringFactory>().GetConnectionString());
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

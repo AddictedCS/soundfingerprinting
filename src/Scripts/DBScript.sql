@@ -20,54 +20,73 @@ GO
 -- --------------------------------------------------------------------------
 -- --------------------------------------------------------------------------
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE ALBUMS
+-- --------------------------------------------------------------------------
 CREATE TABLE Albums
 (
-	Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	Id INT IDENTITY(1, 1) NOT NULL,
 	Name VARCHAR(255) NOT NULL,
-	ReleaseYear INT
-	CONSTRAINT CK_AlbumReleaseYear CHECK(ReleaseYear >= 1000 AND ReleaseYear < 2100)
+	ReleaseYear INT DEFAULT 0,
+	CONSTRAINT PK_AlbumsId PRIMARY KEY(Id)
 )
 GO
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE TRACKS
 CREATE TABLE Tracks
 (
-	Id  INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	Id  INT IDENTITY(1,1) NOT NULL,
 	Artist VARCHAR(255) NOT NULL,
 	Title VARCHAR(255) NOT NULL,
-	AlbumId INT FOREIGN KEY REFERENCES dbo.Albums(Id),
-	TrackLengthSec INT,
-	CONSTRAINT CK_TracksTrackLength CHECK(TrackLengthSec >-1)
+	AlbumId INT NOT NULL,
+	TrackLengthSec INT DEFAULT 0,
+	CONSTRAINT CK_TracksTrackLength CHECK(TrackLengthSec >-1),
+	CONSTRAINT PK_TracksId PRIMARY KEY(Id),
+	CONSTRAINT FK_Tracks_Albums FOREIGN KEY (AlbumId) REFERENCES Albums(Id)
 )
 GO 
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE FINGERPRINTS
+-- THIS TABLE WILL BE EXCLUSIVELY USED BY NEURAL HASHER, AS LSH+MINHASH USES SUBFINGERPRINTS TABLE
 CREATE TABLE Fingerprints
 (
-	Id  INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	Signature VARBINARY(4096) NOT NULL,								   -- -- MAX = SIZE OF BLOB (2GB) 4096
+	Id INT IDENTITY(1,1) NOT NULL,
+	Signature VARBINARY(4096) NOT NULL,
 	TotalFingerprintsPerTrack INT NOT NULL,
 	SongOrder INT NOT NULL,
-	TrackId INT FOREIGN KEY REFERENCES dbo.Tracks(Id)
+	TrackId INT NOT NULL,
+	CONSTRAINT PK_FingerprintsId PRIMARY KEY(Id),
+	CONSTRAINT FK_Fingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
+)
+-- TABLE WHICH CONTAINS ALL THE INFORMATION RELATED TO SUB_FINGERPRINTS
+-- USED BY LSH+MINHASH SCHEMA
+CREATE TABLE SubFingerprints
+(
+	Id BIGINT IDENTITY(1, 1) NOT NULL,
+	Signature VARBINARY(100) NOT NULL,
+	TrackId INT NOT NULL,
+	CONSTRAINT PK_SubFingerprintsId PRIMARY KEY(Id),
+	CONSTRAINT FK_SubFingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE HASHBINS
 -- THIS TABLE IS DESIGNED FOR NEURAL HASHER RECOGNITION ALGORITHM
 CREATE TABLE HashBins
 (
-	Id INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+	Id INT IDENTITY(1, 1) NOT NULL,
 	Bin BIGINT NOT NULL,								   
 	HashTable INT NOT NULL,
-	TrackId INT FOREIGN KEY REFERENCES dbo.Tracks(Id)
+	TrackId INT NOT NULL,
+	CONSTRAINT PK_HashBinsId PRIMARY KEY(Id),
+	CONSTRAINT FK_HashBins_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE HASHBINS MINHASH
 -- THIS TABLE IS DESIGNED FOR MINHASH + LSH SCHEMA ALGORITHM
 CREATE TABLE HashBinsMinHash
 (
-	Id INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-	Bin BIGINT NOT NULL,								    
+	Id INT IDENTITY(1, 1) NOT NULL,
+	HashBin BIGINT NOT NULL,								    
 	HashTable INT NOT NULL,
-	TrackId INT FOREIGN KEY REFERENCES dbo.Tracks(Id),
-	FingerprintId INT FOREIGN KEY REFERENCES dbo.Fingerprints(Id)
+	SubFingerprintId BIGINT NOT NULL,
+	CONSTRAINT PK_HashBinsMinHashId PRIMARY KEY(Id),
+	CONSTRAINT FK_HashBinsMinHash_SubFingerprints FOREIGN KEY (SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 
@@ -75,8 +94,9 @@ GO
 -- THIS TABLE IS DESIGNED FOR THE PURPOSE OF STORING PERMUTATIONS APPLIED ON MINHASH ALGORITHM
 CREATE TABLE Permutations
 (
-	Id INT NOT NULL PRIMARY KEY,
-	Permutation VARCHAR(2048)
+	Id INT NOT NULL,
+	Permutation VARCHAR(2048) NOT NULL,
+	CONSTRAINT PK_PermutationsId PRIMARY KEY(Id)
 )
 GO
 
@@ -89,7 +109,7 @@ CREATE INDEX IX_TrackIdLookup ON Fingerprints(TrackId)
 GO
 CREATE INDEX IX_NeuralHashLookUp ON HashBins(Bin, HashTable) 
 GO
-CREATE INDEX IX_MinHashLookUp ON HashBinsMinHash(Bin, HashTable)
+CREATE INDEX IX_MinHashLookUp ON HashBinsMinHash(HashBin, HashTable)
 GO
 --CREATE CLUSTERED INDEX IX_ClusteredFingerprintsSearch ON Fingerprints(TrackId)
 --GO
@@ -125,20 +145,18 @@ IF OBJECT_ID('sp_InsertHashBinMinHash','P') IS NOT NULL
 GO
 CREATE PROCEDURE sp_InsertHashBinMinHash
 	@Id INT,
-	@Bin BIGINT,
+	@HashBin BIGINT,
 	@HashTable INT,
-	@TrackId INT,
-	@FingerprintId INT
+	@SubFingerprintId INT
 AS
 INSERT INTO HashBinsMinHash (
-	Bin,
+	HashBin,
 	HashTable,
-	TrackId,
-	FingerprintId
+	SubFingerprintId
 	) OUTPUT inserted.Id
 VALUES
 (
-	@Bin, @HashTable, @TrackId, @FingerprintId
+	@HashBin, @HashTable, @SubFingerprintId
 );
 GO
 
@@ -185,6 +203,7 @@ VALUES
 GO
 
 -- INSERT A FINGERPRINT INTO FINGERPRINTS TABLE
+-- USED BY NEURAL HASHER
 IF OBJECT_ID('sp_InsertFingerprint','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertFingerprint
 GO
@@ -205,6 +224,26 @@ INSERT INTO Fingerprints (
 VALUES
 (
 	@Signature, @TrackId, @SongOrder, @TotalFingerprintsPerTrack
+);
+END
+GO
+-- INSERT INTO SUBFINGERPRINTS
+IF OBJECT_ID('sp_InsertSubFingerprint','P') IS NOT NULL
+	DROP PROCEDURE sp_InsertSubFingerprint
+GO
+CREATE PROCEDURE sp_InsertSubFingerprint
+	@Id INT,
+	@Signature VARBINARY(100),
+	@TrackId INT
+AS
+BEGIN
+INSERT INTO Fingerprints (
+	Signature,
+	TrackId
+	) OUTPUT inserted.Id
+VALUES
+(
+	@Signature, @TrackId
 );
 END
 GO
@@ -306,62 +345,32 @@ AS
 SELECT TrackId FROM HashBins WHERE Bin = @Bin AND HashTable = @HashTable
 GO
 
--- READ HASHBINS FROM THE HASHBINMINHASH TABLE [FOR MIN-HASH + LSH SCHEMA]
-IF OBJECT_ID('sp_ReadHashBinsByHashBinAndHashTableMinHash','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadHashBinsByHashBinAndHashTableMinHash
+IF OBJECT_ID('sp_ReadAllHashBinsFromHashTableMinHash') IS NOT NULL
+	DROP PROCEDURE sp_ReadAllHashBinsFromHashTableMinHash
 GO
-CREATE PROCEDURE sp_ReadHashBinsByHashBinAndHashTableMinHash
-	@Bin BIGINT,
-	@HashTable INT
+CREATE PROCEDURE sp_ReadAllHashBinsFromHashTableMinHash
 AS
-SELECT Id, TrackId, FingerprintId FROM HashBinsMinHash WHERE Bin = @Bin AND HashTable = @HashTable
+SELECT * FROM HashBinsMinHash
 GO
--- READ HASHBINS FROM THE HASHBINMINHASH TABLE [FOR MIN-HASH + LSH SCHEMA] 
--- NEW METHOD OF READING HASHBINS ACCORDING ONLY TO THE BUKCET AND NOT TO TABLE
--- ADDED 16.01.2011 CIUMAC SERGIU
--- ------------------------------------------------------------------------------------------------------------
-IF OBJECT_ID('sp_ReadHashBinsByHashBinsMinHash','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadHashBinsByHashBinsMinHash
-GO
-CREATE PROCEDURE sp_ReadHashBinsByHashBinsMinHash
-	@Bin BIGINT
-AS
-SELECT Id, TrackId, FingerprintId, HashTable FROM HashBinsMinHash WHERE Bin = @Bin
-GO
+
 --- ------------------------------------------------------------------------------------------------------------
 --- READ HASHBINS BY HASHBINS AND THRESHOLD TABLE
 --- ADDED 16.03.2011 CIUMAC SERGIU
 --- E.g. [25;36;89;56...]
 --- -----------------------------------------------------------------------------------------------------------
-IF OBJECT_ID('sp_ReadFingerprintsByHashBinAndThreshold','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadFingerprintsByHashBinAndThreshold
+IF OBJECT_ID('sp_ReadFingerprintsByHashBinHashTableAndThreshold','P') IS NOT NULL
+	DROP PROCEDURE sp_ReadFingerprintsByHashBinHashTableAndThreshold
 GO
-CREATE PROCEDURE sp_ReadFingerprintsByHashBinAndThreshold
+CREATE PROCEDURE sp_ReadFingerprintsByHashBinHashTableAndThreshold
 	@ConcatHashBucket NVARCHAR(4000),
 	@Delimiter NVARCHAR(10),
 	@Threshold INT
 AS
-SELECT FingerprintId, TrackId, COUNT(HashTable) as Votes FROM HashBinsMinHash,
-	(SELECT CAST(Value AS INT) AS Value FROM Split(@ConcatHashBucket, @Delimiter)) AS HASH_BUCKETS 
-WHERE Bin = HASH_BUCKETS.Value GROUP BY FingerprintId, TrackId HAVING COUNT(HashTable) >= @Threshold
+SELECT SubFingerprint.Id, SubFingerprint.TrackId, SubFingerprint.Signature, COUNT(HashTable) AS Votes FROM HashBinsMinHash,
+	(SELECT CAST(Value AS INT) AS HashBin, ROW_NUMBER() OVER (ORDER BY Value ASC) AS HashTable FROM Split(@ConcatHashBucket, @Delimiter)) AS HASH_BUCKETS, SubFingerprints
+WHERE HashBin = HASH_BUCKETS.HashBin AND HashTable = HASH_BUCKETS.HashTable GROUP BY SubFingerprintId HAVING COUNT(HashTable) >= @Threshold AND HashBinsMinHash.SubFingerprintId = SubFingerprints.Id 
 -- ------------------------------------------------------------------------------------------------------------
-
---- ------------------------------------------------------------------------------------
---- READING BY HASH-BIN AND HASHTABLE CONTRAINT (WHICH IS WRONG)
---- ------------------------------------------------------------------------------------
 GO
-IF OBJECT_ID('sp_ReadFingerprintCandidatesByHashBinHashTableMinHash','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadFingerprintCandidatesByHashBinHashTableMinHash
-GO
-CREATE PROCEDURE sp_ReadFingerprintCandidatesByHashBinHashTableMinHash
-	@Bin BIGINT,
-	@HashTable INT
-AS
-SELECT Fingerprints.Signature, Fingerprints.Id, Fingerprints.SongOrder, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId
-FROM HashBinsMinHash, Fingerprints 
-WHERE HashBinsMinHash.FingerprintId = Fingerprints.Id AND Bin = @Bin AND HashTable = @HashTable
-GO
-
 
 IF OBJECT_ID('sp_ReadFingerprints','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadFingerprints
@@ -446,9 +455,9 @@ GO
 CREATE PROCEDURE sp_ReadMaxMinHashBin
 	@Ignore BIGINT
 AS
-SELECT MIN(Bin) As MinHashBin, MAX(Bin) As MaxHashBin, HashTable  
+SELECT MIN(HashBin) As MinHashBin, MAX(HashBin) As MaxHashBin, HashTable  
 FROM HashBinsMinHash 
-WHERE Bin <> @Ignore GROUP BY HashTable ORDER BY HashTable
+WHERE HashBin <> @Ignore GROUP BY HashTable ORDER BY HashTable
 GO
 
 IF OBJECT_ID('sp_HashBinMinHashRange','P') IS NOT NULL
@@ -460,7 +469,7 @@ CREATE PROCEDURE sp_HashBinMinHashRange
 	@HashTable INT
 AS
 SELECT Id FROM HashBinsMinHash
-WHERE HashTable = @HashTable AND (Bin >= @Min AND Bin < @Max) 
+WHERE HashTable = @HashTable AND (HashBin >= @Min AND HashBin < @Max) 
 
 GO
 
@@ -478,7 +487,6 @@ CREATE PROCEDURE sp_DeleteTrack
 	@Id INT
 AS
 BEGIN
-	DELETE FROM HashBinsMinHash WHERE HashBinsMinHash.TrackId = @Id -- CASCADE DELETE OF HASHBINSMINHASH
 	DELETE FROM HashBins WHERE HashBins.TrackId = @Id				-- CASCADE DELETE OF HASHBINSNEURALHASHER
 	DELETE FROM Fingerprints WHERE Fingerprints.TrackId = @Id		-- CASCADE DELETE
 	DECLARE @SONGNUMBER INT

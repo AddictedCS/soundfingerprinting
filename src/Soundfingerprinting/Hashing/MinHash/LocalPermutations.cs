@@ -32,8 +32,8 @@
         /// <param name = "separator">Separator between 2 consecutive permutations</param>
         public LocalPermutations(string pathToPermutations, string separator)
         {
-            this._pathToPerms = pathToPermutations;
-            this._separator = separator;
+            _pathToPerms = pathToPermutations;
+            _separator = separator;
         }
 
         #region IPermutations Members

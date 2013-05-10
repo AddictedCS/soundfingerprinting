@@ -119,11 +119,13 @@ namespace Soundfingerprinting.SoundTools
         /// <returns>Path to files</returns>
         public static List<string> GetFiles(IEnumerable<string> filters, string rootFolder)
         {
-            List<string> fileList = null;
-            if (Directory.Exists(rootFolder)) /*If such path exists*/
+            List<string> fileList = new List<string>();
+            if (Directory.Exists(rootFolder)) 
             {
+                /*If such path exists*/
                 fileList = GetPathToAllFiles(filters, rootFolder, true);
             }
+
             return fileList;
         }
 

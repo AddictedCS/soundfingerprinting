@@ -11,6 +11,14 @@
             // no op
         }
 
+        public Track(string artist, string title, int albumId, int trackLength)
+        {
+            Artist = artist;
+            Title = title;
+            AlbumId = albumId;
+            TrackLengthSec = trackLength;
+        }
+
         public Track(int trackId, string artist, string title, int albumId)
         {
             Id = trackId;

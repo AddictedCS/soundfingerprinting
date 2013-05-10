@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Diagnostics;
     using System.Drawing;
     using System.IO;
     using System.Linq;
@@ -15,42 +16,26 @@
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
-    using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Hashing.MinHash;
+    using Soundfingerprinting.Hashing.LSH;
     using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinDbFiller : Form
     {
         private const int MaxThreadToProcessFiles = 4; /*2 MaxThreadToProcessFiles used to process the files*/
-
         private const int MinTrackLength = 20; /*20 sec - minimal track length*/
-
         private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
 
-        private readonly IModelService modelService;                             /*Dal Signature service*/
-
-        private readonly ICombinedHashingAlgoritm combinedHashingAlgorithm;
-
-        private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
-                                      /*File filters*/
-
+        private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); /*File filters*/
         private readonly object lockObject = new object(); /*Cross Thread operation*/
-
-        private readonly IPermutations permStorage = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString); /*Database permutations*/
-
-        private readonly IFingerprintService fingerprintService;
-
+        private readonly IModelService modelService; /*Dal Signature service*/
+        private readonly ILSHService lshService;
         private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
-
         private readonly ITagService tagService;
-
         private volatile int badFiles; /*Number of Bad files*/
         private volatile int duplicates; /*Number of Duplicates*/
-        private NNEnsemble ensemble;
         private List<string> fileList; /*List of file to process*/
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH; /*Hashing algorithm*/
         private int hashKeys;
@@ -60,17 +45,15 @@
         private volatile int processed; /*Number of Processed files*/
         private bool stopFlag;
         private Album unknownAlbum;
-
+        
         public WinDbFiller(
-            IFingerprintService fingerprintService,
             IFingerprintingUnitsBuilder fingerprintingUnitsBuilder,
             ITagService tagService,
             IModelService modelService,
-            ICombinedHashingAlgoritm combinedHashingAlgorithm)
+            ILSHService lshService)
         {
             this.modelService = modelService;
-            this.combinedHashingAlgorithm = combinedHashingAlgorithm;
-            this.fingerprintService = fingerprintService;
+            this.lshService = lshService;
             this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
             this.tagService = tagService;
             InitializeComponent();
@@ -89,7 +72,7 @@
             _btnStop.Enabled = false;
             _nudThreads.Value = MaxThreadToProcessFiles;
             _pbTotalSongs.Visible = false;
-            hashAlgorithm = 0; /**/
+            hashAlgorithm = 0;
             _lbAlgorithm.SelectedIndex = 0; /*Set default algorithm LSH*/
 
             if (hashAlgorithm == HashAlgorithm.LSH)
@@ -98,34 +81,32 @@
                 _nudHashTables.ReadOnly = false;
             }
 
-            object[] items = Enum.GetNames(typeof(StrideType)); /*Add enumeration types in the combo box*/
+            string[] items = Enum.GetNames(typeof(StrideType)); /*Add enumeration types in the combo box*/
             _cmbStrideType.Items.AddRange(items);
             _cmbStrideType.SelectedIndex = 0;
+            fileList = new List<string>();
         }
 
-
         private void RootFolderIsSelected(object sender, EventArgs e)
-       {
-           Cursor = Cursors.WaitCursor;
-           _tbRootFolder.Enabled = false;
+        {
+            Cursor = Cursors.WaitCursor;
+            _tbRootFolder.Enabled = false;
+            fileList = WinUtils.GetFiles(filters, _tbRootFolder.Text);
+            Invoke(new Action(RestoreCursorShowTotalFilesCount));
+        }
 
-           fileList = WinUtils.GetFiles(filters, _tbRootFolder.Text);
+        private void RestoreCursorShowTotalFilesCount()
+        {
+            Cursor = Cursors.Default;
+            _tbRootFolder.Enabled = true;
+            if (fileList != null)
+            {
+                _nudTotalSongs.Value = fileList.Count;
+                _btnStart.Enabled = true;
+            }
 
-           Invoke(
-               new Action(
-                   () =>
-                       {
-                           Cursor = Cursors.Default;
-                           _tbRootFolder.Enabled = true;
-                           if (fileList != null)
-                           {
-                               _nudTotalSongs.Value = fileList.Count;
-                               _btnStart.Enabled = true;
-                           }
-                           _tbSingleFile.Text = null;
-                       }));
-       }
-
+            _tbSingleFile.Text = null;
+        }
 
         [FileDialogPermission(SecurityAction.Demand)]
         private void TbRootFolderMouseDoubleClick(object sender, MouseEventArgs e)
@@ -136,22 +117,8 @@
                 _tbRootFolder.Text = fbd.SelectedPath;
                 Cursor = Cursors.WaitCursor;
                 _tbRootFolder.Enabled = false;
-
                 fileList = WinUtils.GetFiles(filters, _tbRootFolder.Text);
-
-                Invoke(
-                    new Action(
-                        () =>
-                            {
-                                Cursor = Cursors.Default;
-                                _tbRootFolder.Enabled = true;
-                                if (fileList != null)
-                                {
-                                    _nudTotalSongs.Value = fileList.Count;
-                                    _btnStart.Enabled = true;
-                                }
-                                _tbSingleFile.Text = null;
-                            }));
+                Invoke(new Action(RestoreCursorShowTotalFilesCount));
             }
         }
 
@@ -161,13 +128,12 @@
             {
                 if (filters.Any(filter => filter.Contains(Path.GetExtension(_tbSingleFile.Text))))
                 {
-                    if (fileList == null)
-                        fileList = new List<string>();
                     if (!fileList.Contains(_tbSingleFile.Text))
                     {
                         fileList.Add(_tbSingleFile.Text);
                         _btnStart.Enabled = true;
                     }
+
                     _nudTotalSongs.Value = fileList.Count;
                 }
             }
@@ -177,7 +143,7 @@
         private void TbSingleFileMouseDoubleClick(object sender, MouseEventArgs e)
         {
             string filter = WinUtils.GetMultipleFilter("Audio files", filters);
-            OpenFileDialog ofd = new OpenFileDialog {Filter = filter, Multiselect = true};
+            OpenFileDialog ofd = new OpenFileDialog { Filter = filter, Multiselect = true };
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
@@ -187,8 +153,6 @@
                     _tbSingleFile.Text += "\"" + Path.GetFileName(file) + "\" ";
                 }
 
-                if (fileList == null)
-                    fileList = new List<string>();
                 foreach (string file in ofd.FileNames)
                 {
                     if (!fileList.Contains(file))
@@ -201,12 +165,9 @@
             }
         }
 
-        /// <summary>
-        ///   Select algorithm to perform hashing
-        /// </summary>
         private void LbAlgorithmSelectedIndexChanged(object sender, EventArgs e)
         {
-            hashAlgorithm = (HashAlgorithm) _lbAlgorithm.SelectedIndex;
+            hashAlgorithm = (HashAlgorithm)_lbAlgorithm.SelectedIndex;
             switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
@@ -240,7 +201,7 @@
                 }
             }
 
-            if (fileList == null || fileList.Count == 0)
+            if (!fileList.Any())
             {
                 MessageBox.Show(Resources.FileListEmpty, Resources.FileListEmptyCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -251,108 +212,105 @@
             int rest = fileList.Count % MaxThreadToProcessFiles;
             int filesPerThread = fileList.Count / MaxThreadToProcessFiles;
 
-            listOfAllAlbums = modelService.ReadAlbums(); //Get all albums
-            unknownAlbum = modelService.ReadUnknownAlbum(); //Read unknown albu
+            listOfAllAlbums = modelService.ReadAlbums(); // Get all albums
+            unknownAlbum = modelService.ReadUnknownAlbum(); // Read unknown albums
 
-             switch (hashAlgorithm)
+            switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
-                    hashTables = (int) _nudHashTables.Value; //If LSH is used # of Hash tables
-                    hashKeys = (int) _nudHashKeys.Value; //If LSH is used # of keys per table
+                    hashTables = (int)_nudHashTables.Value; // If LSH is used # of Hash tables
+                    hashKeys = (int)_nudHashKeys.Value; // If LSH is used # of keys per table
                     break;
                 case HashAlgorithm.NeuralHasher:
-                    if (String.IsNullOrEmpty(_tbPathToEnsemble.Text)) //Check if the path to ensemble is specified
+                    if (string.IsNullOrEmpty(_tbPathToEnsemble.Text))
                     {
+                        // Check if the path to ensemble is specified
                         MessageBox.Show(Resources.SpecifyPathToNetworkEnsemble, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         FadeAllControls(false);
                         return;
                     }
+
                     try
                     {
-                        ensemble = NNEnsemble.Load(_tbPathToEnsemble.Text); //Load the ensemble
+                        NNEnsemble.Load(_tbPathToEnsemble.Text); // Load the ensemble
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message);
                         FadeAllControls(false);
-
                         return;
                     }
+
                     break;
                 case HashAlgorithm.None:
                     break;
             }
+
             BeginInvoke(new Action(() => { }), null);
 
             ResetControls();
             int runningThreads = MaxThreadToProcessFiles;
-            for (int i = 0; i < MaxThreadToProcessFiles; i++) //Start asynchronous operation
+            for (int i = 0; i < MaxThreadToProcessFiles; i++)
             {
-                int start = i*filesPerThread; //Define start and end indexes
-                int end = (i == MaxThreadToProcessFiles - 1) ? i*filesPerThread + filesPerThread + rest : i*filesPerThread + filesPerThread;
+                // Start asynchronous operation
+                int start = i * filesPerThread; // Define start and end indexes
+                int end = (i == MaxThreadToProcessFiles - 1) ? i * filesPerThread + filesPerThread + rest : i * filesPerThread + filesPerThread;
                 Action<int, int> action = InsertInDatabase;
-                action.BeginInvoke(start, end,
-                    (result) =>
-                    {
-                        //End Asynchronous operation
-                        Action<int, int> item = (Action<int, int>) result.AsyncState;
-                        item.EndInvoke(result);
-                        Interlocked.Decrement(ref runningThreads);
-                        if (runningThreads == 0)
+                action.BeginInvoke(
+                    start,
+                    end,
+                    result =>
                         {
-                            /********* END OF INSERTION PROCESS HERE!********/
+                            // End Asynchronous operation
+                            Action<int, int> item = (Action<int, int>)result.AsyncState;
+                            item.EndInvoke(result);
+                            Interlocked.Decrement(ref runningThreads);
+                            if (runningThreads == 0)
+                            {
+                                /********* END OF INSERTION PROCESS HERE!********/
 
-                            Invoke(new Action(() =>
-                                              {
-                                                  _pbTotalSongs.Visible = false;
-                                                  FadeAllControls(false);
-                                                  _tbRootFolder.Text = null;
-                                                  _tbSingleFile.Text = null;
-                                              }));
-                            MessageBox.Show(Resources.InsertionEnded, Resources.End, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                    }, action);
+                                Invoke(
+                                    new Action(
+                                        () =>
+                                            {
+                                                _pbTotalSongs.Visible = false;
+                                                FadeAllControls(false);
+                                                _tbRootFolder.Text = null;
+                                                _tbSingleFile.Text = null;
+                                            }));
+                                MessageBox.Show(Resources.InsertionEnded, Resources.End, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        },
+                    action);
             }
         }
 
-        /// <summary>
-        ///   Stop inserting into the database
-        /// </summary>
         private void BtnStopClick(object sender, EventArgs e)
         {
             stopFlag = true;
         }
 
-        /// <summary>
-        ///   Export file into an .csv
-        /// </summary>
         private void BtnExportClick(object sender, EventArgs e)
         {
             WinUtils.ExportInExcel(_dgvFillDatabase);
         }
 
-        /// <summary>
-        ///   Browse for Ensemble files
-        /// </summary>
         private void BtnBrowseClick(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog {Filter = Resources.FileFilterEnsemble};
+            OpenFileDialog ofd = new OpenFileDialog { Filter = Resources.FileFilterEnsemble };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _tbPathToEnsemble.Text = ofd.FileName;
             }
         }
 
-        /// <summary>
-        ///   Reset all controls
-        /// </summary>
         private void ResetControls()
         {
             duplicates = 0;
             badFiles = 0;
             processed = 0;
             left = 0;
-            _pbTotalSongs.Visible = true; //Set the progress bar control
+            _pbTotalSongs.Visible = true; // Set the progress bar control
             _pbTotalSongs.Minimum = 0;
             _pbTotalSongs.Maximum = fileList.Count;
             _pbTotalSongs.Step = 1;
@@ -376,15 +334,14 @@
                         {
                             stride = WinUtils.GetStride(
                                 (StrideType)_cmbStrideType.SelectedIndex,
-                                //Get stride according to the underlying combo box selection
+                                // Get stride according to the underlying combo box selection
                                 (int)_nudStride.Value,
                                 0,
                                 new DefaultFingerprintingConfiguration().SamplesPerFingerprint);
                         }),
                 null);
 
-            Action actionInterface =
-                () =>
+            Action actionInterface = () =>
                 {
                     _pbTotalSongs.PerformStep();
                     _nudProcessed.Value = processed;
@@ -393,96 +350,107 @@
                     _nudDetectedDuplicates.Value = duplicates;
                 };
 
-            Action<object[], Color> actionAddItems =
-                (parameters, color) =>
+            Action<object[], Color> actionAddItems = (parameters, color) =>
                 {
                     int index = _dgvFillDatabase.Rows.Add(parameters);
                     _dgvFillDatabase.FirstDisplayedScrollingRowIndex = index;
                     if (color != Color.Empty)
+                    {
                         _dgvFillDatabase.Rows[index].DefaultCellStyle.BackColor = color;
+                    }
                 };
 
-
-            for (int i = start; i < end; i++) //Process the corresponding files
+            for (int i = start; i < end; i++)
             {
+                // Process the corresponding files
                 if (stopFlag)
+                {
                     return;
+                }
 
-                TagInfo tags = tagService.GetTagInfo(fileList[i]); //Get Tags from file
+                TagInfo tags = tagService.GetTagInfo(fileList[i]); // Get Tags from file
                 if (tags == null)
                 {
-                    //TAGS are null
+                    // TAGS are null
                     badFiles++;
-                    Invoke(actionAddItems, new object[] {"TAGS ARE NULL", fileList[i], 0, 0}, Color.Red);
+                    Invoke(actionAddItems, new object[] { "TAGS ARE NULL", fileList[i], 0, 0 }, Color.Red);
                     continue;
                 }
 
-                string artist = tags.Artist; //Artist
-                string title = tags.Title; //Title
-                double duration = tags.Duration; //Duration
+                string artist = tags.Artist; // Artist
+                string title = tags.Title; // Title
+                double duration = tags.Duration; // Duration
 
-                if (duration < MinTrackLength || duration > MaxTrackLength) //Check whether the duration is ok
+                // Check whether the duration is OK
+                if (duration < MinTrackLength || duration > MaxTrackLength)
                 {
-                    //Duration too small
+                    // Duration too small
                     badFiles++;
-                    Invoke(actionAddItems, new object[] {"BAD DURATION", fileList[i], 0, 0}, Color.Red);
+                    Invoke(actionAddItems, new object[] { "BAD DURATION", fileList[i], 0, 0 }, Color.Red);
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title)) //Check whether the tags are properly defined
+                // Check whether the tags are properly defined
+                if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title))
                 {
-                    //Title or Artist tag is null
+                    // Title or Artist tag is null
                     badFiles++;
-                    Invoke(actionAddItems, new object[] {"TAGS MISSING", fileList[i], 0, 0}, Color.Red);
+                    Invoke(actionAddItems, new object[] { "TAGS MISSING", fileList[i], 0, 0 }, Color.Red);
                     continue;
                 }
 
-                Album album = GetCoresspondingAlbum(tags); //Get Album (whether new or unknown or aborted)
-                if (album == null) //Check whether the user aborted
+                Album album = GetCoresspondingAlbum(tags); // Get Album (whether new or unknown or aborted)
+
+                if (album == null)
+                {
                     return;
-                Track track = null;
-                lock (this)
+                }
+
+                Track track;
+                try
                 {
-                    try
+                    lock (this)
                     {
-                        if (modelService.ReadTrackByArtistAndTitleName(artist, title) != null) // Check if this file is already in the database
+                        // Check if this file is already in the database
+                        if (modelService.ReadTrackByArtistAndTitleName(artist, title) != null)
                         {
-                            duplicates++; //There is such file in the database
+                            duplicates++; // There is such file in the database
                             continue;
                         }
 
-                        track = new Track(-1, artist, title, album.Id, (int) duration); //Create New Track
-                        modelService.InsertTrack(track); //Insert new Track in the database
-                    }
-                    catch (Exception e)
-                    {
-                        //catch any exception and abort the insertion
-                        MessageBox.Show(e.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
+                        track = new Track(artist, title, album.Id, (int)duration);
+                        modelService.InsertTrack(track); // Insert new Track in the database
                     }
                 }
-                int count = 0;
+                catch (Exception e)
+                {
+                    // catch any exception and abort the insertion
+                    MessageBox.Show(e.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int count;
                 try
                 {
-                    var unit = this.fingerprintingUnitsBuilder.BuildFingerprints().On(fileList[i]).WithCustomConfiguration(
+                    List<byte[]> subFingerprints = fingerprintingUnitsBuilder.BuildFingerprints().On(fileList[i]).WithCustomConfiguration(
                         config =>
                             {
                                 config.TopWavelets = topWavelets;
                                 config.Stride = stride;
-                            });
-                    List<bool[]> images = unit.RunAlgorithm().Result; // Create Fingerprints and insert them in database
-                    List<Fingerprint> inserted = AssociateFingerprintsToTrack(images, track.Id);
-                    modelService.InsertFingerprint(inserted);
-                    count = inserted.Count;
+                            }).RunAlgorithmWithHashing().Result; // Create SubFingerprints
 
-                    switch (hashAlgorithm) // Hash if there is a need in doing so
+                    List<SubFingerprint> subFingerprintsToTrack = AssociateSubFingerprintsToTrack(subFingerprints, track.Id);
+                    modelService.InsertSubFingerprint(subFingerprintsToTrack);
+                    count = subFingerprintsToTrack.Count;
+
+                    switch (hashAlgorithm)
                     {
+                            // Hash if there is a need in doing so
                         case HashAlgorithm.LSH: // LSH + Min Hash has been chosen
-                            HashFingerprintsUsingMinHash(inserted, track, hashTables, hashKeys);
+                            HashSubFingerprintsUsingMinHash(subFingerprintsToTrack);
                             break;
                         case HashAlgorithm.NeuralHasher:
-                            HashFingerprintsUsingNeuralHasher(inserted, track);
-                            break;
+                            throw new NotImplementedException();
                         case HashAlgorithm.None:
                             break;
                     }
@@ -502,45 +470,27 @@
             }
         }
 
+        private List<SubFingerprint> AssociateSubFingerprintsToTrack(IEnumerable<byte[]> subFingerprints, int trackId)
+        {
+            List<SubFingerprint> subFingerprintsModel = new List<SubFingerprint>();
+            foreach (var subFingerprint in subFingerprints)
+            {
+                subFingerprintsModel.Add(new SubFingerprint(subFingerprint, trackId));
+            }
 
-        /// <summary>
-        ///   Associate fingerprint signatures with a specific track
-        /// </summary>
-        /// <param name = "fingerprintSignatures">Signatures built from one track</param>
-        /// <param name = "trackId">Track id, which is the parent for this fingerprints</param>        
-        /// <returns>List of fingerprint entity objects</returns>
-        private List<Fingerprint> AssociateFingerprintsToTrack(IEnumerable<bool[]> fingerprintSignatures, int trackId)
-         {
-             const int FakeId = -1;
-             List<Fingerprint> fingers = new List<Fingerprint>();
-             int c = 0;
-             foreach (bool[] signature in fingerprintSignatures)
-             {
-                 fingers.Add(new Fingerprint(FakeId, signature, trackId, c));
-                 c++;
-             }
+            return subFingerprintsModel;
+        }
 
-             return fingers;
-         }
-
-        /// <summary>
-        ///   Hash Fingerprints using Min-Hash algorithm
-        /// </summary>
-        /// <param name = "listOfFingerprintsToHash">List of fingerprints already inserted in the database</param>
-        /// <param name = "track">Track of the corresponding fingerprints</param>
-        /// <param name = "hashTables">Number of hash tables</param>
-        /// <param name = "hashKeys">Number of hash keys</param>
-        private void HashFingerprintsUsingMinHash(
-            IEnumerable<Fingerprint> listOfFingerprintsToHash, Track track, int hashTables, int hashKeys)
+        private void HashSubFingerprintsUsingMinHash(IEnumerable<SubFingerprint> listOfSubFingerprintsToHash)
         {
             List<HashBinMinHash> listToInsert = new List<HashBinMinHash>();
-            foreach (Fingerprint fingerprint in listOfFingerprintsToHash)
+            foreach (SubFingerprint subFingerprint in listOfSubFingerprintsToHash)
             {
-                var tupple = combinedHashingAlgorithm.Hash(fingerprint.Signature, hashTables, hashKeys);
+                long[] buckets = lshService.Hash(subFingerprint.Signature, hashTables, hashKeys);
                 int tableCount = 0;
-                foreach (long bucket in tupple.Item2)
+                foreach (long bucket in buckets)
                 {
-                    HashBinMinHash hash = new HashBinMinHash(-1, bucket, tableCount++, fingerprint.Id);
+                    HashBinMinHash hash = new HashBinMinHash(0, bucket, tableCount++, subFingerprint.Id);
                     listToInsert.Add(hash);
                 }
             }
@@ -548,54 +498,22 @@
             modelService.InsertHashBin(listToInsert);
         }
 
-        /// <summary>
-        ///   Hash Fingerprints using Neural hasher component for solving k-nearest neighbor problem
-        /// </summary>
-        /// <param name = "listOfFingerprintsToHash">List of fingerprints already inserted in the database</param>
-        /// <param name = "track">Track of the corresponding fingerprints</param>
-        private void HashFingerprintsUsingNeuralHasher(IEnumerable<Fingerprint> listOfFingerprintsToHash, Track track)
-        {
-            FingerprintDescriptor descriptor = new FingerprintDescriptor();
-            List<HashBinNeuralHasher> listToInsert = new List<HashBinNeuralHasher>();
-            foreach (Fingerprint fingerprint in listOfFingerprintsToHash)
-            {
-                ensemble.ComputeHash(descriptor.DecodeFingerprint(fingerprint.Signature));
-                long[] hashbins = ensemble.ExtractHashBins();
-                for (int i = 0; i < hashbins.Length; i++)
-                {
-                    HashBinNeuralHasher hash = new HashBinNeuralHasher(i, hashbins[i], i, track.Id);
-                    listToInsert.Add(hash);
-                }
-            }
-            throw new NotImplementedException();
-            //modelService.InsertHashBin(listToInsert);
-        }
-
-        /// <summary>
-        ///   Get corresponding Album
-        /// </summary>
-        /// <param name = "tags">File Tags</param>
-        /// <returns>Album to be used while inserting the fingerprints into the database</returns>
         private Album GetCoresspondingAlbum(TagInfo tags)
         {
             string album = tags.Album;
             Album albumToInsert = null;
-            if (string.IsNullOrEmpty(album))  
+            if (string.IsNullOrEmpty(album))
             {
-                albumToInsert = unknownAlbum; //The album is unknown
+                albumToInsert = unknownAlbum; // The album is unknown
             }
             else
             {
                 lock (lockObject)
                 {
-                    foreach (Album a in listOfAllAlbums)
-                        if (a.Name == album)
-                        {
-                            albumToInsert = a; //There is already such an album in the database
-                            break;
-                        }
-                    if (albumToInsert == null) //No such album in the database INSERT!
+                    albumToInsert = listOfAllAlbums.FirstOrDefault(a => a.Name == album);
+                    if (albumToInsert == null)
                     {
+                        // No such album in the database INSERT!
                         int releaseYear = -1;
                         try
                         {
@@ -604,24 +522,33 @@
                         catch (Exception)
                         {
                             /*swallow*/
+                            Debug.WriteLine("Release Year is in a bad format. Continuw processing...");
                         }
 
-                        albumToInsert = (releaseYear < 1900 || releaseYear > 2200) ? new Album(-1, album) : new Album(-1, album, releaseYear);
+                        albumToInsert = new Album(0, album, releaseYear);
                         try
                         {
-                            modelService.InsertAlbum(albumToInsert); //Insert new ALBUM
+                            modelService.InsertAlbum(albumToInsert); // Insert new ALBUM
                         }
                         catch (Exception ex)
                         {
-                            if (MessageBox.Show(ex.Message + "\n Continue?", Resources.ExceptioInDal, MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.Cancel)
+                            if (MessageBox.Show(ex.Message + "\n Continue?", Resources.ExceptioInDal, MessageBoxButtons.OKCancel, MessageBoxIcon.Error)
+                                == DialogResult.Cancel)
+                            {
                                 return null;
+                            }
+
                             albumToInsert = unknownAlbum;
                         }
+
                         if (albumToInsert != unknownAlbum)
-                            listOfAllAlbums.Add(albumToInsert); //Modify Local Variable
+                        {
+                            listOfAllAlbums.Add(albumToInsert); // Modify Local Variable
+                        }
                     }
                 }
             }
+
             return albumToInsert;
         }
 
@@ -631,21 +558,22 @@
         /// <param name = "visible">Read only controls</param>
         private void FadeAllControls(bool visible)
         {
-            Invoke(new Action(
-                () =>
-                {
-                    _cmbDBFillerConnectionString.Enabled = !visible;
-                    _tbRootFolder.Enabled = !visible;
-                    _tbSingleFile.Enabled = !visible;
-                    _lbAlgorithm.Enabled = !visible;
-                    _nudHashKeys.Enabled = !visible;
-                    _nudHashTables.Enabled = !visible;
-                    _nudStride.Enabled = !visible;
-                    _btnStart.Enabled = !visible;
-                    _btnStop.Enabled = visible;
-                    _nudTopWav.Enabled = !visible;
-                    _cmbStrideType.Enabled = !visible;
-                }));
+            Invoke(
+                new Action(
+                    () =>
+                        {
+                            _cmbDBFillerConnectionString.Enabled = !visible;
+                            _tbRootFolder.Enabled = !visible;
+                            _tbSingleFile.Enabled = !visible;
+                            _lbAlgorithm.Enabled = !visible;
+                            _nudHashKeys.Enabled = !visible;
+                            _nudHashTables.Enabled = !visible;
+                            _nudStride.Enabled = !visible;
+                            _btnStart.Enabled = !visible;
+                            _btnStop.Enabled = visible;
+                            _nudTopWav.Enabled = !visible;
+                            _cmbStrideType.Enabled = !visible;
+                        }));
         }
     }
 }
