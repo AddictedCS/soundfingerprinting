@@ -11,7 +11,6 @@
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Query;
     using Soundfingerprinting.SoundTools.Properties;
@@ -24,17 +23,21 @@
 
         private readonly IModelService modelService;
 
+        private readonly IExtendedAudioService audioService;
+
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); // File filters
 
         private List<string> fileList = new List<string>();
 
-        private HashAlgorithm _hashAlgorithm = HashAlgorithm.LSH; // Locality sensitive hashing component
+        private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
-        public WinCheckHashBins(IFingerprintQueryBuilder queryBuilder, ITagService tagService, IModelService modelService)
+        public WinCheckHashBins(IFingerprintQueryBuilder queryBuilder, ITagService tagService, IModelService modelService, IExtendedAudioService audioService)
         {
             this.queryBuilder = queryBuilder;
             this.tagService = tagService;
             this.modelService = modelService;
+            this.audioService = audioService;
+
             InitializeComponent();
 
             Icon = Resources.Sound;
@@ -51,13 +54,13 @@
             }
 
             /*Setting default values*/
-            _cmbAlgorithm.SelectedIndex = (int)_hashAlgorithm;
+            _cmbAlgorithm.SelectedIndex = (int)hashAlgorithm;
 
             /*Add enumeration types in the combo box*/
             string[] items = Enum.GetNames(typeof(StrideType)); 
 
             _cmbStrideType.Items.AddRange(items);
-            _cmbStrideType.SelectedIndex = 0;
+            _cmbStrideType.SelectedIndex = 3;
 
             switch (_cmbAlgorithm.SelectedIndex)
             {
@@ -74,11 +77,13 @@
                     _gbNeuralHasher.Enabled = false;
                     break;
             }
+
+            _gbQueryMicrophoneBox.Enabled = audioService.IsRecordingSupported;
         }
 
         private void CmbAlgorithmSelectedIndexChanged(object sender, EventArgs e)
         {
-            _hashAlgorithm = (HashAlgorithm) _cmbAlgorithm.SelectedIndex;
+            hashAlgorithm = (HashAlgorithm) _cmbAlgorithm.SelectedIndex;
 
             switch (_cmbAlgorithm.SelectedIndex)
             {
@@ -168,7 +173,7 @@
         {
             DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
             WinQueryResults winform;
-            switch (_hashAlgorithm)
+            switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
                     if (fileList == null || fileList.Count == 0)
@@ -185,7 +190,10 @@
                         fileList,
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
-                        Convert.ToInt32(_nudThreshold.Value)) { FingerprintQueryBuilder = queryBuilder, TagService = tagService, ModelService = modelService };
+                        Convert.ToInt32(_nudThreshold.Value),
+                        tagService,
+                        modelService,
+                        queryBuilder);
                     winform.Show();
                     break;
                 case HashAlgorithm.NeuralHasher:
@@ -203,12 +211,40 @@
                         fileList,
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
-                        (int)_nudThreshold.Value) { FingerprintQueryBuilder = queryBuilder, TagService = tagService, ModelService = modelService };
+                        (int)_nudThreshold.Value,
+                        tagService,
+                        modelService,
+                        queryBuilder);
                     winform.Show();
                     break;
                 case HashAlgorithm.None:
                     break;
             }
+        }
+
+        private void _btnQueryFromMicrophone_Click(object sender, EventArgs e)
+        {
+            DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
+            int secondsToRecord = (int)_nudSecondsToRecord.Value;
+            int sampleRate = (int)_nudSampleRate.Value;
+            string pathToFile = "mic_" + DateTime.Now.Ticks + ".wav";
+            fileList.Add(pathToFile);
+            _gbQueryMicrophoneBox.Enabled = false;
+            float[] samples = audioService.RecordFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord);
+            _gbQueryMicrophoneBox.Enabled = true;
+            WinQueryResults winform = new WinQueryResults(
+                secondsToRecord,
+                0,
+                WinUtils.GetStride(
+                    (StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
+                samples,
+                (int)_nudHashtables.Value,
+                (int)_nudKeys.Value,
+                (int)_nudThreshold.Value,
+                tagService,
+                modelService,
+                queryBuilder);
+            winform.Show();
         }
     }
 }

@@ -58,8 +58,8 @@
                     {
                         string pathToRecoded = Path.GetFullPath(sfd.FileName);
                         extendedAudioService.RecodeTheFile(_tbPathToFile.Text, pathToRecoded, (int)_nudSampleRate.Value);
-
                     };
+
                 FadeControls(false);
                 action.BeginInvoke(
                     result =>
