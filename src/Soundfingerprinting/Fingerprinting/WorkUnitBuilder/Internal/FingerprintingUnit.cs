@@ -2,6 +2,8 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Soundfingerprinting.Audio.Services;
@@ -13,8 +15,9 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
         private readonly IAudioService audioService;
         private readonly IMinHashService minHashService;
         private readonly IFingerprintService fingerprintService;
+        private CancellationToken cancellationToken;
 
-        private Func<Task<List<bool[]>>> createFingerprintsMethod;
+        private Func<List<bool[]>> createFingerprintsMethod;
 
         public FingerprintingUnit(IFingerprintService fingerprintService, IAudioService audioService, IMinHashService minHashService)
         {
@@ -27,23 +30,25 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
 
         public Task<List<bool[]>> RunAlgorithm()
         {
-            return createFingerprintsMethod();
+            return Task.Factory.StartNew(createFingerprintsMethod);
+        }
+
+        public Task<List<bool[]>> RunAlgorithm(CancellationToken token)
+        {
+            return Task.Factory.StartNew(createFingerprintsMethod, token);
         }
 
         public Task<List<byte[]>> RunAlgorithmWithHashing()
         {
-            return createFingerprintsMethod().ContinueWith(
-                task =>
-                    {
-                        List<bool[]> fingerprints = task.Result;
-                        List<byte[]> subFingerprints = new List<byte[]>();
-                        foreach (var fingerprint in fingerprints)
-                        {
-                            subFingerprints.Add(minHashService.Hash(fingerprint));
-                        }
+            return Task.Factory.StartNew(createFingerprintsMethod)
+                               .ContinueWith(task => HashFingerprints(task.Result));
+        }
 
-                        return subFingerprints;
-                    });
+        public Task<List<byte[]>> RunAlgorithmWithHashing(CancellationToken token)
+        {
+            cancellationToken = token;
+            return Task.Factory.StartNew(createFingerprintsMethod, token)
+                              .ContinueWith(task => HashFingerprints(task.Result));
         }
 
         public IWithConfiguration On(string pathToAudioFile)
@@ -51,6 +56,11 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
             createFingerprintsMethod = () =>
                 {
                     float[] samples = audioService.ReadMonoFromFile(pathToAudioFile, Configuration.SampleRate, 0, 0);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return new List<bool[]>(Enumerable.Empty<bool[]>());
+                    }
+
                     return fingerprintService.CreateFingerprints(samples, Configuration);
                 };
 
@@ -68,6 +78,11 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
             createFingerprintsMethod = () =>
                 {
                     float[] samples = audioService.ReadMonoFromFile(pathToAudioFile, Configuration.SampleRate, millisecondsToProcess, startAtMillisecond);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return new List<bool[]>(Enumerable.Empty<bool[]>());
+                    }
+
                     return fingerprintService.CreateFingerprints(samples, Configuration);
                 };
             return this;
@@ -91,6 +106,17 @@ namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
             Configuration = customFingerprintingConfiguration;
             transformation(customFingerprintingConfiguration);
             return this;
+        }
+
+        private List<byte[]> HashFingerprints(IEnumerable<bool[]> fingerprints)
+        {
+            List<byte[]> subFingerprints = new List<byte[]>();
+            foreach (var fingerprint in fingerprints)
+            {
+                subFingerprints.Add(minHashService.Hash(fingerprint));
+            }
+
+            return subFingerprints;
         }
     }
 }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Soundfingerprinting.Fingerprinting.Configuration;
@@ -76,11 +77,22 @@
 
         public Task<QueryResult> Query()
         {
-            return createFingerprintMethod().RunAlgorithm().ContinueWith(task =>
-                    {
-                        List<bool[]> fingerprints = task.Result;
-                        return queryFingerprintService.Query(fingerprints, queryConfiguration).Result;
-                    });
+            return createFingerprintMethod().RunAlgorithm()
+                                            .ContinueWith(task => queryFingerprintService.Query(task.Result, queryConfiguration));
+        }
+
+        public Task<QueryResult> Query(CancellationToken cancelationToken)
+        {
+            return createFingerprintMethod().RunAlgorithm(cancelationToken)
+                                            .ContinueWith(task =>
+                                            {
+                                                if (cancelationToken.IsCancellationRequested)
+                                                {
+                                                    return new QueryResult { IsSuccessful = false };
+                                                }
+
+                                                return queryFingerprintService.Query(task.Result, queryConfiguration);
+                                            });
         }
 
         public IFingerprintingQueryUnit With(IQueryConfiguration configuration)
@@ -137,11 +149,21 @@
                     return tcs.Task;
                 }
 
+                public Task<List<bool[]>> RunAlgorithm(CancellationToken token)
+                {
+                    return RunAlgorithm();
+                }
+
                 public Task<List<byte[]>> RunAlgorithmWithHashing()
                 {
                     TaskCompletionSource<List<byte[]>> tcs = new TaskCompletionSource<List<byte[]>>();
                     tcs.SetResult(new List<byte[]> { minHashService.Hash(fingerprint) });
                     return tcs.Task;
+                }
+
+                public Task<List<byte[]>> RunAlgorithmWithHashing(CancellationToken token)
+                {
+                    return RunAlgorithmWithHashing();
                 }
             }
         }

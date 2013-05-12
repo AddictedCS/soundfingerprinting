@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Security.Permissions;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
 
     using Soundfingerprinting.Audio.Services;
@@ -172,7 +173,6 @@
         private void BtnStartClick(object sender, EventArgs e)
         {
             DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
-            WinQueryResults winform;
             switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
@@ -182,12 +182,10 @@
                         break;
                     }
 
-                    winform = new WinQueryResults(
+                    WinQueryResults winform = new WinQueryResults(
                         (int)_nudNumberOfFingerprints.Value,
                         (int)_numStaratSeconds.Value,
-                        WinUtils.GetStride(
-                            (StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
-                        fileList,
+                        WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
                         Convert.ToInt32(_nudThreshold.Value),
@@ -195,28 +193,10 @@
                         modelService,
                         queryBuilder);
                     winform.Show();
+                    winform.ExtractCandidatesWithMinHashAlgorithm(fileList);
                     break;
                 case HashAlgorithm.NeuralHasher:
-                    if (fileList == null || fileList.Count == 0)
-                    {
-                        MessageBox.Show(Resources.SelectFolderWithSongs, Resources.Songs, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        break;
-                    }
-
-                    winform = new WinQueryResults(
-                        (int)_nudNumberOfFingerprints.Value,
-                        (int)_numStaratSeconds.Value,
-                        WinUtils.GetStride(
-                            (StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
-                        fileList,
-                        (int)_nudHashtables.Value,
-                        (int)_nudKeys.Value,
-                        (int)_nudThreshold.Value,
-                        tagService,
-                        modelService,
-                        queryBuilder);
-                    winform.Show();
-                    break;
+                    throw new NotImplementedException();
                 case HashAlgorithm.None:
                     break;
             }
@@ -230,21 +210,29 @@
             string pathToFile = "mic_" + DateTime.Now.Ticks + ".wav";
             fileList.Add(pathToFile);
             _gbQueryMicrophoneBox.Enabled = false;
-            float[] samples = audioService.RecordFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord);
-            _gbQueryMicrophoneBox.Enabled = true;
-            WinQueryResults winform = new WinQueryResults(
-                secondsToRecord,
-                0,
-                WinUtils.GetStride(
-                    (StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
-                samples,
-                (int)_nudHashtables.Value,
-                (int)_nudKeys.Value,
-                (int)_nudThreshold.Value,
-                tagService,
-                modelService,
-                queryBuilder);
-            winform.Show();
+            Task<float[]>.Factory.StartNew(() => audioService.RecordFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord))
+                .ContinueWith(
+                task =>
+                    {
+                        _gbQueryMicrophoneBox.Enabled = true;
+                        WinQueryResults winform = new WinQueryResults(
+                            secondsToRecord,
+                            0,
+                            WinUtils.GetStride(
+                                (StrideType)_cmbStrideType.SelectedIndex,
+                                (int)_nudQueryStrideMax.Value,
+                                (int)_nudQueryStrideMin.Value,
+                                configuration.SamplesPerFingerprint),
+                            (int)_nudHashtables.Value,
+                            (int)_nudKeys.Value,
+                            (int)_nudThreshold.Value,
+                            tagService,
+                            modelService,
+                            queryBuilder);
+                        winform.Show();
+                        winform.ExtractCandidatesUsingSamples(task.Result);
+                    },
+                    TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }

@@ -161,7 +161,6 @@
             this.Controls.Add(this._dgvResults);
             this.Name = "WinQueryResults";
             this.Text = "Results";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.WinQueryResultsFormClosing);
             ((System.ComponentModel.ISupportInitialize)(this._dgvResults)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTotal)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudChecked)).EndInit();

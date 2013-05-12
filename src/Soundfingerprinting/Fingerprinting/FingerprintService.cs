@@ -1,7 +1,6 @@
 namespace Soundfingerprinting.Fingerprinting
 {
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
@@ -23,19 +22,15 @@ namespace Soundfingerprinting.Fingerprinting
             this.fingerprintDescriptor = fingerprintDescriptor;
         }
 
-        public Task<List<bool[]>> CreateFingerprints(float[] samples, IFingerprintingConfiguration fingerprintingConfiguration)
+        public List<bool[]> CreateFingerprints(float[] samples, IFingerprintingConfiguration fingerprintingConfiguration)
         {
-            return Task.Factory.StartNew(
-                () =>
-                    {
-                        float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, fingerprintingConfiguration);
-                        return CreateFingerprintsFromLogSpectrum(
-                            spectrum,
-                            fingerprintingConfiguration.Stride,
-                            fingerprintingConfiguration.FingerprintLength,
-                            fingerprintingConfiguration.Overlap,
-                            fingerprintingConfiguration.TopWavelets);
-                    });
+            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, fingerprintingConfiguration);
+            return CreateFingerprintsFromLogSpectrum(
+                spectrum,
+                fingerprintingConfiguration.Stride,
+                fingerprintingConfiguration.FingerprintLength,
+                fingerprintingConfiguration.Overlap,
+                fingerprintingConfiguration.TopWavelets);
         }
 
         private List<bool[]> CreateFingerprintsFromLogSpectrum(float[][] logarithmizedSpectrum, IStride stride, int fingerprintLength, int overlap, int topWavelets)

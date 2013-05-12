@@ -66,39 +66,16 @@
 
         #endregion
 
-        /// <summary>
-        ///   List of files [.mp3] which are going to be recognized
-        /// </summary>
-        private readonly List<string> fileList;
-
-        /// <summary>
-        ///   Number of hash keys per table used in MinHash + LSH schema [normally 5]
-        /// </summary>
         private readonly int hashKeys;
-
-        /// <summary>
-        ///   Number of hash tables used in the MinHash + LSH schema [normally 20]
-        /// </summary>
+        
         private readonly int hashTables;
 
-        /// <summary>
-        ///   The size of the query [E.g. 253 samples]
-        /// </summary>
         private readonly IStride queryStride;
 
-        /// <summary>
-        ///   Number of fingerprints to analyze
-        /// </summary>
         private readonly int secondsToAnalyze;
 
-        /// <summary>
-        ///   Start second
-        /// </summary>
         private readonly int startSecond;
 
-        /// <summary>
-        ///   Recognition threshold 17% ~5 tables from 25 hash functions
-        /// </summary>
         private readonly int threshold;
 
         private readonly ITagService tagService;
@@ -107,53 +84,11 @@
 
         private readonly IFingerprintQueryBuilder fingerprintQueryBuilder;
 
-        /// <summary>
-        ///   Running thread allows one to Abort forcibly the recognition
-        /// </summary>
-        private Thread runningThread;
+        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-        /// <summary>
-        ///   Flag which signalizes stop of the recognition process
-        /// </summary>
         private bool stopQuerying;
-
-        private float[] samples;
-
+        
         public WinQueryResults(
-            int secondsToAnalyze,
-            int startSecond,
-            IStride stride,
-            float[] samples,
-            int hashTables,
-            int hashKeys,
-            int thresholdTables,
-            ITagService tagService,
-            IModelService modelService,
-            IFingerprintQueryBuilder fingerprintQueryBuilder)
-            : this(secondsToAnalyze, startSecond, stride, hashTables, hashKeys, thresholdTables, tagService, modelService, fingerprintQueryBuilder)
-        {
-            this.samples = samples; /*Samples to analyze*/
-            ExtractCandidatesUsingSamples();
-        }
-
-        public WinQueryResults(
-            int secondsToAnalyze,
-            int startSecond,
-            IStride stride,
-            List<string> fileList,
-            int hashTables,
-            int hashKeys,
-            int thresholdTables,
-            ITagService tagService,
-            IModelService modelService,
-            IFingerprintQueryBuilder fingerprintQueryBuilder)
-            : this(secondsToAnalyze, startSecond, stride, hashTables, hashKeys, thresholdTables, tagService, modelService, fingerprintQueryBuilder)
-        {
-            this.fileList = fileList; /*List of files to analyze*/
-            ExtractCandidatesWithMinHashAlgorithm();
-        }
-
-        protected WinQueryResults(
             int secondsToAnalyze,
             int startSecond,
             IStride stride,
@@ -210,43 +145,17 @@
             _btnExport.Enabled = false;
         }
 
-        /// <summary>
-        ///   Extract Candidates from the underlying data fingerprint using Min Hash + LSH Schema
-        /// </summary>
-        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")
-        ]
-        private void ExtractCandidatesWithMinHashAlgorithm()
+        public void ExtractCandidatesWithMinHashAlgorithm(List<string> fileList)
         {
-            runningThread = Thread.CurrentThread;
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-            Action<int> action = check => _nudChecked.Value = check;
-            Action<object[], Color> actionAddItems = (parameters, color) =>
-                {
-                    int index = _dgvResults.Rows.Add(parameters);
-                    _dgvResults.FirstDisplayedScrollingRowIndex = index;
-                    if (color != Color.Empty)
-                    {
-                        _dgvResults.Rows[index].DefaultCellStyle.BackColor = color;
-                    }
-                };
-
-            Action<float> actionRecognition = recognition => _tbResults.Text = recognition.ToString(CultureInfo.InvariantCulture);
-
+           
             /*For each song in the list, query the DATABASE*/
             for (int i = 0; i < fileList.Count; i++)
             {
-                if (InvokeRequired)
-                {
-                    Invoke(action, i);
-                }
-                else
-                {
-                    action(i);
-                }
-
                 if (stopQuerying)
                 {
+                    cancellationTokenSource.Cancel();
                     break;
                 }
 
@@ -256,7 +165,7 @@
                 if (tags == null)
                 {
                     // TAGS are null
-                    Invoke(actionAddItems, new object[] { "TAGS ARE NULL", pathToFile }, Color.Red);
+                    AddGridLine(new object[] { "TAGS ARE NULL", pathToFile }, Color.Red);
                     continue;
                 }
 
@@ -268,7 +177,7 @@
                 if (duration < MinTrackLength || duration > MaxTrackLength)
                 {
                     // Duration too small
-                    Invoke(actionAddItems, new object[] { "BAD DURATION", pathToFile }, Color.Red);
+                    AddGridLine(new object[] { "BAD DURATION", pathToFile }, Color.Red);
                     continue;
                 }
 
@@ -276,7 +185,7 @@
                 if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title))
                 {
                     // Title or Artist tag is null
-                    Invoke(actionAddItems, new object[] { "NO TAGS", pathToFile }, Color.Red);
+                    AddGridLine(new object[] { "NO TAGS", pathToFile }, Color.Red);
                     continue;
                 }
 
@@ -284,167 +193,128 @@
                 Track actualTrack = modelService.ReadTrackByArtistAndTitleName(artist, title);
                 if (actualTrack == null)
                 {
-                    Invoke(
-                        actionAddItems,
-                        new object[] { title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 },
-                        Color.Red);
+                    AddGridLine(new object[] { title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 }, Color.Red);
                     continue;
                 }
 
                 fingerprintQueryBuilder.BuildQuery()
                                        .From(pathToFile, secondsToAnalyze * 1000, startSecond * 1000)
                                        .WithCustomConfigurations(
-                    fingerprintConfig =>
-                        {
-                            fingerprintConfig.Stride = samplesToSkip;
-                        },
-                    queryConfig =>
-                        {
-                            queryConfig.NumberOfLSHTables = hashTables;
-                            queryConfig.NumberOfMinHashesPerTable = hashKeys;
-                            queryConfig.ThresholdVotes = threshold;
-                        })
-                        .Query()
-                        .ContinueWith(
-                            t =>
-                                {
-                                    QueryResult queryResult = t.Result;
-                                    if (!queryResult.IsSuccessful)
-                                    {
-                                        verified++;
-                                        Invoke(
-                                            actionAddItems,
-                                            new object[] { title + "-" + artist, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 },
-                                            Color.Red);
-                                    }
-
-                                    Track recognizedTrack = queryResult.BestMatch;
-                                    recognized++;
-                                    verified++;
-
-                                    Invoke(
-                                        actionAddItems,
-                                        new object[]
+                                            fingerprintConfig =>
                                             {
-                                                title + "-" + artist, /*Actual title and artist*/
-                                                recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
-                                                1, /*Position in the ordered list*/
-                                                actualTrack.Id == recognizedTrack.Id, /*Found?*/
-                                                -1, /*Average hamming distance*/
-                                                -1, -1, -1, -1, -1, -1, -1, -1, 0
+                                                fingerprintConfig.Stride = samplesToSkip;
                                             },
-                                        Color.Empty);
+                                            queryConfig =>
+                                            {
+                                                queryConfig.NumberOfLSHTables = hashTables;
+                                                queryConfig.NumberOfMinHashesPerTable = hashKeys;
+                                                queryConfig.ThresholdVotes = threshold;
+                                            })
+                                       .Query(cancellationTokenSource.Token)
+                                       .ContinueWith(
+                                            t =>
+                                            {
+                                                QueryResult queryResult = t.Result;
+                                                if (!queryResult.IsSuccessful)
+                                                {
+                                                    verified++;
+                                                    AddGridLine(new object[] { title + "-" + artist, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 }, Color.Red);
+                                                    return;
+                                                }
 
-                                    Invoke(actionRecognition, (float)recognized / verified);
-                                });
+                                                Track recognizedTrack = queryResult.BestMatch;
+                                                recognized++;
+                                                verified++;
+
+                                                AddGridLine(
+                                                    new object[]
+                                                        {
+                                                            title + "-" + artist, /*Actual title and artist*/
+                                                            recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
+                                                            1, /*Position in the ordered list*/
+                                                            actualTrack.Id == recognizedTrack.Id, /*Found?*/
+                                                            -1, /*Average hamming distance*/
+                                                            -1, -1, -1, -1, -1, -1, -1, -1, 0
+                                                        },
+                                                    Color.Empty);
+
+                                                _tbResults.Text = ((float)recognized / verified).ToString(CultureInfo.InvariantCulture);
+                                            },
+                                           TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
-        private void ExtractCandidatesUsingSamples()
+        public void ExtractCandidatesUsingSamples(float[] samples)
         {
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-            Action<int> action = check => _nudChecked.Value = check;
-            Action<object[], Color> actionAddItems = (parameters, color) =>
-                {
-                    int index = _dgvResults.Rows.Add(parameters);
-                    _dgvResults.FirstDisplayedScrollingRowIndex = index;
-                    if (color != Color.Empty)
-                    {
-                        _dgvResults.Rows[index].DefaultCellStyle.BackColor = color;
-                    }
-                };
-
-            Action<float> actionRecognition = recognition => _tbResults.Text = recognition.ToString(CultureInfo.InvariantCulture);
-
+            
             fingerprintQueryBuilder.BuildQuery()
                                    .From(samples)
                                    .WithCustomConfigurations(
-                fingerprintConfig =>
-                    {
-                        fingerprintConfig.Stride = samplesToSkip;
-                    },
-                queryConfig =>
-                    {
-                        queryConfig.NumberOfLSHTables = hashTables;
-                        queryConfig.NumberOfMinHashesPerTable = hashKeys;
-                        queryConfig.ThresholdVotes = threshold;
-                    }).Query().ContinueWith(
-                        t =>
-                            {
-                                var queryResult = t.Result;
-                                if (!queryResult.IsSuccessful)
-                                {
-                                    Invoke(actionAddItems, new object[] { string.Empty, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 }, Color.Red);
-                                    return;
-                                }
-
-                                Track recognizedTrack = queryResult.BestMatch;
-                                recognized++;
-                                verified++;
-
-                                Invoke(
-                                    actionAddItems,
-                                    new object[]
+                                        fingerprintConfig =>
                                         {
-                                            "Uknown", /*Actual title and artist*/
-                                            recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
-                                            1, /*Position in the ordered list*/
-                                            true, /*Found?*/
-                                            -1, /*Average hamming distance*/
-                                            -1, -1, -1, -1, -1, -1, -1, -1, 0
+                                            fingerprintConfig.Stride = samplesToSkip;
                                         },
-                                    Color.Empty);
-                                Invoke(actionRecognition, (float)recognized / verified);
-                            });
+                                        queryConfig =>
+                                        {
+                                            queryConfig.NumberOfLSHTables = hashTables;
+                                            queryConfig.NumberOfMinHashesPerTable = hashKeys;
+                                            queryConfig.ThresholdVotes = threshold;
+                                        })
+                                  .Query(cancellationTokenSource.Token)
+                                  .ContinueWith(
+                                        t =>
+                                        {
+                                            var queryResult = t.Result;
+                                            if (!queryResult.IsSuccessful)
+                                            {
+                                                AddGridLine(new object[] { string.Empty, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 }, Color.Red);
+                                                return;
+                                            }
+
+                                            Track recognizedTrack = queryResult.BestMatch;
+                                            recognized++;
+                                            verified++;
+
+                                            AddGridLine(
+                                                 new object[]
+                                                    {
+                                                        "Uknown", /*Actual title and artist*/
+                                                        recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
+                                                        1, /*Position in the ordered list*/
+                                                        true, /*Found?*/
+                                                        -1, /*Average hamming distance*/
+                                                        -1, -1, -1, -1, -1, -1, -1, -1, 0
+                                                    },
+                                                 Color.Empty);
+
+                                            _tbResults.Text = ((float)recognized / verified).ToString(CultureInfo.InvariantCulture);
+                                        },
+                                      TaskScheduler.FromCurrentSynchronizationContext());
         }
 
-        /// <summary>
-        /// Callback invoked when <c>Stop</c> button is pressed, meaning that the recognition is over
-        /// </summary>
-        /// <param name="sender">
-        /// The sender.
-        /// </param>
-        /// <param name="e">
-        /// The e.
-        /// </param>
+        private void AddGridLine(object[] parameters, Color color)
+        {
+            int index = _dgvResults.Rows.Add(parameters);
+            _dgvResults.FirstDisplayedScrollingRowIndex = index;
+            if (color != Color.Empty)
+            {
+                _dgvResults.Rows[index].DefaultCellStyle.BackColor = color;
+            }
+        }
+
         private void BtnStopClick(object sender, EventArgs e)
         {
             stopQuerying = true;
-            Invoke(new Action(() => { _btnStop.Enabled = false; }));
+            cancellationTokenSource.Cancel();
+            Close();
         }
 
-        /// <summary>
-        /// Callback invoked when the <c>Export</c> button is pressed
-        /// </summary>
-        /// <param name="sender">
-        /// The sender.
-        /// </param>
-        /// <param name="e">
-        /// The e.
-        /// </param>
         private void BtnExportClick(object sender, EventArgs e)
         {
             /*Export into CSV file*/
             WinUtils.ExportInExcel(_dgvResults, "Recognition Rate", _tbResults.Text, "Date", DateTime.Now);
-        }
-
-
-        /// <summary>
-        /// Callback invoked when the Win Query results is closing
-        /// </summary>
-        /// <param name="sender">
-        /// The sender.
-        /// </param>
-        /// <param name="e">
-        /// The e.
-        /// </param>
-        private void WinQueryResultsFormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (runningThread != null)
-            {
-                // runningThread.Abort();
-            }
         }
     }
 }
