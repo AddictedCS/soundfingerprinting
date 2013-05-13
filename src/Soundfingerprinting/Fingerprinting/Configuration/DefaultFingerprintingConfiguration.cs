@@ -19,7 +19,7 @@ namespace Soundfingerprinting.Fingerprinting.Configuration
             Stride = new IncrementalStaticStride(5115, FingerprintLength * Overlap);
             LogBins = 32;
             WindowFunction = new CachingHanningWindow(new NoWindow());
-            NormalizeSignal = false;
+            NormalizeSignal = true;
             UseDynamicLogBase = true;
         }
 

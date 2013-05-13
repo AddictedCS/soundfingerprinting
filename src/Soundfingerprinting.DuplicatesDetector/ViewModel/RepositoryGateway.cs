@@ -276,8 +276,7 @@
                             if (tuple != null)
                             {
                                 /*Long running procedure*/
-                                repository.CreateInsertFingerprints(
-                                    tuple.Item2, tuple.Item1, createStride, NumberOfHashTables, NumberOfKeys);
+                                repository.CreateInsertFingerprints(tuple.Item2, tuple.Item1, createStride, NumberOfHashTables, NumberOfKeys);
 
                                 processedtracks.Add(tuple.Item1);
                                 if (processed != null)

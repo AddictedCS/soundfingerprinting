@@ -12,7 +12,7 @@ namespace Soundfingerprinting.Fingerprinting.Windows
 
         private readonly Dictionary<int, double[]> cache;
 
-        public CachingHanningWindow (IWindowFunction decorated)
+        public CachingHanningWindow(IWindowFunction decorated)
         {
             this.decorated = decorated;
             cache = new Dictionary<int, double[]>();

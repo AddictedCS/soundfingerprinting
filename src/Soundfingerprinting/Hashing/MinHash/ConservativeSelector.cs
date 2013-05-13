@@ -39,8 +39,7 @@
                         double maxMutualInfo = double.MinValue; /*Find the Maximum accross the Group*/
                         foreach (int[] groupMember in @group.Value)
                         {
-                            double mi = SignalUtils.MutualInformation(
-                                randomPermutationPool[permutationIndex], groupMember);
+                            double mi = SignalUtils.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
                             /*Find the maximum of a Group G*/
                             if (maxMutualInfo < mi)
                             {

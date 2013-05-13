@@ -98,8 +98,6 @@
         /// </remarks>
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int millisecondsToRead, int startAtMillisecond)
         {
-            int totalmilliseconds = millisecondsToRead <= 0 ? int.MaxValue : millisecondsToRead + startAtMillisecond;
-
             // create streams for re-sampling
             int stream = Bass.BASS_StreamCreateFile(pathToFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT); // Decode the stream
 
@@ -119,42 +117,51 @@
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
 
-            int bufferSize = sampleRate * 30 * 4; /*read 30 seconds at each iteration*/
-            float[] buffer = new float[bufferSize];
+            if (startAtMillisecond > 0)
+            {
+                if (!Bass.BASS_ChannelSetPosition(stream, startAtMillisecond / 1000))
+                {
+                    throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                }
+            }
+
+            float[] buffer = new float[sampleRate * 20 * 4]; // 20 seconds buffer
             List<float[]> chunks = new List<float[]>();
-            int size = 0;
-            while ((float)size / sampleRate * 1000 < totalmilliseconds)
+            int totalBytesToRead = millisecondsToRead == 0 ? int.MaxValue : millisecondsToRead / 1000 * sampleRate * 4;
+            int totalBytesRead = 0;
+            while (totalBytesRead < totalBytesToRead)
             {
                 // get re-sampled/mono data
-                int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, bufferSize * 4);
+                int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, buffer.Length * 4);
                 if (bytesRead == 0)
                 {
                     break;
                 }
 
-                float[] chunk = new float[bytesRead / 4]; // each float contains 4 bytes
-                Array.Copy(buffer, chunk, bytesRead / 4);
+                totalBytesRead += bytesRead;
+
+                float[] chunk;
+
+                if (totalBytesRead > totalBytesToRead)
+                {
+                    chunk = new float[(totalBytesToRead - (totalBytesRead - bytesRead)) / 4];
+                    Array.Copy(buffer, chunk, (totalBytesToRead - (totalBytesRead - bytesRead)) / 4);
+                }
+                else
+                {
+                    chunk = new float[bytesRead / 4]; // each float contains 4 bytes
+                    Array.Copy(buffer, chunk, bytesRead / 4);
+                }
+
                 chunks.Add(chunk);
-                size += bytesRead / 4; // size of the data
             }
 
-            if ((float)size / sampleRate * 1000 < (millisecondsToRead + startAtMillisecond))
+            if (totalBytesRead < (millisecondsToRead / 1000 * sampleRate * 4))
             {
                 return null; /*not enough samples to return the requested data*/
             }
 
-            int start = (int)((float)startAtMillisecond * sampleRate / 1000);
-            int end = (millisecondsToRead <= 0) ? size : (int)((float)(startAtMillisecond + millisecondsToRead) * sampleRate / 1000);
-
             float[] data = ConcatenateChunksOfSamples(chunks);
-
-            /*Select specific part of the song*/
-            if (start != 0 || end != size)
-            {
-                float[] temp = new float[end - start];
-                Array.Copy(data, start, temp, 0, end - start);
-                data = temp;
-            }
 
             Bass.BASS_StreamFree(mixerStream);
             Bass.BASS_StreamFree(stream);
@@ -291,7 +298,6 @@
             }
 
             waveWriter.Close();
-
         }
 
         public TagInfo GetTagInfo(string pathToAudioFile)
@@ -334,6 +340,11 @@
 
         private float[] ConcatenateChunksOfSamples(List<float[]> chunks)
         {
+            if (chunks.Count == 1)
+            {
+                return chunks[0];
+            }
+
             float[] samples = new float[chunks.Sum(a => a.Length)];
             int index = 0;
             foreach (float[] chunk in chunks)
@@ -351,7 +362,7 @@
             int totalBytesToRead = secondsToDownload * sampleRate * 4;
             int totalBytesRead = 0;
             List<float[]> chunks = new List<float[]>();
-            while (totalBytesRead <= totalBytesToRead)
+            while (totalBytesRead < totalBytesToRead)
             {
                 int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, buffer.Length);
                 if (bytesRead == 0)

@@ -1,21 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Soundfingerprinting.Fingerprinting.FFT.FFTW
+﻿namespace Soundfingerprinting.Fingerprinting.FFT.FFTW
 {
+    using System;
+    using System.Collections.Generic;
+
     public class CachedFFTWService : FFTWService, IDisposable
     {
-        private bool alreadyDisposed;
         private readonly object lockObject = new object();
+        
+        private readonly Dictionary<int, FFTWArray> memory = new Dictionary<int, FFTWArray>(); // cache for in, out, plan arrays (in order not to allocate unmanaged memory on every call)
 
-        private readonly Dictionary<int, FFTWArray> memory =
-           new Dictionary<int, FFTWArray>(); // cache for in, out, plan arrays (in order not to allocate unmanaged memory on every call)
+        private bool alreadyDisposed;
+
+        ~CachedFFTWService()
+        {
+            Dispose(true);
+        }
 
         public override float[] FFTForward(float[] signal, int startIndex, int length, double[] window)
         {
             lock (lockObject)
             {
                 return base.FFTForward(signal, startIndex, length, window);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(false);
+            alreadyDisposed = true;
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool isDisposing)
+        {
+            if (!alreadyDisposed)
+            {
+                if (!isDisposing)
+                {
+                    // release managed resources
+                }
+
+                foreach (var item in memory)
+                {
+                    base.FreeUnmanagedMemory(item.Value.Input);
+                    base.FreeUnmanagedMemory(item.Value.Output);
+                    base.FreePlan(item.Value.Plan);
+                }
             }
         }
 
@@ -77,44 +107,16 @@ namespace Soundfingerprinting.Fingerprinting.FFT.FFTW
             {
                 memory[length].Input = input;
             }
+
             if (output != IntPtr.Zero)
             {
                 memory[length].Output = output;
             }
+
             if (fftPlan != IntPtr.Zero)
             {
                 memory[length].Plan = fftPlan;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(false);
-            alreadyDisposed = true;
-            GC.SuppressFinalize(this);
-        }
-
-        protected void Dispose(bool isDisposing)
-        {
-            if (!alreadyDisposed)
-            {
-                if (!isDisposing)
-                {
-                    // release managed resources
-                }
-
-                foreach (var item in memory)
-                {
-                    base.FreeUnmanagedMemory(item.Value.Input);
-                    base.FreeUnmanagedMemory(item.Value.Output);
-                    base.FreePlan(item.Value.Plan);
-                }
-            }
-        }
-
-        ~CachedFFTWService()
-        {
-            Dispose(true);
         }
     }
 }

@@ -54,7 +54,6 @@
         {
             double[] array = new double[length];
 
-            // Hanning window of the whole signal
             for (int i = 0; i < length; i++)
             {
                 array[i] = 0.5 * (1 - Math.Cos(2 * Math.PI * i / (length - 1)));

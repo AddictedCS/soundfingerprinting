@@ -1,20 +1,25 @@
-﻿using System;
-
-namespace Soundfingerprinting.Fingerprinting.FFT.FFTW
+﻿namespace Soundfingerprinting.Fingerprinting.FFT.FFTW
 {
+    using System;
     using System.Runtime.InteropServices;
 
     using fftwlib;
 
     public class FFTWService : IFFTService
     {
-        public virtual float[] FFTForward(
-            float[] signal, int startIndex, int length, double[] window /*window is disregarded in this implementation*/)
+        public virtual float[] FFTForward(float[] signal, int startIndex, int length, double[] window)
         {
             IntPtr input = GetInput(length);
             IntPtr output = GetOutput(length);
             IntPtr fftPlan = GetFFTPlan(length, input, output);
-            Marshal.Copy(signal, startIndex, input, length);
+            float[] applyTo = new float[length];
+            Array.Copy(signal, startIndex, applyTo, 0, length);
+            for (int i = 0; i < length; i++)
+            {
+                applyTo[i] = (float)(applyTo[i] * window[i]);
+            }
+
+            Marshal.Copy(applyTo, 0, input, length);
             fftw.execute(fftPlan);
             float[] result = new float[length * 2];
             Marshal.Copy(output, result, 0, length);
