@@ -168,8 +168,6 @@
     <Compile Include="Hashing\Utils\HashingUtils.cs" />
     <Compile Include="Image\IImageService.cs" />
     <Compile Include="Image\ImageService.cs" />
-    <Compile Include="Models\Fingerprint.cs" />
-    <Compile Include="Models\SubFingerprint.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainer.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainerException.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetworkPerformanceMeter.cs" />

@@ -106,7 +106,10 @@
         public void StartTrainingAsync(Network network, TrainingCallback callback)
         {
             if (alreadyDisposed)
+            {
                 throw new ObjectDisposedException("Object already disposed");
+            }
+
             Action<Network, TrainingCallback> action = Train;
             action.BeginInvoke(network, callback, action.EndInvoke, action);
         }

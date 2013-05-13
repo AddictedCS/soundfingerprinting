@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
     using System.Globalization;
     using System.Threading;
@@ -17,73 +16,27 @@
     using Soundfingerprinting.Query;
     using Soundfingerprinting.SoundTools.Properties;
 
-    /// <summary>
-    ///   <c>WinQueryResult</c> form, which will show all the results related to the recognition process
-    /// </summary>
     public partial class WinQueryResults : Form
     {
-        /// <summary>
-        ///   Minimum track length (in seconds)
-        /// </summary>
         private const int MinTrackLength = 20;
-
-        /// <summary>
-        ///   Maximum track length (in seconds)
-        /// </summary>
         private const int MaxTrackLength = 60 * 20;
 
-        #region DataGrid Columns
-
         private const string ColSongName = "SongNameTitle";
-
         private const string ColResultName = "ResultSongNameTitle";
-
-        private const string ColHit = "CounterHit";
-
         private const string ColResult = "Result";
-
-        private const string ColPosition = "Position";
-
         private const string ColHammingAvg = "HammingAvg";
-
-        private const string ColHammingAvgByTrack = "HammingAvgByTrack";
-
-        private const string ColMinHamming = "MinHamming";
-
-        private const string ColSortValue = "SortValue";
-
-        private const string ColStartQueryIndex = "StartQueryIndex";
-
-        private const string ColTotalTables = "TotalTables";
-
-        private const string ColTotalTrackVotes = "TotalTrackVotes";
-
         private const string ColElapsedTime = "ElapsedTime";
 
-        private const string ColTotalFingerprints = "TotalFingerprints";
-
-        private const string ColSimilarity = "Similarity";
-
-        #endregion
-
         private readonly int hashKeys;
-        
         private readonly int hashTables;
-
-        private readonly IStride queryStride;
-
         private readonly int secondsToAnalyze;
-
         private readonly int startSecond;
-
         private readonly int threshold;
 
+        private readonly IStride queryStride;
         private readonly ITagService tagService;
-
         private readonly IModelService modelService;
-
         private readonly IFingerprintQueryBuilder fingerprintQueryBuilder;
-
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         private bool stopQuerying;
@@ -91,23 +44,22 @@
         public WinQueryResults(
             int secondsToAnalyze,
             int startSecond,
-            IStride stride,
             int hashTables,
             int hashKeys,
-            int thresholdTables,
+            int threshold,
+            IStride queryStride,
             ITagService tagService,
             IModelService modelService,
             IFingerprintQueryBuilder fingerprintQueryBuilder)
         {
-            InitializeComponent(); /*Initialize Designer Components*/
+            InitializeComponent(); 
             Icon = Resources.Sound;
-            this.secondsToAnalyze = secondsToAnalyze; /*Number of fingerprints to analyze from each song*/
+            this.secondsToAnalyze = secondsToAnalyze;
             this.startSecond = startSecond;
-            queryStride = stride;
-
+            this.queryStride = queryStride;
             this.hashTables = hashTables;
             this.hashKeys = hashKeys;
-            threshold = thresholdTables;
+            this.threshold = threshold;
             this.tagService = tagService;
             this.modelService = modelService;
             this.fingerprintQueryBuilder = fingerprintQueryBuilder;
@@ -117,28 +69,10 @@
             _dgvResults.Columns[ColSongName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(ColResultName, "Result Song");
             _dgvResults.Columns[ColResultName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColPosition, "Position");
-            _dgvResults.Columns[ColPosition].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColResult, "Result");
+             _dgvResults.Columns.Add(ColResult, "Result");
             _dgvResults.Columns[ColResult].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColHammingAvg, "Hamming Avg.");
+            _dgvResults.Columns.Add(ColHammingAvg, "Hamming Distance");
             _dgvResults.Columns[ColHammingAvg].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColHammingAvgByTrack, "Hamming Avg. By Track");
-            _dgvResults.Columns[ColHammingAvgByTrack].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColMinHamming, "Min. Hamming");
-            _dgvResults.Columns[ColMinHamming].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColSortValue, "Sort Value");
-            _dgvResults.Columns[ColSortValue].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColTotalTables, "Total Table Votes");
-            _dgvResults.Columns[ColTotalTables].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColTotalTrackVotes, "Total Track Votes");
-            _dgvResults.Columns[ColTotalTrackVotes].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColStartQueryIndex, "Query Index Start");
-            _dgvResults.Columns[ColStartQueryIndex].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColTotalFingerprints, "Total Fingerprints");
-            _dgvResults.Columns[ColTotalFingerprints].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColSimilarity, "Min Similarity");
-            _dgvResults.Columns[ColSimilarity].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(ColElapsedTime, "Elapsed Time");
             _dgvResults.Columns[ColElapsedTime].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             // ReSharper restore PossibleNullReferenceException
@@ -193,7 +127,7 @@
                 Track actualTrack = modelService.ReadTrackByArtistAndTitleName(artist, title);
                 if (actualTrack == null)
                 {
-                    AddGridLine(new object[] { title + "-" + artist, "No such song in the database!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 }, Color.Red);
+                    AddGridLine(new object[] { title + "-" + artist, "No such song in the database!", false, -1, -1 }, Color.Red);
                     continue;
                 }
 
@@ -214,27 +148,29 @@
                                        .ContinueWith(
                                             t =>
                                             {
+                                                if (cancellationTokenSource.IsCancellationRequested)
+                                                {
+                                                    return;
+                                                }
+
+                                                verified++;
                                                 QueryResult queryResult = t.Result;
                                                 if (!queryResult.IsSuccessful)
                                                 {
-                                                    verified++;
-                                                    AddGridLine(new object[] { title + "-" + artist, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 }, Color.Red);
+                                                    AddGridLine(new object[] { title + "-" + artist, "No candidates!", false, -1, -1 }, Color.Red);
                                                     return;
                                                 }
 
                                                 Track recognizedTrack = queryResult.BestMatch;
-                                                recognized++;
-                                                verified++;
+                                                if (recognizedTrack.Id == actualTrack.Id)
+                                                {
+                                                    recognized++;
+                                                }
 
                                                 AddGridLine(
                                                     new object[]
                                                         {
-                                                            title + "-" + artist, /*Actual title and artist*/
-                                                            recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
-                                                            1, /*Position in the ordered list*/
-                                                            actualTrack.Id == recognizedTrack.Id, /*Found?*/
-                                                            -1, /*Average hamming distance*/
-                                                            -1, -1, -1, -1, -1, -1, -1, -1, 0
+                                                            title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist, actualTrack.Id == recognizedTrack.Id, -1, -1
                                                         },
                                                     Color.Empty);
 
@@ -269,7 +205,7 @@
                                             var queryResult = t.Result;
                                             if (!queryResult.IsSuccessful)
                                             {
-                                                AddGridLine(new object[] { string.Empty, "No candidates!", -1, false, 0, -1, -1, -1, -1, -1, -1, -1, 0 }, Color.Red);
+                                                AddGridLine(new object[] { string.Empty, "No candidates!", false, -1, -1 }, Color.Red);
                                                 return;
                                             }
 
@@ -280,12 +216,9 @@
                                             AddGridLine(
                                                  new object[]
                                                     {
-                                                        "Uknown", /*Actual title and artist*/
-                                                        recognizedTrack.Title + "-" + recognizedTrack.Artist, /*Recognized Title Track Name*/
-                                                        1, /*Position in the ordered list*/
-                                                        true, /*Found?*/
-                                                        -1, /*Average hamming distance*/
-                                                        -1, -1, -1, -1, -1, -1, -1, -1, 0
+                                                        "Uknown Song",
+                                                        recognizedTrack.Title + "-" + recognizedTrack.Artist,
+                                                        true, -1, -1
                                                     },
                                                  Color.Empty);
 
@@ -313,7 +246,6 @@
 
         private void BtnExportClick(object sender, EventArgs e)
         {
-            /*Export into CSV file*/
             WinUtils.ExportInExcel(_dgvResults, "Recognition Rate", _tbResults.Text, "Date", DateTime.Now);
         }
     }

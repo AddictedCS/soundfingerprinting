@@ -28,7 +28,7 @@
         public Image GetImageForFingerprint(bool[] data, int width, int height)
         {
             Bitmap image = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
-            this.DrawFingerprintInImage(image, data, width, height, 0, 0);
+            DrawFingerprintInImage(image, data, width, height, 0, 0);
             return image;
         }
 
@@ -41,7 +41,7 @@
             int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
 
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
-            this.SetBackground(image, Color.White);
+            SetBackground(image, Color.White);
 
             int verticalOffset = SpaceBetweenImages;
             int horizontalOffset = SpaceBetweenImages;

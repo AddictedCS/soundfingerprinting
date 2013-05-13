@@ -241,7 +241,7 @@
             this._btnQueryFromMicrophone.TabIndex = 73;
             this._btnQueryFromMicrophone.Text = "Query From Mic";
             this._btnQueryFromMicrophone.UseVisualStyleBackColor = true;
-            this._btnQueryFromMicrophone.Click += new System.EventHandler(this._btnQueryFromMicrophone_Click);
+            this._btnQueryFromMicrophone.Click += new System.EventHandler(this.BtnQueryFromMicrophoneClick);
             // 
             // label3
             // 

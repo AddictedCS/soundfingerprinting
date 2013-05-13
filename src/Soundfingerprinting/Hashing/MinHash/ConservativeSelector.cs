@@ -7,21 +7,18 @@
     using Soundfingerprinting.Hashing.Utils;
 
     /// <summary>
-    ///   Conservative selection of LGroups of permutations according to the minimal mutual information spread accross the elements of the group
+    ///   Conservative selection of L groups of permutations according to the minimal mutual information spread accross the elements of the group
     /// </summary>
-    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-        Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
     public class ConservativeSelector : MinMutualSelector
     {
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation",
-            Justification = "Reviewed. Suppression is OK here.")]
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         protected override Dictionary<int, List<int[]>> ExtractLGroups(
             Dictionary<int, int[]> randomPermutationPool,
             int bKeysPerTable,
             List<int> possibleIndexes,
             Dictionary<int, List<int[]>> lGroups)
         {
-            /*Conservative selection*/
             while (true)
             {
                 double minMutualInfo = double.MaxValue;

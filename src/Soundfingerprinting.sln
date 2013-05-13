@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundfingerprinting.SoundTools", "Soundfingerprinting.SoundTools\Soundfingerprinting.SoundTools.csproj", "{362BA144-FDFE-410B-A8F5-A9359CC848AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundfingerprinting.UnitTests", "Soundfingerprinting.UnitTests\Soundfingerprinting.UnitTests.csproj", "{987DA38D-5157-4D83-9B1D-83A0A62D0E94}"
@@ -62,5 +62,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

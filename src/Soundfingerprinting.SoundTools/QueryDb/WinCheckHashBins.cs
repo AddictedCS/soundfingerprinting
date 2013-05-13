@@ -19,17 +19,11 @@
     public partial class WinCheckHashBins : Form
     {
         private readonly IFingerprintQueryBuilder queryBuilder;
-
         private readonly ITagService tagService;
-
         private readonly IModelService modelService;
-
         private readonly IExtendedAudioService audioService;
-
-        private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); // File filters
-
+        private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
         private List<string> fileList = new List<string>();
-
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
         public WinCheckHashBins(IFingerprintQueryBuilder queryBuilder, ITagService tagService, IModelService modelService, IExtendedAudioService audioService)
@@ -42,38 +36,26 @@
             InitializeComponent();
 
             Icon = Resources.Sound;
-            /*Detect all the connection strings*/
-            foreach (object item in ConfigurationManager.ConnectionStrings) 
-            {
-                _cmbConnectionString.Items.Add(item.ToString());
-            }
+            AddConnectionStringsToComboBox();
 
-            /*Set connection string*/
-            if (_cmbConnectionString.Items.Count > 0)
-            {
-                _cmbConnectionString.SelectedIndex = 0;
-            }
-
-            /*Setting default values*/
             _cmbAlgorithm.SelectedIndex = (int)hashAlgorithm;
 
-            /*Add enumeration types in the combo box*/
             string[] items = Enum.GetNames(typeof(StrideType)); 
 
-            _cmbStrideType.Items.AddRange(items);
+            _cmbStrideType.Items.AddRange(items.ToArray<object>());
             _cmbStrideType.SelectedIndex = 3;
 
             switch (_cmbAlgorithm.SelectedIndex)
             {
-                case (int) HashAlgorithm.LSH:
+                case (int)HashAlgorithm.LSH:
                     _gbMinHash.Enabled = true;
                     _gbNeuralHasher.Enabled = false;
                     break;
-                case (int) HashAlgorithm.NeuralHasher:
+                case (int)HashAlgorithm.NeuralHasher:
                     _gbMinHash.Enabled = false;
                     _gbNeuralHasher.Enabled = true;
                     break;
-                case (int) HashAlgorithm.None:
+                case (int)HashAlgorithm.None:
                     _gbMinHash.Enabled = false;
                     _gbNeuralHasher.Enabled = false;
                     break;
@@ -82,23 +64,36 @@
             _gbQueryMicrophoneBox.Enabled = audioService.IsRecordingSupported;
         }
 
+        private void AddConnectionStringsToComboBox()
+        {
+            foreach (object item in ConfigurationManager.ConnectionStrings)
+            {
+                _cmbConnectionString.Items.Add(item.ToString());
+            }
+
+            if (_cmbConnectionString.Items.Count > 0)
+            {
+                _cmbConnectionString.SelectedIndex = 0;
+            }
+        }
+
         private void CmbAlgorithmSelectedIndexChanged(object sender, EventArgs e)
         {
-            hashAlgorithm = (HashAlgorithm) _cmbAlgorithm.SelectedIndex;
+            hashAlgorithm = (HashAlgorithm)_cmbAlgorithm.SelectedIndex;
 
             switch (_cmbAlgorithm.SelectedIndex)
             {
-                case (int) HashAlgorithm.LSH: /*Locality sensitive hashing + min hash*/
+                case (int)HashAlgorithm.LSH: /*Locality sensitive hashing + min hash*/
                     _gbMinHash.Enabled = true;
                     _gbNeuralHasher.Enabled = false;
                     _nudQueryStrideMax.Value = 253;
                     break;
-                case (int) HashAlgorithm.NeuralHasher: /*Neural hasher*/
+                case (int)HashAlgorithm.NeuralHasher: /*Neural hasher*/
                     _gbMinHash.Enabled = false;
                     _gbNeuralHasher.Enabled = true;
                     _nudQueryStrideMax.Value = 640;
                     break;
-                case (int) HashAlgorithm.None: /*None*/
+                case (int)HashAlgorithm.None: /*None*/
                     _gbMinHash.Enabled = false;
                     _gbNeuralHasher.Enabled = false;
                     break;
@@ -128,35 +123,30 @@
             }
         }
 
-        /// <summary>
-        ///   Browse single files to be recognized
-        /// </summary>
         [FileDialogPermission(SecurityAction.Demand)]
         private void BtnBrowseSongClick(object sender, EventArgs e)
         {
             string filter = WinUtils.GetMultipleFilter("Audio files", filters);
-            OpenFileDialog ofd = new OpenFileDialog {Filter = filter, Multiselect = true};
+            OpenFileDialog ofd = new OpenFileDialog { Filter = filter, Multiselect = true };
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _tbSingleFile.Text = null;
                 foreach (string file in ofd.FileNames)
+                {
                     _tbSingleFile.Text += "\"" + Path.GetFileName(file) + "\" ";
+                }
 
-                if (fileList == null)
-                    fileList = new List<string>();
                 foreach (string file in ofd.FileNames.Where(file => !fileList.Contains(file)))
                 {
                     _btnStart.Enabled = true;
                     fileList.Add(file);
                 }
+
                 _nudTotalSongs.Value = fileList.Count;
             }
         }
 
-        /// <summary>
-        ///   Select a path to network ensemble
-        /// </summary>
         [FileDialogPermission(SecurityAction.Demand)]
         private void BtnSelectClick(object sender, EventArgs e)
         {
@@ -167,72 +157,65 @@
             }
         }
 
-        /// <summary>
-        ///   Start recognition process
-        /// </summary>
         private void BtnStartClick(object sender, EventArgs e)
         {
             DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
             switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
-                    if (fileList == null || fileList.Count == 0)
+                    if (!fileList.Any())
                     {
                         MessageBox.Show(Resources.SelectFolderWithSongs, Resources.Songs, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;
                     }
 
-                    WinQueryResults winform = new WinQueryResults(
+                    WinQueryResults winQueryResults = new WinQueryResults(
                         (int)_nudNumberOfFingerprints.Value,
                         (int)_numStaratSeconds.Value,
-                        WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
                         Convert.ToInt32(_nudThreshold.Value),
+                        WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                         tagService,
                         modelService,
                         queryBuilder);
-                    winform.Show();
-                    winform.ExtractCandidatesWithMinHashAlgorithm(fileList);
+                    winQueryResults.Show();
+                    winQueryResults.Refresh();
+                    winQueryResults.ExtractCandidatesWithMinHashAlgorithm(fileList);
                     break;
                 case HashAlgorithm.NeuralHasher:
                     throw new NotImplementedException();
                 case HashAlgorithm.None:
-                    break;
+                    throw new NotImplementedException();
             }
         }
 
-        private void _btnQueryFromMicrophone_Click(object sender, EventArgs e)
+        private void BtnQueryFromMicrophoneClick(object sender, EventArgs e)
         {
             DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
             int secondsToRecord = (int)_nudSecondsToRecord.Value;
             int sampleRate = (int)_nudSampleRate.Value;
             string pathToFile = "mic_" + DateTime.Now.Ticks + ".wav";
-            fileList.Add(pathToFile);
             _gbQueryMicrophoneBox.Enabled = false;
-            Task<float[]>.Factory.StartNew(() => audioService.RecordFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord))
-                .ContinueWith(
+            Task<float[]>.Factory.StartNew(() => audioService.RecordFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord)).ContinueWith(
                 task =>
                     {
                         _gbQueryMicrophoneBox.Enabled = true;
-                        WinQueryResults winform = new WinQueryResults(
+                        WinQueryResults winQueryResults = new WinQueryResults(
                             secondsToRecord,
                             0,
-                            WinUtils.GetStride(
-                                (StrideType)_cmbStrideType.SelectedIndex,
-                                (int)_nudQueryStrideMax.Value,
-                                (int)_nudQueryStrideMin.Value,
-                                configuration.SamplesPerFingerprint),
                             (int)_nudHashtables.Value,
                             (int)_nudKeys.Value,
                             (int)_nudThreshold.Value,
+                            WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                             tagService,
                             modelService,
                             queryBuilder);
-                        winform.Show();
-                        winform.ExtractCandidatesUsingSamples(task.Result);
+                        winQueryResults.Show();
+                        winQueryResults.Refresh();
+                        winQueryResults.ExtractCandidatesUsingSamples(task.Result);
                     },
-                    TaskScheduler.FromCurrentSynchronizationContext());
+                TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }

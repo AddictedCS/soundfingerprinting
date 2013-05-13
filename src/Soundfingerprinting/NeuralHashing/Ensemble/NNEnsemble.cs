@@ -1,17 +1,15 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using Encog.Neural.Data.Basic;
-using Soundfingerprinting.NeuralHashing.MMI;
-
-namespace Soundfingerprinting.NeuralHashing.Ensemble
+﻿namespace Soundfingerprinting.NeuralHashing.Ensemble
 {
+    using System;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Text;
+
+    using Encog.Neural.Data.Basic;
+
+    using Soundfingerprinting.NeuralHashing.MMI;
+
     /// <summary>
     ///   Neural network ensemble used in hashing the fingerprints
     /// </summary>
@@ -66,8 +64,11 @@ namespace Soundfingerprinting.NeuralHashing.Ensemble
         {
             set
             {
-                if (value.NNEnsembleDimensionality != _networks[0].OutputCount*_networks.Length)
+                if (value.NNEnsembleDimensionality != _networks[0].OutputCount * _networks.Length)
+                {
                     throw new ArgumentException("The hash patter does not correspond to networks of the NNEnsemble");
+                }
+
                 _hashPattern = value;
             }
         }
