@@ -50,12 +50,6 @@
             return frames;
         }
 
-        /* public float[][] CreateLogSpectrogram(string pathToFile, IFingerprintingConfiguration configuration)
-        {
-            float[] samples = ReadMonoFromFile(pathToFile, configuration.SampleRate, 0, 0);
-            return CreateLogSpectrogram(samples, windowFunction, configuration);
-        } */
-
         public float[][] CreateLogSpectrogram(float[] samples, IFingerprintingConfiguration configuration)
         {
             if (configuration.NormalizeSignal)
