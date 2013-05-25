@@ -73,7 +73,7 @@
         ///   Value of threshold percentage of fingerprints that needs to be gathered
         ///   in order to be considered a possible result
         /// </summary>
-        private const int ThresholdFingerprintsToVote = 2;
+        private const int ThresholdFingerprintsToVote = 5;
 
         /// <summary>
         ///   Down sampling rate
@@ -238,7 +238,7 @@
                                 float[] samples;
                                 try
                                 {
-                                    track = TrackHelper.GetTrackInfo(MinTrackLength, MaxTrackLength, file, tagService); // lame casting I know
+                                    track = TrackHelper.GetTrack(MinTrackLength, MaxTrackLength, file, tagService); // lame casting I know
                                     samples = TrackHelper.GetTrackSamples(track, audioService, SampleRate, MillisecondsToProcess, MillisecondsStart);
                                 }
                                 catch

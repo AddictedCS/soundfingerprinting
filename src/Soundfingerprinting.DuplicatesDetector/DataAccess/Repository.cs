@@ -57,9 +57,7 @@
             IEnumerable<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);
             foreach (HashSignature hash in creationalsignatures)
             {
-                storage.InsertHash(hash, HashType.Creational);
-                /*Set this hashes as also the query hashes*/
-                storage.InsertHash(hash, HashType.Query);
+                storage.InsertHash(hash);
             }
         }
 
@@ -78,7 +76,7 @@
             foreach (Track track in tracks)
             {
                 Dictionary<Track, int> trackDuplicates = new Dictionary<Track, int>(); /*this will be a set with duplicates*/
-                HashSet<HashSignature> fingerprints = storage.GetHashSignatures(track, HashType.Query); /*get all existing signatures for a specific track*/
+                HashSet<HashSignature> fingerprints = storage.GetHashSignatures(track); /*get all existing signatures for a specific track*/
                 foreach (HashSignature fingerprint in fingerprints)
                 {
                     Dictionary<Track, int> results = storage.GetTracks(fingerprint, threshold); /*get all duplicate track without the original track*/
@@ -97,10 +95,10 @@
 
                 if (trackDuplicates.Any())
                 {
-                    IEnumerable<KeyValuePair<Track, int>> d = trackDuplicates.Where(pair => pair.Value > numberOfFingerprintThreshold);
-                    if (d.Any())
+                    var actualDuplicates = trackDuplicates.Where(pair => pair.Value > numberOfFingerprintThreshold).ToList();
+                    if (actualDuplicates.Any())
                     {
-                        HashSet<Track> duplicatePair = new HashSet<Track>(d.Select(pair => pair.Key)) { track };
+                        HashSet<Track> duplicatePair = new HashSet<Track>(actualDuplicates.Select(pair => pair.Key)) { track };
                         duplicates.Add(duplicatePair);
                     }
                 }
@@ -143,11 +141,11 @@
             foreach (bool[] fingerprint in fingerprints)
             {
                 long[] buckets = combinedHashingAlgorithm.Hash(fingerprint, hashTables, hashKeys).Item2;
-                int[] hashSignature = new int[buckets.Length];
+                long[] hashSignature = new long[buckets.Length];
                 int tableCount = 0;
                 foreach (long bucket in buckets)
                 {
-                    hashSignature[tableCount++] = (int)bucket;
+                    hashSignature[tableCount++] = bucket;
                 }
 
                 HashSignature hash = new HashSignature(track, hashSignature); /*associate track to hash-signature*/

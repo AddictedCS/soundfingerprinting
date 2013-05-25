@@ -1,70 +1,47 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Diagnostics;
-
-namespace Soundfingerprinting.DuplicatesDetector.Model
+﻿namespace Soundfingerprinting.DuplicatesDetector.Model
 {
+    using System;
+    using System.Threading;
+
     /// <summary>
     ///   Hash signature
     /// </summary>
     [Serializable]
-    [DebuggerDisplay("Id={_id}")]
     public class HashSignature
     {
-        /// <summary>
-        ///   Incremental Id
-        /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private static Int32 _increment;
+        private static int increment;
+        
+        private readonly int id;
 
-        /// <summary>
-        ///   Lock object
-        /// </summary>
-        private static readonly object LockObject = new object();
-
-        /// <summary>
-        ///   Id
-        /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private readonly Int32 _id;
-
-        /// <summary>
-        ///   Constructor
-        /// </summary>
-        /// <param name = "track">Hashed track</param>
-        /// <param name = "signature">Signature of the track</param>
-        public HashSignature(Track track, int[] signature)
+        public HashSignature(Track track, long[] signature)
         {
             Track = track;
             Signature = signature;
-            lock (LockObject)
-            {
-                _id = _increment++;
-            }
+            id = Interlocked.Increment(ref increment);
         }
 
-        /// <summary>
-        ///   Signature of the track
-        /// </summary>
-        public int[] Signature { get; private set; }
-
-        /// <summary>
-        ///   Track (hashed)
-        /// </summary>
-        public Track Track { get; private set; }
-
-        /// <summary>
-        ///   Id of the hash
-        /// </summary>
-        public Int32 Id
+        public int Id
         {
-            get { return _id; }
+            get { return id; }
         }
 
+        public long[] Signature { get; private set; }
+
+        public Track Track { get; private set; }
+        
         public override int GetHashCode()
         {
-            return _id;
+            return id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            return id == ((HashSignature)obj).Id;
         }
     }
 }

@@ -110,8 +110,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataAccess\Hashes.cs" />
-    <Compile Include="DataAccess\HashType.cs" />
     <Compile Include="DataAccess\IStorage.cs" />
     <Compile Include="DataAccess\RamStorage.cs" />
     <Compile Include="DataAccess\Repository.cs" />

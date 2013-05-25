@@ -1,6 +1,5 @@
 ﻿namespace Soundfingerprinting.DuplicatesDetector.Infrastructure
 {
-    using System;
     using System.IO;
 
     using Soundfingerprinting.Audio.Models;
@@ -17,34 +16,28 @@
         /// <param name = "sampleRate">Sample rate used in gathering samples</param>
         /// <param name = "milliseconds">Milliseconds to gather</param>
         /// <param name = "startmilliseconds">Starting millisecond</param>
-        /// <returns></returns>
-        public static float[] GetTrackSamples(
-            Track track, IAudioService proxy, int sampleRate, int milliseconds, int startmilliseconds)
+        /// <returns>Music samples</returns>
+        public static float[] GetTrackSamples(Track track, IAudioService proxy, int sampleRate, int milliseconds, int startmilliseconds)
         {
-            if (track == null || track.Path == null) return null;
-            //read 5512 Hz, Mono, PCM, with a specific audioService
+            if (track == null || track.Path == null)
+            {
+                return null;
+            }
+
             return proxy.ReadMonoFromFile(track.Path, sampleRate, milliseconds, startmilliseconds);
         }
 
-        /// <summary>
-        ///   Get track info from the filename
-        /// </summary>
-        /// <param name = "mintracklen">Min track length</param>
-        /// <param name = "maxtracklen">Max track length</param>
-        /// <param name = "filename">Filename from which to extract the requested info</param>
-        /// <param name = "audioService">Audio audioService to read tags</param>
-        /// <returns>Track to be analyzed further / null if the track is not eligible</returns>
-        public static Track GetTrackInfo(int mintracklen, int maxtracklen, string filename, ITagService tagService)
+        public static Track GetTrack(int mintracklen, int maxtracklen, string filename, ITagService tagService)
         {
-            TagInfo tags = tagService.GetTagInfo(filename); //get file tags
+            TagInfo tags = tagService.GetTagInfo(filename); // get file tags
             string artist, title;
             double duration;
             if (tags == null)
             {
                 /*The song does not contain any tags*/
-                artist = "Unknown";
-                title = "Unknown";
-                duration = 60;
+                artist = "Unknown Artist";
+                title = "Unknown Title";
+                duration = new FileInfo(filename).Length;
             }
             else
             {
@@ -54,22 +47,25 @@
                 duration = tags.Duration;
             }
 
-            if (String.IsNullOrEmpty(artist)) /*assign a name to music files that don't have tags*/
+            /*assign a name to music files that don't have tags*/
+            if (string.IsNullOrEmpty(artist))
             {
-                artist = "Unknown";
+                artist = "Unknown Artist";
             }
 
-            if (String.IsNullOrEmpty(title)) /*assign a title to music files that don't have tags*/
+            /*assign a title to music files that don't have tags*/
+            if (string.IsNullOrEmpty(title))
             {
-                title = "Unknown";
+                title = "Unknown Title";
             }
 
-            if (duration < mintracklen || duration > maxtracklen) /*check the duration of a music file*/
+            /*check the duration of a music file*/
+            if (duration < mintracklen || duration > maxtracklen)
             {
                 return null;
             }
-            Track track = new Track
-                { Artist = artist, Title = title, TrackLength = duration, Path = Path.GetFullPath(filename) };
+
+            Track track = new Track(artist, title, Path.GetFullPath(filename), duration);
             return track;
         }
     }

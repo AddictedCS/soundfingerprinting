@@ -23,7 +23,7 @@
         /// <remarks>
         ///   Each track has a set of fingerprints which in turn has 25 hash buckets
         /// </remarks>
-        private Dictionary<Track, Hashes> fingerprints;
+        private Dictionary<Track, HashSet<HashSignature>> fingerprints;
 
         /// <summary>
         ///   Hash tables
@@ -31,7 +31,7 @@
         /// <remarks>
         ///   Key - hash value (hash bucket) / Value - Set of track objects (unique set)
         /// </remarks>
-        private Dictionary<int, HashSet<Track>>[] hashTables;
+        private Dictionary<long, HashSet<Track>>[] hashTables;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RamStorage"/> class. 
@@ -42,13 +42,13 @@
         public RamStorage(int numberOfHashTables)
         {
             this.numberOfHashTables = numberOfHashTables;
-            hashTables = new Dictionary<int, HashSet<Track>>[this.numberOfHashTables];
+            hashTables = new Dictionary<long, HashSet<Track>>[this.numberOfHashTables];
             for (int i = 0; i < this.numberOfHashTables; i++)
             {
-                hashTables[i] = new Dictionary<int, HashSet<Track>>();
+                hashTables[i] = new Dictionary<long, HashSet<Track>>();
             }
 
-            fingerprints = new Dictionary<Track, Hashes>();
+            fingerprints = new Dictionary<Track, HashSet<HashSignature>>();
         }
 
         #region IStorage Members
@@ -63,7 +63,7 @@
             {
                 if (!fingerprints.ContainsKey(track))
                 {
-                    fingerprints[track] = new Hashes();
+                    fingerprints[track] = new HashSet<HashSignature>();
                 }
             }
         }
@@ -85,47 +85,36 @@
         /// </summary>
         public void ClearAll()
         {
-            hashTables = new Dictionary<int, HashSet<Track>>[numberOfHashTables];
+            hashTables = new Dictionary<long, HashSet<Track>>[numberOfHashTables];
             for (int i = 0; i < numberOfHashTables; i++)
             {
-                hashTables[i] = new Dictionary<int, HashSet<Track>>();
+                hashTables[i] = new Dictionary<long, HashSet<Track>>();
             }
 
-            fingerprints = new Dictionary<Track, Hashes>();
+            fingerprints = new Dictionary<Track, HashSet<HashSignature>>();
         }
 
         /// <summary>
         ///   Insert hash into the RAM Storage. Be careful, there should be a Track object already inserted into the Storage.
         /// </summary>
         /// <param name = "hash">Hash signature that corresponds to a specific track</param>
-        /// <param name = "type">Type of the hash to be inserted</param>
-        public void InsertHash(HashSignature hash, HashType type)
+        public void InsertHash(HashSignature hash)
         {
-            switch (type)
+            fingerprints[hash.Track].Add(hash);
+            long[] signature = hash.Signature;
+            
+            /*Lock insertion in the hash-tables as it keys are verified*/
+            lock (hashTables.SyncRoot)
             {
-                case HashType.Query:
-                    fingerprints[hash.Track].Query.Add(hash);
-                    break;
-                case HashType.Creational:
+                for (int i = 0; i < numberOfHashTables; i++)
                 {
-                    fingerprints[hash.Track].Creational.Add(hash);
-                    int[] signature = hash.Signature;
-                    /*Lock insertion in the hash-tables as it keys are verified*/
-                    lock (hashTables.SyncRoot) 
+                    if (!hashTables[i].ContainsKey(signature[i]))
                     {
-                        for (int i = 0; i < numberOfHashTables; i++)
-                        {
-                            if (!hashTables[i].ContainsKey(signature[i]))
-                            {
-                                hashTables[i][signature[i]] = new HashSet<Track>();
-                            }
-
-                            hashTables[i][signature[i]].Add(hash.Track);
-                        }
+                        hashTables[i][signature[i]] = new HashSet<Track>();
                     }
-                }
 
-                    break;
+                    hashTables[i][signature[i]].Add(hash.Track);
+                }
             }
         }
 
@@ -138,7 +127,7 @@
         public Dictionary<Track, int> GetTracks(HashSignature hashSignature, int hashTableThreshold)
         {
             Dictionary<Track, int> result = new Dictionary<Track, int>();
-            int[] signature = hashSignature.Signature;
+            long[] signature = hashSignature.Signature;
 
             // loop through all 25 hash tables
             for (int i = 0; i < numberOfHashTables; i++)
@@ -171,19 +160,12 @@
         ///   Gets the list of hash signatures that are available in the storage for a specific track
         /// </summary>
         /// <param name = "track">Requested track</param>
-        /// <param name = "type">Type of the hashes toe gathered</param>
         /// <returns>A set of fingerprints (hash signatures) that correspond to a specific track id</returns>
-        public HashSet<HashSignature> GetHashSignatures(Track track, HashType type)
+        public HashSet<HashSignature> GetHashSignatures(Track track)
         {
             if (fingerprints.ContainsKey(track))
             {
-                switch (type)
-                {
-                    case HashType.Creational:
-                        return fingerprints[track].Creational;
-                    case HashType.Query:
-                        return fingerprints[track].Query;
-                }
+                return fingerprints[track];
             }
 
             return null;

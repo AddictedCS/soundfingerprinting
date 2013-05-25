@@ -25,8 +25,7 @@
         ///   Insert hash
         /// </summary>
         /// <param name = "hash">Hash to be inserted</param>
-        /// <param name = "type">Type of the hash</param>
-        void InsertHash(HashSignature hash, HashType type);
+        void InsertHash(HashSignature hash);
 
         /// <summary>
         ///   Get tracks that correspond to a specific signature, with specified threshold
@@ -40,9 +39,8 @@
         ///   Get all hash signatures from a specific track
         /// </summary>
         /// <param name = "track">Inquired track</param>
-        /// <param name = "type">Hash type</param>
         /// <returns>Hash signatures</returns>
-        HashSet<HashSignature> GetHashSignatures(Track track, HashType type);
+        HashSet<HashSignature> GetHashSignatures(Track track);
 
         /// <summary>
         ///   Get all tracks from the storage

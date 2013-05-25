@@ -1,17 +1,14 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Diagnostics;
-
-namespace Soundfingerprinting.DuplicatesDetector.Model
+﻿namespace Soundfingerprinting.DuplicatesDetector.Model
 {
+    using System;
+    using System.Diagnostics;
+    using System.Threading;
+
     /// <summary>
-    ///   Track entity object
+    ///   Music track
     /// </summary>
     [Serializable]
-    [DebuggerDisplay("Id={_id}, Title={_title}, Artist={_artist}, Path={_path}")]
+    [DebuggerDisplay("Id={id}, Title={title}, Artist={artist}, Path={path}")]
     public class Track
     {
         #region Constants
@@ -19,80 +16,60 @@ namespace Soundfingerprinting.DuplicatesDetector.Model
         /// <summary>
         ///   Maximum artist's length
         /// </summary>
-        private const int MAX_ARTIST_LENGTH = 255;
+        private const int MaxArtistLength = 255;
 
         /// <summary>
         ///   Maximum title's length
         /// </summary>
-        private const int MAX_TITLE_LENGTH = 255;
+        private const int MaxTitleLength = 255;
 
         /// <summary>
         ///   Maximum path's length
         /// </summary>
-        private const int MAX_PATH_LENGTH = 255;
+        private const int MaxPathLength = 255;
 
         #endregion
-
-        /// <summary>
-        ///   Lock object used for concurrency purposes
-        /// </summary>
-        private static readonly object LockObj = new object();
 
         /// <summary>
         ///   Incremental Id
         /// </summary>
-        private static Int32 _increment;
+        private static int increment;
 
         #region Private fields
 
         /// <summary>
-        ///   Artist of the track
-        /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private string _artist;
-
-        /// <summary>
         ///   Id of the track
         /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Int32 _id;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly int id;
+
+        /// <summary>
+        ///   Artist of the track
+        /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
+        private string artist;
 
         /// <summary>
         ///   Track length
         /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private string _path;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
+        private string path;
 
         /// <summary>
         ///   Title of the track
         /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private string _title;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string title;
 
         /// <summary>
         ///   Track length
         /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private double _trackLength;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] 
+        private double trackLength;
 
         #endregion
 
-        #region Constructors
-
-        /// <summary>
-        ///   Parameter less Constructor
-        /// </summary>
-        public Track()
-        {
-            lock (LockObj)
-            {
-                _id = _increment++;
-            }
-        }
-
-        /// <summary>
-        ///   Track constructor
-        /// </summary>
-        /// <param name = "artist">Artist's name</param>
-        /// <param name = "title">Title</param>
-        /// <param name = "path">Path to file to local system</param>
-        /// <param name = "length">Length of the file</param>
-        public Track(string artist, string title, string path, int length)
+        public Track(string artist, string title, string path, double length)
             : this()
         {
             Artist = artist;
@@ -101,69 +78,69 @@ namespace Soundfingerprinting.DuplicatesDetector.Model
             TrackLength = length;
         }
 
-        #endregion
+        protected Track()
+        {
+            id = Interlocked.Increment(ref increment);
+        }
 
         #region Properties
 
-        /// <summary>
-        ///   Track's id
-        /// </summary>
-        public Int32 Id
+        public int Id
         {
-            get { return _id; }
-            private set { _id = value; }
+            get { return id; }
         }
 
-        /// <summary>
-        ///   Artist's name
-        /// </summary>
         public string Artist
         {
-            get { return _artist; }
-            set { _artist = value.Length > MAX_ARTIST_LENGTH ? value.Substring(0, MAX_ARTIST_LENGTH) : value; }
+            get { return artist; }
+            set { artist = value.Length > MaxArtistLength ? value.Substring(0, MaxArtistLength) : value; }
         }
 
-        /// <summary>
-        ///   Track's title
-        /// </summary>
         public string Title
         {
-            get { return _title; }
-            set { _title = value.Length > MAX_TITLE_LENGTH ? value.Substring(0, MAX_TITLE_LENGTH) : value; }
+            get { return title; }
+            set { title = value.Length > MaxTitleLength ? value.Substring(0, MaxTitleLength) : value; }
         }
 
-        /// <summary>
-        ///   Track's Length
-        /// </summary>
         public double TrackLength
         {
-            get { return _trackLength; }
+            get
+            {
+                return trackLength;
+            }
+
             set
             {
                 if (value < 0)
-                    _trackLength = 0;
-                _trackLength = value;
+                {
+                    trackLength = 0;
+                }
+
+                trackLength = value;
             }
         }
 
-        /// <summary>
-        ///   Path to file on local system
-        /// </summary>
         public string Path
         {
-            get { return _path; }
-            set { _path = value.Length > MAX_PATH_LENGTH ? value.Substring(0, MAX_PATH_LENGTH) : value; }
+            get { return path; }
+            set { path = value.Length > MaxPathLength ? value.Substring(0, MaxPathLength) : value; }
         }
 
         #endregion
 
-        /// <summary>
-        ///   Returns hash code of a track object.
-        /// </summary>
-        /// <returns>Id is returned as it is unique</returns>
         public override int GetHashCode()
         {
-            return _id;
+            return id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            return id == ((Track)obj).Id;
         }
     }
 }
