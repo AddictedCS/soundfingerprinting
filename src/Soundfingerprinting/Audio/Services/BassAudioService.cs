@@ -1,4 +1,6 @@
-﻿namespace Soundfingerprinting.Audio.Services
+﻿using System.IO;
+
+namespace Soundfingerprinting.Audio.Services
 {
     using System;
     using System.Collections.Generic;
@@ -30,17 +32,24 @@
 
         static BassAudioService()
         {
+            string targetPath = Path.Combine(Environment.CurrentDirectory, Un4seen.Bass.Utils.Is64Bit ? "x64" : "x86");
+
             // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
             BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
+
+            bool isBassLoad = Bass.LoadMe(targetPath);
+            bool isBassMixLoad = BassMix.LoadMe(targetPath);
+            bool isBassFxLoad = BassFx.LoadMe(targetPath);
 
             // Dummy calls made for loading the assemblies
             int bassVersion = Bass.BASS_GetVersion();
             int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
             int bassfxVersion = BassFx.BASS_FX_GetVersion();
-            int plg = Bass.BASS_PluginLoad("bassflac.dll");
-            if (plg == 0)
+
+            var loadedPlugIns = Bass.BASS_PluginLoadDirectory(targetPath);
+            if (!loadedPlugIns.Any(p => p.Value.EndsWith("bassflac.dll")))
             {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                throw new Exception("Couldnt load the bass flac plugin!");
             }
 
             // Set Sample Rate / MONO
