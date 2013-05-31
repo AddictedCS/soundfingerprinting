@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal
+namespace Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder.Internal
 {
     using System;
     using System.Collections.Generic;

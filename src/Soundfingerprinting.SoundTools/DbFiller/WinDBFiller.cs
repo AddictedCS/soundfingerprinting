@@ -17,7 +17,7 @@
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing.LSH;
     using Soundfingerprinting.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;

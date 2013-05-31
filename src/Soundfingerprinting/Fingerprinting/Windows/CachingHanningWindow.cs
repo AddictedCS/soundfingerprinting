@@ -2,7 +2,7 @@ namespace Soundfingerprinting.Fingerprinting.Windows
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
 
     public class CachingHanningWindow : IWindowFunction
     {

@@ -1,14 +1,10 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System.Diagnostics;
-using System.IO;
-using System.Security.Permissions;
-using System.Text;
-
-namespace Soundfingerprinting.SoundTools
+﻿namespace Soundfingerprinting.SoundTools
 {
+    using System.Diagnostics;
+    using System.IO;
+    using System.Security.Permissions;
+    using System.Text;
+
     /// <summary>
     ///   Class for writing any object values in comma separated file
     /// </summary>

@@ -6,7 +6,7 @@
 
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.DuplicatesDetector.Model;
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing;
 
     /// <summary>

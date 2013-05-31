@@ -2,7 +2,7 @@
 {
     using System;
 
-    using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
 
     /// <summary>
     ///   Hanning window function

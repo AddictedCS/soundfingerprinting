@@ -1,19 +1,14 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-
-using Soundfingerprinting.SoundTools.Properties;
-
-namespace Soundfingerprinting.SoundTools
+﻿namespace Soundfingerprinting.SoundTools
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Windows.Forms;
+
     using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.SoundTools.Properties;
 
     internal static class WinUtils
     {

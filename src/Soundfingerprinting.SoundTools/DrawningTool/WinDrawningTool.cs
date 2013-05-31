@@ -12,8 +12,8 @@
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Fingerprinting.Windows;
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
     using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.Properties;
 

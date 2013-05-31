@@ -4,6 +4,7 @@
     using System.Diagnostics.CodeAnalysis;
 
     using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
     using Soundfingerprinting.Fingerprinting.Windows;
 
     public class SparKernel

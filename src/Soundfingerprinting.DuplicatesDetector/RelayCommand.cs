@@ -1,12 +1,8 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Windows.Input;
-
-namespace Soundfingerprinting.DuplicatesDetector
+﻿namespace Soundfingerprinting.DuplicatesDetector
 {
+    using System;
+    using System.Windows.Input;
+
     /// <summary>
     ///   Relay command class
     /// </summary>

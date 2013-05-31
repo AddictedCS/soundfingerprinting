@@ -1,14 +1,12 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Soundfingerprinting.NeuralHashing.Utils;
-
-namespace Soundfingerprinting.UnitTests.NeuralHashing.Tests
+﻿namespace Soundfingerprinting.UnitTests.NeuralHashing.Tests
 {
+    using System;
+    using System.IO;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Soundfingerprinting.NeuralHashing.Utils;
+
     [TestClass]
     public class BinaryOutputUtilTest
     {

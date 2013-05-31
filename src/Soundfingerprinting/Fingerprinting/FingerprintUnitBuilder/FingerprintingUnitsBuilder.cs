@@ -1,7 +1,7 @@
-namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder
+namespace Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder
 {
     using Soundfingerprinting.Audio.Services;
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder.Internal;
+    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder.Internal;
     using Soundfingerprinting.Hashing.MinHash;
 
     public class FingerprintingUnitsBuilder : IFingerprintingUnitsBuilder

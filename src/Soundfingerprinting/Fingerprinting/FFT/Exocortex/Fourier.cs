@@ -1,10 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-
-//using Exocortex.Imaging;
-
-namespace Soundfingerprinting.Fingerprinting.FFT
+﻿namespace Soundfingerprinting.Fingerprinting.FFT.Exocortex
 {
+    using System;
+    using System.Diagnostics;
+
     // Comments? Questions? Bugs? Tell Ben Houston at ben@exocortex.org
     // Version: May 4, 2002
 

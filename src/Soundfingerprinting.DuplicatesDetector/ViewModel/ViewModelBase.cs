@@ -1,15 +1,13 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using Ninject;
-using Soundfingerprinting.DuplicatesDetector.Services;
-
-namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
 {
+    using System;
+    using System.ComponentModel;
+    using System.Diagnostics;
+
+    using Ninject;
+
+    using Soundfingerprinting.DuplicatesDetector.Services;
+
     /// <summary>
     ///   Base class for ViewModels
     /// </summary>

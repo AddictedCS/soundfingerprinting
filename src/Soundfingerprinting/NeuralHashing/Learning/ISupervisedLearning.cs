@@ -1,7 +1,3 @@
-// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
 namespace Soundfingerprinting.NeuralHashing.Learning
 {
     /// <summary>

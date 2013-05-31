@@ -1,11 +1,7 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using Ninject;
-
-namespace Soundfingerprinting.DuplicatesDetector.Services
+﻿namespace Soundfingerprinting.DuplicatesDetector.Services
 {
+    using Ninject;
+
     /// <summary>
     ///   Class which will hold services injected by dependency injection on Application startup
     ///   Ninject lib is used for cross class injection

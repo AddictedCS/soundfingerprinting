@@ -1,16 +1,13 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Threading.Tasks;
-using Encog.Engine.Network.Activation;
-using Encog.ML.Data;
-using Encog.Neural.Data.Basic;
-using Encog.Neural.Networks;
-
-namespace Soundfingerprinting.NeuralHashing.NeuralTrainer
+﻿namespace Soundfingerprinting.NeuralHashing.NeuralTrainer
 {
+    using System;
+    using System.Threading.Tasks;
+
+    using Encog.Engine.Network.Activation;
+    using Encog.ML.Data;
+    using Encog.Neural.Data.Basic;
+    using Encog.Neural.Networks;
+
     public static class NetworkPerformanceMeter
     {
         private static readonly Object LockObject = new object();

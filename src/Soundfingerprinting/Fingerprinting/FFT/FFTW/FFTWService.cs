@@ -3,8 +3,6 @@
     using System;
     using System.Runtime.InteropServices;
 
-    using fftwlib;
-
     public class FFTWService : IFFTService
     {
         public virtual float[] FFTForward(float[] signal, int startIndex, int length, double[] window)
@@ -20,7 +18,7 @@
             }
 
             Marshal.Copy(applyTo, 0, input, length);
-            fftw.execute(fftPlan);
+            InteropFFTW.execute(fftPlan);
             float[] result = new float[length * 2];
             Marshal.Copy(output, result, 0, length);
             FreeUnmanagedMemory(input);
@@ -31,27 +29,27 @@
 
         protected virtual IntPtr GetOutput(int length)
         {
-            return fftw.malloc(8 * length);
+            return InteropFFTW.malloc(8 * length);
         }
 
         protected virtual IntPtr GetInput(int length)
         {
-            return fftw.malloc(4 * length);
+            return InteropFFTW.malloc(4 * length);
         }
 
         protected virtual IntPtr GetFFTPlan(int length, IntPtr input, IntPtr output)
         {
-            return fftwf.dft_r2c_1d(length, input, output, fftw_flags.Estimate);
+            return InteropFFTWF.dft_r2c_1d(length, input, output, InteropFFTWFlags.Estimate);
         }
 
         protected virtual void FreeUnmanagedMemory(IntPtr memoryBlock)
         {
-            fftw.free(memoryBlock);
+            InteropFFTW.free(memoryBlock);
         }
 
         protected virtual void FreePlan(IntPtr fftPlan)
         {
-            fftw.destroy_plan(fftPlan);
+            InteropFFTW.destroy_plan(fftPlan);
         }
     }
 }

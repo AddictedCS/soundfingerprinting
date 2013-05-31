@@ -1,21 +1,15 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-
-namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
+﻿namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
 {
+    using System;
+
     [Serializable]
     public class HyperbolicTangensFunction : IActivationFunction
     {
         private float alfa = 1.7159f;
 
-        // Alfa property
-
-        // Constructors
         public HyperbolicTangensFunction()
         {
+            // no op
         }
 
         public HyperbolicTangensFunction(float alfa)
@@ -30,8 +24,6 @@ namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
             get { return alfa; }
             set { alfa = value; }
         }
-
-        // Calculate function value
 
         #region IActivationFunction Members
 

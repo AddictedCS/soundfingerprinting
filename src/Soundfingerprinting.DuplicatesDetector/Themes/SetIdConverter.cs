@@ -1,18 +1,14 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Globalization;
-using System.Windows.Data;
-using System.Windows.Media;
-
-namespace Soundfingerprinting.DuplicatesDetector.Themes
+﻿namespace Soundfingerprinting.DuplicatesDetector.Themes
 {
+    using System;
+    using System.Globalization;
+    using System.Windows.Data;
+    using System.Windows.Media;
+
     /// <summary>
     ///   Converter which alternates the color on duplicate sets
     /// </summary>
-    [ValueConversion(typeof (object), typeof (int))]
+    [ValueConversion(typeof(object), typeof(int))]
     public class SetIdConverter : IValueConverter
     {
         #region IValueConverter Members

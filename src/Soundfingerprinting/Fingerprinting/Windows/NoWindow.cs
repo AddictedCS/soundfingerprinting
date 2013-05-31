@@ -2,7 +2,7 @@
 {
     using System.Linq;
 
-    using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
 
     public class NoWindow : IWindowFunction
     {

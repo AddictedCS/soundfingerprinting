@@ -1,6 +1,6 @@
 ﻿namespace Soundfingerprinting.Query
 {
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.Query.Internal;
 

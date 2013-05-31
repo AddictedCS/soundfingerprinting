@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace Soundfingerprinting.DuplicatesDetector.DataAccess
 {
     using System;
     using System.Collections.Concurrent;
@@ -11,11 +11,11 @@
 
     using Soundfingerprinting.Audio.Services;
     using Soundfingerprinting.Audio.Strides;
-    using Soundfingerprinting.DuplicatesDetector.DataAccess;
     using Soundfingerprinting.DuplicatesDetector.Infrastructure;
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.DuplicatesDetector.ViewModel;
+    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing;
 
     /// <summary>

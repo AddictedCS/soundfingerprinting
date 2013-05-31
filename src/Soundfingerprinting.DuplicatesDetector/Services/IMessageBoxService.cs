@@ -1,11 +1,8 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System.Windows;
-
+﻿
 namespace Soundfingerprinting.DuplicatesDetector.Services
 {
+    using System.Windows;
+
     /// <summary>
     ///   Service Contract to be implemented by the types which would like to provide MessageBox.Show services
     /// </summary>

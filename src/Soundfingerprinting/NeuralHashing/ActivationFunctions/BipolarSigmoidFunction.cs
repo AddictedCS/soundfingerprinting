@@ -1,21 +1,15 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-
-namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
+﻿namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
 {
+    using System;
+
     [Serializable]
     public class BipolarSigmoidFunction : IActivationFunction
     {
         private float alfa = 2;
 
-        // Alfa property
-
-        // Constructors
         public BipolarSigmoidFunction()
         {
+            // no op
         }
 
         public BipolarSigmoidFunction(float alfa)
@@ -30,13 +24,11 @@ namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
         }
 
 
-        // Calculate function value
-
         #region IActivationFunction Members
 
         public float Output(float x)
         {
-            return (float) ((1.0f/(1 + Math.Exp(-alfa*x))) - 0.5);
+            return (float)((1.0f / (1 + Math.Exp(-alfa * x))) - 0.5);
         }
 
         // Calculate differential of the function value
@@ -44,14 +36,14 @@ namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
         {
             float y = Output(x);
 
-            return (float) (alfa*(0.25 - y*y));
+            return (float)(alfa * (0.25 - y * y));
         }
 
         // Calculate differential of the function value
         // using function value as input
         public float Derivative2(float y)
         {
-            return (float) (alfa*(0.25 - y*y));
+            return (float)(alfa * (0.25 - y * y));
         }
 
         #endregion

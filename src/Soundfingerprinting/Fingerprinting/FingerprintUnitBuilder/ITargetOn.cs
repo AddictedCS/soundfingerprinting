@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Fingerprinting.WorkUnitBuilder
+namespace Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder
 {
     public interface ITargetOn
     {

@@ -1,19 +1,12 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-
-namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
+﻿namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
 {
+    using System;
+
     [Serializable]
     public class SigmoidFunction : IActivationFunction
     {
         private float alfa = 2f;
 
-        // Alfa property
-
-        // Constructors
         public SigmoidFunction()
         {
         }
@@ -29,8 +22,6 @@ namespace Soundfingerprinting.NeuralHashing.ActivationFunctions
             set { alfa = value; }
         }
 
-
-        // Calculate function value
 
         #region IActivationFunction Members
 

@@ -6,8 +6,6 @@
 
     using Microsoft.DirectX.DirectSound;
 
-    using Soundfingerprinting.Fingerprinting.FFT;
-
     using Buffer = Microsoft.DirectX.DirectSound.Buffer;
 
     /// <summary>
@@ -22,19 +20,13 @@
     [Obsolete("Use BassAudioService instead")]
     public class DirectSoundAudioService : AudioService
     {
-        private bool alreadyDisposed; /*Disposed state param*/
+        private bool alreadyDisposed;
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="DirectSoundAudioService"/> class. 
-        /// </summary>
         ~DirectSoundAudioService()
         {
             Dispose(false);
         }
 
-        /// <summary>
-        ///   Dispose the object
-        /// </summary>
         public override void Dispose()
         {
             Dispose(true);

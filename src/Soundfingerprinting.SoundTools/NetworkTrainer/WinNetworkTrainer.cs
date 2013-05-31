@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Windows.Forms;
 
@@ -99,11 +99,11 @@
             this.modelService = modelService;
             InitializeComponent();
             Icon = Resources.Sound;
-            _cmbActivationFunction.DataSource = new List<Object>(dataProvider);
+            _cmbActivationFunction.DataSource = new List<object>(dataProvider);
             _cmbActivationFunction.SelectedIndex = 0;
-            _cmbActivationFunctionHidden.DataSource = new List<Object>(dataProvider);
+            _cmbActivationFunctionHidden.DataSource = new List<object>(dataProvider);
             _cmbActivationFunctionHidden.SelectedIndex = 0;
-            _cmbActivationFunctionOutput.DataSource = new List<Object>(dataProvider);
+            _cmbActivationFunctionOutput.DataSource = new List<object>(dataProvider);
             _cmbActivationFunctionOutput.SelectedIndex = 0;
         }
 
@@ -114,7 +114,7 @@
         private void BtnSaveClick(object sender, EventArgs e)
         {
             string hiddenUnits = _tbHiddenUnits.Text;
-            string correctOutputs = Convert.ToDouble(_tbCorrectOutputs.Text).ToString();
+            string correctOutputs = Convert.ToDouble(_tbCorrectOutputs.Text).ToString(CultureInfo.InvariantCulture);
             SaveFileDialog sfdSaveNetwork = new SaveFileDialog
                 {
                     FileName = hiddenUnits + "_hidden_" + correctOutputs + Resources.NetworkExtension,

@@ -7,35 +7,20 @@
     /// </summary>
     public class IncrementalRandomStride : IStride
     {
-        /// <summary>
-        ///   Random stride
-        /// </summary>
         private static readonly Random Random = new Random(unchecked((int)DateTime.Now.Ticks));
 
         private readonly int firstStride;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="IncrementalRandomStride"/> class. 
-        /// </summary>
-        /// <param name="min">
-        /// Min step in samples
-        /// </param>
-        /// <param name="max">
-        /// Max step in samples
-        /// </param>
-        /// <param name="samplesPerFingerprint">
-        /// Samples per signature
-        /// </param>
-        public IncrementalRandomStride(int min, int max, int samplesPerFingerprint)
+        public IncrementalRandomStride(int minStride, int maxStride, int samplesPerFingerprint)
         {
-            Min = min;
-            Max = max;
+            Min = minStride;
+            Max = maxStride;
             SamplesPerFingerprint = samplesPerFingerprint;
-            firstStride = Random.Next(min, max);
+            firstStride = Random.Next(minStride, maxStride);
         }
 
-        public IncrementalRandomStride(int min, int max, int samplesPerFingerprint, int firstStride)
-            : this(min, max, samplesPerFingerprint)
+        public IncrementalRandomStride(int minStride, int maxStride, int samplesPerFingerprint, int firstStride)
+            : this(minStride, maxStride, samplesPerFingerprint)
         {
             this.firstStride = firstStride;
         }

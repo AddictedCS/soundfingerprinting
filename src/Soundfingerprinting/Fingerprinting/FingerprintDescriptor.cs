@@ -1,7 +1,6 @@
 namespace Soundfingerprinting.Fingerprinting
 {
     using System;
-    using System.Diagnostics;
     using System.Linq;
 
     /// <summary>

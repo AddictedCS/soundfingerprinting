@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-    using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
 
     public class HammingWindow : IWindowFunction
     {

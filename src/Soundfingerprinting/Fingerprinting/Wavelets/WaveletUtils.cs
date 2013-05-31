@@ -1,12 +1,8 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Linq;
-
-namespace Soundfingerprinting.Fingerprinting.Wavelets
+﻿namespace Soundfingerprinting.Fingerprinting.Wavelets
 {
+    using System;
+    using System.Linq;
+
     public static class WaveletUtils
     {
         public static void WaveletNoiseHardThresholding(float[][] array)

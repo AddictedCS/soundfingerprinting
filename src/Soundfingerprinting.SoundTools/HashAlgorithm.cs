@@ -1,8 +1,4 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-namespace Soundfingerprinting.SoundTools
+﻿namespace Soundfingerprinting.SoundTools
 {
     /// <summary>
     ///   Possible hash algorithms

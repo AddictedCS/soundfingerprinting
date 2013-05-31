@@ -1,9 +1,4 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-
-namespace Soundfingerprinting.SoundTools.NetworkEnsembling
+﻿namespace Soundfingerprinting.SoundTools.NetworkEnsembling
 {
     using System;
     using System.Collections.Generic;
@@ -18,7 +13,6 @@ namespace Soundfingerprinting.SoundTools.NetworkEnsembling
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.Fingerprinting;
-    using Soundfingerprinting.Hashing;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.NeuralHashing;
     using Soundfingerprinting.NeuralHashing.Ensemble;

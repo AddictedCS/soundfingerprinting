@@ -1,18 +1,15 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Globalization;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
-using System.Xml.Serialization;
-using Soundfingerprinting.NeuralHashing.ActivationFunctions;
-using Soundfingerprinting.NeuralHashing.Utils;
-
-namespace Soundfingerprinting.NeuralHashing
+﻿namespace Soundfingerprinting.NeuralHashing
 {
+    using System;
+    using System.Globalization;
+    using System.Reflection;
+    using System.Runtime.Serialization;
+    using System.Security.Permissions;
+    using System.Xml.Serialization;
+
+    using Soundfingerprinting.NeuralHashing.ActivationFunctions;
+    using Soundfingerprinting.NeuralHashing.Utils;
+
     /// <summary>
     ///   Neuron
     /// </summary>

@@ -1,23 +1,21 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Forms;
-using System.Windows.Input;
-using Soundfingerprinting.DuplicatesDetector.Model;
-using Soundfingerprinting.DuplicatesDetector.Services;
-
-namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Collections.Specialized;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Windows;
+    using System.Windows.Forms;
+    using System.Windows.Input;
+
+    using Soundfingerprinting.DuplicatesDetector.DataAccess;
+    using Soundfingerprinting.DuplicatesDetector.Model;
+    using Soundfingerprinting.DuplicatesDetector.Services;
+
     /// <summary>
     ///   Path List VM
     /// </summary>

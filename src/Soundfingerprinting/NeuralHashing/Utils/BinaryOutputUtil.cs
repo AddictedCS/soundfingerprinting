@@ -1,17 +1,13 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-
-namespace Soundfingerprinting.NeuralHashing.Utils
+﻿namespace Soundfingerprinting.NeuralHashing.Utils
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+
     /// <summary>
     ///   Util class for generating and searching binary code pools.
     ///   Can find minimal L2norms across pools

@@ -5,7 +5,6 @@
     using System.IO;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Hashing;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.SoundTools.Properties;
 

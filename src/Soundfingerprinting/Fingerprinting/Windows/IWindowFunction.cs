@@ -1,11 +1,7 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using Soundfingerprinting.Fingerprinting.FFT;
-
-namespace Soundfingerprinting.Fingerprinting.Windows
+﻿namespace Soundfingerprinting.Fingerprinting.Windows
 {
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
+
     /// <summary>
     ///   Window function for spectrogram computing
     /// </summary>

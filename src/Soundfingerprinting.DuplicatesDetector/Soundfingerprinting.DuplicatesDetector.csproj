@@ -145,7 +145,7 @@
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\PathListViewModel.cs" />
     <Compile Include="ViewModel\ReportViewModel.cs" />
-    <Compile Include="ViewModel\RepositoryGateway.cs" />
+    <Compile Include="DataAccess\RepositoryGateway.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="View\GenericView.xaml.cs">
       <DependentUpon>GenericView.xaml</DependentUpon>

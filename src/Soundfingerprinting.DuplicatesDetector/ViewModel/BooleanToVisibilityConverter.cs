@@ -1,15 +1,11 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-
-namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
 {
-    [ValueConversion(typeof (bool), typeof (Visibility))]
+    using System;
+    using System.Globalization;
+    using System.Windows;
+    using System.Windows.Data;
+
+    [ValueConversion(typeof(bool), typeof(Visibility))]
     public class BooleanToVisibilityConverter : IValueConverter
     {
         #region IValueConverter Members

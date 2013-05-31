@@ -5,6 +5,7 @@
     using System.Linq;
 
     using Soundfingerprinting.Fingerprinting.FFT;
+    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
 
     /// <summary>
     ///   Class for constant Q transformation

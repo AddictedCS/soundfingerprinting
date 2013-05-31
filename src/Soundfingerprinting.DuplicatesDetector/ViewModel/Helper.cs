@@ -1,16 +1,12 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security;
-using System.Text;
-
-namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Security;
+    using System.Text;
+
     public static class Helper
     {
         /// <summary>
@@ -38,6 +34,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                         {
                             continue;
                         }
+
                         files++;
                     }
                 }
@@ -57,6 +54,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                     files += 0;
                 }
             }
+
             if (includeSubdirectories)
             {
                 DirectoryInfo[] directories = null;
@@ -69,6 +67,7 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                     /*directory wasn't found*/
                     return files;
                 }
+
                 foreach (DirectoryInfo directory in directories)
                 {
                     try
@@ -77,10 +76,11 @@ namespace Soundfingerprinting.DuplicatesDetector.ViewModel
                     }
                     catch (PathTooLongException)
                     {
-                        continue;
+                        // swalow
                     }
                 }
             }
+
             return files;
         }
 

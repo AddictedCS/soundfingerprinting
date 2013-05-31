@@ -11,17 +11,17 @@
         /// <summary>
         ///   Lock object for multithreading purposes
         /// </summary>
-        private readonly Object _lock = new object();
+        private readonly object lockObject = new object();
 
         /// <summary>
         ///   Random number generator used for seed generation
         /// </summary>
-        private readonly RandomNumberGenerator _rng = new RNGCryptoServiceProvider();
+        private readonly RandomNumberGenerator rng = new RNGCryptoServiceProvider();
 
         /// <summary>
         ///   Matrix of random projection values
         /// </summary>
-        private int[][] _randomMatrix;
+        private int[][] randomMatrix;
 
         /// <summary>
         ///   Generates a random matrix for projection purposes
@@ -32,12 +32,12 @@
         /// <param name = "max">Max value in the matrix</param>
         private void GenerateRandomMatrixOfComponents(int cols, int rows, int min, int max)
         {
-            lock (this._lock)
+            lock (this.lockObject)
             {
-                if (this._randomMatrix == null)
+                if (this.randomMatrix == null)
                 {
                     byte[] seed = new byte[32];
-                    this._rng.GetBytes(seed);
+                    this.rng.GetBytes(seed);
                     Random random = new Random(BitConverter.ToInt32(seed, 0));
                     int[][] randomArray = new int[rows][];
 
@@ -47,7 +47,7 @@
                         for (int j = 0; j < cols; j++)
                             randomArray[i][j] = random.Next(min, max);
                     }
-                    this._randomMatrix = randomArray;
+                    this.randomMatrix = randomArray;
                 }
             }
         }
@@ -62,9 +62,9 @@
         /// <returns>Random matrix</returns>
         public int[][] GetRandomMatrix(int cols, int rows, int min, int max)
         {
-            if (this._randomMatrix == null)
+            if (this.randomMatrix == null)
                 this.GenerateRandomMatrixOfComponents(cols, rows, min, max);
-            return this._randomMatrix;
+            return this.randomMatrix;
         }
 
         /// <summary>
@@ -73,7 +73,7 @@
         /// <param name = "randomVector"></param>
         public void SetRandomMatrix(int[][] randomVector)
         {
-            this._randomMatrix = randomVector;
+            this.randomMatrix = randomVector;
         }
 
         /// <summary>
@@ -95,7 +95,7 @@
             {
                 for (int j = 0; j < hashKeys /*r min hash signatures*/; j++)
                 {
-                    hashes[i] += (signature[i*hashKeys + j]*this._randomMatrix[i][j] + b);
+                    hashes[i] += (signature[i*hashKeys + j]*this.randomMatrix[i][j] + b);
                 }
                 hashes[i] /= w;
             }

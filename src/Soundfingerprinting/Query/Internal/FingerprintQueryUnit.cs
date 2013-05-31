@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
 
     using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.WorkUnitBuilder;
+    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.Query.Configuration;
 

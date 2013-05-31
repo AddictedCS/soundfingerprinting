@@ -1,17 +1,13 @@
-﻿// Sound Fingerprinting framework
-// git://github.com/AddictedCS/soundfingerprinting.git
-// Code license: CPOL v.1.02
-// ciumac.sergiu@gmail.com
-using System;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using Encog.Neural.Data.Basic;
-using Encog.Neural.Networks;
-using Soundfingerprinting.Hashing;
-
-namespace Soundfingerprinting.NeuralHashing
+﻿namespace Soundfingerprinting.NeuralHashing
 {
+    using System;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+
+    using Encog.Neural.Data.Basic;
+    using Encog.Neural.Networks;
+
     using Soundfingerprinting.Hashing.Utils;
 
     /// <summary>
@@ -23,9 +19,6 @@ namespace Soundfingerprinting.NeuralHashing
     [Serializable]
     public class Network : BasicNetwork
     {
-        /// <summary>
-        ///   Median responses used in assembling the hasher
-        /// </summary>
         public double[] MedianResponces { get; protected set; }
 
 
