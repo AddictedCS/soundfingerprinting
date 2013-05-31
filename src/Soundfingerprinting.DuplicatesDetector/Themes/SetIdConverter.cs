@@ -15,13 +15,12 @@
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Int32)
+            if (value is int)
             {
-                Int32 setId = (Int32) value;
-                return setId%2 == 0 ?
-                                        new SolidColorBrush(Color.FromArgb(100, 0, 100, 150)) :
-                                                                                                  new SolidColorBrush(Colors.Transparent);
+                int setId = (int)value;
+                return setId % 2 == 0 ? new SolidColorBrush(Color.FromArgb(100, 0, 100, 150)) : new SolidColorBrush(Colors.Transparent);
             }
+
             return new SolidColorBrush(Colors.Transparent);
         }
 

@@ -18,9 +18,13 @@
         /// <summary>
         ///   Actual view (uninitialized)
         /// </summary>
-        private GenericView _view;
+        private GenericView view;
 
         #region IGenericViewWindow Members
+
+        public event EventHandler Closed;
+
+        public event CancelEventHandler Closing;
 
         public bool? DialogResult
         {
@@ -33,10 +37,7 @@
             get { return GetView().DataContext; }
             set { GetView().DataContext = value; }
         }
-
-        public event EventHandler Closed;
-        public event CancelEventHandler Closing;
-
+        
         public void Show()
         {
             GetView().Show();
@@ -45,7 +46,7 @@
         public void Close()
         {
             GetView().Close();
-            _view = null;
+            view = null;
         }
 
         #endregion
@@ -58,21 +59,29 @@
         {
             lock (LockObject)
             {
-                if (_view != null)
-                    return _view;
-                _view = new GenericView();
-                _view.Closed += (sender, e) =>
-                                {
-                                    if (Closed != null)
-                                        Closed.Invoke(sender, e);
-                                    _view = null;
-                                };
-                _view.Closing += (sender, e) =>
-                                 {
-                                     if (Closing != null)
-                                         Closing.Invoke(sender, e);
-                                 };
-                return _view;
+                if (view != null)
+                {
+                    return view;
+                }
+
+                view = new GenericView();
+                view.Closed += (sender, e) =>
+                    {
+                        if (Closed != null)
+                        {
+                            Closed(sender, e);
+                        }
+
+                        view = null;
+                    };
+                view.Closing += (sender, e) =>
+                    {
+                        if (Closing != null)
+                        {
+                            Closing(sender, e);
+                        }
+                    };
+                return view;
             }
         }
     }

@@ -12,11 +12,16 @@
     /// </remarks>
     public interface IGenericViewWindow
     {
-        bool? DialogResult { get; set; }
-        object DataContext { get; set; }
         event EventHandler Closed;
+
         event CancelEventHandler Closing;
+
+        bool? DialogResult { get; set; }
+
+        object DataContext { get; set; }
+
         void Show();
+
         void Close();
     }
 }

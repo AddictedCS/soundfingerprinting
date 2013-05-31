@@ -1,5 +1,4 @@
-﻿
-namespace Soundfingerprinting.DuplicatesDetector.View
+﻿namespace Soundfingerprinting.DuplicatesDetector.View
 {
     using System.Windows.Controls;
 

@@ -20,7 +20,8 @@
         {
             int files = 0;
             DirectoryInfo root = new DirectoryInfo(path);
-            foreach (string filter in filters)
+            var listOfFilters = filters as IList<string> ?? filters.ToList();
+            foreach (string filter in listOfFilters)
             {
                 try
                 {
@@ -57,7 +58,7 @@
 
             if (includeSubdirectories)
             {
-                DirectoryInfo[] directories = null;
+                DirectoryInfo[] directories;
                 try
                 {
                     directories = root.GetDirectories();
@@ -72,7 +73,7 @@
                 {
                     try
                     {
-                        files += CountNumberOfMusicFiles(directory.FullName, filters, true);
+                        files += CountNumberOfMusicFiles(directory.FullName, listOfFilters, true);
                     }
                     catch (PathTooLongException)
                     {
@@ -95,7 +96,8 @@
         {
             List<string> files = new List<string>();
             DirectoryInfo root = new DirectoryInfo(path);
-            foreach (string filter in filters)
+            var listOfFilters = filters as IList<string> ?? filters.ToList();
+            foreach (string filter in listOfFilters)
             {
                 try
                 {
@@ -108,7 +110,6 @@
                         catch (PathTooLongException)
                         {
                             /*255 item range is too long*/
-                            continue;
                         }
                     }
                 }
@@ -125,9 +126,10 @@
                     /*bad parameters*/
                 }
             }
+
             if (includeSubdirectories)
             {
-                DirectoryInfo[] directories = null;
+                DirectoryInfo[] directories;
                 try
                 {
                     directories = root.GetDirectories();
@@ -137,18 +139,20 @@
                     /*directory wasn't found*/
                     return files;
                 }
+
                 foreach (DirectoryInfo directory in directories)
                 {
                     try
                     {
-                        files.AddRange(GetMusicFiles(directory.FullName, filters, true));
+                        files.AddRange(GetMusicFiles(directory.FullName, listOfFilters, true));
                     }
                     catch (PathTooLongException)
                     {
-                        continue;
+                        // continue
                     }
                 }
             }
+
             return files;
         }
 
@@ -162,22 +166,28 @@
         {
             StringBuilder filter = new StringBuilder(caption);
             filter.Append(" (");
-            for (int i = 0; i < filters.Count(); i++)
+            var listOfFilters = filters as IList<string> ?? filters.ToList();
+            for (int i = 0; i < listOfFilters.Count(); i++)
             {
-                filter.Append(filters.ElementAt(i));
-                if (i != filters.Count() - 1 /*last*/)
+                filter.Append(listOfFilters.ElementAt(i));
+                if (i != listOfFilters.Count - 1 /*last*/)
+                {
                     filter.Append(";");
+                }
                 else
                 {
                     filter.Append(")|");
-                    for (int j = 0; j < filters.Count(); j++)
+                    for (int j = 0; j < listOfFilters.Count(); j++)
                     {
-                        filter.Append(filters.ElementAt(j));
-                        if (j != filters.Count() - 1 /*last*/)
+                        filter.Append(listOfFilters.ElementAt(j));
+                        if (j != listOfFilters.Count - 1 /*last*/)
+                        {
                             filter.Append(";");
+                        }
                     }
                 }
             }
+
             return filter.ToString();
         }
     }

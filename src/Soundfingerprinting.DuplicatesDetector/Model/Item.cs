@@ -12,59 +12,55 @@
         /// <summary>
         ///   Number of music files within the folder
         /// </summary>
-        private int _count;
+        private int count;
 
         /// <summary>
         ///   Path to folder
         /// </summary>
-        private string _path;
+        private string path;
 
-        /// <summary>
-        ///   See if current item is folder or a separate file
-        /// </summary>
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
         public bool IsFolder { get; set; }
 
-        /// <summary>
-        ///   Path to the folder
-        /// </summary>
         public string Path
         {
-            get { return _path; }
+            get
+            {
+                return path;
+            }
+
             set
             {
-                if (_path != value)
+                if (path != value)
                 {
-                    _path = value;
+                    path = value;
                     OnPropertyChanged("Path");
                 }
             }
         }
 
-        /// <summary>
-        ///   Number of songs within the folder
-        /// </summary>
-        public Int32 Count
+        public int Count
         {
-            get { return _count; }
+            get
+            {
+                return count;
+            }
+
             set
             {
-                if (_count != value)
+                if (count != value)
                 {
-                    _count = value;
+                    count = value;
                     OnPropertyChanged("Count");
                 }
             }
         }
-
-        #region INotifyPropertyChanged Members
-
-        /// <summary>
-        ///   Property changed event handler
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
+        
         private void OnPropertyChanged(string property)
         {
             PropertyChangedEventHandler temp = PropertyChanged;

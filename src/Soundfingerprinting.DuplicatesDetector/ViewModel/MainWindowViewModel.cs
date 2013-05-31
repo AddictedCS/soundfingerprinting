@@ -7,11 +7,8 @@
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
-        private ObservableCollection<ViewModelBase> _workspaces;
+        private ObservableCollection<ViewModelBase> workspaces;
 
-        /// <summary>
-        ///   Parameter less constructor
-        /// </summary>
         public MainWindowViewModel()
         {
             /*Adding PathList view model to workspaces collection*/
@@ -19,13 +16,9 @@
             Workspaces.Add(pathList);
         }
 
-        /// <summary>
-        ///   Workspaces
-        /// </summary>
         public ObservableCollection<ViewModelBase> Workspaces
         {
-            get { return _workspaces ?? (_workspaces = new ObservableCollection<ViewModelBase>()); }
-            private set { _workspaces = value; }
+            get { return workspaces ?? (workspaces = new ObservableCollection<ViewModelBase>()); }
         }
     }
 }

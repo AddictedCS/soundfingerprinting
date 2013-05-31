@@ -13,6 +13,7 @@
             {
                 view.Closing += (o, args) => onDialogClose(o, args);
             }
+
             view.Show();
         }
 

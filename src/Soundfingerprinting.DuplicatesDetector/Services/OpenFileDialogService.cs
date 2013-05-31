@@ -7,12 +7,9 @@
     /// </summary>
     public class OpenFileDialogService : IOpenFileDialogService
     {
-        /// <summary>
-        ///   Selected file
-        /// </summary>
-        private string[] _selectedPath;
-
         #region IOpenFileDialogService Members
+
+        public string[] SelectedPaths { get; private set; }
 
         /// <summary>
         ///   Show open file dialog
@@ -24,22 +21,14 @@
         /// <returns>Dialog result</returns>
         public DialogResult Show(string title, string filename, string filter, bool multiselect)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog {Title = title, FileName = filename, Filter = filter, Multiselect = multiselect})
+            using (OpenFileDialog ofd = new OpenFileDialog { Title = title, FileName = filename, Filter = filter, Multiselect = multiselect })
             {
                 DialogResult result = ofd.ShowDialog();
-                _selectedPath = ofd.FileNames;
+                SelectedPaths = ofd.FileNames;
                 return result;
             }
         }
-
-        /// <summary>
-        ///   Selected path
-        /// </summary>
-        public string[] SelectedPaths
-        {
-            get { return _selectedPath; }
-        }
-
+        
         #endregion
     }
 }

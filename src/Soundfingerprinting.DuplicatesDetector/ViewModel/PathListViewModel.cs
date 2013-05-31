@@ -23,245 +23,188 @@
     {
         #region Constants
 
-        private const string STEP_SELECT_ROOT_FOLDER = "Step 1/3 - Selecting root folders";
-        private const string STEP_HASHING_MUSIC_FILES = "Step 2/3 - Fingerprinting music files";
-        private const string STEP_FIND_DUPLICATES = "Step 3/3 - Finding duplicates";
-        private const string SETP_GENERATING_REPORT = "Generating report...";
-        private const string STEP_ABORTING = "Aborting, please wait...";
+        private const string StepSelectRootFolder = "Step 1/3 - Select root folders";
+        private const string StepHashingMusicFiles = "Step 2/3 - Fingerprinting music files";
+        private const string StepFindDuplicates = "Step 3/3 - Finding duplicates";
+        private const string SetpGeneratingReport = "Generating report...";
+        private const string StepAborting = "Aborting, please wait...";
+
+        private static readonly object LockObject = new object();
 
         /// <summary>
         ///   Music file filters
         /// </summary>
-        private readonly string[] _musicFileFilters = new[] {"*.mp3", "*.ogg", "*.flac", "*.wav"};
+        private readonly string[] musicFileFilters = new[] { "*.mp3", "*.ogg", "*.flac", "*.wav" };
 
         #endregion
-
-        /// <summary>
-        ///   Locking object
-        /// </summary>
-        private static readonly object LockObject = new object();
-
+        
         /// <summary>
         ///   Repository gateway
         /// </summary>
-        private readonly RepositoryGateway _gate;
+        private readonly RepositoryGateway gate;
 
         /// <summary>
         ///   Add single music file command
         /// </summary>
-        private RelayCommand _addFileCommand;
+        private RelayCommand addFileCommand;
 
         /// <summary>
         ///   Add more folders command
         /// </summary>
-        private RelayCommand _addMoreCommand;
+        private RelayCommand addMoreCommand;
 
-        private int _currentProgress;
+        private int currentProgress;
 
         /// <summary>
         ///   Paths to folders to be processed
         /// </summary>
-        private ObservableCollection<Item> _paths;
+        private ObservableCollection<Item> paths;
 
         /// <summary>
         ///   Processed music files
         /// </summary>
-        private int _processedMusicItems;
+        private int processedMusicItems;
 
-        private HashSet<Item> _processedPaths;
+        private HashSet<Item> processedPaths;
 
         /// <summary>
         ///   Flag for processing is possible
         /// </summary>
-        private bool _processing;
+        private bool processing;
 
         /// <summary>
         ///   Processing step
         /// </summary>
-        private string _processingStep;
+        private string processingStep;
 
         /// <summary>
         ///   Start processing command
         /// </summary>
-        private RelayCommand _startCommand;
+        private RelayCommand startCommand;
 
         /// <summary>
         ///   Stop processing command
         /// </summary>
-        private RelayCommand _stopCommand;
+        private RelayCommand stopCommand;
 
         /// <summary>
         ///   Total music items to process
         /// </summary>
-        private int _totalMusicItems;
+        private int totalMusicItems;
 
-        /// <summary>
-        ///   Parameter less constructor
-        /// </summary>
         public PathListViewModel()
         {
-            _paths = new ObservableCollection<Item>();
-            _paths.CollectionChanged += CollectionChanged; /*Subscribe to the event when the collection gets changed*/
-            _processingStep = STEP_SELECT_ROOT_FOLDER;
+            paths = new ObservableCollection<Item>();
+            paths.CollectionChanged += CollectionChanged; /*Subscribe to the event when the collection gets changed*/
+            processingStep = StepSelectRootFolder;
             TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             try
             {
-                _gate = new RepositoryGateway();
+                gate = new RepositoryGateway();
             }
             catch (Exception ex)
             {
-                IMessageBoxService msb = GetService<IMessageBoxService>(); //Show dialog if an exception occurred during processing
+                IMessageBoxService msb = GetService<IMessageBoxService>(); // Show dialog if an exception occurred during processing
                 if (msb != null)
-                    msb.Show(ex.Message, "Exception occurred during processing!",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                {
+                    msb.Show(ex.Message, "Exception occurred during processing!", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
-
-        /// <summary>
-        ///   Paths to folders which contain music files
-        /// </summary>
         public ObservableCollection<Item> Paths
         {
-            get { return _paths ?? (_paths = new ObservableCollection<Item>()); }
-            private set
+            get
             {
-                _paths = value;
-                OnPropertyChanged("Paths");
+                return paths ?? (paths = new ObservableCollection<Item>());
             }
         }
 
-        /// <summary>
-        ///   Processing step (1 out of 4)
-        /// </summary>
         public string ProcessingStep
         {
-            get { return _processingStep; }
+            get
+            {
+                return processingStep;
+            }
+
             set
             {
-                if (_processingStep != value)
+                if (processingStep != value)
                 {
-                    _processingStep = value;
+                    processingStep = value;
                     OnPropertyChanged("ProcessingStep");
                 }
             }
         }
 
-        /// <summary>
-        ///   Check if system is currently busy in processing the files
-        /// </summary>
         public bool IsProcessing
         {
-            get { return _processing; }
+            get
+            {
+                return processing;
+            }
+
             set
             {
-                if (_processing != value)
+                if (processing != value)
                 {
-                    _processing = value;
+                    processing = value;
                     OnPropertyChanged("IsProcessing");
                 }
             }
         }
 
-        /// <summary>
-        ///   Current progress on the progress bar
-        /// </summary>
         public int CurrentProgress
         {
-            get { return _currentProgress; }
+            get
+            {
+                return currentProgress;
+            }
+
             private set
             {
-                if (_currentProgress != value)
+                if (currentProgress != value)
                 {
-                    _currentProgress = value;
+                    currentProgress = value;
                     OnPropertyChanged("CurrentProgress");
                 }
             }
         }
-
-
-        /// <summary>
-        ///   UI Synchronization context obtained through UI task scheduler
-        /// </summary>
+        
         public TaskScheduler TaskScheduler { get; private set; }
 
-        /// <summary>
-        ///   Get the command to be executed when AddMore button on the View is clicked
-        /// </summary>
         public ICommand AddMoreCommand
         {
             get
             {
-                return _addMoreCommand ?? (_addMoreCommand = new RelayCommand(
-                                                                 AddMoreFolders, CanAddMoreFolders));
+                return addMoreCommand ?? (addMoreCommand = new RelayCommand(AddMoreFolders, CanAddMoreFolders));
             }
         }
 
-        /// <summary>
-        ///   Start processing the songs
-        /// </summary>
         public ICommand StartCommand
         {
             get
             {
-                return _startCommand ?? (_startCommand = new RelayCommand(
-                                                             StartProcessing, CanStartProcessing));
+                return startCommand ?? (startCommand = new RelayCommand(StartProcessing, CanStartProcessing));
             }
         }
 
-        /// <summary>
-        ///   Abort processing
-        /// </summary>
         public ICommand StopCommand
         {
             get
             {
-                return _stopCommand ?? (_stopCommand = new RelayCommand(
-                                                           StopProcessing, CanStopProcessing));
+                return stopCommand ?? (stopCommand = new RelayCommand(StopProcessing, CanStopProcessing));
             }
         }
 
-        /// <summary>
-        ///   Add single music file command
-        /// </summary>
         public ICommand AddFileCommand
         {
             get
             {
-                return _addFileCommand ?? (_addFileCommand = new RelayCommand(
-                                                                 AddFile, CanAddFile));
+                return addFileCommand ?? (addFileCommand = new RelayCommand(AddFile, CanAddFile));
             }
         }
 
-        /// <summary>
-        ///   The collection gets changed
-        /// </summary>
-        private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                foreach (object item in e.NewItems)
-                {
-                    int c = ((Item) item).Count;
-                    if (c > 0)
-                        _totalMusicItems += c;
-                }
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                foreach (object item in e.OldItems)
-                {
-                    int c = ((Item) item).Count;
-                    if (c > 0)
-                        _totalMusicItems -= c;
-                }
-            }
-            OnPropertyChanged("Paths"); /*Signalize that the collection got changed*/
-        }
-
-        /// <summary>
-        ///   Add more folders to the list
-        /// </summary>
         public void AddMoreFolders(object param)
         {
             IFolderBrowserDialogService fbg = GetService<IFolderBrowserDialogService>();
@@ -270,28 +213,29 @@
                 if (DialogResult.OK == fbg.Show())
                 {
                     string selectedPath = fbg.SelectedPath;
-                    //Check if such directory exists, and check if such directory wasn't already introduced
-                    if (!String.IsNullOrEmpty(selectedPath) && Paths.All(folder => selectedPath != folder.Path))
+                    
+                    // Check if such directory exists, and check if such directory wasn't already introduced
+                    if (!string.IsNullOrEmpty(selectedPath) && Paths.All(folder => selectedPath != folder.Path))
                     {
                         if (Directory.Exists(selectedPath))
                         {
-                            Paths.Add(new Item {Path = selectedPath, Count = -1, IsFolder = true});
+                            Paths.Add(new Item { Path = selectedPath, Count = -1, IsFolder = true });
                         }
                         else if (File.Exists(selectedPath))
                         {
-                            Paths.Add(new Item {Path = selectedPath, Count = 1, IsFolder = false});
+                            Paths.Add(new Item { Path = selectedPath, Count = 1, IsFolder = false });
                             return;
                         }
                         else
                         {
                             return;
                         }
-                        //count the number of available music files asynchronously
 
+                        // count the number of available music files asynchronously
                         Task.Factory.StartNew(
                             () =>
                             {
-                                int count = Helper.CountNumberOfMusicFiles(selectedPath, _musicFileFilters, true);
+                                int count = Helper.CountNumberOfMusicFiles(selectedPath, musicFileFilters, true);
 
                                 lock (LockObject)
                                 {
@@ -300,16 +244,19 @@
                                     {
                                         index++;
                                         if (path.Path == selectedPath)
+                                        {
                                             break;
+                                        }
                                     }
+
                                     if (Paths != null && Paths.Count >= index && index >= 0)
                                     {
-                                        _totalMusicItems += count;
+                                        totalMusicItems += count;
                                         Paths[index].Count = count;
                                     }
                                 }
                             }).ContinueWith(
-                                (task) => CommandManager.InvalidateRequerySuggested(), TaskScheduler);
+                                task => CommandManager.InvalidateRequerySuggested(), TaskScheduler);
                     }
                 }
             }
@@ -334,20 +281,20 @@
         /// <param name = "param">Parameter</param>
         public void StartProcessing(object param)
         {
-            ProcessingStep = STEP_HASHING_MUSIC_FILES;
+            ProcessingStep = StepHashingMusicFiles;
             IsProcessing = true;
-            int alreadyProcessedFiles = _processedMusicItems;
-            HashSet<Item> pathsToBeProcessed = null;
+            int alreadyProcessedFiles = processedMusicItems;
+            HashSet<Item> pathsToBeProcessed;
 
-            if (_processedPaths == null)
+            if (processedPaths == null)
             {
                 pathsToBeProcessed = new HashSet<Item>(Paths);
-                _processedPaths = new HashSet<Item>(Paths);
+                processedPaths = new HashSet<Item>(Paths);
             }
             else
             {
-                //if there are already paths that have been processed, use only new ones
-                IEnumerable<Item> except = Paths.Except(_processedPaths);
+                // if there are already paths that have been processed, use only new ones
+                IEnumerable<Item> except = Paths.Except(processedPaths);
                 pathsToBeProcessed = new HashSet<Item>(except);
                 if (pathsToBeProcessed.Count == 0)
                 {
@@ -357,84 +304,54 @@
 
                 foreach (Item item in except)
                 {
-                    _processedPaths.Add(item);
+                    processedPaths.Add(item);
                 }
             }
 
-            _gate.ProcessTracksAsync(
+            gate.ProcessTracksAsync(
                 pathsToBeProcessed,
-                _musicFileFilters,
+                musicFileFilters,
                 (tracks, exception) => /*processing ends*/
                 {
                     if (exception != null) /*Exception occurred during processing*/
                     {
                         IMessageBoxService msg = GetService<IMessageBoxService>();
-                        msg.Show("Error occurred during processing!\n" + exception.Message, "Error!",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                        if (IsProcessing) IsProcessing = false;
+                        msg.Show("Error occurred during processing!\n" + exception.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (IsProcessing)
+                        {
+                            IsProcessing = false;
+                        }
+
                         return;
                     }
+
                     if (tracks == null || tracks.Count == 0) /*Processing aborted*/
                     {
                         IsProcessing = false; /*successfully aborted continue*/
                         CurrentProgress = 0;
-                        ProcessingStep = STEP_SELECT_ROOT_FOLDER;
+                        ProcessingStep = StepSelectRootFolder;
                         Task.Factory.StartNew(CommandManager.InvalidateRequerySuggested, CancellationToken.None, TaskCreationOptions.None, TaskScheduler);
                         return;
                     }
+
                     /*Processing ended*/
-                    ProcessingStep = STEP_FIND_DUPLICATES;
+                    ProcessingStep = StepFindDuplicates;
                     CurrentProgress = 0;
                     FindDuplicates();
                 },
-                (track) => /*one file is processed*/
+                track => /*one file is processed*/
                 {
                     // ReSharper disable AccessToModifiedClosure
                     Interlocked.Increment(ref alreadyProcessedFiles);
                     // ReSharper restore AccessToModifiedClosure
-                    CurrentProgress = (int) Math.Ceiling(((float) (alreadyProcessedFiles)/_totalMusicItems*100));
-                    if (alreadyProcessedFiles >= _totalMusicItems)
+                    CurrentProgress = (int)Math.Ceiling((float)alreadyProcessedFiles / totalMusicItems * 100);
+                    if (alreadyProcessedFiles >= totalMusicItems)
                     {
-                        _processedMusicItems = alreadyProcessedFiles; /*set processed unit items*/
+                        processedMusicItems = alreadyProcessedFiles; /*set processed unit items*/
                         alreadyProcessedFiles = 0;
                         CurrentProgress = 0;
                     }
                 });
-        }
-
-        /// <summary>
-        ///   Search the storage for duplicate files
-        /// </summary>
-        private void FindDuplicates()
-        {
-            HashSet<Track>[] duplicates = null;
-            Task.Factory.StartNew(
-                () =>
-                {
-                    duplicates = _gate.FindAllDuplicates(
-                        (track, total, current) =>
-                        {
-                            CurrentProgress = (int) Math.Ceiling(((float) (current)/total*100));
-                            if (current >= total)
-                            {
-                                _processedMusicItems = current; /*set processed unit items*/
-                                CurrentProgress = 0;
-                            }
-                        });
-                }).ContinueWith( /*Update the UI*/
-                task =>
-                {
-                    ProcessingStep = SETP_GENERATING_REPORT;
-                    ReportViewModel report = new ReportViewModel { Sets = duplicates };
-                    GenericViewModel viewModel = new GenericViewModel();
-                    viewModel.Workspaces.Add(report);
-                    IGenericViewWindow view = GetService<IGenericViewWindow>();
-                    IWindowService windowMediator = GetService<IWindowService>();
-                    windowMediator.ShowDialog(view, viewModel,
-                        ((o, args) => report.StopPlaying()));
-                    ProcessingStep = STEP_SELECT_ROOT_FOLDER;
-                    IsProcessing = false;
-                }, TaskScheduler);
         }
 
         /// <summary>
@@ -444,7 +361,7 @@
         /// <returns>True/False</returns>
         public bool CanStartProcessing(object param)
         {
-            return !IsProcessing && _totalMusicItems > 1 && (_totalMusicItems - _processedMusicItems > 0); /*Processing can start if you have at least 2 files to play with*/
+            return !IsProcessing && totalMusicItems > 1 && (totalMusicItems - processedMusicItems > 0); /*Processing can start if you have at least 2 files to play with*/
         }
 
         /// <summary>
@@ -453,10 +370,10 @@
         /// <param name = "param">Parameter</param>
         public void StopProcessing(object param)
         {
-            ProcessingStep = STEP_ABORTING;
-            _processedMusicItems = 0;
-            _processedPaths = null;
-            _gate.AbortProcessing();
+            ProcessingStep = StepAborting;
+            processedMusicItems = 0;
+            processedPaths = null;
+            gate.AbortProcessing();
         }
 
         /// <summary>
@@ -469,46 +386,106 @@
             return IsProcessing;
         }
 
-        /// <summary>
-        ///   Add a single file to the union of files to be processed
-        /// </summary>
-        /// <param name = "param"></param>
         public void AddFile(object param)
         {
             IOpenFileDialogService fbg = GetService<IOpenFileDialogService>();
             if (fbg != null)
             {
-                if (DialogResult.OK == fbg.Show("Please choose your awesome track", "Amazing Track", Helper.GetMultipleFilter("Supported Formats", _musicFileFilters), true))
+                if (DialogResult.OK == fbg.Show("Please choose your awesome track", "Amazing Track", Helper.GetMultipleFilter("Supported Formats", musicFileFilters), true))
                 {
                     string[] selectedPaths = fbg.SelectedPaths;
                     foreach (string selectedPath in selectedPaths)
                     {
-                        //Check if such directory exists, and check if such directory wasn't already introduced
-                        if (!String.IsNullOrEmpty(selectedPath) && Paths.All(folder => selectedPath != folder.Path))
+                        // Check if such directory exists, and check if such directory wasn't already introduced
+                        if (!string.IsNullOrEmpty(selectedPath) && Paths.All(folder => selectedPath != folder.Path))
                         {
                             if (Directory.Exists(selectedPath))
                             {
-                                Paths.Add(new Item {Path = selectedPath, Count = -1, IsFolder = true});
+                                Paths.Add(new Item { Path = selectedPath, Count = -1, IsFolder = true });
                             }
                             else if (File.Exists(selectedPath))
                             {
-                                Paths.Add(new Item {Path = selectedPath, Count = 1, IsFolder = false});
+                                Paths.Add(new Item { Path = selectedPath, Count = 1, IsFolder = false });
                             }
                         }
                     }
                 }
             }
+
             if (param != null)
             {
                 if (File.Exists(param as string))
                 {
                     string extension = Path.GetExtension(param as string);
-                    if (_musicFileFilters.Where(filter => extension != null).Any(filter => filter.Contains(extension)))
+                    if (musicFileFilters.Where(filter => extension != null).Any(filter => filter.Contains(extension)))
                     {
-                        Paths.Add(new Item {Path = param as string, Count = 1, IsFolder = false});
+                        Paths.Add(new Item { Path = param as string, Count = 1, IsFolder = false });
                     }
                 }
             }
+        }
+
+        private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (object item in e.NewItems)
+                {
+                    int c = ((Item)item).Count;
+                    if (c > 0)
+                    {
+                        totalMusicItems += c;
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (object item in e.OldItems)
+                {
+                    int c = ((Item)item).Count;
+                    if (c > 0)
+                    {
+                        totalMusicItems -= c;
+                    }
+                }
+            }
+
+            OnPropertyChanged("Paths"); /*Signalize that the collection got changed*/
+        }
+
+        /// <summary>
+        ///   Search the storage for duplicate files
+        /// </summary>
+        private void FindDuplicates()
+        {
+            HashSet<Track>[] duplicates = null;
+            Task.Factory.StartNew(
+                () =>
+                {
+                    duplicates = gate.FindAllDuplicates(
+                        (track, total, current) =>
+                            {
+                                CurrentProgress = (int)Math.Ceiling((float)current / total * 100);
+                                if (current >= total)
+                                {
+                                processedMusicItems = current; /*set processed unit items*/
+                                CurrentProgress = 0;
+                            }
+                        });
+                }).ContinueWith( /*Update the UI*/
+                task =>
+                {
+                    ProcessingStep = SetpGeneratingReport;
+                    ReportViewModel report = new ReportViewModel { Sets = duplicates };
+                    GenericViewModel viewModel = new GenericViewModel();
+                    viewModel.Workspaces.Add(report);
+                    IGenericViewWindow view = GetService<IGenericViewWindow>();
+                    IWindowService windowMediator = GetService<IWindowService>();
+                    windowMediator.ShowDialog(view, viewModel, (o, args) => report.StopPlaying());
+                    ProcessingStep = StepSelectRootFolder;
+                    IsProcessing = false;
+                },
+                    TaskScheduler);
         }
 
         /// <summary>

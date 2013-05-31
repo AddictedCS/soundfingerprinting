@@ -13,28 +13,12 @@
     /// </summary>
     public abstract class ViewModelBase : INotifyPropertyChanged, IDisposable
     {
-        /// <summary>
-        ///   Throw on invalid property name
-        /// </summary>
-        private const bool THROW_ON_INVALID_PROPERTY_NAME = true;
+        private bool alreadyDisposed;
 
-        /// <summary>
-        ///   Check if already disposed
-        /// </summary>
-        private bool _alreadyDisposed;
-
-        #region IDisposable Members
-
-        /// <summary>
-        ///   Dispose resources
-        /// </summary>
-        public void Dispose()
+        ~ViewModelBase()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Dispose(false);
         }
-
-        #endregion
 
         #region INotifyPropertyChanged Members
 
@@ -51,6 +35,38 @@
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
+
+        /// <summary>
+        ///   Dispose resources
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        [Conditional("DEBUG")]
+        [DebuggerStepThrough]
+        public void VerifyPropertyName(string propertyName)
+        {
+            // Verify that the property name matches a real,  
+            // public, instance property on this object.
+            if (TypeDescriptor.GetProperties(this)[propertyName] == null)
+            {
+                string msg = "Invalid property name: " + propertyName;
+                throw new Exception(msg);
+            }
+        }
+
+        /// <summary>
+        ///   Get service contract implementation of a specific type
+        /// </summary>
+        /// <typeparam name = "TServiceContract">Type of the service contract</typeparam>
+        /// <returns>Implementation of service contract</returns>
+        public TServiceContract GetService<TServiceContract>()
+        {
+            return ServiceContainer.Kernel.Get<TServiceContract>();
+        }
 
         /// <summary>
         ///   On property changed, tell UI to refresh binding elements
@@ -72,54 +88,17 @@
         /// <param name = "isDisposing">Is disposing by client call</param>
         protected virtual void Dispose(bool isDisposing)
         {
-            if (!_alreadyDisposed)
+            if (!alreadyDisposed)
             {
                 if (!isDisposing)
                 {
                     /*Dispose managed resources*/
                 }
+
                 /*Dispose unmanaged resources*/
             }
-            _alreadyDisposed = true;
-        }
 
-        /// <summary>
-        ///   Finalizer
-        /// </summary>
-        ~ViewModelBase()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        ///   Verify if there is such a property on the ViewModelBase
-        /// </summary>
-        /// <param name = "propertyName"></param>
-        [Conditional("DEBUG")]
-        [DebuggerStepThrough]
-        public void VerifyPropertyName(string propertyName)
-        {
-            // Verify that the property name matches a real,  
-            // public, instance property on this object.
-            if (TypeDescriptor.GetProperties(this)[propertyName] == null)
-            {
-                string msg = "Invalid property name: " + propertyName;
-
-                if (THROW_ON_INVALID_PROPERTY_NAME)
-                {
-                    throw new Exception(msg);
-                }
-            }
-        }
-
-        /// <summary>
-        ///   Get service contract implementation of a specific type
-        /// </summary>
-        /// <typeparam name = "TServiceContract">Type of the service contract</typeparam>
-        /// <returns>Implementation of service contract</returns>
-        public TServiceContract GetService<TServiceContract>()
-        {
-            return ServiceContainer.Kernel.Get<TServiceContract>();
+            alreadyDisposed = true;
         }
     }
 }

@@ -5,6 +5,7 @@
     internal interface ISaveFileDialogService
     {
         string Filename { get; }
+
         DialogResult SaveFile(string title, string filename, string extension);
     }
 }

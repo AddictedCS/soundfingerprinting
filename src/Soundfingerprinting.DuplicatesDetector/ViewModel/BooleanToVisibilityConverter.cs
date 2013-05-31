@@ -12,13 +12,13 @@
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool isprocessing = (bool) (value);
+            bool isprocessing = (bool)value;
             return isprocessing ? Visibility.Visible : Visibility.Hidden;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Visibility v = (Visibility) value;
+            Visibility v = (Visibility)value;
             switch (v)
             {
                 case Visibility.Hidden:
@@ -28,6 +28,7 @@
                 case Visibility.Visible:
                     return true;
             }
+
             return DependencyProperty.UnsetValue;
         }
 
