@@ -221,75 +221,10 @@
     <Compile Include="Query\QueryFingerprintService.cs" />
     <Compile Include="Query\QueryResult.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\Externals\Bass\x64\bass.dll">
-      <Link>x64\bass.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\basscd.dll">
-      <Link>x64\basscd.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\bassenc.dll">
-      <Link>x64\bassenc.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\bassflac.dll">
-      <Link>x64\bassflac.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\bassmidi.dll">
-      <Link>x64\bassmidi.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\bassmix.dll">
-      <Link>x64\bassmix.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\basswma.dll">
-      <Link>x64\basswma.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\bass_fx.dll">
-      <Link>x64\bass_fx.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x64\tags.dll">
-      <Link>x64\tags.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x86\bass.dll">
-      <Link>x86\bass.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x86\bassenc.dll">
-      <Link>x86\bassenc.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x86\bassflac.dll">
-      <Link>x86\bassflac.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x86\bassmix.dll">
-      <Link>x86\bassmix.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x86\basswma.dll">
-      <Link>x86\basswma.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x86\bass_fx.dll">
-      <Link>x86\bass_fx.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Externals\Bass\x86\tags.dll">
-      <Link>x86\tags.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy "$(SolutionDir)\Externals\*.dll" "$(TargetDir)"</PreBuildEvent>
+    <PreBuildEvent>copy "$(SolutionDir)\Externals\*.dll" "$(TargetDir)"
+xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

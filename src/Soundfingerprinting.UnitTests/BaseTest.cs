@@ -2,13 +2,8 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.FFT.Exocortex;
-
-    [DeploymentItem(@"bass.dll")]
-    [DeploymentItem(@"bass_fx.dll")]
-    [DeploymentItem(@"bassmix.dll")]
-    [DeploymentItem(@"bassflac.dll")]
+    [DeploymentItem(@"x86", @"x86")]
+    [DeploymentItem(@"x64", @"x64")]
     [DeploymentItem(@"libfftw3-3.dll")]
     [DeploymentItem(@"libfftw3f-3.dll")]
     [DeploymentItem(@"libfftw3l-3.dll")]
@@ -41,7 +36,5 @@
                 true, false, true, false, true, false, true, false, true, false, true, false, false, true, false, true,
                 false, true, false, true, false, true, false, true
             };
-
-        protected IFFTService FFTService = new ExocortexFFTService();
     }
 }
