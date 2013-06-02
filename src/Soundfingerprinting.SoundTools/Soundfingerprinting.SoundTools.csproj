@@ -54,9 +54,9 @@
     <ApplicationIcon>Resources\2-Music.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net, Version=2.4.6.4, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
+    <Reference Include="Bass.Net, Version=2.4.8.3, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Externals\Bass.Net.dll</HintPath>
+      <HintPath>..\Externals\Bass\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="encog-core-cs">
       <HintPath>..\Externals\encog-core-cs.dll</HintPath>
