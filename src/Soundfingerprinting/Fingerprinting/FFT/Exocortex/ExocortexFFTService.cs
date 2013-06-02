@@ -4,7 +4,7 @@
     {
         private readonly object lockObject = new object();
 
-        public float[] FFTForward(float[] signal, int startIndex, int length, double [] window)
+        public float[] FFTForward(float[] signal, int startIndex, int length, double[] window)
         {
             float[] complexSignal = new float[2 * length]; /*even - Re, odd - Img, thats how Exocortex works*/
 

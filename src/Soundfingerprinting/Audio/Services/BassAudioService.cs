@@ -32,7 +32,7 @@ namespace Soundfingerprinting.Audio.Services
 
         static BassAudioService()
         {
-            string targetPath = Path.Combine(Environment.CurrentDirectory, Un4seen.Bass.Utils.Is64Bit ? "x64" : "x86");
+            string targetPath = Path.Combine(Environment.CurrentDirectory, Utils.Is64Bit ? "x64" : "x86");
 
             // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
             BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");

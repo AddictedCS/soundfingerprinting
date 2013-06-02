@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
 
     // Comments? Questions? Bugs? Tell Ben Houston at ben@exocortex.org
     // Version: May 4, 2002
@@ -9,17 +10,39 @@
     /// <summary>
     ///   <p>Static functions for doing various Fourier Operations.</p>
     /// </summary>
+    // ReSharper disable InconsistentNaming
+    // ReSharper disable UnusedMember.Local
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1404:CodeAnalysisSuppressionMustHaveJustification", Justification = "Reviewed. Suppression is OK here."),
+     SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1404:CodeAnalysisSuppressionMustHaveJustification", Justification = "Reviewed. Suppression is OK here."),
+     SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1005:SingleLineCommentsMustBeginWithSingleSpace", Justification = "Reviewed. Suppression is OK here."),
+     SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1512:SingleLineCommentsMustNotBeFollowedByBlankLine", Justification = "Reviewed. Suppression is OK here."),
+     SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1303:ConstFieldNamesMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1309:FieldNamesMustNotBeginWithUnderscore", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1311:StaticReadonlyFieldsMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1027:TabsMustNotBeUsed"), SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1515:SingleLineCommentMustBePrecededByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1513:ClosingCurlyBracketMustBeFollowedByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1405:DebugAssertMustProvideMessageText", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1119:StatementMustNotUseUnnecessaryParenthesis", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1003:SymbolsMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1001:CommasMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1306:FieldNamesMustBeginWithLowerCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1008:OpeningParenthesisMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "Reviewed. Suppression is OK here.")]
     public class Fourier
     {
-        //======================================================================================
-
         private const int cMaxLength = 4096;
-        private const int cMinLength = 1;
 
+        private const int cMinLength = 1;
         private const int cMaxBits = 12;
+
         private const int cMinBits = 0;
+
         private static readonly int[][] _reversedBits = new int[cMaxBits][];
         private static int[][] _reverseBits;
+
         private static int _lookupTabletLength = -1;
         private static double[,][] _uRLookup;
         private static double[,][] _uILookup;
@@ -68,7 +91,6 @@
 
         //-------------------------------------------------------------------------------------
 
-
         private static bool IsPowerOf2(int x)
         {
             return (x & (x - 1)) == 0;
@@ -84,6 +106,7 @@
             return 0;
         }
 
+        [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1503:CurlyBracketsMustNotBeOmitted", Justification = "Reviewed. Suppression is OK here.")]
         private static int Log2(int x)
         {
             if (x <= 65536)
@@ -415,8 +438,8 @@
 
                     for (int j = 0; j < M; j++)
                     {
-                        _uRLookupF[level, 0][j] = (float) (_uRLookup[level, 0][j] = uR);
-                        _uILookupF[level, 0][j] = (float) (_uILookup[level, 0][j] = uI);
+                        _uRLookupF[level, 0][j] = (float)(_uRLookup[level, 0][j] = uR);
+                        _uILookupF[level, 0][j] = (float)(_uILookup[level, 0][j] = uI);
                         double uwI = uR*wI + uI*wR;
                         uR = uR*wR - uI*wI;
                         uI = uwI;
@@ -426,7 +449,7 @@
                     // negative sign ( i.e. [M,1] )
                     double uR = 1;
                     double uI = 0;
-                    double angle = Math.PI/M*-1;
+                    double angle = Math.PI / M * -1;
                     double wR = Math.Cos(angle);
                     double wI = Math.Sin(angle);
 
@@ -450,7 +473,9 @@
         //======================================================================================
         //======================================================================================
 
+// ReSharper disable RedundantAssignment
         private static void LockBufferF(int length, ref float[] buffer)
+// ReSharper restore RedundantAssignment
         {
             Debug.Assert(_bufferFLocked == false);
             _bufferFLocked = true;
@@ -532,7 +557,9 @@
         //======================================================================================
         //======================================================================================
 
+// ReSharper disable RedundantAssignment
         private static void LockBufferCF(int length, ref ComplexF[] buffer)
+// ReSharper restore RedundantAssignment
         {
             Debug.Assert(length >= 0);
             Debug.Assert(_bufferCFLocked == false);
@@ -617,7 +644,9 @@
         //======================================================================================
         //======================================================================================
 
+// ReSharper disable RedundantAssignment
         private static void LockBufferC(int length, ref Complex[] buffer)
+// ReSharper restore RedundantAssignment
         {
             Debug.Assert(length >= 0);
             Debug.Assert(_bufferCLocked == false);
@@ -702,12 +731,6 @@
         //======================================================================================
         //======================================================================================
 
-        /// <summary>
-        ///   Compute a 1D fast Fourier transform of a dataset of complex numbers (as pairs of float's).
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "length"></param>
-        /// <param name = "direction"></param>
         public static void FFT(float[] data, int length, FourierDirection direction)
         {
             Debug.Assert(data != null);
@@ -761,12 +784,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 1D fast Fourier transform of a dataset of complex numbers (as pairs of float's).
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "length"></param>
-        /// <param name = "direction"></param>
         public static void FFT_Quick(float[] data, int length, FourierDirection direction)
         {
             /*Debug.Assert( data != null );
@@ -820,12 +837,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 1D fast Fourier transform of a dataset of complex numbers.
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "length"></param>
-        /// <param name = "direction"></param>
         public static void FFT(ComplexF[] data, int length, FourierDirection direction)
         {
             if (data == null)
@@ -888,12 +899,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 1D fast Fourier transform of a dataset of complex numbers.
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "length"></param>
-        /// <param name = "direction"></param>
         public static void FFT_Quick(ComplexF[] data, int length, FourierDirection direction)
         {
             /*if( data == null ) {
@@ -953,11 +958,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 1D fast Fourier transform of a dataset of complex numbers.
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "direction"></param>
         public static void FFT(ComplexF[] data, FourierDirection direction)
         {
             if (data == null)
@@ -967,12 +967,6 @@
             FFT(data, data.Length, direction);
         }
 
-        /// <summary>
-        ///   Compute a 1D fast Fourier transform of a dataset of complex numbers.
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "length"></param>
-        /// <param name = "direction"></param>
         public static void FFT(Complex[] data, int length, FourierDirection direction)
         {
             if (data == null)
@@ -1035,12 +1029,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 1D fast Fourier transform of a dataset of complex numbers.
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "length"></param>
-        /// <param name = "direction"></param>
         public static void FFT_Quick(Complex[] data, int length, FourierDirection direction)
         {
             /*if( data == null ) {
@@ -1100,11 +1088,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 1D real-symmetric fast fourier transform.
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "direction"></param>
         public static void RFFT(float[] data, FourierDirection direction)
         {
             if (data == null)
@@ -1114,12 +1097,6 @@
             RFFT(data, data.Length, direction);
         }
 
-        /// <summary>
-        ///   Compute a 1D real-symmetric fast fourier transform.
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "length"></param>
-        /// <param name = "direction"></param>
         public static void RFFT(float[] data, int length, FourierDirection direction)
         {
             if (data == null)
@@ -1135,8 +1112,11 @@
                 throw new ArgumentOutOfRangeException("length", length, "must be a power of 2");
             }
 
-            float c1 = 0.5f, c2;
+            const float c1 = 0.5f;
+            float c2;
+            // ReSharper disable PossibleLossOfFraction
             float theta = (float) Math.PI/(length/2);
+            // ReSharper restore PossibleLossOfFraction
 
             if (direction == FourierDirection.Forward)
             {
@@ -1187,13 +1167,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 2D fast fourier transform on a data set of complex numbers (represented as pairs of floats)
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "xLength"></param>
-        /// <param name = "yLength"></param>
-        /// <param name = "direction"></param>
         public static void FFT2(float[] data, int xLength, int yLength, FourierDirection direction)
         {
             if (data == null)
@@ -1202,7 +1175,7 @@
             }
             if (data.Length < xLength*yLength*2)
             {
-                throw new ArgumentOutOfRangeException("data.Length", data.Length, "must be at least as large as 'xLength * yLength * 2' parameter");
+                throw new ArgumentOutOfRangeException("data", data.Length, "must be at least as large as 'xLength * yLength * 2' parameter");
             }
             if (IsPowerOf2(xLength) == false)
             {
@@ -1213,7 +1186,7 @@
                 throw new ArgumentOutOfRangeException("yLength", yLength, "must be a power of 2");
             }
 
-            int xInc = 1;
+            const int xInc = 1;
             int yInc = xLength;
 
             if (xLength > 1)
@@ -1237,13 +1210,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 2D fast fourier transform on a data set of complex numbers
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "xLength"></param>
-        /// <param name = "yLength"></param>
-        /// <param name = "direction"></param>
         public static void FFT2(ComplexF[] data, int xLength, int yLength, FourierDirection direction)
         {
             if (data == null)
@@ -1252,7 +1218,7 @@
             }
             if (data.Length < xLength*yLength)
             {
-                throw new ArgumentOutOfRangeException("data.Length", data.Length, "must be at least as large as 'xLength * yLength' parameter");
+                throw new ArgumentOutOfRangeException("data", data.Length, "must be at least as large as 'xLength * yLength' parameter");
             }
             if (IsPowerOf2(xLength) == false)
             {
@@ -1263,7 +1229,7 @@
                 throw new ArgumentOutOfRangeException("yLength", yLength, "must be a power of 2");
             }
 
-            int xInc = 1;
+            const int xInc = 1;
             int yInc = xLength;
 
             if (xLength > 1)
@@ -1287,13 +1253,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 2D fast fourier transform on a data set of complex numbers
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "xLength"></param>
-        /// <param name = "yLength"></param>
-        /// <param name = "direction"></param>
         public static void FFT2(Complex[] data, int xLength, int yLength, FourierDirection direction)
         {
             if (data == null)
@@ -1302,7 +1261,7 @@
             }
             if (data.Length < xLength*yLength)
             {
-                throw new ArgumentOutOfRangeException("data.Length", data.Length, "must be at least as large as 'xLength * yLength' parameter");
+                throw new ArgumentOutOfRangeException("data", data.Length, "must be at least as large as 'xLength * yLength' parameter");
             }
             if (IsPowerOf2(xLength) == false)
             {
@@ -1313,7 +1272,7 @@
                 throw new ArgumentOutOfRangeException("yLength", yLength, "must be a power of 2");
             }
 
-            int xInc = 1;
+            const int xInc = 1;
             int yInc = xLength;
 
             if (xLength > 1)
@@ -1337,14 +1296,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 3D fast fourier transform on a data set of complex numbers
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "xLength"></param>
-        /// <param name = "yLength"></param>
-        /// <param name = "zLength"></param>
-        /// <param name = "direction"></param>
         public static void FFT3(ComplexF[] data, int xLength, int yLength, int zLength, FourierDirection direction)
         {
             if (data == null)
@@ -1353,7 +1304,7 @@
             }
             if (data.Length < xLength*yLength*zLength)
             {
-                throw new ArgumentOutOfRangeException("data.Length", data.Length, "must be at least as large as 'xLength * yLength * zLength' parameter");
+                throw new ArgumentOutOfRangeException("data", data.Length, "must be at least as large as 'xLength * yLength * zLength' parameter");
             }
             if (IsPowerOf2(xLength) == false)
             {
@@ -1368,7 +1319,7 @@
                 throw new ArgumentOutOfRangeException("zLength", zLength, "must be a power of 2");
             }
 
-            int xInc = 1;
+            const int xInc = 1;
             int yInc = xLength;
             int zInc = xLength*yLength;
 
@@ -1412,14 +1363,6 @@
             }
         }
 
-        /// <summary>
-        ///   Compute a 3D fast fourier transform on a data set of complex numbers
-        /// </summary>
-        /// <param name = "data"></param>
-        /// <param name = "xLength"></param>
-        /// <param name = "yLength"></param>
-        /// <param name = "zLength"></param>
-        /// <param name = "direction"></param>
         public static void FFT3(Complex[] data, int xLength, int yLength, int zLength, FourierDirection direction)
         {
             if (data == null)
@@ -1428,7 +1371,7 @@
             }
             if (data.Length < xLength*yLength*zLength)
             {
-                throw new ArgumentOutOfRangeException("data.Length", data.Length, "must be at least as large as 'xLength * yLength * zLength' parameter");
+                throw new ArgumentOutOfRangeException("data", data.Length, "must be at least as large as 'xLength * yLength * zLength' parameter");
             }
             if (IsPowerOf2(xLength) == false)
             {
@@ -1443,7 +1386,7 @@
                 throw new ArgumentOutOfRangeException("zLength", zLength, "must be a power of 2");
             }
 
-            int xInc = 1;
+            const int xInc = 1;
             int yInc = xLength;
             int zInc = xLength*yLength;
 
@@ -1487,4 +1430,6 @@
             }
         }
     }
+    // ReSharper restore InconsistentNaming
+    // ReSharper restore UnusedMember.Local
 }
