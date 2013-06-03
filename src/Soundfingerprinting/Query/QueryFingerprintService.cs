@@ -5,12 +5,18 @@
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.Hashing.Utils;
+    using Soundfingerprinting.Infrastructure;
     using Soundfingerprinting.Query.Configuration;
 
     public class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly ICombinedHashingAlgoritm hashingAlgorithm;
         private readonly IModelService modelService;
+
+        public QueryFingerprintService()
+            : this(DependencyResolver.Current.Get<ICombinedHashingAlgoritm>(), DependencyResolver.Current.Get<IModelService>())
+        {
+        }
 
         public QueryFingerprintService(ICombinedHashingAlgoritm hashingAlgorithm, IModelService modelService)
         {

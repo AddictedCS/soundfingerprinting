@@ -10,6 +10,7 @@
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.Infrastructure;
 
     public class ImageService : IImageService
     {
@@ -18,7 +19,12 @@
         private readonly ISpectrumService spectrumService;
 
         private readonly IWaveletService waveletService;
-        
+
+        public ImageService()
+            : this(DependencyResolver.Current.Get<ISpectrumService>(), DependencyResolver.Current.Get<IWaveletService>())
+        {
+        }
+
         public ImageService(ISpectrumService spectrumService, IWaveletService waveletService)
         {
             this.spectrumService = spectrumService;

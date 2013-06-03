@@ -31,8 +31,6 @@
 
         private string connectionStringNeuralHasher = string.Empty;
 
-        private IFingerprintService fingerprintService;
-
         private readonly IModelService modelService;
 
         /// <summary>
@@ -67,11 +65,10 @@
 
         public WinEnsembleHash(IFingerprintService fingerprintService, IModelService modelService)
         {
-            this.fingerprintService = fingerprintService;
             this.modelService = modelService;
             InitializeComponent();
             Icon = Resources.Sound;
-            permutations = new DbPermutations(ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString);
+            permutations = new DatabasePermutations(modelService);
         }
 
         /// <summary>
@@ -449,7 +446,6 @@
                                              _pbMinHash.Step = 1;
                                          }));
 
-            MinHashService minHashService = new MinHashService(permutations);
             for (int index = 0; index < tracks.Count; index++)
             {
                 Track track = tracks[index];

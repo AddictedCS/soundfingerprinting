@@ -6,6 +6,7 @@
 
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.Dao.Internal;
+    using Soundfingerprinting.Infrastructure;
 
     public class ModelService : IModelService
     {
@@ -19,6 +20,13 @@
 
         private readonly SubFingerprintDao subFingerprintDao;
 
+        private readonly PermutationsDao permutationsDao;
+
+        public ModelService()
+            : this(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>())
+        {
+        }
+
         public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
             albumDao = new AlbumDao(databaseProviderFactory, modelBinderFactory);
@@ -26,6 +34,7 @@
             fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
             hashBinMinHashDao = new HashBinMinHashDao(databaseProviderFactory, modelBinderFactory);
             subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
+            permutationsDao = new PermutationsDao(databaseProviderFactory, modelBinderFactory);
         }
 
         public void InsertSubFingerprint(SubFingerprint subFingerprint)
@@ -36,6 +45,11 @@
         public void InsertSubFingerprint(IEnumerable<SubFingerprint> subFingerprints)
         {
             subFingerprintDao.Insert(subFingerprints);
+        }
+
+        public int[][] ReadPermutationsForLSHAlgorithm()
+        {
+            return permutationsDao.ReadPermutationsForLSHAlgorithm();
         }
 
         public void InsertFingerprint(Fingerprint fingerprint)

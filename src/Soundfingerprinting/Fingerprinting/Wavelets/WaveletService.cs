@@ -3,9 +3,16 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Soundfingerprinting.Infrastructure;
+
     public class WaveletService : IWaveletService
     {
         private readonly IWaveletDecomposition waveletDecomposition;
+
+        public WaveletService()
+            : this(DependencyResolver.Current.Get<IWaveletDecomposition>())
+        {
+        }
 
         public WaveletService(IWaveletDecomposition waveletDecomposition)
         {

@@ -8,7 +8,7 @@
 
         public long[] Hash(byte[] source, int numberOfHashTables, int numberOfHashesPerTable)
         {
-            return this.GroupHashesToLSHBuckets(source, numberOfHashTables, numberOfHashesPerTable);
+            return GroupHashesToLSHBuckets(source, numberOfHashTables, numberOfHashesPerTable);
         }
 
         /// <summary>

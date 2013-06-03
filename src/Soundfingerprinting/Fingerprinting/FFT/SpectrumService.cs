@@ -7,6 +7,7 @@
 
     using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Infrastructure;
 
     public class SpectrumService : ISpectrumService
     {
@@ -18,6 +19,11 @@
         private const float MaxRms = 3;
 
         private readonly IFFTService fftService;
+
+        public SpectrumService()
+            : this(DependencyResolver.Current.Get<IFFTService>())
+        {
+        }
 
         public SpectrumService(IFFTService fftService)
         {

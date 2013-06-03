@@ -6,6 +6,7 @@ namespace Soundfingerprinting.Fingerprinting
     using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Fingerprinting.FFT;
     using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.Infrastructure;
 
     public class FingerprintService : IFingerprintService
     {
@@ -14,6 +15,14 @@ namespace Soundfingerprinting.Fingerprinting
         private readonly IWaveletService waveletService;
 
         private readonly IFingerprintDescriptor fingerprintDescriptor;
+
+        public FingerprintService()
+            : this(
+                DependencyResolver.Current.Get<IFingerprintDescriptor>(),
+                DependencyResolver.Current.Get<ISpectrumService>(),
+                DependencyResolver.Current.Get<IWaveletService>())
+        {
+        }
 
         public FingerprintService(IFingerprintDescriptor fingerprintDescriptor, ISpectrumService spectrumService, IWaveletService waveletService)
         {

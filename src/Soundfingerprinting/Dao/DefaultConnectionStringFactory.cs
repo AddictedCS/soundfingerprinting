@@ -6,7 +6,12 @@ namespace Soundfingerprinting.Dao
     {
         public string GetConnectionString()
         {
-            return ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString;
+            if (ConfigurationManager.ConnectionStrings["FingerprintConnectionString"] != null)
+            {
+                return ConfigurationManager.ConnectionStrings["FingerprintConnectionString"].ConnectionString;
+            }
+
+            return null;
         }
     }
 }

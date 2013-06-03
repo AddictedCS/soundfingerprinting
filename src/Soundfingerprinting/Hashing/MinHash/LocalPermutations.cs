@@ -5,70 +5,50 @@
     using System.Globalization;
     using System.IO;
 
-    /// <summary>
-    ///   Class for reading local permutations from file
-    /// </summary>
     public class LocalPermutations : IPermutations
     {
-        /// <summary>
-        ///   Path to permutations
-        /// </summary>
-        private readonly string _pathToPerms;
+        private readonly string pathToPermutations;
 
-        /// <summary>
-        ///   Separator between 2 consecutive indexes
-        /// </summary>
-        private readonly string _separator;
+        private readonly string separator;
 
-        /// <summary>
-        ///   Permutations
-        /// </summary>
-        private int[][] _perms;
-
-        /// <summary>
-        ///   Local file permutation object
-        /// </summary>
-        /// <param name = "pathToPermutations">Path to file with permutations</param>
-        /// <param name = "separator">Separator between 2 consecutive permutations</param>
+        private int[][] permutations;
+        
         public LocalPermutations(string pathToPermutations, string separator)
         {
-            _pathToPerms = pathToPermutations;
-            _separator = separator;
+            this.pathToPermutations = pathToPermutations;
+            this.separator = separator;
         }
 
-        #region IPermutations Members
-
-        /// <summary>
-        ///   Get permutations
-        /// </summary>
-        /// <returns>Permutations read from file</returns>
         public int[][] GetPermutations()
         {
-            if (this._perms != null)
-                return this._perms;
+            if (permutations != null)
+            {
+                return permutations;
+            }
+
             List<int[]> result = new List<int[]>();
-            using (StreamReader reader = new StreamReader(this._pathToPerms))
+            using (StreamReader reader = new StreamReader(pathToPermutations))
             {
                 while (reader.Peek() != -1)
                 {
                     string line = reader.ReadLine();
                     if (line != null)
                     {
-                        string[] ints = line.Split(new[] {this._separator}, StringSplitOptions.RemoveEmptyEntries);
+                        string[] ints = line.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
                         int[] permutation = new int[ints.Length];
                         int i = 0;
                         foreach (string item in ints)
                         {
                             permutation[i++] = Convert.ToInt32(item, CultureInfo.InvariantCulture);
                         }
+
                         result.Add(permutation);
                     }
                 }
             }
-            this._perms = result.ToArray();
-            return this._perms;
-        }
 
-        #endregion
+            permutations = result.ToArray();
+            return permutations;
+        }
     }
 }

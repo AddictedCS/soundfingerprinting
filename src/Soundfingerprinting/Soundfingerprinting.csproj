@@ -47,6 +47,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Externals\Microsoft.DirectX.DirectSound.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -92,6 +96,7 @@
     <Compile Include="Dao\Internal\IParameterBinder.cs" />
     <Compile Include="Dao\Internal\IReader.cs" />
     <Compile Include="Dao\Internal\ModelBinder.cs" />
+    <Compile Include="Dao\Internal\PermutationsDao.cs" />
     <Compile Include="Dao\Internal\SubFingerprintDao.cs" />
     <Compile Include="Dao\ModelBinderFactory.cs" />
     <Compile Include="Dao\Internal\ModelReaderBuilder.cs" />
@@ -160,8 +165,9 @@
     <Compile Include="Hashing\LSH\ILSHService.cs" />
     <Compile Include="Hashing\MinHash\AgressiveSelector.cs" />
     <Compile Include="Hashing\CombinedHashingAlgorithm.cs" />
+    <Compile Include="Hashing\MinHash\CachedPermutations.cs" />
     <Compile Include="Hashing\MinHash\ConservativeSelector.cs" />
-    <Compile Include="Hashing\MinHash\DbPermutations.cs" />
+    <Compile Include="Hashing\MinHash\DatabasePermutations.cs" />
     <Compile Include="Hashing\MinHash\IMinHashService.cs" />
     <Compile Include="Hashing\Utils\Hash.cs" />
     <Compile Include="Hashing\MinHash\IPermutationGeneratorService.cs" />
@@ -170,6 +176,8 @@
     <Compile Include="Hashing\Utils\HashingUtils.cs" />
     <Compile Include="Image\IImageService.cs" />
     <Compile Include="Image\ImageService.cs" />
+    <Compile Include="Infrastructure\DependencyResolver.cs" />
+    <Compile Include="Infrastructure\IDependencyResolver.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainer.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetTrainerException.cs" />
     <Compile Include="NeuralHashing\NeuralTrainer\NetworkPerformanceMeter.cs" />
@@ -220,6 +228,9 @@
     <Compile Include="Query\QueryConfiguration.cs" />
     <Compile Include="Query\QueryFingerprintService.cs" />
     <Compile Include="Query\QueryResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

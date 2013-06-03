@@ -21,13 +21,13 @@
 
     public static class DependencyResolver
     {
-        private static IDependencyResolver dependencyResolver = new DefaultDependencyResolver();
+        private static IDependencyResolver dependencyResolver;
 
         public static IDependencyResolver Current
         {
             get
             {
-                return dependencyResolver;
+                return dependencyResolver ?? (dependencyResolver = new DefaultDependencyResolver());
             }
 
             set
@@ -47,7 +47,7 @@
                 kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
                 kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
-                kernel.Bind<IAudioService, IExtendedAudioService, ITagService>().To<BassAudioService>();
+                kernel.Bind<IAudioService, IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
                 kernel.Bind<IFingerprintingUnitsBuilder>().To<FingerprintingUnitsBuilder>();
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
@@ -61,10 +61,13 @@
                 kernel.Bind<IWaveletService>().To<WaveletService>();
                 kernel.Bind<IMinHashService>().To<MinHashService>();
                 kernel.Bind<ILSHService>().To<LSHService>();
-                kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
+                kernel.Bind<IPermutations>().To<CachedPermutations>();
                 kernel.Bind<IPermutations>()
-                                  .To<DbPermutations>()
-                                  .WithConstructorArgument("connectionString", kernel.Get<IConnectionStringFactory>().GetConnectionString());
+                      .To<DatabasePermutations>()
+                      .WhenInjectedInto<CachedPermutations>()
+                      .WithConstructorArgument("connectionString", kernel.Get<IConnectionStringFactory>().GetConnectionString());
+                
+                kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
                 kernel.Bind<IFingerprintQueryBuilder>().To<FingerprintQueryBuilder>();
                 kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
             }
@@ -82,6 +85,39 @@
             public T Get<T>()
             {
                 return kernel.Get<T>();
+            }
+
+            public void Bind<TInterface, TImplementation>() where TImplementation : TInterface
+            {
+                kernel.Rebind<TInterface>().To<TImplementation>();
+            }
+
+            public void Bind<TInterface, TImplementation>(TImplementation constant) where TImplementation : TInterface
+            {
+                if (constant as IPermutations != null)
+                {
+                    RemoveBindingsForType(typeof(IPermutations));
+                    kernel.Bind<IPermutations>().To<CachedPermutations>();
+                    kernel.Bind<IPermutations>().ToConstant((IPermutations)constant).WhenInjectedInto<CachedPermutations>();
+                }
+                else if (constant as IModelBinderFactory != null)
+                {
+                    RemoveBindingsForType(typeof(IModelBinderFactory));
+                    kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
+                    kernel.Rebind<IModelBinderFactory>().ToConstant((IModelBinderFactory)constant).WhenInjectedInto<CachedModelBinderFactory>();
+                }
+                else
+                {
+                    kernel.Rebind<TInterface>().ToConstant(constant);
+                }
+            }
+
+            private void RemoveBindingsForType(Type type)
+            {
+                foreach (var binding in kernel.GetBindings(type))
+                {
+                    kernel.RemoveBinding(binding);
+                }
             }
         }
     }

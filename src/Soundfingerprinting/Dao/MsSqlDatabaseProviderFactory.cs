@@ -4,11 +4,18 @@
     using System.Data.Common;
     using System.Data.SqlClient;
 
+    using Soundfingerprinting.Infrastructure;
+
     public class MsSqlDatabaseProviderFactory : IDatabaseProviderFactory
     {
         private readonly IConnectionStringFactory connectionStringFactory;
 
         private readonly DbProviderFactory databaseProvider;
+
+        public MsSqlDatabaseProviderFactory()
+            : this(DependencyResolver.Current.Get<IConnectionStringFactory>())
+        {
+        }
 
         public MsSqlDatabaseProviderFactory(IConnectionStringFactory connectionStringFactory)
         {
@@ -19,8 +26,13 @@
         public IDbConnection CreateConnection()
         {
             IDbConnection connection = databaseProvider.CreateConnection();
-            connection.ConnectionString = connectionStringFactory.GetConnectionString();
-            return connection;
+            if (connection != null)
+            {
+                connection.ConnectionString = connectionStringFactory.GetConnectionString();
+                return connection;
+            }
+
+            return null;
         }
     }
 }

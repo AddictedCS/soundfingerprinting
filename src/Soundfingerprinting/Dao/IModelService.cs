@@ -67,5 +67,7 @@ namespace Soundfingerprinting.Dao
         void InsertSubFingerprint(SubFingerprint subFingerprint);
 
         void InsertSubFingerprint(IEnumerable<SubFingerprint> subFingerprints);
+
+        int[][] ReadPermutationsForLSHAlgorithm();
     }
 }
