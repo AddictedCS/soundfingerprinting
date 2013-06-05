@@ -6,6 +6,8 @@ Soundfingerprinting is a C# framework designed for developers and researchers in
 
 Feel free to contact project owners for any offers, remarks, ideas, etc.
 
+Wiki page with the details - https://github.com/AddictedCS/soundfingerprinting/wiki
+
 The framework is provided under GPLv3 licence agreement, http://www.gnu.org/licenses/gpl.html.
 
 The framework implements the algorithm from Content Fingerprinting Using Wavelets paper.
