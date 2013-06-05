@@ -4,7 +4,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Strides;
 
     [TestClass]
     public class StrideClassesTest : BaseTest

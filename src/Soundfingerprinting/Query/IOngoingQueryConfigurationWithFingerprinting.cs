@@ -2,7 +2,7 @@
 {
     using System;
 
-    using Soundfingerprinting.Fingerprinting.Configuration;
+    using Soundfingerprinting.Configuration;
     using Soundfingerprinting.Query.Configuration;
 
     public interface IOngoingQueryConfigurationWithFingerprinting

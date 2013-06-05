@@ -29,7 +29,7 @@
             Dictionary<int, double> entropy = new Dictionary<int, double>();
             foreach (KeyValuePair<int, int[]> pair in randomPermutationPool)
             {
-                double ent = SignalUtils.Entropy(pair.Value);
+                double ent = SignalUtils.CalculateEntropy(pair.Value);
                 entropy.Add(pair.Key, ent);
             }
 

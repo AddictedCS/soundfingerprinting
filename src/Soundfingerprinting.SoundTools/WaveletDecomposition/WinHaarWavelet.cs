@@ -6,9 +6,9 @@
     using System.IO;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Fingerprinting.Wavelets;
     using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Wavelets;
 
     public partial class WinHaarWavelet : Form
     {

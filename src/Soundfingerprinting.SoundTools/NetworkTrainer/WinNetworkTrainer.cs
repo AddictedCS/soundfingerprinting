@@ -12,8 +12,8 @@
     using Encog.Util;
 
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.NeuralHashing;
-    using Soundfingerprinting.NeuralHashing.NeuralTrainer;
+    using Soundfingerprinting.Hashing.NeuralHashing;
+    using Soundfingerprinting.Hashing.NeuralHashing.NeuralTrainer;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinNetworkTrainer : Form

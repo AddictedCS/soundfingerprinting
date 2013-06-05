@@ -4,17 +4,16 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.DuplicatesDetector.Model;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Strides;
 
     /// <summary>
     ///   Singleton class for repository container
     /// </summary>
     public class Repository
     {
-        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
+        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
 
         private readonly ICombinedHashingAlgoritm combinedHashingAlgorithm;
 
@@ -23,11 +22,11 @@
         /// </summary>
         private readonly IStorage storage;
 
-        public Repository(IFingerprintingUnitsBuilder fingerprintingUnitsBuilder, IStorage storage, ICombinedHashingAlgoritm combinedHashingAlgorithm)
+        public Repository(IFingerprintUnitBuilder fingerprintUnitBuilder, IStorage storage, ICombinedHashingAlgoritm combinedHashingAlgorithm)
         {
             this.combinedHashingAlgorithm = combinedHashingAlgorithm;
             this.storage = storage;
-            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
+            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
         }
 
         /// <summary>
@@ -46,7 +45,7 @@
             }
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
-            List<bool[]> fingerprints = fingerprintingUnitsBuilder.BuildFingerprints()
+            List<bool[]> fingerprints = fingerprintUnitBuilder.BuildFingerprints()
                                                        .On(samples)
                                                        .WithCustomConfiguration(config => config.Stride = stride)
                                                        .RunAlgorithm()

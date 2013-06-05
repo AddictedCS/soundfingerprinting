@@ -5,7 +5,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.Wavelets;
 
     [TestClass]
     public class HaarWaveletTest : BaseTest

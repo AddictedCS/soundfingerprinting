@@ -1,8 +1,8 @@
 ﻿namespace Soundfingerprinting.DuplicatesDetector.Services
 {
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio;
+    using Soundfingerprinting.Audio.Bass;
     using Soundfingerprinting.DuplicatesDetector.DataAccess;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.Infrastructure;
@@ -30,7 +30,7 @@
             ServiceContainer.Kernel.Bind<IWindowService>().To<WindowService>();
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
-            ServiceContainer.Kernel.Bind<IFingerprintingUnitsBuilder>().To<FingerprintingUnitsBuilder>();
+            ServiceContainer.Kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
             ServiceContainer.Kernel.Bind<IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
             ServiceContainer.Kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
 

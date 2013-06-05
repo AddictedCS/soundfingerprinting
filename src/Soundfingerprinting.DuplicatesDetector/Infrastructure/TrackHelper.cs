@@ -2,8 +2,7 @@
 {
     using System.IO;
 
-    using Soundfingerprinting.Audio.Models;
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio;
     using Soundfingerprinting.DuplicatesDetector.Model;
 
     public static class TrackHelper

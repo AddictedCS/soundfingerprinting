@@ -9,27 +9,26 @@
 
     using Moq;
 
-    using Soundfingerprinting.Audio.Services;
-    using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Audio.Bass;
+    using Soundfingerprinting.Audio.DirectSound;
+    using Soundfingerprinting.Configuration;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.DbStorage.Utils;
-    using Soundfingerprinting.Fingerprinting;
-    using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.FFT.FFTW;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
-    using Soundfingerprinting.Fingerprinting.Wavelets;
-    using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.FFT;
+    using Soundfingerprinting.FFT.FFTW;
     using Soundfingerprinting.Hashing.MinHash;
+    using Soundfingerprinting.Strides;
+    using Soundfingerprinting.Utils;
+    using Soundfingerprinting.Wavelets;
 
     [TestClass]
     public class FingerprintManagerTest : BaseTest
     {
         private ModelService modelService;
         private IFingerprintService fingerprintService;
-        private IFingerprintingUnitsBuilder fingerprintingUnitsBuilderWithBass;
-        private IFingerprintingUnitsBuilder fingerprintingUnitsBuilderWithDirectSound;
+        private IFingerprintUnitBuilder fingerprintUnitBuilderWithBass;
+        private IFingerprintUnitBuilder fingerprintUnitBuilderWithDirectSound;
         private IFingerprintingConfiguration defaultConfiguration;
         private IPermutations permutations;
 
@@ -42,9 +41,9 @@
             var mockedPermutations = new Mock<IPermutations>();
             mockedPermutations.Setup(perms => perms.GetPermutations()).Returns(new int[1][]);
             permutations = mockedPermutations.Object;
-            fingerprintingUnitsBuilderWithBass = new FingerprintingUnitsBuilder(fingerprintService, new BassAudioService(), new MinHashService(permutations));
+            fingerprintUnitBuilderWithBass = new FingerprintUnitBuilder(fingerprintService, new BassAudioService(), new MinHashService(permutations));
 #pragma warning disable 612,618
-            fingerprintingUnitsBuilderWithDirectSound = new FingerprintingUnitsBuilder(fingerprintService, new DirectSoundAudioService(), new MinHashService(permutations));
+            fingerprintUnitBuilderWithDirectSound = new FingerprintUnitBuilder(fingerprintService, new DirectSoundAudioService(), new MinHashService(permutations));
 #pragma warning restore 612,618
         }
 
@@ -62,7 +61,7 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
         {
             var track = InsertTrack();
-            var signatures = fingerprintingUnitsBuilderWithDirectSound.BuildFingerprints()
+            var signatures = fingerprintUnitBuilderWithDirectSound.BuildFingerprints()
                                             .On(PathToWav)
                                             .With(defaultConfiguration)
                                             .RunAlgorithm()
@@ -79,7 +78,7 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
         {
             var track = InsertTrack();
-            var signatures = fingerprintingUnitsBuilderWithBass.BuildFingerprints()
+            var signatures = fingerprintUnitBuilderWithBass.BuildFingerprints()
                                             .On(PathToMp3)
                                             .With(defaultConfiguration)
                                             .RunAlgorithm()
@@ -95,13 +94,13 @@
         [TestMethod]
         public void CompareFingerprintsCreatedByDifferentProxiesTest()
         {
-            var directSoundFingerprints = fingerprintingUnitsBuilderWithDirectSound.BuildFingerprints()
+            var directSoundFingerprints = fingerprintUnitBuilderWithDirectSound.BuildFingerprints()
                                                         .On(PathToWav)
                                                         .With(defaultConfiguration)
                                                         .RunAlgorithm()
                                                         .Result;
 
-            var bassFingerprints = fingerprintingUnitsBuilderWithBass.BuildFingerprints()
+            var bassFingerprints = fingerprintUnitBuilderWithBass.BuildFingerprints()
                                                  .On(PathToMp3)
                                                  .With(defaultConfiguration)
                                                  .RunAlgorithm()
@@ -141,7 +140,7 @@
                 bassAudioService.RecodeTheFile(PathToMp3, tempFile, 5512);
 
                 long fileSize = new FileInfo(tempFile).Length;
-                var list = fingerprintingUnitsBuilderWithBass.BuildFingerprints()
+                var list = fingerprintUnitBuilderWithBass.BuildFingerprints()
                                           .On(PathToMp3)
                                           .WithCustomConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
                                           .RunAlgorithm()

@@ -3,17 +3,11 @@
     using System;
     using System.Linq;
 
-    /// <summary>
-    ///   Information theory utils
-    /// </summary>
     public static class SignalUtils
     {
-        /// <summary>
-        ///   Gets the entropy of an array
-        /// </summary>
-        /// <param name = "array">Array to calculate the entropy</param>
-        /// <returns>Entropy of the array</returns>
-        public static double Entropy(Int32[] array)
+        private const double Epsilon = 0.001;
+
+        public static double CalculateEntropy(int[] array)
         {
             int n = array.Length;
             int total = 0;
@@ -30,11 +24,15 @@
             for (int i = 0; i < n; i++)
             {
                 // get item's probability
-                p = (double) array[i]/total;
+                p = (double)array[i] / total;
+
                 // calculate entropy
-                if (p != 0)
-                    entropy += (-p*Math.Log(p, 2));
+                if (Math.Abs(p - 0) > Epsilon)
+                {
+                    entropy += -p * Math.Log(p, 2);
+                }
             }
+
             return entropy;
         }
 

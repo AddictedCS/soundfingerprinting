@@ -2,7 +2,6 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Infrastructure;
 
     [TestClass]
@@ -11,10 +10,10 @@
         [TestMethod]
         public void TestResolveFingerprintUnitBuilder()
         {
-            IFingerprintingUnitsBuilder builder = DependencyResolver.Current.Get<IFingerprintingUnitsBuilder>();
+            IFingerprintUnitBuilder builder = DependencyResolver.Current.Get<IFingerprintUnitBuilder>();
 
             Assert.IsNotNull(builder);
-            Assert.AreEqual(typeof(FingerprintingUnitsBuilder), builder.GetType());
+            Assert.AreEqual(typeof(FingerprintUnitBuilder), builder.GetType());
         }
     }
 }

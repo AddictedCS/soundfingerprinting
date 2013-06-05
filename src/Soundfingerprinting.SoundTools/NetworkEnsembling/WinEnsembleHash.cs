@@ -12,13 +12,13 @@
 
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.Fingerprinting;
     using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.NeuralHashing;
-    using Soundfingerprinting.NeuralHashing.Ensemble;
-    using Soundfingerprinting.NeuralHashing.MMI;
-    using Soundfingerprinting.NeuralHashing.NeuralTrainer;
+    using Soundfingerprinting.Hashing.NeuralHashing;
+    using Soundfingerprinting.Hashing.NeuralHashing.Ensemble;
+    using Soundfingerprinting.Hashing.NeuralHashing.MMI;
+    using Soundfingerprinting.Hashing.NeuralHashing.NeuralTrainer;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Utils;
 
     /// <summary>
     ///   Building Hashes, Assembling networks
@@ -26,10 +26,6 @@
     public partial class WinEnsembleHash : Form
     {
         private readonly Dictionary<string, bool> dictionaryPathToNetworks = new Dictionary<string, bool>();
-
-        private readonly IPermutations permutations;
-
-        private string connectionStringNeuralHasher = string.Empty;
 
         private readonly IModelService modelService;
 
@@ -68,7 +64,7 @@
             this.modelService = modelService;
             InitializeComponent();
             Icon = Resources.Sound;
-            permutations = new DatabasePermutations(modelService);
+            new DatabasePermutations(modelService);
         }
 
         /// <summary>
@@ -93,7 +89,6 @@
             }
 
             _cmbConnectionStringEnsemble.SelectedIndex = 0;
-            connectionStringNeuralHasher = ConfigurationManager.ConnectionStrings[0].ConnectionString;
             int count = ConfigurationManager.AppSettings.Count;
             for (int i = 0; i < count; i++)
             {
@@ -291,7 +286,6 @@
         /// </summary>
         private void ComboBox1SelectedIndexChanged(object sender, EventArgs e)
         {
-            connectionStringNeuralHasher = _cmbConnectionStringEnsemble.SelectedItem.ToString();
         }
 
         /// <summary>

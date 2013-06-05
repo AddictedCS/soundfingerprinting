@@ -9,12 +9,12 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio.Services;
-    using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Audio;
+    using Soundfingerprinting.Configuration;
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Fingerprinting.Configuration;
     using Soundfingerprinting.Query;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Strides;
 
     public partial class WinCheckHashBins : Form
     {

@@ -8,8 +8,7 @@
     using System.Threading;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio.Models;
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio;
     using Soundfingerprinting.SoundTools.Properties;
 
     public partial class WinFfMpegResampler : Form

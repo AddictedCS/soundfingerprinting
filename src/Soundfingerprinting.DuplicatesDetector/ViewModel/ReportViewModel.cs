@@ -11,7 +11,7 @@
 
     using Ninject;
 
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio;
     using Soundfingerprinting.DuplicatesDetector.Infrastructure;
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;

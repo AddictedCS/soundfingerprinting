@@ -5,19 +5,18 @@
 
     using Ninject;
 
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio;
+    using Soundfingerprinting.Audio.Bass;
+    using Soundfingerprinting.Configuration;
     using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Fingerprinting;
-    using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.FFT.FFTW;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
-    using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.FFT;
+    using Soundfingerprinting.FFT.FFTW;
     using Soundfingerprinting.Hashing;
     using Soundfingerprinting.Hashing.LSH;
     using Soundfingerprinting.Hashing.MinHash;
     using Soundfingerprinting.Image;
-    using Soundfingerprinting.Query;
+    using Soundfingerprinting.Utils;
+    using Soundfingerprinting.Wavelets;
 
     public static class DependencyResolver
     {
@@ -49,7 +48,7 @@
                 kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
                 kernel.Bind<IAudioService, IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
-                kernel.Bind<IFingerprintingUnitsBuilder>().To<FingerprintingUnitsBuilder>();
+                kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
                 kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
                 kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();

@@ -8,13 +8,12 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio.Models;
-    using Soundfingerprinting.Audio.Services;
-    using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Audio;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
     using Soundfingerprinting.Query;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Strides;
 
     public partial class WinQueryResults : Form
     {

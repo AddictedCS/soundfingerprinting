@@ -6,7 +6,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Fingerprinting;
+    using Soundfingerprinting.Utils;
 
     [TestClass]
     public class FingerprintDescriptorTest : BaseTest

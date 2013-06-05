@@ -7,10 +7,10 @@
     using System.Drawing.Imaging;
     using System.Linq;
 
-    using Soundfingerprinting.Audio.Strides;
-    using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.FFT;
     using Soundfingerprinting.Infrastructure;
+    using Soundfingerprinting.Strides;
+    using Soundfingerprinting.Wavelets;
 
     public class ImageService : IImageService
     {

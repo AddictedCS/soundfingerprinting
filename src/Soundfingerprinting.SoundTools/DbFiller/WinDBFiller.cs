@@ -11,16 +11,14 @@
     using System.Threading;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio.Models;
-    using Soundfingerprinting.Audio.Services;
-    using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Audio;
+    using Soundfingerprinting.Configuration;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing.LSH;
-    using Soundfingerprinting.NeuralHashing.Ensemble;
+    using Soundfingerprinting.Hashing.NeuralHashing.Ensemble;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Strides;
 
     public partial class WinDbFiller : Form
     {
@@ -32,7 +30,7 @@
         private readonly object lockObject = new object(); /*Cross Thread operation*/
         private readonly IModelService modelService; /*Dal Signature service*/
         private readonly ILSHService lshService;
-        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
+        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
         private readonly ITagService tagService;
         private volatile int badFiles; /*Number of Bad files*/
         private volatile int duplicates; /*Number of Duplicates*/
@@ -47,14 +45,14 @@
         private Album unknownAlbum;
         
         public WinDbFiller(
-            IFingerprintingUnitsBuilder fingerprintingUnitsBuilder,
+            IFingerprintUnitBuilder fingerprintUnitBuilder,
             ITagService tagService,
             IModelService modelService,
             ILSHService lshService)
         {
             this.modelService = modelService;
             this.lshService = lshService;
-            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
+            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
             this.tagService = tagService;
             InitializeComponent();
             Icon = Resources.Sound;
@@ -432,7 +430,7 @@
                 int count;
                 try
                 {
-                    List<byte[]> subFingerprints = fingerprintingUnitsBuilder.BuildFingerprints().On(fileList[i]).WithCustomConfiguration(
+                    List<byte[]> subFingerprints = fingerprintUnitBuilder.BuildFingerprints().On(fileList[i]).WithCustomConfiguration(
                         config =>
                             {
                                 config.TopWavelets = topWavelets;

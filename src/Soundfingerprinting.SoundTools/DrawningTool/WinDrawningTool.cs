@@ -8,14 +8,13 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio.Services;
-    using Soundfingerprinting.Audio.Strides;
-    using Soundfingerprinting.Fingerprinting.Configuration;
-    using Soundfingerprinting.Fingerprinting.FFT;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
-    using Soundfingerprinting.Fingerprinting.Windows;
+    using Soundfingerprinting.Audio;
+    using Soundfingerprinting.Configuration;
+    using Soundfingerprinting.FFT;
     using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Strides;
+    using Soundfingerprinting.Windows;
 
     public partial class WinDrawningTool : Form
     {
@@ -23,7 +22,7 @@
 
         private readonly ITagService tagService;
 
-        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
+        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
 
         private readonly IFingerprintingConfiguration fingerprintingConfiguration;
 
@@ -34,14 +33,14 @@
         public WinDrawningTool(
             IAudioService audioService,
             ITagService tagService,
-            IFingerprintingUnitsBuilder fingerprintingUnitsBuilder,
+            IFingerprintUnitBuilder fingerprintUnitBuilder,
             IFingerprintingConfiguration fingerprintingConfiguration,
             IImageService imageService,
             ISpectrumService spectrumService)
         {
             this.audioService = audioService;
             this.tagService = tagService;
-            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
+            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
             this.fingerprintingConfiguration = fingerprintingConfiguration;
             this.imageService = imageService;
             this.spectrumService = spectrumService;
@@ -94,7 +93,7 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = fingerprintingUnitsBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
+                                var songToDraw = fingerprintUnitBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
                                     config =>
                                         {
                                             config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
@@ -127,7 +126,7 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = this.fingerprintingUnitsBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
+                                var songToDraw = this.fingerprintUnitBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
                                     config => { config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint); });
                                 List<bool[]> result = songToDraw.RunAlgorithm().Result;
                                 int i = -1;

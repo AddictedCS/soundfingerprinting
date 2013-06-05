@@ -2,8 +2,8 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Audio.Models;
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio;
+    using Soundfingerprinting.Audio.Bass;
 
     [TestClass]
     public class TagServiceTest : BaseTest

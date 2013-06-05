@@ -7,24 +7,19 @@
     using System.Windows.Forms;
     using System.Xml.Serialization;
 
-    using Soundfingerprinting.Audio.Strides;
-    using Soundfingerprinting.Fingerprinting;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
-    using Soundfingerprinting.Fingerprinting.Windows;
-    using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Hashing.MinHash;
+    using Soundfingerprinting.Builder;
     using Soundfingerprinting.Hashing.Utils;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Strides;
+    using Soundfingerprinting.Windows;
 
     public partial class WinMisc : Form
     {
-        private readonly IFingerprintService fingerprintService;
-        private readonly IFingerprintingUnitsBuilder fingerprintingUnitsBuilder;
+        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
 
-        public WinMisc(IFingerprintService fingerprintService, IFingerprintingUnitsBuilder fingerprintingUnitsBuilder)
+        public WinMisc(IFingerprintUnitBuilder fingerprintUnitBuilder)
         {
-            this.fingerprintService = fingerprintService;
-            this.fingerprintingUnitsBuilder = fingerprintingUnitsBuilder;
+            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -129,7 +124,7 @@
                         int firstQueryStride = (int)_nudFirstQueryStride.Value;
 
                         var databaseSong =
-                            fingerprintingUnitsBuilder.BuildFingerprints().On(
+                            fingerprintUnitBuilder.BuildFingerprints().On(
                                 _tbPathToFile.Text, millisecondsToProcess, startAtMillisecond).WithCustomConfiguration(
                                     config =>
                                         {
@@ -144,12 +139,12 @@
                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                         });
 
-                        IFingerprintingUnit querySong;
+                        IFingerprintUnit querySong;
                         int comparisonStride = (int)_nudQueryStride.Value;
                         if (_chbCompare.Checked)
                         {
                             querySong =
-                                fingerprintingUnitsBuilder.BuildFingerprints()
+                                fingerprintUnitBuilder.BuildFingerprints()
                                                           .On(_tbSongToCompare.Text, millisecondsToProcess, startAtMillisecond)
                                                           .WithCustomConfiguration(
                                                               config =>
@@ -170,7 +165,7 @@
                         else
                         {
                             querySong =
-                                fingerprintingUnitsBuilder.BuildFingerprints()
+                                fingerprintUnitBuilder.BuildFingerprints()
                                                           .On(_tbPathToFile.Text, millisecondsToProcess, startAtMillisecond)
                                                           .WithCustomConfiguration(
                                                               config =>
@@ -244,7 +239,7 @@
             return new HanningWindow();
         }
 
-        private void GetFingerprintSimilarity(IFingerprintingUnit databaseSong, IFingerprintingUnit querySong, SimilarityResult results)
+        private void GetFingerprintSimilarity(IFingerprintUnit databaseSong, IFingerprintUnit querySong, SimilarityResult results)
         {
             double sum = 0;
 

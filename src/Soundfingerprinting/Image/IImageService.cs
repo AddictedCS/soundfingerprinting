@@ -3,8 +3,8 @@
     using System.Collections.Generic;
     using System.Drawing;
 
-    using Soundfingerprinting.Audio.Strides;
-    using Soundfingerprinting.Fingerprinting.Wavelets;
+    using Soundfingerprinting.Strides;
+    using Soundfingerprinting.Wavelets;
 
     public interface IImageService
     {

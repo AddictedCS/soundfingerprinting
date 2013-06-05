@@ -5,7 +5,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.Bass;
+    using Soundfingerprinting.Audio.DirectSound;
 
     [TestClass]
     public class BassAudioServiceTest : BaseTest

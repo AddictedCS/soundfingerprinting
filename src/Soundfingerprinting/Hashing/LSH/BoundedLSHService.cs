@@ -38,7 +38,7 @@
 
         public long[] Hash(byte[] source, int numberOfHashTables, int numberOfHashesPerTable)
         {
-            long[] hashes = this.lshAlgorithm.Hash(source, numberOfHashTables, numberOfHashesPerTable);
+            long[] hashes = lshAlgorithm.Hash(source, numberOfHashTables, numberOfHashesPerTable);
             for (int i = 0; i < hashes.Length; i++)
             {
                 hashes[i] = (((A * hashes[i]) + B) % PrimeP) % HashBucketSize;

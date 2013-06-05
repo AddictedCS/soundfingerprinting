@@ -4,7 +4,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Fingerprinting.Windows;
+    using Soundfingerprinting.Windows;
 
     [TestClass]
     public class HanningWindowTest : BaseTest

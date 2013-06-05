@@ -7,8 +7,8 @@
     using System.Text;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio.Strides;
     using Soundfingerprinting.SoundTools.Properties;
+    using Soundfingerprinting.Strides;
 
     internal static class WinUtils
     {

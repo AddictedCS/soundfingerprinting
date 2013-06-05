@@ -4,7 +4,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Audio.Services;
+    using Soundfingerprinting.Audio.DirectSound;
 
     [TestClass]
     public class DirectSoundTest : BaseTest

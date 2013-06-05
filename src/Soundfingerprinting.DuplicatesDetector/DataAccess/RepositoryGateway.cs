@@ -9,14 +9,13 @@
     using Ninject;
     using Ninject.Parameters;
 
-    using Soundfingerprinting.Audio.Services;
-    using Soundfingerprinting.Audio.Strides;
+    using Soundfingerprinting.Audio;
     using Soundfingerprinting.DuplicatesDetector.Infrastructure;
     using Soundfingerprinting.DuplicatesDetector.Model;
     using Soundfingerprinting.DuplicatesDetector.Services;
     using Soundfingerprinting.DuplicatesDetector.ViewModel;
-    using Soundfingerprinting.Fingerprinting.FingerprintUnitBuilder;
     using Soundfingerprinting.Hashing;
+    using Soundfingerprinting.Strides;
 
     /// <summary>
     ///   Class which prepares the data for Repository analysis of the tracks (does all the "dirty job")
@@ -119,7 +118,7 @@
             audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
             tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
-            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintingUnitsBuilder>(), storage, ServiceContainer.Kernel.Get<ICombinedHashingAlgoritm>());
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintUnitBuilder>(), storage, ServiceContainer.Kernel.Get<ICombinedHashingAlgoritm>());
             createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
         }
 
