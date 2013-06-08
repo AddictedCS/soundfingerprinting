@@ -4,8 +4,7 @@
     using System.Diagnostics.CodeAnalysis;
 
     using Soundfingerprinting.FFT.Exocortex;
-    using Soundfingerprinting.Windows;
-
+    
     internal class SparKernel
     {
         /// <summary>
@@ -32,14 +31,6 @@
         private readonly double threshold;
 
         /// <summary>
-        ///   Window function used in the algorithm
-        /// </summary>
-        /// <remarks>
-        ///   Hanning window
-        /// </remarks>
-        private readonly IWindowFunction window;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SparKernel"/> class. 
         /// </summary>
         /// <param name="minFreq">
@@ -57,17 +48,13 @@
         /// <param name="threshold">
         /// Threshold value for filtering components
         /// </param>
-        /// <param name="function">
-        /// Window function
-        /// </param>
-        public SparKernel(double minFreq, double maxFreq, int bins, double frequencyRate, double threshold, IWindowFunction function)
+        public SparKernel(double minFreq, double maxFreq, int bins, double frequencyRate, double threshold)
         {
             this.minFreq = minFreq;
             this.maxFreq = maxFreq;
             this.bins = bins;
             this.frequencyRate = frequencyRate;
             this.threshold = threshold;
-            window = function;
         }
 
         public Complex[][] SparKernelVector
@@ -102,14 +89,11 @@
                 for (int i = 0; i < len; i++)
                 {
                     Complex[] tempKernel = new Complex[FftLen];
-                    double[] windowArray = this.window.GetWindow(len);
                     System.Numerics.Complex complexI = new System.Numerics.Complex(0, 1);
                     for (int j = 0; j < len; j++)
                     {
-                        windowArray[j] /= len;
-                        System.Numerics.Complex expValue =
-                            System.Numerics.Complex.Exp(2 * Math.PI * complexI * q * j / len);
-                        System.Numerics.Complex value = windowArray[j] * expValue;
+                        System.Numerics.Complex expValue = System.Numerics.Complex.Exp(2 * Math.PI * complexI * q * j / len);
+                        System.Numerics.Complex value = expValue;
                         tempKernel[j] = new Complex(value.Real, value.Imaginary);
                     }
                     

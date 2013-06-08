@@ -1,8 +1,7 @@
 namespace Soundfingerprinting.Configuration
 {
     using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Windows;
-
+    
     public class DefaultFingerprintingConfiguration : IFingerprintingConfiguration
     {
         public DefaultFingerprintingConfiguration()
@@ -18,7 +17,6 @@ namespace Soundfingerprinting.Configuration
             LogBase = 2;
             Stride = new IncrementalStaticStride(5115, FingerprintLength * Overlap);
             LogBins = 32;
-            WindowFunction = new CachingHanningWindow(new NoWindow());
             NormalizeSignal = false;
             UseDynamicLogBase = true;
         }
@@ -105,10 +103,14 @@ namespace Soundfingerprinting.Configuration
         /// </remarks>
         public IStride Stride { get; private set; }
 
-        public IWindowFunction WindowFunction { get; private set; }
-
+        /// <summary>
+        /// Gets a value indicating whether the algorithm has to normalize the signal
+        /// </summary>
         public bool NormalizeSignal { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
+        /// </summary>
         public bool UseDynamicLogBase { get; private set; }
     }
 }

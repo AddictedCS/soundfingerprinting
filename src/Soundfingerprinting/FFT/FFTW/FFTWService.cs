@@ -5,18 +5,13 @@
 
     public class FFTWService : IFFTService
     {
-        public virtual float[] FFTForward(float[] signal, int startIndex, int length, double[] window)
+        public virtual float[] FFTForward(float[] signal, int startIndex, int length)
         {
             IntPtr input = GetInput(length);
             IntPtr output = GetOutput(length);
             IntPtr fftPlan = GetFFTPlan(length, input, output);
             float[] applyTo = new float[length];
             Array.Copy(signal, startIndex, applyTo, 0, length);
-            for (int i = 0; i < length; i++)
-            {
-                applyTo[i] = (float)(applyTo[i] * window[i]);
-            }
-
             Marshal.Copy(applyTo, 0, input, length);
             InteropFFTW.execute(fftPlan);
             float[] result = new float[length * 2];

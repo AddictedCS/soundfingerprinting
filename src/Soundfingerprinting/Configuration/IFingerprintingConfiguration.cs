@@ -1,8 +1,7 @@
 namespace Soundfingerprinting.Configuration
 {
     using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Windows;
-
+    
     public interface IFingerprintingConfiguration
     {
         /// <summary>
@@ -63,11 +62,6 @@ namespace Soundfingerprinting.Configuration
         ///  Default = 5115
         /// </remarks>
         IStride Stride { get; }
-
-        /// <summary>
-        /// Gets window function applied on spectrogram
-        /// </summary>
-        IWindowFunction WindowFunction { get; }
 
         /// <summary>
         /// Gets a value indicating whether the algorithm has to normalize the signal

@@ -11,8 +11,7 @@
     using Soundfingerprinting.Hashing.Utils;
     using Soundfingerprinting.SoundTools.Properties;
     using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Windows;
-
+    
     public partial class WinMisc : Form
     {
         private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
@@ -116,7 +115,6 @@
             Task.Factory.StartNew(
                 () =>
                     {
-                        IWindowFunction windowFunction = GetWindowFunction();
                         bool normalizeSignal = _cbNormalize.Checked;
 
                         int secondsToProcess = (int)_nudSecondsToProcess.Value;
@@ -134,7 +132,6 @@
                                                                 ? (IStride)
                                                                   new IncrementalRandomStride(0, (int)_nudDatabaseStride.Value, config.SamplesPerFingerprint)
                                                                 : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
-                                            config.WindowFunction = windowFunction;
                                             config.NormalizeSignal = normalizeSignal;
                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                         });
@@ -157,7 +154,6 @@
                                                                                                 0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
                                                                                           : new IncrementalStaticStride(
                                                                                                 comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
-                                                                      config.WindowFunction = windowFunction;
                                                                       config.NormalizeSignal = normalizeSignal;
                                                                       config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                                   });
@@ -178,7 +174,6 @@
                                                                                                 0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
                                                                                           : new IncrementalStaticStride(
                                                                                                 comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
-                                                                      config.WindowFunction = windowFunction;
                                                                       config.NormalizeSignal = normalizeSignal;
                                                                       config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                                   });
@@ -227,16 +222,6 @@
                             writer.Close();
                         }
                     }).ContinueWith(result => FadeControls(true));
-        }
-
-        private IWindowFunction GetWindowFunction()
-        {
-            if (_cbUseNoWindow.Checked)
-            {
-                return new NoWindow();
-            }
-
-            return new HanningWindow();
         }
 
         private void GetFingerprintSimilarity(IFingerprintUnit databaseSong, IFingerprintUnit querySong, SimilarityResult results)

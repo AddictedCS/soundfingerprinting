@@ -148,16 +148,11 @@
     <Compile Include="Wavelets\IWaveletService.cs" />
     <Compile Include="FFT\SpectrumService.cs" />
     <Compile Include="Wavelets\WaveletService.cs" />
-    <Compile Include="Windows\CachingHanningWindow.cs" />
-    <Compile Include="Windows\NoWindow.cs" />
     <Compile Include="Builder\FingerprintUnit.cs" />
     <Compile Include="Builder\ITargetOn.cs" />
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
-    <Compile Include="Windows\HammingWindow.cs" />
-    <Compile Include="Windows\HanningWindow.cs" />
     <Compile Include="Wavelets\IntegralImage.cs" />
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
-    <Compile Include="Windows\IWindowFunction.cs" />
     <Compile Include="Utils\ConstantQ\SparKernel.cs" />
     <Compile Include="Wavelets\WaveletUtils.cs" />
     <Compile Include="Builder\IWithConfiguration.cs" />

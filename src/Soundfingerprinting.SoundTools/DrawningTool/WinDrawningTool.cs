@@ -14,8 +14,7 @@
     using Soundfingerprinting.Image;
     using Soundfingerprinting.SoundTools.Properties;
     using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Windows;
-
+    
     public partial class WinDrawningTool : Form
     {
         private readonly IAudioService audioService;
@@ -98,7 +97,6 @@
                                         {
                                             config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                             config.NormalizeSignal = normalize;
-                                            config.WindowFunction = noWindow ? new CachingHanningWindow(new NoWindow()) : new CachingHanningWindow(new HanningWindow());
                                         });
 
                                 List<bool[]> fingerprints = songToDraw.RunAlgorithm().Result;

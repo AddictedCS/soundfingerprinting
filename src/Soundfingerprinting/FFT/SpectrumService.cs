@@ -34,7 +34,7 @@
             float[][] frames = new float[width][];
             for (int i = 0; i < width; i++)
             {
-                float[] complexSignal = fftService.FFTForward(samples, i * overlap, wdftSize, new double[wdftSize]);
+                float[] complexSignal = fftService.FFTForward(samples, i * overlap, wdftSize);
                 float[] band = new float[(wdftSize / 2) + 1];
                 for (int j = 0; j < (wdftSize / 2) + 1; j++)
                 {
@@ -63,10 +63,9 @@
             int width = (samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
             float[][] frames = new float[width][];
             int[] logFrequenciesIndexes = GenerateLogFrequencies(configuration);
-            double[] window = configuration.WindowFunction.GetWindow(configuration.WdftSize);
             for (int i = 0; i < width; i++)
             {
-                float[] complexSignal = fftService.FFTForward(samples, i * configuration.Overlap, configuration.WdftSize, window);
+                float[] complexSignal = fftService.FFTForward(samples, i * configuration.Overlap, configuration.WdftSize);
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
             }
 

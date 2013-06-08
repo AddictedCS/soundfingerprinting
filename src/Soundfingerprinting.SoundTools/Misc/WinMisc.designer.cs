@@ -60,8 +60,6 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this._nudStartAtSecond = new System.Windows.Forms.NumericUpDown();
-            this.label11 = new System.Windows.Forms.Label();
-            this._cbUseNoWindow = new System.Windows.Forms.CheckBox();
             this._cbNormalize = new System.Windows.Forms.CheckBox();
             this._nudIterations = new System.Windows.Forms.NumericUpDown();
             this.label12 = new System.Windows.Forms.Label();
@@ -381,27 +379,6 @@ namespace Soundfingerprinting.SoundTools.Misc
             0,
             0});
             // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(277, 187);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(87, 13);
-            this.label11.TabIndex = 29;
-            this.label11.Text = "Window function";
-            // 
-            // _cbUseNoWindow
-            // 
-            this._cbUseNoWindow.AutoSize = true;
-            this._cbUseNoWindow.Checked = true;
-            this._cbUseNoWindow.CheckState = System.Windows.Forms.CheckState.Checked;
-            this._cbUseNoWindow.Location = new System.Drawing.Point(280, 204);
-            this._cbUseNoWindow.Name = "_cbUseNoWindow";
-            this._cbUseNoWindow.Size = new System.Drawing.Size(82, 17);
-            this._cbUseNoWindow.TabIndex = 30;
-            this._cbUseNoWindow.Text = "No Window";
-            this._cbUseNoWindow.UseVisualStyleBackColor = true;
-            // 
             // _cbNormalize
             // 
             this._cbNormalize.AutoSize = true;
@@ -482,8 +459,6 @@ namespace Soundfingerprinting.SoundTools.Misc
             this.Controls.Add(this.label12);
             this.Controls.Add(this._nudIterations);
             this.Controls.Add(this._cbNormalize);
-            this.Controls.Add(this._cbUseNoWindow);
-            this.Controls.Add(this.label11);
             this.Controls.Add(this._nudStartAtSecond);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label9);
@@ -560,8 +535,6 @@ namespace Soundfingerprinting.SoundTools.Misc
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.NumericUpDown _nudStartAtSecond;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.CheckBox _cbUseNoWindow;
         private System.Windows.Forms.CheckBox _cbNormalize;
         private System.Windows.Forms.NumericUpDown _nudIterations;
         private System.Windows.Forms.Label label12;

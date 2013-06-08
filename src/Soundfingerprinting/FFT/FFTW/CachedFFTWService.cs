@@ -16,11 +16,11 @@
             Dispose(true);
         }
 
-        public override float[] FFTForward(float[] signal, int startIndex, int length, double[] window)
+        public override float[] FFTForward(float[] signal, int startIndex, int length)
         {
             lock (lockObject)
             {
-                return base.FFTForward(signal, startIndex, length, window);
+                return base.FFTForward(signal, startIndex, length);
             }
         }
 

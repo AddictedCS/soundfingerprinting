@@ -73,7 +73,6 @@
     <Compile Include="Fingerprinting.Tests\FingerprintManagerTest.cs" />
     <Compile Include="Fingerprinting.Tests\FingerprintUtilsTest.cs" />
     <Compile Include="Fingerprinting.Tests\Wavelets\HaarWaveletTest.cs" />
-    <Compile Include="Fingerprinting.Tests\Windows\HanningWindowTest.cs" />
     <Compile Include="Infrastructure.Test\DependencyResolverTest.cs" />
     <Compile Include="NeuralHashing.Tests\BinaryOutputUtilTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

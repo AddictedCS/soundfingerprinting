@@ -1,8 +1,7 @@
 namespace Soundfingerprinting.Configuration
 {
     using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Windows;
-
+    
     public class CustomFingerprintingConfiguration : IFingerprintingConfiguration
     {
         public CustomFingerprintingConfiguration()
@@ -19,7 +18,6 @@ namespace Soundfingerprinting.Configuration
             FingerprintLength = defaultFingerprinting.FingerprintLength;
             Stride = defaultFingerprinting.Stride;
             LogBins = defaultFingerprinting.LogBins;
-            WindowFunction = defaultFingerprinting.WindowFunction;
             NormalizeSignal = defaultFingerprinting.NormalizeSignal;
             UseDynamicLogBase = defaultFingerprinting.UseDynamicLogBase;
         }
@@ -45,8 +43,6 @@ namespace Soundfingerprinting.Configuration
         public int FingerprintLength { get; set; }
 
         public IStride Stride { get; set; }
-
-        public IWindowFunction WindowFunction { get; set; }
 
         public bool NormalizeSignal { get; set; }
 
