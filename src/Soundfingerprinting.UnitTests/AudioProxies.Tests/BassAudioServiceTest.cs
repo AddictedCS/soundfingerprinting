@@ -17,7 +17,7 @@
             using (BassAudioService bass = new BassAudioService())
             {
                 string tempFile = string.Format(@"{0}\{1}", Path.GetTempPath(), "0.wav");
-                bass.RecodeTheFile(PathToMp3, tempFile, 5512);
+                bass.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
                 float[] samples = bass.ReadMonoFromFile(PathToMp3, SampleRate);
                 FileInfo info = new FileInfo(tempFile);
                 long expectedSize = info.Length - WaveHeader;
@@ -40,7 +40,7 @@
 
             for (int i = 0; i < bdata.Length; i++)
             {
-                if ((Math.Abs(bdata[i] - ddata[i]) / int.MaxValue) > 1)
+                if (Math.Abs(bdata[i] - ddata[i]) > 1)
                 {
                     Assert.Fail("Data arrays are different: " + bdata[i] + ":" + ddata[i] + " at " + i);
                 }

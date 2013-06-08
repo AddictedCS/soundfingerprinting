@@ -57,7 +57,7 @@
                 Action action = () =>
                     {
                         string pathToRecoded = Path.GetFullPath(sfd.FileName);
-                        extendedAudioService.RecodeTheFile(_tbPathToFile.Text, pathToRecoded, (int)_nudSampleRate.Value);
+                        extendedAudioService.RecodeFileToMonoWave(_tbPathToFile.Text, pathToRecoded, (int)_nudSampleRate.Value);
                     };
 
                 FadeControls(false);

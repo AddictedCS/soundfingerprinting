@@ -6,6 +6,8 @@ namespace Soundfingerprinting.Audio
 
     public abstract class AudioService : IAudioService
     {
+        public abstract IReadOnlyCollection<string> SupportedFormats { get; }
+
         public abstract void Dispose();
 
         public abstract float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond);

@@ -8,23 +8,44 @@
 
     public class NAudioService : AudioService, IExtendedAudioService
     {
+        private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3" };
+
+        private IWavePlayer waveOutDevice;
+        private WaveStream mainOutputStream;
+
+        public bool IsRecordingSupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override IReadOnlyCollection<string> SupportedFormats
+        {
+            get
+            {
+                return NAudioSupportedFormats;
+            }
+        }
+
         public override void Dispose()
         {
             throw new NotImplementedException();
         }
-
+        
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
             using (var reader = new MediaFoundationReader(pathToFile))
             {
                 int actualSampleRate = reader.WaveFormat.SampleRate;
                 int bitsPerSample = reader.WaveFormat.BitsPerSample;
-                reader.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond / 1000, System.IO.SeekOrigin.Begin);
+                reader.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond, System.IO.SeekOrigin.Begin);
                 using (var resampler = new MediaFoundationResampler(reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
                 {
-                    float[] buffer = new float[sampleRate]; // 20 seconds buffer
+                    float[] buffer = new float[sampleRate * 20]; // 20 seconds buffer
                     List<float[]> chunks = new List<float[]>();
-                    int totalFloatsToRead = secondsToRead == 0 ? int.MaxValue : secondsToRead / 1000 * sampleRate / 32;
+                    int totalFloatsToRead = secondsToRead == 0 ? int.MaxValue : secondsToRead * sampleRate;
                     int totalFloatsRead = 0;
                     Pcm32BitToSampleProvider pcmReader = new Pcm32BitToSampleProvider(resampler);
                     while (totalFloatsRead < totalFloatsToRead)
@@ -54,7 +75,7 @@
                         chunks.Add(chunk);
                     }
 
-                    if (totalFloatsRead < (secondsToRead / 1000 * sampleRate))
+                    if (totalFloatsRead < (secondsToRead * sampleRate))
                     {
                         return null; /*not enough samples to return the requested data*/
                     }
@@ -66,35 +87,44 @@
             }
         }
 
-        public void SetAllignedFloatArrayFromByte(byte[] array, float[] target, int length)
-        {
-            for (int i = 0, n = length; i < n; i++)
-            {
-                target[i] = BitConverter.ToSingle(array, i * 4);
-            }
-        }
-
-        public bool IsRecordingSupported
-        {
-            get
-            {
-                return false;
-            }
-        }
-
         public int PlayFile(string filename)
         {
-            throw new NotImplementedException();
+            waveOutDevice = new WaveOut();
+            mainOutputStream = CreateInputStream(filename);
+            waveOutDevice.Init(mainOutputStream);
+            waveOutDevice.Play();
+            return 0;
         }
 
         public void StopPlayingFile(int stream)
         {
-            throw new NotImplementedException();
+            if (waveOutDevice != null)
+            {
+                waveOutDevice.Stop();
+            }
+
+            if (mainOutputStream != null)
+            {
+                mainOutputStream.Close();
+                mainOutputStream = null;
+            }
+
+            if (waveOutDevice != null)
+            {
+                waveOutDevice.Dispose();
+                waveOutDevice = null;
+            }
         }
 
-        public void RecodeTheFile(string pathToFile, string outputPathToFile, int targetSampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string outputPathToFile, int targetSampleRate)
         {
-            throw new NotImplementedException();
+            using (Mp3FileReader reader = new Mp3FileReader(pathToFile))
+            {
+                using (var resampler = new MediaFoundationResampler(reader, WaveFormat.CreateIeeeFloatWaveFormat(targetSampleRate, 1)))
+                {
+                    WaveFileWriter.CreateWaveFile(outputPathToFile, resampler);
+                }
+            }
         }
 
         public float[] ReadMonoFromURL(string urlToResource, int sampleRate, int secondsToDownload)
@@ -105,6 +135,22 @@
         public float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
             throw new NotImplementedException();
+        }
+
+        private WaveStream CreateInputStream(string fileName)
+        {
+            WaveChannel32 inputStream;
+            if (fileName.EndsWith(".mp3"))
+            {
+                WaveStream mp3Reader = new Mp3FileReader(fileName);
+                inputStream = new WaveChannel32(mp3Reader);
+            }
+            else
+            {
+                throw new InvalidOperationException("Unsupported extension");
+            }
+
+            return inputStream;
         }
     }
 }

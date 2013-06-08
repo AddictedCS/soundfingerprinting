@@ -20,11 +20,21 @@
     [Obsolete("Use BassAudioService instead")]
     public class DirectSoundAudioService : AudioService
     {
+        private static readonly IReadOnlyCollection<string> DirectSoundSupportedFormats = new[] { ".wav" };
+
         private bool alreadyDisposed;
 
         ~DirectSoundAudioService()
         {
             Dispose(false);
+        }
+
+        public override IReadOnlyCollection<string> SupportedFormats
+        {
+            get
+            {
+                return DirectSoundSupportedFormats;
+            }
         }
 
         public override void Dispose()

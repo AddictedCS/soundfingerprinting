@@ -19,11 +19,12 @@
     ///   BASS is an audio library for use in Windows and Mac OSX software. 
     ///   Its purpose is to provide developers with powerful and efficient sample, stream (MP3, MP2, MP1, OGG, WAV, AIFF, custom generated, and more via add-ons), 
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
-    ///   All in a tiny DLL, under 100KB* in size.
     /// </remarks>
     public class BassAudioService : AudioService, IExtendedAudioService, ITagService
     {
         private const int DefaultSampleRate = 44100;
+
+        private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", "mp3", ".ogg", ".flac" };
 
         private bool alreadyDisposed;
 
@@ -87,6 +88,14 @@
             get
             {
                 return Bass.BASS_RecordGetDevice() != -1;
+            }
+        }
+
+        public override IReadOnlyCollection<string> SupportedFormats
+        {
+            get
+            {
+                return BaasSupportedFormats;
             }
         }
 
@@ -278,7 +287,7 @@
             }
         }
 
-        public void RecodeTheFile(string pathToFile, string outputPathToFile, int targetSampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string outputPathToFile, int targetSampleRate)
         {
             int stream = Bass.BASS_StreamCreateFile(pathToFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
             TAG_INFO tags = new TAG_INFO();

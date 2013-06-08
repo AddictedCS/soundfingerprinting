@@ -137,7 +137,7 @@
             using (BassAudioService bassAudioService = new BassAudioService())
             {
                 string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
-                bassAudioService.RecodeTheFile(PathToMp3, tempFile, 5512);
+                bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
 
                 long fileSize = new FileInfo(tempFile).Length;
                 var list = fingerprintUnitBuilderWithBass.BuildFingerprints()

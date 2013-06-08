@@ -1,9 +1,15 @@
 ﻿namespace Soundfingerprinting.Audio
 {
     using System;
+    using System.Collections.Generic;
 
     public interface IAudioService : IDisposable
     {
+        /// <summary>
+        /// Gets the list of supported audio formats
+        /// </summary>
+        IReadOnlyCollection<string> SupportedFormats { get; }
+
         /// <summary>
         ///   Read audio from file at a specific frequency rate
         /// </summary>
