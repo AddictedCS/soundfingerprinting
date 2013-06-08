@@ -5,7 +5,7 @@ Soundfingerprinting is a C# framework designed for developers and researchers in
 ### Documentation
 See the [Wiki page](https://github.com/AddictedCS/soundfingerprinting/wiki) with the operational details and information 
 
-Following is a code sample of how you would generate sound fingerprints that might be used later for recognition.
+Following is a code sample of how you would generate from an audio file sound fingerprints, that can be stored and used later for recognition purposes.
 
 ```csharp
 public List<byte[]> CreateFingerprintSignaturesFromFile(string pathToAudioFile)
@@ -32,7 +32,7 @@ public void StoreFingeprintSignaturesForTrack(List<byte[]> fingerprintSignatures
     modelService.InsertSubFingerprint(fingerprintsToStore);
 }
 ```
-Once you've inserted the fingerprints into the database, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, url, microphone, etc. It's up to the application you are building, where you get samples from.
+Once you've inserted the fingerprints into the database, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, url, microphone, radio tuner etc. It's up to your application, where you get the samples from.
 ```csharp
 public Track GetBestMatchForSong(String queryAudioFile)
 {
