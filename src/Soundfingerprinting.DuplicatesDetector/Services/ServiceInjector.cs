@@ -4,8 +4,6 @@
     using Soundfingerprinting.Audio.Bass;
     using Soundfingerprinting.DuplicatesDetector.DataAccess;
     using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Infrastructure;
 
     /// <summary>
     ///   Service injector loads all the services into Service Container on Application startup
@@ -20,9 +18,6 @@
         /// </summary>
         public static void InjectServices()
         {
-            const string PathToPermutations = "perms.csv";
-            const string Separator = ",";
-
             ServiceContainer.Kernel.Bind<IFolderBrowserDialogService>().To<FolderBrowserDialogService>();
             ServiceContainer.Kernel.Bind<IMessageBoxService>().To<MessageBoxService>();
             ServiceContainer.Kernel.Bind<IOpenFileDialogService>().To<OpenFileDialogService>();
@@ -33,8 +28,6 @@
             ServiceContainer.Kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
             ServiceContainer.Kernel.Bind<IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
             ServiceContainer.Kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
-
-            DependencyResolver.Current.Bind<IPermutations, LocalPermutations>(new LocalPermutations(PathToPermutations, Separator));
         }
     }
 }

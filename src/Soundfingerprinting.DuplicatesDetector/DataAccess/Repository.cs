@@ -116,13 +116,18 @@
                     IEnumerable<Track> result = set.Intersect(duplicates[j]);
                     if (result.Any())
                     {
+                        foreach (Track track in duplicates[j]) 
+                        {
+                            // collapse all duplicates in one set
+                            set.Add(track);
+                        }
+
                         duplicates.RemoveAt(j); /*Remove the duplicate set*/
-                        i = -1; /*Start iterating from the beginning*/
-                        break;
+                        j--;
                     }
                 }
             }
-
+            
             return duplicates.ToArray();
         }
 

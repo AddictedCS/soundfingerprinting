@@ -22,8 +22,6 @@
     /// </summary>
     public class RepositoryGateway
     {
-        #region Constants
-
         /// <summary>
         ///   Maximum track length (track's bigger than this value will be discarded)
         /// </summary>
@@ -82,10 +80,6 @@
         /// </remarks>
         private const int SampleRate = 5512;
 
-        #endregion
-
-        #region Read-only components
-
         private readonly ITagService tagService;
 
         private readonly IExtendedAudioService audioService;
@@ -93,7 +87,7 @@
         /// <summary>
         ///   Creational stride (used in hashing audio objects)
         /// </summary>
-        private readonly IStride createStride;
+        private readonly IStride createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
 
         /// <summary>
         ///   Repository for storage, permutations, algorithm
@@ -110,8 +104,6 @@
         /// </summary>
         private CancellationTokenSource cts;
 
-        #endregion
-
         public RepositoryGateway()
         {
             storage = ServiceContainer.Kernel.Get<IStorage>(new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
@@ -119,7 +111,6 @@
             tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
             repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintUnitBuilder>(), storage, ServiceContainer.Kernel.Get<ICombinedHashingAlgoritm>());
-            createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
         }
 
         /// <summary>

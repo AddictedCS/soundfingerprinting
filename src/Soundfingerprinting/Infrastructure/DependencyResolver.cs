@@ -47,7 +47,8 @@
                 kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
                 kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
-                kernel.Bind<IAudioService, IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
+                kernel.Bind<ITagService>().To<BassAudioService>().InSingletonScope();
+                kernel.Bind<IAudioService, IExtendedAudioService>().To<NAudioService>().InSingletonScope();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
                 kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
@@ -61,11 +62,7 @@
                 kernel.Bind<IWaveletService>().To<WaveletService>();
                 kernel.Bind<IMinHashService>().To<MinHashService>();
                 kernel.Bind<ILSHService>().To<LSHService>();
-                kernel.Bind<IPermutations>().To<CachedPermutations>();
-                kernel.Bind<IPermutations>()
-                      .To<DatabasePermutations>()
-                      .WhenInjectedInto<CachedPermutations>()
-                      .WithConstructorArgument("connectionString", kernel.Get<IConnectionStringFactory>().GetConnectionString());
+                kernel.Bind<IPermutations>().To<DefaultPermutations>();
                 
                 kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
                 kernel.Bind<IFingerprintQueryBuilder>().To<FingerprintQueryBuilder>();
