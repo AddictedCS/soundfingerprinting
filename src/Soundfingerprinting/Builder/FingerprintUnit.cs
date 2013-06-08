@@ -73,11 +73,11 @@ namespace Soundfingerprinting.Builder
             return this;
         }
 
-        public IWithConfiguration On(string pathToAudioFile, int millisecondsToProcess, int startAtMillisecond)
+        public IWithConfiguration On(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
             createFingerprintsMethod = () =>
                 {
-                    float[] samples = audioService.ReadMonoFromFile(pathToAudioFile, Configuration.SampleRate, millisecondsToProcess, startAtMillisecond);
+                    float[] samples = audioService.ReadMonoFromFile(pathToAudioFile, Configuration.SampleRate, secondsToProcess, startAtSecond);
                     if (cancellationToken.IsCancellationRequested)
                     {
                         return new List<bool[]>(Enumerable.Empty<bool[]>());

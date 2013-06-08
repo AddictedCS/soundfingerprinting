@@ -33,9 +33,9 @@
             return this;
         }
 
-        public IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile, int millisecondsToProcess, int startAtMillisecond)
+        public IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
-            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(pathToAudioFile, millisecondsToProcess, startAtMillisecond);
+            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(pathToAudioFile, secondsToProcess, startAtSecond);
             return this;
         }
 

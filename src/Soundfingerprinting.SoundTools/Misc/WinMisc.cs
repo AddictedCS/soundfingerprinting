@@ -119,13 +119,13 @@
                         IWindowFunction windowFunction = GetWindowFunction();
                         bool normalizeSignal = _cbNormalize.Checked;
 
-                        int millisecondsToProcess = (int)_nudSecondsToProcess.Value * 1000;
-                        int startAtMillisecond = (int)_nudStartAtSecond.Value * 1000;
+                        int secondsToProcess = (int)_nudSecondsToProcess.Value;
+                        int startAtSecond = (int)_nudStartAtSecond.Value;
                         int firstQueryStride = (int)_nudFirstQueryStride.Value;
 
                         var databaseSong =
                             fingerprintUnitBuilder.BuildFingerprints().On(
-                                _tbPathToFile.Text, millisecondsToProcess, startAtMillisecond).WithCustomConfiguration(
+                                _tbPathToFile.Text, secondsToProcess, startAtSecond).WithCustomConfiguration(
                                     config =>
                                         {
                                             config.MinFrequency = (int)_nudMinFrequency.Value;
@@ -145,7 +145,7 @@
                         {
                             querySong =
                                 fingerprintUnitBuilder.BuildFingerprints()
-                                                          .On(_tbSongToCompare.Text, millisecondsToProcess, startAtMillisecond)
+                                                          .On(_tbSongToCompare.Text, secondsToProcess, startAtSecond)
                                                           .WithCustomConfiguration(
                                                               config =>
                                                                   {
@@ -166,7 +166,7 @@
                         {
                             querySong =
                                 fingerprintUnitBuilder.BuildFingerprints()
-                                                          .On(_tbPathToFile.Text, millisecondsToProcess, startAtMillisecond)
+                                                          .On(_tbPathToFile.Text, secondsToProcess, startAtSecond)
                                                           .WithCustomConfiguration(
                                                               config =>
                                                                   {

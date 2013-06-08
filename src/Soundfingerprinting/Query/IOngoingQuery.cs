@@ -4,7 +4,7 @@
     {
         IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile);
 
-        IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile, int millisecondsToProcess, int startAtMillisecond);
+        IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile, int secondsToProcess, int startAtSecond);
 
         IOngoingQueryConfigurationWithFingerprinting From(float[] audioSamples);
 

@@ -13,17 +13,17 @@
         /// <param name = "track">Track from which to gather samples</param>
         /// <param name = "proxy">Proxy used in gathering samples</param>
         /// <param name = "sampleRate">Sample rate used in gathering samples</param>
-        /// <param name = "milliseconds">Milliseconds to gather</param>
-        /// <param name = "startmilliseconds">Starting millisecond</param>
+        /// <param name = "secondsToRead">Milliseconds to gather</param>
+        /// <param name = "startAtSecond">Starting millisecond</param>
         /// <returns>Music samples</returns>
-        public static float[] GetTrackSamples(Track track, IAudioService proxy, int sampleRate, int milliseconds, int startmilliseconds)
+        public static float[] GetTrackSamples(Track track, IAudioService proxy, int sampleRate, int secondsToRead, int startAtSecond)
         {
             if (track == null || track.Path == null)
             {
                 return null;
             }
 
-            return proxy.ReadMonoFromFile(track.Path, sampleRate, milliseconds, startmilliseconds);
+            return proxy.ReadMonoFromFile(track.Path, sampleRate, secondsToRead, startAtSecond);
         }
 
         public static Track GetTrack(int mintracklen, int maxtracklen, string filename, ITagService tagService)

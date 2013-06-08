@@ -7,6 +7,7 @@
 
     using Soundfingerprinting.Audio;
     using Soundfingerprinting.Audio.Bass;
+    using Soundfingerprinting.Audio.NAudio;
     using Soundfingerprinting.Configuration;
     using Soundfingerprinting.Dao;
     using Soundfingerprinting.FFT;
@@ -47,6 +48,7 @@
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
                 kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
                 kernel.Bind<IAudioService, IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
+               // kernel.Bind<IAudioService, IExtendedAudioService>().To<NAudioService>().InSingletonScope();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
                 kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();

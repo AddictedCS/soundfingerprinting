@@ -195,7 +195,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] data = audioService.ReadMonoFromFile(fullpath, new DefaultFingerprintingConfiguration().SampleRate, 0, 0);
+                        float[] data = audioService.ReadMonoFromFile(fullpath, new DefaultFingerprintingConfiguration().SampleRate);
                         using (Image image = imageService.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value))
                         {
                             image.Save(sfd.FileName, ImageFormat.Jpeg);

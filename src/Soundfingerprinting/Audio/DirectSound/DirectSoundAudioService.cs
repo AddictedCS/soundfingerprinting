@@ -42,12 +42,12 @@
         ///   Sample rate of the file. This proxy does not support down or up sampling.
         ///   Please convert the file to appropriate sample, and then use this method.
         /// </param>
-        /// <param name = "millisecondsToRead">Milliseconds to read</param>
-        /// <param name = "startAtMillisecond">Start millisecond</param>
+        /// <param name = "secondsToRead">Seconds to read</param>
+        /// <param name = "startAtSecond">Start at second</param>
         /// <returns>Audio samples</returns>
-        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int millisecondsToRead, int startAtMillisecond)
+        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
-            int totalmilliseconds = millisecondsToRead <= 0 ? int.MaxValue : millisecondsToRead + startAtMillisecond;
+            int totalSeconds = secondsToRead <= 0 ? int.MaxValue : secondsToRead + startAtSecond;
             if (alreadyDisposed)
             {
                 throw new ObjectDisposedException("Object already disposed");
@@ -71,7 +71,7 @@
             int size = 0;
             try
             {
-                while ((float)size / sampleRate * 1000 < totalmilliseconds)
+                while ((float)size / sampleRate < totalSeconds)
                 {
                     byte[] ar = (byte[])buffer.Read(offset, typeof(byte), LockFlag.EntireBuffer, OutputBufferSize);
                     offset += OutputBufferSize;
@@ -105,13 +105,13 @@
                 device.Dispose();
             }
 
-            if ((float)size / sampleRate * 1000 < (millisecondsToRead + startAtMillisecond))
+            if ((float)size / sampleRate < (secondsToRead + startAtSecond))
             {
                 return null; /*not enough samples to return the requested data*/
             }
 
-            int start = (int)((float)startAtMillisecond * sampleRate / 1000);
-            int end = (millisecondsToRead <= 0) ? size : (int)((float)(startAtMillisecond + millisecondsToRead) * sampleRate / 1000);
+            int start = (int)((float)startAtSecond * sampleRate);
+            int end = (secondsToRead <= 0) ? size : (int)((float)(startAtSecond + secondsToRead) * sampleRate);
             float[] data = new float[size];
             int index = 0;
             /*Concatenate*/

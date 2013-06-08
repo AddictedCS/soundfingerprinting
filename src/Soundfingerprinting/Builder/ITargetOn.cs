@@ -6,6 +6,6 @@ namespace Soundfingerprinting.Builder
 
         IWithConfiguration On(float[] audioSamples);
 
-        IWithConfiguration On(string pathToAudioFile, int millisecondsToProcess, int startAtMillisecond);
+        IWithConfiguration On(string pathToAudioFile, int secondsToProcess, int startAtSecond);
     }
 }

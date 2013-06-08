@@ -131,7 +131,7 @@
                 }
 
                 fingerprintQueryBuilder.BuildQuery()
-                                       .From(pathToFile, secondsToAnalyze * 1000, startSecond * 1000)
+                                       .From(pathToFile, secondsToAnalyze, startSecond)
                                        .WithCustomConfigurations(
                                             fingerprintConfig =>
                                             {

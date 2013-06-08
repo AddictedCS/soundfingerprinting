@@ -30,14 +30,14 @@
         private const int MaxTrackLength = 60 * 10; /*10 min - maximal track length*/
 
         /// <summary>
-        ///   Number of milliseconds to process from each song
+        ///   Number of seconds to process from each song
         /// </summary>
-        private const int MillisecondsToProcess = 10 * 1000;
+        private const int SecondsToProcess = 10;
 
         /// <summary>
         ///   Starting processing point
         /// </summary>
-        private const int MillisecondsStart = 20 * 1000;
+        private const int StartProcessingAtSecond = 20;
 
         /// <summary>
         ///   Buffer size of the application reading songs
@@ -51,7 +51,7 @@
         /// <summary>
         ///   Minimum track length (track's less than this value will be discarded)
         /// </summary>
-        private const int MinTrackLength = ((MillisecondsToProcess + MillisecondsStart) / 1000) + 1;
+        private const int MinTrackLength = SecondsToProcess + StartProcessingAtSecond + 1;
 
         /// <summary>
         ///   Number of LSH tables
@@ -203,7 +203,7 @@
 
             // 1024 (Kb) * BufferSize / SampleRate * SecondsRead * 4 (1 float = 4 bytes) / 1024 (Kb)
             const int Buffersize =
-                (int)((1024.0 * BufferSize) / ((double)SampleRate * MillisecondsToProcess / 1000 * 4 / 1024));
+                (int)((1024.0 * BufferSize) / ((double)SampleRate * SecondsToProcess / 1000 * 4 / 1024));
 
             // ~317 songs are allowed for 15 seconds snippet at 5512 Hz sample rate
             BlockingCollection<Tuple<Track, float[]>> buffer = new BlockingCollection<Tuple<Track, float[]>>(Buffersize);
@@ -238,7 +238,7 @@
                                 try
                                 {
                                     track = TrackHelper.GetTrack(MinTrackLength, MaxTrackLength, file, tagService); // lame casting I know
-                                    samples = TrackHelper.GetTrackSamples(track, audioService, SampleRate, MillisecondsToProcess, MillisecondsStart);
+                                    samples = TrackHelper.GetTrackSamples(track, audioService, SampleRate, SecondsToProcess, StartProcessingAtSecond);
                                 }
                                 catch
                                 {

@@ -95,14 +95,14 @@
         /// </summary>
         /// <param name = "pathToFile">Name of the file</param>
         /// <param name = "sampleRate">Output sample rate</param>
-        /// <param name = "millisecondsToRead">Milliseconds to read</param>
-        /// <param name = "startAtMillisecond">Start millisecond</param>
+        /// <param name = "secondsToRead">Milliseconds to read</param>
+        /// <param name = "startAtSecond">Start millisecond</param>
         /// <returns>Array of samples</returns>
         /// <remarks>
         ///   Seeking capabilities of Bass where not used because of the possible
         ///   timing errors on different formats.
         /// </remarks>
-        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int millisecondsToRead, int startAtMillisecond)
+        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
             // create streams for re-sampling
             int stream = Bass.BASS_StreamCreateFile(pathToFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT); // Decode the stream
@@ -123,9 +123,9 @@
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
 
-            if (startAtMillisecond > 0)
+            if (startAtSecond > 0)
             {
-                if (!Bass.BASS_ChannelSetPosition(stream, startAtMillisecond / 1000))
+                if (!Bass.BASS_ChannelSetPosition(stream, startAtSecond))
                 {
                     throw new Exception(Bass.BASS_ErrorGetCode().ToString());
                 }
@@ -133,7 +133,7 @@
 
             float[] buffer = new float[sampleRate * 20 * 4]; // 20 seconds buffer
             List<float[]> chunks = new List<float[]>();
-            int totalBytesToRead = millisecondsToRead == 0 ? int.MaxValue : millisecondsToRead / 1000 * sampleRate * 4;
+            int totalBytesToRead = secondsToRead == 0 ? int.MaxValue : secondsToRead * sampleRate * 4;
             int totalBytesRead = 0;
             while (totalBytesRead < totalBytesToRead)
             {
@@ -162,7 +162,7 @@
                 chunks.Add(chunk);
             }
 
-            if (totalBytesRead < (millisecondsToRead / 1000 * sampleRate * 4))
+            if (totalBytesRead < (secondsToRead * sampleRate * 4))
             {
                 return null; /*not enough samples to return the requested data*/
             }
@@ -342,24 +342,6 @@
 
                 Bass.BASS_Free();
             }
-        }
-
-        private float[] ConcatenateChunksOfSamples(List<float[]> chunks)
-        {
-            if (chunks.Count == 1)
-            {
-                return chunks[0];
-            }
-
-            float[] samples = new float[chunks.Sum(a => a.Length)];
-            int index = 0;
-            foreach (float[] chunk in chunks)
-            {
-                Array.Copy(chunk, 0, samples, index, chunk.Length);
-                index += chunk.Length;
-            }
-
-            return samples;
         }
 
         private float[] ReadSamplesFromContinuousMixedStream(int sampleRate, int secondsToDownload, int mixerStream)

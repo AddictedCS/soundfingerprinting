@@ -9,10 +9,10 @@
         /// </summary>
         /// <param name = "pathToFile">Filename to read from</param>
         /// <param name = "sampleRate">Sample rate</param>
-        /// <param name = "millisecondsToRead">Milliseconds to read</param>
-        /// <param name = "startAtMillisecond">Start at a specific millisecond</param>
-        /// <returns>Array with data samples</returns>
-        float[] ReadMonoFromFile(string pathToFile, int sampleRate, int millisecondsToRead, int startAtMillisecond);
+        /// <param name = "secondsToRead">Number of seconds to read</param>
+        /// <param name = "startAtSecond">Start reading at a specific second</param>
+        /// <returns>Array with audio samples</returns>
+        float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond);
 
         /// <summary>
         ///   Read data from file
