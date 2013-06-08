@@ -70,7 +70,7 @@
         ///   Value of threshold percentage of fingerprints that needs to be gathered
         ///   in order to be considered a possible result
         /// </summary>
-        private const int ThresholdFingerprintsToVote = 5;
+        private const int ThresholdFingerprintsToVote = 7;
 
         /// <summary>
         ///   Down sampling rate

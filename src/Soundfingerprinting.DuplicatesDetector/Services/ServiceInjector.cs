@@ -2,6 +2,7 @@
 {
     using Soundfingerprinting.Audio;
     using Soundfingerprinting.Audio.Bass;
+    using Soundfingerprinting.Audio.NAudio;
     using Soundfingerprinting.DuplicatesDetector.DataAccess;
     using Soundfingerprinting.Hashing;
 
