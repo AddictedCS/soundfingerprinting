@@ -50,6 +50,16 @@
                 kernel.Bind<ITagService>().To<BassAudioService>().InSingletonScope();
                 kernel.Bind<IAudioService, IExtendedAudioService>().To<NAudioService>().InSingletonScope();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
+
+                if (Environment.Is64BitProcess)
+                {
+                    kernel.Bind<FFTWService>().To<FFTWService64>().WhenInjectedInto<CachedFFTWService>();
+                }
+                else
+                {
+                    kernel.Bind<FFTWService>().To<FFTWService86>().WhenInjectedInto<CachedFFTWService>();
+                }
+
                 kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
                 kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();

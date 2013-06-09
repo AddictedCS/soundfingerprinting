@@ -36,7 +36,7 @@
         public void SetUp()
         {
             modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
-            fingerprintService = new FingerprintService(new FingerprintDescriptor(), new SpectrumService(new CachedFFTWService()), new WaveletService(new StandardHaarWaveletDecomposition()));
+            fingerprintService = new FingerprintService(new FingerprintDescriptor(), new SpectrumService(new CachedFFTWService(new FFTWService86())), new WaveletService(new StandardHaarWaveletDecomposition()));
             defaultConfiguration = new DefaultFingerprintingConfiguration();
             var mockedPermutations = new Mock<IPermutations>();
             mockedPermutations.Setup(perms => perms.GetPermutations()).Returns(new int[1][]);

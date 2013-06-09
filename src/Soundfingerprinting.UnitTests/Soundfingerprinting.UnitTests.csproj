@@ -65,7 +65,7 @@
   <ItemGroup>
     <Compile Include="AudioProxies.Tests\BassAudioServiceTest.cs" />
     <Compile Include="AudioProxies.Tests\StrideTest.cs" />
-	<Compile Include="AudioProxies.Tests\DirectSoundTest.cs" />
+    <Compile Include="AudioProxies.Tests\DirectSoundTest.cs" />
     <Compile Include="AudioProxies.Tests\TagServiceTest.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="DbStorage.Tests\ModelServiceTest.cs" />
@@ -95,8 +95,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy "$(SolutionDir)\Externals\*.dll" "$(TargetDir)"
+    <PreBuildEvent>copy "$(SolutionDir)\Externals\Microsoft.DirectX.DirectSound.dll" "$(TargetDir)"
 xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E
+xcopy "$(SolutionDir)\Externals\FFTW\*.*" "$(TargetDir)" /Y /I /E
 copy "$(ProjectDir)TestEnvironment\*.*" "$(TargetDir)"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
