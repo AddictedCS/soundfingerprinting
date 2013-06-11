@@ -1,5 +1,6 @@
-build/
 release/
+debug/
+msbuild.log
 *.suo
 *.user
 bin
@@ -10,5 +11,6 @@ _ReSharper*
 *.resharper.user
 *.suo
 *.cache
+*.nupkg
 TestResult.xml
 src/TestResults/
