@@ -238,8 +238,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Soundfingerprinting\SoundFingerprinting.csproj">
-      <Project>{56EB1986-589C-4DA9-B961-5833BB4A7816}</Project>
+    <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
+      <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>
     </ProjectReference>
   </ItemGroup>

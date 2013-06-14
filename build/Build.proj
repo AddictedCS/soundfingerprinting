@@ -1,31 +1,31 @@
 <Project DefaultTargets="All" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 <PropertyGroup>
   <Configuration Condition="$(Configuration) == ''">Release</Configuration>
-  <SolutionFile>..\src\Soundfingerprinting.sln</SolutionFile>
+  <SolutionFile>..\src\SoundFingerprinting.sln</SolutionFile>
   <NugetExecutable>..\tools\nuget.exe</NugetExecutable>
-  <SoundfingerprintingLibProject>..\src\Soundfingerprinting\Soundfingerprinting.csproj</SoundfingerprintingLibProject>
-  <SoundfingerprintingOutputDir>$(Configuration)\Soundfingerprinting</SoundfingerprintingOutputDir>
+  <SoundFingerprintingLibProject>..\src\SoundFingerprinting\SoundFingerprinting.csproj</SoundFingerprintingLibProject>
+  <SoundFingerprintingOutputDir>$(Configuration)\SoundFingerprinting</SoundFingerprintingOutputDir>
   <DuplicatesDetectorOutputDir>$(Configuration)\DuplicatesDetector</DuplicatesDetectorOutputDir>
   <SoundToolsOutputDir>$(Configuration)\SoundTools</SoundToolsOutputDir>
 </PropertyGroup>
 
 <Target Name = "Compile">
     <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration)" />
-	<Message Text="Copying Soundfingerprinting files to output directories" />
-	<MakeDir Directories="$(SoundfingerprintingOutputDir)" Condition="!Exists('$(SoundfingerprintingOutputDir)')" />
-	<CreateItem Include="..\src\Soundfingerprinting\bin\$(Configuration)\**\*.*">
-    	<Output TaskParameter="Include" ItemName="SoundfingerprintingFiles" />
+	<Message Text="Copying SoundFingerprinting files to output directories" />
+	<MakeDir Directories="$(SoundFingerprintingOutputDir)" Condition="!Exists('$(SoundFingerprintingOutputDir)')" />
+	<CreateItem Include="..\src\SoundFingerprinting\bin\$(Configuration)\**\*.*">
+    	<Output TaskParameter="Include" ItemName="SoundFingerprintingFiles" />
     </CreateItem>
-	<Copy SourceFiles="@(SoundfingerprintingFiles)" DestinationFiles="@(SoundfingerprintingFiles->'$(SoundfingerprintingOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+	<Copy SourceFiles="@(SoundFingerprintingFiles)" DestinationFiles="@(SoundFingerprintingFiles->'$(SoundFingerprintingOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
 	<Message Text="Copying DuplicatesDetector files to output directories" />
 	<MakeDir Directories="$(DuplicatesDetectorOutputDir)" Condition="!Exists('$(DuplicatesDetectorOutputDir)')" />
-	<CreateItem Include="..\src\Soundfingerprinting.DuplicatesDetector\bin\$(Configuration)\**\*.*">
+	<CreateItem Include="..\src\SoundFingerprinting.DuplicatesDetector\bin\$(Configuration)\**\*.*">
     	<Output TaskParameter="Include" ItemName="DuplicateDetectorFiles" />
     </CreateItem>
 	<Copy SourceFiles="@(DuplicateDetectorFiles)" DestinationFiles="@(DuplicateDetectorFiles->'$(DuplicatesDetectorOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
 	<Message Text="Copying SoundTools files to output directories" />
 	<MakeDir Directories="$(SoundToolsOutputDir)" Condition="!Exists('$(SoundToolsOutputDir)')" />
-	<CreateItem Include="..\src\Soundfingerprinting.SoundTools\bin\$(Configuration)\**\*.*">
+	<CreateItem Include="..\src\SoundFingerprinting.SoundTools\bin\$(Configuration)\**\*.*">
     	<Output TaskParameter="Include" ItemName="SoundToolsFiles" />
     </CreateItem>
 	<Copy SourceFiles="@(SoundToolsFiles)" DestinationFiles="@(SoundToolsFiles->'$(SoundToolsOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
@@ -33,7 +33,7 @@
 
 <Target Name = "Package">
 	<!-- You could use the MSBuild Copy task here to move the compiled code into a structure that fits your desired package format -->
-  <Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundfingerprintingLibProject) -Build -Properties Configuration=$(Configuration)" />
+  <Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingLibProject) -Build -Properties Configuration=$(Configuration)" />
 </Target>
 
 <Target Name = "All" DependsOnTargets="Compile;Package" />
