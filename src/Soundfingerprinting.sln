@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundfingerprinting.SoundTools", "Soundfingerprinting.SoundTools\Soundfingerprinting.SoundTools.csproj", "{362BA144-FDFE-410B-A8F5-A9359CC848AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.SoundTools", "Soundfingerprinting.SoundTools\SoundFingerprinting.SoundTools.csproj", "{362BA144-FDFE-410B-A8F5-A9359CC848AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundfingerprinting.UnitTests", "Soundfingerprinting.UnitTests\Soundfingerprinting.UnitTests.csproj", "{987DA38D-5157-4D83-9B1D-83A0A62D0E94}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Tests", "Soundfingerprinting.UnitTests\SoundFingerprinting.Tests.csproj", "{987DA38D-5157-4D83-9B1D-83A0A62D0E94}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.DuplicatesDetector", "Soundfingerprinting.DuplicatesDetector\SoundFingerprinting.DuplicatesDetector.csproj", "{572367D4-0F0C-4DC9-BE1C-4D037530D785}"
 EndProject
