@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Utils.ConstantQ
+﻿namespace SoundFingerprinting.Utils.ConstantQ
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
-    using Soundfingerprinting.FFT.Exocortex;
+    using SoundFingerprinting.FFT.Exocortex;
 
     /// <summary>
     ///   Class for constant Q transformation

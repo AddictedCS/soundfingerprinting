@@ -1,5 +1,5 @@
 ﻿<!-- RoundedButton.xaml -->
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Soundfingerprinting.DuplicatesDetector.Themes.i__ahtung_sound_fingerprinting_soundfingerprintinggit_src_soundfingerprinting_duplicatesdetector_themes_roundedbutton_xaml">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="SoundFingerprinting.DuplicatesDetector.Themes.i__ahtung_sound_fingerprinting_soundfingerprintinggit_src_soundfingerprinting_duplicatesdetector_themes_roundedbutton_xaml">
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="Brushes.xaml" />
 	</ResourceDictionary.MergedDictionaries>

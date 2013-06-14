@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.FFT.FFTW
+﻿namespace SoundFingerprinting.FFT.FFTW
 {
     using System;
     using System.Runtime.InteropServices;
 
-    using Soundfingerprinting.FFT.FFTW.x64;
+    using SoundFingerprinting.FFT.FFTW.x64;
 
     public class FFTWService64 : FFTWService
     {

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.NetworkTrainer
+﻿namespace SoundFingerprinting.SoundTools.NetworkTrainer
 {
     using System;
     using System.Collections.Generic;
@@ -11,10 +11,10 @@
     using Encog.Neural.Networks.Layers;
     using Encog.Util;
 
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Hashing.NeuralHashing;
-    using Soundfingerprinting.Hashing.NeuralHashing.NeuralTrainer;
-    using Soundfingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Hashing.NeuralHashing;
+    using SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer;
+    using SoundFingerprinting.SoundTools.Properties;
 
     public partial class WinNetworkTrainer : Form
     {

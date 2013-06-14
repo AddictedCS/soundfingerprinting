@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.FFT.Exocortex
+﻿namespace SoundFingerprinting.FFT.Exocortex
 {
     // Comments? Questions? Bugs? Tell Ben Houston at ben@exocortex.org
     // Version: May 4, 2002

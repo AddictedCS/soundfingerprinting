@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.FFMpegResampler
+﻿namespace SoundFingerprinting.SoundTools.FFMpegResampler
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,8 @@
     using System.Threading;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.SoundTools.Properties;
 
     public partial class WinFfMpegResampler : Form
     {

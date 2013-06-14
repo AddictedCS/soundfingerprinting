@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Builder
+namespace SoundFingerprinting.Builder
 {
     using System;
     using System.Collections.Generic;
@@ -6,9 +6,9 @@ namespace Soundfingerprinting.Builder
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Hashing.MinHash;
 
     internal sealed class FingerprintUnit : ITargetOn, IWithConfiguration, IFingerprintUnit
     {

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace SoundFingerprinting.DuplicatesDetector.ViewModel
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -11,10 +11,10 @@
 
     using Ninject;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.DuplicatesDetector.Infrastructure;
-    using Soundfingerprinting.DuplicatesDetector.Model;
-    using Soundfingerprinting.DuplicatesDetector.Services;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.DuplicatesDetector.Infrastructure;
+    using SoundFingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.DuplicatesDetector.Services;
 
     /// <summary>
     ///   Report view-model, provides the report result to the view

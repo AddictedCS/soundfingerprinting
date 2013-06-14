@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Query
+﻿namespace SoundFingerprinting.Query
 {
     using System.Threading;
     using System.Threading.Tasks;

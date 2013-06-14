@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.Services
+﻿namespace SoundFingerprinting.DuplicatesDetector.Services
 {
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Audio.Bass;
-    using Soundfingerprinting.Audio.NAudio;
-    using Soundfingerprinting.DuplicatesDetector.DataAccess;
-    using Soundfingerprinting.Hashing;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.DuplicatesDetector.DataAccess;
+    using SoundFingerprinting.Hashing;
 
     /// <summary>
     ///   Service injector loads all the services into Service Container on Application startup

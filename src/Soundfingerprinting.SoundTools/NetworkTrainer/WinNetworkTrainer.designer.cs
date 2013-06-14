@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.NetworkTrainer
+﻿namespace SoundFingerprinting.SoundTools.NetworkTrainer
 {
     partial class WinNetworkTrainer
     {

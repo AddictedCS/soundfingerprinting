@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.NeuralTrainer
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer
 {
     using System;
     using System.Collections.Generic;
@@ -12,10 +12,10 @@
     using Encog.Neural.Networks.Training;
     using Encog.Neural.Networks.Training.Propagation.Resilient;
 
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.Hashing.NeuralHashing.Utils;
-    using Soundfingerprinting.Utils;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Hashing.NeuralHashing.Utils;
+    using SoundFingerprinting.Utils;
 
     /// <summary>
     ///   Training callback

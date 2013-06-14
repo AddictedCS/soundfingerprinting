@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace SoundFingerprinting.DuplicatesDetector.ViewModel
 {
     using System;
     using System.Globalization;

@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.Hashing.MinHash
 {
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
-    using Soundfingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Hashing.Utils;
 
     public abstract class MinMutualSelector : IMinMutualSelector
     {

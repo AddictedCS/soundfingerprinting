@@ -8,8 +8,8 @@
     <ProjectGuid>{56EB1986-589C-4DA9-B961-5833BB4A7816}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Soundfingerprinting</RootNamespace>
-    <AssemblyName>Soundfingerprinting</AssemblyName>
+    <RootNamespace>SoundFingerprinting</RootNamespace>
+    <AssemblyName>SoundFingerprinting</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

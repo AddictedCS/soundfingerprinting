@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing
 {
     using System;
     using System.Globalization;
@@ -7,8 +7,8 @@
     using System.Security.Permissions;
     using System.Xml.Serialization;
 
-    using Soundfingerprinting.Hashing.NeuralHashing.ActivationFunctions;
-    using Soundfingerprinting.Hashing.NeuralHashing.Utils;
+    using SoundFingerprinting.Hashing.NeuralHashing.ActivationFunctions;
+    using SoundFingerprinting.Hashing.NeuralHashing.Utils;
 
     /// <summary>
     ///   Neuron

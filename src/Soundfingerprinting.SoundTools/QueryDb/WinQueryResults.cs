@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.QueryDb
+﻿namespace SoundFingerprinting.SoundTools.QueryDb
 {
     using System;
     using System.Collections.Generic;
@@ -8,12 +8,12 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.Query;
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Query;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Strides;
 
     public partial class WinQueryResults : Form
     {

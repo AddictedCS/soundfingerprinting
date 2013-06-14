@@ -1,14 +1,14 @@
-﻿namespace Soundfingerprinting.Query.Internal
+﻿namespace SoundFingerprinting.Query.Internal
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Soundfingerprinting.Builder;
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Query.Configuration;
+    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Query.Configuration;
 
     internal sealed class FingerprintingQueryUnit : IOngoingQuery, IOngoingQueryConfiguration, IOngoingQueryConfigurationWithFingerprinting, IFingerprintingQueryUnit
     {

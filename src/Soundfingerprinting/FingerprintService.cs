@@ -1,13 +1,13 @@
-namespace Soundfingerprinting
+namespace SoundFingerprinting
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.FFT;
-    using Soundfingerprinting.Infrastructure;
-    using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Utils;
-    using Soundfingerprinting.Wavelets;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Utils;
+    using SoundFingerprinting.Wavelets;
 
     public class FingerprintService : IFingerprintService
     {

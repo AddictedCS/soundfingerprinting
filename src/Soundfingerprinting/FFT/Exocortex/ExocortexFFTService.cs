@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.FFT.Exocortex
+﻿namespace SoundFingerprinting.FFT.Exocortex
 {
     public class ExocortexFFTService : IFFTService
     {

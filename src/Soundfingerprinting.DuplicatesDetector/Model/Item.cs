@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.Model
+﻿namespace SoundFingerprinting.DuplicatesDetector.Model
 {
     using System;
     using System.ComponentModel;

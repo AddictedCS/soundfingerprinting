@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
+﻿namespace SoundFingerprinting.UnitTests.AudioProxies.Tests
 {
     using System.IO;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Audio.DirectSound;
+    using SoundFingerprinting.Audio.DirectSound;
 
     [TestClass]
     public class DirectSoundTest : BaseTest

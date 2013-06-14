@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.Utils
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.Utils
 {
     using System;
     using System.Collections;

@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Hashing.MinHash
+namespace SoundFingerprinting.Hashing.MinHash
 {
     using System.Collections.Generic;
 

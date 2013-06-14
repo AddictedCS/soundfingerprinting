@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Dao
+namespace SoundFingerprinting.Dao
 {
     using System;
     using System.Collections.Generic;
@@ -6,8 +6,8 @@ namespace Soundfingerprinting.Dao
     using System.Linq;
     using System.Reflection;
 
-    using Soundfingerprinting.Dao.Conditions;
-    using Soundfingerprinting.Dao.Internal;
+    using SoundFingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.Internal;
 
     public class ModelBinderFactory : IModelBinderFactory
     {

@@ -1,10 +1,10 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace SoundFingerprinting.Dao.Internal
 {
     using System;
     using System.Collections.Generic;
     using System.Text;
 
-    using Soundfingerprinting.Dao.Entities;
+    using SoundFingerprinting.Dao.Entities;
 
     internal class HashBinMinHashDao : AbstractDao
     {

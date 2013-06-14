@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.DbFiller
+﻿namespace SoundFingerprinting.SoundTools.DbFiller
 {
     partial class WinDbFiller
     {

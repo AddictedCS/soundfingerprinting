@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Strides
+﻿namespace SoundFingerprinting.Strides
 {
     /// <summary>
     ///   Types of strides

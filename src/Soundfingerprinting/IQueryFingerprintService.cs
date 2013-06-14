@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting
+﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Query;
-    using Soundfingerprinting.Query.Configuration;
+    using SoundFingerprinting.Query;
+    using SoundFingerprinting.Query.Configuration;
 
     public interface IQueryFingerprintService
     {

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.FFT.FFTW.x86
+﻿namespace SoundFingerprinting.FFT.FFTW.x86
 {
     using System;
     using System.Diagnostics.CodeAnalysis;

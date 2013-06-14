@@ -1,6 +1,6 @@
-namespace Soundfingerprinting
+namespace SoundFingerprinting
 {
-    using Soundfingerprinting.Builder;
+    using SoundFingerprinting.Builder;
 
     public interface IFingerprintUnitBuilder
     {

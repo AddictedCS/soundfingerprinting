@@ -1,11 +1,11 @@
-﻿namespace Soundfingerprinting.UnitTests.NeuralHashing.Tests
+﻿namespace SoundFingerprinting.UnitTests.NeuralHashing.Tests
 {
     using System;
     using System.IO;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Hashing.NeuralHashing.Utils;
+    using SoundFingerprinting.Hashing.NeuralHashing.Utils;
 
     [TestClass]
     public class BinaryOutputUtilTest

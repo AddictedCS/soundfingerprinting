@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.Hashing.MinHash
 {
     public class CachedPermutations : IPermutations
     {

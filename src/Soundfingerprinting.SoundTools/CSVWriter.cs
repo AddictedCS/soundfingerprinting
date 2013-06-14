@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools
+﻿namespace SoundFingerprinting.SoundTools
 {
     using System.Diagnostics;
     using System.IO;

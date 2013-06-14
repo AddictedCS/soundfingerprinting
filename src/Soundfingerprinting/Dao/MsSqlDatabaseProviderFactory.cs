@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Dao
+﻿namespace SoundFingerprinting.Dao
 {
     using System.Data;
     using System.Data.Common;
     using System.Data.SqlClient;
 
-    using Soundfingerprinting.Infrastructure;
+    using SoundFingerprinting.Infrastructure;
 
     public class MsSqlDatabaseProviderFactory : IDatabaseProviderFactory
     {

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.DrawningTool
+﻿namespace SoundFingerprinting.SoundTools.DrawningTool
 {
     partial class WinDrawningTool
     {

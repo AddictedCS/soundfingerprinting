@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
+﻿namespace SoundFingerprinting.UnitTests.AudioProxies.Tests
 {
     using System;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Strides;
 
     [TestClass]
     public class StrideClassesTest : BaseTest

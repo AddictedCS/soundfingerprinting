@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.Utils
+﻿namespace SoundFingerprinting.Hashing.Utils
 {
     /// <summary>
     ///   Support Interface for Precision Operations (like AlmostEquals).

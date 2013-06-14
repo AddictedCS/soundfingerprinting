@@ -3,7 +3,7 @@
 // Code license: GNU General Public License v2
 // ciumac.sergiu@gmail.com
 
-namespace Soundfingerprinting.SoundTools.Misc
+namespace SoundFingerprinting.SoundTools.Misc
 {
     partial class WinMisc
     {

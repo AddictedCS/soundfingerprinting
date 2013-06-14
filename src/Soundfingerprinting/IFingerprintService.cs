@@ -1,8 +1,8 @@
-﻿namespace Soundfingerprinting
+﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Configuration;
+    using SoundFingerprinting.Configuration;
 
     public interface IFingerprintService
     {

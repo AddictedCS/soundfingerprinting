@@ -1,6 +1,6 @@
-﻿namespace Soundfingerprinting
+﻿namespace SoundFingerprinting
 {
-    using Soundfingerprinting.Query;
+    using SoundFingerprinting.Query;
 
     public interface IFingerprintQueryBuilder
     {

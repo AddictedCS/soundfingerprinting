@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.Wavelets
+﻿namespace SoundFingerprinting.Wavelets
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using Soundfingerprinting.Infrastructure;
+    using SoundFingerprinting.Infrastructure;
 
     public class WaveletService : IWaveletService
     {

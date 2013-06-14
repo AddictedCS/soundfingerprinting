@@ -1,21 +1,21 @@
-﻿namespace Soundfingerprinting.SoundTools
+﻿namespace SoundFingerprinting.SoundTools
 {
     using System;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Infrastructure;
-    using Soundfingerprinting.SoundTools.BassResampler;
-    using Soundfingerprinting.SoundTools.DbFiller;
-    using Soundfingerprinting.SoundTools.DrawningTool;
-    using Soundfingerprinting.SoundTools.FFMpegResampler;
-    using Soundfingerprinting.SoundTools.FilePermutations;
-    using Soundfingerprinting.SoundTools.Misc;
-    using Soundfingerprinting.SoundTools.NetworkEnsembling;
-    using Soundfingerprinting.SoundTools.NetworkTrainer;
-    using Soundfingerprinting.SoundTools.PermutationGenerator;
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.SoundTools.QueryDb;
-    using Soundfingerprinting.SoundTools.WaveletDecomposition;
+    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.SoundTools.BassResampler;
+    using SoundFingerprinting.SoundTools.DbFiller;
+    using SoundFingerprinting.SoundTools.DrawningTool;
+    using SoundFingerprinting.SoundTools.FFMpegResampler;
+    using SoundFingerprinting.SoundTools.FilePermutations;
+    using SoundFingerprinting.SoundTools.Misc;
+    using SoundFingerprinting.SoundTools.NetworkEnsembling;
+    using SoundFingerprinting.SoundTools.NetworkTrainer;
+    using SoundFingerprinting.SoundTools.PermutationGenerator;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.SoundTools.QueryDb;
+    using SoundFingerprinting.SoundTools.WaveletDecomposition;
 
     public partial class WinMain : Form
     {

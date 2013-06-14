@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.PermutationGenerator
+﻿namespace SoundFingerprinting.SoundTools.PermutationGenerator
 {
     partial class WinPermGenerator
     {

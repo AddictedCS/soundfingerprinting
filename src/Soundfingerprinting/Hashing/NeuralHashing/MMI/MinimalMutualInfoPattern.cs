@@ -1,11 +1,11 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.MMI
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.MMI
 {
     using System;
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
 
-    using Soundfingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Hashing.Utils;
 
     [Serializable]
     public class MinimalMutualInfoPattern

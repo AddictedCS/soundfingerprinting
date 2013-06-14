@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector
+﻿namespace SoundFingerprinting.DuplicatesDetector
 {
     using System.Windows;
 
-    using Soundfingerprinting.DuplicatesDetector.Services;
-    using Soundfingerprinting.DuplicatesDetector.ViewModel;
+    using SoundFingerprinting.DuplicatesDetector.Services;
+    using SoundFingerprinting.DuplicatesDetector.ViewModel;
 
     /// <summary>
     ///   Interaction logic for App.xaml

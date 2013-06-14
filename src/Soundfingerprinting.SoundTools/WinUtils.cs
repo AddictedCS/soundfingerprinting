@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools
+﻿namespace SoundFingerprinting.SoundTools
 {
     using System;
     using System.Collections.Generic;
@@ -7,8 +7,8 @@
     using System.Text;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Strides;
 
     internal static class WinUtils
     {

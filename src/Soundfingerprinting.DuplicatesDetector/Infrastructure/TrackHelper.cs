@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.Infrastructure
+﻿namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
 {
     using System.IO;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.DuplicatesDetector.Model;
 
     public static class TrackHelper
     {

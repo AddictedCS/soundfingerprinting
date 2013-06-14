@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.NetworkEnsembling
+﻿namespace SoundFingerprinting.SoundTools.NetworkEnsembling
 {
     using System;
     using System.Collections.Generic;
@@ -10,15 +10,15 @@
     using Encog.ML.Data.Basic;
     using Encog.Util;
 
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Hashing.NeuralHashing;
-    using Soundfingerprinting.Hashing.NeuralHashing.Ensemble;
-    using Soundfingerprinting.Hashing.NeuralHashing.MMI;
-    using Soundfingerprinting.Hashing.NeuralHashing.NeuralTrainer;
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.Utils;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Hashing.NeuralHashing;
+    using SoundFingerprinting.Hashing.NeuralHashing.Ensemble;
+    using SoundFingerprinting.Hashing.NeuralHashing.MMI;
+    using SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Utils;
 
     /// <summary>
     ///   Building Hashes, Assembling networks

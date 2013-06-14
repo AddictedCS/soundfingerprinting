@@ -1,8 +1,8 @@
-﻿namespace Soundfingerprinting.UnitTests.Infrastructure.Test
+﻿namespace SoundFingerprinting.UnitTests.Infrastructure.Test
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Infrastructure;
+    using SoundFingerprinting.Infrastructure;
 
     [TestClass]
     public class DependencyResolverTest

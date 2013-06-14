@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.MMI
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.MMI
 {
     using System;
 

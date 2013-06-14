@@ -1,6 +1,6 @@
-﻿namespace Soundfingerprinting.Query
+﻿namespace SoundFingerprinting.Query
 {
-    using Soundfingerprinting.Dao.Entities;
+    using SoundFingerprinting.Dao.Entities;
 
     public class QueryResult
     {

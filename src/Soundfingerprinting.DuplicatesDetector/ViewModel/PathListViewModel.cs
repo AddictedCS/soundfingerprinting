@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace SoundFingerprinting.DuplicatesDetector.ViewModel
 {
     using System;
     using System.Collections.Generic;
@@ -12,9 +12,9 @@
     using System.Windows.Forms;
     using System.Windows.Input;
 
-    using Soundfingerprinting.DuplicatesDetector.DataAccess;
-    using Soundfingerprinting.DuplicatesDetector.Model;
-    using Soundfingerprinting.DuplicatesDetector.Services;
+    using SoundFingerprinting.DuplicatesDetector.DataAccess;
+    using SoundFingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.DuplicatesDetector.Services;
 
     /// <summary>
     ///   Path List VM

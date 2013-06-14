@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Audio
+﻿namespace SoundFingerprinting.Audio
 {
     public interface IExtendedAudioService : IAudioService
     {

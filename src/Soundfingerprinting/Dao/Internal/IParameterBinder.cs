@@ -1,10 +1,10 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace SoundFingerprinting.Dao.Internal
 {
     using System;
     using System.Collections.Generic;
     using System.Data;
 
-    using Soundfingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.Conditions;
 
     public interface IParameterBinder
     {

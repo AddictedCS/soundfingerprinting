@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.DbFiller
+﻿namespace SoundFingerprinting.SoundTools.DbFiller
 {
     using System;
     using System.Collections.Generic;
@@ -11,14 +11,14 @@
     using System.Threading;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.Hashing.LSH;
-    using Soundfingerprinting.Hashing.NeuralHashing.Ensemble;
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Hashing.LSH;
+    using SoundFingerprinting.Hashing.NeuralHashing.Ensemble;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Strides;
 
     public partial class WinDbFiller : Form
     {

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools
+﻿namespace SoundFingerprinting.SoundTools
 {
     partial class WinMain
     {

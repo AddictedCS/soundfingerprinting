@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.NetworkEnsembling
+﻿namespace SoundFingerprinting.SoundTools.NetworkEnsembling
 {
     partial class WinEnsembleHash
     {

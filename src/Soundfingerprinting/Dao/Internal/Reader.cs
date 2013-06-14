@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace SoundFingerprinting.Dao.Internal
 {
     using System;
     using System.Data;

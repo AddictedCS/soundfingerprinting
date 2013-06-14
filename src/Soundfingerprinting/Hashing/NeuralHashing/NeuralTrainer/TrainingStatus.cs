@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.NeuralTrainer
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer
 {
     public enum TrainingStatus
     {

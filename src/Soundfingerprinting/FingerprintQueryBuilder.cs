@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting
+﻿namespace SoundFingerprinting
 {
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Infrastructure;
-    using Soundfingerprinting.Query;
-    using Soundfingerprinting.Query.Internal;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Query;
+    using SoundFingerprinting.Query.Internal;
 
     public class FingerprintQueryBuilder : IFingerprintQueryBuilder
     {

@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.Hashing.MinHash
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    using Soundfingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Hashing.Utils;
 
     /// <summary>
     ///   Summed accross selection of LGroups of permutations according to the minimal mutual information 

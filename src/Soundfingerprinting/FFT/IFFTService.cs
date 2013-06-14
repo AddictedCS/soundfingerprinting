@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.FFT
+﻿namespace SoundFingerprinting.FFT
 {
     public interface IFFTService
     {

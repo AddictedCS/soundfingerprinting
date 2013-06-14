@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Hashing.NeuralHashing.Learning
+namespace SoundFingerprinting.Hashing.NeuralHashing.Learning
 {
     /// <summary>
     ///   Supervised learning interface.

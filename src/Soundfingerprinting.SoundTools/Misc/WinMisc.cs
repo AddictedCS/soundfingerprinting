@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.Misc
+﻿namespace SoundFingerprinting.SoundTools.Misc
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,10 @@
     using System.Windows.Forms;
     using System.Xml.Serialization;
 
-    using Soundfingerprinting.Builder;
-    using Soundfingerprinting.Hashing.Utils;
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Strides;
     
     public partial class WinMisc : Form
     {

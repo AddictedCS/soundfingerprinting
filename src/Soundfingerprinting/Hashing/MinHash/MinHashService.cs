@@ -1,6 +1,6 @@
-﻿namespace Soundfingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.Hashing.MinHash
 {
-    using Soundfingerprinting.Infrastructure;
+    using SoundFingerprinting.Infrastructure;
 
     public class MinHashService : IMinHashService
     {

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector
+﻿namespace SoundFingerprinting.DuplicatesDetector
 {
     using System;
     using System.Windows.Input;

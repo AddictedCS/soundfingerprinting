@@ -1,23 +1,23 @@
-﻿namespace Soundfingerprinting.Infrastructure
+﻿namespace SoundFingerprinting.Infrastructure
 {
     using System;
     using System.Collections.Generic;
 
     using Ninject;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Audio.Bass;
-    using Soundfingerprinting.Audio.NAudio;
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.FFT;
-    using Soundfingerprinting.FFT.FFTW;
-    using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Hashing.LSH;
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Image;
-    using Soundfingerprinting.Utils;
-    using Soundfingerprinting.Wavelets;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.FFT;
+    using SoundFingerprinting.FFT.FFTW;
+    using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.Hashing.LSH;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Image;
+    using SoundFingerprinting.Utils;
+    using SoundFingerprinting.Wavelets;
 
     public static class DependencyResolver
     {

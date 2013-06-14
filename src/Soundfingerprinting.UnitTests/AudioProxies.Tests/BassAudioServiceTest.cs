@@ -1,11 +1,11 @@
-﻿namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
+﻿namespace SoundFingerprinting.UnitTests.AudioProxies.Tests
 {
     using System;
     using System.IO;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Audio.Bass;
+    using SoundFingerprinting.Audio.Bass;
 
     [TestClass]
     public class BassAudioServiceTest : BaseTest

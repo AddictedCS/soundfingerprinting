@@ -1,8 +1,8 @@
-namespace Soundfingerprinting.Dao
+namespace SoundFingerprinting.Dao
 {
     using System.Data;
 
-    using Soundfingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.Conditions;
 
     public interface IModelBinderFactory
     {

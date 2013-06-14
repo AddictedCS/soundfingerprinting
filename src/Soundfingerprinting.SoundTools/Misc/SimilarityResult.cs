@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.Misc
+﻿namespace SoundFingerprinting.SoundTools.Misc
 {
     public class SimilarityResult
     {

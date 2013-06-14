@@ -1,13 +1,13 @@
-﻿namespace Soundfingerprinting
+﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Hashing.Utils;
-    using Soundfingerprinting.Infrastructure;
-    using Soundfingerprinting.Query;
-    using Soundfingerprinting.Query.Configuration;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Query;
+    using SoundFingerprinting.Query.Configuration;
 
     public class QueryFingerprintService : IQueryFingerprintService
     {

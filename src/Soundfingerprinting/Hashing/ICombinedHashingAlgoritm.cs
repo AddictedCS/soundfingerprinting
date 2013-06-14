@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing
+﻿namespace SoundFingerprinting.Hashing
 {
     using System;
 

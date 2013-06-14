@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools
+﻿namespace SoundFingerprinting.SoundTools
 {
     using System;
     using System.Windows.Forms;

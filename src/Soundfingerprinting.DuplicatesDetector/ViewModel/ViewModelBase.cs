@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.ViewModel
+﻿namespace SoundFingerprinting.DuplicatesDetector.ViewModel
 {
     using System;
     using System.ComponentModel;
@@ -6,7 +6,7 @@
 
     using Ninject;
 
-    using Soundfingerprinting.DuplicatesDetector.Services;
+    using SoundFingerprinting.DuplicatesDetector.Services;
 
     /// <summary>
     ///   Base class for ViewModels

@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace SoundFingerprinting.Dao.Internal
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace Soundfingerprinting.Dao.Internal
     using System.Linq.Expressions;
     using System.Reflection;
 
-    using Soundfingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.Conditions;
 
     internal class ModelReaderBuilder<TModel>
     {

@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.Utils.ConstantQ
+﻿namespace SoundFingerprinting.Utils.ConstantQ
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-    using Soundfingerprinting.FFT.Exocortex;
+    using SoundFingerprinting.FFT.Exocortex;
     
     internal class SparKernel
     {
@@ -73,7 +73,7 @@
         ///   http://wwwmath.uni-muenster.de/logik/Personen/blankertz/constQ/constQ.html
         /// </remarks>
         /// <returns>
-        /// The Soundfingerprinting.Fingerprinting.FFT.Complex[][].
+        /// The SoundFingerprinting.Fingerprinting.FFT.Complex[][].
         /// </returns>
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1306:FieldNamesMustBeginWithLowerCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
         private Complex[][] GenerateSparKernel()

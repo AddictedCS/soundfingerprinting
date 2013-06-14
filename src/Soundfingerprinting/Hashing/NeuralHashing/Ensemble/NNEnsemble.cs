@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.Ensemble
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.Ensemble
 {
     using System;
     using System.IO;
@@ -8,7 +8,7 @@
 
     using Encog.Neural.Data.Basic;
 
-    using Soundfingerprinting.Hashing.NeuralHashing.MMI;
+    using SoundFingerprinting.Hashing.NeuralHashing.MMI;
 
     /// <summary>
     ///   Neural network ensemble used in hashing the fingerprints

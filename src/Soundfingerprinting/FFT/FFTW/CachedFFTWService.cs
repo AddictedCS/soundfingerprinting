@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.FFT.FFTW
+﻿namespace SoundFingerprinting.FFT.FFTW
 {
     using System;
     using System.Collections.Generic;

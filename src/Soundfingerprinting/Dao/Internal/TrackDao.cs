@@ -1,9 +1,9 @@
-namespace Soundfingerprinting.Dao.Internal
+namespace SoundFingerprinting.Dao.Internal
 {
     using System;
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Dao.Entities;
+    using SoundFingerprinting.Dao.Entities;
 
     internal class TrackDao : AbstractDao
     {

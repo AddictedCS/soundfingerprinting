@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.PermutationGenerator
+﻿namespace SoundFingerprinting.SoundTools.PermutationGenerator
 {
     using System;
     using System.Collections.Generic;
@@ -6,9 +6,9 @@
     using System.Text;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Hashing.Utils;
-    using Soundfingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.SoundTools.Properties;
 
     /// <summary>
     ///   Permutation generator algorithm

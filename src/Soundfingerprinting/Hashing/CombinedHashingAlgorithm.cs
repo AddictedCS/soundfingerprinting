@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Hashing
+﻿namespace SoundFingerprinting.Hashing
 {
     using System;
 
-    using Soundfingerprinting.Hashing.LSH;
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Infrastructure;
+    using SoundFingerprinting.Hashing.LSH;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Infrastructure;
 
     public class CombinedHashingAlgorithm : ICombinedHashingAlgoritm
     {

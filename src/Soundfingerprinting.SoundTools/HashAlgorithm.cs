@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools
+﻿namespace SoundFingerprinting.SoundTools
 {
     /// <summary>
     ///   Possible hash algorithms

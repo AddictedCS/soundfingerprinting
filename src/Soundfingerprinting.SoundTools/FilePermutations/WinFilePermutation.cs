@@ -1,12 +1,12 @@
-﻿namespace Soundfingerprinting.SoundTools.FilePermutations
+﻿namespace SoundFingerprinting.SoundTools.FilePermutations
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.SoundTools.Properties;
 
     public partial class WinFilePermutation : Form
     {

@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.Hashing.MinHash
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
-    using Soundfingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Hashing.Utils;
 
     /// <summary>
     ///   Aggressive selector of LGroup of permutation

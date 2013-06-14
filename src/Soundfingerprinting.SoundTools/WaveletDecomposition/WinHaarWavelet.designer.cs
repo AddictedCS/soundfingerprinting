@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.WaveletDecomposition
+﻿namespace SoundFingerprinting.SoundTools.WaveletDecomposition
 {
     partial class WinHaarWavelet
     {

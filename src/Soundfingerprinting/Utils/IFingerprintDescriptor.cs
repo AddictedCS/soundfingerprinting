@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Utils
+namespace SoundFingerprinting.Utils
 {
     public interface IFingerprintDescriptor
     {

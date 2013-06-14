@@ -1,13 +1,15 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.DataAccess
+﻿namespace SoundFingerprinting.DuplicatesDetector.DataAccess
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    using Soundfingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.DuplicatesDetector.Model;
 
     /// <summary>
     ///   Class for RAM storage of hashes
     /// </summary>
+    [Serializable]
     public class RamStorage : IStorage
     {
         private static readonly object LockObject = new object();

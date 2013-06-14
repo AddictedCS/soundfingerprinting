@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Audio.DirectSound
+﻿namespace SoundFingerprinting.Audio.DirectSound
 {
     using System;
     using System.Collections.Generic;

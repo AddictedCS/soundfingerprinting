@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.Ensemble
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.Ensemble
 {
     using System;
     using System.Runtime.Serialization;

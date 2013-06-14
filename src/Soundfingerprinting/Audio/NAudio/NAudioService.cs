@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Audio.NAudio
+﻿namespace SoundFingerprinting.Audio.NAudio
 {
     using System;
     using System.Collections.Generic;

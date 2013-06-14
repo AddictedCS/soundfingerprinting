@@ -1,10 +1,10 @@
-namespace Soundfingerprinting.Dao
+namespace SoundFingerprinting.Dao
 {
     using System.Collections.Generic;
     using System.Data;
 
-    using Soundfingerprinting.Dao.Conditions;
-    using Soundfingerprinting.Infrastructure;
+    using SoundFingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Infrastructure;
 
     public class CachedModelBinderFactory : IModelBinderFactory
     {

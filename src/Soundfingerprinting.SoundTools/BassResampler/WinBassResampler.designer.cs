@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.BassResampler
+﻿namespace SoundFingerprinting.SoundTools.BassResampler
 {
     partial class WinBassResampler
     {

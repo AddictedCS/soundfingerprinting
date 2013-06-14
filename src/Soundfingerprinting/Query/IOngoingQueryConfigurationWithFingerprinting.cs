@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.Query
+﻿namespace SoundFingerprinting.Query
 {
     using System;
 
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Query.Configuration;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Query.Configuration;
 
     public interface IOngoingQueryConfigurationWithFingerprinting
     {

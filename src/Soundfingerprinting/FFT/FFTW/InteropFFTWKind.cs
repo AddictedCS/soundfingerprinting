@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.FFT.FFTW
+﻿namespace SoundFingerprinting.FFT.FFTW
 {
     /// <summary>
     /// Kinds of real-to-real transforms

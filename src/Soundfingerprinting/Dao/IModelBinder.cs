@@ -1,8 +1,8 @@
-namespace Soundfingerprinting.Dao
+namespace SoundFingerprinting.Dao
 {
     using System;
 
-    using Soundfingerprinting.Dao.Internal;
+    using SoundFingerprinting.Dao.Internal;
 
     public interface IModelBinder<TModel>
     {

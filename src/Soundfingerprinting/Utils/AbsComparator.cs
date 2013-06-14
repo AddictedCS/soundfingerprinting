@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Utils
+namespace SoundFingerprinting.Utils
 {
     using System;
     using System.Collections.Generic;

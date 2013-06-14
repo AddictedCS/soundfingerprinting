@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.UnitTests.Fingerprinting.Tests
+﻿namespace SoundFingerprinting.UnitTests.Fingerprinting.Tests
 {
     using System;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.DbStorage.Utils;
+    using SoundFingerprinting.DbStorage.Utils;
 
     [TestClass]
     public class FingerprintUtilsTest : BaseTest

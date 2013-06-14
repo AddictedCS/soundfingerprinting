@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Infrastructure
+﻿namespace SoundFingerprinting.Infrastructure
 {
     using System;
     using System.Collections.Generic;

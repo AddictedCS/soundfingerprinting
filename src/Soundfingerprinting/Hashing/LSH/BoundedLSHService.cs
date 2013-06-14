@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.LSH
+﻿namespace SoundFingerprinting.Hashing.LSH
 {
     public class BoundedLSHService : ILSHService
     {

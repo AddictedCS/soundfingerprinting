@@ -255,9 +255,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Soundfingerprinting\Soundfingerprinting.csproj">
+    <ProjectReference Include="..\Soundfingerprinting\SoundFingerprinting.csproj">
       <Project>{56EB1986-589C-4DA9-B961-5833BB4A7816}</Project>
-      <Name>Soundfingerprinting</Name>
+      <Name>SoundFingerprinting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

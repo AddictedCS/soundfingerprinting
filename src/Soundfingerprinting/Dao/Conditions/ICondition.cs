@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.Dao.Conditions
+namespace SoundFingerprinting.Dao.Conditions
 {
     using System;
     using System.Data;

@@ -1,10 +1,10 @@
-namespace Soundfingerprinting.Builder
+namespace SoundFingerprinting.Builder
 {
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Soundfingerprinting.Configuration;
+    using SoundFingerprinting.Configuration;
 
     public interface IFingerprintUnit
     {

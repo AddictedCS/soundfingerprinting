@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Wavelets
+﻿namespace SoundFingerprinting.Wavelets
 {
     public class IntegralImage : IWaveletDecomposition
     {

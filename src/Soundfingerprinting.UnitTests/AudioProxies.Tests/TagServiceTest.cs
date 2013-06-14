@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.UnitTests.AudioProxies.Tests
+﻿namespace SoundFingerprinting.UnitTests.AudioProxies.Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Audio.Bass;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.Bass;
 
     [TestClass]
     public class TagServiceTest : BaseTest

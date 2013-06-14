@@ -1,4 +1,4 @@
-namespace Soundfingerprinting.SoundTools.DI
+namespace SoundFingerprinting.SoundTools.DI
 {
     using System;
     using System.Collections.Generic;

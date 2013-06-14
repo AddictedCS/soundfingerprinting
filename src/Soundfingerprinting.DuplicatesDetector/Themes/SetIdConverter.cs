@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.Themes
+﻿namespace SoundFingerprinting.DuplicatesDetector.Themes
 {
     using System;
     using System.Globalization;

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Dao.Entities
+﻿namespace SoundFingerprinting.Dao.Entities
 {
     public class Track
     {

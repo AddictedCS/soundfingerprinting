@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.UnitTests.Fingerprinting.Tests
+﻿namespace SoundFingerprinting.UnitTests.Fingerprinting.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -9,18 +9,18 @@
 
     using Moq;
 
-    using Soundfingerprinting.Audio.Bass;
-    using Soundfingerprinting.Audio.DirectSound;
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Dao.Entities;
-    using Soundfingerprinting.DbStorage.Utils;
-    using Soundfingerprinting.FFT;
-    using Soundfingerprinting.FFT.FFTW;
-    using Soundfingerprinting.Hashing.MinHash;
-    using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Utils;
-    using Soundfingerprinting.Wavelets;
+    using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Audio.DirectSound;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.DbStorage.Utils;
+    using SoundFingerprinting.FFT;
+    using SoundFingerprinting.FFT.FFTW;
+    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Utils;
+    using SoundFingerprinting.Wavelets;
 
     [TestClass]
     public class FingerprintManagerTest : BaseTest

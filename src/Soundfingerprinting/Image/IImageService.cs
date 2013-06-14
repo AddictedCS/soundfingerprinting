@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Image
+﻿namespace SoundFingerprinting.Image
 {
     using System.Collections.Generic;
     using System.Drawing;
 
-    using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Wavelets;
+    using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Wavelets;
 
     public interface IImageService
     {

@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.FilePermutations
+﻿namespace SoundFingerprinting.SoundTools.FilePermutations
 {
     partial class WinFilePermutation
     {

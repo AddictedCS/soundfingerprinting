@@ -1,5 +1,5 @@
 ﻿
-namespace Soundfingerprinting.SoundTools
+namespace SoundFingerprinting.SoundTools
 {
     using System;
 

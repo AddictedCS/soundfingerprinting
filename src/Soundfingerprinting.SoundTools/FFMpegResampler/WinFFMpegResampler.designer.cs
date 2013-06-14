@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.FFMpegResampler
+﻿namespace SoundFingerprinting.SoundTools.FFMpegResampler
 {
     partial class WinFfMpegResampler
     {

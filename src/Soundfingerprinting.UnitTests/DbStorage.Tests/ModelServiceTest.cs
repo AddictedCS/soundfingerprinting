@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.UnitTests.DbStorage.Tests
+﻿namespace SoundFingerprinting.UnitTests.DbStorage.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Dao.Entities;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.Entities;
 
     [TestClass]
     public class ModelServiceTest : BaseTest

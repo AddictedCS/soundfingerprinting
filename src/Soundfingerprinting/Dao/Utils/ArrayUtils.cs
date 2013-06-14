@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.DbStorage.Utils
+﻿namespace SoundFingerprinting.DbStorage.Utils
 {
     using System;
     using System.Collections;

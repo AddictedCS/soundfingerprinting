@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.FFT
+﻿namespace SoundFingerprinting.FFT
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Strides;
 
     public interface ISpectrumService
     {

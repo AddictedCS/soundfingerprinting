@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.QueryDb
+﻿namespace SoundFingerprinting.SoundTools.QueryDb
 {
     using System;
     using System.Collections.Generic;
@@ -9,12 +9,12 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Query;
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Query;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Strides;
 
     public partial class WinCheckHashBins : Form
     {

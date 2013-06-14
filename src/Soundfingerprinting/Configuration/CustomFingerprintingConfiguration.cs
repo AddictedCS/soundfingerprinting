@@ -1,6 +1,6 @@
-namespace Soundfingerprinting.Configuration
+namespace SoundFingerprinting.Configuration
 {
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Strides;
     
     public class CustomFingerprintingConfiguration : IFingerprintingConfiguration
     {

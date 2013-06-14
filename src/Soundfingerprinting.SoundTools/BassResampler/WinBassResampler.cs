@@ -1,11 +1,11 @@
-﻿namespace Soundfingerprinting.SoundTools.BassResampler
+﻿namespace SoundFingerprinting.SoundTools.BassResampler
 {
     using System;
     using System.IO;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.SoundTools.Properties;
 
     public partial class WinBassResampler : Form
     {

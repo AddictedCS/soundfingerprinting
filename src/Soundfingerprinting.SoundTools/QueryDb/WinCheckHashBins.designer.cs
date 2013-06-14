@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.QueryDb
+﻿namespace SoundFingerprinting.SoundTools.QueryDb
 {
     partial class WinCheckHashBins
     {

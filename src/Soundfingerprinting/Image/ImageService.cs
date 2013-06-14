@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Image
+﻿namespace SoundFingerprinting.Image
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,10 @@
     using System.Drawing.Imaging;
     using System.Linq;
 
-    using Soundfingerprinting.FFT;
-    using Soundfingerprinting.Infrastructure;
-    using Soundfingerprinting.Strides;
-    using Soundfingerprinting.Wavelets;
+    using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Wavelets;
 
     public class ImageService : IImageService
     {

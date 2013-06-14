@@ -1,9 +1,9 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.Services
+﻿namespace SoundFingerprinting.DuplicatesDetector.Services
 {
     using System;
     using System.ComponentModel;
 
-    using Soundfingerprinting.DuplicatesDetector.View;
+    using SoundFingerprinting.DuplicatesDetector.View;
 
     /// <summary>
     ///   Generic view window service

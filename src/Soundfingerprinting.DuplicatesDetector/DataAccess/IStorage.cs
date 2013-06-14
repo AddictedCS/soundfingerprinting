@@ -1,8 +1,8 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.DataAccess
+﻿namespace SoundFingerprinting.DuplicatesDetector.DataAccess
 {
     using System.Collections.Generic;
 
-    using Soundfingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.DuplicatesDetector.Model;
 
     /// <summary>
     ///   Storage used for hashes and tracks

@@ -1,7 +1,7 @@
-﻿namespace Soundfingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.Hashing.MinHash
 {
-    using Soundfingerprinting.Dao;
-    using Soundfingerprinting.Infrastructure;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Infrastructure;
 
     public class DatabasePermutations : IPermutations
     {

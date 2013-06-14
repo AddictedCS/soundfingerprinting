@@ -1,11 +1,11 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing
 {
     using System;
     using System.Collections.ObjectModel;
     using System.Runtime.Serialization;
     using System.Xml.Serialization;
 
-    using Soundfingerprinting.Hashing.NeuralHashing.ActivationFunctions;
+    using SoundFingerprinting.Hashing.NeuralHashing.ActivationFunctions;
 
     /// <summary>
     ///   Layer - represent a collection of neurons

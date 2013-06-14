@@ -1,10 +1,10 @@
-﻿namespace Soundfingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.Hashing.MinHash
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
-    using Soundfingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Hashing.Utils;
 
     /// <summary>
     ///   Conservative selection of L groups of permutations according to the minimal mutual information spread accross the elements of the group

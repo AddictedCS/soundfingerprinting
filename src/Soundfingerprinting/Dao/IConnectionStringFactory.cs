@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Dao
+﻿namespace SoundFingerprinting.Dao
 {
     public interface IConnectionStringFactory
     {

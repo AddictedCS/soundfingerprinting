@@ -1,11 +1,11 @@
-﻿namespace Soundfingerprinting.UnitTests.Fingerprinting.Tests.Wavelets
+﻿namespace SoundFingerprinting.UnitTests.Fingerprinting.Tests.Wavelets
 {
     using System;
     using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Soundfingerprinting.Wavelets;
+    using SoundFingerprinting.Wavelets;
 
     [TestClass]
     public class HaarWaveletTest : BaseTest

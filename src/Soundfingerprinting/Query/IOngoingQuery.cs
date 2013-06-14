@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Query
+﻿namespace SoundFingerprinting.Query
 {
     public interface IOngoingQuery
     {

@@ -1,8 +1,8 @@
-namespace Soundfingerprinting.Builder
+namespace SoundFingerprinting.Builder
 {
     using System;
 
-    using Soundfingerprinting.Configuration;
+    using SoundFingerprinting.Configuration;
 
     public interface IWithConfiguration
     {

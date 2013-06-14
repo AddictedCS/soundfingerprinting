@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.SoundTools.DrawningTool
+﻿namespace SoundFingerprinting.SoundTools.DrawningTool
 {
     using System;
     using System.Collections.Generic;
@@ -8,12 +8,12 @@
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.Configuration;
-    using Soundfingerprinting.FFT;
-    using Soundfingerprinting.Image;
-    using Soundfingerprinting.SoundTools.Properties;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Image;
+    using SoundFingerprinting.SoundTools.Properties;
+    using SoundFingerprinting.Strides;
     
     public partial class WinDrawningTool : Form
     {

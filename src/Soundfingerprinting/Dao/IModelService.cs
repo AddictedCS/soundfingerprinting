@@ -1,9 +1,9 @@
-namespace Soundfingerprinting.Dao
+namespace SoundFingerprinting.Dao
 {
     using System;
     using System.Collections.Generic;
 
-    using Soundfingerprinting.Dao.Entities;
+    using SoundFingerprinting.Dao.Entities;
 
     public interface IModelService
     {

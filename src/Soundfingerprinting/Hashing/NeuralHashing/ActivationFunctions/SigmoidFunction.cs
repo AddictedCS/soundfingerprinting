@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing.ActivationFunctions
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing.ActivationFunctions
 {
     using System;
 

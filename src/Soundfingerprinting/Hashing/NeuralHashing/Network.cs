@@ -1,4 +1,4 @@
-﻿namespace Soundfingerprinting.Hashing.NeuralHashing
+﻿namespace SoundFingerprinting.Hashing.NeuralHashing
 {
     using System;
     using System.IO;
@@ -8,7 +8,7 @@
     using Encog.Neural.Data.Basic;
     using Encog.Neural.Networks;
 
-    using Soundfingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Hashing.Utils;
 
     /// <summary>
     ///   Network - represent a collection of connected layers
