@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.UnitTests.Fingerprinting.Tests.Wavelets
+﻿namespace SoundFingerprinting.Tests.Fingerprinting.Tests.Wavelets
 {
     using System;
     using System.Linq;

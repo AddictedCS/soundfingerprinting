@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.UnitTests.Infrastructure.Test
+﻿namespace SoundFingerprinting.Tests.Infrastructure.Test
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.UnitTests.NeuralHashing.Tests
+﻿namespace SoundFingerprinting.Tests.NeuralHashing.Tests
 {
     using System;
     using System.IO;

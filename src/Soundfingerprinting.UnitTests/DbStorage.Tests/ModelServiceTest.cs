@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.UnitTests.DbStorage.Tests
+﻿namespace SoundFingerprinting.Tests.DbStorage.Tests
 {
     using System;
     using System.Collections.Generic;
