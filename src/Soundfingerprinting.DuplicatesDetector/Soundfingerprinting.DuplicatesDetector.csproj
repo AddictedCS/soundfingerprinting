@@ -8,8 +8,8 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <DefaultClrNameSpace>Soundfingerprinting.DuplicatesDetector</DefaultClrNameSpace>
-    <RootNamespace>Soundfingerprinting.DuplicatesDetector</RootNamespace>
-    <AssemblyName>Soundfingerprinting.DuplicatesDetector</AssemblyName>
+    <RootNamespace>SoundFingerprinting.DuplicatesDetector</RootNamespace>
+    <AssemblyName>SoundFingerprinting.DuplicatesDetector</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AlwaysCompileMarkupFilesInSeparateDomain>false</AlwaysCompileMarkupFilesInSeparateDomain>
     <ApplicationIcon>Application.ico</ApplicationIcon>

@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundfingerprinting.SoundTo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundfingerprinting.UnitTests", "Soundfingerprinting.UnitTests\Soundfingerprinting.UnitTests.csproj", "{987DA38D-5157-4D83-9B1D-83A0A62D0E94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundfingerprinting.DuplicatesDetector", "Soundfingerprinting.DuplicatesDetector\Soundfingerprinting.DuplicatesDetector.csproj", "{572367D4-0F0C-4DC9-BE1C-4D037530D785}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.DuplicatesDetector", "Soundfingerprinting.DuplicatesDetector\SoundFingerprinting.DuplicatesDetector.csproj", "{572367D4-0F0C-4DC9-BE1C-4D037530D785}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting", "Soundfingerprinting\SoundFingerprinting.csproj", "{56EB1986-589C-4DA9-B961-5833BB4A7816}"
 EndProject
