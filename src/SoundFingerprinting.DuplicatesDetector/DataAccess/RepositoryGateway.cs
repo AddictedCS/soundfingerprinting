@@ -1,21 +1,23 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.DataAccess
+﻿namespace SoundFingerprinting.DuplicatesDetector.DataAccess
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
     using System.Threading.Tasks;
 
     using Ninject;
     using Ninject.Parameters;
 
-    using Soundfingerprinting.Audio;
-    using Soundfingerprinting.DuplicatesDetector.Infrastructure;
-    using Soundfingerprinting.DuplicatesDetector.Model;
-    using Soundfingerprinting.DuplicatesDetector.Services;
-    using Soundfingerprinting.DuplicatesDetector.ViewModel;
-    using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.DuplicatesDetector.Infrastructure;
+    using SoundFingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.DuplicatesDetector.Services;
+    using SoundFingerprinting.DuplicatesDetector.ViewModel;
+    using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.Strides;
 
     /// <summary>
     ///   Class which prepares the data for Repository analysis of the tracks (does all the "dirty job")
@@ -106,7 +108,23 @@
 
         public RepositoryGateway()
         {
+#if TEST
+            if (File.Exists("serialized.ss"))
+            {
+                using (Stream file = new FileStream("serialized.ss", FileMode.Open))
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    storage = (IStorage)formatter.Deserialize(file);
+                }
+            }
+            else
+            {
+                storage = ServiceContainer.Kernel.Get<IStorage>(new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
+            }
+#else
             storage = ServiceContainer.Kernel.Get<IStorage>(new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
+#endif  
+
             audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
             tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
@@ -168,7 +186,11 @@
         /// <returns>Set of tracks that are duplicate</returns>
         public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
         {
-            return repository.FindDuplicates(storage.GetAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
+            var duplicates = repository.FindDuplicates(storage.GetAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
+#if TEST
+            repository.SerializeStorage("serialized.ss");
+#endif
+            return duplicates;
         }
 
         /// <summary>

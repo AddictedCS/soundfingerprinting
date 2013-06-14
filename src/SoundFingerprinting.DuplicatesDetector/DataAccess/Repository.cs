@@ -1,12 +1,14 @@
-﻿namespace Soundfingerprinting.DuplicatesDetector.DataAccess
+﻿namespace SoundFingerprinting.DuplicatesDetector.DataAccess
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization.Formatters.Binary;
 
-    using Soundfingerprinting.DuplicatesDetector.Model;
-    using Soundfingerprinting.Hashing;
-    using Soundfingerprinting.Strides;
+    using SoundFingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.Strides;
 
     /// <summary>
     ///   Singleton class for repository container
@@ -137,6 +139,15 @@
         public void ClearStorage()
         {
             storage.ClearAll();
+        }
+
+        public void SerializeStorage(string pathToSerializedStorage)
+        {
+            using (Stream stream = new FileStream(pathToSerializedStorage, FileMode.CreateNew))
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, storage);
+            }
         }
 
         private IEnumerable<HashSignature> GetSignatures(IEnumerable<bool[]> fingerprints, Track track, int hashTables, int hashKeys)
