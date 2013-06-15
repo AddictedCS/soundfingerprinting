@@ -16,16 +16,11 @@
         /// <returns>The mean of the sample.</returns>
         public static double Mean(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double mean = 0;
             ulong m = 0;
             foreach (double item in data)
             {
-                mean += (item - mean)/++m;
+                mean += (item - mean) / ++m;
             }
 
             return mean;
@@ -38,18 +33,13 @@
         /// <returns>The mean of the sample.</returns>
         public static double Mean(this IEnumerable<double?> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double mean = 0;
             ulong m = 0;
             foreach (double? item in data)
             {
                 if (item.HasValue)
                 {
-                    mean += (item.Value - mean)/++m;
+                    mean += (item.Value - mean) / ++m;
                 }
             }
 
@@ -63,11 +53,6 @@
         /// <returns>The unbiased population variance of the sample.</returns>
         public static double Variance(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double variance = 0;
             double t = 0;
             ulong j = 0;
@@ -84,11 +69,11 @@
                 j++;
                 double xi = iterator.Current;
                 t += xi;
-                double diff = (j*xi) - t;
-                variance += (diff*diff)/(j*(j - 1));
+                double diff = (j * xi) - t;
+                variance += (diff * diff) / (j * (j - 1));
             }
 
-            return variance/(j - 1);
+            return variance / (j - 1);
         }
 
         /// <summary>
@@ -98,11 +83,6 @@
         /// <returns>The population variance of the sample.</returns>
         public static double Variance(this IEnumerable<double?> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double variance = 0;
             double t = 0;
             ulong j = 0;
@@ -132,12 +112,12 @@
                     j++;
                     double xi = iterator.Current.Value;
                     t += xi;
-                    double diff = (j*xi) - t;
-                    variance += (diff*diff)/(j*(j - 1));
+                    double diff = (j * xi) - t;
+                    variance += (diff * diff) / (j * (j - 1));
                 }
             }
 
-            return variance/(j - 1);
+            return variance / (j - 1);
         }
 
         /// <summary>
@@ -147,11 +127,6 @@
         /// <returns>The biased population variance of the sample.</returns>
         public static double PopulationVariance(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double variance = 0;
             double t = 0;
             ulong j = 0;
@@ -168,11 +143,11 @@
                 j++;
                 double xi = iterator.Current;
                 t += xi;
-                double diff = (j*xi) - t;
-                variance += (diff*diff)/(j*(j - 1));
+                double diff = (j * xi) - t;
+                variance += (diff * diff) / (j * (j - 1));
             }
 
-            return variance/j;
+            return variance / j;
         }
 
         /// <summary>
@@ -182,11 +157,6 @@
         /// <returns>The population variance of the sample.</returns>
         public static double PopulationVariance(this IEnumerable<double?> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double variance = 0;
             double t = 0;
             ulong j = 0;
@@ -216,12 +186,12 @@
                     j++;
                     double xi = iterator.Current.Value;
                     t += xi;
-                    double diff = (j*xi) - t;
-                    variance += (diff*diff)/(j*(j - 1));
+                    double diff = (j * xi) - t;
+                    variance += (diff * diff) / (j * (j - 1));
                 }
             }
 
-            return variance/j;
+            return variance / j;
         }
 
         /// <summary>
@@ -231,11 +201,6 @@
         /// <returns>The standard deviation of the sample.</returns>
         public static double StandardDeviation(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             return Math.Sqrt(Variance(data));
         }
 
@@ -261,11 +226,6 @@
         /// <returns>The standard deviation of the sample.</returns>
         public static double PopulationStandardDeviation(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             return Math.Sqrt(PopulationVariance(data));
         }
 
@@ -276,11 +236,6 @@
         /// <returns>The standard deviation of the sample.</returns>
         public static double PopulationStandardDeviation(this IEnumerable<double?> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             return Math.Sqrt(PopulationVariance(data));
         }
 
@@ -291,11 +246,6 @@
         /// <returns>The minimum value in the sample data.</returns>
         public static double Minimum(this IEnumerable<double?> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double min = double.MaxValue;
             ulong count = 0;
             foreach (double? d in data)
@@ -322,11 +272,6 @@
         /// <returns>The maximum value in the sample data.</returns>
         public static double Maximum(this IEnumerable<double?> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double max = double.MinValue;
             ulong count = 0;
             foreach (double? d in data)
@@ -353,11 +298,6 @@
         /// <returns>The minimum value in the sample data.</returns>
         public static double Minimum(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double min = double.MaxValue;
             ulong count = 0;
             foreach (double d in data)
@@ -381,11 +321,6 @@
         /// <returns>The maximum value in the sample data.</returns>
         public static double Maximum(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             double max = double.MinValue;
             ulong count = 0;
             foreach (double d in data)
@@ -409,22 +344,19 @@
         /// <returns>The median of the sample.</returns>
         public static double Median(this IEnumerable<double> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-            IOrderedEnumerable<double> order = data.OrderBy((item) => item);
+            var order = data.OrderBy(item => item);
             float result;
             int length = order.Count();
-            if (length%2 == 0)
+            if (length % 2 == 0)
             {
-                int middle = length/2;
-                result = (float) (order.ElementAt(middle) + order.ElementAt(middle - 1))/2;
+                int middle = length / 2;
+                result = (float)(order.ElementAt(middle) + order.ElementAt(middle - 1)) / 2;
             }
             else
             {
-                result = (float) order.ElementAt(length/2);
+                result = (float)order.ElementAt(length / 2);
             }
+
             return result;
         }
 
@@ -435,11 +367,6 @@
         /// <returns>The median of the sample.</returns>
         public static double Median(this IEnumerable<double?> data)
         {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-
             List<double> nonNull = new List<double>();
             foreach (double? value in data)
             {

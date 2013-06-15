@@ -62,7 +62,7 @@
         {
             set
             {
-                if (value.NNEnsembleDimensionality != _networks[0].OutputCount * _networks.Length)
+                if (value.NeuralNetworkEnsembleDimensionality != _networks[0].OutputCount * _networks.Length)
                 {
                     throw new ArgumentException("The hash patter does not correspond to networks of the NeuralNetworkEnsemble");
                 }
