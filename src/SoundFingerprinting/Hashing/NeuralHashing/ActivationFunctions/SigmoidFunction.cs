@@ -22,12 +22,11 @@
             set { alfa = value; }
         }
 
-
         #region IActivationFunction Members
 
         public float Output(float x)
         {
-            return (float) (1/(1 + Math.Exp(-alfa*x)));
+            return (float)(1 / (1 + Math.Exp(-alfa * x)));
         }
 
         // Calculate differential of the function value
@@ -35,14 +34,14 @@
         {
             float y = Output(x);
 
-            return (alfa*y*(1 - y));
+            return alfa * y * (1 - y);
         }
 
         // Calculate differential of the function value
         // using function value as input
         public float Derivative2(float y)
         {
-            return (alfa*y*(1 - y));
+            return alfa * y * (1 - y);
         }
 
         #endregion

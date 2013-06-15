@@ -4,12 +4,14 @@ namespace SoundFingerprinting.Builder
 
     using SoundFingerprinting.Configuration;
 
-    public interface IWithConfiguration
+    public interface IWithFingerprintConfiguration
     {
         IFingerprintUnit With(IFingerprintingConfiguration configuration);
 
         IFingerprintUnit With<T>() where T : IFingerprintingConfiguration, new();
 
-        IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> transformation);
+        IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> functor);
+
+        IFingerprintUnit WithDefaultConfiguration();
     }
 }

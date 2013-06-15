@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Query.Internal
+﻿namespace SoundFingerprinting.Query
 {
     using System;
     using System.Collections.Generic;
@@ -10,13 +10,13 @@
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Query.Configuration;
 
-    internal sealed class FingerprintingQueryUnit : IOngoingQuery, IOngoingQueryConfiguration, IOngoingQueryConfigurationWithFingerprinting, IFingerprintingQueryUnit
+    internal sealed class FingerprintingQueryUnit : IQuerySource, IWithQueryConfiguration, IWithQueryAndFingerprintConfiguration, IFingerprintQueryUnit
     {
         private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         private readonly IMinHashService minHashService;
 
-        private Func<IWithConfiguration> fingerprintingMethodFromSelector;
+        private Func<IWithFingerprintConfiguration> fingerprintingMethodFromSelector;
         private Func<IFingerprintUnit> createFingerprintMethod;
         private IQueryConfiguration queryConfiguration;
 
@@ -27,51 +27,58 @@
             this.minHashService = minHashService;
         }
 
-        public IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile)
+        public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile)
         {
             fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(pathToAudioFile);
             return this;
         }
 
-        public IOngoingQueryConfigurationWithFingerprinting From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
+        public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
             fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(pathToAudioFile, secondsToProcess, startAtSecond);
             return this;
         }
 
-        public IOngoingQueryConfigurationWithFingerprinting From(float[] audioSamples)
+        public IWithQueryAndFingerprintConfiguration From(float[] audioSamples)
         {
             fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(audioSamples);
             return this;
         }
 
-        public IOngoingQueryConfiguration From(bool[] fingerprint)
+        public IWithQueryConfiguration From(bool[] fingerprint)
         {
-            fingerprintingMethodFromSelector = () => new EmptyWithConfiguration(fingerprint, minHashService);
+            fingerprintingMethodFromSelector = () => new EmptyWithFingerprintConfiguration(fingerprint, minHashService);
             return this;
         }
 
-        public IFingerprintingQueryUnit With(IFingerprintingConfiguration fingerprintingConfiguration, IQueryConfiguration configuration)
+        public IFingerprintQueryUnit With(IFingerprintingConfiguration fingerprintingConfiguration, IQueryConfiguration configuration)
         {
             queryConfiguration = configuration;
             createFingerprintMethod = () => fingerprintingMethodFromSelector().With(fingerprintingConfiguration);
             return this;
         }
 
-        public IFingerprintingQueryUnit With<T1, T2>() where T1 : IFingerprintingConfiguration, new() where T2 : IQueryConfiguration, new()
+        public IFingerprintQueryUnit With<T1, T2>() where T1 : IFingerprintingConfiguration, new() where T2 : IQueryConfiguration, new()
         {
             queryConfiguration = new T2();
             createFingerprintMethod = () => fingerprintingMethodFromSelector().With<T1>();
             return this;
         }
 
-        public IFingerprintingQueryUnit WithCustomConfigurations(
+        public IFingerprintQueryUnit WithCustomConfigurations(
             Action<CustomFingerprintingConfiguration> fingerprintingConfigurationTransformation, Action<CustomQueryConfiguration> queryConfigurationTransformation)
         {
             CustomQueryConfiguration customQueryConfiguration = new CustomQueryConfiguration();
             queryConfiguration = customQueryConfiguration;
             queryConfigurationTransformation(customQueryConfiguration);
             createFingerprintMethod = () => fingerprintingMethodFromSelector().WithCustomConfiguration(fingerprintingConfigurationTransformation);
+            return this;
+        }
+
+        public IFingerprintQueryUnit WithDefaultConfigurations()
+        {
+            queryConfiguration = new DefaultQueryConfiguration();
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithDefaultConfiguration();
             return this;
         }
 
@@ -95,19 +102,19 @@
                                             });
         }
 
-        public IFingerprintingQueryUnit With(IQueryConfiguration configuration)
+        public IFingerprintQueryUnit With(IQueryConfiguration configuration)
         {
             queryConfiguration = configuration;
             return this;
         }
 
-        private class EmptyWithConfiguration : IWithConfiguration
+        private class EmptyWithFingerprintConfiguration : IWithFingerprintConfiguration
         {
             private readonly bool[] fingerprint;
 
             private readonly IMinHashService minHashService;
 
-            public EmptyWithConfiguration(bool[] fingerprint, IMinHashService minHashService)
+            public EmptyWithFingerprintConfiguration(bool[] fingerprint, IMinHashService minHashService)
             {
                 this.fingerprint = fingerprint;
                 this.minHashService = minHashService;
@@ -123,7 +130,12 @@
                 return new EmptyFingerprintUnit(fingerprint, minHashService);
             }
 
-            public IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> transformation)
+            public IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> functor)
+            {
+                return new EmptyFingerprintUnit(fingerprint, minHashService);
+            }
+
+            public IFingerprintUnit WithDefaultConfiguration()
             {
                 return new EmptyFingerprintUnit(fingerprint, minHashService);
             }

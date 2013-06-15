@@ -10,7 +10,7 @@ namespace SoundFingerprinting.Builder
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Hashing.MinHash;
 
-    internal sealed class FingerprintUnit : ITargetOn, IWithConfiguration, IFingerprintUnit
+    internal sealed class FingerprintUnit : ITargetOn, IWithFingerprintConfiguration, IFingerprintUnit
     {
         private readonly IAudioService audioService;
         private readonly IMinHashService minHashService;
@@ -51,7 +51,7 @@ namespace SoundFingerprinting.Builder
                               .ContinueWith(task => HashFingerprints(task.Result));
         }
 
-        public IWithConfiguration On(string pathToAudioFile)
+        public IWithFingerprintConfiguration On(string pathToAudioFile)
         {
             createFingerprintsMethod = () =>
                 {
@@ -67,13 +67,13 @@ namespace SoundFingerprinting.Builder
             return this;
         }
 
-        public IWithConfiguration On(float[] audioSamples)
+        public IWithFingerprintConfiguration On(float[] audioSamples)
         {
             createFingerprintsMethod = () => fingerprintService.CreateFingerprints(audioSamples, Configuration);
             return this;
         }
 
-        public IWithConfiguration On(string pathToAudioFile, int secondsToProcess, int startAtSecond)
+        public IWithFingerprintConfiguration On(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
             createFingerprintsMethod = () =>
                 {
@@ -100,11 +100,17 @@ namespace SoundFingerprinting.Builder
             return this;
         }
 
-        public IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> transformation)
+        public IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> functor)
         {
             CustomFingerprintingConfiguration customFingerprintingConfiguration = new CustomFingerprintingConfiguration();
             Configuration = customFingerprintingConfiguration;
-            transformation(customFingerprintingConfiguration);
+            functor(customFingerprintingConfiguration);
+            return this;
+        }
+
+        public IFingerprintUnit WithDefaultConfiguration()
+        {
+            Configuration = new DefaultFingerprintingConfiguration();
             return this;
         }
 

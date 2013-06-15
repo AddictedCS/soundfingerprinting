@@ -5,31 +5,24 @@
     [Serializable]
     public class StepFunction : IActivationFunction
     {
-        private float _threshold;
-
-        // Threshold property
-
-        public StepFunction()
-        {
-        }
-
+        private float threshold;
 
         public StepFunction(float threshold)
         {
-            _threshold = threshold;
+            this.threshold = threshold;
         }
 
         public float Threshold
         {
-            get { return _threshold; }
-            set { _threshold = value; }
+            get { return threshold; }
+            set { threshold = value; }
         }
 
         #region IActivationFunction Members
 
         public float Output(float input)
         {
-            return input > _threshold ? 1.0f : 0.0f;
+            return input > threshold ? 1.0f : 0.0f;
         }
 
         public float Derivative(float input)

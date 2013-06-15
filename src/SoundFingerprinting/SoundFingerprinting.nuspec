@@ -12,7 +12,7 @@
     <description>$description$</description>
     <releaseNotes>Pre-Release package. More to come in following releases.</releaseNotes>
     <copyright>Copyright 2013, Ciumac Sergiu</copyright>
-    <tags>Audio Fingerprinting, Digital Signal Processing, Music Recognition, Data Mining, Content, Sound</tags>
+    <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
   </metadata>
 	<files>
 		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net35" />

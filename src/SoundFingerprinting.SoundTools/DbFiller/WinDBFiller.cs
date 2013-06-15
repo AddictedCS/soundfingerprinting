@@ -230,7 +230,7 @@
 
                     try
                     {
-                        NNEnsemble.Load(_tbPathToEnsemble.Text); // Load the ensemble
+                        NeuralNetworkEnsemble.Load(_tbPathToEnsemble.Text); // Load the ensemble
                     }
                     catch (Exception ex)
                     {

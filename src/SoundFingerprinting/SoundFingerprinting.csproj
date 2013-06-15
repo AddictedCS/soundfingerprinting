@@ -159,7 +159,7 @@
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
     <Compile Include="Utils\ConstantQ\SparKernel.cs" />
     <Compile Include="Wavelets\WaveletUtils.cs" />
-    <Compile Include="Builder\IWithConfiguration.cs" />
+    <Compile Include="Builder\IWithFingerprintConfiguration.cs" />
     <Compile Include="Builder\IFingerprintUnit.cs" />
     <Compile Include="IFingerprintUnitBuilder.cs" />
     <Compile Include="FingerprintUnitBuilder.cs" />
@@ -205,12 +205,9 @@
     <Compile Include="Hashing\NeuralHashing\ActivationFunctions\IActivationFunction.cs" />
     <Compile Include="Hashing\NeuralHashing\ActivationFunctions\SigmoidFunction.cs" />
     <Compile Include="Hashing\NeuralHashing\ActivationFunctions\StepFunction.cs" />
-    <Compile Include="Hashing\NeuralHashing\Ensemble\NNEnsemble.cs" />
-    <Compile Include="Hashing\NeuralHashing\Ensemble\NNHashingException.cs" />
-    <Compile Include="Hashing\NeuralHashing\Layer.cs" />
-    <Compile Include="Hashing\NeuralHashing\Learning\ISupervisedLearning.cs" />
+    <Compile Include="Hashing\NeuralHashing\Ensemble\NeuralNetworkEnsemble.cs" />
+    <Compile Include="Hashing\NeuralHashing\Ensemble\NeuralNetworkHashingException.cs" />
     <Compile Include="Hashing\NeuralHashing\Network.cs" />
-    <Compile Include="Hashing\NeuralHashing\Neuron.cs" />
     <Compile Include="Hashing\NeuralHashing\MMI\MinimalMutualInfoGroup.cs" />
     <Compile Include="Hashing\NeuralHashing\MMI\MinimalMutualInfoPair.cs" />
     <Compile Include="Hashing\NeuralHashing\MMI\MinimalMutualInfoPattern.cs" />
@@ -221,14 +218,14 @@
     <Compile Include="Query\Configuration\DefaultQueryConfiguration.cs" />
     <Compile Include="FingerprintQueryBuilder.cs" />
     <Compile Include="Query\FingerprintQueryUnit.cs" />
-    <Compile Include="Query\IFingerprintingQueryUnit.cs" />
+    <Compile Include="Query\IFingerprintQueryUnit.cs" />
     <Compile Include="IFingerprintQueryBuilder.cs" />
-    <Compile Include="Query\IOngoingQuery.cs" />
-    <Compile Include="Query\IOngoingQueryConfiguration.cs" />
-    <Compile Include="Query\IOngoingQueryConfigurationWithFingerprinting.cs" />
+    <Compile Include="Query\IQuerySource.cs" />
+    <Compile Include="Query\IWithQueryConfiguration.cs" />
+    <Compile Include="Query\IWithQueryAndFingerprintConfiguration.cs" />
     <Compile Include="Query\Configuration\IQueryConfiguration.cs" />
     <Compile Include="IQueryFingerprintService.cs" />
-    <Compile Include="Query\QueryConfiguration.cs" />
+    <Compile Include="Query\Configuration\QueryConfiguration.cs" />
     <Compile Include="QueryFingerprintService.cs" />
     <Compile Include="Query\QueryResult.cs" />
   </ItemGroup>

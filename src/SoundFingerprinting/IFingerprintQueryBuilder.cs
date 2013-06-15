@@ -4,6 +4,6 @@
 
     public interface IFingerprintQueryBuilder
     {
-        IOngoingQuery BuildQuery();
+        IQuerySource BuildQuery();
     }
 }

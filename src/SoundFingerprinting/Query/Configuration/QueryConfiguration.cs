@@ -1,7 +1,5 @@
-﻿namespace SoundFingerprinting.Query
+﻿namespace SoundFingerprinting.Query.Configuration
 {
-    using SoundFingerprinting.Query.Configuration;
-
     public class QueryConfiguration : IQueryConfiguration
     {
         public QueryConfiguration(int numberOfHashTables, int numberOfMinhashesPerTable, int thresholdVotes)

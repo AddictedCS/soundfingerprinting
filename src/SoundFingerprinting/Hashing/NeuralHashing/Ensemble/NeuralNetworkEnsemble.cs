@@ -14,9 +14,7 @@
     ///   Neural network ensemble used in hashing the fingerprints
     /// </summary>
     [Serializable]
-// ReSharper disable InconsistentNaming
-    public class NNEnsemble
-// ReSharper restore InconsistentNaming
+    public class NeuralNetworkEnsemble
     {
         #region PrivateMembers
 
@@ -66,7 +64,7 @@
             {
                 if (value.NNEnsembleDimensionality != _networks[0].OutputCount * _networks.Length)
                 {
-                    throw new ArgumentException("The hash patter does not correspond to networks of the NNEnsemble");
+                    throw new ArgumentException("The hash patter does not correspond to networks of the NeuralNetworkEnsemble");
                 }
 
                 _hashPattern = value;
@@ -81,19 +79,19 @@
         ///   Constructor
         /// </summary>
         /// <param name = "networks">An array of trained networks that will work as hash functions</param>
-        /// <exception cref = "NNHashingException">Can not create a NN Ensemble out of no networks</exception>
-        public NNEnsemble(Network[] networks)
+        /// <exception cref = "NeuralNetworkHashingException">Can not create a NN Ensemble out of no networks</exception>
+        public NeuralNetworkEnsemble(Network[] networks)
         {
             if (networks == null || networks.Length == 0)
-                throw new NNHashingException("Can not create a NN Ensemble out of no networks");
+                throw new NeuralNetworkHashingException("Can not create a NN Ensemble out of no networks");
             _inputsCount = networks[0].InputCount;
             //Check all inputs
             foreach (Network network in networks)
             {
                 if (network.InputCount != _inputsCount)
-                    throw new NNHashingException("All networks should have the same inputs count");
+                    throw new NeuralNetworkHashingException("All networks should have the same inputs count");
                 if (network.MedianResponces == null)
-                    throw new NNHashingException("Median responses of one of the networks is null," +
+                    throw new NeuralNetworkHashingException("Median responses of one of the networks is null," +
                                                  " please run Median Responses computation for each of the networks and try again");
             }
             _networks = networks;
@@ -112,7 +110,7 @@
         /// </summary>
         /// <param name = "input">Input vector</param>
         /// <returns>Hashed vector</returns>
-        /// <exception cref = "NNHashingException">Input vector should be of the same size as the networks inputs</exception>
+        /// <exception cref = "NeuralNetworkHashingException">Input vector should be of the same size as the networks inputs</exception>
         /// <remarks>
         ///   After the propagation, for each of the 10 network output, if the output was greater than the median response of that output,
         ///   it was assigned +1 (to the hash), otherwise 0. The median was chosen as the threshold to ensure that the network 
@@ -121,7 +119,7 @@
         public byte[] ComputeHash(double[] input)
         {
             //Perform check on the nets and input vector length
-            if (input.Length != _inputsCount) throw new NNHashingException("Input vector for hashing should be of the same size as the networks inputs");
+            if (input.Length != _inputsCount) throw new NeuralNetworkHashingException("Input vector for hashing should be of the same size as the networks inputs");
 
             //Propagate through all the networks, compare with median response, assign +1/0.
             int currIndex = 0;
@@ -142,7 +140,7 @@
         /// <returns>Array of hashBin locations for l hash tables</returns>
         public long[] ExtractHashBins()
         {
-            if (_hashPattern == null) throw new NNHashingException("There is no pattern to compute the bins on");
+            if (_hashPattern == null) throw new NeuralNetworkHashingException("There is no pattern to compute the bins on");
             long[] hashBins = new long[_hashPattern.NumberOfGroups];
             for (int i = 0; i < _hashPattern.NumberOfGroups; i++)
             {
@@ -193,14 +191,14 @@
         ///   Load network ensemble from specified file.
         /// </summary>
         /// <param name = "fileName">File name to load network ensemble from.</param>
-        /// <returns>Returns instance of <see cref = "NNEnsemble" /> class with all properties initialized from file.</returns>
+        /// <returns>Returns instance of <see cref = "NeuralNetworkEnsemble" /> class with all properties initialized from file.</returns>
         /// <remarks>
         ///   <para>Neural network ensemble is loaded from file using .NET serialization (binary formater is used).</para>
         /// </remarks>
-        public static NNEnsemble Load(string fileName)
+        public static NeuralNetworkEnsemble Load(string fileName)
         {
             FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            NNEnsemble network = Load(stream);
+            NeuralNetworkEnsemble network = Load(stream);
             stream.Close();
 
             return network;
@@ -210,14 +208,14 @@
         ///   Load network from specified file.
         /// </summary>
         /// <param name = "stream">Stream to load network from.</param>
-        /// <returns>Returns instance of <see cref = "NNEnsemble" /> class with all properties initialized from file.</returns>
+        /// <returns>Returns instance of <see cref = "NeuralNetworkEnsemble" /> class with all properties initialized from file.</returns>
         /// <remarks>
         ///   <para>Neural network is loaded from file using .NET serialization (binary formatter is used).</para>
         /// </remarks>
-        public static NNEnsemble Load(Stream stream)
+        public static NeuralNetworkEnsemble Load(Stream stream)
         {
             IFormatter formatter = new BinaryFormatter();
-            NNEnsemble network = (NNEnsemble) formatter.Deserialize(stream);
+            NeuralNetworkEnsemble network = (NeuralNetworkEnsemble) formatter.Deserialize(stream);
             return network;
         }
 

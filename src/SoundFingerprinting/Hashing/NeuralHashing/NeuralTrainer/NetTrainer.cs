@@ -97,12 +97,6 @@
             set { trainingSongSnippets = value; }
         }
 
-        /// <summary>
-        ///   Asynchronously starts the process of training the network.
-        ///   However keep in mind that only 1 process can be started at a time
-        ///   For training multiple networks, create several instances of the class.
-        /// </summary>
-        /// <returns></returns>
         public void StartTrainingAsync(Network network, TrainingCallback callback)
         {
             if (alreadyDisposed)
@@ -114,9 +108,6 @@
             action.BeginInvoke(network, callback, action.EndInvoke, action);
         }
 
-        /// <summary>
-        ///   Synchronous method for training. Invoked by asynchronous counterpart
-        /// </summary>
         public void Train(Network network, TrainingCallback callback)
         {
             IActivationFunction activationFunctionInput = network.GetActivation(0);

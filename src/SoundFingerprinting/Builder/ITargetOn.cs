@@ -2,10 +2,10 @@ namespace SoundFingerprinting.Builder
 {
     public interface ITargetOn
     {
-        IWithConfiguration On(string pathToAudioFile);
+        IWithFingerprintConfiguration On(string pathToAudioFile);
 
-        IWithConfiguration On(float[] audioSamples);
+        IWithFingerprintConfiguration On(float[] audioSamples);
 
-        IWithConfiguration On(string pathToAudioFile, int secondsToProcess, int startAtSecond);
+        IWithFingerprintConfiguration On(string pathToAudioFile, int secondsToProcess, int startAtSecond);
     }
 }

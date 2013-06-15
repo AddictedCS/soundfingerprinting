@@ -245,7 +245,7 @@
 
                                 /*Construct outputs using median response*/
                                 int samplesCount = inputs.Length; /*10240*/
-                                NNEnsemble nNEnsembe = new NNEnsemble(networks.ToArray()); /*40 networks*/
+                                NeuralNetworkEnsemble nNEnsembe = new NeuralNetworkEnsemble(networks.ToArray()); /*40 networks*/
                                 for (int i = 0; i < samplesCount /*1024 * 10*/; i++)
                                 {
                                     byte[] outputVec = nNEnsembe.ComputeHash(inputs[i]); /*Hash the inputs, returns 10*40 = 400*/
@@ -289,7 +289,7 @@
         }
 
         /// <summary>
-        ///   Compute hashes using NNEnsemble
+        ///   Compute hashes using NeuralNetworkEnsemble
         /// </summary>
         private void BntComputeHashesClick(object sender, EventArgs e)
         {
@@ -340,7 +340,7 @@
                 return;
             }
 
-            NNEnsemble ensemble = NNEnsemble.Load(path); /*Load the serialized ensemble used to create hashes*/
+            NeuralNetworkEnsemble ensemble = NeuralNetworkEnsemble.Load(path); /*Load the serialized ensemble used to create hashes*/
             IList<Track> tracks = modelService.ReadTracks(); /*Read all tracks from the database for which the ensemble will create hashes*/
             _pbProgress.Invoke(new Action(() =>
                                           {

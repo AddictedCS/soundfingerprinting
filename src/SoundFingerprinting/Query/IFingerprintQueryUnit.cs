@@ -3,7 +3,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public interface IFingerprintingQueryUnit
+    public interface IFingerprintQueryUnit
     {
         Task<QueryResult> Query();
 

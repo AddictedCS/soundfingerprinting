@@ -3,7 +3,6 @@
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
-    using SoundFingerprinting.Query.Internal;
 
     public class FingerprintQueryBuilder : IFingerprintQueryBuilder
     {
@@ -26,7 +25,7 @@
             this.minHashService = minHashService;
         }
 
-        public IOngoingQuery BuildQuery()
+        public IQuerySource BuildQuery()
         {
             return new FingerprintingQueryUnit(fingerprintUnitBuilder, queryFingerprintService, minHashService);
         }

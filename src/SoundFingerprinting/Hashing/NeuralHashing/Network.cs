@@ -21,7 +21,38 @@
     {
         public double[] MedianResponces { get; protected set; }
 
+        /// <summary>
+        ///   Load network from specified file.
+        /// </summary>
+        /// <param name = "fileName">File name to load network from.</param>
+        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
+        /// <remarks>
+        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
+        /// </remarks>
+        public static Network Load(string fileName)
+        {
+            FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            Network network = Load(stream);
+            stream.Close();
 
+            return network;
+        }
+
+        /// <summary>
+        ///   Load network from specified file.
+        /// </summary>
+        /// <param name = "stream">Stream to load network from.</param>
+        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
+        /// <remarks>
+        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
+        /// </remarks>
+        public static Network Load(Stream stream)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Network network = (Network)formatter.Deserialize(stream);
+            return network;
+        }
+        
         /// <summary>
         ///   Compute median responses of the network
         /// </summary>
@@ -79,39 +110,7 @@
             Save(stream);
             stream.Close();
         }
-
-        /// <summary>
-        ///   Load network from specified file.
-        /// </summary>
-        /// <param name = "fileName">File name to load network from.</param>
-        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
-        /// <remarks>
-        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
-        /// </remarks>
-        public static Network Load(string fileName)
-        {
-            FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            Network network = Load(stream);
-            stream.Close();
-
-            return network;
-        }
-
-        /// <summary>
-        ///   Load network from specified file.
-        /// </summary>
-        /// <param name = "stream">Stream to load network from.</param>
-        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
-        /// <remarks>
-        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
-        /// </remarks>
-        public static Network Load(Stream stream)
-        {
-            IFormatter formatter = new BinaryFormatter();
-            Network network = (Network) formatter.Deserialize(stream);
-            return network;
-        }
-
+        
         #endregion
     }
 }
