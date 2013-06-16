@@ -7,7 +7,6 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.FFT;
@@ -47,8 +46,7 @@
                 kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
                 kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
-                kernel.Bind<ITagService>().To<BassAudioService>().InSingletonScope();
-                kernel.Bind<IAudioService, IExtendedAudioService>().To<NAudioService>().InSingletonScope();
+                kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
 
                 if (Environment.Is64BitProcess)
