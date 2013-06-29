@@ -8,7 +8,6 @@
     [DeploymentItem(@"libfftw3f-3.dll")]
     [DeploymentItem(@"libfftw3l-3.dll")]
     [DeploymentItem(@"Kryptonite.mp3")]
-    [DeploymentItem(@"Kryptonite.wav")]
     public class BaseTest
     {
         protected const int BitsPerSample = 32;
@@ -16,8 +15,6 @@
         protected const int SampleRate = 5512;
 
         protected const int WaveHeader = 58;
-
-        protected const string PathToWav = @"Kryptonite.wav";
 
         protected const string PathToMp3 = @"Kryptonite.mp3";
 
