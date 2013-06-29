@@ -67,7 +67,6 @@
   <ItemGroup>
     <Compile Include="Audio\AudioService.cs" />
     <Compile Include="Audio\Bass\BassAudioService.cs" />
-    <Compile Include="Audio\DirectSound\DirectSoundAudioService.cs" />
     <Compile Include="Audio\IAudioService.cs" />
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />

@@ -65,7 +65,6 @@
   <ItemGroup>
     <Compile Include="AudioProxies.Tests\BassAudioServiceTest.cs" />
     <Compile Include="AudioProxies.Tests\StrideTest.cs" />
-    <Compile Include="AudioProxies.Tests\DirectSoundTest.cs" />
     <Compile Include="AudioProxies.Tests\TagServiceTest.cs" />
     <Compile Include="BaseTest.cs" />
     <Compile Include="DbStorage.Tests\ModelServiceTest.cs" />
