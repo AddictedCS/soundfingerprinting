@@ -160,11 +160,17 @@
             {
                 // get re-sampled/mono data
                 int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, buffer.Length * 4);
+
+                if (bytesRead == -1)
+                {
+                    throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                }
+
                 if (bytesRead == 0)
                 {
                     break;
                 }
-
+                
                 totalBytesRead += bytesRead;
 
                 float[] chunk;
@@ -392,6 +398,12 @@
             while (totalBytesRead < totalBytesToRead)
             {
                 int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, buffer.Length);
+
+                if (bytesRead == -1)
+                {
+                    throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                }
+
                 if (bytesRead == 0)
                 {
                     continue;
