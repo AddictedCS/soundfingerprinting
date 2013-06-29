@@ -7,39 +7,26 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Moq;
-
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
-    using SoundFingerprinting.FFT;
-    using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Strides;
-    using SoundFingerprinting.Utils;
-    using SoundFingerprinting.Wavelets;
 
     [TestClass]
     public class FingerprintUnitBuilderIntTest : BaseTest
     {
         private ModelService modelService;
-        private IFingerprintService fingerprintService;
         private IFingerprintUnitBuilder fingerprintUnitBuilderWithBass;
         private IFingerprintUnitBuilder fingerprintUnitBuilderWithNAudio;
-        private IFingerprintingConfiguration defaultConfiguration;
-        private IPermutations permutations;
 
         [TestInitialize]
         public void SetUp()
         {
             modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
-            fingerprintService = new FingerprintService(new FingerprintDescriptor(), new SpectrumService(new CachedFFTWService(new FFTWService86())), new WaveletService(new StandardHaarWaveletDecomposition()));
-            defaultConfiguration = new DefaultFingerprintingConfiguration();
-            permutations = new DefaultPermutations();
-            fingerprintUnitBuilderWithBass = new FingerprintUnitBuilder(fingerprintService, new BassAudioService(), new MinHashService(permutations));
-            fingerprintUnitBuilderWithNAudio = new FingerprintUnitBuilder(fingerprintService, new NAudioService(), new MinHashService(permutations));
+            fingerprintUnitBuilderWithBass = new FingerprintUnitBuilder(new FingerprintService(), new BassAudioService(), new MinHashService(new DefaultPermutations()));
+            fingerprintUnitBuilderWithNAudio = new FingerprintUnitBuilder(new FingerprintService(), new NAudioService(), new MinHashService(new DefaultPermutations()));
         }
 
         [TestCleanup]
@@ -58,7 +45,7 @@
             var track = InsertTrack();
             var signatures = fingerprintUnitBuilderWithNAudio.BuildFingerprints()
                                             .On(PathToMp3)
-                                            .With(defaultConfiguration)
+                                            .WithDefaultConfiguration()
                                             .RunAlgorithm()
                                             .Result;
 
@@ -75,7 +62,7 @@
             var track = InsertTrack();
             var signatures = fingerprintUnitBuilderWithBass.BuildFingerprints()
                                             .On(PathToMp3)
-                                            .With(defaultConfiguration)
+                                            .WithDefaultConfiguration()
                                             .RunAlgorithm()
                                             .Result;
 
@@ -91,13 +78,13 @@
         {
             var naudioFingerprints = fingerprintUnitBuilderWithNAudio.BuildFingerprints()
                                                         .On(PathToMp3)
-                                                        .With(defaultConfiguration)
+                                                        .WithDefaultConfiguration()
                                                         .RunAlgorithm()
                                                         .Result;
 
             var bassFingerprints = fingerprintUnitBuilderWithBass.BuildFingerprints()
                                                  .On(PathToMp3)
-                                                 .With(defaultConfiguration)
+                                                 .WithDefaultConfiguration()
                                                  .RunAlgorithm()
                                                  .Result;
             int unmatchedItems = 0;
@@ -147,7 +134,7 @@
             }
         }
 
-        private void AssertFingerprintsAreEquals(List<Fingerprint> fingerprints, IList<Fingerprint> insertedFingerprints)
+        private void AssertFingerprintsAreEquals(IReadOnlyCollection<Fingerprint> fingerprints, ICollection<Fingerprint> insertedFingerprints)
         {
             Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
             foreach (var fingerprint in fingerprints)
