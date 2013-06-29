@@ -46,7 +46,7 @@
                 kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
                 kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
-                kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
+                kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
 
                 if (Environment.Is64BitProcess)

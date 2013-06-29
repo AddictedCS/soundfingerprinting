@@ -26,56 +26,68 @@
 
         private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", "mp3", ".ogg", ".flac" };
 
+        private static readonly object LockObject = new object();
+
+        private static int initializedInstances;
+
         private bool alreadyDisposed;
 
-        static BassAudioService()
+        public BassAudioService()
         {
-            string targetPath = Path.Combine(Environment.CurrentDirectory, Utils.Is64Bit ? "x64" : "x86");
+            lock (LockObject)
+            {
+                if (!IsNativeBassLibraryInitialized())
+                {
+                    string targetPath = Path.Combine(Environment.CurrentDirectory, Utils.Is64Bit ? "x64" : "x86");
 
-            // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
-            BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
+                    // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
+                    BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
 
-            // Dummy calls made for loading the assemblies
+                    // Dummy calls made for loading the assemblies
 #pragma warning disable 168
-            bool isBassLoad = Bass.LoadMe(targetPath);
-            bool isBassMixLoad = BassMix.LoadMe(targetPath);
-            bool isBassFxLoad = BassFx.LoadMe(targetPath);
-            int bassVersion = Bass.BASS_GetVersion();
-            int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
-            int bassfxVersion = BassFx.BASS_FX_GetVersion();
+                    bool isBassLoad = Bass.LoadMe(targetPath);
+                    bool isBassMixLoad = BassMix.LoadMe(targetPath);
+                    bool isBassFxLoad = BassFx.LoadMe(targetPath);
+                    int bassVersion = Bass.BASS_GetVersion();
+                    int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
+                    int bassfxVersion = BassFx.BASS_FX_GetVersion();
 #pragma warning restore 168
-            var loadedPlugIns = Bass.BASS_PluginLoadDirectory(targetPath);
-            if (!loadedPlugIns.Any(p => p.Value.EndsWith("bassflac.dll")))
-            {
-                throw new Exception("Couldnt load the bass flac plugin!");
-            }
+                    var loadedPlugIns = Bass.BASS_PluginLoadDirectory(targetPath);
+                    if (!loadedPlugIns.Any(p => p.Value.EndsWith("bassflac.dll")))
+                    {
+                        throw new Exception("Couldnt load the bass flac plugin!");
+                    }
 
-            // Set Sample Rate / MONO
-            if (!Bass.BASS_Init(-1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
+                    // Set Sample Rate / MONO
+                    if (!Bass.BASS_Init(-1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
+                    {
+                        throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                    }
 
-            /*Set filter for anti aliasing*/
-            if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50))
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
+                    /*Set filter for anti aliasing*/
+                    if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50))
+                    {
+                        throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                    }
 
-            /*Set floating parameters to be passed*/
-            if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true))
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
+                    /*Set floating parameters to be passed*/
+                    if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true))
+                    {
+                        throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                    }
 
-            // use default device
-            if (!Bass.BASS_RecordInit(-1))
-            {
-                Debug.WriteLine("No recording device could be found on running machine. Recording is not supported: " + Bass.BASS_ErrorGetCode().ToString());
+                    // use default device
+                    if (!Bass.BASS_RecordInit(-1))
+                    {
+                        Debug.WriteLine("No recording device could be found on running machine. Recording is not supported: " + Bass.BASS_ErrorGetCode().ToString());
+                    }
+                }
+
+                initializedInstances++;
             }
         }
 
-        /// <summary>
+                /// <summary>
         /// Finalizes an instance of the <see cref="BassAudioService"/> class.
         /// </summary>
         ~BassAudioService()
@@ -185,7 +197,8 @@
 
         public float[] ReadMonoFromURL(string urlToResource, int sampleRate, int secondsToDownload)
         {
-            int stream = Bass.BASS_StreamCreateURL(urlToResource, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT, null, IntPtr.Zero);
+            int stream = Bass.BASS_StreamCreateURL(
+                urlToResource, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT, null, IntPtr.Zero);
 
             if (stream == 0)
             {
@@ -210,7 +223,7 @@
 
             return samples;
         }
-        
+
         public float[] RecordFromMicrophone(int sampleRate, int secondsToRecord)
         {
             int stream = Bass.BASS_RecordStart(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT, null, IntPtr.Zero);
@@ -232,7 +245,7 @@
             }
 
             float[] samples = ReadSamplesFromContinuousMixedStream(sampleRate, secondsToRecord, mixerStream);
-            
+
             Bass.BASS_StreamFree(mixerStream);
             Bass.BASS_StreamFree(stream);
 
@@ -258,7 +271,7 @@
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
-            
+
             float[] samples = ReadSamplesFromContinuousMixedStream(sampleRate, secondsToRecord, mixerStream);
             using (WaveWriter waveWriter = new WaveWriter(pathToFile, mixerStream, true))
             {
@@ -349,7 +362,24 @@
                     // release managed resources
                 }
 
-                Bass.BASS_Free();
+                lock (LockObject)
+                {
+                    if (IsSafeToDisposeNativeBassLibrary())
+                    {
+                        // 0 - free all loaded plugins
+                        if (!Bass.BASS_PluginFree(0))
+                        {
+                            Debug.WriteLine("Could not unload plugins for Bass library.");
+                        }
+
+                        if (!Bass.BASS_Free())
+                        {
+                            Debug.WriteLine("Could not free Bass library. Possible memory leakage.");
+                        }
+                    }
+
+                    initializedInstances--;
+                }
             }
         }
 
@@ -385,6 +415,16 @@
             }
 
             return ConcatenateChunksOfSamples(chunks);
+        }
+
+        private bool IsNativeBassLibraryInitialized()
+        {
+            return initializedInstances != 0;
+        }
+
+        private bool IsSafeToDisposeNativeBassLibrary()
+        {
+            return initializedInstances == 1;
         }
     }
 }
