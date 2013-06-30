@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Fingerprinting.Tests
+﻿namespace SoundFingerprinting.Tests.Unit.Fingerprinting
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,7 @@
     using SoundFingerprinting.Utils;
 
     [TestClass]
-    public class FingerprintDescriptorTest : BaseTest
+    public class FingerprintDescriptorTest : AbstractTest
     {
         private const int TopWavelets = 200;
 

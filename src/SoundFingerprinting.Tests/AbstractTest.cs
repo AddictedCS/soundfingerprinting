@@ -7,8 +7,7 @@
     [DeploymentItem(@"libfftw3-3.dll")]
     [DeploymentItem(@"libfftw3f-3.dll")]
     [DeploymentItem(@"libfftw3l-3.dll")]
-    [DeploymentItem(@"Kryptonite.mp3")]
-    public class BaseTest
+    public class AbstractTest
     {
         protected const int BitsPerSample = 32;
         

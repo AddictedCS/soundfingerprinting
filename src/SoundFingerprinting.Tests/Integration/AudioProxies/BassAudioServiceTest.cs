@@ -1,13 +1,14 @@
-﻿namespace SoundFingerprinting.Tests.AudioProxies.Tests
+﻿namespace SoundFingerprinting.Tests.Integration.AudioProxies
 {
     using System.IO;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
-    public class BassAudioServiceTest : BaseTest
+    public class BassAudioServiceTest : AbstractIntegrationTest
     {
         [TestMethod]
         public void ReadMonoFromFileTest()

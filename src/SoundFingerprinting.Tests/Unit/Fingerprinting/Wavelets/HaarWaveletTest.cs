@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Fingerprinting.Tests.Wavelets
+﻿namespace SoundFingerprinting.Tests.Unit.Fingerprinting.Wavelets
 {
     using System;
     using System.Linq;
@@ -8,7 +8,7 @@
     using SoundFingerprinting.Wavelets;
 
     [TestClass]
-    public class HaarWaveletTest : BaseTest
+    public class HaarWaveletTest : AbstractTest
     {
         private IWaveletDecomposition waveletDecomposition;
 
@@ -52,7 +52,7 @@
             {
                 for (var j = 0; j < Cols; j++)
                 {
-                    Assert.AreEqual(true, (frames[i][j] - framesLocal[i][j]) < 0.0001);
+                    Assert.AreEqual(true, (frames[i][j] - framesLocal[i][j]) < 0.001);
                 }
             }
         }

@@ -64,17 +64,18 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioProxies.Tests\BassAudioServiceTest.cs" />
-    <Compile Include="AudioProxies.Tests\StrideTest.cs" />
-    <Compile Include="AudioProxies.Tests\TagServiceTest.cs" />
-    <Compile Include="BaseTest.cs" />
-    <Compile Include="DbStorage.Tests\ModelServiceTest.cs" />
-    <Compile Include="Fingerprinting.Tests\FingerprintDescriptorTest.cs" />
-    <Compile Include="Fingerprinting.Tests\FingerprintUnitBuilderIntTest.cs" />
-    <Compile Include="Fingerprinting.Tests\FingerprintUtilsTest.cs" />
-    <Compile Include="Fingerprinting.Tests\Wavelets\HaarWaveletTest.cs" />
-    <Compile Include="Infrastructure.Test\DependencyResolverTest.cs" />
-    <Compile Include="NeuralHashing.Tests\BinaryOutputUtilTest.cs" />
+    <Compile Include="Integration\AbstractIntegrationTest.cs" />
+    <Compile Include="Integration\AudioProxies\BassAudioServiceTest.cs" />
+    <Compile Include="Unit\AudioProxies\StrideTest.cs" />
+    <Compile Include="Integration\AudioProxies\TagServiceTest.cs" />
+    <Compile Include="AbstractTest.cs" />
+    <Compile Include="Integration\DbStorage\ModelServiceTest.cs" />
+    <Compile Include="Unit\Fingerprinting\FingerprintDescriptorTest.cs" />
+    <Compile Include="Integration\Fingerprinting\FingerprintUnitBuilderIntTest.cs" />
+    <Compile Include="Unit\Fingerprinting\FingerprintUtilsTest.cs" />
+    <Compile Include="Unit\Fingerprinting\Wavelets\HaarWaveletTest.cs" />
+    <Compile Include="Unit\Infrastructure\DependencyResolverTest.cs" />
+    <Compile Include="Unit\NeuralHashing\BinaryOutputUtilTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtilities.cs" />
   </ItemGroup>
@@ -91,6 +92,7 @@
   <ItemGroup>
     <Content Include="TestEnvironment\Kryptonite.mp3" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E

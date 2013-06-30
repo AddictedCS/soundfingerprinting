@@ -1,20 +1,15 @@
-﻿namespace SoundFingerprinting.Tests.AudioProxies.Tests
+﻿namespace SoundFingerprinting.Tests.Integration.AudioProxies
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
-    public class TagServiceTest : BaseTest
+    public class TagServiceTest : AbstractIntegrationTest
     {
-        private ITagService tagService;
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            tagService = new BassAudioService();
-        }
+        private readonly ITagService tagService = new BassAudioService();
 
         [TestMethod]
         public void TagAreSuccessfullyReadFromFile()

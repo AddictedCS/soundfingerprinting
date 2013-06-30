@@ -1,36 +1,21 @@
-﻿namespace SoundFingerprinting.Tests.DbStorage.Tests
+﻿namespace SoundFingerprinting.Tests.Integration.DbStorage
 {
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Linq;
     using System.Reflection;
-    using System.Transactions;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
-    public class ModelServiceTest : BaseTest
+    public class ModelServiceTest : AbstractIntegrationTest
     {
-        private ModelService modelService;
-
-        private TransactionScope transactionPerTestScope;
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            modelService = new ModelService();
-            transactionPerTestScope = new TransactionScope();
-        }
-
-        [TestCleanup]
-        public void TearDown()
-        {
-            transactionPerTestScope.Dispose();
-        }
+        private readonly ModelService modelService = new ModelService();
 
         #region Insert/Read/Delete Album objects tests
 

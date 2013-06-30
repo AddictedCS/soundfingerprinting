@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Fingerprinting.Tests
+﻿namespace SoundFingerprinting.Tests.Integration.Fingerprinting
 {
     using System;
     using System.Collections.Generic;
@@ -13,31 +13,14 @@
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
-    public class FingerprintUnitBuilderIntTest : BaseTest
+    public class FingerprintUnitBuilderIntTest : AbstractIntegrationTest
     {
-        private ModelService modelService;
-        private IFingerprintUnitBuilder fingerprintUnitBuilderWithBass;
-        private IFingerprintUnitBuilder fingerprintUnitBuilderWithNAudio;
-
-        [TestInitialize]
-        public void SetUp()
-        {
-            modelService = new ModelService(new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()), new ModelBinderFactory());
-            fingerprintUnitBuilderWithBass = new FingerprintUnitBuilder(new FingerprintService(), new BassAudioService(), new MinHashService(new DefaultPermutations()));
-            fingerprintUnitBuilderWithNAudio = new FingerprintUnitBuilder(new FingerprintService(), new NAudioService(), new MinHashService(new DefaultPermutations()));
-        }
-
-        [TestCleanup]
-        public void TearDown()
-        {
-            var tracks = modelService.ReadTracks();
-            if (tracks != null)
-            {
-                modelService.DeleteTrack(tracks);
-            }
-        }
+        private readonly ModelService modelService = new ModelService();
+        private readonly IFingerprintUnitBuilder fingerprintUnitBuilderWithBass = new FingerprintUnitBuilder(new FingerprintService(), new BassAudioService(), new MinHashService(new DefaultPermutations()));
+        private readonly IFingerprintUnitBuilder fingerprintUnitBuilderWithNAudio = new FingerprintUnitBuilder(new FingerprintService(), new NAudioService(), new MinHashService(new DefaultPermutations()));
 
         [TestMethod]
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
