@@ -5,7 +5,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.DbStorage.Utils;
-
+   
     [TestClass]
     public class FingerprintUtilsTest : AbstractTest
     {

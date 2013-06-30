@@ -7,7 +7,8 @@
     [DeploymentItem(@"libfftw3-3.dll")]
     [DeploymentItem(@"libfftw3f-3.dll")]
     [DeploymentItem(@"libfftw3l-3.dll")]
-    public class AbstractTest
+    [TestClass]
+    public abstract class AbstractTest
     {
         protected const int BitsPerSample = 32;
         

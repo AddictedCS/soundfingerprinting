@@ -5,6 +5,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [DeploymentItem(@"Kryptonite.mp3")]
+    [TestClass]
     public abstract class AbstractIntegrationTest : AbstractTest
     {
         private TransactionScope transactionPerTestScope;
