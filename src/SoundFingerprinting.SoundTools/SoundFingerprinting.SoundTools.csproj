@@ -179,12 +179,15 @@
     <Compile Include="WinUtils.cs" />
     <EmbeddedResource Include="BassResampler\WinBassResampler.resx">
       <DependentUpon>WinBassResampler.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="DbFiller\WinDBFiller.resx">
       <DependentUpon>WinDBFiller.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="DrawningTool\WinDrawningTool.resx">
       <DependentUpon>WinDrawningTool.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FFMpegResampler\WinFFMpegResampler.resx">
       <DependentUpon>WinFFMpegResampler.cs</DependentUpon>

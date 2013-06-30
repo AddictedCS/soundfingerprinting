@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     using SoundFingerprinting.Hashing.Utils;
@@ -12,7 +13,7 @@
     /// </summary>
     public class SummedAcrossSelector : IMinMutualSelector
     {
-        #region IMinMutualSelector Members
+        private const double Epsilon = 0.001;
 
         /// <summary>
         ///   Get permutations using summed across technique
@@ -21,6 +22,7 @@
         /// <param name = "lHashTable">L Hash tables</param>
         /// <param name = "bKeysPerTable">K keys per table</param>
         /// <returns>LGroups of permutation specific to LHashtables</returns>
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         public Dictionary<int, List<int[]>> GetPermutations(Dictionary<int, int[]> randomPermutationPool, int lHashTable, int bKeysPerTable)
         {
             List<int> possibleIndexes = randomPermutationPool.Keys.ToList(); /*[0, poolcount]*/
@@ -34,34 +36,37 @@
             }
 
             /*Order the permutations in order to find highest unconditional entropy permutations*/
-            IOrderedEnumerable<KeyValuePair<int, double>> order = entropy.OrderByDescending((pair) => pair.Value);
+            IOrderedEnumerable<KeyValuePair<int, double>> order = entropy.OrderByDescending(pair => pair.Value);
 
             /*For each of the L groups assign initial permutation*/
-            Dictionary<int, List<int[]>> LGroups = new Dictionary<int, List<int[]>>();
+            Dictionary<int, List<int[]>> lGroups = new Dictionary<int, List<int[]>>();
             int count = 0;
             foreach (KeyValuePair<int, double> ordered in order)
             {
                 if (count < lHashTable)
                 {
-                    LGroups.Add(count, new List<int[]>());
-                    LGroups[count].Add(randomPermutationPool[ordered.Key]);
+                    lGroups.Add(count, new List<int[]>());
+                    lGroups[count].Add(randomPermutationPool[ordered.Key]);
                     possibleIndexes.Remove(ordered.Key);
                 }
                 else
+                {
                     break;
+                }
+
                 count++;
             }
 
             /*Summed accros selection*/
             while (true)
             {
-                double minMutualInfo = Double.MaxValue;
+                double minMutualInfo = double.MaxValue;
                 int permIndex = -1;
                 int lGroupIndex = -1;
                 foreach (int permutationIndex in possibleIndexes)
                 {
                     int groupcount = 0;
-                    foreach (KeyValuePair<int, List<int[]>> group in LGroups)
+                    foreach (KeyValuePair<int, List<int[]>> group in lGroups)
                     {
                         /*Check if there is space in set G of L, for a new permutation added to B Keys*/
                         if (group.Value.Count >= bKeysPerTable)
@@ -69,9 +74,12 @@
                             groupcount++;
                             continue;
                         }
+
                         double totalMinMutualInfo = 0;
                         foreach (int[] groupMember in group.Value)
+                        {
                             totalMinMutualInfo += SignalUtils.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
+                        }
 
                         /*Actual summed accross selection*/
                         if (minMutualInfo > totalMinMutualInfo)
@@ -80,17 +88,21 @@
                             permIndex = permutationIndex;
                             lGroupIndex = groupcount;
                         }
+
                         groupcount++;
                     }
                 }
-                if (minMutualInfo == Double.MaxValue && permIndex == -1 && lGroupIndex == -1)
+
+                if (Math.Abs(minMutualInfo - double.MaxValue) < Epsilon && permIndex == -1 && lGroupIndex == -1)
+                {
                     break;
-                LGroups[lGroupIndex].Add(randomPermutationPool[permIndex]);
+                }
+
+                lGroups[lGroupIndex].Add(randomPermutationPool[permIndex]);
                 possibleIndexes.Remove(permIndex);
             }
-            return LGroups;
-        }
 
-        #endregion
+            return lGroups;
+        }
     }
 }

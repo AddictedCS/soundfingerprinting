@@ -10,7 +10,7 @@
 
     public static class NetworkPerformanceMeter
     {
-        private static readonly Object LockObject = new object();
+        private static readonly object LockObject = new object();
 
         /// <summary>
         ///   Measure the performance of the network
@@ -21,8 +21,8 @@
         public static double MeasurePerformance(BasicNetwork network, BasicNeuralDataSet dataset)
         {
             int correctBits = 0;
-            float threshold = 0.0f;
-            IActivationFunction activationFunction = network.GetActivation(network.LayerCount - 1); //get the activation function of the output layer
+            float threshold;
+            IActivationFunction activationFunction = network.GetActivation(network.LayerCount - 1); // get the activation function of the output layer
             if (activationFunction is ActivationSigmoid)
             {
                 threshold = 0.5f; /* > 0.5, range of sigmoid [0..1]*/
@@ -32,24 +32,34 @@
                 threshold = 0.0f; /*> 0, range of bipolar sigmoid is [-1..1]*/
             }
             else
+            {
                 throw new ArgumentException("Bad activation function");
-            int n = (int) dataset.Count;
+            }
 
-            Parallel.For(0, n, (i) =>
-                               {
-                                   IMLData actualOutputs = network.Compute(dataset.Data[i].Input);
+            int n = (int)dataset.Count;
+
+            Parallel.For(
+                0,
+                n,
+                i =>
+                    {
+                        IMLData actualOutputs = network.Compute(dataset.Data[i].Input);
                                    lock (LockObject)
                                    {
                                        for (int j = 0, k = actualOutputs.Count; j < k; j++)
+                                       {
                                            if ((actualOutputs[j] > threshold && dataset.Data[i].Ideal[j] > threshold)
                                                || (actualOutputs[j] < threshold && dataset.Data[i].Ideal[j] < threshold))
+                                           {
                                                correctBits++;
+                                           }
+                                       }
                                    }
-                               });
+                    });
 
-            long totalOutputBitsCount = dataset.Count*dataset.Data[0].Ideal.Count;
+            long totalOutputBitsCount = dataset.Count * dataset.Data[0].Ideal.Count;
 
-            return (double) correctBits/totalOutputBitsCount;
+            return (double)correctBits / totalOutputBitsCount;
         }
     }
 }

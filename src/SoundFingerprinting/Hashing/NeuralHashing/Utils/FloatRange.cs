@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Hashing.NeuralHashing.Utils
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     ///   Represents a double range with minimum and maximum values.
@@ -12,6 +13,8 @@
     ///   </para>
     /// </remarks>
     [Serializable]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:PropertySummaryDocumentationMustMatchAccessors", Justification = "Reviewed. Suppression is OK here.")]
+        
     public class FloatRange
     {
         private float max;
@@ -62,16 +65,15 @@
             get { return max - min; }
         }
 
-
         /// <summary>
         ///   Check if the specified value is inside of the range.
         /// </summary>
         /// <param name = "x">Value to check.</param>
         /// <returns><b>True</b> if the specified value is inside of the range or
-        ///   <b>false</b> otherwise.</returns>
+        /// <b>false</b> otherwise.</returns>
         public bool IsInside(float x)
         {
-            return ((x >= min) && (x <= max));
+            return (x >= min) && (x <= max);
         }
 
         /// <summary>
@@ -79,10 +81,10 @@
         /// </summary>
         /// <param name = "range">Range to check.</param>
         /// <returns><b>True</b> if the specified range is inside of the range or
-        ///   <b>false</b> otherwise.</returns>
+        /// <b>false</b> otherwise.</returns>
         public bool IsInside(FloatRange range)
         {
-            return ((IsInside(range.min)) && (IsInside(range.max)));
+            return IsInside(range.min) && IsInside(range.max);
         }
 
         /// <summary>
@@ -90,10 +92,10 @@
         /// </summary>
         /// <param name = "range">Range to check for overlapping.</param>
         /// <returns><b>True</b> if the specified range overlaps with the range or
-        ///   <b>false</b> otherwise.</returns>
+        /// <b>false</b> otherwise.</returns>
         public bool IsOverlapping(FloatRange range)
         {
-            return ((IsInside(range.min)) || (IsInside(range.max)));
+            return IsInside(range.min) || IsInside(range.max);
         }
     }
 }

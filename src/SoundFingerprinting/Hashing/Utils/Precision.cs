@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     ///   Utilities for working with floating point numbers.
@@ -19,6 +20,35 @@
     ///     </list>
     ///   </para>
     /// </remarks>
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1404:CodeAnalysisSuppressionMustHaveJustification", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1404:CodeAnalysisSuppressionMustHaveJustification", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1005:SingleLineCommentsMustBeginWithSingleSpace", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1512:SingleLineCommentsMustNotBeFollowedByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1303:ConstFieldNamesMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1309:FieldNamesMustNotBeginWithUnderscore", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1311:StaticReadonlyFieldsMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1027:TabsMustNotBeUsed")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1515:SingleLineCommentMustBePrecededByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1513:ClosingCurlyBracketMustBeFollowedByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1405:DebugAssertMustProvideMessageText", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1119:StatementMustNotUseUnnecessaryParenthesis", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1003:SymbolsMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1001:CommasMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1306:FieldNamesMustBeginWithLowerCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1008:OpeningParenthesisMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1642:ConstructorSummaryDocumentationMustBeginWithStandardText",
+        Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1616:ElementReturnValueDocumentationMustHaveText", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1204:StaticElementsMustAppearBeforeInstanceElements", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1121:UseBuiltInTypeAlias", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:ElementsMustAppearInTheCorrectOrder", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:PropertySummaryDocumentationMustMatchAccessors", Justification = "Reviewed. Suppression is OK here.")]
+    
     public static class Precision
     {
         #region Constants
@@ -49,32 +79,44 @@
         /// <summary>
         ///   The maximum relative precision of a double
         /// </summary>
+// ReSharper disable InconsistentNaming
         private static readonly double _doubleMachinePrecision = Math.Pow(BinaryBaseNumber, -DoublePrecision);
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         ///   The maximum relative precision of a single
         /// </summary>
+// ReSharper disable InconsistentNaming
         private static readonly double _singleMachinePrecision = Math.Pow(BinaryBaseNumber, -SinglePrecision);
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         ///   The number of significant figures that a double-precision floating point has.
         /// </summary>
+// ReSharper disable InconsistentNaming
         private static readonly int _numberOfDecimalPlacesForDoubles;
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         ///   The number of significant figures that a single-precision floating point has.
         /// </summary>
+// ReSharper disable InconsistentNaming
         private static readonly int _numberOfDecimalPlacesForFloats;
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         ///   Value representing 10 * 2^(-52)
         /// </summary>
+// ReSharper disable InconsistentNaming
         private static readonly double _defaultDoubleRelativeAccuracy = _doubleMachinePrecision*10;
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         ///   Value representing 10 * 2^(-52)
         /// </summary>
+// ReSharper disable InconsistentNaming
         private static readonly float _defaultSingleRelativeAccuracy = (float) (_singleMachinePrecision*10);
+// ReSharper restore InconsistentNaming
 
         #endregion
 
@@ -734,7 +776,6 @@
             return AlmostEqualWithError(a.Norm(), b.Norm(), diff, _defaultDoubleRelativeAccuracy);
         }
 
-
         /// <summary>
         ///   Compares two doubles and determines if they are equal within
         ///   the specified maximum error.
@@ -786,7 +827,6 @@
 
             return true;
         }
-
 
         /// <summary>
         ///   Compares two structure with precision support and determines if they are equal
@@ -873,7 +913,9 @@
             // that is, if they are both infinities of the same sign.
             if (double.IsInfinity(a) || double.IsInfinity(b))
             {
+// ReSharper disable CompareOfFloatsByEqualityOperator
                 return a == b;
+// ReSharper restore CompareOfFloatsByEqualityOperator
             }
 
             // If A or B are a NAN, return false. NANs are equal to nothing,
@@ -914,7 +956,9 @@
             // that is, if they are both infinities of the same sign.
             if (double.IsInfinity(a) || double.IsInfinity(b))
             {
+// ReSharper disable CompareOfFloatsByEqualityOperator
                 return a == b;
+// ReSharper restore CompareOfFloatsByEqualityOperator
             }
 
             // If A or B are a NAN, return false. NANs are equal to nothing,
@@ -948,7 +992,9 @@
             // that is, if they are both infinities of the same sign.
             if (double.IsInfinity(a) || double.IsInfinity(b))
             {
+// ReSharper disable CompareOfFloatsByEqualityOperator
                 return a == b;
+// ReSharper restore CompareOfFloatsByEqualityOperator
             }
 
             // If A or B are a NAN, return false. NANs are equal to nothing,
@@ -958,12 +1004,14 @@
                 return false;
             }
 
+// ReSharper disable CompareOfFloatsByEqualityOperator
             if ((a == 0 && Math.Abs(b) < maximumRelativeError)
+
                 || (b == 0 && Math.Abs(a) < maximumRelativeError))
             {
                 return true;
             }
-
+            // ReSharper restore CompareOfFloatsByEqualityOperator
             return Math.Abs(diff) < maximumRelativeError*Math.Max(Math.Abs(a), Math.Abs(b));
         }
 
@@ -1005,7 +1053,9 @@
             // that is, if they are both infinities of the same sign.
             if (double.IsInfinity(a) || double.IsInfinity(b))
             {
+// ReSharper disable CompareOfFloatsByEqualityOperator
                 return a == b;
+// ReSharper restore CompareOfFloatsByEqualityOperator
             }
 
             if (Math.Abs(a) < _doubleMachinePrecision || Math.Abs(b) < _doubleMachinePrecision)
@@ -1061,7 +1111,9 @@
             // that is, if they are both infinities of the same sign.
             if (double.IsInfinity(a) || double.IsInfinity(b))
             {
+// ReSharper disable CompareOfFloatsByEqualityOperator
                 return a == b;
+// ReSharper restore CompareOfFloatsByEqualityOperator
             }
 
             if (Math.Abs(a) < _doubleMachinePrecision || Math.Abs(b) < _doubleMachinePrecision)
@@ -1115,10 +1167,8 @@
             {
                 return (a*Math.Pow(10, -magnitudeOfFirst)) - maxDifference < (b*Math.Pow(10, -magnitudeOfFirst));
             }
-            else
-            {
-                return (b*Math.Pow(10, -magnitudeOfSecond)) - maxDifference < (a*Math.Pow(10, -magnitudeOfSecond));
-            }
+            
+            return (b*Math.Pow(10, -magnitudeOfSecond)) - maxDifference < (a*Math.Pow(10, -magnitudeOfSecond));
         }
 
         /// <summary>
@@ -1184,7 +1234,9 @@
             // that is, if they are both infinities of the same sign.
             if (double.IsInfinity(a) || double.IsInfinity(b))
             {
+// ReSharper disable CompareOfFloatsByEqualityOperator
                 return a == b;
+// ReSharper restore CompareOfFloatsByEqualityOperator
             }
 
             // If A or B are a NAN, return false. NANs are equal to nothing,

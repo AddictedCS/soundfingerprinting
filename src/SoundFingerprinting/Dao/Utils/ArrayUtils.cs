@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.DbStorage.Utils
+﻿namespace SoundFingerprinting.Dao.Utils
 {
     using System;
     using System.Collections;
@@ -18,7 +18,7 @@
             float[] result = new float[array.Length];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = unchecked((sbyte) array[i]);
+                result[i] = unchecked((sbyte)array[i]);
             }
 
             return result;
@@ -66,7 +66,7 @@
             byte[] result = new byte[array.Length];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = unchecked((byte) array[i]);
+                result[i] = unchecked((byte)array[i]);
             }
 
             return result;
@@ -245,7 +245,7 @@
 
             for (int i = 0, n = array.Length; i < n; i++)
             {
-                result[i] = unchecked((float) array[i]);
+                result[i] = unchecked((float)array[i]);
             }
 
             return result;

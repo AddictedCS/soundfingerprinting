@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Dao.Internal
     using System.Linq;
 
     using SoundFingerprinting.Dao.Entities;
-    using SoundFingerprinting.DbStorage.Utils;
+    using SoundFingerprinting.Dao.Utils;
 
     internal class FingerprintDao : AbstractDao
     {

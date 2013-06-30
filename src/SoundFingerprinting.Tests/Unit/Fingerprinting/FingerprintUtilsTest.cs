@@ -4,8 +4,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.DbStorage.Utils;
-   
+    using SoundFingerprinting.Dao.Utils;
+
     [TestClass]
     public class FingerprintUtilsTest : AbstractTest
     {

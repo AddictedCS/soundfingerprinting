@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
 
     using Encog.Engine.Network.Activation;
@@ -114,7 +115,7 @@
             int outputNeurons = network.GetLayerNeuronCount(network.LayerCount - 1);
             double error = 0;
             callback.Invoke(TrainingStatus.FillingStandardInputs, 0, 0, 0); /*First operation is filling standard input/outputs*/
-            Dictionary<Int32, List<BasicMLData>> trackIdFingerprints = GetNormalizedTrackFingerprints(activationFunctionInput, trainingSongSnippets, outputNeurons);
+            Dictionary<int, List<BasicMLData>> trackIdFingerprints = GetNormalizedTrackFingerprints(activationFunctionInput, trainingSongSnippets, outputNeurons);
             workingThread = Thread.CurrentThread;
             IActivationFunction activationFunctionOutput = network.GetActivation(network.LayerCount - 1);
             double[][] normalizedBinaryCodes = GetNormalizedBinaryCodes(activationFunctionOutput, outputNeurons);
@@ -135,17 +136,25 @@
             try
             {
                 // Dynamic output reordering cycle
-                for (int i = 0; i < Idyn; i++) /*Idyn = 50*/
+                /*Idyn = 50*/
+                for (int i = 0; i < Idyn; i++) 
                 {
                     if (paused)
+                    {
                         pauseSem.WaitOne();
+                    }
+
                     correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
                     callback.Invoke(TrainingStatus.OutputReordering, correctOutputs, error, currentIterration);
                     ReorderOutput(network, dataset, trackIdFingerprints, normalizedBinaryCodes);
-                    for (int j = 0; j < Edyn; j++) /*Edyn = 10*/
+                    /*Edyn = 10*/
+                    for (int j = 0; j < Edyn; j++)
                     {
                         if (paused)
+                        {
                             pauseSem.WaitOne();
+                        }
+
                         correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
                         callback.Invoke(TrainingStatus.RunningDynamicEpoch, correctOutputs, error, currentIterration);
                         learner.Iteration();
@@ -157,13 +166,17 @@
                 for (int i = 0; i < Efixed; i++)
                 {
                     if (paused)
+                    {
                         pauseSem.WaitOne();
+                    }
+
                     correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
                     callback.Invoke(TrainingStatus.FixedTraining, correctOutputs, error, currentIterration);
                     learner.Iteration();
                     error = learner.Error;
                     currentIterration++;
                 }
+
                 network.ComputeMedianResponses(inputs, trainingSongSnippets);
                 callback.Invoke(TrainingStatus.Finished, correctOutputs, error, currentIterration);
             }
@@ -174,19 +187,12 @@
             }
         }
 
-        ///<summary>
-        ///  Gets tracks/fingerprints from the database
-        ///</summary>
-        ///<param name = "function">Activation function</param>
-        ///<param name = "fingerprintsPerTrack">Fingerprints per track</param>
-        ///<param name = "outputs">Number of outputs from the neural network</param>
-        ///<returns>Dictionary (Int32 - track id, List - list of corresponding fingerprints</returns>
-        public Dictionary<Int32, List<BasicMLData>> GetNormalizedTrackFingerprints(IActivationFunction function, int fingerprintsPerTrack, int outputs)
+        public Dictionary<int, List<BasicMLData>> GetNormalizedTrackFingerprints(IActivationFunction function, int fingerprintsPerTrack, int outputs)
         {
             IList<Track> tracks = modelService.ReadTracks();
             IDictionary<int, IList<Fingerprint>> unnormalized = modelService.ReadFingerprintsByMultipleTrackId(tracks, fingerprintsPerTrack);
-            Dictionary<Int32, List<BasicMLData>> retVal = new Dictionary<Int32, List<BasicMLData>>();
-            int neededTracks = (int) Math.Pow(2, outputs);
+            Dictionary<int, List<BasicMLData>> retVal = new Dictionary<int, List<BasicMLData>>();
+            int neededTracks = (int)Math.Pow(2, outputs);
             int count = 0;
 
             FingerprintDescriptor descriptor = new FingerprintDescriptor();
@@ -194,11 +200,17 @@
             {
                 retVal.Add(pair.Key, new List<BasicMLData>());
                 foreach (Fingerprint fingerprint in pair.Value)
+                {
                     retVal[pair.Key].Add(new BasicMLData(NormalizeUtils.NormalizeDesiredInputInPlace(function, descriptor.DecodeFingerprint(fingerprint.Signature))));
+                }
+
                 count++;
                 if (count > neededTracks - 1)
+                {
                     break;
+                }
             }
+
             return retVal;
         }
 
@@ -211,6 +223,7 @@
         /// <remarks>
         ///   2^binaryLength normalized binary codes will be returned by the method
         /// </remarks>
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         public double[][] GetNormalizedBinaryCodes(IActivationFunction function, int binaryLength)
         {
             byte[][] codes = BinaryOutputUtil.GetAllBinaryCodes(binaryLength);
@@ -218,9 +231,10 @@
             double[][] fCodes = new double[length][];
             for (int i = 0; i < length; i++)
             {
-                fCodes[i] = Array.ConvertAll(codes[i], (s) => (double) s);
+                fCodes[i] = Array.ConvertAll(codes[i], s => (double)s);
                 NormalizeUtils.NormalizeOneDesiredOutputInPlace(function, fCodes[i]);
             }
+
             return fCodes;
         }
 
@@ -234,34 +248,45 @@
         /// <remarks>
         ///   All fingerprints for a specific track will point to the same binary signature
         /// </remarks>
-        public Tuple<double[][], double[][]> FillStandardInputsOutputs(Dictionary<Int32, List<BasicMLData>> trackIdFingerprints, double[][] binaryCodes)
+        public Tuple<double[][], double[][]> FillStandardInputsOutputs(Dictionary<int, List<BasicMLData>> trackIdFingerprints, double[][] binaryCodes)
         {
             int trackCount = trackIdFingerprints.Count;
-            //Check availability of binary outputs with respect to tracks
+
+            // Check availability of binary outputs with respect to tracks
             if (binaryCodes.GetLength(0) > trackCount)
+            {
                 throw new NetTrainerException("Not enough songs in the database for training purpose");
+            }
 
             int inOutIndex = 0;
-            double[][] inputs = new double[trackCount*trainingSongSnippets][];
-            double[][] outputs = new double[trackCount*trainingSongSnippets][];
+            double[][] inputs = new double[trackCount * trainingSongSnippets][];
+            double[][] outputs = new double[trackCount * trainingSongSnippets][];
             int count = 0;
 
-            //Assign all fingerprints of a single song with one binary code.
-            foreach (KeyValuePair<Int32, List<BasicMLData>> pair in trackIdFingerprints)
+            // Assign all fingerprints of a single song with one binary code.
+            foreach (KeyValuePair<int, List<BasicMLData>> pair in trackIdFingerprints)
             {
                 List<BasicMLData> fingerprints = pair.Value;
                 if (fingerprints.Count < trainingSongSnippets)
+                {
                     throw new NetTrainerException("Not enough fingerprints for a specific song. Song Int32:" + pair.Key);
+                }
 
                 foreach (BasicMLData fingerprint in fingerprints)
                 {
                     inputs[inOutIndex] = fingerprint.Data;
-                    if (inputs[inOutIndex] == null) throw new NetTrainerException("Inputs to be trained cannon be null");
+                    if (inputs[inOutIndex] == null)
+                    {
+                        throw new NetTrainerException("Inputs to be trained cannon be null");
+                    }
+
                     outputs[inOutIndex] = binaryCodes[count]; /*All snippets from the same song must have the same output*/
                     inOutIndex++;
                 }
+
                 count++;
             }
+
             return new Tuple<double[][], double[][]>(inputs, outputs);
         }
 
@@ -274,7 +299,10 @@
         public void PauseTraining()
         {
             if (alreadyDisposed)
+            {
                 throw new ObjectDisposedException("Object already disposed");
+            }
+
             if (!paused)
             {
                 paused = true;
@@ -311,10 +339,11 @@
             {
                 if (disposing)
                 {
-                    //dispose managed resources
+                    // dispose managed resources
                     pauseSem.Close();
                 }
-                //dispose unmanaged resources
+
+                // dispose unmanaged resources
                 alreadyDisposed = true;
             }
         }
@@ -326,17 +355,23 @@
         /// <param name = "dataset"> Dataset with the data [input/ideal]</param>
         /// <param name = "trackIdFingerprints">Tracks and their associated fingerprints</param>
         /// <param name = "binaryCodes">Normalized binary codes</param>
-        protected void ReorderOutput(Network network, BasicNeuralDataSet dataset, Dictionary<Int32, List<BasicMLData>> trackIdFingerprints, double[][] binaryCodes)
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
+        protected void ReorderOutput(Network network, BasicNeuralDataSet dataset, Dictionary<int, List<BasicMLData>> trackIdFingerprints, double[][] binaryCodes)
         {
             int outputNeurons = network.GetLayerNeuronCount(network.LayerCount - 1);
             int trackCount = trackIdFingerprints.Count;
-            //For each song, compute Am
+
+            // For each song, compute Am
             double[][] am = new double[trackCount][];
             int counter = 0;
-            foreach (KeyValuePair<Int32, List<BasicMLData>> pair in trackIdFingerprints)
+            foreach (KeyValuePair<int, List<BasicMLData>> pair in trackIdFingerprints)
             {
                 List<BasicMLData> sxSnippet = pair.Value;
-                if (sxSnippet.Count < trainingSongSnippets) throw new NetTrainerException("Not enough snippets for a song");
+                if (sxSnippet.Count < trainingSongSnippets)
+                {
+                    throw new NetTrainerException("Not enough snippets for a song");
+                }
+
                 am[counter] = new double[outputNeurons];
                 foreach (BasicMLData snippet in sxSnippet)
                 {
@@ -347,16 +382,20 @@
                         am[counter][k] += actualOutput[k];
                     }
                 }
+
                 counter++;
             }
 
-            //Get a collection of tracks (shallow copy)
-            Int32[] unassignedTracks = new Int32[trackCount];
+            // Get a collection of tracks (shallow copy)
+            int[] unassignedTracks = new int[trackCount];
             int countTrack = 0;
-            foreach (KeyValuePair<Int32, List<BasicMLData>> item in trackIdFingerprints)
+            foreach (KeyValuePair<int, List<BasicMLData>> item in trackIdFingerprints)
+            {
                 unassignedTracks[countTrack++] = item.Key;
+            }
 
             int currItteration = 0;
+
             // Find binary code - track pair that has min l2 norm across all binary codes
             List<Tuple<int, int>> binCodeTrackPair = BinaryOutputUtil.FindMinL2Norm(binaryCodes, am);
             foreach (Tuple<int, int> pair in binCodeTrackPair)
@@ -366,9 +405,15 @@
                 foreach (BasicMLData songFingerprint in songFingerprints)
                 {
                     for (int i = 0, n = songFingerprint.Count; i < n; i++)
+                    {
                         dataset.Data[currItteration].Input[i] = songFingerprint[i];
+                    }
+
                     for (int i = 0, n = binaryCodes[pair.Item1].Length; i < n; i++)
+                    {
                         dataset.Data[currItteration].Ideal[i] = binaryCodes[pair.Item1][i];
+                    }
+
                     currItteration++;
                 }
             }

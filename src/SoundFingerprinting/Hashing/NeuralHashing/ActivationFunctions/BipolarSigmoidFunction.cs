@@ -23,7 +23,6 @@
             set { alfa = value; }
         }
 
-
         #region IActivationFunction Members
 
         public float Output(float x)
@@ -36,14 +35,14 @@
         {
             float y = Output(x);
 
-            return (float)(alfa * (0.25 - y * y));
+            return (float)(alfa * (0.25 - (y * y)));
         }
 
         // Calculate differential of the function value
         // using function value as input
         public float Derivative2(float y)
         {
-            return (float)(alfa * (0.25 - y * y));
+            return (float)(alfa * (0.25 - (y * y)));
         }
 
         #endregion

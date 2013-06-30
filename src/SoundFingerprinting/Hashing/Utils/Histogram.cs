@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Text;
 
     /// <summary>
@@ -11,6 +12,37 @@
 #if !SILVERLIGHT
     [Serializable]
 #endif
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1404:CodeAnalysisSuppressionMustHaveJustification", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1404:CodeAnalysisSuppressionMustHaveJustification", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1005:SingleLineCommentsMustBeginWithSingleSpace", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1512:SingleLineCommentsMustNotBeFollowedByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1303:ConstFieldNamesMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1309:FieldNamesMustNotBeginWithUnderscore", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1311:StaticReadonlyFieldsMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1027:TabsMustNotBeUsed")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1515:SingleLineCommentMustBePrecededByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1513:ClosingCurlyBracketMustBeFollowedByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1405:DebugAssertMustProvideMessageText", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1119:StatementMustNotUseUnnecessaryParenthesis", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1003:SymbolsMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1001:CommasMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1306:FieldNamesMustBeginWithLowerCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1008:OpeningParenthesisMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1642:ConstructorSummaryDocumentationMustBeginWithStandardText",
+        Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1614:ElementParameterDocumentationMustHaveText", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1616:ElementReturnValueDocumentationMustHaveText", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1204:StaticElementsMustAppearBeforeInstanceElements", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1121:UseBuiltInTypeAlias", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:ElementsMustAppearInTheCorrectOrder", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:PropertySummaryDocumentationMustMatchAccessors", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1611:ElementParametersMustBeDocumented", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1615:ElementReturnValueMustBeDocumented", Justification = "Reviewed. Suppression is OK here.")]
+    // ReSharper disable CompareOfFloatsByEqualityOperator
     public class Bucket :
 #if SILVERLIGHT
    IComparable<Bucket>
@@ -37,16 +69,15 @@
                 {
                     return -bkt1.Contains(bkt2.UpperBound);
                 }
-                else
-                {
-                    return -bkt2.Contains(bkt1.UpperBound);
-                }
+                return -bkt2.Contains(bkt1.UpperBound);
             }
 
             #endregion
         }
 
+// ReSharper disable InconsistentNaming
         private static readonly PointComparer pointComparer = new PointComparer();
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         ///   Lower Bound of the Bucket.
@@ -78,17 +109,21 @@
         {
             if (lowerBound > upperBound)
             {
+// ReSharper disable NotResolvedInText
                 throw new ArgumentOutOfRangeException("ArgumentLowerBoundLargerThanUpperBound");
+// ReSharper restore NotResolvedInText
             }
 
             if (count < 0.0)
             {
+// ReSharper disable NotResolvedInText
                 throw new ArgumentOutOfRangeException("ArgumentMustBePositive");
+// ReSharper restore NotResolvedInText
             }
 
-            this.LowerBound = lowerBound;
-            this.UpperBound = upperBound;
-            this.Count = count;
+            LowerBound = lowerBound;
+            UpperBound = upperBound;
+            Count = count;
         }
 
         /// <summary>
@@ -97,7 +132,7 @@
         /// <returns>A cloned Bucket object.</returns>
         public object Clone()
         {
-            return new Bucket(this.LowerBound, this.UpperBound, this.Count);
+            return new Bucket(LowerBound, UpperBound, Count);
         }
 
         /// <summary>
@@ -105,7 +140,7 @@
         /// </summary>
         public double Width
         {
-            get { return this.UpperBound - this.LowerBound; }
+            get { return UpperBound - LowerBound; }
         }
 
         /// <summary>
@@ -121,12 +156,12 @@
         /// </summary>
         /// <param name = "x">The point to check.</param>
         /// <returns>0 if the point falls within the bucket boundaries; -1 if the point is
-        ///   smaller than the bucket, +1 if the point is larger than the bucket.</returns>
+        /// smaller than the bucket, +1 if the point is larger than the bucket.</returns>
         public int Contains(double x)
         {
-            if (this.LowerBound < x)
+            if (LowerBound < x)
             {
-                if (this.UpperBound >= x)
+                if (UpperBound >= x)
                 {
                     return 0;
                 }
@@ -142,18 +177,18 @@
         /// </summary>
         public int CompareTo(Bucket bucket)
         {
-            if (this.UpperBound > bucket.LowerBound && this.LowerBound < bucket.LowerBound)
+            if (UpperBound > bucket.LowerBound && LowerBound < bucket.LowerBound)
             {
                 throw new ArgumentException("PartialOrderException");
             }
 
-            if (this.UpperBound.AlmostEqual(bucket.UpperBound)
-                && this.LowerBound.AlmostEqual(bucket.LowerBound))
+            if (UpperBound.AlmostEqual(bucket.UpperBound)
+                && LowerBound.AlmostEqual(bucket.LowerBound))
             {
                 return 0;
             }
 
-            if (bucket.UpperBound <= this.LowerBound)
+            if (bucket.UpperBound <= LowerBound)
             {
                 return 1;
             }
@@ -163,7 +198,10 @@
 
         /// <summary>
         ///   Checks whether two Buckets are equal; this method tolerates a difference in lowerbound, upperbound
-        ///   and count given by <seealso cref = "Precsion.AlmostEqual" />.
+        ///   and count given by <seealso>
+        ///                          <cref>Precsion.AlmostEqual</cref>
+        ///                      </seealso>
+        ///     .
         /// </summary>
         public override bool Equals(object obj)
         {
@@ -173,9 +211,9 @@
             }
 
             Bucket b = (Bucket) obj;
-            return this.LowerBound.AlmostEqual(b.LowerBound)
-                   && this.UpperBound.AlmostEqual(b.UpperBound)
-                   && this.Count.AlmostEqual(b.Count);
+            return LowerBound.AlmostEqual(b.LowerBound)
+                   && UpperBound.AlmostEqual(b.UpperBound)
+                   && Count.AlmostEqual(b.Count);
         }
 
         /// <summary>
@@ -183,7 +221,7 @@
         /// </summary>
         public override int GetHashCode()
         {
-            return this.LowerBound.GetHashCode() ^ this.UpperBound.GetHashCode() ^ this.Count.GetHashCode();
+            return LowerBound.GetHashCode() ^ UpperBound.GetHashCode() ^ Count.GetHashCode();
         }
 
         /// <summary>
@@ -192,7 +230,7 @@
         /// <returns></returns>
         public override string ToString()
         {
-            return "(" + this.LowerBound + ";" + this.UpperBound + "] = " + this.Count;
+            return "(" + LowerBound + ";" + UpperBound + "] = " + Count;
         }
     }
 
@@ -200,6 +238,10 @@
     /// A class which computes histograms of data.
     /// </summary>
 #if !SILVERLIGHT
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:ElementsMustAppearInTheCorrectOrder", Justification = "Reviewed. Suppression is OK here.")]
+        
     [Serializable]
 #endif
     public class Histogram
@@ -219,46 +261,66 @@
         /// </summary>
         public Histogram()
         {
-            this.buckets = new List<Bucket>();
-            this.areBucketsSorted = true;
+            buckets = new List<Bucket>();
+            areBucketsSorted = true;
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Histogram"/> class. 
         ///   Constructs a Histogram with a specific number of equally sized buckets. The upper and lower bound of the histogram
         ///   will be set to the smallest and largest datapoint.
         /// </summary>
-        /// <param name = "data">The datasequence to build a histogram on.</param>
-        /// <param name = "nbuckets">The number of buckets to use.</param>
+        /// <param name="data">
+        /// The datasequence to build a histogram on.
+        /// </param>
+        /// <param name="nbuckets">
+        /// The number of buckets to use.
+        /// </param>
+        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
         public Histogram(IEnumerable<double> data, int nbuckets)
             : this()
         {
             if (nbuckets < 1)
             {
-                throw new ArgumentOutOfRangeException("The number of bins in a histogram should be at least 1.");
+                throw new ArgumentOutOfRangeException("data");
             }
 
+// ReSharper disable PossibleMultipleEnumeration
             double lower = data.Minimum();
+
             double upper = data.Maximum();
-            double width = (upper - lower)/nbuckets;
+            double width = (upper - lower) / nbuckets;
 
             // Add buckets for each bin; the smallest bucket's lowerbound must be slightly smaller
             // than the minimal element.
-            this.AddBucket(new Bucket(lower.Decrement(), lower + width));
+            AddBucket(new Bucket(lower.Decrement(), lower + width));
             for (int n = 1; n < nbuckets; n++)
             {
-                this.AddBucket(new Bucket(lower + n*width, lower + (n + 1)*width));
+                AddBucket(new Bucket(lower + n * width, lower + (n + 1) * width));
             }
 
-            this.AddData(data);
+            AddData(data);
+// ReSharper restore PossibleMultipleEnumeration
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Histogram"/> class. 
         ///   Constructs a Histogram with a specific number of equally sized buckets.
         /// </summary>
-        /// <param name = "data">The datasequence to build a histogram on.</param>
-        /// <param name = "nbuckets">The number of buckets to use.</param>
-        /// <param name = "lower">The histogram lower bound.</param>
-        /// <param name = "upper">The histogram upper bound.</param>
+        /// <param name="data">
+        /// The datasequence to build a histogram on.
+        /// </param>
+        /// <param name="nbuckets">
+        /// The number of buckets to use.
+        /// </param>
+        /// <param name="lower">
+        /// The histogram lower bound.
+        /// </param>
+        /// <param name="upper">
+        /// The histogram upper bound.
+        /// </param>
+        // ReSharper disable NotResolvedInText
+        [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
         public Histogram(IEnumerable<double> data, int nbuckets, double lower, double upper)
             : this()
         {
@@ -272,15 +334,15 @@
                 throw new ArgumentOutOfRangeException("The number of bins in a histogram should be at least 1.");
             }
 
-            double width = (upper - lower)/nbuckets;
+            double width = (upper - lower) / nbuckets;
 
             // Add buckets for each bin.
             for (int n = 0; n < nbuckets; n++)
             {
-                this.AddBucket(new Bucket(lower + n*width, lower + (n + 1)*width));
+                AddBucket(new Bucket(lower + n * width, lower + (n + 1) * width));
             }
-
-            this.AddData(data);
+            // ReSharper restore NotResolvedInText
+            AddData(data);
         }
 
         /// <summary>
@@ -291,30 +353,30 @@
         public void AddData(double d)
         {
             // Sort if needed.
-            this.LazySort();
+            LazySort();
 
-            if (d < this.LowerBound)
+            if (d < LowerBound)
             {
                 // Make the lower bound just slightly smaller than the datapoint so it is contained in this bucket.
-                this.buckets[0].LowerBound = d.Decrement();
-                this.buckets[0].Count++;
+                buckets[0].LowerBound = d.Decrement();
+                buckets[0].Count++;
             }
-            else if (d > this.UpperBound)
+            else if (d > UpperBound)
             {
-                this.buckets[this.BucketCount - 1].UpperBound = d;
-                this.buckets[this.BucketCount - 1].Count++;
+                buckets[BucketCount - 1].UpperBound = d;
+                buckets[BucketCount - 1].Count++;
             }
-            else if (d == this.LowerBound && d == this.UpperBound)
+            else if (d == LowerBound && d == UpperBound)
             {
-                this.buckets[this.BucketCount/2].Count++;
+                buckets[BucketCount / 2].Count++;
             }
-            else if (Math.Abs(d - this.LowerBound) < 0.000001)
+            else if (Math.Abs(d - LowerBound) < 0.000001)
             {
-                this.buckets[0].Count++;
+                buckets[0].Count++;
             }
             else
             {
-                this.buckets[this.GetBucketIndexOf(d)].Count++;
+                buckets[GetBucketIndexOf(d)].Count++;
             }
         }
 
@@ -327,17 +389,20 @@
         {
             foreach (double d in data)
             {
-                this.AddData(d);
+                AddData(d);
             }
         }
 
         /// <summary>
-        ///   Adds a <c>Bucket</c> to the <c>Histogram</c>.
+        /// Adds a <c>Bucket</c> to the <c>Histogram</c>.
         /// </summary>
+        /// <param name="bucket">
+        /// The bucket.
+        /// </param>
         public void AddBucket(Bucket bucket)
         {
-            this.buckets.Add(bucket);
-            this.areBucketsSorted = false;
+            buckets.Add(bucket);
+            areBucketsSorted = false;
         }
 
         /// <summary>
@@ -345,10 +410,10 @@
         /// </summary>
         private void LazySort()
         {
-            if (!this.areBucketsSorted)
+            if (!areBucketsSorted)
             {
-                this.buckets.Sort();
-                this.areBucketsSorted = true;
+                buckets.Sort();
+                areBucketsSorted = true;
             }
         }
 
@@ -359,7 +424,7 @@
         /// <returns>A copy of the bucket containing point <paramref name = "v" />.</returns>
         public Bucket GetBucketOf(double v)
         {
-            return (Bucket) this.buckets[this.GetBucketIndexOf(v)].Clone();
+            return (Bucket)buckets[GetBucketIndexOf(v)].Clone();
         }
 
         /// <summary>
@@ -371,10 +436,10 @@
         public int GetBucketIndexOf(double v)
         {
             // Sort if needed.
-            this.LazySort();
+            LazySort();
 
             // Binary search for the bucket index.
-            int index = this.buckets.BinarySearch(new Bucket(v, v), Bucket.DefaultPointComparer);
+            int index = buckets.BinarySearch(new Bucket(v, v), Bucket.DefaultPointComparer);
 
             if (index < 0)
             {
@@ -387,24 +452,26 @@
         /// <summary>
         ///   Returns the lower bound of the histogram.
         /// </summary>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:PropertySummaryDocumentationMustMatchAccessors", Justification = "Reviewed. Suppression is OK here.")]
         public double LowerBound
         {
             get
             {
-                this.LazySort();
-                return this.buckets[0].LowerBound;
+                LazySort();
+                return buckets[0].LowerBound;
             }
         }
 
         /// <summary>
         ///   Returns the upper bound of the histogram.
         /// </summary>
+        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:PropertySummaryDocumentationMustMatchAccessors", Justification = "Reviewed. Suppression is OK here.")]
         public double UpperBound
         {
             get
             {
-                this.LazySort();
-                return this.buckets[this.buckets.Count - 1].UpperBound;
+                LazySort();
+                return buckets[buckets.Count - 1].UpperBound;
             }
         }
 
@@ -417,8 +484,8 @@
         {
             get
             {
-                this.LazySort();
-                return (Bucket) this.buckets[n].Clone();
+                LazySort();
+                return (Bucket)buckets[n].Clone();
             }
         }
 
@@ -427,7 +494,7 @@
         /// </summary>
         public int BucketCount
         {
-            get { return this.buckets.Count; }
+            get { return buckets.Count; }
         }
 
         /// <summary>
@@ -439,7 +506,7 @@
             {
                 double totalCount = 0;
 
-                for (int i = 0; i < this.BucketCount; i++)
+                for (int i = 0; i < BucketCount; i++)
                 {
                     totalCount += this[i].Count;
                 }
@@ -449,18 +516,23 @@
         }
 
         /// <summary>
-        ///   Prints the buckets contained in the <see cref = "Histogram" />.
+        /// Prints the buckets contained in the <see cref="Histogram"/>.
         /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
 
-            foreach (Bucket b in this.buckets)
+            foreach (Bucket b in buckets)
             {
-                sb.Append(b.ToString());
+                sb.Append(b);
             }
 
             return sb.ToString();
         }
     }
+
+    // ReSharper restore CompareOfFloatsByEqualityOperator
 }

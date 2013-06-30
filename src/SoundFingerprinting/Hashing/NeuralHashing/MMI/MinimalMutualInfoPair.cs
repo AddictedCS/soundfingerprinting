@@ -5,30 +5,30 @@
     [Serializable]
     public class MinimalMutualInfoPair
     {
-        private readonly int _index1St;
-        private readonly int _index2Nd;
-        private readonly double _mutualInf;
+        private readonly int index1St;
+        private readonly int index2Nd;
+        private readonly double mutualInf;
 
         public MinimalMutualInfoPair(int index1, int index2, double mutualInf)
         {
-            _index1St = index1;
-            _index2Nd = index2;
-            _mutualInf = mutualInf;
+            index1St = index1;
+            index2Nd = index2;
+            this.mutualInf = mutualInf;
         }
 
         public int IndexFirst
         {
-            get { return _index1St; }
+            get { return index1St; }
         }
 
         public int IndexSecond
         {
-            get { return _index2Nd; }
+            get { return index2Nd; }
         }
 
         public double MutualInformation
         {
-            get { return _mutualInf; }
+            get { return mutualInf; }
         }
     }
 }

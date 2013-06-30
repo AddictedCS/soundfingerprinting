@@ -9,6 +9,7 @@
             {
                 image[y][0] += image[y - 1][0];
             }
+
             int nbands = image[0].Length;
             for (int x = 1; x < nbands; x++)
             {
