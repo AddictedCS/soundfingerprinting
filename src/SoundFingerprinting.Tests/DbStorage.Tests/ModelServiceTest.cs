@@ -14,13 +14,12 @@
     [TestClass]
     public class ModelServiceTest : BaseTest
     {
-        private readonly ModelService modelService;
+        private ModelService modelService;
 
-        public ModelServiceTest()
+        [TestInitialize]
+        public void SetUp()
         {
-            modelService = new ModelService(
-                new MsSqlDatabaseProviderFactory(new DefaultConnectionStringFactory()),
-                new CachedModelBinderFactory(new ModelBinderFactory()));
+            modelService = new ModelService();
         }
 
         #region Insert/Read/Delete Album objects tests
@@ -69,7 +68,7 @@
         public void ReadAlbumByNameTest()
         {
             string albumName = Guid.NewGuid().ToString();
-            Album album = new Album(int.MinValue, albumName);
+            Album album = new Album(albumName);
             modelService.InsertAlbum(album);
             Assert.AreNotEqual(int.MinValue, album.Id);
             Album readAlbum = modelService.ReadAlbumByName(albumName);
@@ -94,7 +93,7 @@
         public void InsertReadTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = new Album(int.MinValue, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Assert.AreNotEqual(int.MinValue, album.Id);
             Track track = new Track(name, name, album.Id, 360);
@@ -122,7 +121,7 @@
             List<Album> listAlbums = new List<Album>();
             for (int i = 0; i < 10; i++)
             {
-                Album a = new Album(int.MinValue, name + i, i + 1986);
+                Album a = new Album(name + i, i + 1986);
                 listAlbums.Add(a);
             }
 
@@ -193,7 +192,7 @@
         public void ReadTrackByFingerprintInexistantIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = new Album(int.MinValue, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
@@ -204,7 +203,7 @@
         public void ReadTrackByFingerprintTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = new Album(int.MinValue, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
@@ -238,7 +237,7 @@
         public void DeleteOneTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = new Album(0, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Track track = new Track(name, name, album.Id);
             modelService.InsertTrack(track);
@@ -251,7 +250,7 @@
         public void DeleteCollectionOfTracksIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = new Album(int.MinValue, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Assert.AreNotEqual(int.MinValue, album.Id);
             Track track = new Track(name, name, album.Id);
@@ -290,7 +289,7 @@
         public void InsertReadFingerprintTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = new Album(0, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
@@ -324,7 +323,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
 
             const int FakeId = int.MinValue;
-            Album album = new Album(FakeId, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Assert.AreNotEqual(FakeId, album);
             Track track = new Track(name, name, album.Id, 360);
@@ -372,7 +371,7 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            Album album = new Album(0, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
@@ -396,7 +395,7 @@
         public void ReadFingerprintByMultipleTrackIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album album = new Album(0, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             Track track0 = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track0);
@@ -449,7 +448,7 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            Album album = new Album(0, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             const int NumberOfTracks = 1153;
             const int NumberOfFingerprintsPerTrack = 10;
@@ -486,7 +485,7 @@
         public void InsertFingerprintWithBadTrackIdForeignKeyreference()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Album a = new Album(0, name, 1990);
+            Album a = new Album(name, 1990);
             Track track = new Track(name, name, a.Id);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
@@ -502,7 +501,7 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            Album a = new Album(int.MinValue, name, 1990);
+            Album a = new Album(name, 1990);
             Track track = new Track(name, name, a.Id);
             modelService.InsertTrack(track);
         }
@@ -639,7 +638,7 @@
 
         private Album InsertRandomAlbum(string name)
         {
-            Album album = new Album(int.MinValue, name, 1986);
+            Album album = new Album(name, 1986);
             modelService.InsertAlbum(album);
             return album;
         }
@@ -662,7 +661,7 @@
             List<Album> albums = new List<Album>();
             for (int i = 0; i < count; i++)
             {
-                Album a = new Album(int.MinValue, name + ":" + i, i + 1986);
+                Album a = new Album(name + ":" + i, i + 1986);
                 albums.Add(a);
             }
 

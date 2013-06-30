@@ -158,7 +158,7 @@
 
         private Track InsertTrack()
         {
-            Album album = new Album(0, "Track");
+            Album album = new Album("Track");
             modelService.InsertAlbum(album);
             Track track = new Track("Random", "Random", album.Id);
             modelService.InsertTrack(track);

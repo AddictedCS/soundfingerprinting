@@ -523,7 +523,7 @@
                             Debug.WriteLine("Release Year is in a bad format. Continuw processing...");
                         }
 
-                        albumToInsert = new Album(0, album, releaseYear);
+                        albumToInsert = new Album(album, releaseYear);
                         try
                         {
                             modelService.InsertAlbum(albumToInsert); // Insert new ALBUM

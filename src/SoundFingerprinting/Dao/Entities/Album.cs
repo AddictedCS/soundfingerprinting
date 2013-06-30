@@ -3,61 +3,59 @@
     using System;
     using System.Diagnostics;
 
-    /// <summary>
-    ///   Album entity class
-    /// </summary>
-    /// <remarks>
-    ///   This class represents an album instance. Default values for member fields:
-    ///   <c>Id = Int.MinValue</c>
-    ///   <c>ReleaseYear = 0</c>
-    ///   <c>Name = "Unknown"</c>
-    /// </remarks>
     [Serializable]
-    [DebuggerDisplay("Name={_name}, Year={_releaseYear}")]
+    [DebuggerDisplay("Name={albumName}, Year={releaseYear}")]
     public class Album
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string name;
+        private static readonly Album UnknownAlbumInstance = new UnknownAlbum();
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string albumName;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private int releaseYear;
 
         public Album()
         {
-            Id = int.MinValue;
-            releaseYear = 0;
-            name = "Unknown";
+            albumName = "Unknown";
         }
 
-        public Album(int id, string name)
+        public Album(string albumName)
         {
-            releaseYear = 0;
-            Id = id;
-            this.name = name;
+            this.albumName = albumName;
         }
 
-        public Album(int id, string name, int releaseYear)
-            : this(id, name)
+        public Album(string albumName, int releaseYear)
+            : this(albumName)
         {
             this.releaseYear = releaseYear;
         }
 
-        public string Name
+        public static Album UnknowAlbum
         {
             get
             {
-                return name;
+                return UnknownAlbumInstance;
+            }
+        }
+
+        public virtual string Name
+        {
+            get
+            {
+                return albumName;
             }
 
             set
             {
-                name = value.Length > 255 ? value.Substring(0, 255) : value;
+                albumName = value.Length > 255 ? value.Substring(0, 255) : value;
             }
         }
 
-        public int Id { get; set; }
+        public virtual int Id { get; set; }
 
-        public int ReleaseYear
+        public virtual int ReleaseYear
         {
             get
             {
@@ -67,6 +65,48 @@
             set
             {
                 releaseYear = value;
+            }
+        }
+
+        private class UnknownAlbum : Album
+        {
+            public override int Id
+            {
+                get
+                {
+                    return -1; // defined as well on database level (see DBScript file)
+                }
+
+                set
+                {
+                    throw new Exception("Unmodifyable album instance");
+                }
+            }
+
+            public override string Name
+            {
+                get
+                {
+                    return "UNKNOWN";
+                }
+
+                set
+                {
+                    throw new Exception("Unmodifyable album instance");
+                }
+            }
+
+            public override int ReleaseYear
+            {
+                get
+                {
+                    return 0;
+                }
+
+                set
+                {
+                    throw new Exception("Unmodifyable album instance");
+                }
             }
         }
     }

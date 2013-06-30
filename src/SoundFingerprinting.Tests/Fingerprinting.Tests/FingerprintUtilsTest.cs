@@ -76,18 +76,6 @@
         }
 
         [TestMethod]
-        public void ConvertToDoubleArrayTest3()
-        {
-            byte[] signal = TestUtilities.GenerateRandomByteArray(SamplesToRead * 4);
-            bool silence = false;
-            float[] d = ArrayUtils.GetDoubleArrayFromSamples(signal, SamplesToRead, ref silence);
-            for (int i = 0; i < d.Length; i++)
-            {
-                Assert.AreEqual(d[i], BitConverter.ToSingle(signal, i * 8));
-            }
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void ConvertToDoubleArrayTest4()
         {
