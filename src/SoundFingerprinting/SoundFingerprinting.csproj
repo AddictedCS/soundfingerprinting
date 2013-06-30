@@ -75,8 +75,8 @@
     <Compile Include="Builder\IHasher.cs" />
     <Compile Include="FFT\FFTW\FFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWService64.cs" />
-    <Compile Include="FFT\FFTW\x64\InteropFFTW.cs" />
-    <Compile Include="FFT\FFTW\x64\InteropFFTWF.cs" />
+    <Compile Include="FFT\FFTW\X64\InteropFFTW.cs" />
+    <Compile Include="FFT\FFTW\X64\InteropFFTWF.cs" />
     <Compile Include="Hashing\MinHash\DefaultPermutations.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
@@ -135,9 +135,9 @@
     <Compile Include="FFT\Exocortex\FourierDirection.cs" />
     <Compile Include="FFT\FFTW\CachedFFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWArray.cs" />
-    <Compile Include="FFT\FFTW\x86\InteropFFTWF.cs" />
+    <Compile Include="FFT\FFTW\X86\InteropFFTWF.cs" />
     <Compile Include="FFT\FFTW\FFTWService86.cs" />
-    <Compile Include="FFT\FFTW\x86\InteropFFTW.cs" />
+    <Compile Include="FFT\FFTW\X86\InteropFFTW.cs" />
     <Compile Include="FFT\FFTW\InteropFFTWDirection.cs" />
     <Compile Include="FFT\FFTW\InteropFFTWFlags.cs" />
     <Compile Include="FFT\FFTW\InteropFFTWKind.cs" />
