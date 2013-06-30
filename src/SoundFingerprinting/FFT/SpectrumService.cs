@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
 
     using SoundFingerprinting.Configuration;
@@ -204,8 +203,6 @@
             double squares = samples.AsParallel().Aggregate<float, double>(0, (current, t) => current + (t * t));
 
             float rms = (float)Math.Sqrt(squares / samples.Length) * 10;
-
-            Debug.WriteLine("10 RMS: {0}", rms);
 
             if (rms < MinRms)
             {

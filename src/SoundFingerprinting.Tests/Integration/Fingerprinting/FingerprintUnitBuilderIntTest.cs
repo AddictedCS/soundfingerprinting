@@ -26,13 +26,13 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
         {
             var track = InsertTrack();
-            var signatures = fingerprintUnitBuilderWithNAudio.BuildFingerprints()
-                                            .On(PathToMp3)
-                                            .WithDefaultConfiguration()
-                                            .RunAlgorithm()
+            var fingerprints = fingerprintUnitBuilderWithNAudio.BuildFingerprints()
+                                            .From(PathToMp3)
+                                            .WithDefaultAlgorithmConfiguration()
+                                            .FingerprintIt()
+                                            .ForTrack(track.Id)
                                             .Result;
 
-            var fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             modelService.InsertFingerprint(fingerprints);
             var insertedFingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
             
@@ -43,13 +43,13 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
         {
             var track = InsertTrack();
-            var signatures = fingerprintUnitBuilderWithBass.BuildFingerprints()
-                                            .On(PathToMp3)
-                                            .WithDefaultConfiguration()
-                                            .RunAlgorithm()
+            var fingerprints = fingerprintUnitBuilderWithBass.BuildFingerprints()
+                                            .From(PathToMp3)
+                                            .WithDefaultAlgorithmConfiguration()
+                                            .FingerprintIt()
+                                            .ForTrack(track.Id)
                                             .Result;
 
-            var fingerprints = AssociateFingerprintsToTrack(signatures, track.Id);
             modelService.InsertFingerprint(fingerprints);
             var insertedFingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
 
@@ -60,15 +60,17 @@
         public void CompareFingerprintsCreatedByDifferentProxiesTest()
         {
             var naudioFingerprints = fingerprintUnitBuilderWithNAudio.BuildFingerprints()
-                                                        .On(PathToMp3)
-                                                        .WithDefaultConfiguration()
-                                                        .RunAlgorithm()
+                                                        .From(PathToMp3)
+                                                        .WithDefaultAlgorithmConfiguration()
+                                                        .FingerprintIt()
+                                                        .AsIs()
                                                         .Result;
 
             var bassFingerprints = fingerprintUnitBuilderWithBass.BuildFingerprints()
-                                                 .On(PathToMp3)
-                                                 .WithDefaultConfiguration()
-                                                 .RunAlgorithm()
+                                                 .From(PathToMp3)
+                                                 .WithDefaultAlgorithmConfiguration()
+                                                 .FingerprintIt()
+                                                 .AsIs()
                                                  .Result;
             int unmatchedItems = 0;
             int totalmatches = 0;
@@ -107,9 +109,10 @@
 
                 long fileSize = new FileInfo(tempFile).Length;
                 var list = fingerprintUnitBuilderWithBass.BuildFingerprints()
-                                          .On(PathToMp3)
-                                          .WithCustomConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
-                                          .RunAlgorithm()
+                                          .From(PathToMp3)
+                                          .WithCustomAlgorithmConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
+                                          .FingerprintIt()
+                                          .AsIs()
                                           .Result;
                 long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
                 Assert.AreEqual(expected, list.Count);
@@ -146,19 +149,6 @@
             Track track = new Track("Random", "Random", album.Id);
             modelService.InsertTrack(track);
             return track;
-        }
-
-        private List<Fingerprint> AssociateFingerprintsToTrack(IEnumerable<bool[]> fingerprintSignatures, int trackId)
-        {
-            List<Fingerprint> fingers = new List<Fingerprint>();
-            int c = 0;
-            foreach (bool[] signature in fingerprintSignatures)
-            {
-                fingers.Add(new Fingerprint(signature, trackId, c));
-                c++;
-            }
-
-            return fingers;
         }
     }
 }

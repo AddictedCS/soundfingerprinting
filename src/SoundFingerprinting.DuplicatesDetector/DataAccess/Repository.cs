@@ -48,9 +48,10 @@
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
             List<bool[]> fingerprints = fingerprintUnitBuilder.BuildFingerprints()
-                                                       .On(samples)
-                                                       .WithCustomConfiguration(config => config.Stride = stride)
-                                                       .RunAlgorithm()
+                                                       .From(samples)
+                                                       .WithCustomAlgorithmConfiguration(config => config.Stride = stride)
+                                                       .FingerprintIt()
+                                                       .AsIs()
                                                        .Result;
 
             storage.InsertTrack(track); /*Insert track into the storage*/

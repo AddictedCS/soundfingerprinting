@@ -92,14 +92,14 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = fingerprintUnitBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
+                                var songToDraw = fingerprintUnitBuilder.BuildFingerprints().From(songFileName).WithCustomAlgorithmConfiguration(
                                     config =>
                                         {
                                             config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                             config.NormalizeSignal = normalize;
                                         });
 
-                                List<bool[]> fingerprints = songToDraw.RunAlgorithm().Result;
+                                List<bool[]> fingerprints = songToDraw.FingerprintIt().AsIs().Result;
                                 int width = songToDraw.Configuration.FingerprintLength;
                                 int height = songToDraw.Configuration.LogBins;
                                 using (Image image = imageService.GetImageForFingerprints(fingerprints, width, height, 5))
@@ -124,9 +124,9 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = this.fingerprintUnitBuilder.BuildFingerprints().On(songFileName).WithCustomConfiguration(
+                                var songToDraw = this.fingerprintUnitBuilder.BuildFingerprints().From(songFileName).WithCustomAlgorithmConfiguration(
                                     config => { config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint); });
-                                List<bool[]> result = songToDraw.RunAlgorithm().Result;
+                                List<bool[]> result = songToDraw.FingerprintIt().AsIs().Result;
                                 int i = -1;
                                 int width = songToDraw.Configuration.FingerprintLength;
                                 int height = songToDraw.Configuration.LogBins;

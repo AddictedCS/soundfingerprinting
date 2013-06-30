@@ -7,6 +7,7 @@
 
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Query.Configuration;
 
@@ -16,7 +17,7 @@
         private readonly IQueryFingerprintService queryFingerprintService;
         private readonly IMinHashService minHashService;
 
-        private Func<IWithFingerprintConfiguration> fingerprintingMethodFromSelector;
+        private Func<IWithAlgorithmConfiguration> fingerprintingMethodFromSelector;
         private Func<IFingerprintUnit> createFingerprintMethod;
         private IQueryConfiguration queryConfiguration;
 
@@ -29,39 +30,39 @@
 
         public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile)
         {
-            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(pathToAudioFile);
+            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().From(pathToAudioFile);
             return this;
         }
 
         public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
-            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(pathToAudioFile, secondsToProcess, startAtSecond);
+            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().From(pathToAudioFile, secondsToProcess, startAtSecond);
             return this;
         }
 
         public IWithQueryAndFingerprintConfiguration From(float[] audioSamples)
         {
-            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().On(audioSamples);
+            fingerprintingMethodFromSelector = () => fingerprintUnitBuilder.BuildFingerprints().From(audioSamples);
             return this;
         }
 
         public IWithQueryConfiguration From(bool[] fingerprint)
         {
-            fingerprintingMethodFromSelector = () => new EmptyWithFingerprintConfiguration(fingerprint, minHashService);
+            fingerprintingMethodFromSelector = () => new EmptyWithAlgorithmConfiguration(fingerprint, minHashService);
             return this;
         }
 
         public IFingerprintQueryUnit With(IFingerprintingConfiguration fingerprintingConfiguration, IQueryConfiguration configuration)
         {
             queryConfiguration = configuration;
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().With(fingerprintingConfiguration);
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithAlgorithmConfiguration(fingerprintingConfiguration);
             return this;
         }
 
         public IFingerprintQueryUnit With<T1, T2>() where T1 : IFingerprintingConfiguration, new() where T2 : IQueryConfiguration, new()
         {
             queryConfiguration = new T2();
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().With<T1>();
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithAlgorithmConfiguration<T1>();
             return this;
         }
 
@@ -71,26 +72,26 @@
             CustomQueryConfiguration customQueryConfiguration = new CustomQueryConfiguration();
             queryConfiguration = customQueryConfiguration;
             queryConfigurationTransformation(customQueryConfiguration);
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithCustomConfiguration(fingerprintingConfigurationTransformation);
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithCustomAlgorithmConfiguration(fingerprintingConfigurationTransformation);
             return this;
         }
 
         public IFingerprintQueryUnit WithDefaultConfigurations()
         {
             queryConfiguration = new DefaultQueryConfiguration();
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithDefaultConfiguration();
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithDefaultAlgorithmConfiguration();
             return this;
         }
 
         public Task<QueryResult> Query()
         {
-            return createFingerprintMethod().RunAlgorithm()
+            return createFingerprintMethod().FingerprintIt().AsIs()
                                             .ContinueWith(task => queryFingerprintService.Query(task.Result, queryConfiguration));
         }
 
         public Task<QueryResult> Query(CancellationToken cancelationToken)
         {
-            return createFingerprintMethod().RunAlgorithm(cancelationToken)
+            return createFingerprintMethod().FingerprintIt().AsIs(cancelationToken)
                                             .ContinueWith(task =>
                                             {
                                                 if (cancelationToken.IsCancellationRequested)
@@ -108,39 +109,39 @@
             return this;
         }
 
-        private class EmptyWithFingerprintConfiguration : IWithFingerprintConfiguration
+        private class EmptyWithAlgorithmConfiguration : IWithAlgorithmConfiguration
         {
             private readonly bool[] fingerprint;
 
             private readonly IMinHashService minHashService;
 
-            public EmptyWithFingerprintConfiguration(bool[] fingerprint, IMinHashService minHashService)
+            public EmptyWithAlgorithmConfiguration(bool[] fingerprint, IMinHashService minHashService)
             {
                 this.fingerprint = fingerprint;
                 this.minHashService = minHashService;
             }
 
-            public IFingerprintUnit With(IFingerprintingConfiguration configuration)
+            public IFingerprintUnit WithAlgorithmConfiguration(IFingerprintingConfiguration configuration)
             {
                 return new EmptyFingerprintUnit(fingerprint, minHashService);
             }
 
-            public IFingerprintUnit With<T>() where T : IFingerprintingConfiguration, new()
+            public IFingerprintUnit WithAlgorithmConfiguration<T>() where T : IFingerprintingConfiguration, new()
             {
                 return new EmptyFingerprintUnit(fingerprint, minHashService);
             }
 
-            public IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> functor)
+            public IFingerprintUnit WithCustomAlgorithmConfiguration(Action<CustomFingerprintingConfiguration> functor)
             {
                 return new EmptyFingerprintUnit(fingerprint, minHashService);
             }
 
-            public IFingerprintUnit WithDefaultConfiguration()
+            public IFingerprintUnit WithDefaultAlgorithmConfiguration()
             {
                 return new EmptyFingerprintUnit(fingerprint, minHashService);
             }
 
-            private class EmptyFingerprintUnit : IFingerprintUnit
+            private class EmptyFingerprintUnit : IFingerprintUnit, IFingerprinter, IHasher
             {
                 private readonly bool[] fingerprint;
 
@@ -154,28 +155,62 @@
 
                 public IFingerprintingConfiguration Configuration { get; set; }
 
-                public Task<List<bool[]>> RunAlgorithm()
+                public IFingerprinter FingerprintIt()
                 {
-                    TaskCompletionSource<List<bool[]>> tcs = new TaskCompletionSource<List<bool[]>>();
-                    tcs.SetResult(new List<bool[]> { fingerprint });
-                    return tcs.Task;
+                    return this;
                 }
 
-                public Task<List<bool[]>> RunAlgorithm(CancellationToken token)
-                {
-                    return RunAlgorithm();
-                }
-
-                public Task<List<byte[]>> RunAlgorithmWithHashing()
+                Task<List<byte[]>> IHasher.AsIs()
                 {
                     TaskCompletionSource<List<byte[]>> tcs = new TaskCompletionSource<List<byte[]>>();
                     tcs.SetResult(new List<byte[]> { minHashService.Hash(fingerprint) });
                     return tcs.Task;
                 }
 
-                public Task<List<byte[]>> RunAlgorithmWithHashing(CancellationToken token)
+                Task<List<byte[]>> IHasher.AsIs(CancellationToken token)
                 {
-                    return RunAlgorithmWithHashing();
+                    return ((IHasher)this).AsIs();
+                }
+
+                Task<List<SubFingerprint>> IHasher.ForTrack(int trackId)
+                {
+                    TaskCompletionSource<List<SubFingerprint>> tcs = new TaskCompletionSource<List<SubFingerprint>>();
+                    tcs.SetResult(new List<SubFingerprint> { new SubFingerprint(minHashService.Hash(fingerprint), trackId) });
+                    return tcs.Task;
+                }
+
+                Task<List<SubFingerprint>> IHasher.ForTrack(int trackId, CancellationToken token)
+                {
+                    return ((IHasher)this).ForTrack(trackId);
+                }
+
+                public IHasher HashIt()
+                {
+                    return this;
+                }
+
+                Task<List<bool[]>> IFingerprinter.AsIs()
+                {
+                    TaskCompletionSource<List<bool[]>> tcs = new TaskCompletionSource<List<bool[]>>();
+                    tcs.SetResult(new List<bool[]> { fingerprint });
+                    return tcs.Task;
+                }
+
+                Task<List<bool[]>> IFingerprinter.AsIs(CancellationToken token)
+                {
+                    return ((IFingerprinter)this).AsIs();
+                }
+
+                Task<List<Fingerprint>> IFingerprinter.ForTrack(int trackId)
+                {
+                    TaskCompletionSource<List<Fingerprint>> tcs = new TaskCompletionSource<List<Fingerprint>>();
+                    tcs.SetResult(new List<Fingerprint> { new Fingerprint(fingerprint, trackId) });
+                    return tcs.Task;
+                }
+
+                Task<List<Fingerprint>> IFingerprinter.ForTrack(int trackId, CancellationToken token)
+                {
+                    return ((IFingerprinter)this).ForTrack(trackId);
                 }
             }
         }

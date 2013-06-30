@@ -15,11 +15,13 @@
 
         public int[][] ReadPermutationsForLSHAlgorithm()
         {
-            return PrepareStoredProcedure(SpReadAllPermutations).Execute().AsList(
-                reader =>
-                    {
-                        string permutation = reader.GetString(FieldPermutationsPermutation);
-                        string[] elementsOfPermutation = permutation.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            return PrepareStoredProcedure(SpReadAllPermutations)
+                    .Execute()
+                    .AsList(
+                        reader =>
+                        {   
+                            string permutation = reader.GetString(FieldPermutationsPermutation);
+                            string[] elementsOfPermutation = permutation.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                         int[] arrayOfPermutations = new int[elementsOfPermutation.Length];
                         for (int i = 0; i < elementsOfPermutation.Length; i++)
                         {

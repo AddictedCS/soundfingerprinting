@@ -430,14 +430,20 @@
                 int count;
                 try
                 {
-                    List<byte[]> subFingerprints = fingerprintUnitBuilder.BuildFingerprints().On(fileList[i]).WithCustomConfiguration(
-                        config =>
-                            {
-                                config.TopWavelets = topWavelets;
-                                config.Stride = stride;
-                            }).RunAlgorithmWithHashing().Result; // Create SubFingerprints
+                    List<SubFingerprint> subFingerprintsToTrack = fingerprintUnitBuilder
+                           .BuildFingerprints()
+                           .From(fileList[i])
+                           .WithCustomAlgorithmConfiguration(
+                                config =>
+                                    {
+                                        config.TopWavelets = topWavelets;
+                                        config.Stride = stride;
+                                    })
+                            .FingerprintIt()
+                            .HashIt()
+                            .ForTrack(track.Id)
+                            .Result; // Create SubFingerprints
 
-                    List<SubFingerprint> subFingerprintsToTrack = AssociateSubFingerprintsToTrack(subFingerprints, track.Id);
                     modelService.InsertSubFingerprint(subFingerprintsToTrack);
                     count = subFingerprintsToTrack.Count;
 
@@ -466,17 +472,6 @@
 
                 Invoke(actionInterface);
             }
-        }
-
-        private List<SubFingerprint> AssociateSubFingerprintsToTrack(IEnumerable<byte[]> subFingerprints, int trackId)
-        {
-            List<SubFingerprint> subFingerprintsModel = new List<SubFingerprint>();
-            foreach (var subFingerprint in subFingerprints)
-            {
-                subFingerprintsModel.Add(new SubFingerprint(subFingerprint, trackId));
-            }
-
-            return subFingerprintsModel;
         }
 
         private void HashSubFingerprintsUsingMinHash(IEnumerable<SubFingerprint> listOfSubFingerprintsToHash)

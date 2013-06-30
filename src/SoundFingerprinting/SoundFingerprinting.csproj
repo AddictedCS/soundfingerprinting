@@ -71,6 +71,8 @@
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
+    <Compile Include="Builder\IFingerprinter.cs" />
+    <Compile Include="Builder\IHasher.cs" />
     <Compile Include="FFT\FFTW\FFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWService64.cs" />
     <Compile Include="FFT\FFTW\x64\InteropFFTW.cs" />
@@ -152,13 +154,13 @@
     <Compile Include="FFT\SpectrumService.cs" />
     <Compile Include="Wavelets\WaveletService.cs" />
     <Compile Include="Builder\FingerprintUnit.cs" />
-    <Compile Include="Builder\ITargetOn.cs" />
+    <Compile Include="Builder\ISourceFrom.cs" />
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\IntegralImage.cs" />
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
     <Compile Include="Utils\ConstantQ\SparKernel.cs" />
     <Compile Include="Wavelets\WaveletUtils.cs" />
-    <Compile Include="Builder\IWithFingerprintConfiguration.cs" />
+    <Compile Include="Builder\IWithAlgorithmConfiguration.cs" />
     <Compile Include="Builder\IFingerprintUnit.cs" />
     <Compile Include="IFingerprintUnitBuilder.cs" />
     <Compile Include="FingerprintUnitBuilder.cs" />
