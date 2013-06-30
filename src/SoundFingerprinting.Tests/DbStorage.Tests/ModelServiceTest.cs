@@ -97,7 +97,7 @@
             Album album = new Album(int.MinValue, name, 1986);
             modelService.InsertAlbum(album);
             Assert.AreNotEqual(int.MinValue, album.Id);
-            Track track = new Track(int.MinValue, name, name, album.Id, 360);
+            Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
             Assert.AreNotEqual(int.MinValue, track.Id);
             var listOfTracks = modelService.ReadTracks();
@@ -111,6 +111,7 @@
                     break;
                 }
             }
+
             Assert.AreEqual(true, found);
             Track t = modelService.ReadTrackById(track.Id);
             Assert.AreEqual(track.Id, t.Id);
@@ -124,6 +125,7 @@
                 Album a = new Album(int.MinValue, name + i, i + 1986);
                 listAlbums.Add(a);
             }
+
             modelService.InsertAlbum(listAlbums);
             foreach (Album a in listAlbums)
             {
@@ -134,7 +136,7 @@
             List<int> lId = new List<int>();
             for (int i = 0; i < 10; i++)
             {
-                Track a = new Track(int.MinValue, name + i, name + i, listAlbums[i].Id);
+                Track a = new Track(name + i, name + i, listAlbums[i].Id);
                 listTracks.Add(a);
             }
 
@@ -178,7 +180,7 @@
             string artistName = name;
             string titleName = name;
             const int FakeId = int.MinValue;
-            Track track = new Track(FakeId, artistName, titleName, album.Id);
+            Track track = new Track(artistName, titleName, album.Id);
             modelService.InsertTrack(track);
             Assert.AreNotEqual(FakeId, track.Id);
             Track readTrack = modelService.ReadTrackByArtistAndTitleName(artistName, titleName);
@@ -193,7 +195,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = new Album(int.MinValue, name, 1986);
             modelService.InsertAlbum(album);
-            Track track = new Track(int.MinValue, name, name, album.Id, 360);
+            Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
             Assert.AreEqual(0,  modelService.ReadTrackByFingerprint(int.MinValue).Count);
         }
@@ -204,7 +206,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = new Album(int.MinValue, name, 1986);
             modelService.InsertAlbum(album);
-            Track track = new Track(int.MinValue, name, name, album.Id, 360);
+            Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
             const int FakeId = int.MinValue;
             Fingerprint f = new Fingerprint(FakeId, GenericFingerprint, track.Id, int.MinValue);
@@ -212,7 +214,7 @@
             Assert.AreNotEqual(FakeId, f.Id);
             var list = modelService.ReadTrackByFingerprint(f.Id);
             Track readT = list.FirstOrDefault(temp => temp.Id == track.Id);
-            Assert.AreNotEqual(null, readT);
+            Assert.IsNotNull(readT);
             Assert.AreEqual(track.Id, readT.Id);
             Assert.AreEqual(track.AlbumId, readT.AlbumId);
             Assert.AreEqual(track.Artist, readT.Artist);
@@ -238,7 +240,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = new Album(0, name, 1986);
             modelService.InsertAlbum(album);
-            Track track = new Track(0, name, name, album.Id);
+            Track track = new Track(name, name, album.Id);
             modelService.InsertTrack(track);
             modelService.DeleteTrack(track);
             Assert.AreEqual(null, modelService.ReadAlbumById(album.Id));
@@ -252,7 +254,7 @@
             Album album = new Album(int.MinValue, name, 1986);
             modelService.InsertAlbum(album);
             Assert.AreNotEqual(int.MinValue, album.Id);
-            Track track = new Track(int.MinValue, name, name, album.Id);
+            Track track = new Track(name, name, album.Id);
             modelService.InsertTrack(track);
             Assert.AreNotEqual(int.MinValue, track.Id);
             modelService.DeleteTrack(track.Id);
@@ -290,7 +292,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = new Album(0, name, 1986);
             modelService.InsertAlbum(album);
-            Track track = new Track(0, name, name, album.Id, 360);
+            Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
@@ -321,16 +323,16 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
 
-            const int fakeId = int.MinValue;
-            Album album = new Album(fakeId, name, 1986);
+            const int FakeId = int.MinValue;
+            Album album = new Album(FakeId, name, 1986);
             modelService.InsertAlbum(album);
-            Assert.AreNotEqual(fakeId, album);
-            Track track = new Track(fakeId, name, name, album.Id, 360);
+            Assert.AreNotEqual(FakeId, album);
+            Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
-            Assert.AreNotEqual(fakeId, track.Id);
-            Fingerprint f = new Fingerprint(fakeId, GenericFingerprint, track.Id, 0);
+            Assert.AreNotEqual(FakeId, track.Id);
+            Fingerprint f = new Fingerprint(FakeId, GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
-            Assert.AreNotEqual(fakeId, f.Id);
+            Assert.AreNotEqual(FakeId, f.Id);
             Fingerprint readF = modelService.ReadFingerprintById(f.Id);
             Assert.AreEqual(f.Id, readF.Id);
             Assert.AreEqual(f.Signature.Length, readF.Signature.Length);
@@ -349,7 +351,7 @@
 
             List<Fingerprint> listOfFingers = new List<Fingerprint>();
             Album album = modelService.ReadUnknownAlbum();
-            Track track = new Track(0, name, name, album.Id);
+            Track track = new Track(name, name, album.Id);
             modelService.InsertTrack(track);
             const int Count = 100;
             List<int> listOfGuids = new List<int>();
@@ -358,8 +360,9 @@
             {
                 listOfFingers.Add(new Fingerprint(FakeId, GenericFingerprint, track.Id, 0));
             }
+
             modelService.InsertFingerprint(listOfFingers);
-            listOfGuids.AddRange(listOfFingers.Select((f) => f.Id));
+            listOfGuids.AddRange(listOfFingers.Select(f => f.Id));
             var readFingers = modelService.ReadFingerprintById(listOfGuids);
             Assert.AreEqual(readFingers.Count, listOfFingers.Count);
         }
@@ -371,14 +374,14 @@
 
             Album album = new Album(0, name, 1986);
             modelService.InsertAlbum(album);
-            Track track = new Track(0, name, name, album.Id, 360);
+            Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
 
             var list = modelService.ReadFingerprintsByTrackId(track.Id, 0);
             Fingerprint readF = list.FirstOrDefault(temp => temp.Id == f.Id);
-            Assert.AreNotEqual(null, readF);
+            Assert.IsNotNull(readF);
             Assert.AreEqual(f.Id, readF.Id);
             Assert.AreEqual(f.Signature.Length, readF.Signature.Length);
             for (int i = 0; i < f.Signature.Length; i++)
@@ -395,11 +398,11 @@
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = new Album(0, name, 1986);
             modelService.InsertAlbum(album);
-            Track track0 = new Track(0, name, name, album.Id, 360);
+            Track track0 = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track0);
-            Track track1 = new Track(0, name, name, album.Id, 360);
+            Track track1 = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track1);
-            Track track2 = new Track(0, name, name, album.Id, 360);
+            Track track2 = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track2);
 
             Fingerprint f0 = new Fingerprint(0, GenericFingerprint, track0.Id, 0);
@@ -455,7 +458,7 @@
             List<Fingerprint> listOfFingerprints = new List<Fingerprint>();
             for (int i = 0; i < NumberOfTracks; i++)
             {
-                Track track0 = new Track(0, name, name, album.Id, 360);
+                Track track0 = new Track(name, name, album.Id, 360);
                 listTrack.Add(track0);
                 modelService.InsertTrack(track0);
                 for (int j = 0; j < NumberOfFingerprintsPerTrack; j++)
@@ -484,7 +487,7 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
             Album a = new Album(0, name, 1990);
-            Track track = new Track(0, name, name, a.Id);
+            Track track = new Track(name, name, a.Id);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
         }
@@ -500,7 +503,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
 
             Album a = new Album(int.MinValue, name, 1990);
-            Track track = new Track(int.MinValue, name, name, a.Id);
+            Track track = new Track(name, name, a.Id);
             modelService.InsertTrack(track);
         }
 
@@ -581,7 +584,7 @@
         {
             string name = MethodBase.GetCurrentMethod().Name;
             Album album = modelService.ReadUnknownAlbum();
-            Track t = new Track(0, name, name, album.Id);
+            Track t = new Track(name, name, album.Id);
             modelService.InsertTrack(t);
             Fingerprint f = new Fingerprint(0, GenericFingerprint, t.Id, 10);
             modelService.InsertFingerprint(f);
@@ -647,7 +650,7 @@
 
             for (int i = 0; i < count; i++)
             {
-                Track a = new Track(int.MinValue, album.Name, album.Name, album.Id);
+                Track a = new Track(album.Name, album.Name, album.Id);
                 tracks.Add(a);
             }
 

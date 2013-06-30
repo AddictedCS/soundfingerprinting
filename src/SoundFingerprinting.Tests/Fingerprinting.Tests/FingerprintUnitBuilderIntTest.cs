@@ -160,7 +160,7 @@
         {
             Album album = new Album(0, "Track");
             modelService.InsertAlbum(album);
-            Track track = new Track(0, "Random", "Random", album.Id);
+            Track track = new Track("Random", "Random", album.Id);
             modelService.InsertTrack(track);
             return track;
         }
