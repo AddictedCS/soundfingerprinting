@@ -5,6 +5,7 @@
     using System.Data.SqlClient;
     using System.Linq;
     using System.Reflection;
+    using System.Transactions;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,10 +17,19 @@
     {
         private ModelService modelService;
 
+        private TransactionScope transactionPerTestScope;
+
         [TestInitialize]
         public void SetUp()
         {
             modelService = new ModelService();
+            transactionPerTestScope = new TransactionScope();
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            transactionPerTestScope.Dispose();
         }
 
         #region Insert/Read/Delete Album objects tests
@@ -81,7 +91,7 @@
         {
             Album album = modelService.ReadUnknownAlbum();
             Assert.AreNotEqual(null, album);
-            Assert.IsTrue(album.Id > 0);
+            Assert.IsTrue(album.Id == -1);
             Assert.AreEqual("UNKNOWN", album.Name);
         }
 
@@ -208,7 +218,7 @@
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
             const int FakeId = int.MinValue;
-            Fingerprint f = new Fingerprint(FakeId, GenericFingerprint, track.Id, int.MinValue);
+            Fingerprint f = new Fingerprint(GenericFingerprint, track.Id, int.MinValue);
             modelService.InsertFingerprint(f);
             Assert.AreNotEqual(FakeId, f.Id);
             var list = modelService.ReadTrackByFingerprint(f.Id);
@@ -293,7 +303,7 @@
             modelService.InsertAlbum(album);
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
-            Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
+            Fingerprint f = new Fingerprint(GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
             var allFingerprints = modelService.ReadFingerprints();
             List<int> fingerprintIds = allFingerprints.Select(temp => temp.Id).ToList();
@@ -303,7 +313,7 @@
             List<Fingerprint> addList = new List<Fingerprint>();
             for (int i = 0; i < 10; i++)
             {
-                addList.Add(new Fingerprint(0, GenericFingerprint, track.Id, 0));
+                addList.Add(new Fingerprint(GenericFingerprint, track.Id, 0));
             }
 
             modelService.InsertFingerprint(addList);
@@ -329,7 +339,7 @@
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
             Assert.AreNotEqual(FakeId, track.Id);
-            Fingerprint f = new Fingerprint(FakeId, GenericFingerprint, track.Id, 0);
+            Fingerprint f = new Fingerprint(GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
             Assert.AreNotEqual(FakeId, f.Id);
             Fingerprint readF = modelService.ReadFingerprintById(f.Id);
@@ -354,10 +364,9 @@
             modelService.InsertTrack(track);
             const int Count = 100;
             List<int> listOfGuids = new List<int>();
-            const int FakeId = int.MinValue;
             for (int i = 0; i < Count; i++)
             {
-                listOfFingers.Add(new Fingerprint(FakeId, GenericFingerprint, track.Id, 0));
+                listOfFingers.Add(new Fingerprint(GenericFingerprint, track.Id, 0));
             }
 
             modelService.InsertFingerprint(listOfFingers);
@@ -375,7 +384,7 @@
             modelService.InsertAlbum(album);
             Track track = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track);
-            Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
+            Fingerprint f = new Fingerprint(GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
 
             var list = modelService.ReadFingerprintsByTrackId(track.Id, 0);
@@ -404,23 +413,23 @@
             Track track2 = new Track(name, name, album.Id, 360);
             modelService.InsertTrack(track2);
 
-            Fingerprint f0 = new Fingerprint(0, GenericFingerprint, track0.Id, 0);
+            Fingerprint f0 = new Fingerprint(GenericFingerprint, track0.Id, 0);
             modelService.InsertFingerprint(f0);
-            Fingerprint f1 = new Fingerprint(0, GenericFingerprint, track0.Id, 1);
+            Fingerprint f1 = new Fingerprint(GenericFingerprint, track0.Id, 1);
             modelService.InsertFingerprint(f1);
-            Fingerprint f2 = new Fingerprint(0, GenericFingerprint, track1.Id, 2);
+            Fingerprint f2 = new Fingerprint(GenericFingerprint, track1.Id, 2);
             modelService.InsertFingerprint(f2);
-            Fingerprint f3 = new Fingerprint(0, GenericFingerprint, track1.Id, 3);
+            Fingerprint f3 = new Fingerprint(GenericFingerprint, track1.Id, 3);
             modelService.InsertFingerprint(f3);
-            Fingerprint f4 = new Fingerprint(0, GenericFingerprint, track2.Id, 4);
+            Fingerprint f4 = new Fingerprint(GenericFingerprint, track2.Id, 4);
             modelService.InsertFingerprint(f4);
-            Fingerprint f5 = new Fingerprint(0, GenericFingerprint, track2.Id, 5);
+            Fingerprint f5 = new Fingerprint(GenericFingerprint, track2.Id, 5);
             modelService.InsertFingerprint(f5);
-            Fingerprint f6 = new Fingerprint(0, GenericFingerprint, track0.Id, 6);
+            Fingerprint f6 = new Fingerprint(GenericFingerprint, track0.Id, 6);
             modelService.InsertFingerprint(f6);
-            Fingerprint f7 = new Fingerprint(0, GenericFingerprint, track1.Id, 7);
+            Fingerprint f7 = new Fingerprint(GenericFingerprint, track1.Id, 7);
             modelService.InsertFingerprint(f7);
-            Fingerprint f8 = new Fingerprint(0, GenericFingerprint, track2.Id, 8);
+            Fingerprint f8 = new Fingerprint(GenericFingerprint, track2.Id, 8);
             modelService.InsertFingerprint(f8);
 
             var dict =
@@ -462,7 +471,7 @@
                 modelService.InsertTrack(track0);
                 for (int j = 0; j < NumberOfFingerprintsPerTrack; j++)
                 {
-                    Fingerprint f0 = new Fingerprint(0, GenericFingerprint, track0.Id, 0);
+                    Fingerprint f0 = new Fingerprint(GenericFingerprint, track0.Id, 0);
                     listOfFingerprints.Add(f0);
                 }
             }
@@ -487,7 +496,7 @@
             string name = MethodBase.GetCurrentMethod().Name;
             Album a = new Album(name, 1990);
             Track track = new Track(name, name, a.Id);
-            Fingerprint f = new Fingerprint(0, GenericFingerprint, track.Id, 0);
+            Fingerprint f = new Fingerprint(GenericFingerprint, track.Id, 0);
             modelService.InsertFingerprint(f);
         }
 
@@ -585,7 +594,7 @@
             Album album = modelService.ReadUnknownAlbum();
             Track t = new Track(name, name, album.Id);
             modelService.InsertTrack(t);
-            Fingerprint f = new Fingerprint(0, GenericFingerprint, t.Id, 10);
+            Fingerprint f = new Fingerprint(GenericFingerprint, t.Id, 10);
             modelService.InsertFingerprint(f);
             var actual = modelService.ReadFingerprints();
             Assert.IsTrue(actual.Count >= 1);

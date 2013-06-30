@@ -18,7 +18,7 @@
 
         public Album()
         {
-            albumName = "Unknown";
+            // no op
         }
 
         public Album(string albumName)

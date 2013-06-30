@@ -132,8 +132,7 @@ namespace SoundFingerprinting.Dao.Internal
 
             public Fingerprint ToFingerprint()
             {
-                return new Fingerprint(
-                    Id, ArrayUtils.GetBoolArrayFromByte(Signature), TrackId, SongOrder, TotalFingerprintsPerTrack);
+                return new Fingerprint(ArrayUtils.GetBoolArrayFromByte(Signature), TrackId, SongOrder, TotalFingerprintsPerTrack) { Id = Id };
             }
         }
     }

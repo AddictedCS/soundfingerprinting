@@ -167,12 +167,11 @@
 
         private List<Fingerprint> AssociateFingerprintsToTrack(IEnumerable<bool[]> fingerprintSignatures, int trackId)
         {
-            const int FakeId = -1;
             List<Fingerprint> fingers = new List<Fingerprint>();
             int c = 0;
             foreach (bool[] signature in fingerprintSignatures)
             {
-                fingers.Add(new Fingerprint(FakeId, signature, trackId, c));
+                fingers.Add(new Fingerprint(signature, trackId, c));
                 c++;
             }
 

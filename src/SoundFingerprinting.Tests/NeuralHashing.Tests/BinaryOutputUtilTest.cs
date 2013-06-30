@@ -53,23 +53,6 @@
         }
 
         [TestMethod]
-        public void LoadBinCodesTest()
-        {
-            byte[][] expected = BinaryOutputUtil.GetAllBinaryCodes(5);
-            byte[][] actual = BinaryOutputUtil.LoadBinaryCodes("test");
-
-            Assert.AreEqual(expected.GetLength(0), actual.GetLength(0));
-
-            for (int i = 0, n = actual.GetLength(0); i < n; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    Assert.AreEqual(expected[i][j], actual[i][j]);
-                }
-            }
-        }
-
-        [TestMethod]
         [ExpectedException(typeof (FileNotFoundException))]
         public void LoadUnknownBinCodesTest()
         {

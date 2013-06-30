@@ -7,24 +7,24 @@
     {
         public Fingerprint()
         {
-            Id = int.MinValue;
+            // no op
         }
 
-        public Fingerprint(bool[] signature, int trackId, int songOrder) : this()
+        public Fingerprint(bool[] signature, int trackId)
+            : this()
         {
             Signature = signature;
             TrackId = trackId;
+        }
+
+        public Fingerprint(bool[] signature, int trackId, int songOrder)
+            : this(signature, trackId)
+        {
             SongOrder = songOrder;
         }
 
-        public Fingerprint(int id, bool[] signature, int trackId, int songOrder)
+        public Fingerprint(bool[] signature, int trackId, int songOrder, int totalFingerprints)
             : this(signature, trackId, songOrder)
-        {
-            Id = id;
-        }
-
-        public Fingerprint(int id, bool[] signature, int trackId, int songOrder, int totalFingerprints)
-            : this(id, signature, trackId, songOrder)
         {
             TotalFingerprintsPerTrack = totalFingerprints;
         }
