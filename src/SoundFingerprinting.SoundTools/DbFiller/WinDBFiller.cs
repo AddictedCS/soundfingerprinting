@@ -488,7 +488,7 @@
                 int tableCount = 1;
                 foreach (long bucket in buckets)
                 {
-                    HashBinMinHash hash = new HashBinMinHash(0, bucket, tableCount++, subFingerprint.Id);
+                    HashBinMinHash hash = new HashBinMinHash(bucket, tableCount++, subFingerprint.Id);
                     listToInsert.Add(hash);
                 }
             }

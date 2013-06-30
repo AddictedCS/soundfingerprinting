@@ -5,7 +5,8 @@
     [Serializable]
     public class HashBinNeuralHasher : AbstractHashBin
     {
-        public HashBinNeuralHasher(int id, long hashBin, int hashTable, int trackId) : base(id, hashBin, hashTable)
+        public HashBinNeuralHasher(long hashBin, int hashTable, int trackId)
+            : base(hashBin, hashTable)
         {
             TrackId = trackId;
         }

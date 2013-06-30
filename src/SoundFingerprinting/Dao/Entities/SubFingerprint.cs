@@ -7,18 +7,14 @@
     {
         public SubFingerprint()
         {
-            Id = 0;
+            // no op
         }
 
-        public SubFingerprint(byte[] signature, int trackId) : this()
+        public SubFingerprint(byte[] signature, int trackId)
+            : this()
         {
             Signature = signature;
             TrackId = trackId;
-        }
-
-        public SubFingerprint(long id, byte[] signature, int trackId) : this(signature, trackId) 
-        {
-            Id = id;
         }
 
         public long Id { get; set; }

@@ -36,7 +36,7 @@
         [ExpectedException(typeof(ArgumentException))]
         public void RandomStrideClassBadMinMaxTest()
         {
-            RandomStride randomStride = new RandomStride(253, 0);
+            new RandomStride(253, 0);
         }
     }
 }
