@@ -5,30 +5,26 @@ Soundfingerprinting is a C# framework designed for developers and researchers in
 ## Documentation
 See the [Wiki page](https://github.com/AddictedCS/soundfingerprinting/wiki) with the operational details and information 
 
-Following is a code sample that shows how you would generate from an audio file sound fingerprints, that can be stored and used later for recognition purposes.
+Following is a code sample that shows how you would generate from an audio file sound sub-fingerprints, that can be stored and used later for recognition purposes. It expects on input path to audio file (that will be fingerprinted) and track id (by which you can later identify this specific audio file).
 
 ```csharp
-public List<byte[]> CreateFingerprintSignaturesFromFile(string pathToAudioFile)
+public List<SubFingerprint> CreateSubFingerprintSignaturesFromFile(string pathToAudioFile, int trackId)
 {
-    FingerprintUnitBuilder fingerprintBuilder = new FingerprintUnitBuilder();
-    return fingerprintBuilder.BuildFingerprints()
-                             .On(pathToAudioFile)
-                             .With<DefaultFingerprintingConfiguration>()
-                             .RunAlgorithmWithHashing()
-                             .Result;
+    FingerprintUnitBuilder fingerprintUnitBuilder = new FingerprintUnitBuilder();
+    return fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                                 .From(pathToAudioFile)
+                                 .WithDefaultAlgorithmConfiguration()
+                                 .FingerprintIt()
+                                 .HashIt()
+                                 .ForTrack(trackId)
+                                 .Result;
 }
 ```
-After generating the fingerprint signatures you might want to store them for later retrieval. Below is shown a code snippet for saving them to the default underlying storage, using <code>ModelService</code> class. Default storage is an MSSQL database those initialization script can be find [here](src/Scripts/DBScript.sql).
+After generating the sub-fingerprint signatures you might want to store them for later retrieval. Below is shown a code snippet for saving them to the default underlying storage, using <code>ModelService</code> class. Default storage is an MSSQL database those initialization script can be find [here](src/Scripts/DBScript.sql).
 ```csharp
-public void StoreFingeprintSignaturesForTrack(List<byte[]> fingerprintSignatures, Track track)
+public void StoreSubFingeprintSignatures(List<SubFingerprint> subFingerprintSignatures)
 {
     ModelService modelService = new ModelService();
-    List<SubFingerprint> fingerprintsToStore = new List<SubFingerprint>();
-    foreach (var fingerprint in fingerprintSignatures)
-    {
-        fingerprintsToStore.Add(new SubFingerprint(fingerprint, track.Id));
-    }
-
     modelService.InsertSubFingerprint(fingerprintsToStore);
 }
 ```
@@ -38,11 +34,11 @@ public Track GetBestMatchForSong(String queryAudioFile)
 {
     FingerprintQueryBuilder fingerprintQueryBuilder = new FingerprintQueryBuilder();
     return fingerprintQueryBuilder.BuildQuery()
-                           .From(queryAudioFile)
-                           .With<DefaultFingerprintingConfiguration, DefaultQueryConfiguration>()
-                           .Query()
-                           .Result
-                           .BestMatch;
+                                  .From(queryAudioFile)
+                                  .WithDefaultConfigurations()
+                                  .Query()
+                                  .Result
+                                  .BestMatch;
 }
 ```
 
