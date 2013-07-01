@@ -9,23 +9,22 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query.Configuration;
 
     internal sealed class FingerprintingQueryUnit : IQuerySource, IWithQueryConfiguration, IWithQueryAndFingerprintConfiguration, IFingerprintQueryUnit
     {
         private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
-        private readonly IMinHashService minHashService;
-
+        
         private Func<IWithAlgorithmConfiguration> fingerprintingMethodFromSelector;
         private Func<IAudioFingerprintingUnit> createFingerprintMethod;
         private IQueryConfiguration queryConfiguration;
 
-        public FingerprintingQueryUnit(IFingerprintUnitBuilder fingerprintUnitBuilder, IQueryFingerprintService queryFingerprintService, IMinHashService minHashService)
+        public FingerprintingQueryUnit(IFingerprintUnitBuilder fingerprintUnitBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.fingerprintUnitBuilder = fingerprintUnitBuilder;
             this.queryFingerprintService = queryFingerprintService;
-            this.minHashService = minHashService;
         }
 
         public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile)
@@ -48,7 +47,7 @@
 
         public IWithQueryConfiguration From(bool[] fingerprint)
         {
-            fingerprintingMethodFromSelector = () => new EmptyWithAlgorithmConfiguration(fingerprint, minHashService);
+            fingerprintingMethodFromSelector = () => new EmptyWithAlgorithmConfiguration(fingerprint);
             return this;
         }
 
@@ -115,10 +114,15 @@
 
             private readonly IMinHashService minHashService;
 
-            public EmptyWithAlgorithmConfiguration(bool[] fingerprint, IMinHashService minHashService)
+            public EmptyWithAlgorithmConfiguration(IMinHashService minHashService)
+            {
+                this.minHashService = minHashService;
+            }
+
+            public EmptyWithAlgorithmConfiguration(bool[] fingerprint)
+                : this(DependencyResolver.Current.Get<IMinHashService>())
             {
                 this.fingerprint = fingerprint;
-                this.minHashService = minHashService;
             }
 
             public IAudioFingerprintingUnit WithAlgorithmConfiguration(IFingerprintingConfiguration configuration)
