@@ -1,5 +1,8 @@
 ﻿namespace SoundFingerprinting.Dao.Entities
 {
+    using System;
+
+    [Serializable]
     public class Track
     {
         private string artist;
@@ -11,24 +14,21 @@
             // no op
         }
 
+        public Track(string artist, string title)
+        {
+            Artist = artist;
+            Title = title;
+        }
+
+        public Track(string artist, string title, int albumId)
+        {
+            Artist = artist;
+            Title = title;
+            AlbumId = albumId;
+        }
+
         public Track(string artist, string title, int albumId, int trackLength)
-        {
-            Artist = artist;
-            Title = title;
-            AlbumId = albumId;
-            TrackLengthSec = trackLength;
-        }
-
-        public Track(int trackId, string artist, string title, int albumId)
-        {
-            Id = trackId;
-            Artist = artist;
-            Title = title;
-            AlbumId = albumId;
-        }
-
-        public Track(int trackId, string artist, string title, int albumId, int trackLength)
-            : this(trackId, artist, title, albumId)
+            : this(artist, title, albumId)
         {
             TrackLengthSec = trackLength;
         }

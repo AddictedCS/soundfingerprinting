@@ -3,7 +3,7 @@
     using System;
     using System.Runtime.InteropServices;
 
-    using SoundFingerprinting.FFT.FFTW.x86;
+    using SoundFingerprinting.FFT.FFTW.X86;
     
     public class FFTWService86 : FFTWService
     {

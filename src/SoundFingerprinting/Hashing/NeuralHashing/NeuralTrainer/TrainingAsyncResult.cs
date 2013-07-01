@@ -5,11 +5,11 @@
 
     public class TrainingAsyncResult : IAsyncResult
     {
-        private readonly object _asyncState;
+        private readonly object asyncState;
 
         public TrainingAsyncResult(object asyncState, bool isCompleted)
         {
-            _asyncState = asyncState;
+            this.asyncState = asyncState;
             IsCompleted = isCompleted;
         }
 
@@ -17,7 +17,7 @@
 
         public object AsyncState
         {
-            get { return _asyncState; }
+            get { return asyncState; }
         }
 
         public WaitHandle AsyncWaitHandle

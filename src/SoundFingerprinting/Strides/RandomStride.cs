@@ -73,10 +73,6 @@
 
         #region IStride Members
 
-        /// <summary>
-        ///   Get's stride size in terms of number of samples, which are needed to be skipped
-        /// </summary>
-        /// <returns>Bit samples to skip, between 2 consecutive overlapping fingerprints</returns>
         public int StrideSize
         {
             get

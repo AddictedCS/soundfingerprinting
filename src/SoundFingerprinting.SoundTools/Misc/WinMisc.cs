@@ -121,20 +121,20 @@
                         int startAtSecond = (int)_nudStartAtSecond.Value;
                         int firstQueryStride = (int)_nudFirstQueryStride.Value;
 
-                        var databaseSong =
-                            fingerprintUnitBuilder.BuildFingerprints().On(
-                                _tbPathToFile.Text, secondsToProcess, startAtSecond).WithCustomConfiguration(
-                                    config =>
-                                        {
-                                            config.MinFrequency = (int)_nudMinFrequency.Value;
-                                            config.TopWavelets = (int)_nudTopWavelets.Value;
-                                            config.Stride = _chbDatabaseStride.Checked
-                                                                ? (IStride)
-                                                                  new IncrementalRandomStride(0, (int)_nudDatabaseStride.Value, config.SamplesPerFingerprint)
-                                                                : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
-                                            config.NormalizeSignal = normalizeSignal;
-                                            config.UseDynamicLogBase = _cbDynamicLog.Checked;
-                                        });
+                        var databaseSong = fingerprintUnitBuilder.BuildFingerprints()
+                                                  .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
+                                                  .WithCustomAlgorithmConfiguration(
+                                                    config =>
+                                                        {
+                                                            config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                            config.TopWavelets = (int)_nudTopWavelets.Value;
+                                                            config.Stride = _chbDatabaseStride.Checked
+                                                                                ? (IStride)
+                                                                                  new IncrementalRandomStride(0, (int)_nudDatabaseStride.Value, config.SamplesPerFingerprint)
+                                                                                : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
+                                                            config.NormalizeSignal = normalizeSignal;
+                                                            config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                        });
 
                         IFingerprintUnit querySong;
                         int comparisonStride = (int)_nudQueryStride.Value;
@@ -142,8 +142,8 @@
                         {
                             querySong =
                                 fingerprintUnitBuilder.BuildFingerprints()
-                                                          .On(_tbSongToCompare.Text, secondsToProcess, startAtSecond)
-                                                          .WithCustomConfiguration(
+                                                          .From(_tbSongToCompare.Text, secondsToProcess, startAtSecond)
+                                                          .WithCustomAlgorithmConfiguration(
                                                               config =>
                                                                   {
                                                                       config.MinFrequency = (int)_nudMinFrequency.Value;
@@ -162,8 +162,8 @@
                         {
                             querySong =
                                 fingerprintUnitBuilder.BuildFingerprints()
-                                                          .On(_tbPathToFile.Text, secondsToProcess, startAtSecond)
-                                                          .WithCustomConfiguration(
+                                                          .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
+                                                          .WithCustomAlgorithmConfiguration(
                                                               config =>
                                                                   {
                                                                       config.MinFrequency = (int)_nudMinFrequency.Value;
@@ -228,8 +228,8 @@
         {
             double sum = 0;
 
-            List<bool[]> fingerprintsDatabaseSong = databaseSong.RunAlgorithm().Result;
-            List<bool[]> fingerprintsQuerySong = querySong.RunAlgorithm().Result;
+            List<bool[]> fingerprintsDatabaseSong = databaseSong.FingerprintIt().AsIs().Result;
+            List<bool[]> fingerprintsQuerySong = querySong.FingerprintIt().AsIs().Result;
             
             double max = double.MinValue;
             double min = double.MaxValue;

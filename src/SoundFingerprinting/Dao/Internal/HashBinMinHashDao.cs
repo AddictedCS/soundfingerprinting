@@ -51,7 +51,7 @@ namespace SoundFingerprinting.Dao.Internal
                             byte[] signature = (byte[])reader.GetRaw("Signature");
                             int trackId = reader.GetInt32("TrackId");
                             int votes = reader.GetInt32("Votes");
-                            return new Tuple<SubFingerprint, int>(new SubFingerprint(id, signature, trackId), votes);
+                            return new Tuple<SubFingerprint, int>(new SubFingerprint(signature, trackId) { Id = id }, votes);
                         });
         }
     }

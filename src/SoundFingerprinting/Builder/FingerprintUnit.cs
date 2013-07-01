@@ -8,13 +8,17 @@ namespace SoundFingerprinting.Builder
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.MinHash;
 
-    internal sealed class FingerprintUnit : ITargetOn, IWithFingerprintConfiguration, IFingerprintUnit
+    internal sealed class FingerprintUnit : ISourceFrom, IWithAlgorithmConfiguration, IFingerprintUnit, IFingerprinter, IHasher
     {
         private readonly IAudioService audioService;
+
         private readonly IMinHashService minHashService;
+
         private readonly IFingerprintService fingerprintService;
+
         private CancellationToken cancellationToken;
 
         private Func<List<bool[]>> createFingerprintsMethod;
@@ -28,9 +32,58 @@ namespace SoundFingerprinting.Builder
 
         public IFingerprintingConfiguration Configuration { get; private set; }
 
-        public Task<List<bool[]>> RunAlgorithm()
+        public IFingerprinter FingerprintIt()
+        {
+            return this;
+        }
+
+        Task<List<bool[]>> IFingerprinter.AsIs()
         {
             return Task.Factory.StartNew(createFingerprintsMethod);
+        }
+
+        Task<List<byte[]>> IHasher.AsIs(CancellationToken token)
+        {
+            return Task.Factory.StartNew(createFingerprintsMethod, token).ContinueWith(task => HashFingerprints(task.Result));
+        }
+
+        Task<List<bool[]>> IFingerprinter.AsIs(CancellationToken token)
+        {
+            return Task.Factory.StartNew(createFingerprintsMethod, token);
+        }
+
+        Task<List<SubFingerprint>> IHasher.ForTrack(int trackId)
+        {
+            return ((IHasher)this).AsIs().ContinueWith(
+                hashingResult => AssociateSubFingerprintsWithTrack(hashingResult.Result, trackId));
+        }
+        
+        Task<List<SubFingerprint>> IHasher.ForTrack(int trackId, CancellationToken token)
+        {
+            return ((IHasher)this).AsIs(token).ContinueWith(
+                hashingResult => AssociateSubFingerprintsWithTrack(hashingResult.Result, trackId));
+        }
+
+        Task<List<Fingerprint>> IFingerprinter.ForTrack(int trackId, CancellationToken token)
+        {
+            return ((IFingerprinter)this).AsIs(token).ContinueWith(
+                fingerprintingResult => AssociateFingerprintsWithTrack(fingerprintingResult.Result, trackId));
+        }
+
+        Task<List<byte[]>> IHasher.AsIs()
+        {
+            return Task.Factory.StartNew(createFingerprintsMethod).ContinueWith(task => HashFingerprints(task.Result));
+        }
+
+        Task<List<Fingerprint>> IFingerprinter.ForTrack(int trackId)
+        {
+            return ((IFingerprinter)this).AsIs().ContinueWith(
+                fingerprintingResult => AssociateFingerprintsWithTrack(fingerprintingResult.Result, trackId));
+        }
+        
+        public IHasher HashIt()
+        {
+            return this;
         }
 
         public Task<List<bool[]>> RunAlgorithm(CancellationToken token)
@@ -40,29 +93,27 @@ namespace SoundFingerprinting.Builder
 
         public Task<List<byte[]>> RunAlgorithmWithHashing()
         {
-            return Task.Factory.StartNew(createFingerprintsMethod)
-                               .ContinueWith(task => HashFingerprints(task.Result));
+            return Task.Factory.StartNew(createFingerprintsMethod).ContinueWith(task => HashFingerprints(task.Result));
         }
 
         public Task<List<byte[]>> RunAlgorithmWithHashing(CancellationToken token)
         {
             cancellationToken = token;
-            return Task.Factory.StartNew(createFingerprintsMethod, token)
-                              .ContinueWith(task => HashFingerprints(task.Result));
+            return Task.Factory.StartNew(createFingerprintsMethod, token).ContinueWith(task => HashFingerprints(task.Result));
         }
 
-        public IWithFingerprintConfiguration On(string pathToAudioFile)
+        public IWithAlgorithmConfiguration From(string pathToAudioFile)
         {
             return On(pathToAudioFile, 0, 0);
         }
 
-        public IWithFingerprintConfiguration On(float[] audioSamples)
+        public IWithAlgorithmConfiguration From(float[] audioSamples)
         {
             createFingerprintsMethod = () => fingerprintService.CreateFingerprints(audioSamples, Configuration);
             return this;
         }
 
-        public IWithFingerprintConfiguration On(string pathToAudioFile, int secondsToProcess, int startAtSecond)
+        public IWithAlgorithmConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
             createFingerprintsMethod = () =>
                 {
@@ -77,19 +128,19 @@ namespace SoundFingerprinting.Builder
             return this;
         }
 
-        public IFingerprintUnit With(IFingerprintingConfiguration configuration)
+        public IFingerprintUnit WithAlgorithmConfiguration(IFingerprintingConfiguration configuration)
         {
             Configuration = configuration;
             return this;
         }
 
-        public IFingerprintUnit With<T>() where T : IFingerprintingConfiguration, new()
+        public IFingerprintUnit WithAlgorithmConfiguration<T>() where T : IFingerprintingConfiguration, new()
         {
             Configuration = new T();
             return this;
         }
 
-        public IFingerprintUnit WithCustomConfiguration(Action<CustomFingerprintingConfiguration> functor)
+        public IFingerprintUnit WithCustomAlgorithmConfiguration(Action<CustomFingerprintingConfiguration> functor)
         {
             CustomFingerprintingConfiguration customFingerprintingConfiguration = new CustomFingerprintingConfiguration();
             Configuration = customFingerprintingConfiguration;
@@ -97,7 +148,7 @@ namespace SoundFingerprinting.Builder
             return this;
         }
 
-        public IFingerprintUnit WithDefaultConfiguration()
+        public IFingerprintUnit WithDefaultAlgorithmConfiguration()
         {
             Configuration = new DefaultFingerprintingConfiguration();
             return this;
@@ -109,6 +160,29 @@ namespace SoundFingerprinting.Builder
             foreach (var fingerprint in fingerprints)
             {
                 subFingerprints.Add(minHashService.Hash(fingerprint));
+            }
+
+            return subFingerprints;
+        }
+
+        private List<Fingerprint> AssociateFingerprintsWithTrack(IReadOnlyCollection<bool[]> rawFingerprints, int trackId)
+        {
+            List<Fingerprint> fingerprints = new List<Fingerprint>();
+            int fingerprintIndex = 0;
+            foreach (var rawFingerprint in rawFingerprints)
+            {
+                fingerprints.Add(new Fingerprint(rawFingerprint, trackId, fingerprintIndex++, rawFingerprints.Count));
+            }
+
+            return fingerprints;
+        }
+
+        private List<SubFingerprint> AssociateSubFingerprintsWithTrack(IEnumerable<byte[]> rawSubfingerprints, int trackId)
+        {
+            List<SubFingerprint> subFingerprints = new List<SubFingerprint>();
+            foreach (var rawSubfingerprint in rawSubfingerprints)
+            {
+                subFingerprints.Add(new SubFingerprint(rawSubfingerprint, trackId));
             }
 
             return subFingerprints;

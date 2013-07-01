@@ -9,8 +9,6 @@
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Query.Configuration;
 
-    using IQueryConfiguration = SoundFingerprinting.Query.Configuration.IQueryConfiguration;
-
     public class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly ICombinedHashingAlgoritm hashingAlgorithm;

@@ -67,15 +67,16 @@
   <ItemGroup>
     <Compile Include="Audio\AudioService.cs" />
     <Compile Include="Audio\Bass\BassAudioService.cs" />
-    <Compile Include="Audio\DirectSound\DirectSoundAudioService.cs" />
     <Compile Include="Audio\IAudioService.cs" />
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
+    <Compile Include="Builder\IFingerprinter.cs" />
+    <Compile Include="Builder\IHasher.cs" />
     <Compile Include="FFT\FFTW\FFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWService64.cs" />
-    <Compile Include="FFT\FFTW\x64\InteropFFTW.cs" />
-    <Compile Include="FFT\FFTW\x64\InteropFFTWF.cs" />
+    <Compile Include="FFT\FFTW\X64\InteropFFTW.cs" />
+    <Compile Include="FFT\FFTW\X64\InteropFFTWF.cs" />
     <Compile Include="Hashing\MinHash\DefaultPermutations.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
@@ -134,9 +135,9 @@
     <Compile Include="FFT\Exocortex\FourierDirection.cs" />
     <Compile Include="FFT\FFTW\CachedFFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWArray.cs" />
-    <Compile Include="FFT\FFTW\x86\InteropFFTWF.cs" />
+    <Compile Include="FFT\FFTW\X86\InteropFFTWF.cs" />
     <Compile Include="FFT\FFTW\FFTWService86.cs" />
-    <Compile Include="FFT\FFTW\x86\InteropFFTW.cs" />
+    <Compile Include="FFT\FFTW\X86\InteropFFTW.cs" />
     <Compile Include="FFT\FFTW\InteropFFTWDirection.cs" />
     <Compile Include="FFT\FFTW\InteropFFTWFlags.cs" />
     <Compile Include="FFT\FFTW\InteropFFTWKind.cs" />
@@ -153,13 +154,13 @@
     <Compile Include="FFT\SpectrumService.cs" />
     <Compile Include="Wavelets\WaveletService.cs" />
     <Compile Include="Builder\FingerprintUnit.cs" />
-    <Compile Include="Builder\ITargetOn.cs" />
+    <Compile Include="Builder\ISourceFrom.cs" />
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\IntegralImage.cs" />
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
     <Compile Include="Utils\ConstantQ\SparKernel.cs" />
     <Compile Include="Wavelets\WaveletUtils.cs" />
-    <Compile Include="Builder\IWithFingerprintConfiguration.cs" />
+    <Compile Include="Builder\IWithAlgorithmConfiguration.cs" />
     <Compile Include="Builder\IFingerprintUnit.cs" />
     <Compile Include="IFingerprintUnitBuilder.cs" />
     <Compile Include="FingerprintUnitBuilder.cs" />
@@ -234,8 +235,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy "$(SolutionDir)\Externals\Microsoft.DirectX.DirectSound.dll.dll" "$(TargetDir)"
-xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E
+    <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E
 xcopy "$(SolutionDir)\Externals\FFTW\*.*" "$(TargetDir)" /Y /I /E</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

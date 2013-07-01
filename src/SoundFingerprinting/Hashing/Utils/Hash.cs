@@ -24,35 +24,6 @@
         private int[][] randomMatrix;
 
         /// <summary>
-        ///   Generates a random matrix for projection purposes
-        /// </summary>
-        /// <param name = "cols">Number of columns</param>
-        /// <param name = "rows">Number of rows</param>
-        /// <param name = "min">Min value in the matrix</param>
-        /// <param name = "max">Max value in the matrix</param>
-        private void GenerateRandomMatrixOfComponents(int cols, int rows, int min, int max)
-        {
-            lock (this.lockObject)
-            {
-                if (this.randomMatrix == null)
-                {
-                    byte[] seed = new byte[32];
-                    this.rng.GetBytes(seed);
-                    Random random = new Random(BitConverter.ToInt32(seed, 0));
-                    int[][] randomArray = new int[rows][];
-
-                    for (int i = 0; i < rows; i++)
-                    {
-                        randomArray[i] = new int[cols];
-                        for (int j = 0; j < cols; j++)
-                            randomArray[i][j] = random.Next(min, max);
-                    }
-                    this.randomMatrix = randomArray;
-                }
-            }
-        }
-
-        /// <summary>
         ///   Get a random matrix for projection purposes
         /// </summary>
         /// <param name = "cols">Number of columns</param>
@@ -62,18 +33,17 @@
         /// <returns>Random matrix</returns>
         public int[][] GetRandomMatrix(int cols, int rows, int min, int max)
         {
-            if (this.randomMatrix == null)
-                this.GenerateRandomMatrixOfComponents(cols, rows, min, max);
-            return this.randomMatrix;
+            if (randomMatrix == null)
+            {
+                GenerateRandomMatrixOfComponents(cols, rows, min, max);
+            }
+
+            return randomMatrix;
         }
 
-        /// <summary>
-        ///   Set random projection matrix
-        /// </summary>
-        /// <param name = "randomVector"></param>
         public void SetRandomMatrix(int[][] randomVector)
         {
-            this.randomMatrix = randomVector;
+            randomMatrix = randomVector;
         }
 
         /// <summary>
@@ -95,11 +65,45 @@
             {
                 for (int j = 0; j < hashKeys /*r min hash signatures*/; j++)
                 {
-                    hashes[i] += (signature[i*hashKeys + j]*this.randomMatrix[i][j] + b);
+                    hashes[i] += (signature[(i * hashKeys) + j] * randomMatrix[i][j]) + b;
                 }
+
                 hashes[i] /= w;
             }
+
             return hashes;
+        }
+
+        /// <summary>
+        ///   Generates a random matrix for projection purposes
+        /// </summary>
+        /// <param name = "cols">Number of columns</param>
+        /// <param name = "rows">Number of rows</param>
+        /// <param name = "min">Min value in the matrix</param>
+        /// <param name = "max">Max value in the matrix</param>
+        private void GenerateRandomMatrixOfComponents(int cols, int rows, int min, int max)
+        {
+            lock (lockObject)
+            {
+                if (randomMatrix == null)
+                {
+                    byte[] seed = new byte[32];
+                    rng.GetBytes(seed);
+                    Random random = new Random(BitConverter.ToInt32(seed, 0));
+                    int[][] randomArray = new int[rows][];
+
+                    for (int i = 0; i < rows; i++)
+                    {
+                        randomArray[i] = new int[cols];
+                        for (int j = 0; j < cols; j++)
+                        {
+                            randomArray[i][j] = random.Next(min, max);
+                        }
+                    }
+
+                    randomMatrix = randomArray;
+                }
+            }
         }
     }
 }

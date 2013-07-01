@@ -16,6 +16,7 @@
                 DependencyResolver.Current.Get<IQueryFingerprintService>(),
                 DependencyResolver.Current.Get<IMinHashService>())
         {
+            // no op
         }
 
         public FingerprintQueryBuilder(IFingerprintUnitBuilder fingerprintUnitBuilder, IQueryFingerprintService queryFingerprintService, IMinHashService minHashService)

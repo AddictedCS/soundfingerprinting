@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Dao.Internal
     using System.Linq;
 
     using SoundFingerprinting.Dao.Entities;
-    using SoundFingerprinting.DbStorage.Utils;
+    using SoundFingerprinting.Dao.Utils;
 
     internal class FingerprintDao : AbstractDao
     {
@@ -132,8 +132,7 @@ namespace SoundFingerprinting.Dao.Internal
 
             public Fingerprint ToFingerprint()
             {
-                return new Fingerprint(
-                    Id, ArrayUtils.GetBoolArrayFromByte(Signature), TrackId, SongOrder, TotalFingerprintsPerTrack);
+                return new Fingerprint(ArrayUtils.GetBoolArrayFromByte(Signature), TrackId, SongOrder, TotalFingerprintsPerTrack) { Id = Id };
             }
         }
     }

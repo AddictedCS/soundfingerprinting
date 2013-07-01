@@ -69,6 +69,13 @@ namespace SoundFingerprinting.Dao
 
             foreach (var propertyInfo in properties)
             {
+                bool isPropStatic = (propertyInfo.CanRead && propertyInfo.GetGetMethod().IsStatic) || (propertyInfo.CanWrite && propertyInfo.GetSetMethod().IsStatic);
+
+                if (isPropStatic)
+                {
+                    continue;
+                }
+
                 var subParentProperties = new LinkedList<PropertyInfo>(parentProperties);
                 subParentProperties.AddLast(propertyInfo);
 

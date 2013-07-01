@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 
     public class PermutationGeneratorService : IPermutationGeneratorService
     {
@@ -25,7 +26,7 @@
         /// <returns>Dictionary with index of permutation and the list itself</returns>
         public Dictionary<int, int[]> GenerateRandomPermutationsUsingUniqueIndexes(int tables, int keysPerTable, int startIndex, int endIndex)
         {
-            return this.GetAgressiveUniqueRandomPermutations(
+            return GetAgressiveUniqueRandomPermutations(
                 tables * keysPerTable, ElementsPerPermutation, startIndex, endIndex);
         }
 
@@ -52,7 +53,7 @@
         /// </returns>
         public Dictionary<int, int[]> GeneratePermutationsUsingMinMutualInformation(int tables, int keysPerTable, int startIndex, int endIndex, IMinMutualSelector selector)
         {
-            Dictionary<int, int[]> randomperms = this.GetRandomPermutations(PermutationPool, ElementsPerPermutation, startIndex, endIndex);
+            Dictionary<int, int[]> randomperms = GetRandomPermutations(PermutationPool, ElementsPerPermutation, startIndex, endIndex);
             var groups = selector.GetPermutations(randomperms, tables, keysPerTable);
             Dictionary<int, int[]> result = new Dictionary<int, int[]>();
             /*Combine the L Groups between them, in order to get the final set of permutations*/
@@ -78,6 +79,7 @@
         /// <param name = "startIndex">Start index of the permutation [E.g. 0]</param>
         /// <param name = "endIndex">End index of the permutation [E.g. 8192]</param>
         /// <returns>Permutation pool with most unique indexes within permutation set</returns>
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         public Dictionary<int, int[]> GetAgressiveUniqueRandomPermutations(int totalCount, int elementsPerPermutation, int startIndex, int endIndex)
         {
             int seed = unchecked((int)(DateTime.Now.Ticks >> 4));
@@ -92,8 +94,7 @@
 
             /*Maximum is 32 for [0, 8192] elements*/
             int verifyLastLists = (int)Math.Floor(((double)(endIndex - startIndex) / elementsPerPermutation) - 1);
-                
-
+            
             Dictionary<int, int[]> result = new Dictionary<int, int[]>();
 
             for (int i = 0; i < totalCount /*100*/; i++)
@@ -101,7 +102,7 @@
                 int[] possiblePermutation = new int[elementsPerPermutation];
                 for (int j = 0; j < InitialRandomShuffling; j++)
                 {
-                    this.RandomShuffleInPlace(possibleIndixes);
+                    RandomShuffleInPlace(possibleIndixes);
                 }
 
                 for (int j = 0; j < elementsPerPermutation /*255*/; j++)
@@ -168,7 +169,7 @@
                 int[] possiblePermutation = new int[elementsPerPermutation];
                 for (int j = 0; j < InitialRandomShuffling; j++)
                 {
-                    this.RandomShuffleInPlace(possibleIndixes); /*Shuffle the indixes for 100 times*/
+                    RandomShuffleInPlace(possibleIndixes); /*Shuffle the indixes for 100 times*/
                 }
 
                 for (int j = 0; j < elementsPerPermutation /*255*/; j++)

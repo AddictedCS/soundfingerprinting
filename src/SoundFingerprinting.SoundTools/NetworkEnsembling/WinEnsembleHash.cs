@@ -374,7 +374,10 @@
                     long[] hashbins = ensemble.ExtractHashBins(); /*Extract hash bin / hash table*/
                     for (int i = 0; i < hashbins.Length; i++)
                     {
-                        HashBinNeuralHasher hash = new HashBinNeuralHasher(i, hashbins[i], i, track.Id);
+                        HashBinNeuralHasher hash = new HashBinNeuralHasher(hashbins[i], i, track.Id)
+                                                       {
+                                                           Id = i
+                                                       };
                         listToInsert.Add(hash);
                     }
                 }

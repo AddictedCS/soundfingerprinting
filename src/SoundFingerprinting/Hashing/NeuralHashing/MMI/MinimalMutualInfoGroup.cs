@@ -9,10 +9,42 @@
     [Serializable]
     public class MinimalMutualInfoGroup
     {
-        private readonly List<int> _members = new List<int>();
-        private int _groupSize;
+        private readonly List<int> members = new List<int>();
+        private int groupSize;
+
+        #region Constructors
+
+        public MinimalMutualInfoGroup()
+        {
+            groupSize = 22;
+            members = new List<int>();
+        }
+
+        public MinimalMutualInfoGroup(int groupSize)
+        {
+            this.groupSize = groupSize;
+        }
+
+        public MinimalMutualInfoGroup(int groupSize, int startMemberIndex)
+        {
+            this.groupSize = groupSize;
+            members.Add(startMemberIndex);
+        }
+
+        #endregion
 
         #region Propreties
+
+        public int GroupSize
+        {
+            get { return groupSize; }
+            set { groupSize = value; }
+        }
+
+        public int Count
+        {
+            get { return members.Count; }
+        }
 
         /// <summary>
         ///   Gets the element of the hash function that coresponds 
@@ -24,61 +56,13 @@
         {
             get
             {
-                if (index >= _members.Count)
+                if (index >= members.Count)
+                {
                     throw new ArgumentException("Index is outside of bounds");
-                return _members[index];
+                }
+
+                return members[index];
             }
-        }
-
-        /// <summary>
-        ///   Group size
-        /// </summary>
-        public int GroupSize
-        {
-            get { return _groupSize; }
-            set { _groupSize = value; }
-        }
-
-        /// <summary>
-        ///   Number of elements currently in the group
-        /// </summary>
-        public int Count
-        {
-            get { return _members.Count; }
-        }
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        ///   Parameterless constructor
-        ///   Default group size is 22
-        /// </summary>
-        public MinimalMutualInfoGroup()
-        {
-            _groupSize = 22;
-            _members = new List<int>();
-        }
-
-        /// <summary>
-        ///   Constructor
-        /// </summary>
-        /// <param name = "groupSize">Size of the group [22]</param>
-        public MinimalMutualInfoGroup(int groupSize)
-        {
-            _groupSize = groupSize;
-        }
-
-        /// <summary>
-        ///   Constructor
-        /// </summary>
-        /// <param name = "groupSize">Size of the group [22]</param>
-        /// <param name = "startMemberIndex">First element, Highest unconditional entropy</param>
-        public MinimalMutualInfoGroup(int groupSize, int startMemberIndex)
-        {
-            _groupSize = groupSize;
-            _members.Add(startMemberIndex);
         }
 
         #endregion
@@ -90,22 +74,23 @@
         /// <returns>If the addition was succesfull, return true, otherwise - false</returns>
         public bool AddToGroup(int memberIndex)
         {
-            if (_members.Count < _groupSize)
+            if (members.Count < groupSize)
             {
-                _members.Add(memberIndex);
+                members.Add(memberIndex);
                 return true;
             }
+
             return false;
         }
 
         public bool Contains(int element)
         {
-            return _members.Contains(element);
+            return members.Contains(element);
         }
 
         public void Clear()
         {
-            _members.Clear();
+            members.Clear();
         }
     }
 }

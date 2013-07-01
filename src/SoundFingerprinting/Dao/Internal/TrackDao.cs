@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Dao.Internal
 {
-    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Dao.Entities;
@@ -61,9 +60,12 @@ namespace SoundFingerprinting.Dao.Internal
         {
             return
                 PrepareStoredProcedure(SpReadDuplicatedTracks).Execute().AsDictionary(
-                    (reader) =>
-                    new Track(reader.GetInt32("Id"), reader.GetString("Artist"), reader.GetString("Title"), -1),
-                    (reader) => reader.GetInt32("Duplicates"));
+                    reader =>
+                    new Track(reader.GetString("Artist"), reader.GetString("Title"))
+                        {
+                            Id = reader.GetInt32("Id")
+                        },
+                    reader => reader.GetInt32("Duplicates"));
         }
 
         public int DeleteTrack(int trackId)

@@ -1,18 +1,14 @@
 ﻿namespace SoundFingerprinting.Dao.Entities
 {
-    using System;
-
-    [Serializable]
     public abstract class AbstractHashBin
     {
         protected AbstractHashBin()
         {
-            Id = int.MinValue;
+            // no op
         }
 
-        protected AbstractHashBin(int id, long hashBin, int hashTable)
+        protected AbstractHashBin(long hashBin, int hashTable)
         {
-            Id = id;
             HashBin = hashBin;
             HashTable = hashTable;
         }
