@@ -7,9 +7,9 @@
 
     public interface IWithQueryAndFingerprintConfiguration
     {
-        IFingerprintQueryUnit With(IFingerprintingConfiguration fingerprintingConfiguration, Configuration.IQueryConfiguration queryConfiguration);
+        IFingerprintQueryUnit WithConfigurations(IFingerprintingConfiguration fingerprintingConfiguration, IQueryConfiguration queryConfiguration);
 
-        IFingerprintQueryUnit With<T1, T2>() where T1 : IFingerprintingConfiguration, new() where T2 : Configuration.IQueryConfiguration, new();
+        IFingerprintQueryUnit WithConfigurations<T1, T2>() where T1 : IFingerprintingConfiguration, new() where T2 : IQueryConfiguration, new();
 
         IFingerprintQueryUnit WithCustomConfigurations(
             Action<CustomFingerprintingConfiguration> fingerprintingConfiguration, Action<CustomQueryConfiguration> queryConfiguration);

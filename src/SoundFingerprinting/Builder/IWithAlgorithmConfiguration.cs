@@ -6,12 +6,12 @@ namespace SoundFingerprinting.Builder
 
     public interface IWithAlgorithmConfiguration
     {
-        IFingerprintUnit WithAlgorithmConfiguration(IFingerprintingConfiguration configuration);
+        IAudioFingerprintingUnit WithAlgorithmConfiguration(IFingerprintingConfiguration configuration);
 
-        IFingerprintUnit WithAlgorithmConfiguration<T>() where T : IFingerprintingConfiguration, new();
+        IAudioFingerprintingUnit WithAlgorithmConfiguration<T>() where T : IFingerprintingConfiguration, new();
 
-        IFingerprintUnit WithCustomAlgorithmConfiguration(Action<CustomFingerprintingConfiguration> functor);
+        IAudioFingerprintingUnit WithCustomAlgorithmConfiguration(Action<CustomFingerprintingConfiguration> functor);
 
-        IFingerprintUnit WithDefaultAlgorithmConfiguration();
+        IAudioFingerprintingUnit WithDefaultAlgorithmConfiguration();
     }
 }

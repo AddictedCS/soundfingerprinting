@@ -431,7 +431,7 @@
                 try
                 {
                     List<SubFingerprint> subFingerprintsToTrack = fingerprintUnitBuilder
-                           .BuildFingerprints()
+                           .BuildAudioFingerprintingUnit()
                            .From(fileList[i])
                            .WithCustomAlgorithmConfiguration(
                                 config =>

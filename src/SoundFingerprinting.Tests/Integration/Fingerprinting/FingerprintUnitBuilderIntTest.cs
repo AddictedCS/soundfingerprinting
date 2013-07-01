@@ -26,7 +26,7 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
         {
             var track = InsertTrack();
-            var fingerprints = fingerprintUnitBuilderWithNAudio.BuildFingerprints()
+            var fingerprints = fingerprintUnitBuilderWithNAudio.BuildAudioFingerprintingUnit()
                                             .From(PathToMp3)
                                             .WithDefaultAlgorithmConfiguration()
                                             .FingerprintIt()
@@ -43,7 +43,7 @@
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
         {
             var track = InsertTrack();
-            var fingerprints = fingerprintUnitBuilderWithBass.BuildFingerprints()
+            var fingerprints = fingerprintUnitBuilderWithBass.BuildAudioFingerprintingUnit()
                                             .From(PathToMp3)
                                             .WithDefaultAlgorithmConfiguration()
                                             .FingerprintIt()
@@ -59,14 +59,14 @@
         [TestMethod]
         public void CompareFingerprintsCreatedByDifferentProxiesTest()
         {
-            var naudioFingerprints = fingerprintUnitBuilderWithNAudio.BuildFingerprints()
+            var naudioFingerprints = fingerprintUnitBuilderWithNAudio.BuildAudioFingerprintingUnit()
                                                         .From(PathToMp3)
                                                         .WithDefaultAlgorithmConfiguration()
                                                         .FingerprintIt()
                                                         .AsIs()
                                                         .Result;
 
-            var bassFingerprints = fingerprintUnitBuilderWithBass.BuildFingerprints()
+            var bassFingerprints = fingerprintUnitBuilderWithBass.BuildAudioFingerprintingUnit()
                                                  .From(PathToMp3)
                                                  .WithDefaultAlgorithmConfiguration()
                                                  .FingerprintIt()
@@ -108,7 +108,7 @@
                 bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
 
                 long fileSize = new FileInfo(tempFile).Length;
-                var list = fingerprintUnitBuilderWithBass.BuildFingerprints()
+                var list = fingerprintUnitBuilderWithBass.BuildAudioFingerprintingUnit()
                                           .From(PathToMp3)
                                           .WithCustomAlgorithmConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
                                           .FingerprintIt()

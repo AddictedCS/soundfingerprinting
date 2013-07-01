@@ -23,9 +23,9 @@ namespace SoundFingerprinting
             this.minHashService = minHashService;
         }
 
-        public ISourceFrom BuildFingerprints()
+        public ISourceFrom BuildAudioFingerprintingUnit()
         {
-            return new FingerprintUnit(fingerprintService, audioService, minHashService);
+            return new AudioFingerprintingUnit(fingerprintService, audioService, minHashService);
         }
     }
 }
