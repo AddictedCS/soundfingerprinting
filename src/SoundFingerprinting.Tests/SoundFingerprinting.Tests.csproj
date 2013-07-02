@@ -70,6 +70,7 @@
     <Compile Include="Integration\AudioProxies\TagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\DbStorage\ModelServiceTest.cs" />
+    <Compile Include="Unit\Fingerprinting\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintDescriptorTest.cs" />
     <Compile Include="Integration\Fingerprinting\FingerprintUnitBuilderIntTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintQueryBuilderTest.cs" />

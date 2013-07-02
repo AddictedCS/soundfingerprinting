@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
 
     public class CachedFFTWService : FFTWService, IDisposable
     {
@@ -27,7 +28,19 @@
         {
             lock (lockObject)
             {
-                return fftwService.FFTForward(signal, startIndex, length);
+                IntPtr input = GetInput(length);
+                IntPtr output = GetOutput(length);
+                IntPtr fftPlan = GetFFTPlan(length, input, output);
+                float[] applyTo = new float[length];
+                Array.Copy(signal, startIndex, applyTo, 0, length);
+                Marshal.Copy(applyTo, 0, input, length);
+                Execute(fftPlan);
+                float[] result = new float[length * 2];
+                Marshal.Copy(output, result, 0, length);
+                FreeUnmanagedMemory(input);
+                FreeUnmanagedMemory(output);
+                FreePlan(fftPlan);
+                return result;
             }
         }
 
@@ -70,6 +83,11 @@
         public override void FreePlan(IntPtr fftPlan)
         {
             // do nothing    
+        }
+
+        public override void Execute(IntPtr fftPlan)
+        {
+            fftwService.Execute(fftPlan);
         }
 
         public override IntPtr GetFFTPlan(int length, IntPtr input, IntPtr output)

@@ -9,8 +9,6 @@
     [TestClass]
     public class FingerprintUtilsTest : AbstractTest
     {
-        private const double Epsilon = 0.0001;
-        
         [TestMethod]
         public void ConvertToFloatArrayTest()
         {

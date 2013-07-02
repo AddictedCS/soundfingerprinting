@@ -48,5 +48,10 @@
         {
             InteropFFTW.destroy_plan(fftPlan);
         }
+
+        public override void Execute(IntPtr fftPlan)
+        {
+            InteropFFTW.execute(fftPlan);
+        }
     }
 }
