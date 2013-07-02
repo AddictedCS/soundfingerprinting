@@ -73,8 +73,10 @@
     <Compile Include="Unit\Fingerprinting\FingerprintDescriptorTest.cs" />
     <Compile Include="Integration\Fingerprinting\FingerprintUnitBuilderIntTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintQueryBuilderTest.cs" />
+    <Compile Include="Unit\Fingerprinting\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintUnitBuilderTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintUtilsTest.cs" />
+    <Compile Include="Unit\Fingerprinting\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Unit\Fingerprinting\Wavelets\HaarWaveletTest.cs" />
     <Compile Include="Unit\Infrastructure\DependencyResolverTest.cs" />
     <Compile Include="Unit\NeuralHashing\BinaryOutputUtilTest.cs" />

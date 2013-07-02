@@ -10,6 +10,8 @@
     [TestClass]
     public abstract class AbstractTest
     {
+        protected const double Epsilon = 0.0001;
+
         protected const int BitsPerSample = 32;
         
         protected const int SampleRate = 5512;
