@@ -6,15 +6,15 @@
     public interface IStride
     {
         /// <summary>
-        ///   Gets stride size in terms of number of samples, which need to be skipped
+        ///   Gets the first stride
         /// </summary>
-        /// <returns>Number samples to skip, between 2 consecutive overlapping fingerprints</returns>
-        int StrideSize { get; }
+        /// <returns>Called at the very beginning just once (normally it is 0)</returns>
+        int FirstStride { get; }
 
         /// <summary>
-        ///   Gets size of the first stride
+        ///   Gets stride in terms of number of samples, which need to be skipped
         /// </summary>
-        /// <returns>Called at the very beginning just once</returns>
-        int FirstStrideSize { get; }
+        /// <returns>Number samples to skip, between 2 consecutive overlapping fingerprints</returns>
+        int GetNextStride();
     }
 }

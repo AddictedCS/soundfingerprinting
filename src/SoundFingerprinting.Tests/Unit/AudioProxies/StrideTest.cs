@@ -14,7 +14,7 @@
         {
             const int Value = 5115;
             StaticStride stride = new StaticStride(Value);
-            Assert.AreEqual(Value, stride.StrideSize);
+            Assert.AreEqual(Value, stride.GetNextStride());
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@
             const int Count = 1024;
             for (int i = 0; i < Count; i++)
             {
-                int skip = randomStride.StrideSize;
+                int skip = randomStride.GetNextStride();
                 Assert.IsTrue(skip <= Max);
                 Assert.IsTrue(skip >= Min);
             }
@@ -36,7 +36,9 @@
         [ExpectedException(typeof(ArgumentException))]
         public void RandomStrideClassBadMinMaxTest()
         {
+// ReSharper disable ObjectCreationAsStatement
             new RandomStride(253, 0);
+// ReSharper restore ObjectCreationAsStatement
         }
     }
 }

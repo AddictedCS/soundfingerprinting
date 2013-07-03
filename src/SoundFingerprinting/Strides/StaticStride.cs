@@ -3,11 +3,13 @@
     using System;
 
     /// <summary>
-    ///   StaticStride class
+    ///   Static Stride class
     /// </summary>
     [Serializable]
     public class StaticStride : IStride
     {
+        private readonly int nextStride;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="StaticStride"/> class. 
         /// </summary>
@@ -16,8 +18,8 @@
         /// </param>
         public StaticStride(int strideSize)
         {
-            this.StrideSize = strideSize;
-            FirstStrideSize = 0;
+            nextStride = strideSize;
+            FirstStride = 0;
         }
 
         /// <summary>
@@ -31,22 +33,14 @@
         /// </param>
         public StaticStride(int strideSize, int firstStride) : this(strideSize)
         {
-            FirstStrideSize = firstStride;
+            FirstStride = firstStride;
         }
 
-        #region IStride Members
+        public int FirstStride { get; protected set; }
 
-        /// <summary>
-        ///   Gets stride size in terms of bit samples, which need to be skipped
-        /// </summary>
-        /// <returns>Bit samples to skip, between 2 consecutive overlapping fingerprints</returns>
-        public int StrideSize { get; private set; }
-
-        /// <summary>
-        ///   Gets very first stride
-        /// </summary>
-        public int FirstStrideSize { get; private set; }
-
-        #endregion
+        public int GetNextStride()
+        {
+            return nextStride;
+        }
     }
 }
