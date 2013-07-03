@@ -7,11 +7,16 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Query;
+    using SoundFingerprinting.Query.Configuration;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 
@@ -21,6 +26,86 @@
         private readonly ModelService modelService = new ModelService();
         private readonly IFingerprintUnitBuilder fingerprintUnitBuilderWithBass = new FingerprintUnitBuilder(new FingerprintService(), new BassAudioService(), new MinHashService(new DefaultPermutations()));
         private readonly IFingerprintUnitBuilder fingerprintUnitBuilderWithNAudio = new FingerprintUnitBuilder(new FingerprintService(), new NAudioService(), new MinHashService(new DefaultPermutations()));
+        private readonly ILSHService lshService = new LSHService();
+
+        [TestMethod]
+        public void CreateFingerprintsFromDefaultFileAndAssertNumberOfFingerprints()
+        {
+            const int StaticStride = 5115;
+            ITagService tagService = new BassAudioService();
+            
+            var audioFingerprintingUnit = fingerprintUnitBuilderWithBass.BuildAudioFingerprintingUnit()
+                                        .From(PathToMp3)
+                                        .WithCustomAlgorithmConfiguration(config => { config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); });
+                                    
+            double seconds = tagService.GetTagInfo(PathToMp3).Duration;
+            int samples = (int)(seconds * audioFingerprintingUnit.Configuration.SampleRate);
+            int expectedFingerprints = (samples / StaticStride) - 1;
+
+            var fingerprints = audioFingerprintingUnit.FingerprintIt().AsIs().Result;
+
+            Assert.AreEqual(expectedFingerprints, fingerprints.Count);
+        }
+
+        [TestMethod]
+        public void CreateFingerprintsFromDefaultFileAndAssertNumberOfFingerprintsAndSubFingerprints()
+        {
+            var fingerprinter = fingerprintUnitBuilderWithBass.BuildAudioFingerprintingUnit()
+                                        .From(PathToMp3)
+                                        .WithDefaultAlgorithmConfiguration()
+                                        .FingerprintIt();
+
+            var fingerprints = fingerprinter.AsIs().Result;
+            var subFingerprints = fingerprinter.HashIt().AsIs().Result;
+
+            Assert.AreEqual(fingerprints.Count, subFingerprints.Count);
+        }
+
+        [TestMethod]
+        public void CreateFingerprintsInsertThenQueryAndGetTheRightResult()
+        {
+            const int StaticStride = 5115;
+            const int SecondsToProcess = 10;
+            const int StartAtSecond = 30;
+            DefaultQueryConfiguration defaultQueryConfiguration = new DefaultQueryConfiguration();
+            QueryFingerprintService queryFingerprintService = new QueryFingerprintService(new CombinedHashingAlgorithm(), modelService);
+            ITagService tagService = new BassAudioService();
+            TagInfo info = tagService.GetTagInfo(PathToMp3);
+            Track track = new Track(info.Artist, info.Title, modelService.ReadUnknownAlbum().Id);
+            
+            modelService.InsertTrack(track);
+
+            var fingerprinter = fingerprintUnitBuilderWithBass.BuildAudioFingerprintingUnit()
+                                            .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                                            .WithCustomAlgorithmConfiguration(config =>
+                                                {
+                                                    config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
+                                                })
+                                            .FingerprintIt();
+
+            var fingerprints = fingerprinter.AsIs().Result;
+            var subFingerprints = fingerprinter.HashIt().ForTrack(track.Id).Result;
+
+            modelService.InsertSubFingerprint(subFingerprints);
+
+            List<HashBinMinHash> hashBins = new List<HashBinMinHash>();
+            foreach (SubFingerprint subFingerprint in subFingerprints)
+            {
+                long[] groupedSubFingerprint = lshService.Hash(subFingerprint.Signature, defaultQueryConfiguration.NumberOfLSHTables, defaultQueryConfiguration.NumberOfMinHashesPerTable);
+                for (int i = 0; i < groupedSubFingerprint.Length; i++)
+                {
+                    int tableNumber = i + 1;
+                    hashBins.Add(new HashBinMinHash(groupedSubFingerprint[i], tableNumber, subFingerprint.Id));
+                }
+            }
+
+            modelService.InsertHashBin(hashBins);
+
+            QueryResult result = queryFingerprintService.Query(fingerprints, defaultQueryConfiguration);
+
+            Assert.IsTrue(result.IsSuccessful);
+            Assert.AreEqual(track.Id, result.BestMatch.Id);
+        }
 
         [TestMethod]
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
