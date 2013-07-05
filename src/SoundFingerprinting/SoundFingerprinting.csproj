@@ -153,7 +153,7 @@
     <Compile Include="Wavelets\IWaveletService.cs" />
     <Compile Include="FFT\SpectrumService.cs" />
     <Compile Include="Wavelets\WaveletService.cs" />
-    <Compile Include="Builder\FingerprintUnit.cs" />
+    <Compile Include="Builder\AudioFingerprintingUnit.cs" />
     <Compile Include="Builder\ISourceFrom.cs" />
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\IntegralImage.cs" />
@@ -161,7 +161,7 @@
     <Compile Include="Utils\ConstantQ\SparKernel.cs" />
     <Compile Include="Wavelets\WaveletUtils.cs" />
     <Compile Include="Builder\IWithAlgorithmConfiguration.cs" />
-    <Compile Include="Builder\IFingerprintUnit.cs" />
+    <Compile Include="Builder\IAudioFingerprintingUnit.cs" />
     <Compile Include="IFingerprintUnitBuilder.cs" />
     <Compile Include="FingerprintUnitBuilder.cs" />
     <Compile Include="Hashing\ICombinedHashingAlgoritm.cs" />

@@ -11,7 +11,7 @@ namespace SoundFingerprinting.Builder
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.MinHash;
 
-    internal sealed class FingerprintUnit : ISourceFrom, IWithAlgorithmConfiguration, IFingerprintUnit, IFingerprinter, IHasher
+    internal sealed class AudioFingerprintingUnit : ISourceFrom, IWithAlgorithmConfiguration, IAudioFingerprintingUnit, IFingerprinter, IHasher
     {
         private readonly IAudioService audioService;
 
@@ -23,7 +23,7 @@ namespace SoundFingerprinting.Builder
 
         private Func<List<bool[]>> createFingerprintsMethod;
 
-        public FingerprintUnit(IFingerprintService fingerprintService, IAudioService audioService, IMinHashService minHashService)
+        public AudioFingerprintingUnit(IFingerprintService fingerprintService, IAudioService audioService, IMinHashService minHashService)
         {
             this.fingerprintService = fingerprintService;
             this.audioService = audioService;
@@ -128,19 +128,19 @@ namespace SoundFingerprinting.Builder
             return this;
         }
 
-        public IFingerprintUnit WithAlgorithmConfiguration(IFingerprintingConfiguration configuration)
+        public IAudioFingerprintingUnit WithAlgorithmConfiguration(IFingerprintingConfiguration configuration)
         {
             Configuration = configuration;
             return this;
         }
 
-        public IFingerprintUnit WithAlgorithmConfiguration<T>() where T : IFingerprintingConfiguration, new()
+        public IAudioFingerprintingUnit WithAlgorithmConfiguration<T>() where T : IFingerprintingConfiguration, new()
         {
             Configuration = new T();
             return this;
         }
 
-        public IFingerprintUnit WithCustomAlgorithmConfiguration(Action<CustomFingerprintingConfiguration> functor)
+        public IAudioFingerprintingUnit WithCustomAlgorithmConfiguration(Action<CustomFingerprintingConfiguration> functor)
         {
             CustomFingerprintingConfiguration customFingerprintingConfiguration = new CustomFingerprintingConfiguration();
             Configuration = customFingerprintingConfiguration;
@@ -148,7 +148,7 @@ namespace SoundFingerprinting.Builder
             return this;
         }
 
-        public IFingerprintUnit WithDefaultAlgorithmConfiguration()
+        public IAudioFingerprintingUnit WithDefaultAlgorithmConfiguration()
         {
             Configuration = new DefaultFingerprintingConfiguration();
             return this;

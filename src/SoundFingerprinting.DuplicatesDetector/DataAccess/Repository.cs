@@ -47,7 +47,7 @@
             }
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
-            List<bool[]> fingerprints = fingerprintUnitBuilder.BuildFingerprints()
+            List<bool[]> fingerprints = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
                                                        .From(samples)
                                                        .WithCustomAlgorithmConfiguration(config => config.Stride = stride)
                                                        .FingerprintIt()

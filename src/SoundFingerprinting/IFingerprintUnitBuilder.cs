@@ -4,6 +4,6 @@ namespace SoundFingerprinting
 
     public interface IFingerprintUnitBuilder
     {
-        ISourceFrom BuildFingerprints();
+        ISourceFrom BuildAudioFingerprintingUnit();
     }
 }

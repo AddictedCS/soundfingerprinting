@@ -121,7 +121,7 @@
                         int startAtSecond = (int)_nudStartAtSecond.Value;
                         int firstQueryStride = (int)_nudFirstQueryStride.Value;
 
-                        var databaseSong = fingerprintUnitBuilder.BuildFingerprints()
+                        var databaseSong = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
                                                   .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
                                                   .WithCustomAlgorithmConfiguration(
                                                     config =>
@@ -136,12 +136,12 @@
                                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                         });
 
-                        IFingerprintUnit querySong;
+                        IAudioFingerprintingUnit querySong;
                         int comparisonStride = (int)_nudQueryStride.Value;
                         if (_chbCompare.Checked)
                         {
                             querySong =
-                                fingerprintUnitBuilder.BuildFingerprints()
+                                fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
                                                           .From(_tbSongToCompare.Text, secondsToProcess, startAtSecond)
                                                           .WithCustomAlgorithmConfiguration(
                                                               config =>
@@ -161,7 +161,7 @@
                         else
                         {
                             querySong =
-                                fingerprintUnitBuilder.BuildFingerprints()
+                                fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
                                                           .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
                                                           .WithCustomAlgorithmConfiguration(
                                                               config =>
@@ -224,7 +224,7 @@
                     }).ContinueWith(result => FadeControls(true));
         }
 
-        private void GetFingerprintSimilarity(IFingerprintUnit databaseSong, IFingerprintUnit querySong, SimilarityResult results)
+        private void GetFingerprintSimilarity(IAudioFingerprintingUnit databaseSong, IAudioFingerprintingUnit querySong, SimilarityResult results)
         {
             double sum = 0;
 

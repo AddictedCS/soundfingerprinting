@@ -1,59 +1,25 @@
 ﻿namespace SoundFingerprinting.Strides
 {
-    using System;
-
-    /// <summary>
-    ///   Incremental random stride
-    /// </summary>
-    public class IncrementalRandomStride : IStride
+    public class IncrementalRandomStride : RandomStride
     {
-        private static readonly Random Random = new Random(unchecked((int)DateTime.Now.Ticks));
-
-        private readonly int firstStride;
-
+        private readonly int samplesPerFingerprint;
+         
         public IncrementalRandomStride(int minStride, int maxStride, int samplesPerFingerprint)
+            : base(minStride, maxStride)
         {
-            Min = minStride;
-            Max = maxStride;
-            SamplesPerFingerprint = samplesPerFingerprint;
-            firstStride = Random.Next(minStride, maxStride);
+            this.samplesPerFingerprint = samplesPerFingerprint;
+            FirstStride = Random.Next(minStride, maxStride);
         }
 
         public IncrementalRandomStride(int minStride, int maxStride, int samplesPerFingerprint, int firstStride)
             : this(minStride, maxStride, samplesPerFingerprint)
         {
-            this.firstStride = firstStride;
+            FirstStride = firstStride;
         }
 
-        /// <summary>
-        ///  Gets or sets minimal step between consecutive strides
-        /// </summary>
-        public int Min { get; set; }
-
-        /// <summary>
-        ///   Gets or sets maximal step between consecutive strides
-        /// </summary>
-        public int Max { get; set; }
-
-        /// <summary>
-        ///   Gets or sets number of samples per signature
-        /// </summary>
-        public int SamplesPerFingerprint { get; set; }
-
-        public int StrideSize
+        public override int GetNextStride()
         {
-            get
-            {
-                return -SamplesPerFingerprint + Random.Next(Min, Max);
-            }
-        }
-
-        public int FirstStrideSize
-        {
-            get
-            {
-                return firstStride;
-            }
+            return -samplesPerFingerprint + Random.Next(Min, Max);
         }
     }
 }

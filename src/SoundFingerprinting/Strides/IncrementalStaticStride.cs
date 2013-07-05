@@ -1,43 +1,22 @@
 ﻿namespace SoundFingerprinting.Strides
 {
-    /// <summary>
-    ///   Incremental stride
-    /// </summary>
-    public class IncrementalStaticStride : IStride
+    using System;
+
+    public class IncrementalStaticStride : StaticStride
     {
-        private readonly int incrementBy;
-
-        private readonly int firstStride;
-
-        public IncrementalStaticStride(int incrementBy, int samplesInFingerprint)
+        public IncrementalStaticStride(int incrementBy, int samplesPerFingerprint)
+            : base(-samplesPerFingerprint + incrementBy) /*Negative stride will guarantee that the signal is incremented by the parameter specified*/
         {
-            this.incrementBy = -samplesInFingerprint + incrementBy; /*Negative stride will guarantee that the signal is incremented by the parameter specified*/
-            firstStride = 0;
-        }
-
-        public IncrementalStaticStride(int incrementBy, int samplesInFingerprint, int firstStride) : this(incrementBy, samplesInFingerprint)
-        {
-            this.firstStride = firstStride;
-        }
-
-        #region IStride Members
-        
-        public int StrideSize
-        {
-            get
+            if (incrementBy <= 0)
             {
-                return incrementBy;
+                throw new ArgumentException("Bad parameter. IncrementBy should be strictly bigger than 0");
             }
         }
 
-        public int FirstStrideSize
+        public IncrementalStaticStride(int incrementBy, int samplesPerFingerprint, int firstStride)
+            : this(incrementBy, samplesPerFingerprint)
         {
-            get
-            {
-                return firstStride;
-            }
+            FirstStride = firstStride;
         }
-
-        #endregion
     }
 }

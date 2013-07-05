@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.FFT.FFTW
 {
     using System;
+    using System.Runtime.InteropServices;
 
     public abstract class FFTWService : IFFTService
     {
@@ -15,5 +16,7 @@
         public abstract void FreeUnmanagedMemory(IntPtr memoryBlock);
 
         public abstract void FreePlan(IntPtr fftPlan);
+
+        public abstract void Execute(IntPtr fftPlan);
     }
 }

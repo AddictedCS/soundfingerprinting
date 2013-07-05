@@ -92,7 +92,7 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = fingerprintUnitBuilder.BuildFingerprints().From(songFileName).WithCustomAlgorithmConfiguration(
+                                var songToDraw = fingerprintUnitBuilder.BuildAudioFingerprintingUnit().From(songFileName).WithCustomAlgorithmConfiguration(
                                     config =>
                                         {
                                             config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
@@ -124,7 +124,7 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = this.fingerprintUnitBuilder.BuildFingerprints().From(songFileName).WithCustomAlgorithmConfiguration(
+                                var songToDraw = this.fingerprintUnitBuilder.BuildAudioFingerprintingUnit().From(songFileName).WithCustomAlgorithmConfiguration(
                                     config => { config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint); });
                                 List<bool[]> result = songToDraw.FingerprintIt().AsIs().Result;
                                 int i = -1;

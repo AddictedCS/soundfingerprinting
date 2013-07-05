@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Builder
 {
     using SoundFingerprinting.Configuration;
 
-    public interface IFingerprintUnit
+    public interface IAudioFingerprintingUnit
     {
         IFingerprintingConfiguration Configuration { get; }
 
