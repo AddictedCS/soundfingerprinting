@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Pre-Release package. More to come in following releases.</releaseNotes>
+    <copyright>Copyright 2013, Ciumac Sergiu</copyright>
+    <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
+  </metadata>
+	<files>
+		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net35" />
+		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net40" />
+		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net45" />
+		<file src="..\Externals\Bass\x64\*.dll" target="native\x64" />
+		<file src="..\Externals\Bass\x86\*.dll" target="native\x86" />
+		<file src="..\Externals\FFTW\x64\*.dll" target="native\x64" />
+		<file src="..\Externals\FFTW\x86\*.dll" target="native\x86" />
+		<file src="..\Scripts\*.ps1" target="tools\net35" />
+		<file src="..\Scripts\*.ps1" target="tools\net40" />
+		<file src="..\Scripts\*.ps1" target="tools\net45" />
+	</files>
+</package>

@@ -1,0 +1,16 @@
+release/
+debug/
+msbuild.log
+*.suo
+*.user
+bin
+Bin
+obj
+_ReSharper*
+*.csproj.user
+*.resharper.user
+*.suo
+*.cache
+*.nupkg
+TestResult.xml
+src/TestResults/

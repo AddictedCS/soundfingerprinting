@@ -1,0 +1,28 @@
+﻿<Window x:Class="SoundFingerprinting.DuplicatesDetector.View.GenericView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ViewModel="clr-namespace:SoundFingerprinting.DuplicatesDetector.ViewModel" xmlns:View="clr-namespace:SoundFingerprinting.DuplicatesDetector.View" Title="Results" Width="640" Height="450" MinWidth="640" MinHeight="450" Icon="..\Images\icon.png">
+	<Window.Resources>
+		<DataTemplate DataType="{x:Type ViewModel:ReportViewModel}">
+			<View:ReportView />
+		</DataTemplate>
+	</Window.Resources>
+
+	<Grid>
+		<Grid.Background>
+			<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" MappingMode="RelativeToBoundingBox">
+				<GradientStop Color="Black" />
+				<GradientStop Color="#FF140C49" Offset="1" />
+				<GradientStop Color="#FF0A0626" Offset="0.6" />
+			</LinearGradientBrush>
+		</Grid.Background>
+		<Border CornerRadius="5">
+			<Grid>
+				<ItemsControl ItemsSource="{Binding Workspaces}" Margin="10,10,10,10">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<Grid />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+				</ItemsControl>
+			</Grid>
+		</Border>
+	</Grid>
+</Window>
