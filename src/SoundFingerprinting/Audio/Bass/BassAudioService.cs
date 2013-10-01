@@ -339,6 +339,11 @@
         public TagInfo GetTagInfo(string pathToAudioFile)
         {
             TAG_INFO tags = BassTags.BASS_TAG_GetFromFile(pathToAudioFile);
+            if (tags == null)
+            {
+                return new TagInfo { IsEmpty = true };
+            }
+
             TagInfo tag = new TagInfo
                               {
                                   Duration = tags.duration,

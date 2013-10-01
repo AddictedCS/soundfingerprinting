@@ -367,7 +367,7 @@
                 }
 
                 TagInfo tags = tagService.GetTagInfo(fileList[i]); // Get Tags from file
-                if (tags == null)
+                if (tags == null || tags.IsEmpty)
                 {
                     // TAGS are null
                     badFiles++;

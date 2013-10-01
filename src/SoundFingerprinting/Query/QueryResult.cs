@@ -9,5 +9,7 @@
         public int Similarity { get; set; }
 
         public Track BestMatch { get; set; }
+
+        public int NumberOfCandidates { get; set; }
     }
 }

@@ -73,7 +73,7 @@
             _dgvResults.Columns[ColResult].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(ColHammingAvg, "Hamming Distance");
             _dgvResults.Columns[ColHammingAvg].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColElapsedTime, "Elapsed Time");
+            _dgvResults.Columns.Add(ColElapsedTime, "Number of candidates");
             _dgvResults.Columns[ColElapsedTime].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             // ReSharper restore PossibleNullReferenceException
             _btnExport.Enabled = false;
@@ -95,7 +95,7 @@
                 string pathToFile = fileList[i]; /*Path to song to recognize*/
                 TagInfo tags = tagService.GetTagInfo(pathToFile); // Get Tags from file
 
-                if (tags == null)
+                if (tags == null || tags.IsEmpty)
                 {
                     // TAGS are null
                     AddGridLine(new object[] { "TAGS ARE NULL", pathToFile }, Color.Red);
@@ -163,7 +163,7 @@
                     new object[]
                             {
                                 title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist, actualTrack == null || actualTrack.Id == recognizedTrack.Id,
-                                queryResult.Similarity, -1
+                                queryResult.Similarity, queryResult.NumberOfCandidates
                             },
                     Color.Empty);
 

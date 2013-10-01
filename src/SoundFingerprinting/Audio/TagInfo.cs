@@ -2,6 +2,8 @@
 {
     public class TagInfo
     {
+        public bool IsEmpty { get; set; }
+
         public double Duration { get; set; }
 
         public string Album { get; set; }
