@@ -38,6 +38,11 @@
             return distance;
         }
 
+        public static int CalculateHammingSimilarity(byte[] a, byte[] b)
+        {
+            return a.Length - CalculateHammingDistance(a, b);
+        }
+
         /// <summary>
         ///   Calculate hamming distance between 2 longs
         /// </summary>

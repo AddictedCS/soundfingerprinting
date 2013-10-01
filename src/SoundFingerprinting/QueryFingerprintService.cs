@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Hashing;
@@ -27,25 +28,28 @@
 
         public QueryResult Query(IEnumerable<bool[]> fingerprints, IQueryConfiguration queryConfiguration)
         {
-            int bestMatch = 0;
-            int minDistance = int.MaxValue;
+            Dictionary<int, int> hammingSimilarities = new Dictionary<int, int>();
             foreach (var fingerprint in fingerprints)
             {
                 var tuple = hashingAlgorithm.Hash(fingerprint, queryConfiguration.NumberOfLSHTables, queryConfiguration.NumberOfMinHashesPerTable);
                 var subFingerprints = modelService.ReadSubFingerprintsByHashBucketsHavingThreshold(tuple.Item2, queryConfiguration.ThresholdVotes);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int distance = HashingUtils.CalculateHammingDistance(tuple.Item1, subFingerprint.Item1.Signature);
-                    if (minDistance > distance)
+                    int similarity = HashingUtils.CalculateHammingSimilarity(tuple.Item1, subFingerprint.Item1.Signature);
+                    if (hammingSimilarities.ContainsKey(subFingerprint.Item1.TrackId))
                     {
-                        bestMatch = subFingerprint.Item1.TrackId;
-                        minDistance = distance;
+                        hammingSimilarities[subFingerprint.Item1.TrackId] += similarity;
+                    }
+                    else
+                    {
+                        hammingSimilarities.Add(subFingerprint.Item1.TrackId, similarity);
                     }
                 }
             }
 
-            if (bestMatch != 0)
+            if (hammingSimilarities.Any())
             {
+                int bestMatch = hammingSimilarities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
                 return new QueryResult { BestMatch = modelService.ReadTrackById(bestMatch), IsSuccessful = true };
             }
 
