@@ -1,6 +1,7 @@
 namespace SoundFingerprinting
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
@@ -53,10 +54,20 @@ namespace SoundFingerprinting
             foreach (var spectralImage in spectralImages)
             {
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets);
+                if (IsSilence(image))
+                {
+                    continue;
+                }
+
                 fingerprints.Add(image);
             }
 
             return fingerprints;
+        }
+
+        private bool IsSilence(IEnumerable<bool> image)
+        {
+            return image.All(b => b == false);
         }
     }
 }
