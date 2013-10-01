@@ -32,15 +32,17 @@
             this._cmbConnectionString = new System.Windows.Forms.ComboBox();
             this._nudQueryStrideMax = new System.Windows.Forms.NumericUpDown();
             this._lbQueryStride = new System.Windows.Forms.Label();
-            this._nudNumberOfFingerprints = new System.Windows.Forms.NumericUpDown();
+            this._numSecondsToAnalyze = new System.Windows.Forms.NumericUpDown();
             this._lbNumberOfFingerprintsToAnalyze = new System.Windows.Forms.Label();
             this._gbSettings = new System.Windows.Forms.GroupBox();
             this._gbQueryMicrophoneBox = new System.Windows.Forms.GroupBox();
+            this._nudSampleRate = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this._nudSecondsToRecord = new System.Windows.Forms.NumericUpDown();
             this._btnQueryFromMicrophone = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this._numStaratSeconds = new System.Windows.Forms.NumericUpDown();
+            this._numStartAtSecond = new System.Windows.Forms.NumericUpDown();
             this._labMinStride = new System.Windows.Forms.Label();
             this._nudQueryStrideMin = new System.Windows.Forms.NumericUpDown();
             this._labStrideType = new System.Windows.Forms.Label();
@@ -69,14 +71,14 @@
             this._labKeys = new System.Windows.Forms.Label();
             this._labHashtables = new System.Windows.Forms.Label();
             this._labThresholdTables = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this._nudSampleRate = new System.Windows.Forms.NumericUpDown();
+            this.cbFullSong = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStrideMax)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudNumberOfFingerprints)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numSecondsToAnalyze)).BeginInit();
             this._gbSettings.SuspendLayout();
             this._gbQueryMicrophoneBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._nudSampleRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudSecondsToRecord)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numStaratSeconds)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numStartAtSecond)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStrideMin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTotalSongs)).BeginInit();
             this._gbNeuralHasher.SuspendLayout();
@@ -85,7 +87,6 @@
             ((System.ComponentModel.ISupportInitialize)(this._nudTopWavelets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudKeys)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudHashtables)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudSampleRate)).BeginInit();
             this.SuspendLayout();
             // 
             // _labConnectionString
@@ -105,7 +106,7 @@
             this._cmbConnectionString.FormattingEnabled = true;
             this._cmbConnectionString.Location = new System.Drawing.Point(9, 32);
             this._cmbConnectionString.Name = "_cmbConnectionString";
-            this._cmbConnectionString.Size = new System.Drawing.Size(537, 21);
+            this._cmbConnectionString.Size = new System.Drawing.Size(536, 21);
             this._cmbConnectionString.TabIndex = 1;
             // 
             // _nudQueryStrideMax
@@ -134,13 +135,13 @@
             this._lbQueryStride.TabIndex = 50;
             this._lbQueryStride.Text = "3. Max Stride";
             // 
-            // _nudNumberOfFingerprints
+            // _numSecondsToAnalyze
             // 
-            this._nudNumberOfFingerprints.Location = new System.Drawing.Point(9, 72);
-            this._nudNumberOfFingerprints.Name = "_nudNumberOfFingerprints";
-            this._nudNumberOfFingerprints.Size = new System.Drawing.Size(120, 20);
-            this._nudNumberOfFingerprints.TabIndex = 47;
-            this._nudNumberOfFingerprints.Value = new decimal(new int[] {
+            this._numSecondsToAnalyze.Location = new System.Drawing.Point(9, 72);
+            this._numSecondsToAnalyze.Name = "_numSecondsToAnalyze";
+            this._numSecondsToAnalyze.Size = new System.Drawing.Size(120, 20);
+            this._numSecondsToAnalyze.TabIndex = 47;
+            this._numSecondsToAnalyze.Value = new decimal(new int[] {
             10,
             0,
             0,
@@ -160,9 +161,10 @@
             this._gbSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._gbSettings.Controls.Add(this.cbFullSong);
             this._gbSettings.Controls.Add(this._gbQueryMicrophoneBox);
             this._gbSettings.Controls.Add(this.label3);
-            this._gbSettings.Controls.Add(this._numStaratSeconds);
+            this._gbSettings.Controls.Add(this._numStartAtSecond);
             this._gbSettings.Controls.Add(this._labMinStride);
             this._gbSettings.Controls.Add(this._nudQueryStrideMin);
             this._gbSettings.Controls.Add(this._labStrideType);
@@ -184,11 +186,11 @@
             this._gbSettings.Controls.Add(this._nudQueryStrideMax);
             this._gbSettings.Controls.Add(this._cmbConnectionString);
             this._gbSettings.Controls.Add(this._lbQueryStride);
-            this._gbSettings.Controls.Add(this._nudNumberOfFingerprints);
+            this._gbSettings.Controls.Add(this._numSecondsToAnalyze);
             this._gbSettings.Controls.Add(this._lbNumberOfFingerprintsToAnalyze);
             this._gbSettings.Location = new System.Drawing.Point(12, 12);
             this._gbSettings.Name = "_gbSettings";
-            this._gbSettings.Size = new System.Drawing.Size(555, 411);
+            this._gbSettings.Size = new System.Drawing.Size(554, 455);
             this._gbSettings.TabIndex = 53;
             this._gbSettings.TabStop = false;
             this._gbSettings.Text = "Settings";
@@ -200,12 +202,38 @@
             this._gbQueryMicrophoneBox.Controls.Add(this.label4);
             this._gbQueryMicrophoneBox.Controls.Add(this._nudSecondsToRecord);
             this._gbQueryMicrophoneBox.Controls.Add(this._btnQueryFromMicrophone);
-            this._gbQueryMicrophoneBox.Location = new System.Drawing.Point(9, 315);
+            this._gbQueryMicrophoneBox.Location = new System.Drawing.Point(9, 351);
             this._gbQueryMicrophoneBox.Name = "_gbQueryMicrophoneBox";
             this._gbQueryMicrophoneBox.Size = new System.Drawing.Size(257, 88);
             this._gbQueryMicrophoneBox.TabIndex = 76;
             this._gbQueryMicrophoneBox.TabStop = false;
             this._gbQueryMicrophoneBox.Text = "Query from mic";
+            // 
+            // _nudSampleRate
+            // 
+            this._nudSampleRate.Location = new System.Drawing.Point(150, 32);
+            this._nudSampleRate.Maximum = new decimal(new int[] {
+            44100,
+            0,
+            0,
+            0});
+            this._nudSampleRate.Name = "_nudSampleRate";
+            this._nudSampleRate.Size = new System.Drawing.Size(101, 20);
+            this._nudSampleRate.TabIndex = 77;
+            this._nudSampleRate.Value = new decimal(new int[] {
+            5512,
+            0,
+            0,
+            0});
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(149, 16);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(63, 13);
+            this.label5.TabIndex = 76;
+            this.label5.Text = "Sample rate";
             // 
             // label4
             // 
@@ -252,13 +280,13 @@
             this.label3.TabIndex = 72;
             this.label3.Text = "Start at second";
             // 
-            // _numStaratSeconds
+            // _numStartAtSecond
             // 
-            this._numStaratSeconds.Location = new System.Drawing.Point(142, 72);
-            this._numStaratSeconds.Name = "_numStaratSeconds";
-            this._numStaratSeconds.Size = new System.Drawing.Size(120, 20);
-            this._numStaratSeconds.TabIndex = 71;
-            this._numStaratSeconds.Value = new decimal(new int[] {
+            this._numStartAtSecond.Location = new System.Drawing.Point(142, 72);
+            this._numStartAtSecond.Name = "_numStartAtSecond";
+            this._numStartAtSecond.Size = new System.Drawing.Size(120, 20);
+            this._numStartAtSecond.TabIndex = 71;
+            this._numStartAtSecond.Value = new decimal(new int[] {
             20,
             0,
             0,
@@ -293,7 +321,7 @@
             // _labStrideType
             // 
             this._labStrideType.AutoSize = true;
-            this._labStrideType.Location = new System.Drawing.Point(293, 95);
+            this._labStrideType.Location = new System.Drawing.Point(291, 94);
             this._labStrideType.Name = "_labStrideType";
             this._labStrideType.Size = new System.Drawing.Size(57, 13);
             this._labStrideType.TabIndex = 68;
@@ -303,7 +331,7 @@
             // 
             this._cmbStrideType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._cmbStrideType.FormattingEnabled = true;
-            this._cmbStrideType.Location = new System.Drawing.Point(296, 110);
+            this._cmbStrideType.Location = new System.Drawing.Point(294, 110);
             this._cmbStrideType.Name = "_cmbStrideType";
             this._cmbStrideType.Size = new System.Drawing.Size(114, 21);
             this._cmbStrideType.TabIndex = 67;
@@ -311,7 +339,7 @@
             // _labTotal
             // 
             this._labTotal.AutoSize = true;
-            this._labTotal.Location = new System.Drawing.Point(402, 291);
+            this._labTotal.Location = new System.Drawing.Point(402, 316);
             this._labTotal.Name = "_labTotal";
             this._labTotal.Size = new System.Drawing.Size(64, 13);
             this._labTotal.TabIndex = 66;
@@ -320,7 +348,7 @@
             // _nudTotalSongs
             // 
             this._nudTotalSongs.Enabled = false;
-            this._nudTotalSongs.Location = new System.Drawing.Point(472, 289);
+            this._nudTotalSongs.Location = new System.Drawing.Point(472, 314);
             this._nudTotalSongs.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -334,7 +362,7 @@
             // _btnStart
             // 
             this._btnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnStart.Location = new System.Drawing.Point(471, 315);
+            this._btnStart.Location = new System.Drawing.Point(470, 340);
             this._btnStart.Name = "_btnStart";
             this._btnStart.Size = new System.Drawing.Size(75, 23);
             this._btnStart.TabIndex = 64;
@@ -345,7 +373,7 @@
             // _btnBrowseSong
             // 
             this._btnBrowseSong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._btnBrowseSong.Location = new System.Drawing.Point(295, 286);
+            this._btnBrowseSong.Location = new System.Drawing.Point(294, 311);
             this._btnBrowseSong.Name = "_btnBrowseSong";
             this._btnBrowseSong.Size = new System.Drawing.Size(75, 23);
             this._btnBrowseSong.TabIndex = 63;
@@ -356,7 +384,7 @@
             // _tbSingleFile
             // 
             this._tbSingleFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._tbSingleFile.Location = new System.Drawing.Point(295, 263);
+            this._tbSingleFile.Location = new System.Drawing.Point(294, 288);
             this._tbSingleFile.Name = "_tbSingleFile";
             this._tbSingleFile.ReadOnly = true;
             this._tbSingleFile.Size = new System.Drawing.Size(251, 20);
@@ -366,7 +394,7 @@
             // 
             this._labSong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this._labSong.AutoSize = true;
-            this._labSong.Location = new System.Drawing.Point(292, 247);
+            this._labSong.Location = new System.Drawing.Point(291, 272);
             this._labSong.Name = "_labSong";
             this._labSong.Size = new System.Drawing.Size(63, 13);
             this._labSong.TabIndex = 61;
@@ -374,7 +402,7 @@
             // 
             // _btnBrowseFolder
             // 
-            this._btnBrowseFolder.Location = new System.Drawing.Point(9, 286);
+            this._btnBrowseFolder.Location = new System.Drawing.Point(9, 315);
             this._btnBrowseFolder.Name = "_btnBrowseFolder";
             this._btnBrowseFolder.Size = new System.Drawing.Size(75, 23);
             this._btnBrowseFolder.TabIndex = 60;
@@ -385,7 +413,7 @@
             // _labSongs
             // 
             this._labSongs.AutoSize = true;
-            this._labSongs.Location = new System.Drawing.Point(10, 247);
+            this._labSongs.Location = new System.Drawing.Point(12, 266);
             this._labSongs.Name = "_labSongs";
             this._labSongs.Size = new System.Drawing.Size(203, 13);
             this._labSongs.TabIndex = 59;
@@ -393,7 +421,7 @@
             // 
             // _tbRootFolder
             // 
-            this._tbRootFolder.Location = new System.Drawing.Point(9, 263);
+            this._tbRootFolder.Location = new System.Drawing.Point(9, 288);
             this._tbRootFolder.Name = "_tbRootFolder";
             this._tbRootFolder.ReadOnly = true;
             this._tbRootFolder.Size = new System.Drawing.Size(257, 20);
@@ -403,7 +431,7 @@
             // 
             this._labAlgorithm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this._labAlgorithm.AutoSize = true;
-            this._labAlgorithm.Location = new System.Drawing.Point(292, 56);
+            this._labAlgorithm.Location = new System.Drawing.Point(413, 94);
             this._labAlgorithm.Name = "_labAlgorithm";
             this._labAlgorithm.Size = new System.Drawing.Size(62, 13);
             this._labAlgorithm.TabIndex = 57;
@@ -417,9 +445,9 @@
             this._cmbAlgorithm.Items.AddRange(new object[] {
             "MinHash",
             "Neural Hasher"});
-            this._cmbAlgorithm.Location = new System.Drawing.Point(295, 71);
+            this._cmbAlgorithm.Location = new System.Drawing.Point(416, 110);
             this._cmbAlgorithm.Name = "_cmbAlgorithm";
-            this._cmbAlgorithm.Size = new System.Drawing.Size(251, 21);
+            this._cmbAlgorithm.Size = new System.Drawing.Size(129, 21);
             this._cmbAlgorithm.TabIndex = 56;
             this._cmbAlgorithm.SelectedIndexChanged += new System.EventHandler(this.CmbAlgorithmSelectedIndexChanged);
             // 
@@ -429,7 +457,7 @@
             this._gbNeuralHasher.Controls.Add(this._btnSelect);
             this._gbNeuralHasher.Controls.Add(this.label1);
             this._gbNeuralHasher.Controls.Add(this._tbPathToEnsemble);
-            this._gbNeuralHasher.Location = new System.Drawing.Point(295, 137);
+            this._gbNeuralHasher.Location = new System.Drawing.Point(294, 137);
             this._gbNeuralHasher.Name = "_gbNeuralHasher";
             this._gbNeuralHasher.Size = new System.Drawing.Size(257, 107);
             this._gbNeuralHasher.TabIndex = 55;
@@ -572,50 +600,36 @@
             this._labThresholdTables.TabIndex = 47;
             this._labThresholdTables.Text = "Threshold";
             // 
-            // label5
+            // cbFullSong
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(149, 16);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(63, 13);
-            this.label5.TabIndex = 76;
-            this.label5.Text = "Sample rate";
-            // 
-            // _nudSampleRate
-            // 
-            this._nudSampleRate.Location = new System.Drawing.Point(150, 32);
-            this._nudSampleRate.Maximum = new decimal(new int[] {
-            44100,
-            0,
-            0,
-            0});
-            this._nudSampleRate.Name = "_nudSampleRate";
-            this._nudSampleRate.Size = new System.Drawing.Size(101, 20);
-            this._nudSampleRate.TabIndex = 77;
-            this._nudSampleRate.Value = new decimal(new int[] {
-            5512,
-            0,
-            0,
-            0});
+            this.cbFullSong.AutoSize = true;
+            this.cbFullSong.Location = new System.Drawing.Point(294, 72);
+            this.cbFullSong.Name = "cbFullSong";
+            this.cbFullSong.Size = new System.Drawing.Size(70, 17);
+            this.cbFullSong.TabIndex = 77;
+            this.cbFullSong.Text = "Full Song";
+            this.cbFullSong.UseVisualStyleBackColor = true;
+            this.cbFullSong.CheckedChanged += new System.EventHandler(this.CbFullSongCheckedChanged);
             // 
             // WinCheckHashBins
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(570, 435);
+            this.ClientSize = new System.Drawing.Size(569, 479);
             this.Controls.Add(this._gbSettings);
             this.MaximizeBox = false;
             this.Name = "WinCheckHashBins";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Query database";
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStrideMax)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudNumberOfFingerprints)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numSecondsToAnalyze)).EndInit();
             this._gbSettings.ResumeLayout(false);
             this._gbSettings.PerformLayout();
             this._gbQueryMicrophoneBox.ResumeLayout(false);
             this._gbQueryMicrophoneBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this._nudSampleRate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudSecondsToRecord)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._numStaratSeconds)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._numStartAtSecond)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStrideMin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudTotalSongs)).EndInit();
             this._gbNeuralHasher.ResumeLayout(false);
@@ -626,7 +640,6 @@
             ((System.ComponentModel.ISupportInitialize)(this._nudTopWavelets)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudKeys)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudHashtables)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this._nudSampleRate)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -637,7 +650,7 @@
         private System.Windows.Forms.ComboBox _cmbConnectionString;
         private System.Windows.Forms.NumericUpDown _nudQueryStrideMax;
         private System.Windows.Forms.Label _lbQueryStride;
-        private System.Windows.Forms.NumericUpDown _nudNumberOfFingerprints;
+        private System.Windows.Forms.NumericUpDown _numSecondsToAnalyze;
         private System.Windows.Forms.Label _lbNumberOfFingerprintsToAnalyze;
         private System.Windows.Forms.GroupBox _gbSettings;
         private System.Windows.Forms.ComboBox _cmbAlgorithm;
@@ -669,12 +682,13 @@
         private System.Windows.Forms.Label _labMinStride;
         private System.Windows.Forms.NumericUpDown _nudThreshold;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.NumericUpDown _numStaratSeconds;
+        private System.Windows.Forms.NumericUpDown _numStartAtSecond;
         private System.Windows.Forms.GroupBox _gbQueryMicrophoneBox;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown _nudSecondsToRecord;
         private System.Windows.Forms.Button _btnQueryFromMicrophone;
         private System.Windows.Forms.NumericUpDown _nudSampleRate;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox cbFullSong;
     }
 }

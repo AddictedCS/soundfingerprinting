@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Drawing;
     using System.Globalization;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
@@ -17,7 +18,7 @@
 
     public partial class WinQueryResults : Form
     {
-        private const int MinTrackLength = 20;
+        private const int MinTrackLength = 5;
         private const int MaxTrackLength = 60 * 20;
 
         private const string ColSongName = "SongNameTitle";
@@ -102,8 +103,8 @@
                     continue;
                 }
 
-                string artist = tags.Artist; // Artist
-                string title = tags.Title; // Title
+                string artist = string.IsNullOrEmpty(tags.Artist) ? Path.GetFileNameWithoutExtension(pathToFile) : tags.Artist; // Artist
+                string title = string.IsNullOrEmpty(tags.Title) ? Path.GetFileNameWithoutExtension(pathToFile) : tags.Title; // Title
                 double duration = tags.Duration; // Duration
 
                 // Check whether the duration is ok
@@ -124,12 +125,7 @@
 
                 /*Get correct track trackId*/
                 Track actualTrack = modelService.ReadTrackByArtistAndTitleName(artist, title);
-                if (actualTrack == null)
-                {
-                    AddGridLine(new object[] { title + "-" + artist, "No such song in the database!", false, -1, -1 }, Color.Red);
-                    continue;
-                }
-
+                
                 fingerprintQueryBuilder.BuildQuery()
                                        .From(pathToFile, secondsToAnalyze, startSecond)
                                        .WithCustomConfigurations(
@@ -161,7 +157,7 @@
                                                 }
 
                                                 Track recognizedTrack = queryResult.BestMatch;
-                                                if (recognizedTrack.Id == actualTrack.Id)
+                                                if (actualTrack == null || recognizedTrack.Id == actualTrack.Id)
                                                 {
                                                     recognized++;
                                                 }
@@ -169,7 +165,7 @@
                                                 AddGridLine(
                                                     new object[]
                                                         {
-                                                            title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist, actualTrack.Id == recognizedTrack.Id, -1, -1
+                                                            title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist, actualTrack == null || actualTrack.Id == recognizedTrack.Id, queryResult.Similarity, -1
                                                         },
                                                     Color.Empty);
 

@@ -6,6 +6,8 @@
     {
         public bool IsSuccessful { get; set; }
 
+        public int Similarity { get; set; }
+
         public Track BestMatch { get; set; }
     }
 }

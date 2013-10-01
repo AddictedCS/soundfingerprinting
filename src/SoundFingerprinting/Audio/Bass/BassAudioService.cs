@@ -38,7 +38,9 @@
             {
                 if (!IsNativeBassLibraryInitialized())
                 {
-                    string targetPath = Path.Combine(Environment.CurrentDirectory, Utils.Is64Bit ? "x64" : "x86");
+                    string executingPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
+                    Uri uri = new Uri(executingPath);
+                    string targetPath = Path.Combine(uri.LocalPath, Utils.Is64Bit ? "x64" : "x86");
 
                     // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
                     BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
@@ -59,7 +61,7 @@
                     }
 
                     // Set Sample Rate / MONO
-                    if (!Bass.BASS_Init(-1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
+                    if (!Bass.BASS_Init(0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
                     {
                         throw new Exception(Bass.BASS_ErrorGetCode().ToString());
                     }
