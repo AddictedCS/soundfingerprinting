@@ -170,8 +170,8 @@
                     }
 
                     WinQueryResults winQueryResults = new WinQueryResults(
-                        (int)_nudNumberOfFingerprints.Value,
-                        (int)_numStaratSeconds.Value,
+                        _numSecondsToAnalyze.Enabled ? (int)_numSecondsToAnalyze.Value : 0,
+                        _numStartAtSecond.Enabled ? (int)_numStartAtSecond.Value : 0,
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
                         Convert.ToInt32(_nudThreshold.Value),
@@ -216,6 +216,11 @@
                         winQueryResults.ExtractCandidatesUsingSamples(task.Result);
                     },
                 TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void CbFullSongCheckedChanged(object sender, EventArgs e)
+        {
+            _numSecondsToAnalyze.Enabled = _numStartAtSecond.Enabled = !cbFullSong.Checked;
         }
     }
 }
