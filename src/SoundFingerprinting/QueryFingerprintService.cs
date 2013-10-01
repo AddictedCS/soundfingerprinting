@@ -49,8 +49,8 @@
 
             if (hammingSimilarities.Any())
             {
-                int bestMatch = hammingSimilarities.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
-                return new QueryResult { BestMatch = modelService.ReadTrackById(bestMatch), IsSuccessful = true };
+                var bestMatch = hammingSimilarities.Aggregate((l, r) => l.Value > r.Value ? l : r);
+                return new QueryResult { BestMatch = modelService.ReadTrackById(bestMatch.Key), IsSuccessful = true, Similarity = bestMatch.Value };
             }
 
             return new QueryResult();

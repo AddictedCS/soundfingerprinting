@@ -83,7 +83,6 @@
         {
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-           
             /*For each song in the list, query the DATABASE*/
             for (int i = 0; i < fileList.Count; i++)
             {
@@ -108,7 +107,7 @@
                 double duration = tags.Duration; // Duration
 
                 // Check whether the duration is ok
-                if (duration < MinTrackLength || duration > MaxTrackLength)
+                if (duration < MinTrackLength || duration > MaxTrackLength || secondsToAnalyze > duration)
                 {
                     // Duration too small
                     AddGridLine(new object[] { "BAD DURATION", pathToFile }, Color.Red);
@@ -125,8 +124,8 @@
 
                 /*Get correct track trackId*/
                 Track actualTrack = modelService.ReadTrackByArtistAndTitleName(artist, title);
-                
-                fingerprintQueryBuilder.BuildQuery()
+
+                var t = fingerprintQueryBuilder.BuildQuery()
                                        .From(pathToFile, secondsToAnalyze, startSecond)
                                        .WithCustomConfigurations(
                                             fingerprintConfig =>
@@ -139,39 +138,36 @@
                                                 queryConfig.NumberOfMinHashesPerTable = hashKeys;
                                                 queryConfig.ThresholdVotes = threshold;
                                             })
-                                       .Query(cancellationTokenSource.Token)
-                                       .ContinueWith(
-                                            t =>
-                                            {
-                                                if (cancellationTokenSource.IsCancellationRequested)
-                                                {
-                                                    return;
-                                                }
+                                       .Query(cancellationTokenSource.Token);
 
-                                                verified++;
-                                                QueryResult queryResult = t.Result;
-                                                if (!queryResult.IsSuccessful)
-                                                {
-                                                    AddGridLine(new object[] { title + "-" + artist, "No candidates!", false, -1, -1 }, Color.Red);
-                                                    return;
-                                                }
+                if (cancellationTokenSource.IsCancellationRequested)
+                {
+                    return;
+                }
 
-                                                Track recognizedTrack = queryResult.BestMatch;
-                                                if (actualTrack == null || recognizedTrack.Id == actualTrack.Id)
-                                                {
-                                                    recognized++;
-                                                }
+                verified++;
+                QueryResult queryResult = t.Result;
+                if (!queryResult.IsSuccessful)
+                {
+                    AddGridLine(new object[] { title + "-" + artist, "No candidates!", false, -1, -1 }, Color.Red);
+                    continue;
+                }
 
-                                                AddGridLine(
-                                                    new object[]
-                                                        {
-                                                            title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist, actualTrack == null || actualTrack.Id == recognizedTrack.Id, queryResult.Similarity, -1
-                                                        },
-                                                    Color.Empty);
+                Track recognizedTrack = queryResult.BestMatch;
+                if (actualTrack == null || recognizedTrack.Id == actualTrack.Id)
+                {
+                    recognized++;
+                }
 
-                                                _tbResults.Text = ((float)recognized / verified).ToString(CultureInfo.InvariantCulture);
-                                            },
-                                           TaskScheduler.FromCurrentSynchronizationContext());
+                AddGridLine(
+                    new object[]
+                            {
+                                title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist, actualTrack == null || actualTrack.Id == recognizedTrack.Id,
+                                queryResult.Similarity, -1
+                            },
+                    Color.Empty);
+
+                _tbResults.Text = ((float)recognized / verified).ToString(CultureInfo.InvariantCulture);
             }
         }
 
