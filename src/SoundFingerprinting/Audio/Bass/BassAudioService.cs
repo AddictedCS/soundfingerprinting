@@ -148,7 +148,7 @@
 
             if (startAtSecond > 0)
             {
-                if (!Bass.BASS_ChannelSetPosition(stream, startAtSecond))
+                if (!Bass.BASS_ChannelSetPosition(stream, (double) startAtSecond))
                 {
                     throw new Exception(Bass.BASS_ErrorGetCode().ToString());
                 }
