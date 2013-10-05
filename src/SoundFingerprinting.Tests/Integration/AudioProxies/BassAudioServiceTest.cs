@@ -1,6 +1,9 @@
 ﻿namespace SoundFingerprinting.Tests.Integration.AudioProxies
 {
+    using System;
     using System.IO;
+    using System.Linq;
+    using System.Runtime.Serialization.Formatters.Binary;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,6 +13,49 @@
     [TestClass]
     public class BassAudioServiceTest : AbstractIntegrationTest
     {
+        [TestMethod]
+        public void ComparePreStoredSameplesWithCurrentlyReadAudioSamples()
+        {
+            BinaryFormatter serializer = new BinaryFormatter();
+
+            using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
+            {
+                float[] samples = (float[])serializer.Deserialize(stream);
+                using (BassAudioService bassAudioService = new BassAudioService())
+                {
+                    float[] readSamples = bassAudioService.ReadMonoFromFile(PathToMp3, SampleRate);
+                    Assert.AreEqual(samples.Length, readSamples.Length);
+                    for (int i = 0; i < samples.Length; i++)
+                    {
+                        Assert.IsTrue(Math.Abs(samples[i] - readSamples[i]) < 0.0000001);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CompareReadingFromASpecificPartOfTheSong()
+        {
+            const int SecondsToRead = 10;
+            const int StartAtSecond = 20;
+            const int AcceptedError = 5;
+                    
+            BinaryFormatter serializer = new BinaryFormatter();
+
+            using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
+            {
+                float[] samples = (float[])serializer.Deserialize(stream);
+                float[] subsetOfSamples = GetSubsetOfSamplesFromFullSong(samples, SecondsToRead, StartAtSecond);
+
+                using (BassAudioService bassAudioService = new BassAudioService())
+                {
+                    float[] readSamples = bassAudioService.ReadMonoFromFile(PathToMp3, SampleRate, SecondsToRead, StartAtSecond);
+                    Assert.AreEqual(subsetOfSamples.Length, readSamples.Length);
+                    Assert.IsTrue(Math.Abs(subsetOfSamples.Sum(s => Math.Abs(s)) - readSamples.Sum(s => Math.Abs(s))) < AcceptedError, "Seek is working wrong!");
+                }
+            }
+        }
+
         [TestMethod]
         public void ReadMonoFromFileTest()
         {
@@ -23,6 +69,13 @@
                 long actualSize = samples.Length * (BitsPerSample / 8);
                 Assert.AreEqual(expectedSize, actualSize);
             }
+        }
+
+        private float[] GetSubsetOfSamplesFromFullSong(float[] samples, int secondsToRead, int startAtSecond)
+        {
+            float[] array = new float[SampleRate * secondsToRead];
+            Array.Copy(samples, startAtSecond * SampleRate, array, 0, SampleRate * secondsToRead);
+            return array;
         }
     }
 }

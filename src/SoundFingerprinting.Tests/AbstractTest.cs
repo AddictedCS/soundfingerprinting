@@ -20,6 +20,8 @@
 
         protected const string PathToMp3 = @"Kryptonite.mp3";
 
+        protected const string PathToSamples = @"floatsamples.bin";
+
         protected const int SamplesToRead = 128 * 64;
 
         protected const int MinYear = 1501;

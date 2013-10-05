@@ -87,6 +87,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TestEnvironment\floatsamples.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">

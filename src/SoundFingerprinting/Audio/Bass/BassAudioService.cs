@@ -31,7 +31,6 @@
         private static int initializedInstances;
 
         private bool alreadyDisposed;
-
         public BassAudioService()
         {
             lock (LockObject)
@@ -148,7 +147,7 @@
 
             if (startAtSecond > 0)
             {
-                if (!Bass.BASS_ChannelSetPosition(stream, (double) startAtSecond))
+                if (!Bass.BASS_ChannelSetPosition(stream, (double)startAtSecond))
                 {
                     throw new Exception(Bass.BASS_ErrorGetCode().ToString());
                 }

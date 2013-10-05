@@ -4,6 +4,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    [DeploymentItem(@"floatsamples.bin")]
     [DeploymentItem(@"Kryptonite.mp3")]
     [TestClass]
     public abstract class AbstractIntegrationTest : AbstractTest
