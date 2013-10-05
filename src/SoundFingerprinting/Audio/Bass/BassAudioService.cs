@@ -120,10 +120,6 @@
         /// <param name = "secondsToRead">Milliseconds to read</param>
         /// <param name = "startAtSecond">Start millisecond</param>
         /// <returns>Array of samples</returns>
-        /// <remarks>
-        ///   Seeking capabilities of Bass where not used because of the possible
-        ///   timing errors on different formats.
-        /// </remarks>
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
             // create streams for re-sampling
@@ -134,7 +130,8 @@
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
 
-            int mixerStream = BassMix.BASS_Mixer_StreamCreate(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+            const int Mono = 1;
+            int mixerStream = BassMix.BASS_Mixer_StreamCreate(sampleRate, Mono, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
             if (mixerStream == 0)
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());

@@ -50,7 +50,19 @@ namespace SoundFingerprinting
             
             waveletService.ApplyWaveletTransformInPlace(spectralImages);
 
-            return spectralImages.Select(spectralImage => fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets)).Where(image => !IsSilence(image)).ToList();
+            List<bool[]> fingerprints = new List<bool[]>();
+            foreach (var spectralImage in spectralImages)
+            {
+                bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets);
+                if (IsSilence(image))
+                {
+                    continue;
+                }
+
+                fingerprints.Add(image);
+            }
+
+            return fingerprints;
         }
 
         private bool IsSilence(IEnumerable<bool> image)
