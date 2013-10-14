@@ -12,8 +12,8 @@ namespace SoundFingerprinting.Dao.Internal
         private const string SpReadTrackByArtistSongName = "sp_ReadTrackByArtistAndSongName";
         private const string SpReadTrackByFingerprint = "sp_ReadTrackByFingerprint";
         private const string SpDeleteTrack = "sp_DeleteTrack";
-        private const string SpReadDuplicatedTracks = "sp_ReadDuplicatedTracks";
-
+        private const string SpReadTrackByISRC = "sp_ReadTrackISRC";
+        
         public TrackDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
@@ -50,22 +50,17 @@ namespace SoundFingerprinting.Dao.Internal
                         .Execute().AsModel<Track>();
         }
 
+        public Track ReadTrackByISRC(string isrc)
+        {
+            return PrepareStoredProcedure(SpReadTrackByISRC)
+                        .WithParameter("ISRC", isrc)
+                        .Execute().AsModel<Track>();
+        }
+
         public IList<Track> ReadTrackByFingerprintId(int id)
         {
             return
                 PrepareStoredProcedure(SpReadTrackByFingerprint).WithParameter("Id", id).Execute().AsListOfModel<Track>();
-        }
-
-        public IDictionary<Track, int> ReadDuplicatedTracks()
-        {
-            return
-                PrepareStoredProcedure(SpReadDuplicatedTracks).Execute().AsDictionary(
-                    reader =>
-                    new Track(reader.GetString("Artist"), reader.GetString("Title"))
-                        {
-                            Id = reader.GetInt32("Id")
-                        },
-                    reader => reader.GetInt32("Duplicates"));
         }
 
         public int DeleteTrack(int trackId)

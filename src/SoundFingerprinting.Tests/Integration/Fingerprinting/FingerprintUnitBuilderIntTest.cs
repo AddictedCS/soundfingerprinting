@@ -79,6 +79,53 @@
         }
 
         [TestMethod]
+        public void CreateFingerprintsInsertThenQueryAndGetTheRightResult()
+        {
+            const int StaticStride = 5115;
+            const int SecondsToProcess = 10;
+            const int StartAtSecond = 30;
+            DefaultQueryConfiguration defaultQueryConfiguration = new DefaultQueryConfiguration();
+            QueryFingerprintService queryFingerprintService = new QueryFingerprintService(new CombinedHashingAlgorithm(), modelService);
+            ITagService tagService = new BassAudioService();
+            TagInfo info = tagService.GetTagInfo(PathToMp3);
+            int releaseYear = string.IsNullOrEmpty(info.Year) ? 0 : int.Parse(info.Year);
+            Track track = new Track(info.ISRC, info.Artist, info.Title, info.Album, releaseYear, (int)info.Duration);
+
+            modelService.InsertTrack(track);
+
+            var fingerprinter = fingerprintUnitBuilderWithBass.BuildAudioFingerprintingUnit()
+                                            .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                                            .WithCustomAlgorithmConfiguration(config =>
+                                            {
+                                                config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
+                                            })
+                                            .FingerprintIt();
+
+            var fingerprints = fingerprinter.AsIs().Result;
+            var subFingerprints = fingerprinter.HashIt().ForTrack(track.Id).Result;
+
+            modelService.InsertSubFingerprint(subFingerprints);
+
+            List<HashBinMinHash> hashBins = new List<HashBinMinHash>();
+            foreach (SubFingerprint subFingerprint in subFingerprints)
+            {
+                long[] groupedSubFingerprint = lshService.Hash(subFingerprint.Signature, defaultQueryConfiguration.NumberOfLSHTables, defaultQueryConfiguration.NumberOfMinHashesPerTable);
+                for (int i = 0; i < groupedSubFingerprint.Length; i++)
+                {
+                    int tableNumber = i + 1;
+                    hashBins.Add(new HashBinMinHash(groupedSubFingerprint[i], tableNumber, subFingerprint.Id));
+                }
+            }
+
+            modelService.InsertHashBin(hashBins);
+
+            QueryResult result = queryFingerprintService.Query(fingerprints, defaultQueryConfiguration);
+
+            Assert.IsTrue(result.IsSuccessful);
+            Assert.AreEqual(track.Id, result.BestMatch.Id);
+        }
+
+        [TestMethod]
         public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
         {
             var track = InsertTrack();
@@ -183,9 +230,7 @@
 
         private Track InsertTrack()
         {
-            Album album = new Album("Track");
-            modelService.InsertAlbum(album);
-            Track track = new Track("Random", "Random", album.Id);
+            Track track = new Track("ISRC", "Artist", "Title", "Album", 1986, 360);
             modelService.InsertTrack(track);
             return track;
         }

@@ -90,8 +90,6 @@
     <Compile Include="Dao\IConnectionStringFactory.cs" />
     <Compile Include="Dao\IModelService.cs" />
     <Compile Include="Dao\Internal\AbstractDao.cs" />
-    <Compile Include="Dao\Internal\AlbumDao.cs" />
-    <Compile Include="Dao\Entities\Album.cs" />
     <Compile Include="Dao\IDatabaseProviderFactory.cs" />
     <Compile Include="Dao\Conditions\AsValueEnum.cs" />
     <Compile Include="Dao\CachedModelBinderFactory.cs" />

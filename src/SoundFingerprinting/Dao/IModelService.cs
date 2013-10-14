@@ -15,15 +15,9 @@ namespace SoundFingerprinting.Dao
 
         void InsertTrack(IEnumerable<Track> collection);
 
-        void InsertAlbum(Album album);
-
-        void InsertAlbum(IEnumerable<Album> collection);
-
         void InsertHashBin(HashBinMinHash hashBin);
 
         void InsertHashBin(IEnumerable<HashBinMinHash> collection);
-
-        IDictionary<Track, int> ReadDuplicatedTracks();
 
         IList<Fingerprint> ReadFingerprints();
 
@@ -42,13 +36,7 @@ namespace SoundFingerprinting.Dao
 
         Track ReadTrackByArtistAndTitleName(string artist, string title);
 
-        IList<Album> ReadAlbums();
-
-        Album ReadUnknownAlbum();
-
-        Album ReadAlbumByName(string name);
-
-        Album ReadAlbumById(int id);
+        Track ReadTrackByISRC(string isrc);
 
         IList<Track> ReadTrackByFingerprint(int id);
 
