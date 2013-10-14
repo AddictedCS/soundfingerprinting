@@ -10,8 +10,6 @@
 
     public class ModelService : IModelService
     {
-        private readonly AlbumDao albumDao;
-
         private readonly FingerprintDao fingerprintDao;
 
         private readonly TrackDao trackDao;
@@ -29,7 +27,6 @@
 
         public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
-            albumDao = new AlbumDao(databaseProviderFactory, modelBinderFactory);
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
             fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
             hashBinMinHashDao = new HashBinMinHashDao(databaseProviderFactory, modelBinderFactory);
@@ -72,16 +69,6 @@
             trackDao.Insert(collection);
         }
 
-        public void InsertAlbum(Album album)
-        {
-            albumDao.Insert(album);
-        }
-
-        public virtual void InsertAlbum(IEnumerable<Album> collection)
-        {
-            albumDao.Insert(collection);
-        }
-
         public void InsertHashBin(HashBinMinHash hashBin)
         {
             hashBinMinHashDao.Insert(hashBin);
@@ -103,11 +90,6 @@
         public IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold)
         {
             return hashBinMinHashDao.ReadSubFingerprintsByHashBucketsHavingThreshold(buckets, threshold);
-        }
-
-        public IDictionary<Track, int> ReadDuplicatedTracks()
-        {
-            return trackDao.ReadDuplicatedTracks();
         }
 
         public IList<Fingerprint> ReadFingerprints()
@@ -149,26 +131,6 @@
         public Track ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return trackDao.ReadTrackByArtistAndTitleName(artist, title);
-        }
-
-        public IList<Album> ReadAlbums()
-        {
-            return albumDao.Read();
-        }
-
-        public Album ReadUnknownAlbum()
-        {
-            return albumDao.ReadUnknownAlbum();
-        }
-
-        public Album ReadAlbumByName(string name)
-        {
-            return albumDao.ReadAlbumByName(name);
-        }
-
-        public Album ReadAlbumById(int id)
-        {
-            return albumDao.ReadById(id);
         }
 
         public IList<Track> ReadTrackByFingerprint(int id)

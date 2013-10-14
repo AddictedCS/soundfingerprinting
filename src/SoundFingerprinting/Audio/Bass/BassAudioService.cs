@@ -349,7 +349,8 @@
                                   AlbumArtist = tags.albumartist,
                                   Genre = tags.genre,
                                   Year = tags.year,
-                                  Composer = tags.composer
+                                  Composer = tags.composer,
+                                  ISRC = tags.isrc
                               };
 
             return tag;

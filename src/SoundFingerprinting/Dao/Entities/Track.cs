@@ -5,63 +5,32 @@
     [Serializable]
     public class Track
     {
-        private string artist;
-
-        private string title;
-
         public Track()
         {
             // no op
         }
 
-        public Track(string artist, string title)
+        public Track(string isrc, string artist, string title, string album, int releaseYear, int trackLength)
         {
+            ISRC = isrc;
             Artist = artist;
             Title = title;
-        }
-
-        public Track(string artist, string title, int albumId)
-        {
-            Artist = artist;
-            Title = title;
-            AlbumId = albumId;
-        }
-
-        public Track(string artist, string title, int albumId, int trackLength)
-            : this(artist, title, albumId)
-        {
+            Album = album;
+            ReleaseYear = releaseYear;
             TrackLengthSec = trackLength;
         }
 
         public int Id { get; set; }
 
-        public string Artist
-        {
-            get
-            {
-                return artist;
-            }
+        public string Artist { get; set; }
 
-            set
-            {
-                artist = value.Length > 255 ? value.Substring(0, 255) : value;
-            }
-        }
+        public string Title { get; set; }
 
-        public string Title
-        {
-            get
-            {
-                return title;
-            }
+        public string ISRC { get; set; }
 
-            set
-            {
-                title = value.Length > 255 ? value.Substring(0, 255) : value;
-            }
-        }
+        public string Album { get; set; }
 
-        public int AlbumId { get; set; }
+        public int ReleaseYear { get; set; }
 
         public int TrackLengthSec { get; set; }
     }
