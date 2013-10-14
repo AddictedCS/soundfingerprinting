@@ -302,7 +302,7 @@
             badFiles = 0;
             processed = 0;
             left = 0;
-            _pbTotalSongs.Visible = true; // Set the progress bar control
+            _pbTotalSongs.Visible = true;
             _pbTotalSongs.Minimum = 0;
             _pbTotalSongs.Maximum = fileList.Count;
             _pbTotalSongs.Step = 1;
@@ -311,11 +311,6 @@
             _nudLeft.Value = left;
         }
 
-        /// <summary>
-        ///   Actual synchronous insert in the database
-        /// </summary>
-        /// <param name = "start">Start index</param>
-        /// <param name = "end">End index</param>
         private void InsertInDatabase(int start, int end)
         {
             int topWavelets = (int)_nudTopWav.Value;
@@ -326,7 +321,6 @@
                         {
                             stride = WinUtils.GetStride(
                                 (StrideType)_cmbStrideType.SelectedIndex,
-                                // Get stride according to the underlying combo box selection
                                 (int)_nudStride.Value,
                                 0,
                                 new DefaultFingerprintingConfiguration().SamplesPerFingerprint);
@@ -363,9 +357,11 @@
                 TagInfo tags = tagService.GetTagInfo(fileList[i]); // Get Tags from file
                 if (tags == null || tags.IsEmpty)
                 {
-                    // TAGS are null
                     badFiles++;
+                    processed++;
+                    left--;
                     Invoke(actionAddItems, new object[] { "TAGS ARE NULL", fileList[i], 0, 0 }, Color.Red);
+                    Invoke(actionInterface);
                     continue;
                 }
 
@@ -381,7 +377,10 @@
                 {
                     // Duration too small
                     badFiles++;
+                    processed++;
+                    left--;
                     Invoke(actionAddItems, new object[] { "Bad duration", fileList[i], 0, 0 }, Color.Red);
+                    Invoke(actionInterface);
                     continue;
                 }
 
@@ -389,9 +388,16 @@
                 if (string.IsNullOrEmpty(isrc))
                 {
                     badFiles++;
-                    Invoke(actionAddItems, new object[] { "ISRC Tag is missing. Skipping.", fileList[i], 0, 0 }, Color.Red);
+                    processed++;
+                    left--;
+                    Invoke(
+                        actionAddItems,
+                        new object[] { "ISRC Tag is missing. Skipping file...", fileList[i], 0, 0 },
+                        Color.Red);
+                    Invoke(actionInterface);
                     continue;
                 }
+
 
                 Track track;
                 try
@@ -399,67 +405,66 @@
                     lock (this)
                     {
                         // Check if this file is already in the database
-                        if (modelService.ReadTrackByArtistAndTitleName(artist, title) != null)
+                        if (modelService.ReadTrackByISRC(isrc) != null)
                         {
                             duplicates++; // There is such file in the database
+                            processed++;
+                            left--;
+                            Invoke(actionInterface);
                             continue;
                         }
 
                         track = new Track(isrc, artist, title, album, releaseYear, (int)duration);
-
                         modelService.InsertTrack(track); // Insert new Track in the database
                     }
                 }
                 catch (Exception e)
                 {
                     // catch any exception and abort the insertion
+                    processed++;
+                    left--;
+                    badFiles++;
                     MessageBox.Show(e.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Invoke(actionInterface);
                     return;
                 }
 
                 int count;
                 try
                 {
-                    List<SubFingerprint> subFingerprintsToTrack = fingerprintUnitBuilder
-                           .BuildAudioFingerprintingUnit()
-                           .From(fileList[i])
-                           .WithCustomAlgorithmConfiguration(
-                                config =>
-                                    {
-                                        config.TopWavelets = topWavelets;
-                                        config.Stride = stride;
-                                    })
-                            .FingerprintIt()
-                            .HashIt()
-                            .ForTrack(track.Id)
-                            .Result; // Create SubFingerprints
+                    List<SubFingerprint> subFingerprintsToTrack =
+                        fingerprintUnitBuilder
+                                        .BuildAudioFingerprintingUnit()
+                                        .From(fileList[i])
+                                        .WithCustomAlgorithmConfiguration(
+                                            config =>
+                                                {
+                                                    config.TopWavelets = topWavelets;
+                                                    config.Stride = stride;
+                                                })
+                                         .FingerprintIt()
+                                         .HashIt()
+                                         .ForTrack(track.Id)
+                                         .Result; // Create SubFingerprints
 
                     modelService.InsertSubFingerprint(subFingerprintsToTrack);
                     count = subFingerprintsToTrack.Count;
-
-                    switch (hashAlgorithm)
-                    {
-                            // Hash if there is a need in doing so
-                        case HashAlgorithm.LSH: // LSH + Min Hash has been chosen
-                            HashSubFingerprintsUsingMinHash(subFingerprintsToTrack);
-                            break;
-                        case HashAlgorithm.NeuralHasher:
-                            throw new NotImplementedException();
-                        case HashAlgorithm.None:
-                            break;
-                    }
+                    HashSubFingerprintsUsingMinHash(subFingerprintsToTrack);
                 }
                 catch (Exception e)
                 {
                     // catch any exception and abort the insertion
                     MessageBox.Show(e.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    badFiles++;
+                    processed++;
+                    left--;
+                    Invoke(actionInterface);
                     return;
                 }
 
                 Invoke(actionAddItems, new object[] { artist, title, isrc, duration, count }, Color.Empty);
                 left--;
                 processed++;
-
                 Invoke(actionInterface);
             }
         }
@@ -481,10 +486,6 @@
             modelService.InsertHashBin(listToInsert);
         }
 
-        /// <summary>
-        ///   Fade out all controls
-        /// </summary>
-        /// <param name = "visible">Read only controls</param>
         private void FadeAllControls(bool visible)
         {
             Invoke(

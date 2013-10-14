@@ -29,11 +29,6 @@
         private void InitializeComponent()
         {
             this._dgvFillDatabase = new System.Windows.Forms.DataGridView();
-            this.Artist = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Title = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Album = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Length = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Fingerprints = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this._labChooseConnectionString = new System.Windows.Forms.Label();
             this._cmbDBFillerConnectionString = new System.Windows.Forms.ComboBox();
             this._labSelectRootFolder = new System.Windows.Forms.Label();
@@ -75,6 +70,11 @@
             this._labTopWavelets = new System.Windows.Forms.Label();
             this._cmbStrideType = new System.Windows.Forms.ComboBox();
             this._labStrideType = new System.Windows.Forms.Label();
+            this.SubFingerprints = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Length = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ISRC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Title = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Artist = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this._dgvFillDatabase)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudStride)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudHashTables)).BeginInit();
@@ -93,59 +93,21 @@
             // 
             // _dgvFillDatabase
             // 
-            this._dgvFillDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this._dgvFillDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._dgvFillDatabase.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this._dgvFillDatabase.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Artist,
             this.Title,
-            this.Album,
+            this.ISRC,
             this.Length,
-            this.Fingerprints});
+            this.SubFingerprints});
             this._dgvFillDatabase.Location = new System.Drawing.Point(12, 389);
             this._dgvFillDatabase.Name = "_dgvFillDatabase";
             this._dgvFillDatabase.ReadOnly = true;
             this._dgvFillDatabase.Size = new System.Drawing.Size(680, 201);
             this._dgvFillDatabase.TabIndex = 0;
-            // 
-            // Artist
-            // 
-            this.Artist.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Artist.HeaderText = "Artist";
-            this.Artist.Name = "Artist";
-            this.Artist.ReadOnly = true;
-            // 
-            // Title
-            // 
-            this.Title.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Title.FillWeight = 200F;
-            this.Title.HeaderText = "Title";
-            this.Title.Name = "Title";
-            this.Title.ReadOnly = true;
-            // 
-            // Album
-            // 
-            this.Album.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Album.HeaderText = "Album";
-            this.Album.Name = "Album";
-            this.Album.ReadOnly = true;
-            // 
-            // Length
-            // 
-            this.Length.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Length.FillWeight = 50F;
-            this.Length.HeaderText = "Length";
-            this.Length.Name = "Length";
-            this.Length.ReadOnly = true;
-            // 
-            // Fingerprints
-            // 
-            this.Fingerprints.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Fingerprints.FillWeight = 50F;
-            this.Fingerprints.HeaderText = "Fingerprints";
-            this.Fingerprints.Name = "Fingerprints";
-            this.Fingerprints.ReadOnly = true;
             // 
             // _labChooseConnectionString
             // 
@@ -158,8 +120,8 @@
             // 
             // _cmbDBFillerConnectionString
             // 
-            this._cmbDBFillerConnectionString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this._cmbDBFillerConnectionString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._cmbDBFillerConnectionString.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._cmbDBFillerConnectionString.FormattingEnabled = true;
             this._cmbDBFillerConnectionString.Location = new System.Drawing.Point(18, 25);
@@ -216,15 +178,15 @@
             // 
             // _lbAlgorithm
             // 
+            this._lbAlgorithm.Enabled = false;
             this._lbAlgorithm.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this._lbAlgorithm.FormattingEnabled = true;
             this._lbAlgorithm.Items.AddRange(new object[] {
             "LSH+MinHash",
-            "Neural Hasher",
-            "Do not hash!"});
+            "Neural Hasher"});
             this._lbAlgorithm.Location = new System.Drawing.Point(18, 113);
             this._lbAlgorithm.Name = "_lbAlgorithm";
-            this._lbAlgorithm.Size = new System.Drawing.Size(148, 43);
+            this._lbAlgorithm.Size = new System.Drawing.Size(148, 30);
             this._lbAlgorithm.TabIndex = 8;
             this._lbAlgorithm.SelectedIndexChanged += new System.EventHandler(this.LbAlgorithmSelectedIndexChanged);
             // 
@@ -239,6 +201,11 @@
             this._nudStride.Name = "_nudStride";
             this._nudStride.Size = new System.Drawing.Size(145, 20);
             this._nudStride.TabIndex = 10;
+            this._nudStride.Value = new decimal(new int[] {
+            5115,
+            0,
+            0,
+            0});
             // 
             // _nudHashTables
             // 
@@ -499,7 +466,7 @@
             this._labThreads.AutoSize = true;
             this._labThreads.Location = new System.Drawing.Point(292, 16);
             this._labThreads.Name = "_labThreads";
-            this._labThreads.Size = new System.Drawing.Size(46, 13);
+            this._labThreads.Size = new System.Drawing.Size(133, 13);
             this._labThreads.TabIndex = 26;
             this._labThreads.Text = "MaxThreadToProcessFiles";
             // 
@@ -602,7 +569,45 @@
             this._labStrideType.TabIndex = 37;
             this._labStrideType.Text = "Stride type";
             // 
-            // WinDBFiller
+            // SubFingerprints
+            // 
+            this.SubFingerprints.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.SubFingerprints.FillWeight = 50F;
+            this.SubFingerprints.HeaderText = "SubFingerprints";
+            this.SubFingerprints.Name = "SubFingerprints";
+            this.SubFingerprints.ReadOnly = true;
+            // 
+            // Length
+            // 
+            this.Length.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Length.FillWeight = 50F;
+            this.Length.HeaderText = "Length";
+            this.Length.Name = "Length";
+            this.Length.ReadOnly = true;
+            // 
+            // ISRC
+            // 
+            this.ISRC.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ISRC.HeaderText = "ISRC";
+            this.ISRC.Name = "ISRC";
+            this.ISRC.ReadOnly = true;
+            // 
+            // Title
+            // 
+            this.Title.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Title.FillWeight = 200F;
+            this.Title.HeaderText = "Title";
+            this.Title.Name = "Title";
+            this.Title.ReadOnly = true;
+            // 
+            // Artist
+            // 
+            this.Artist.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Artist.HeaderText = "Artist";
+            this.Artist.Name = "Artist";
+            this.Artist.ReadOnly = true;
+            // 
+            // WinDbFiller
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -681,11 +686,6 @@
         private System.Windows.Forms.GroupBox _gbStatistics;
         private System.Windows.Forms.NumericUpDown _nudThreads;
         private System.Windows.Forms.Label _labThreads;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Artist;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Title;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Album;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Length;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Fingerprints;
         private System.Windows.Forms.NumericUpDown _nudBadFiles;
         private System.Windows.Forms.Label _labBadFiles;
         private System.Windows.Forms.NumericUpDown _nudLeft;
@@ -702,5 +702,10 @@
         private System.Windows.Forms.Label _labTopWavelets;
         private System.Windows.Forms.ComboBox _cmbStrideType;
         private System.Windows.Forms.Label _labStrideType;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Artist;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Title;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ISRC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Length;
+        private System.Windows.Forms.DataGridViewTextBoxColumn SubFingerprints;
     }
 }
