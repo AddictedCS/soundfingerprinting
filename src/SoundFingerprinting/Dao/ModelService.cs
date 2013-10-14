@@ -133,6 +133,11 @@
             return trackDao.ReadTrackByArtistAndTitleName(artist, title);
         }
 
+        public Track ReadTrackByISRC(string isrc)
+        {
+            return trackDao.ReadTrackByISRC(isrc);
+        }
+
         public IList<Track> ReadTrackByFingerprint(int id)
         {
             return trackDao.ReadTrackByFingerprintId(id);

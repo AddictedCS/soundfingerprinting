@@ -36,6 +36,8 @@ namespace SoundFingerprinting.Dao
 
         Track ReadTrackByArtistAndTitleName(string artist, string title);
 
+        Track ReadTrackByISRC(string isrc);
+
         IList<Track> ReadTrackByFingerprint(int id);
 
         int DeleteTrack(int trackId);

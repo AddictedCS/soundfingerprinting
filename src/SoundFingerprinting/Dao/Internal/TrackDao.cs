@@ -12,6 +12,7 @@ namespace SoundFingerprinting.Dao.Internal
         private const string SpReadTrackByArtistSongName = "sp_ReadTrackByArtistAndSongName";
         private const string SpReadTrackByFingerprint = "sp_ReadTrackByFingerprint";
         private const string SpDeleteTrack = "sp_DeleteTrack";
+        private const string SpReadTrackByISRC = "sp_ReadTrackISRC";
         
         public TrackDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
@@ -46,6 +47,13 @@ namespace SoundFingerprinting.Dao.Internal
             return PrepareStoredProcedure(SpReadTrackByArtistSongName)
                         .WithParameter("Artist", artist)
                         .WithParameter("Title", title)
+                        .Execute().AsModel<Track>();
+        }
+
+        public Track ReadTrackByISRC(string isrc)
+        {
+            return PrepareStoredProcedure(SpReadTrackByISRC)
+                        .WithParameter("ISRC", isrc)
                         .Execute().AsModel<Track>();
         }
 

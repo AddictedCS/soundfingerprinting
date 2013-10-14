@@ -187,4 +187,13 @@ AS
 SELECT Tracks.Id, Tracks.Artist, Tracks.Title, Tracks.Album, Tracks.ISRC, Tracks.ReleaseYear, Tracks.TrackLengthSec FROM Tracks, Fingerprints
 WHERE Tracks.Id = Fingerprints.TrackId AND Fingerprints.Id = @Id
 GO
+IF OBJECT_ID('sp_ReadTrackISRC','P') IS NOT NULL
+	DROP PROCEDURE sp_ReadTrackISRC
+GO
+CREATE PROCEDURE sp_ReadTrackISRC
+	@ISRC VARCHAR(50)
+AS
+SELECT * FROM Tracks WHERE Tracks.ISRC = @ISRC
+GO
+
 

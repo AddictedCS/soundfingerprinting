@@ -389,6 +389,16 @@ AS
 SELECT * FROM Tracks WHERE Tracks.Title = @Title AND Tracks.Artist = @Artist
 GO
 
+IF OBJECT_ID('sp_ReadTrackISRC','P') IS NOT NULL
+	DROP PROCEDURE sp_ReadTrackISRC
+GO
+CREATE PROCEDURE sp_ReadTrackISRC
+	@ISRC VARCHAR(50)
+AS
+SELECT * FROM Tracks WHERE Tracks.ISRC = @ISRC
+GO
+
+
 IF OBJECT_ID('sp_ReadMaxMinHashBin','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadMaxMinHashBin
 GO

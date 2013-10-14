@@ -75,6 +75,18 @@
         }
 
         [TestMethod]
+        public void ReadTrackByISRC()
+        {
+            string name = MethodBase.GetCurrentMethod().Name;
+            Track expectedTrack = GetTrack(name);
+            modelService.InsertTrack(expectedTrack);
+
+            Track actualTrack = modelService.ReadTrackByISRC(expectedTrack.ISRC);
+
+            AssertTracksAreEqual(expectedTrack, actualTrack);
+        }
+
+        [TestMethod]
         public void ReadTrackByFingerprintInexistantIdTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
