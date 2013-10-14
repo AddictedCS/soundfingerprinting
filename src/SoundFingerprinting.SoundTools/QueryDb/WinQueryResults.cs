@@ -25,7 +25,9 @@
         private const string ColResultName = "ResultSongNameTitle";
         private const string ColResult = "Result";
         private const string ColHammingAvg = "HammingAvg";
-        private const string ColElapsedTime = "ElapsedTime";
+        private const string ColNumberOfCandidates = "NumberOfCandidates";
+        private const string ColISRC = "ISRC";
+
 
         private readonly int hashKeys;
         private readonly int hashTables;
@@ -69,12 +71,15 @@
             _dgvResults.Columns[ColSongName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(ColResultName, "Result Song");
             _dgvResults.Columns[ColResultName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-             _dgvResults.Columns.Add(ColResult, "Result");
+             _dgvResults.Columns.Add(ColResult, "ISRC Match");
             _dgvResults.Columns[ColResult].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(ColHammingAvg, "Hamming Distance");
             _dgvResults.Columns[ColHammingAvg].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            _dgvResults.Columns.Add(ColElapsedTime, "Number of candidates");
-            _dgvResults.Columns[ColElapsedTime].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColNumberOfCandidates, "Number of candidates");
+            _dgvResults.Columns[ColNumberOfCandidates].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColISRC, "Result ISRC");
+            _dgvResults.Columns[ColISRC].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            
             // ReSharper restore PossibleNullReferenceException
             _btnExport.Enabled = false;
         }
@@ -83,99 +88,133 @@
         {
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-            /*For each song in the list, query the DATABASE*/
-            for (int i = 0; i < fileList.Count; i++)
-            {
-                if (stopQuerying)
+            Action<object[], Color> actionInterface = AddGridLine;
+            ParallelOptions parallelOptions = new ParallelOptions
+                { 
+                    MaxDegreeOfParallelism = 4, CancellationToken = cancellationTokenSource.Token 
+                };
+
+            Task.Factory.StartNew(() =>
                 {
-                    cancellationTokenSource.Cancel();
-                    break;
-                }
-
-                string pathToFile = fileList[i]; /*Path to song to recognize*/
-                TagInfo tags = tagService.GetTagInfo(pathToFile); // Get Tags from file
-
-                if (tags == null || tags.IsEmpty)
-                {
-                    // TAGS are null
-                    AddGridLine(new object[] { "TAGS ARE NULL", pathToFile }, Color.Red);
-                    continue;
-                }
-
-                string artist = string.IsNullOrEmpty(tags.Artist) ? Path.GetFileNameWithoutExtension(pathToFile) : tags.Artist; // Artist
-                string title = string.IsNullOrEmpty(tags.Title) ? Path.GetFileNameWithoutExtension(pathToFile) : tags.Title; // Title
-                double duration = tags.Duration; // Duration
-
-                // Check whether the duration is ok
-                if (duration < MinTrackLength || duration > MaxTrackLength || secondsToAnalyze > duration)
-                {
-                    // Duration too small
-                    AddGridLine(new object[] { "BAD DURATION", pathToFile }, Color.Red);
-                    continue;
-                }
-
-                // Check whether the tags are properly defined
-                if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title))
-                {
-                    // Title or Artist tag is null
-                    AddGridLine(new object[] { "NO TAGS", pathToFile }, Color.Red);
-                    continue;
-                }
-
-                /*Get correct track trackId*/
-                Track actualTrack = modelService.ReadTrackByArtistAndTitleName(artist, title);
-
-                var t = fingerprintQueryBuilder.BuildQuery()
-                                       .From(pathToFile, secondsToAnalyze, startSecond)
-                                       .WithCustomConfigurations(
-                                            fingerprintConfig =>
-                                            {
-                                                fingerprintConfig.Stride = samplesToSkip;
-                                            },
-                                            queryConfig =>
-                                            {
-                                                queryConfig.NumberOfLSHTables = hashTables;
-                                                queryConfig.NumberOfMinHashesPerTable = hashKeys;
-                                                queryConfig.ThresholdVotes = threshold;
-                                            })
-                                       .Query(cancellationTokenSource.Token);
-
-                if (cancellationTokenSource.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                verified++;
-                QueryResult queryResult = t.Result;
-                if (!queryResult.IsSuccessful)
-                {
-                    AddGridLine(new object[] { title + "-" + artist, "No candidates!", false, -1, -1 }, Color.Red);
-                    continue;
-                }
-
-                Track recognizedTrack = queryResult.BestMatch;
-                if (actualTrack == null || recognizedTrack.Id == actualTrack.Id)
-                {
-                    recognized++;
-                }
-
-                AddGridLine(
-                    new object[]
+                    Parallel.For(
+                        0,
+                        fileList.Count,
+                        parallelOptions,
+                        (index, loopState) =>
+                        {
+                            if (stopQuerying)
                             {
-                                title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist, actualTrack == null || actualTrack.Id == recognizedTrack.Id,
-                                queryResult.Similarity, queryResult.NumberOfCandidates
-                            },
-                    Color.Empty);
+                                cancellationTokenSource.Cancel();
+                                loopState.Stop();
+                            }
 
-                _tbResults.Text = ((float)recognized / verified).ToString(CultureInfo.InvariantCulture);
-            }
+                            string pathToFile = fileList[index]; /*Path to song to recognize*/
+                            TagInfo tags = tagService.GetTagInfo(pathToFile); // Get Tags from file
+
+                            if (tags == null || tags.IsEmpty)
+                            {
+                                Invoke(actionInterface, new object[] { string.Empty, pathToFile }, Color.Red);
+                                return;
+                            }
+
+                            string artist = string.IsNullOrEmpty(tags.Artist)
+                                                ? Path.GetFileNameWithoutExtension(pathToFile)
+                                                : tags.Artist; // Artist
+                            string title = string.IsNullOrEmpty(tags.Title)
+                                               ? Path.GetFileNameWithoutExtension(pathToFile)
+                                               : tags.Title; // Title
+                            string isrc = tags.ISRC;
+                            double duration = tags.Duration; // Duration
+
+                            // Check whether the duration is ok
+                            if (duration < MinTrackLength || duration > MaxTrackLength || secondsToAnalyze > duration)
+                            {
+                                // Duration too small
+                                Invoke(actionInterface, new object[] { "BAD DURATION", pathToFile }, Color.Red);
+                                return;
+                            }
+
+                            Track actualTrack = null;
+                            if (!string.IsNullOrEmpty(isrc))
+                            {
+                                actualTrack = modelService.ReadTrackByISRC(isrc);
+                            }
+
+                            var queryResult =
+                                fingerprintQueryBuilder.BuildQuery()
+                                                       .From(pathToFile, secondsToAnalyze, startSecond)
+                                                       .WithCustomConfigurations(
+                                                            fingerprintConfig =>
+                                                            {
+                                                                fingerprintConfig.Stride = samplesToSkip;
+                                                            },
+                                                            queryConfig =>
+                                                            {
+                                                                queryConfig.NumberOfLSHTables = hashTables;
+                                                                queryConfig.NumberOfMinHashesPerTable = hashKeys;
+                                                                queryConfig.ThresholdVotes = threshold;
+                                                            })
+                                                        .Query(cancellationTokenSource.Token)
+                                                        .Result;
+
+                            if (cancellationTokenSource.IsCancellationRequested)
+                            {
+                                return;
+                            }
+
+                            if (!queryResult.IsSuccessful)
+                            {
+                                Invoke(
+                                    actionInterface,
+                                    new object[]
+                                    {
+                                        title + "-" + artist, "No match found!", false, -1, -1, "No match found!" 
+                                    },
+                                    Color.Red);
+
+                                if (actualTrack != null)
+                                {
+                                    verified++;
+                                }
+
+                                return;
+                            }
+
+                            verified++;
+                            Track recognizedTrack = queryResult.BestMatch;
+                            bool isSuccessful = actualTrack == null || recognizedTrack.Id == actualTrack.Id;
+                            if (isSuccessful)
+                            {
+                                recognized++;
+                            }
+
+                            Invoke(
+                                actionInterface,
+                                new object[]
+                                {
+                                    title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist,
+                                    isSuccessful, queryResult.Similarity, queryResult.NumberOfCandidates,
+                                    recognizedTrack.ISRC
+                                },
+                                Color.Empty);
+
+                            Invoke(new Action(
+                                    () =>
+                                    {
+                                        _tbResults.Text =
+                                            ((float)recognized / verified).ToString(CultureInfo.InvariantCulture);
+                                    }));
+                        });
+                }).ContinueWith(task =>
+                    { 
+                        MessageBox.Show("Finished!", "Finished query!"); 
+                    });
         }
 
         public void ExtractCandidatesUsingSamples(float[] samples)
         {
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-            
             fingerprintQueryBuilder.BuildQuery()
                                    .From(samples)
                                    .WithCustomConfigurations(

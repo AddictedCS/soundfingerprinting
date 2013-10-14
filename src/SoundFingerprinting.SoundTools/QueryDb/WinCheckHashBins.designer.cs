@@ -35,6 +35,7 @@
             this._numSecondsToAnalyze = new System.Windows.Forms.NumericUpDown();
             this._lbNumberOfFingerprintsToAnalyze = new System.Windows.Forms.Label();
             this._gbSettings = new System.Windows.Forms.GroupBox();
+            this.cbFullSong = new System.Windows.Forms.CheckBox();
             this._gbQueryMicrophoneBox = new System.Windows.Forms.GroupBox();
             this._nudSampleRate = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
@@ -71,7 +72,6 @@
             this._labKeys = new System.Windows.Forms.Label();
             this._labHashtables = new System.Windows.Forms.Label();
             this._labThresholdTables = new System.Windows.Forms.Label();
-            this.cbFullSong = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStrideMax)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._numSecondsToAnalyze)).BeginInit();
             this._gbSettings.SuspendLayout();
@@ -121,7 +121,7 @@
             this._nudQueryStrideMax.Size = new System.Drawing.Size(120, 20);
             this._nudQueryStrideMax.TabIndex = 52;
             this._nudQueryStrideMax.Value = new decimal(new int[] {
-            254,
+            512,
             0,
             0,
             0});
@@ -194,6 +194,17 @@
             this._gbSettings.TabIndex = 53;
             this._gbSettings.TabStop = false;
             this._gbSettings.Text = "Settings";
+            // 
+            // cbFullSong
+            // 
+            this.cbFullSong.AutoSize = true;
+            this.cbFullSong.Location = new System.Drawing.Point(294, 72);
+            this.cbFullSong.Name = "cbFullSong";
+            this.cbFullSong.Size = new System.Drawing.Size(70, 17);
+            this.cbFullSong.TabIndex = 77;
+            this.cbFullSong.Text = "Full Song";
+            this.cbFullSong.UseVisualStyleBackColor = true;
+            this.cbFullSong.CheckedChanged += new System.EventHandler(this.CbFullSongCheckedChanged);
             // 
             // _gbQueryMicrophoneBox
             // 
@@ -313,7 +324,7 @@
             this._nudQueryStrideMin.Size = new System.Drawing.Size(118, 20);
             this._nudQueryStrideMin.TabIndex = 69;
             this._nudQueryStrideMin.Value = new decimal(new int[] {
-            1,
+            256,
             0,
             0,
             0});
@@ -443,8 +454,7 @@
             this._cmbAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._cmbAlgorithm.FormattingEnabled = true;
             this._cmbAlgorithm.Items.AddRange(new object[] {
-            "MinHash",
-            "Neural Hasher"});
+            "MinHash"});
             this._cmbAlgorithm.Location = new System.Drawing.Point(416, 110);
             this._cmbAlgorithm.Name = "_cmbAlgorithm";
             this._cmbAlgorithm.Size = new System.Drawing.Size(129, 21);
@@ -599,17 +609,6 @@
             this._labThresholdTables.Size = new System.Drawing.Size(54, 13);
             this._labThresholdTables.TabIndex = 47;
             this._labThresholdTables.Text = "Threshold";
-            // 
-            // cbFullSong
-            // 
-            this.cbFullSong.AutoSize = true;
-            this.cbFullSong.Location = new System.Drawing.Point(294, 72);
-            this.cbFullSong.Name = "cbFullSong";
-            this.cbFullSong.Size = new System.Drawing.Size(70, 17);
-            this.cbFullSong.TabIndex = 77;
-            this.cbFullSong.Text = "Full Song";
-            this.cbFullSong.UseVisualStyleBackColor = true;
-            this.cbFullSong.CheckedChanged += new System.EventHandler(this.CbFullSongCheckedChanged);
             // 
             // WinCheckHashBins
             // 
