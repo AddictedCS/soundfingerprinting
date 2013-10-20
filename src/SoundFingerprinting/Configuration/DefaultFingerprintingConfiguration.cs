@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Configuration
             LogBase = 2;
             Stride = new IncrementalStaticStride(5115, FingerprintLength * Overlap);
             LogBins = 32;
-            NormalizeSignal = true;
+            NormalizeSignal = false;
             UseDynamicLogBase = false;
         }
 
