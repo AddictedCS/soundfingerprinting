@@ -5,7 +5,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Hashing.NeuralHashing.Utils;
+    using SoundFingerprinting.NeuralHasher.Utils;
 
     [TestClass]
     public class BinaryOutputUtilTest

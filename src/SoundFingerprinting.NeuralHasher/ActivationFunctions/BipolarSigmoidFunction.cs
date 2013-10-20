@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.ActivationFunctions
+﻿namespace SoundFingerprinting.NeuralHasher.ActivationFunctions
 {
     using System;
 
@@ -19,11 +19,15 @@
 
         public float Alfa
         {
-            get { return alfa; }
-            set { alfa = value; }
+            get
+            {
+                return alfa;
+            }
+            set
+            {
+                alfa = value;
+            }
         }
-
-        #region IActivationFunction Members
 
         public float Output(float x)
         {
@@ -44,7 +48,5 @@
         {
             return (float)(alfa * (0.25 - (y * y)));
         }
-
-        #endregion
     }
 }

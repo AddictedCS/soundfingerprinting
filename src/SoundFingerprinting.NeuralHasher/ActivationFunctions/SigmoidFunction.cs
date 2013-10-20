@@ -1,21 +1,18 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.ActivationFunctions
+﻿namespace SoundFingerprinting.NeuralHasher.ActivationFunctions
 {
     using System;
 
     [Serializable]
-    public class HyperbolicTangensFunction : IActivationFunction
+    public class SigmoidFunction : IActivationFunction
     {
-        private float alfa = 1.7159f;
+        private float alfa = 2f;
 
-        public HyperbolicTangensFunction()
+        public SigmoidFunction()
         {
-            // no op
         }
 
-        public HyperbolicTangensFunction(float alfa)
+        public SigmoidFunction(float alfa)
         {
-            // dividing alfa by two gives us the same function
-            // as sigmoid function
             this.alfa = alfa;
         }
 
@@ -25,27 +22,24 @@
             set { alfa = value; }
         }
 
-        #region IActivationFunction Members
-
         public float Output(float x)
         {
-            return (float)Math.Tanh(alfa * x);
+            return (float)(1 / (1 + Math.Exp(-alfa * x)));
         }
 
         // Calculate differential of the function value
         public float Derivative(float x)
         {
             float y = Output(x);
-            return alfa * (1 - (y * y));
+
+            return alfa * y * (1 - y);
         }
 
         // Calculate differential of the function value
         // using function value as input
         public float Derivative2(float y)
         {
-            return alfa * (1 - (y * y));
+            return alfa * y * (1 - y);
         }
-
-        #endregion
     }
 }

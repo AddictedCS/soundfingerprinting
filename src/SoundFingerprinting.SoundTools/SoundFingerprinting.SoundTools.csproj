@@ -258,6 +258,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.NeuralHasher\SoundFingerprinting.NeuralHasher.csproj">
+      <Project>{87cc569e-7d2a-4159-8cc1-dd1b563553f5}</Project>
+      <Name>SoundFingerprinting.NeuralHasher</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>

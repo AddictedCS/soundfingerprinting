@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.ActivationFunctions
+﻿namespace SoundFingerprinting.NeuralHasher.ActivationFunctions
 {
     /// <summary>
     ///   ActivationFunction interface

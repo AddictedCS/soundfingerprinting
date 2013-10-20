@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer
+﻿namespace SoundFingerprinting.NeuralHasher.NeuralTrainer
 {
     using System;
     using System.Threading.Tasks;
