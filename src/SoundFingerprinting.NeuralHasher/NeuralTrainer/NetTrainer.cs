@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer
+﻿namespace SoundFingerprinting.NeuralHasher.NeuralTrainer
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +15,7 @@
 
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
-    using SoundFingerprinting.Hashing.NeuralHashing.Utils;
+    using SoundFingerprinting.NeuralHasher.Utils;
     using SoundFingerprinting.Utils;
 
     /// <summary>

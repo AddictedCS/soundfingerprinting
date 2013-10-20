@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.ActivationFunctions
+﻿namespace SoundFingerprinting.NeuralHasher.ActivationFunctions
 {
     using System;
 
@@ -18,8 +18,6 @@
             set { threshold = value; }
         }
 
-        #region IActivationFunction Members
-
         public float Output(float input)
         {
             return input > threshold ? 1.0f : 0.0f;
@@ -34,7 +32,5 @@
         {
             return 0;
         }
-
-        #endregion
     }
 }

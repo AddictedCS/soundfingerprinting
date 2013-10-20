@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.MMI
+﻿namespace SoundFingerprinting.NeuralHasher.MMI
 {
     using System;
     using System.Collections.Generic;
@@ -26,8 +26,8 @@
         public MinimalMutualInfoPattern(int numberOfGroups, int sizeOfGroup)
         {
             NumberOfGroups = numberOfGroups;
-            minimalMutualInfoGroups = new MinimalMutualInfoGroup[this.NumberOfGroups];
-            for (int i = 0; i < this.NumberOfGroups; i++)
+            minimalMutualInfoGroups = new MinimalMutualInfoGroup[NumberOfGroups];
+            for (int i = 0; i < NumberOfGroups; i++)
             {
                 minimalMutualInfoGroups[i] = new MinimalMutualInfoGroup(sizeOfGroup);
             }

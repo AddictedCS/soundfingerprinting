@@ -13,10 +13,10 @@
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.MinHash;
-    using SoundFingerprinting.Hashing.NeuralHashing;
-    using SoundFingerprinting.Hashing.NeuralHashing.Ensemble;
-    using SoundFingerprinting.Hashing.NeuralHashing.MMI;
-    using SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer;
+    using SoundFingerprinting.NeuralHasher;
+    using SoundFingerprinting.NeuralHasher.Ensemble;
+    using SoundFingerprinting.NeuralHasher.MMI;
+    using SoundFingerprinting.NeuralHasher.NeuralTrainer;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Utils;
 

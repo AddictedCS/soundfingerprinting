@@ -15,7 +15,7 @@
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.LSH;
-    using SoundFingerprinting.Hashing.NeuralHashing.Ensemble;
+    using SoundFingerprinting.NeuralHasher.Ensemble;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -413,7 +413,7 @@
                             Invoke(actionInterface);
                             continue;
                         }
-
+                       
                         track = new Track(isrc, artist, title, album, releaseYear, (int)duration);
                         modelService.InsertTrack(track); // Insert new Track in the database
                     }

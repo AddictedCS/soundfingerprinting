@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.NeuralHashing.Utils
+﻿namespace SoundFingerprinting.NeuralHasher.Utils
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -14,7 +14,6 @@
     /// </remarks>
     [Serializable]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:PropertySummaryDocumentationMustMatchAccessors", Justification = "Reviewed. Suppression is OK here.")]
-        
     public class FloatRange
     {
         private float max;
