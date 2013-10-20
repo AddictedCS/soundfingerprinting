@@ -139,6 +139,10 @@
                             {
                                 actualTrack = modelService.ReadTrackByISRC(isrc);
                             }
+                            else if (!string.IsNullOrEmpty(tags.Artist) && !string.IsNullOrEmpty(tags.Title))
+                            {
+                                actualTrack = modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title);
+                            }
 
                             var queryResult =
                                 fingerprintQueryBuilder.BuildQuery()

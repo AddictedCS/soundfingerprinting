@@ -23,7 +23,7 @@
     {
         private const int MaxThreadToProcessFiles = 4; /*2 MaxThreadToProcessFiles used to process the files*/
         private const int MinTrackLength = 20; /*20 sec - minimal track length*/
-        private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
+        private const int MaxTrackLength = 60 * 10; /*15 min - maximal track length*/
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); /*File filters*/
         private readonly IModelService modelService; /*Dal Signature service*/

@@ -13,8 +13,6 @@
             HashTable = hashTable;
         }
 
-        public int Id { get; set; }
-
         public long HashBin { get; set; }
 
         public int HashTable { get; set; }
