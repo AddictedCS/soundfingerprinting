@@ -112,7 +112,6 @@
     <Compile Include="Dao\Entities\Fingerprint.cs" />
     <Compile Include="Dao\Entities\AbstractHashBin.cs" />
     <Compile Include="Dao\Entities\HashBinMinHash.cs" />
-    <Compile Include="Dao\Entities\HashBinNeuralHasher.cs" />
     <Compile Include="Dao\Entities\Track.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Utils\ConstantQ\ConstQ.cs" />

@@ -222,9 +222,8 @@
                                 {
                                     if (item.Value)
                                     {
-                                        networks.Add((Network) SerializeObject.Load(item.Key));
-                                        if (networks[networks.Count - 1].MedianResponces == null)
-                                            networks.RemoveAt(networks.Count - 1);
+                                        networks.Add((Network)SerializeObject.Load(item.Key));
+                                        if (networks[networks.Count - 1].MedianResponces == null) networks.RemoveAt(networks.Count - 1);
                                     }
                                 }
                                 if ((networks.Count*10 /*Number of network outputs*/) < (numberofgroupsneuralhasher*numberofhashesperkeyneuralhasher))
@@ -367,17 +366,10 @@
                     return;
                 }
 
-                IList<HashBinNeuralHasher> listToInsert = new List<HashBinNeuralHasher>();
                 foreach (Fingerprint fingerprint in fingerprints) /*For each track's fingerprint create hash*/
                 {
                     ensemble.ComputeHash(descriptor.DecodeFingerprint(fingerprint.Signature));
                     long[] hashbins = ensemble.ExtractHashBins(); /*Extract hash bin / hash table*/
-                    for (int i = 0; i < hashbins.Length; i++)
-                    {
-                        HashBinNeuralHasher hash = new HashBinNeuralHasher(hashbins[i], i, track.Id);
-                                                      
-                        listToInsert.Add(hash);
-                    }
                 }
                // modelService.InsertHashBin(listToInsert);
                 _pbProgress.Invoke(new Action(() => _pbProgress.PerformStep()));
