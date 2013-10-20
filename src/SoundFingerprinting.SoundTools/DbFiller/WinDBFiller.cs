@@ -368,7 +368,7 @@
                 string isrc = tags.ISRC;
                 string artist = tags.Artist; // Artist
                 string title = tags.Title; // Title
-                int releaseYear = tags.Year != null ? int.Parse(tags.Year) : 0;
+                int releaseYear = tags.Year;
                 string album = tags.Album;
                 double duration = tags.Duration; // Duration
 
@@ -385,7 +385,7 @@
                 }
 
                 // Check whether the tags are properly defined
-                if (string.IsNullOrEmpty(isrc))
+                if (string.IsNullOrEmpty(isrc) || (string.IsNullOrEmpty(artist) && string.IsNullOrEmpty(title)))
                 {
                     badFiles++;
                     processed++;
@@ -398,14 +398,14 @@
                     continue;
                 }
 
-
                 Track track;
                 try
                 {
                     lock (this)
                     {
                         // Check if this file is already in the database
-                        if (modelService.ReadTrackByISRC(isrc) != null)
+                        if (modelService.ReadTrackByISRC(isrc) != null
+                            || modelService.ReadTrackByArtistAndTitleName(artist, title) != null)
                         {
                             duplicates++; // There is such file in the database
                             processed++;
@@ -413,7 +413,7 @@
                             Invoke(actionInterface);
                             continue;
                         }
-                       
+
                         track = new Track(isrc, artist, title, album, releaseYear, (int)duration);
                         modelService.InsertTrack(track); // Insert new Track in the database
                     }

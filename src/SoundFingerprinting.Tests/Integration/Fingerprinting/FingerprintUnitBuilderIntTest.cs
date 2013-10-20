@@ -88,7 +88,7 @@
             QueryFingerprintService queryFingerprintService = new QueryFingerprintService(new CombinedHashingAlgorithm(), modelService);
             ITagService tagService = new BassAudioService();
             TagInfo info = tagService.GetTagInfo(PathToMp3);
-            int releaseYear = string.IsNullOrEmpty(info.Year) ? 0 : int.Parse(info.Year);
+            int releaseYear = info.Year;
             Track track = new Track(info.ISRC, info.Artist, info.Title, info.Album, releaseYear, (int)info.Duration);
 
             modelService.InsertTrack(track);

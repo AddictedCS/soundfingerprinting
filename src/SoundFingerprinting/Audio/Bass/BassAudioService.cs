@@ -348,7 +348,7 @@
                                   Title = tags.title,
                                   AlbumArtist = tags.albumartist,
                                   Genre = tags.genre,
-                                  Year = tags.year,
+                                  Year = !string.IsNullOrEmpty(tags.year) ? int.Parse(tags.year) : 0,
                                   Composer = tags.composer,
                                   ISRC = tags.isrc
                               };

@@ -16,7 +16,7 @@
 
         public string Genre { get; set; }
 
-        public string Year { get; set; }
+        public int Year { get; set; }
 
         public string Composer { get; set; }
 
