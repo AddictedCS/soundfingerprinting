@@ -385,7 +385,7 @@
                 }
 
                 // Check whether the tags are properly defined
-                if (string.IsNullOrEmpty(isrc) || (string.IsNullOrEmpty(artist) && string.IsNullOrEmpty(title)))
+                if (string.IsNullOrEmpty(isrc) && (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title)))
                 {
                     badFiles++;
                     processed++;
@@ -404,8 +404,7 @@
                     lock (this)
                     {
                         // Check if this file is already in the database
-                        if (modelService.ReadTrackByISRC(isrc) != null
-                            || modelService.ReadTrackByArtistAndTitleName(artist, title) != null)
+                        if (IsDuplicateFile(isrc, artist, title))
                         {
                             duplicates++; // There is such file in the database
                             processed++;
@@ -467,6 +466,16 @@
                 processed++;
                 Invoke(actionInterface);
             }
+        }
+
+        private bool IsDuplicateFile(string isrc, string artist, string title)
+        {
+            if (!string.IsNullOrEmpty(isrc))
+            {
+                return modelService.ReadTrackByISRC(isrc) != null;
+            }
+
+            return modelService.ReadTrackByArtistAndTitleName(artist, title) != null;
         }
 
         private void HashSubFingerprintsUsingMinHash(IEnumerable<SubFingerprint> listOfSubFingerprintsToHash)
