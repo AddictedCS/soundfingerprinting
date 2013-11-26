@@ -91,12 +91,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               :version => '2.0.1',
               :platform_family => 'rhel',
               :package_name => 'dsc20'
-            },
+           },
            :java => {
              :jdk_version => '7'
+           },
+           :ntp => {
+             :servers => ['0.pool.ntp.org', '1.pool.ntp.org', '2.pool.ntp.org', '3.pool.ntp.org', '4.pool.ntp.org']
            }
           }
-      chef.add_recipe "cassandra::datastax"
+      
+      chef.run_list = ["ntp", "cassandra::datastax"]
    end
 
   # Enable provisioning with chef server, specifying the chef server URL,
