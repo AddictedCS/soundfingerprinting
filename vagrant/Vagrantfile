@@ -5,6 +5,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 node1ip = '10.11.12.13'
+node2ip = '10.11.12.14'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
  
@@ -22,7 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
          chef.json = {
            :cassandra => {
               :cluster_name => 'SoundFingerprinting Cluster',
-              :initial_token => (2**127 / 2).to_s,
+              :initial_token => '0',
               :seeds => [node1ip],
               :listen_address => node1ip,
               :rpc_address => node1ip,
@@ -38,6 +39,40 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
            }
           }
       
+      chef.run_list = ["ntp", "cassandra::datastax"]
+   end
+  end
+ 
+  config.vm.define "cassandra-node-2" do |configNode|
+    configNode.vm.hostname = "cassandra-node-2"
+    configNode.vm.box = "centos64-x64"
+    configNode.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box" 
+    configNode.vm.network 'private_network', ip: node2ip
+    
+    configNode.vm.provider :virtualbox do |vb|
+       vb.customize ["modifyvm", :id, "--memory", "1024"]
+    end
+
+    configNode.vm.provision :chef_solo do |chef|
+         chef.json = {
+           :cassandra => {
+              :cluster_name => 'SoundFingerprinting Cluster',
+              :initial_token => (2**127 / 2).to_s,
+              :seeds => [node1ip],
+              :listen_address => node2ip,
+              :rpc_address => node2ip,
+              :version => '2.0.1',
+              :platform_family => 'rhel',
+              :package_name => 'dsc20'
+           },
+           :java => {
+             :jdk_version => '7'
+           },
+           :ntp => {
+             :servers => ['0.pool.ntp.org', '1.pool.ntp.org', '2.pool.ntp.org', '3.pool.ntp.org', '4.pool.ntp.org']
+           }
+          }
+
       chef.run_list = ["ntp", "cassandra::datastax"]
    end
   end
