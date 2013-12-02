@@ -32,6 +32,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               :package_name => 'dsc20'
            },
            :java => {
+             :oracle => {
+                :accept_oracle_download_terms => true
+              },
+             :install_flavor => 'oracle',
              :jdk_version => '7'
            },
            :ntp => {
@@ -66,6 +70,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               :package_name => 'dsc20'
            },
            :java => {
+             :oracle => {
+                :accept_oracle_download_terms => true
+             },
+             :install_flavor => 'oracle',
              :jdk_version => '7'
            },
            :ntp => {
