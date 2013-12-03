@@ -20,16 +20,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     configNode.vm.provision :chef_solo do |chef|
+         chef.log_level = :debug
          chef.json = {
            :cassandra => {
               :cluster_name => 'SoundFingerprinting Cluster',
-              :initial_token => '0',
+              :initial_token => '-9223372036854775808',
               :seeds => [node1ip],
               :listen_address => node1ip,
               :rpc_address => node1ip,
               :version => '2.0.1',
               :platform_family => 'rhel',
-              :package_name => 'dsc20'
+              :package_name => 'dsc20',
+              :conf_dir => '/etc/cassandra/default.conf'
            },
            :java => {
              :oracle => {
@@ -58,16 +60,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     configNode.vm.provision :chef_solo do |chef|
+         chef.log_level = :debug
          chef.json = {
            :cassandra => {
               :cluster_name => 'SoundFingerprinting Cluster',
-              :initial_token => (2**127 / 2).to_s,
+              :initial_token => '0',
               :seeds => [node1ip],
               :listen_address => node2ip,
               :rpc_address => node2ip,
               :version => '2.0.1',
               :platform_family => 'rhel',
-              :package_name => 'dsc20'
+              :package_name => 'dsc20',
+              :conf_dir => '/etc/cassandra/default.conf'
            },
            :java => {
              :oracle => {
