@@ -23,15 +23,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
          chef.log_level = :debug
          chef.json = {
            :cassandra => {
+              :repository_username => '<enter username>',
+              :repository_password => '<enter password>',
               :cluster_name => 'SoundFingerprinting Cluster',
               :initial_token => '-9223372036854775808',
               :seeds => [node1ip],
               :listen_address => node1ip,
               :rpc_address => node1ip,
-              :version => '2.0.1',
-              :platform_family => 'rhel',
-              :package_name => 'dsc20',
-              :conf_dir => '/etc/cassandra/default.conf'
+              :opscenter => {
+                  :interface => node1ip
+              }
            },
            :java => {
              :oracle => {
@@ -45,7 +46,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
            }
           }
       
-      chef.run_list = ["ntp", "cassandra::datastax"]
+      chef.run_list = ["cassandra::datastax", "cassandra::opscenter", "ntp"]
    end
   end
  
@@ -63,15 +64,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
          chef.log_level = :debug
          chef.json = {
            :cassandra => {
+              :repository_username => '<enter username>',
+              :repository_password => '<enter password>',
               :cluster_name => 'SoundFingerprinting Cluster',
               :initial_token => '0',
               :seeds => [node1ip],
               :listen_address => node2ip,
               :rpc_address => node2ip,
-              :version => '2.0.1',
-              :platform_family => 'rhel',
-              :package_name => 'dsc20',
-              :conf_dir => '/etc/cassandra/default.conf'
            },
            :java => {
              :oracle => {
@@ -85,7 +84,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
            }
           }
 
-      chef.run_list = ["ntp", "cassandra::datastax"]
+      chef.run_list = ["cassandra::datastax", "ntp"]
    end
   end
 end
