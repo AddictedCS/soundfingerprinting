@@ -1,0 +1,77 @@
+{
+  "name": "ntp",
+  "version": "1.5.0",
+  "description": "Installs and configures ntp as a client or server",
+  "long_description": "NTP Cookbook\n============\n[![Build Status](https://secure.travis-ci.org/opscode-cookbooks/ntp.png?branch=master)](http://travis-ci.org/opscode-cookbooks/ntp)\n\nInstalls and configures ntp. On Windows systems it uses the Meinberg port of the standard NTPd client to Windows.\n\n### About Testing\n\nIn addition to providing interfaces to the ntp time service, this recipe is also designed to provide a simple community cookbook with broad cross-platform support to serve as a testing documentation reference. This cookbook utilizes [Foodcritic](http://acrmp.github.io/foodcritic/), [Test-Kitchen](https://github.com/opscode/test-kitchen), [Vagrant](http://www.vagrantup.com), [Chefspec](http://acrmp.github.io/chefspec/), [bats](https://github.com/sstephenson/bats), [Rubocop](https://github.com/bbatsov/rubocop), and [Travis-CI](https://travis-ci.org) to provide a comprehensive suite of automated test coverage.\n\nMore information on the testing strategy used in this cookbook is available in the TESTING.md file, along with information on how to use this type of testing in your own cookbooks.\n\n\nRequirements\n------------\n### Supported Operating Systems\n- Debian-family Linux Distributions\n- RedHat-family Linux Distributions\n- FreeBSD\n- Windows\n\n### Cookbooks\n- When running on Windows based systems, the node must include the Windows cookbook. This cookbook suggests the Windows cookbook in the metadata so as to not force inclusion of the Windows cookbook on *nix systems. Change 'suggests' to 'depends' if you require Windows platform support.\n\nAttributes\n----------\n### Recommended tunables\n\n* `ntp['servers']` - (applies to NTP Servers and Clients)\n- Array, should be a list of upstream NTP servers that will be considered authoritative by the local NTP daemon. The local NTP daemon will act as a client, adjusting local time to match time data retrieved from the upstream NTP servers.\n\n  The NTP protocol works best with at least 4 servers. The ntp daemon will disregard any server after the 10th listed, but will continue monitoring all listed servers. For more information, see [Upstream Server Time Quantity](http://support.ntp.org/bin/view/Support/SelectingOffsiteNTPServers#Section_5.3.3.) at [support.ntp.org](http://support.ntp.org).\n\n* `ntp['peers']` - (applies to NTP Servers ONLY)\n- Array, should be a list of local NTP peers. For more information, see [Designing Your NTP Network](http://support.ntp.org/bin/view/Support/DesigningYourNTPNetwork) at [support.ntp.org](http://support.ntp.org).\n\n* `ntp['restrictions']` - (applies to NTP Servers only)\n- Array, should be a list of restrict lines to define access to NTP clients on your LAN.\n\n* `ntp['sync_clock']` (applies to NTP Servers and Clients)\n  - Boolean. Defaults to false. Forces the ntp daemon to be halted, an ntp -q command to be issued, and the ntp daemon to be restarted again on every Chef-client run. Will have no effect if drift is over 1000 seconds.\n\n* `ntp['sync_hw_clock']` (applies to NTP Servers and Clients)\n  - Boolean. Defaults to false. On *nix-based systems, forces the 'hwclock --systohc' command to be issued on every Chef-client run. This will sync the hardware clock to the system clock.\n  - Not available on Windows.\n\n### Platform specific\n\n* `ntp['packages']`\n\n  - Array, the packages to install\n  - Default, ntp for everything, ntpdate depending on platform. Not applicable for\n    Windows nodes\n\n* `ntp['service']`\n\n  - String, the service to act on\n  - Default, ntp, NTP, or ntpd, depending on platform\n\n* `ntp['varlibdir']`\n\n  - String, the path to /var/lib files such as the driftfile.\n  - Default, platform-specific location. Not applicable for Windows nodes\n\n* `ntp['driftfile']`\n\n  - String, the path to the frequency file.\n  - Default, platform-specific location.\n\n* `ntp['conffile']`\n\n  - String, the path to the ntp configuration file.\n  - Default, platform-specific location.\n\n* `ntp['statsdir']`\n\n  - String, the directory path for files created by the statistics facility.\n  - Default, platform-specific location. Not applicable for Windows nodes\n\n* `ntp['conf_owner'] and ntp['conf_group']`\n\n  - String, the owner and group of the sysconf directory files, such as /etc/ntp.conf.\n  - Default, platform-specific root:root or root:wheel.\n\n* `ntp['var_owner'] and ntp['var_group']`\n\n  - String, the owner and group of the /var/lib directory files, such as /var/lib/ntp.\n  - Default, platform-specific ntp:ntp or root:wheel. Not applicable for Windows nodes\n\n* `ntp['leapfile']`\n  - String, the path to the ntp leapfile.\n  - Default, /etc/ntp.leapseconds.\n\n* `ntp['package_url']`\n\n  - String, the URL to the the Meinberg NTPd client installation package.\n  - Default, Meinberg site download URL\n  - Windows platform only\n\n* `ntp['vs_runtime_url']`\n\n  - String, the URL to the the Visual Studio C++ 2008 runtime libraries that are required\n    for the Meinberg NTP client.\n  - Default, Microsoft site download URL\n  - Windows platform only\n\n* `ntp['vs_runtime_productname']`\n\n  - String, the installation name of the Visual Studio C++ Runtimes file.\n  - Default, \"Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022\"\n  - Windows platform only\n\n* ntp['sync_hw_clock']\n  - Boolean, determines if the ntpdate command is issued to sync the hardware clock\n  - Default, false\n  - Not applicable for Windows nodes\n\n\nUsage\n-----\n### default recipe\n\nSet up the ntp attributes in a role. For example in a base.rb role applied to all nodes:\n\n```ruby\nname 'base'\ndescription 'Role applied to all systems'\ndefault_attributes(\n  'ntp' => {\n    'servers' => ['time0.int.example.org', 'time1.int.example.org']\n  }\n)\n```\n\nThen in an ntpserver.rb role that is applied to NTP servers (e.g., time.int.example.org):\n\n```ruby\nname 'ntp_server'\ndescription 'Role applied to the system that should be an NTP server.'\ndefault_attributes(\n  'ntp' => {\n    'is_server'    => 'true',\n    'servers'      => ['0.pool.ntp.org', '1.pool.ntp.org'],\n    'peers'        => ['time0.int.example.org', 'time1.int.example.org'],\n    'restrictions' => ['10.0.0.0 mask 255.0.0.0 nomodify notrap']\n  }\n)\n```\n\nThe timeX.int.example.org used in these roles should be the names or IP addresses of internal NTP servers. Then simply add ntp, or `ntp::default` to your run_list to apply the ntp daemon's configuration.\n\n### undo recipe\n\nIf for some reason you need to stop and remove the ntp daemon, you can apply this recipe by adding `ntp::undo` to your run_list. The undo recipe is not supported on Windows at the moment.\n\n### windows_client recipe\n\nWindows only. Apply on a Windows host to install the Meinberg NTPd client. \n\n\nDevelopment\n-----------\nThis section details \"quick development\" steps. For a detailed explanation, see [[Contributing.md]].\n\n1. Clone this repository from GitHub:\n\n        $ git clone git@github.com:opscode-cookbooks/ntp.git\n\n2. Create a git branch\n\n        $ git checkout -b my_bug_fix\n\n3. Install dependencies:\n\n        $ bundle install\n\n4. **Write tests**\n5. Make your changes/patches/fixes, committing appropriately\n6. Run the tests:\n    - `bundle exec foodcritic -f any .`\n    - `bundle exec rspec`\n    - `bundle exec rubocop`\n    - `bundle exec kitchen test`\n\n  In detail:\n    - Foodcritic will catch any Chef-specific style errors\n    - RSpec will run the unit tests\n    - Rubocop will check for Ruby-specific style errors\n    - Test Kitchen will run and converge the recipes\n\n\nLicense & Authors\n-----------------\n- Author:: Joshua Timberman (<joshua@opscode.com>)\n- Contributor:: Eric G. Wolfe (<wolfe21@marshall.edu>)\n- Contributor:: Fletcher Nichol (<fletcher@nichol.ca>)\n- Contributor:: Tim Smith (<tsmith@limelight.com>)\n- Contributor:: Charles Johnson (<charles@opscode.com>)\n- Contributor:: Brad Knowles (<bknowles@momentumsi.com>)\n\n```text\nCopyright 2009-2013, Opscode, Inc.\nCopyright 2012, Eric G. Wolfe\nCopyright 2012, Fletcher Nichol\nCopyright 2012, Webtrends, Inc.\nCopyright 2013, Limelight Networks, Inc.\nCopyright 2013, Brad Knowles\nCopyright 2013, Brad Beam\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n```\n",
+  "maintainer": "Opscode, Inc.",
+  "maintainer_email": "cookbooks@opscode.com",
+  "license": "Apache 2.0",
+  "platforms": {
+    "amazon": ">= 0.0.0",
+    "centos": ">= 0.0.0",
+    "debian": ">= 0.0.0",
+    "fedora": ">= 0.0.0",
+    "freebsd": ">= 0.0.0",
+    "redhat": ">= 0.0.0",
+    "scientific": ">= 0.0.0",
+    "oracle": ">= 0.0.0",
+    "ubuntu": ">= 0.0.0",
+    "windows": ">= 0.0.0",
+    "xcp": ">= 0.0.0"
+  },
+  "dependencies": {
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+    "windows": ">= 0.0.0"
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+    "ntp": {
+      "display_name": "NTP",
+      "description": "Hash of NTP attributes",
+      "type": "hash"
+    },
+    "ntp/servers": {
+      "display_name": "NTP Servers",
+      "description": "Array of servers we should talk to",
+      "type": "array",
+      "default": [
+        "0.pool.ntp.org",
+        "1.pool.ntp.org",
+        "2.pool.ntp.org",
+        "3.pool.ntp.org"
+      ],
+      "required": "recommended"
+    },
+    "ntp/peers": {
+      "display_name": "NTP Peers",
+      "description": "Array of local NTP servers, we should peer with",
+      "type": "array",
+      "default": [
+
+      ],
+      "required": "recommended"
+    },
+    "ntp/restrictions": {
+      "display_name": "Restriction lines",
+      "description": "Array of restriction lines to apply to NTP servers",
+      "type": "array",
+      "default": [
+
+      ],
+      "required": "recommended"
+    }
+  },
+  "groupings": {
+  },
+  "recipes": {
+    "ntp": "Installs and configures ntp either as a server or client"
+  }
+}

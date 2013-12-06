@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 namespace SoundFingerprinting.Dao.Conditions
 {
     using System;
@@ -40,4 +41,48 @@ namespace SoundFingerprinting.Dao.Conditions
             return DbType.Int32;
         }
     }
+=======
+namespace SoundFingerprinting.Dao.Conditions
+{
+    using System;
+    using System.Data;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+
+    using SoundFingerprinting.Dao.Internal;
+
+    public class AsValueEnum<TModel> : ICondition<TModel>
+    {
+        private readonly Expression<Func<TModel, object>> expression;
+
+        public AsValueEnum(Expression<Func<TModel, object>> expression)
+        {
+            this.expression = expression;
+        }
+
+        public string GetFullParameterName()
+        {
+            var regex = new Regex(@"((?:\.\w+)+)\W*$");
+            return regex.Match(expression.ToString()).Groups[1].Value.Substring(1);
+        }
+
+        public Expression GetReaderTransformation(ParameterExpression parameterReader, string parameterName, Type propertyType)
+        {
+            Expression[] args = new Expression[] { Expression.Constant(parameterName) };
+            MethodInfo memberByName = TypeRegistry.MethodGetEnumMemberById.MakeGenericMethod(propertyType);
+            return Expression.Call(parameterReader, memberByName, args);
+        }
+
+        public Expression GetWriterTransformation(Expression property)
+        {
+            return Expression.Convert(property, typeof(int));
+        }
+
+        public DbType GetParameterDbType()
+        {
+            return DbType.Int32;
+        }
+    }
+>>>>>>> 29ad7f2255c9e65f055245321140987dbe9f1382
 }
