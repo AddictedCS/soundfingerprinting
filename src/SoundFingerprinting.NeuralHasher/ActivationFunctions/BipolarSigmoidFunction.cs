@@ -23,6 +23,7 @@
             {
                 return alfa;
             }
+
             set
             {
                 alfa = value;

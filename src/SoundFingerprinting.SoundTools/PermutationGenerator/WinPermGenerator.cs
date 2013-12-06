@@ -65,9 +65,6 @@
         /// </summary>
         private int to = 4096 * 2;
 
-        /// <summary>
-        ///   Parameter less constructor
-        /// </summary>
         public WinPermGenerator(IPermutationGeneratorService permutationGeneratorService)
         {
             this.permutationGeneratorService = permutationGeneratorService;

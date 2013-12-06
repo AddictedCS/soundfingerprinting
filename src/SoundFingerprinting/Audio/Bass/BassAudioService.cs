@@ -31,6 +31,7 @@
         private static int initializedInstances;
 
         private bool alreadyDisposed;
+
         public BassAudioService()
         {
             lock (LockObject)
@@ -38,25 +39,28 @@
                 if (!IsNativeBassLibraryInitialized())
                 {
                     string executingPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
-                    Uri uri = new Uri(executingPath);
-                    string targetPath = Path.Combine(uri.LocalPath, Utils.Is64Bit ? "x64" : "x86");
-
-                    // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
-                    BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
-
-                    // Dummy calls made for loading the assemblies
-#pragma warning disable 168
-                    bool isBassLoad = Bass.LoadMe(targetPath);
-                    bool isBassMixLoad = BassMix.LoadMe(targetPath);
-                    bool isBassFxLoad = BassFx.LoadMe(targetPath);
-                    int bassVersion = Bass.BASS_GetVersion();
-                    int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
-                    int bassfxVersion = BassFx.BASS_FX_GetVersion();
-#pragma warning restore 168
-                    var loadedPlugIns = Bass.BASS_PluginLoadDirectory(targetPath);
-                    if (!loadedPlugIns.Any(p => p.Value.EndsWith("bassflac.dll")))
+                    if (executingPath != null)
                     {
-                        throw new Exception("Couldnt load the bass flac plugin!");
+                        Uri uri = new Uri(executingPath);
+                        string targetPath = Path.Combine(uri.LocalPath, Utils.Is64Bit ? "x64" : "x86");
+
+                        // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
+                        BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
+
+                        // Dummy calls made for loading the assemblies
+#pragma warning disable 168
+                        bool isBassLoad = Bass.LoadMe(targetPath);
+                        bool isBassMixLoad = BassMix.LoadMe(targetPath);
+                        bool isBassFxLoad = BassFx.LoadMe(targetPath);
+                        int bassVersion = Bass.BASS_GetVersion();
+                        int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
+                        int bassfxVersion = BassFx.BASS_FX_GetVersion();
+#pragma warning restore 168
+                        var loadedPlugIns = Bass.BASS_PluginLoadDirectory(targetPath);
+                        if (!loadedPlugIns.Any(p => p.Value.EndsWith("bassflac.dll")))
+                        {
+                            throw new Exception("Couldnt load the bass flac plugin!");
+                        }
                     }
 
                     // Set Sample Rate / MONO
@@ -88,7 +92,7 @@
             }
         }
 
-                /// <summary>
+        /// <summary>
         /// Finalizes an instance of the <see cref="BassAudioService"/> class.
         /// </summary>
         ~BassAudioService()

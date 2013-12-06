@@ -163,7 +163,6 @@
     <Compile Include="QueryDb\WinQueryResults.designer.cs">
       <DependentUpon>WinQueryResults.cs</DependentUpon>
     </Compile>
-    <Compile Include="QueryStats.cs" />
     <Compile Include="WaveletDecomposition\WinHaarWavelet.cs">
       <SubType>Form</SubType>
     </Compile>

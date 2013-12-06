@@ -59,12 +59,11 @@
         /// </summary>
         private string pathToEnsemble = "Ensemble.ens";
 
-        public WinEnsembleHash(IFingerprintService fingerprintService, IModelService modelService)
+        public WinEnsembleHash(IModelService modelService)
         {
             this.modelService = modelService;
             InitializeComponent();
             Icon = Resources.Sound;
-            new DatabasePermutations(modelService);
         }
 
         /// <summary>
@@ -280,16 +279,10 @@
                                }, action);
         }
 
-        /// <summary>
-        ///   New connection string selected
-        /// </summary>
         private void ComboBox1SelectedIndexChanged(object sender, EventArgs e)
         {
         }
 
-        /// <summary>
-        ///   Compute hashes using NeuralNetworkEnsemble
-        /// </summary>
         private void BntComputeHashesClick(object sender, EventArgs e)
         {
             Invoke(new Action(() =>
