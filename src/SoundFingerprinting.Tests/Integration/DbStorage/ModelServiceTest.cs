@@ -8,14 +8,30 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Hashing.LSH;
+    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Query.Configuration;
+    using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
     public class ModelServiceTest : AbstractIntegrationTest
     {
         private readonly ModelService modelService = new ModelService();
+
+        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
+        private readonly ITagService tagService;
+        private readonly ILSHService lshService;
+
+        public ModelServiceTest()
+        {
+            fingerprintUnitBuilder = DependencyResolver.Current.Get<IFingerprintUnitBuilder>();
+            tagService = DependencyResolver.Current.Get<ITagService>();
+            lshService = DependencyResolver.Current.Get<ILSHService>();
+        }
 
         #region Insert/Read/Delete Track objects tests
 
@@ -157,6 +173,67 @@
             Assert.IsTrue(allTracks.Count > 0);
             modelService.DeleteTrack(allTracks.Select(t => t.Id));
             Assert.IsTrue(modelService.ReadTracks().Count == 0);
+        }
+
+        [TestMethod]
+        public void DeleteHashBinsAndSubfingerprintsOnTrackDelete()
+        {
+            const int StaticStride = 5115;
+            const int SecondsToProcess = 20;
+            const int StartAtSecond = 30;
+            DefaultQueryConfiguration defaultQueryConfiguration = new DefaultQueryConfiguration();
+            TagInfo tagInfo = tagService.GetTagInfo(PathToMp3);
+            int releaseYear = tagInfo.Year;
+            Track track = new Track(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
+            modelService.InsertTrack(track);
+
+            var subFingerprints = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                                            .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                                            .WithCustomAlgorithmConfiguration(config =>
+                                            {
+                                                config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
+                                            })
+                                            .FingerprintIt()
+                                            .HashIt()
+                                            .ForTrack(track.Id)
+                                            .Result;
+
+            modelService.InsertSubFingerprint(subFingerprints);
+            var hashBins = new List<HashBinMinHash>();
+            foreach (var subFingerprint in subFingerprints)
+            {
+                long[] groupedSubFingerprint = lshService.Hash(subFingerprint.Signature, defaultQueryConfiguration.NumberOfLSHTables, defaultQueryConfiguration.NumberOfMinHashesPerTable);
+                for (int i = 0; i < groupedSubFingerprint.Length; i++)
+                {
+                    int tableNumber = i + 1;
+                    hashBins.Add(new HashBinMinHash(groupedSubFingerprint[i], tableNumber, subFingerprint.Id));
+                }
+            }
+
+            modelService.InsertHashBin(hashBins);
+            var actualTrack = modelService.ReadTrackByISRC(tagInfo.ISRC);
+            Assert.IsNotNull(actualTrack);
+            AssertTracksAreEqual(track, actualTrack);
+            foreach (var subFingerprint in subFingerprints)
+            {
+                long[] groupedSubFingerprint = lshService.Hash(subFingerprint.Signature, defaultQueryConfiguration.NumberOfLSHTables, defaultQueryConfiguration.NumberOfMinHashesPerTable);
+                var result = modelService.ReadSubFingerprintsByHashBucketsHavingThreshold(groupedSubFingerprint, defaultQueryConfiguration.NumberOfLSHTables);
+                var tupple = result.First();
+                Assert.AreEqual(defaultQueryConfiguration.NumberOfLSHTables, tupple.Item2);
+                var actualSufingerprint = tupple.Item1;
+                AssertSubFingerprintsAreEqual(subFingerprint, actualSufingerprint);
+            }
+
+            // Act
+            modelService.DeleteTrack(track);
+
+            Assert.IsNull(modelService.ReadTrackByISRC(tagInfo.ISRC));
+            foreach (var subFingerprint in subFingerprints)
+            {
+                long[] groupedSubFingerprint = lshService.Hash(subFingerprint.Signature, defaultQueryConfiguration.NumberOfLSHTables, defaultQueryConfiguration.NumberOfMinHashesPerTable);
+                var result = modelService.ReadSubFingerprintsByHashBucketsHavingThreshold(groupedSubFingerprint, defaultQueryConfiguration.NumberOfLSHTables);
+                Assert.IsTrue(!result.Any());
+            }
         }
 
         #endregion
@@ -493,6 +570,16 @@
             Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
             Assert.AreEqual(expectedTrack.TrackLengthSec, actualTrack.TrackLengthSec);
             Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
+        }
+
+        private void AssertSubFingerprintsAreEqual(SubFingerprint subFingerprint, SubFingerprint actualSufingerprint)
+        {
+            Assert.AreEqual(subFingerprint.Id, actualSufingerprint.Id);
+            Assert.AreEqual(subFingerprint.TrackId, actualSufingerprint.TrackId);
+            for (var i = 0; i < subFingerprint.Signature.Length; i++)
+            {
+                Assert.AreEqual(subFingerprint.Signature[i], actualSufingerprint.Signature[i]);
+            }
         }
     }
 }

@@ -7,6 +7,7 @@
             DefaultQueryConfiguration defaultConfiguration = new DefaultQueryConfiguration();
             NumberOfLSHTables = defaultConfiguration.NumberOfLSHTables;
             NumberOfMinHashesPerTable = defaultConfiguration.NumberOfMinHashesPerTable;
+            ThresholdVotes = defaultConfiguration.ThresholdVotes;
         }
 
         public int NumberOfLSHTables { get; set; }
