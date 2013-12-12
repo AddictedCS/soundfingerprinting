@@ -12,7 +12,9 @@ namespace SoundFingerprinting.Dao.Internal
     internal class ModelReaderBuilder<TModel>
     {
         private readonly ParameterExpression parameterReader;
+
         private readonly ParameterExpression parameterModel;
+
         private readonly ICollection<Expression> expressions;
 
         public ModelReaderBuilder()
@@ -38,7 +40,8 @@ namespace SoundFingerprinting.Dao.Internal
 
             if (transformations.ContainsKey(fullParameterName))
             {
-                methodExpression = transformations[fullParameterName].GetReaderTransformation(parameterReader, parameterName, propertyType);
+                methodExpression = transformations[fullParameterName].GetReaderTransformation(
+                    parameterReader, parameterName, propertyType);
             }
             else if (IsEnumOrNullableEnum(propertyType))
             {
@@ -68,7 +71,8 @@ namespace SoundFingerprinting.Dao.Internal
         public Action<IReader, TModel> Compile()
         {
             Expression body = Expression.Block(expressions);
-            Expression<Action<IReader, TModel>> lambda = Expression.Lambda<Action<IReader, TModel>>(body, parameterReader, parameterModel);
+            Expression<Action<IReader, TModel>> lambda = Expression.Lambda<Action<IReader, TModel>>(
+                body, parameterReader, parameterModel);
             return lambda.Compile();
         }
 

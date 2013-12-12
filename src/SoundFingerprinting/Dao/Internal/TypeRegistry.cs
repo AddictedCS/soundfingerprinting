@@ -37,7 +37,8 @@ namespace SoundFingerprinting.Dao.Internal
             return typeof(T).GetMethod(methodName);
         }
 
-        private static MethodInfo GetMethod<T>(Expression<Func<T, Action<string, DbType, object>>> expression, Type[] types)
+        private static MethodInfo GetMethod<T>(
+            Expression<Func<T, Action<string, DbType, object>>> expression, Type[] types)
         {
             string methodName = GetMethodName(expression);
             return typeof(T).GetMethod(methodName, types);

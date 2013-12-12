@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Integration.AudioProxies
 {
+    using System;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
@@ -16,9 +18,11 @@
         {
             TagInfo tags = tagService.GetTagInfo(PathToMp3);
             Assert.IsNotNull(tags);
-            Assert.IsNotNull(tags.Artist);
-            Assert.IsNotNull(tags.Title);
-            Assert.IsNotNull(tags.Duration);
+            Assert.AreEqual("3 Doors Down", tags.Artist);
+            Assert.AreEqual("Kryptonite", tags.Title);
+            Assert.AreEqual("USUR19980187", tags.ISRC);
+            Assert.AreEqual(1997, tags.Year);
+            Assert.IsTrue(Math.Abs(232 - tags.Duration) < 1);
         }
     }
 }

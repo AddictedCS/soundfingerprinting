@@ -13,10 +13,10 @@
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.MinHash;
-    using SoundFingerprinting.Hashing.NeuralHashing;
-    using SoundFingerprinting.Hashing.NeuralHashing.Ensemble;
-    using SoundFingerprinting.Hashing.NeuralHashing.MMI;
-    using SoundFingerprinting.Hashing.NeuralHashing.NeuralTrainer;
+    using SoundFingerprinting.NeuralHasher;
+    using SoundFingerprinting.NeuralHasher.Ensemble;
+    using SoundFingerprinting.NeuralHasher.MMI;
+    using SoundFingerprinting.NeuralHasher.NeuralTrainer;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Utils;
 
@@ -59,12 +59,11 @@
         /// </summary>
         private string pathToEnsemble = "Ensemble.ens";
 
-        public WinEnsembleHash(IFingerprintService fingerprintService, IModelService modelService)
+        public WinEnsembleHash(IModelService modelService)
         {
             this.modelService = modelService;
             InitializeComponent();
             Icon = Resources.Sound;
-            new DatabasePermutations(modelService);
         }
 
         /// <summary>
@@ -222,9 +221,8 @@
                                 {
                                     if (item.Value)
                                     {
-                                        networks.Add((Network) SerializeObject.Load(item.Key));
-                                        if (networks[networks.Count - 1].MedianResponces == null)
-                                            networks.RemoveAt(networks.Count - 1);
+                                        networks.Add((Network)SerializeObject.Load(item.Key));
+                                        if (networks[networks.Count - 1].MedianResponces == null) networks.RemoveAt(networks.Count - 1);
                                     }
                                 }
                                 if ((networks.Count*10 /*Number of network outputs*/) < (numberofgroupsneuralhasher*numberofhashesperkeyneuralhasher))
@@ -281,16 +279,10 @@
                                }, action);
         }
 
-        /// <summary>
-        ///   New connection string selected
-        /// </summary>
         private void ComboBox1SelectedIndexChanged(object sender, EventArgs e)
         {
         }
 
-        /// <summary>
-        ///   Compute hashes using NeuralNetworkEnsemble
-        /// </summary>
         private void BntComputeHashesClick(object sender, EventArgs e)
         {
             Invoke(new Action(() =>
@@ -367,19 +359,10 @@
                     return;
                 }
 
-                IList<HashBinNeuralHasher> listToInsert = new List<HashBinNeuralHasher>();
                 foreach (Fingerprint fingerprint in fingerprints) /*For each track's fingerprint create hash*/
                 {
                     ensemble.ComputeHash(descriptor.DecodeFingerprint(fingerprint.Signature));
                     long[] hashbins = ensemble.ExtractHashBins(); /*Extract hash bin / hash table*/
-                    for (int i = 0; i < hashbins.Length; i++)
-                    {
-                        HashBinNeuralHasher hash = new HashBinNeuralHasher(hashbins[i], i, track.Id)
-                                                       {
-                                                           Id = i
-                                                       };
-                        listToInsert.Add(hash);
-                    }
                 }
                // modelService.InsertHashBin(listToInsert);
                 _pbProgress.Invoke(new Action(() => _pbProgress.PerformStep()));

@@ -38,28 +38,33 @@
             {
                 if (!IsNativeBassLibraryInitialized())
                 {
-                    string targetPath = Path.Combine(Environment.CurrentDirectory, Utils.Is64Bit ? "x64" : "x86");
-
-                    // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
-                    BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
-
-                    // Dummy calls made for loading the assemblies
-#pragma warning disable 168
-                    bool isBassLoad = Bass.LoadMe(targetPath);
-                    bool isBassMixLoad = BassMix.LoadMe(targetPath);
-                    bool isBassFxLoad = BassFx.LoadMe(targetPath);
-                    int bassVersion = Bass.BASS_GetVersion();
-                    int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
-                    int bassfxVersion = BassFx.BASS_FX_GetVersion();
-#pragma warning restore 168
-                    var loadedPlugIns = Bass.BASS_PluginLoadDirectory(targetPath);
-                    if (!loadedPlugIns.Any(p => p.Value.EndsWith("bassflac.dll")))
+                    string executingPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
+                    if (executingPath != null)
                     {
-                        throw new Exception("Couldnt load the bass flac plugin!");
+                        Uri uri = new Uri(executingPath);
+                        string targetPath = Path.Combine(uri.LocalPath, Utils.Is64Bit ? "x64" : "x86");
+
+                        // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used :D
+                        BassNet.Registration("gleb.godonoga@gmail.com", "2X155323152222");
+
+                        // Dummy calls made for loading the assemblies
+#pragma warning disable 168
+                        bool isBassLoad = Bass.LoadMe(targetPath);
+                        bool isBassMixLoad = BassMix.LoadMe(targetPath);
+                        bool isBassFxLoad = BassFx.LoadMe(targetPath);
+                        int bassVersion = Bass.BASS_GetVersion();
+                        int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
+                        int bassfxVersion = BassFx.BASS_FX_GetVersion();
+#pragma warning restore 168
+                        var loadedPlugIns = Bass.BASS_PluginLoadDirectory(targetPath);
+                        if (!loadedPlugIns.Any(p => p.Value.EndsWith("bassflac.dll")))
+                        {
+                            throw new Exception("Couldnt load the bass flac plugin!");
+                        }
                     }
 
                     // Set Sample Rate / MONO
-                    if (!Bass.BASS_Init(-1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
+                    if (!Bass.BASS_Init(0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
                     {
                         throw new Exception(Bass.BASS_ErrorGetCode().ToString());
                     }
@@ -87,7 +92,7 @@
             }
         }
 
-                /// <summary>
+        /// <summary>
         /// Finalizes an instance of the <see cref="BassAudioService"/> class.
         /// </summary>
         ~BassAudioService()
@@ -119,10 +124,6 @@
         /// <param name = "secondsToRead">Milliseconds to read</param>
         /// <param name = "startAtSecond">Start millisecond</param>
         /// <returns>Array of samples</returns>
-        /// <remarks>
-        ///   Seeking capabilities of Bass where not used because of the possible
-        ///   timing errors on different formats.
-        /// </remarks>
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
             // create streams for re-sampling
@@ -133,7 +134,8 @@
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
             }
 
-            int mixerStream = BassMix.BASS_Mixer_StreamCreate(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+            const int Mono = 1;
+            int mixerStream = BassMix.BASS_Mixer_StreamCreate(sampleRate, Mono, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
             if (mixerStream == 0)
             {
                 throw new Exception(Bass.BASS_ErrorGetCode().ToString());
@@ -146,7 +148,7 @@
 
             if (startAtSecond > 0)
             {
-                if (!Bass.BASS_ChannelSetPosition(stream, startAtSecond))
+                if (!Bass.BASS_ChannelSetPosition(stream, (double)startAtSecond))
                 {
                     throw new Exception(Bass.BASS_ErrorGetCode().ToString());
                 }
@@ -337,17 +339,25 @@
         public TagInfo GetTagInfo(string pathToAudioFile)
         {
             TAG_INFO tags = BassTags.BASS_TAG_GetFromFile(pathToAudioFile);
+            if (tags == null)
+            {
+                return new TagInfo { IsEmpty = true };
+            }
+
+            int year;
+            int.TryParse(tags.year, out year);
             TagInfo tag = new TagInfo
-                              {
-                                  Duration = tags.duration,
-                                  Album = tags.album,
-                                  Artist = tags.artist,
-                                  Title = tags.title,
-                                  AlbumArtist = tags.albumartist,
-                                  Genre = tags.genre,
-                                  Year = tags.year,
-                                  Composer = tags.composer
-                              };
+                {
+                    Duration = tags.duration,
+                    Album = tags.album,
+                    Artist = tags.artist,
+                    Title = tags.title,
+                    AlbumArtist = tags.albumartist,
+                    Genre = tags.genre,
+                    Year = year,
+                    Composer = tags.composer,
+                    ISRC = tags.isrc
+                };
 
             return tag;
         }

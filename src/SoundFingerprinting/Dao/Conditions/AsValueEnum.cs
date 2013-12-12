@@ -23,7 +23,8 @@ namespace SoundFingerprinting.Dao.Conditions
             return regex.Match(expression.ToString()).Groups[1].Value.Substring(1);
         }
 
-        public Expression GetReaderTransformation(ParameterExpression parameterReader, string parameterName, Type propertyType)
+        public Expression GetReaderTransformation(
+            ParameterExpression parameterReader, string parameterName, Type propertyType)
         {
             Expression[] args = new Expression[] { Expression.Constant(parameterName) };
             MethodInfo memberByName = TypeRegistry.MethodGetEnumMemberById.MakeGenericMethod(propertyType);

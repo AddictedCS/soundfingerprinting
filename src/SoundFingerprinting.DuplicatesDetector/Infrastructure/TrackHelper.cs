@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
+namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
 {
     using System.IO;
 

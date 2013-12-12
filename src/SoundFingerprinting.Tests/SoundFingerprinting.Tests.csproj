@@ -42,10 +42,6 @@
       <HintPath>..\Externals\Bass\Bass.Net.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Microsoft.DirectX.DirectSound, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Externals\Microsoft.DirectX.DirectSound.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
@@ -77,6 +73,7 @@
     <Compile Include="Unit\Fingerprinting\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintUnitBuilderTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintUtilsTest.cs" />
+    <Compile Include="Unit\Fingerprinting\Utils\AbsComparatorTest.cs" />
     <Compile Include="Unit\Fingerprinting\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Unit\Fingerprinting\Wavelets\HaarWaveletTest.cs" />
     <Compile Include="Unit\Infrastructure\DependencyResolverTest.cs" />
@@ -87,8 +84,13 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TestEnvironment\floatsamples.bin" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.NeuralHasher\SoundFingerprinting.NeuralHasher.csproj">
+      <Project>{87cc569e-7d2a-4159-8cc1-dd1b563553f5}</Project>
+      <Name>SoundFingerprinting.NeuralHasher</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>

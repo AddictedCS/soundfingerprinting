@@ -1,6 +1,7 @@
 namespace SoundFingerprinting
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
@@ -48,15 +49,25 @@ namespace SoundFingerprinting
             List<float[][]> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, stride, fingerprintLength, overlap);
             
             waveletService.ApplyWaveletTransformInPlace(spectralImages);
-            
+
             List<bool[]> fingerprints = new List<bool[]>();
             foreach (var spectralImage in spectralImages)
             {
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets);
+                if (IsSilence(image))
+                {
+                    continue;
+                }
+
                 fingerprints.Add(image);
             }
 
             return fingerprints;
+        }
+
+        private bool IsSilence(IEnumerable<bool> image)
+        {
+            return image.All(b => b == false);
         }
     }
 }

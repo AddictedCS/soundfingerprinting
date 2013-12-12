@@ -12,7 +12,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Query;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -80,24 +79,8 @@
         private void CmbAlgorithmSelectedIndexChanged(object sender, EventArgs e)
         {
             hashAlgorithm = (HashAlgorithm)_cmbAlgorithm.SelectedIndex;
-
-            switch (_cmbAlgorithm.SelectedIndex)
-            {
-                case (int)HashAlgorithm.LSH: /*Locality sensitive hashing + min hash*/
-                    _gbMinHash.Enabled = true;
-                    _gbNeuralHasher.Enabled = false;
-                    _nudQueryStrideMax.Value = 253;
-                    break;
-                case (int)HashAlgorithm.NeuralHasher: /*Neural hasher*/
-                    _gbMinHash.Enabled = false;
-                    _gbNeuralHasher.Enabled = true;
-                    _nudQueryStrideMax.Value = 640;
-                    break;
-                case (int)HashAlgorithm.None: /*None*/
-                    _gbMinHash.Enabled = false;
-                    _gbNeuralHasher.Enabled = false;
-                    break;
-            }
+            _gbMinHash.Enabled = true;
+            _gbNeuralHasher.Enabled = false;
         }
 
         private void BtnBrowseFolderClick(object sender, EventArgs e)
@@ -170,8 +153,8 @@
                     }
 
                     WinQueryResults winQueryResults = new WinQueryResults(
-                        (int)_nudNumberOfFingerprints.Value,
-                        (int)_numStaratSeconds.Value,
+                        _numSecondsToAnalyze.Enabled ? (int)_numSecondsToAnalyze.Value : 0,
+                        _numStartAtSecond.Enabled ? (int)_numStartAtSecond.Value : 0,
                         (int)_nudHashtables.Value,
                         (int)_nudKeys.Value,
                         Convert.ToInt32(_nudThreshold.Value),
@@ -216,6 +199,11 @@
                         winQueryResults.ExtractCandidatesUsingSamples(task.Result);
                     },
                 TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void CbFullSongCheckedChanged(object sender, EventArgs e)
+        {
+            _numSecondsToAnalyze.Enabled = _numStartAtSecond.Enabled = !cbFullSong.Checked;
         }
     }
 }

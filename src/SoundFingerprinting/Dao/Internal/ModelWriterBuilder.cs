@@ -12,7 +12,9 @@ namespace SoundFingerprinting.Dao.Internal
     internal class ModelWriterBuilder<TModel>
     {
         private readonly ParameterExpression parameterStoredProcedure;
+
         private readonly ParameterExpression parameterModel;
+
         private readonly ICollection<Expression> expressions;
 
         public ModelWriterBuilder()
@@ -52,7 +54,8 @@ namespace SoundFingerprinting.Dao.Internal
         public Action<IParameterBinder, TModel> Compile()
         {
             Expression body = Expression.Block(expressions);
-            Expression<Action<IParameterBinder, TModel>> lambda = Expression.Lambda<Action<IParameterBinder, TModel>>(body, parameterStoredProcedure, parameterModel);
+            Expression<Action<IParameterBinder, TModel>> lambda =
+                Expression.Lambda<Action<IParameterBinder, TModel>>(body, parameterStoredProcedure, parameterModel);
             return lambda.Compile();
         }
 

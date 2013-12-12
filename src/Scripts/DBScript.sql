@@ -18,28 +18,19 @@ GO
 -- --------------------------------------------------------------------------
 -- ------------------------------TABLES--------------------------------------
 -- --------------------------------------------------------------------------
--- --------------------------------------------------------------------------
--- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE ALBUMS
--- --------------------------------------------------------------------------
-CREATE TABLE Albums
-(
-	Id INT IDENTITY(1, 1) NOT NULL,
-	Name VARCHAR(255) NOT NULL,
-	ReleaseYear INT DEFAULT 0,
-	CONSTRAINT PK_AlbumsId PRIMARY KEY(Id)
-)
-GO
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE TRACKS
 CREATE TABLE Tracks
 (
-	Id  INT IDENTITY(1, 1) NOT NULL,
-	Artist VARCHAR(255) NOT NULL,
-	Title VARCHAR(255) NOT NULL,
-	AlbumId INT DEFAULT -1,
+	Id INT IDENTITY(1, 1) NOT NULL,
+	ISRC VARCHAR(50),
+	Artist VARCHAR(255),
+	Title VARCHAR(255),
+	Album VARCHAR(255),
+	ReleaseYear INT DEFAULT 0,
 	TrackLengthSec INT DEFAULT 0,
 	CONSTRAINT CK_TracksTrackLength CHECK(TrackLengthSec > -1),
-	CONSTRAINT PK_TracksId PRIMARY KEY(Id),
-	CONSTRAINT FK_Tracks_Albums FOREIGN KEY (AlbumId) REFERENCES Albums(Id)
+	CONSTRAINT CK_ReleaseYear CHECK(ReleaseYear > -1),
+	CONSTRAINT PK_TracksId PRIMARY KEY(Id)
 )
 GO 
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE FINGERPRINTS
@@ -65,31 +56,333 @@ CREATE TABLE SubFingerprints
 	CONSTRAINT FK_SubFingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
--- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE HASHBINS
--- THIS TABLE IS DESIGNED FOR NEURAL HASHER RECOGNITION ALGORITHM
-CREATE TABLE HashBins
-(
-	Id INT IDENTITY(1, 1) NOT NULL,
-	Bin BIGINT NOT NULL,								   
-	HashTable INT NOT NULL,
-	TrackId INT NOT NULL,
-	CONSTRAINT PK_HashBinsId PRIMARY KEY(Id),
-	CONSTRAINT FK_HashBins_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
-)
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_1')
+BEGIN
+	CREATE TABLE HashTable_1
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_1 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+go
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_2')
+BEGIN
+	CREATE TABLE HashTable_2
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_2 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
 GO
--- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE HASHBINS MINHASH
--- THIS TABLE IS DESIGNED FOR MINHASH + LSH SCHEMA ALGORITHM
-CREATE TABLE HashBinsMinHash
-(
-	Id INT IDENTITY(1, 1) NOT NULL,
-	HashBin BIGINT NOT NULL,								    
-	HashTable INT NOT NULL,
-	SubFingerprintId BIGINT NOT NULL,
-	CONSTRAINT PK_HashBinsMinHashId PRIMARY KEY(Id),
-	CONSTRAINT FK_HashBinsMinHash_SubFingerprints FOREIGN KEY (SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
-)
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_3')
+BEGIN
+	CREATE TABLE HashTable_3
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_3 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
 GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_4')
+BEGIN
+	CREATE TABLE HashTable_4
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_4 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_5')
+BEGIN
+	CREATE TABLE HashTable_5
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_5 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_6')
+BEGIN
+	CREATE TABLE HashTable_6
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_6 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_7')
+BEGIN
+	CREATE TABLE HashTable_7
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_7 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_8')
+BEGIN
+	CREATE TABLE HashTable_8
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_8 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_9')
+BEGIN
+	CREATE TABLE HashTable_9
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_9 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_10')
+BEGIN
+	CREATE TABLE HashTable_10
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_10 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_11')
+BEGIN
+	CREATE TABLE HashTable_11
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_11 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_12')
+BEGIN
+	CREATE TABLE HashTable_12
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_12 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_13')
+BEGIN
+	CREATE TABLE HashTable_13
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_13 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_14')
+BEGIN
+	CREATE TABLE HashTable_14
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_14 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_15')
+BEGIN
+	CREATE TABLE HashTable_15
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_15 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_16')
+BEGIN
+	CREATE TABLE HashTable_16
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_16 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_17')
+BEGIN
+	CREATE TABLE HashTable_17
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_17 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_18')
+BEGIN
+	CREATE TABLE HashTable_18
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_18 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_19')
+BEGIN
+	CREATE TABLE HashTable_19
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_19 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_20')
+BEGIN
+	CREATE TABLE HashTable_20
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_20 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_21')
+BEGIN
+	CREATE TABLE HashTable_21
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_21 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_22')
+BEGIN
+	CREATE TABLE HashTable_22
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_22 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_23')
+BEGIN
+	CREATE TABLE HashTable_23
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_23 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_24')
+BEGIN
+	CREATE TABLE HashTable_24
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_24 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
 
+GO
+IF NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_SCHEMA = 'dbo' 
+                 AND  TABLE_NAME = 'HashTable_25')
+BEGIN
+	CREATE TABLE HashTable_25
+	(
+		HashBin BIGINT NOT NULL,								    
+		SubFingerprintId BIGINT NOT NULL,
+		CONSTRAINT PK_HashBinsMinHashId_25 PRIMARY KEY(HashBin, SubFingerprintId)
+	)
+END
+
+GO
 -- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE PERMUTATIONS
 -- THIS TABLE IS DESIGNED FOR THE PURPOSE OF STORING PERMUTATIONS APPLIED ON MINHASH ALGORITHM
 CREATE TABLE Permutations
@@ -109,96 +402,58 @@ CREATE INDEX IX_TrackIdLookup ON Fingerprints(TrackId)
 GO
 CREATE INDEX IX_TrackIdLookupOnSubfingerprints ON SubFingerprints(TrackId) 
 GO
-CREATE INDEX IX_NeuralHashLookUp ON HashBins(Bin, HashTable) 
-GO
-CREATE INDEX IX_MinHashLookUp ON HashBinsMinHash(HashBin, HashTable) -- Frequent look up for HashBin and HashTable
-GO
 -- --------------------------------------------------------------------------
 -- --------------------------------------------------------------------------
 -- ---------------------------STORED PROCEDURES------------------------------
 -- --------------------------------INSERT------------------------------------
 -- --------------------------------------------------------------------------
--- INSERT A HASHBIN [CREATED BY NEURAL HASHER] INTO THE HASHBIN TABLE
-IF OBJECT_ID('sp_InsertHashBin','P') IS NOT NULL
-	DROP PROCEDURE sp_InsertHashBin
-GO
-CREATE PROCEDURE sp_InsertHashBin
-	@Id INT,
-	@Bin BIGINT,
-	@HashTable INT,
-	@TrackId INT
-AS
-INSERT INTO HashBins (
-	Bin,
-	HashTable,
-	TrackId
-	) OUTPUT inserted.Id
-VALUES
-(
-	@Bin, @HashTable, @TrackId
-);
-GO
-
 -- INSERT A HASHBIN CREATE BY MIN-HASH + LSH SCHEMA IN TO THE HASHTABLE
 IF OBJECT_ID('sp_InsertHashBinMinHash','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertHashBinMinHash
 GO
 CREATE PROCEDURE sp_InsertHashBinMinHash
-	@Id INT,
 	@HashBin BIGINT,
 	@HashTable INT,
 	@SubFingerprintId BIGINT
 AS
-INSERT INTO HashBinsMinHash (
-	HashBin,
-	HashTable,
-	SubFingerprintId
-	) OUTPUT inserted.Id
-VALUES
-(
-	@HashBin, @HashTable, @SubFingerprintId
-);
-GO
+DECLARE @STR_TO_EXECUTE NVARCHAR(2000)
+DECLARE @HASH_TABLE VARCHAR(2)
+DECLARE @HASH_BIN VARCHAR(20)
+DECLARE @SUB_ID VARCHAR(20)
+SELECT @HASH_TABLE = CAST (@HashTable AS VARCHAR(2))
+SELECT @HASH_BIN = CAST(@HashBin AS VARCHAR(20))
+SELECT @SUB_ID = CAST(@SubFingerprintId AS VARCHAR(20))
 
--- INSERT AN ALBUM INTO ALBULMS TABLE
-IF OBJECT_ID('sp_InsertAlbum','P') IS NOT NULL
-	DROP PROCEDURE sp_InsertAlbum
-GO
-CREATE PROCEDURE sp_InsertAlbum
-	@Id INT,
-	@Name VARCHAR(255),
-	@ReleaseYear INT
-AS
-INSERT INTO Albums (
-	Name,
-	ReleaseYear
-	) OUTPUT inserted.Id
-VALUES 
-(
-	@Name, @ReleaseYear
-);
-GO
+SELECT @STR_TO_EXECUTE =
+	N'INSERT INTO HashTable_' + @HASH_TABLE + N'(HashBin, SubFingerprintId) ' +
+	N'VALUES (' + @HASH_BIN + ', ' + @SUB_ID + ')'
 
+EXEC sp_executesql @STR_TO_EXECUTE
+GO
 -- INSERT A TRACK INTO TRACKS TABLE
 IF OBJECT_ID('sp_InsertTrack','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertTrack
 GO
 CREATE PROCEDURE sp_InsertTrack
 	@Id INT,
+	@ISRC VARCHAR(50),
 	@Artist VARCHAR(255),
 	@Title VARCHAR(255),
-	@AlbumId INT,
+	@Album VARCHAR(255),
+	@ReleaseYear INT,
 	@TrackLengthSec INT
 AS
 INSERT INTO Tracks (
+	ISRC,
 	Artist,
 	Title,
-	AlbumId,
+	Album,
+	ReleaseYear,
 	TrackLengthSec
 	) OUTPUT inserted.Id
 VALUES
 (
-	@Artist, @Title, @AlbumId, @TrackLengthSec
+ 	@ISRC, @Artist, @Title, @Album, @ReleaseYear, @TrackLengthSec
 );
 GO
 
@@ -252,19 +507,6 @@ GO
 -- --------------------------------------------------------------------------
 -- -------------------------------READ ALL-----------------------------------
 -- --------------------------------------------------------------------------
--- --------------------------------------------------------------------------
--- READ ALL DUPLICATED TRACKS
-IF OBJECT_ID('sp_ReadDuplicatedTracks','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadDuplicatedTracks
-GO
-CREATE PROCEDURE sp_ReadDuplicatedTracks
-AS
-SELECT rel.Artist, rel.Title, rel.Duplicates, Tracks.Id FROM  
-	(SELECT Tracks.Title AS Title, Tracks.Artist AS Artist, COUNT(*) AS Duplicates  FROM Tracks 
-			GROUP BY 
-			Tracks.Title, Tracks.Artist) AS rel, Tracks
-WHERE rel.Duplicates > 1 AND Tracks.Artist = rel.Artist AND Tracks.Title = rel.Title ORDER BY rel.Title
-GO
 
 -- READ ALL PERMUTATIONS FROM THE DATABASE
 IF OBJECT_ID('sp_ReadPermutations','P') IS NOT NULL
@@ -284,44 +526,13 @@ CREATE PROCEDURE sp_ReadPermutationById
 AS
 SELECT * FROM Permutations WHERE Permutations.Id = @Id ORDER BY Permutations.Id
 GO
-
--- READ ALL ALBUMS FROM THE DATABASE
-IF OBJECT_ID('sp_ReadAlbums','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadAlbums
-GO
-CREATE PROCEDURE sp_ReadAlbums
-AS
-SELECT Albums.Id, Albums.Name, Albums.ReleaseYear FROM Albums
-GO
-
--- READ UNKNOWN ALBUM
--- GENERALLY THIS METHOD CAN BE USED IN ORDER TO READ ANY ALBUM BY ALBUM NAME
-IF OBJECT_ID('sp_ReadAlbumUnknown','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadAlbumUnknown
-GO
-CREATE PROCEDURE sp_ReadAlbumUnknown
-	@Name VARCHAR(255)
-AS
-SELECT Albums.Id, Albums.Name, Albums.ReleaseYear FROM Albums WHERE Albums.Name = @Name
-GO
-
--- READ ALBUM BY ID
-IF OBJECT_ID('sp_ReadAlbumById','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadAlbumById
-GO
-CREATE PROCEDURE sp_ReadAlbumById
-	@Id INT
-AS
-SELECT Albums.Id, Albums.Name, Albums.ReleaseYear FROM Albums WHERE Albums.Id = @Id
-GO
-
 -- READ ALL TRACKS FROM THE DATABASE
 IF OBJECT_ID('sp_ReadTracks','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadTracks
 GO
 CREATE PROCEDURE sp_ReadTracks
 AS
-SELECT Tracks.Id, Tracks.Artist, Tracks.Title, Tracks.AlbumId, Tracks.TrackLengthSec FROM Tracks
+SELECT * FROM Tracks
 GO
 
 -- READ A TRACK BY ITS IDENTIFIER
@@ -331,52 +542,82 @@ GO
 CREATE PROCEDURE sp_ReadTrackById
 	@Id INT
 AS
-SELECT Tracks.Id, Tracks.Artist, Tracks.Title, Tracks.AlbumId, Tracks.TrackLengthSec FROM Tracks WHERE Tracks.Id = @Id
+SELECT * FROM Tracks WHERE Tracks.Id = @Id
 GO
-
--- READ TRACK ID'S BY HASHBIN [CREATED BY NEURAL HASHER] AND HASHTABLE
-IF OBJECT_ID('sp_ReadHashBinsByHashBinAndHashTable','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadHashBinsByHashBinAndHashTable
-GO
-CREATE PROCEDURE sp_ReadHashBinsByHashBinAndHashTable
-	@Bin BIGINT,
-	@HashTable INT
-AS
-SELECT TrackId FROM HashBins WHERE Bin = @Bin AND HashTable = @HashTable
-GO
-
-IF OBJECT_ID('sp_ReadAllHashBinsFromHashTableMinHash') IS NOT NULL
-	DROP PROCEDURE sp_ReadAllHashBinsFromHashTableMinHash
-GO
-CREATE PROCEDURE sp_ReadAllHashBinsFromHashTableMinHash
-AS
-SELECT * FROM HashBinsMinHash
-GO
-
 --- ------------------------------------------------------------------------------------------------------------
 --- READ HASHBINS BY HASHBINS AND THRESHOLD TABLE
---- ADDED 16.03.2011 CIUMAC SERGIU
+--- ADDED 20.10.2013 CIUMAC SERGIU
 --- E.g. [25;36;89;56...]
 --- -----------------------------------------------------------------------------------------------------------
 IF OBJECT_ID('sp_ReadFingerprintsByHashBinHashTableAndThreshold','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadFingerprintsByHashBinHashTableAndThreshold
 GO
 CREATE PROCEDURE sp_ReadFingerprintsByHashBinHashTableAndThreshold
-	@ConcatHashBucket NVARCHAR(4000),
-	@Delimiter NVARCHAR(10),
+	@HashBin_1 BIGINT, @HashBin_2 BIGINT, @HashBin_3 BIGINT, @HashBin_4 BIGINT, @HashBin_5 BIGINT, 
+	@HashBin_6 BIGINT, @HashBin_7 BIGINT, @HashBin_8 BIGINT, @HashBin_9 BIGINT, @HashBin_10 BIGINT,
+	@HashBin_11 BIGINT, @HashBin_12 BIGINT, @HashBin_13 BIGINT, @HashBin_14 BIGINT, @HashBin_15 BIGINT, 
+	@HashBin_16 BIGINT, @HashBin_17 BIGINT, @HashBin_18 BIGINT, @HashBin_19 BIGINT, @HashBin_20 BIGINT,
+	@HashBin_21 BIGINT, @HashBin_22 BIGINT, @HashBin_23 BIGINT, @HashBin_24 BIGINT, @HashBin_25 BIGINT,
 	@Threshold INT
 AS
-
-SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature, THRESHOLDED.Votes FROM SubFingerprints,
-(
-	SELECT SubFingerprintId, COUNT(HashBinsMinHash.HashTable) AS Votes 
-	FROM HashBinsMinHash, (SELECT CAST(Value AS BIGINT) AS HashBin, [Key] AS HashTable 
-							  FROM Split(@ConcatHashBucket, @Delimiter)) AS HASH_BUCKETS
-	WHERE HashBinsMinHash.HashBin = HASH_BUCKETS.HashBin AND HashBinsMinHash.HashTable = HASH_BUCKETS.HashTable 
-	GROUP BY SubFingerprintId 
-	HAVING COUNT(HashBinsMinHash.HashTable) >= @Threshold
-) AS THRESHOLDED
-WHERE SubFingerprints.Id = THRESHOLDED.SubFingerprintId
+SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature, Thresholded.Votes as Votes
+FROM SubFingerprints, 
+	( SELECT Hashes.SubFingerprintId as SubFingerprintId, COUNT(Hashes.SubFingerprintId) AS Votes FROM 
+	   (
+		SELECT * FROM HashTable_1 WHERE HashBin = @HashBin_1
+		UNION ALL
+		SELECT * FROM HashTable_2 WHERE HashBin = @HashBin_2
+		UNION ALL
+		SELECT * FROM HashTable_3 WHERE HashBin = @HashBin_3
+		UNION ALL
+		SELECT * FROM HashTable_4 WHERE HashBin = @HashBin_4
+		UNION ALL
+		SELECT * FROM HashTable_5 WHERE HashBin = @HashBin_5
+		UNION ALL
+		SELECT * FROM HashTable_6 WHERE HashBin = @HashBin_6
+		UNION ALL
+		SELECT * FROM HashTable_7 WHERE HashBin = @HashBin_7
+		UNION ALL
+		SELECT * FROM HashTable_8 WHERE HashBin = @HashBin_8
+		UNION ALL
+		SELECT * FROM HashTable_9 WHERE HashBin = @HashBin_9
+		UNION ALL
+		SELECT * FROM HashTable_10 WHERE HashBin = @HashBin_10
+		UNION ALL
+		SELECT * FROM HashTable_11 WHERE HashBin = @HashBin_11
+		UNION ALL
+		SELECT * FROM HashTable_12 WHERE HashBin = @HashBin_12
+		UNION ALL
+		SELECT * FROM HashTable_13 WHERE HashBin = @HashBin_13
+		UNION ALL
+		SELECT * FROM HashTable_14 WHERE HashBin = @HashBin_14
+		UNION ALL
+		SELECT * FROM HashTable_15 WHERE HashBin = @HashBin_15
+		UNION ALL
+		SELECT * FROM HashTable_16 WHERE HashBin = @HashBin_16
+		UNION ALL
+		SELECT * FROM HashTable_17 WHERE HashBin = @HashBin_17
+		UNION ALL
+		SELECT * FROM HashTable_18 WHERE HashBin = @HashBin_18
+		UNION ALL
+		SELECT * FROM HashTable_19 WHERE HashBin = @HashBin_19
+		UNION ALL
+		SELECT * FROM HashTable_20 WHERE HashBin = @HashBin_20
+		UNION ALL
+		SELECT * FROM HashTable_21 WHERE HashBin = @HashBin_21
+		UNION ALL
+		SELECT * FROM HashTable_22 WHERE HashBin = @HashBin_22
+		UNION ALL
+		SELECT * FROM HashTable_23 WHERE HashBin = @HashBin_23
+		UNION ALL
+		SELECT * FROM HashTable_24 WHERE HashBin = @HashBin_24
+		UNION ALL
+		SELECT * FROM HashTable_25 WHERE HashBin = @HashBin_25
+	  ) AS Hashes
+	 GROUP BY Hashes.SubFingerprintId
+	 HAVING COUNT(Hashes.SubFingerprintId) >= @Threshold
+	) AS Thresholded
+WHERE SubFingerprints.Id = Thresholded.SubFingerprintId	
 -- ------------------------------------------------------------------------------------------------------------
 GO
 
@@ -397,7 +638,6 @@ AS
 SELECT Fingerprints.Id, Fingerprints.Signature, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId, Fingerprints.SongOrder FROM Fingerprints WHERE Fingerprints.Id = @Id
 GO
 
-
 IF OBJECT_ID('sp_ReadFingerprintByTrackId','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadFingerprintByTrackId
 GO
@@ -413,10 +653,10 @@ IF @NumberOfFingerprintsToRead <> 0
 	DECLARE @STR_TO_EXECUTE NVARCHAR(2000)
 	DECLARE @PARAMS NVARCHAR(500)
 	SELECT @TOTAL = (SELECT COUNT(Fingerprints.Id) FROM Fingerprints WHERE Fingerprints.TrackId = @Id)
-	SELECT @SKIP_END =  @TOTAL/2 - @NumberOfFingerprintsToRead/2 + @NumberOfFingerprintsToRead 
-	
-	SELECT @STR_TO_EXECUTE = 
-		N'SELECT Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder ' + 
+	SELECT @SKIP_END =  @TOTAL/2 - @NumberOfFingerprintsToRead/2 + @NumberOfFingerprintsToRead
+
+	SELECT @STR_TO_EXECUTE =
+		N'SELECT Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder ' +
 		N'FROM (SELECT TOP '+ CAST(@NumberOfFingerprintsToRead AS VARCHAR(10)) + N' Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder '+
 		N'FROM (SELECT TOP '+ CAST(@SKIP_END AS VARCHAR(10)) + N' Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder FROM Fingerprints '+
 		N'WHERE Fingerprints.TrackId = @Id ORDER BY SongOrder ASC) as rel1 ORDER BY SongOrder DESC ) as rel2 ORDER BY SongOrder ASC'
@@ -439,7 +679,7 @@ GO
 CREATE PROCEDURE sp_ReadTrackByFingerprint
 	@Id INT -- Fingerprint ID
 AS
-SELECT Tracks.Id, Tracks.Artist, Tracks.Title, Tracks.AlbumId, Tracks.TrackLengthSec FROM Tracks, Fingerprints 
+SELECT Tracks.Id, Tracks.Artist, Tracks.Title, Tracks.Album, Tracks.ISRC, Tracks.ReleaseYear, Tracks.TrackLengthSec FROM Tracks, Fingerprints
 WHERE Tracks.Id = Fingerprints.TrackId AND Fingerprints.Id = @Id
 GO
 
@@ -453,35 +693,17 @@ CREATE PROCEDURE sp_ReadTrackByArtistAndSongName
 	@Artist VARCHAR(255),
 	@Title VARCHAR(255) 
 AS
-SELECT Tracks.Id, Tracks.Artist, Tracks.Title, Tracks.AlbumId, Tracks.TrackLengthSec FROM Tracks
-WHERE Tracks.Title = @Title AND Tracks.Artist = @Artist
+SELECT * FROM Tracks WHERE Tracks.Title = @Title AND Tracks.Artist = @Artist
 GO
 
-IF OBJECT_ID('sp_ReadMaxMinHashBin','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadMaxMinHashBin
+IF OBJECT_ID('sp_ReadTrackISRC','P') IS NOT NULL
+	DROP PROCEDURE sp_ReadTrackISRC
 GO
-CREATE PROCEDURE sp_ReadMaxMinHashBin
-	@Ignore BIGINT
+CREATE PROCEDURE sp_ReadTrackISRC
+	@ISRC VARCHAR(50)
 AS
-SELECT MIN(HashBin) As MinHashBin, MAX(HashBin) As MaxHashBin, HashTable  
-FROM HashBinsMinHash 
-WHERE HashBin <> @Ignore GROUP BY HashTable ORDER BY HashTable
+SELECT * FROM Tracks WHERE Tracks.ISRC = @ISRC
 GO
-
-IF OBJECT_ID('sp_HashBinMinHashRange','P') IS NOT NULL
-	DROP PROCEDURE sp_HashBinMinHashRange
-GO
-CREATE PROCEDURE sp_HashBinMinHashRange
-	@Min BIGINT,
-	@Max BIGINT,
-	@HashTable INT
-AS
-SELECT Id FROM HashBinsMinHash
-WHERE HashTable = @HashTable AND (HashBin >= @Min AND HashBin < @Max) 
-
-GO
-
-
 -- ----------------------------------------------------------------------------
 -- ----------------------------------------------------------------------------
 -- ----------------------------DELETE ALL--------------------------------------
@@ -495,94 +717,15 @@ CREATE PROCEDURE sp_DeleteTrack
 	@Id INT
 AS
 BEGIN
-	DELETE FROM HashBins WHERE HashBins.TrackId = @Id				-- CASCADE DELETE OF HASHBINSNEURALHASHER
 	DELETE FROM Fingerprints WHERE Fingerprints.TrackId = @Id		-- CASCADE DELETE
-	DECLARE @SONGNUMBER INT
-	SELECT @SONGNUMBER = (SELECT COUNT(Tracks.Id) 
-						  FROM Tracks, (SELECT Tracks.AlbumId as AlbumId FROM Tracks WHERE Tracks.Id = @Id) as rel 
-						  WHERE Tracks.AlbumId = rel.AlbumId)
-
-	IF(@SONGNUMBER = 1)										  -- Check if album is emtpy after track deletion -- if so delete the album
-		BEGIN
-		DECLARE @ALBUMID INT 
-		DECLARE @UNKNOWNALBUMID INT
-		SELECT @ALBUMID = (SELECT Tracks.AlbumId as AlbumId FROM Tracks WHERE Tracks.Id = @Id)
-		SELECT @UNKNOWNALBUMID = (SELECT Albums.Id FROM Albums WHERE Albums.Name = 'UNKNOWN')
-		DELETE FROM Tracks WHERE Tracks.Id = @Id				  -- CASCADE DELETE
-		IF (@ALBUMID <> @UNKNOWNALBUMID)
-			BEGIN
-			DELETE FROM Albums WHERE Albums.Id = @ALBUMID
-			END
-		END
-	ELSE
-		BEGIN
-		DELETE FROM Tracks WHERE Tracks.Id = @Id				  -- CASCADE DELETE
-		END
+	DELETE FROM SubFingerprints WHERE SubFingerprints.TrackId = @Id -- CASCADE DELETE
+	DELETE FROM Tracks WHERE Tracks.Id = @Id						-- CASCADE DELETE
 END
-GO
-
-if exists (select * from dbo.sysobjects where id = 
-object_id(N'[dbo].[Split]') and xtype in (N'FN', N'IF', N'TF'))
-drop function [dbo].[Split]
-GO
-
-create function dbo.Split(
- @String nvarchar (4000),
- @Delimiter nvarchar (10)
- )
-returns @ValueTable table ([Key] int, [Value] nvarchar(4000))
-begin
- declare @NextString nvarchar(4000)
- declare @Pos int
- declare @NextPos int
- declare @CommaCheck nvarchar(1)
- declare @KeyCount int
- 
- --Initialize
- set @NextString = ''
- set @CommaCheck = right(@String,1) 
- 
- --Check for trailing Comma, if not exists, INSERT
- --if (@CommaCheck <> @Delimiter )
- set @String = @String + @Delimiter
- 
- --Get position of first Comma
- set @Pos = charindex(@Delimiter,@String)
- set @NextPos = 1
- 
- --Loop while there is still a comma in the String of levels
- set @KeyCount = 1;
- while (@pos <>  0)  
- begin
-  set @NextString = substring(@String,1,@Pos - 1)
- 
-  insert into @ValueTable ([Key], [Value]) Values (@KeyCount, @NextString)
- 
-  set @String = substring(@String,@pos +1,len(@String))
-  
-  set @NextPos = @Pos
-  set @pos  = charindex(@Delimiter,@String)
-  set @KeyCount = @KeyCount + 1
- end
- 
- return
-end
 GO
 
 -- ------------------------------------------------------------------------------------
 -- ------------------------------------INSERT------------------------------------------
 -- ------------------------------------------------------------------------------------
-SET IDENTITY_INSERT Albums ON
-GO
-INSERT INTO Albums(Id, Name)
-VALUES
-(
-	-1,
-	'UNKNOWN'
-);
-GO
-SET IDENTITY_INSERT Albums OFF
-GO
 INSERT INTO Permutations VALUES (0,'1664;8043;6528;6352;5417;3758;5017;6708;3654;6792;4558;702;3433;5237;5730;1103;7321;1789;5393;7523;4995;1791;1531;3891;8064;8036;689;3138;4115;4681;7974;1934;8173;5976;7714;7129;5735;5402;4339;2366;6022;5737;1772;4169;4722;1275;2965;2178;5564;7977;3097;5257;2630;4385;920;5130;5862;4677;926;4583;4231;5989;2777;7432;1596;1234;2774;5117;1228;6624;5154;7144;4515;7138;1039;1782;1185;7581;776;2800;5810;7701;5540;4245;1578;1437;7164;3509;6416;6220;678;35;1316;3359;842;524;4176;5022;6590;1673;3775;5309;3691;5783;7204;1770;1087;7219;7894;6597;1463;10;2906;7533;6900;1071;509;1792;7544;6076;6804;696;156;5224;2134;5974;6928;7184;2253;119;4304;7667;7340;6282;3666;1592;7738;6618;5418;5919;5069;5895;6490;4546;2582;5247;7931;1652;809;5219;4195;2789;1903;2498;1026;3713;5938;6498;2340;3041;4836;2093;3515;5501;5538;6470;7481;235;8059;1982;6846;7380;1561;3413;3043;4238;6775;399;953;5984;2788;2062;11;5634;5562;6918;6840;3711;4665;4368;1972;2518;7704;1251;3455;7246;7837;7563;1400;6339;6082;6334;2811;7901;6847;8046;5652;1329;7843;2943;6357;4550;6540;7333;5322;100;4266;805;5318;190;8127;7;5557;129;1766;1624;2229;6346;6619;5953;3178;3332;6415;4319;3291;3191;5101;3655;1292;3795;7045;255;7959;3462;3916;2647;2806;893;2975;193;3934;5729;3305;3603;6650;');
 INSERT INTO Permutations VALUES (1,'5597;3560;7349;5529;2593;7030;6478;5267;6327;6161;3047;4581;1708;7560;4347;7602;2729;4443;5611;5777;6117;2824;8154;1617;3482;1690;781;6914;7452;4609;7492;7241;82;5485;1987;829;1248;7601;6599;6952;6018;1790;2071;7261;5508;306;5211;2452;861;2747;559;3570;5274;6266;6095;4402;5534;7023;6224;6491;2025;5776;3299;7677;6175;5114;3449;4980;6075;5405;7859;5227;4624;7205;3869;1527;1999;7298;7416;2179;4297;585;2223;1344;3900;6718;7302;3255;4638;4265;6179;2286;3589;6620;5570;4103;6499;2782;1840;4307;3473;669;2068;1467;6733;13;3242;2124;4792;3646;5991;1937;2144;1587;4941;3471;1391;1180;6556;6958;4608;8014;4936;4999;3694;5466;448;598;5636;288;115;1365;1284;5449;165;5604;2263;4523;4575;6403;3256;3392;6111;3125;1812;4089;3498;3980;7788;7084;1035;3322;3545;6243;5135;5523;6661;4228;3036;3749;3842;3879;3096;3170;5872;5489;3960;1282;7925;7008;67;4775;6350;2395;2193;1671;5371;2483;7280;4424;5654;2835;5722;6826;3571;6285;6300;5244;1547;1212;7430;5456;4882;4997;6393;5469;568;7742;2921;5299;2653;3402;442;1922;6594;4656;697;3798;4802;2743;3461;2808;6541;7215;7706;2420;3311;359;1199;5076;194;2919;7876;6956;7229;1458;4322;5457;7736;6347;5433;4263;6672;6341;4287;5587;6272;1705;1593;5884;864;3801;4780;6565;4427;2790;3092;7064;7890;7711;182;7060;7026;1519;700;');
 INSERT INTO Permutations VALUES (2,'1568;3228;2239;2992;2112;3954;4603;3946;1213;567;1836;2042;4752;5356;3261;6842;3978;7153;800;1901;4063;1717;6426;2110;8167;8179;3822;516;4736;5088;6876;638;1119;5056;7334;5801;5506;4178;993;7731;5477;3550;7564;1374;1099;2680;5364;6509;7402;2419;2942;3716;5023;6301;2918;2487;6616;1273;1177;3404;681;3004;2118;5825;1004;2447;1795;5379;778;5620;2302;5745;1303;5284;8042;3307;1;6456;3572;6635;7650;925;6459;4093;1865;1786;6305;7046;4326;1658;619;3783;6957;1005;1056;2149;4316;2234;7708;4154;1436;1725;1392;665;4737;1197;4849;4726;1425;6803;532;1733;5330;3209;1129;5793;1537;2525;7049;541;6440;6328;5739;645;1179;7580;7005;6359;1121;2307;1990;6605;2855;4804;7342;5911;6447;6399;949;4080;3930;380;3145;7496;5807;7571;2303;1526;7598;1674;140;6203;812;2167;1323;903;2930;5110;4658;5509;1189;4943;4259;660;1030;7128;1935;6869;2504;7207;1648;1516;6922;2938;1978;6843;2532;4794;1882;1767;4774;1576;5947;2470;5937;2955;5109;7088;394;4024;6097;806;5385;714;8182;6484;6433;2991;1508;2099;4464;8087;734;3313;2695;3915;7256;6763;1223;3662;3779;852;8077;1211;7439;6427;6761;8048;2748;2692;284;527;2986;7077;7921;7296;2666;7120;5605;5497;6142;6154;4480;3485;7278;5052;2369;4048;1164;2551;5669;6337;7902;4357;7551;7090;53;4983;3584;7054;4841;4171;7212;5041;4874;');

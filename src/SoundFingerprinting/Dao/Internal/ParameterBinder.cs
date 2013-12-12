@@ -9,7 +9,9 @@ namespace SoundFingerprinting.Dao.Internal
     internal class ParameterBinder : IParameterBinder
     {
         private readonly IDbConnection connection;
+
         private readonly IDbCommand command;
+
         private readonly IModelBinderFactory modelBinderFactory;
 
         public ParameterBinder(IDbConnection connection, IDbCommand command, IModelBinderFactory modelBinderFactory)
@@ -37,8 +39,7 @@ namespace SoundFingerprinting.Dao.Internal
             return this;
         }
 
-        public IParameterBinder WithParameter<T>(string name, T value)
-            where T : struct
+        public IParameterBinder WithParameter<T>(string name, T value) where T : struct
         {
             CreateParameter(name, value, modelBinderFactory.GetParameterType<T>());
             return this;

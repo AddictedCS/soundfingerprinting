@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Diagnostics;
     using System.Drawing;
     using System.IO;
     using System.Linq;
@@ -16,7 +15,7 @@
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.LSH;
-    using SoundFingerprinting.Hashing.NeuralHashing.Ensemble;
+    using SoundFingerprinting.NeuralHasher.Ensemble;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -24,10 +23,9 @@
     {
         private const int MaxThreadToProcessFiles = 4; /*2 MaxThreadToProcessFiles used to process the files*/
         private const int MinTrackLength = 20; /*20 sec - minimal track length*/
-        private const int MaxTrackLength = 60 * 15; /*15 min - maximal track length*/
+        private const int MaxTrackLength = 60 * 10; /*15 min - maximal track length*/
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); /*File filters*/
-        private readonly object lockObject = new object(); /*Cross Thread operation*/
         private readonly IModelService modelService; /*Dal Signature service*/
         private readonly ILSHService lshService;
         private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
@@ -39,10 +37,8 @@
         private int hashKeys;
         private int hashTables;
         private volatile int left; /*Number of left items*/
-        private IList<Album> listOfAllAlbums = new List<Album>(); /*List of all albums*/
         private volatile int processed; /*Number of Processed files*/
         private bool stopFlag;
-        private Album unknownAlbum;
         
         public WinDbFiller(
             IFingerprintUnitBuilder fingerprintUnitBuilder,
@@ -159,6 +155,7 @@
                         fileList.Add(file);
                     }
                 }
+
                 _nudTotalSongs.Value = fileList.Count;
             }
         }
@@ -209,9 +206,6 @@
 
             int rest = fileList.Count % MaxThreadToProcessFiles;
             int filesPerThread = fileList.Count / MaxThreadToProcessFiles;
-
-            listOfAllAlbums = modelService.ReadAlbums(); // Get all albums
-            unknownAlbum = modelService.ReadUnknownAlbum(); // Read unknown albums
 
             switch (hashAlgorithm)
             {
@@ -308,7 +302,7 @@
             badFiles = 0;
             processed = 0;
             left = 0;
-            _pbTotalSongs.Visible = true; // Set the progress bar control
+            _pbTotalSongs.Visible = true;
             _pbTotalSongs.Minimum = 0;
             _pbTotalSongs.Maximum = fileList.Count;
             _pbTotalSongs.Step = 1;
@@ -317,11 +311,6 @@
             _nudLeft.Value = left;
         }
 
-        /// <summary>
-        ///   Actual synchronous insert in the database
-        /// </summary>
-        /// <param name = "start">Start index</param>
-        /// <param name = "end">End index</param>
         private void InsertInDatabase(int start, int end)
         {
             int topWavelets = (int)_nudTopWav.Value;
@@ -332,7 +321,6 @@
                         {
                             stride = WinUtils.GetStride(
                                 (StrideType)_cmbStrideType.SelectedIndex,
-                                // Get stride according to the underlying combo box selection
                                 (int)_nudStride.Value,
                                 0,
                                 new DefaultFingerprintingConfiguration().SamplesPerFingerprint);
@@ -367,16 +355,21 @@
                 }
 
                 TagInfo tags = tagService.GetTagInfo(fileList[i]); // Get Tags from file
-                if (tags == null)
+                if (tags == null || tags.IsEmpty)
                 {
-                    // TAGS are null
                     badFiles++;
+                    processed++;
+                    left--;
                     Invoke(actionAddItems, new object[] { "TAGS ARE NULL", fileList[i], 0, 0 }, Color.Red);
+                    Invoke(actionInterface);
                     continue;
                 }
 
+                string isrc = tags.ISRC;
                 string artist = tags.Artist; // Artist
                 string title = tags.Title; // Title
+                int releaseYear = tags.Year;
+                string album = tags.Album;
                 double duration = tags.Duration; // Duration
 
                 // Check whether the duration is OK
@@ -384,24 +377,25 @@
                 {
                     // Duration too small
                     badFiles++;
-                    Invoke(actionAddItems, new object[] { "BAD DURATION", fileList[i], 0, 0 }, Color.Red);
+                    processed++;
+                    left--;
+                    Invoke(actionAddItems, new object[] { "Bad duration", fileList[i], 0, 0 }, Color.Red);
+                    Invoke(actionInterface);
                     continue;
                 }
 
                 // Check whether the tags are properly defined
-                if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title))
+                if (string.IsNullOrEmpty(isrc) && (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(title)))
                 {
-                    // Title or Artist tag is null
                     badFiles++;
-                    Invoke(actionAddItems, new object[] { "TAGS MISSING", fileList[i], 0, 0 }, Color.Red);
+                    processed++;
+                    left--;
+                    Invoke(
+                        actionAddItems,
+                        new object[] { "ISRC Tag is missing. Skipping file...", fileList[i], 0, 0 },
+                        Color.Red);
+                    Invoke(actionInterface);
                     continue;
-                }
-
-                Album album = GetCoresspondingAlbum(tags); // Get Album (whether new or unknown or aborted)
-
-                if (album == null)
-                {
-                    return;
                 }
 
                 Track track;
@@ -410,68 +404,78 @@
                     lock (this)
                     {
                         // Check if this file is already in the database
-                        if (modelService.ReadTrackByArtistAndTitleName(artist, title) != null)
+                        if (IsDuplicateFile(isrc, artist, title))
                         {
                             duplicates++; // There is such file in the database
+                            processed++;
+                            left--;
+                            Invoke(actionInterface);
                             continue;
                         }
 
-                        track = new Track(artist, title, album.Id, (int)duration);
+                        track = new Track(isrc, artist, title, album, releaseYear, (int)duration);
                         modelService.InsertTrack(track); // Insert new Track in the database
                     }
                 }
                 catch (Exception e)
                 {
                     // catch any exception and abort the insertion
+                    processed++;
+                    left--;
+                    badFiles++;
                     MessageBox.Show(e.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Invoke(actionInterface);
                     return;
                 }
 
                 int count;
                 try
                 {
-                    List<SubFingerprint> subFingerprintsToTrack = fingerprintUnitBuilder
-                           .BuildAudioFingerprintingUnit()
-                           .From(fileList[i])
-                           .WithCustomAlgorithmConfiguration(
-                                config =>
-                                    {
-                                        config.TopWavelets = topWavelets;
-                                        config.Stride = stride;
-                                    })
-                            .FingerprintIt()
-                            .HashIt()
-                            .ForTrack(track.Id)
-                            .Result; // Create SubFingerprints
+                    List<SubFingerprint> subFingerprintsToTrack =
+                        fingerprintUnitBuilder
+                                        .BuildAudioFingerprintingUnit()
+                                        .From(fileList[i])
+                                        .WithCustomAlgorithmConfiguration(
+                                            config =>
+                                                {
+                                                    config.TopWavelets = topWavelets;
+                                                    config.Stride = stride;
+                                                })
+                                         .FingerprintIt()
+                                         .HashIt()
+                                         .ForTrack(track.Id)
+                                         .Result; // Create SubFingerprints
 
                     modelService.InsertSubFingerprint(subFingerprintsToTrack);
                     count = subFingerprintsToTrack.Count;
-
-                    switch (hashAlgorithm)
-                    {
-                            // Hash if there is a need in doing so
-                        case HashAlgorithm.LSH: // LSH + Min Hash has been chosen
-                            HashSubFingerprintsUsingMinHash(subFingerprintsToTrack);
-                            break;
-                        case HashAlgorithm.NeuralHasher:
-                            throw new NotImplementedException();
-                        case HashAlgorithm.None:
-                            break;
-                    }
+                    HashSubFingerprintsUsingMinHash(subFingerprintsToTrack);
                 }
                 catch (Exception e)
                 {
                     // catch any exception and abort the insertion
                     MessageBox.Show(e.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    badFiles++;
+                    processed++;
+                    left--;
+                    Invoke(actionInterface);
                     return;
                 }
 
-                Invoke(actionAddItems, new object[] { artist, title, album.Name, duration, count }, Color.Empty);
+                Invoke(actionAddItems, new object[] { artist, title, isrc, duration, count }, Color.Empty);
                 left--;
                 processed++;
-
                 Invoke(actionInterface);
             }
+        }
+
+        private bool IsDuplicateFile(string isrc, string artist, string title)
+        {
+            if (!string.IsNullOrEmpty(isrc))
+            {
+                return modelService.ReadTrackByISRC(isrc) != null;
+            }
+
+            return modelService.ReadTrackByArtistAndTitleName(artist, title) != null;
         }
 
         private void HashSubFingerprintsUsingMinHash(IEnumerable<SubFingerprint> listOfSubFingerprintsToHash)
@@ -491,64 +495,6 @@
             modelService.InsertHashBin(listToInsert);
         }
 
-        private Album GetCoresspondingAlbum(TagInfo tags)
-        {
-            string album = tags.Album;
-            Album albumToInsert = null;
-            if (string.IsNullOrEmpty(album))
-            {
-                albumToInsert = unknownAlbum; // The album is unknown
-            }
-            else
-            {
-                lock (lockObject)
-                {
-                    albumToInsert = listOfAllAlbums.FirstOrDefault(a => a.Name == album);
-                    if (albumToInsert == null)
-                    {
-                        // No such album in the database INSERT!
-                        int releaseYear = -1;
-                        try
-                        {
-                            releaseYear = Convert.ToInt32(tags.Year.Split('-')[0].Trim());
-                        }
-                        catch (Exception)
-                        {
-                            /*swallow*/
-                            Debug.WriteLine("Release Year is in a bad format. Continuw processing...");
-                        }
-
-                        albumToInsert = new Album(album, releaseYear);
-                        try
-                        {
-                            modelService.InsertAlbum(albumToInsert); // Insert new ALBUM
-                        }
-                        catch (Exception ex)
-                        {
-                            if (MessageBox.Show(ex.Message + "\n Continue?", Resources.ExceptioInDal, MessageBoxButtons.OKCancel, MessageBoxIcon.Error)
-                                == DialogResult.Cancel)
-                            {
-                                return null;
-                            }
-
-                            albumToInsert = unknownAlbum;
-                        }
-
-                        if (albumToInsert != unknownAlbum)
-                        {
-                            listOfAllAlbums.Add(albumToInsert); // Modify Local Variable
-                        }
-                    }
-                }
-            }
-
-            return albumToInsert;
-        }
-
-        /// <summary>
-        ///   Fade out all controls
-        /// </summary>
-        /// <param name = "visible">Read only controls</param>
         private void FadeAllControls(bool visible)
         {
             Invoke(

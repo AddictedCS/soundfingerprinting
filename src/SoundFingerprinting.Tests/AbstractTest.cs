@@ -16,9 +16,13 @@
         
         protected const int SampleRate = 5512;
 
+        protected const int SamplesPerFingerprint = 128 * 64;
+
         protected const int WaveHeader = 58;
 
         protected const string PathToMp3 = @"Kryptonite.mp3";
+
+        protected const string PathToSamples = @"floatsamples.bin";
 
         protected const int SamplesToRead = 128 * 64;
 

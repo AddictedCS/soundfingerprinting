@@ -5,13 +5,9 @@ namespace SoundFingerprinting.Utils
 
     public class AbsComparator : IComparer<float>
     {
-        #region IComparer<float> Members
-     
         public int Compare(float x, float y)
         {
             return Math.Abs(y).CompareTo(Math.Abs(x));
         }
-
-        #endregion
     }
 }

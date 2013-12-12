@@ -18,6 +18,13 @@
         }
 
         [TestMethod]
+        public void IncrementalStaticStrideTest()
+        {
+            IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115, SamplesPerFingerprint);
+            Assert.AreEqual(5115 - SamplesPerFingerprint, incrementalStatic.GetNextStride());
+        }
+
+        [TestMethod]
         public void RandomStrideClassTest()
         {
             const int Min = 0;
