@@ -104,7 +104,18 @@ namespace SoundFingerprinting.Builder
 
         public IWithAlgorithmConfiguration From(string pathToAudioFile)
         {
-            return On(pathToAudioFile, 0, 0);
+            createFingerprintsMethod = () =>
+            {
+                float[] samples = audioService.ReadMonoFromFile(pathToAudioFile, Configuration.SampleRate, 0, 0);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return new List<bool[]>(Enumerable.Empty<bool[]>());
+                }
+
+                return fingerprintService.CreateFingerprints(samples, Configuration);
+            };
+
+            return this;
         }
 
         public IWithAlgorithmConfiguration From(float[] audioSamples)
