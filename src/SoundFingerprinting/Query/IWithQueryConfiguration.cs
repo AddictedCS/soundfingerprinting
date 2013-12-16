@@ -4,6 +4,6 @@
 
     public interface IWithQueryConfiguration
     {
-        IFingerprintQueryUnit WithQueryConfiguration(IQueryConfiguration queryConfiguration);
+        IFingerprintQueryCommand WithQueryConfiguration(IQueryConfiguration queryConfiguration);
     }
 }

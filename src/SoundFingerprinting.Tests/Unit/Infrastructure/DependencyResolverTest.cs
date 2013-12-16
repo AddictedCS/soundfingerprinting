@@ -10,9 +10,9 @@
         [TestMethod]
         public void TestResolveFingerprintUnitBuilder()
         {
-            IFingerprintUnitBuilder builder = DependencyResolver.Current.Get<IFingerprintUnitBuilder>();
+            IFingerprintCommandBuilder builder = DependencyResolver.Current.Get<IFingerprintCommandBuilder>();
             Assert.IsNotNull(builder);
-            Assert.AreEqual(typeof(FingerprintUnitBuilder), builder.GetType());
+            Assert.AreEqual(typeof(FingerprintCommandBuilder), builder.GetType());
         }
     }
 }

@@ -19,6 +19,8 @@ namespace SoundFingerprinting.Configuration
             LogBins = 32;
             NormalizeSignal = false;
             UseDynamicLogBase = false;
+            NumberOfLSHTables = 25;
+            NumberOfMinHashesPerTable = 4;
         }
 
         /// <summary>
@@ -112,5 +114,15 @@ namespace SoundFingerprinting.Configuration
         /// Gets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
         /// </summary>
         public bool UseDynamicLogBase { get; private set; }
+
+        /// <summary>
+        /// Gets the number of LSH tables to split
+        /// </summary>
+        public int NumberOfLSHTables { get; private set; }
+
+        /// <summary>
+        /// Gets the number of Min Hashes per table
+        /// </summary>
+        public int NumberOfMinHashesPerTable { get; private set; }
     }
 }

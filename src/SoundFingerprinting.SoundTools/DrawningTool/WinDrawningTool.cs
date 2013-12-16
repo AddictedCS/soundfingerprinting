@@ -5,6 +5,7 @@
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
@@ -21,7 +22,7 @@
 
         private readonly ITagService tagService;
 
-        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
         private readonly IFingerprintingConfiguration fingerprintingConfiguration;
 
@@ -32,14 +33,14 @@
         public WinDrawningTool(
             IAudioService audioService,
             ITagService tagService,
-            IFingerprintUnitBuilder fingerprintUnitBuilder,
+            IFingerprintCommandBuilder fingerprintCommandBuilder,
             IFingerprintingConfiguration fingerprintingConfiguration,
             IImageService imageService,
             ISpectrumService spectrumService)
         {
             this.audioService = audioService;
             this.tagService = tagService;
-            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
+            this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.fingerprintingConfiguration = fingerprintingConfiguration;
             this.imageService = imageService;
             this.spectrumService = spectrumService;
@@ -92,14 +93,17 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = fingerprintUnitBuilder.BuildAudioFingerprintingUnit().From(songFileName).WithCustomAlgorithmConfiguration(
+                                var songToDraw = fingerprintCommandBuilder.BuildFingerprintCommand().From(songFileName).WithCustomAlgorithmConfiguration(
                                     config =>
                                         {
                                             config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                             config.NormalizeSignal = normalize;
                                         });
 
-                                List<bool[]> fingerprints = songToDraw.FingerprintIt().AsIs().Result;
+                                List<bool[]> fingerprints = songToDraw.Fingerprint()
+                                                                      .Result
+                                                                      .Select(fingerprint => fingerprint.Signature)
+                                                                      .ToList();
                                 int width = songToDraw.Configuration.FingerprintLength;
                                 int height = songToDraw.Configuration.LogBins;
                                 using (Image image = imageService.GetImageForFingerprints(fingerprints, width, height, 5))
@@ -124,9 +128,12 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = this.fingerprintUnitBuilder.BuildAudioFingerprintingUnit().From(songFileName).WithCustomAlgorithmConfiguration(
+                                var songToDraw = this.fingerprintCommandBuilder.BuildFingerprintCommand().From(songFileName).WithCustomAlgorithmConfiguration(
                                     config => { config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint); });
-                                List<bool[]> result = songToDraw.FingerprintIt().AsIs().Result;
+                                List<bool[]> result = songToDraw.Fingerprint()
+                                                                .Result
+                                                                .Select(fingerprint => fingerprint.Signature)
+                                                                .ToList();
                                 int i = -1;
                                 int width = songToDraw.Configuration.FingerprintLength;
                                 int height = songToDraw.Configuration.LogBins;

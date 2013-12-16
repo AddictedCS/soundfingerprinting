@@ -28,7 +28,7 @@
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); /*File filters*/
         private readonly IModelService modelService; /*Dal Signature service*/
         private readonly ILSHService lshService;
-        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly ITagService tagService;
         private volatile int badFiles; /*Number of Bad files*/
         private volatile int duplicates; /*Number of Duplicates*/
@@ -41,14 +41,14 @@
         private bool stopFlag;
         
         public WinDbFiller(
-            IFingerprintUnitBuilder fingerprintUnitBuilder,
+            IFingerprintCommandBuilder fingerprintCommandBuilder,
             ITagService tagService,
             IModelService modelService,
             ILSHService lshService)
         {
             this.modelService = modelService;
             this.lshService = lshService;
-            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
+            this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.tagService = tagService;
             InitializeComponent();
             Icon = Resources.Sound;
@@ -432,8 +432,8 @@
                 try
                 {
                     List<SubFingerprint> subFingerprintsToTrack =
-                        fingerprintUnitBuilder
-                                        .BuildAudioFingerprintingUnit()
+                        fingerprintCommandBuilder
+                                        .BuildFingerprintCommand()
                                         .From(fileList[i])
                                         .WithCustomAlgorithmConfiguration(
                                             config =>

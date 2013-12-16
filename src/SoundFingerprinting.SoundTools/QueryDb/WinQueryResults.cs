@@ -157,7 +157,7 @@
                                                             queryConfig.NumberOfMinHashesPerTable = hashKeys;
                                                             queryConfig.ThresholdVotes = threshold;
                                                         })
-                                                    .Query(cancellationTokenSource.Token)
+                                                    .Query()
                                                     .Result;
 
                         if (cancellationTokenSource.IsCancellationRequested)
@@ -231,7 +231,7 @@
                                             queryConfig.NumberOfMinHashesPerTable = hashKeys;
                                             queryConfig.ThresholdVotes = threshold;
                                         })
-                                  .Query(cancellationTokenSource.Token)
+                                  .Query()
                                   .ContinueWith(
                                         t =>
                                         {

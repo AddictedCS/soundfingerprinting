@@ -2,10 +2,10 @@ namespace SoundFingerprinting.Builder
 {
     public interface ISourceFrom
     {
-        IWithAlgorithmConfiguration From(string pathToAudioFile);
+        IWithFingerprintConfiguration From(string pathToAudioFile);
 
-        IWithAlgorithmConfiguration From(float[] audioSamples);
+        IWithFingerprintConfiguration From(float[] audioSamples);
 
-        IWithAlgorithmConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond);
+        IWithFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond);
     }
 }

@@ -72,5 +72,15 @@ namespace SoundFingerprinting.Configuration
         /// Gets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
         /// </summary>
         bool UseDynamicLogBase { get; }
+
+        /// <summary>
+        /// Gets the number of LSH tables to split
+        /// </summary>
+        int NumberOfLSHTables { get; }
+
+        /// <summary>
+        /// Gets the number of Min Hashes per table
+        /// </summary>
+        int NumberOfMinHashesPerTable { get; }
     }
 }

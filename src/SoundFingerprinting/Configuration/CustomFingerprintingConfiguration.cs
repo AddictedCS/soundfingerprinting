@@ -20,6 +20,8 @@ namespace SoundFingerprinting.Configuration
             LogBins = defaultFingerprinting.LogBins;
             NormalizeSignal = defaultFingerprinting.NormalizeSignal;
             UseDynamicLogBase = defaultFingerprinting.UseDynamicLogBase;
+            NumberOfLSHTables = defaultFingerprinting.NumberOfLSHTables;
+            NumberOfMinHashesPerTable = defaultFingerprinting.NumberOfMinHashesPerTable;
         }
 
         public int SamplesPerFingerprint { get; set; }
@@ -47,5 +49,9 @@ namespace SoundFingerprinting.Configuration
         public bool NormalizeSignal { get; set; }
 
         public bool UseDynamicLogBase { get; set; }
+
+        public int NumberOfLSHTables { get; private set; }
+
+        public int NumberOfMinHashesPerTable { get; private set; }
     }
 }

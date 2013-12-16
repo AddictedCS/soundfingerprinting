@@ -22,13 +22,13 @@
     {
         private readonly ModelService modelService = new ModelService();
 
-        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly ITagService tagService;
         private readonly ILSHService lshService;
 
         public ModelServiceTest()
         {
-            fingerprintUnitBuilder = DependencyResolver.Current.Get<IFingerprintUnitBuilder>();
+            fingerprintCommandBuilder = DependencyResolver.Current.Get<IFingerprintCommandBuilder>();
             tagService = DependencyResolver.Current.Get<ITagService>();
             lshService = DependencyResolver.Current.Get<ILSHService>();
         }
@@ -187,7 +187,7 @@
             Track track = new Track(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             modelService.InsertTrack(track);
 
-            var subFingerprints = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+            var subFingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
                                             .WithCustomAlgorithmConfiguration(config =>
                                             {

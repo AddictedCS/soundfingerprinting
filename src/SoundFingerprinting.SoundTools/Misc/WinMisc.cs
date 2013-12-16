@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Forms;
     using System.Xml.Serialization;
@@ -14,11 +15,11 @@
     
     public partial class WinMisc : Form
     {
-        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
-        public WinMisc(IFingerprintUnitBuilder fingerprintUnitBuilder)
+        public WinMisc(IFingerprintCommandBuilder fingerprintCommandBuilder)
         {
-            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
+            this.fingerprintCommandBuilder = fingerprintCommandBuilder;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -121,7 +122,7 @@
                         int startAtSecond = (int)_nudStartAtSecond.Value;
                         int firstQueryStride = (int)_nudFirstQueryStride.Value;
 
-                        var databaseSong = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                        var databaseSong = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                   .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
                                                   .WithCustomAlgorithmConfiguration(
                                                     config =>
@@ -136,12 +137,12 @@
                                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                         });
 
-                        IAudioFingerprintingUnit querySong;
+                        IFingerprintCommand querySong;
                         int comparisonStride = (int)_nudQueryStride.Value;
                         if (_chbCompare.Checked)
                         {
                             querySong =
-                                fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                                fingerprintCommandBuilder.BuildFingerprintCommand()
                                                           .From(_tbSongToCompare.Text, secondsToProcess, startAtSecond)
                                                           .WithCustomAlgorithmConfiguration(
                                                               config =>
@@ -161,7 +162,7 @@
                         else
                         {
                             querySong =
-                                fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                                fingerprintCommandBuilder.BuildFingerprintCommand()
                                                           .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
                                                           .WithCustomAlgorithmConfiguration(
                                                               config =>
@@ -224,12 +225,18 @@
                     }).ContinueWith(result => FadeControls(true));
         }
 
-        private void GetFingerprintSimilarity(IAudioFingerprintingUnit databaseSong, IAudioFingerprintingUnit querySong, SimilarityResult results)
+        private void GetFingerprintSimilarity(IFingerprintCommand databaseSong, IFingerprintCommand querySong, SimilarityResult results)
         {
             double sum = 0;
 
-            List<bool[]> fingerprintsDatabaseSong = databaseSong.FingerprintIt().AsIs().Result;
-            List<bool[]> fingerprintsQuerySong = querySong.FingerprintIt().AsIs().Result;
+            List<bool[]> fingerprintsDatabaseSong = databaseSong.Fingerprint()
+                                                                .Result
+                                                                .Select(fingerprint => fingerprint.Signature)
+                                                                .ToList();
+            List<bool[]> fingerprintsQuerySong = querySong.Fingerprint()
+                                                                .Result
+                                                                .Select(fingerprint => fingerprint.Signature)
+                                                                .ToList();
             
             double max = double.MinValue;
             double min = double.MaxValue;

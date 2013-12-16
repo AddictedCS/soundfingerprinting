@@ -7,7 +7,5 @@
         IWithQueryAndFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond);
 
         IWithQueryAndFingerprintConfiguration From(float[] audioSamples);
-
-        IWithQueryConfiguration From(bool[] fingerprint);
     }
 }

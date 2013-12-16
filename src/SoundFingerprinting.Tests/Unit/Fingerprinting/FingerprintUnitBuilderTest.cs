@@ -14,7 +14,7 @@
     [TestClass]
     public class FingerprintUnitBuilderTest : AbstractTest
     {
-        private FingerprintUnitBuilder fingerprintUnitBuilder;
+        private FingerprintCommandBuilder fingerprintCommandBuilder;
 
         private Mock<IFingerprintService> fingerprintService;
 
@@ -29,7 +29,7 @@
             audioService = new Mock<IAudioService>(MockBehavior.Strict);
             minHashService = new Mock<IMinHashService>(MockBehavior.Strict);
 
-            fingerprintUnitBuilder = new FingerprintUnitBuilder(fingerprintService.Object, audioService.Object, minHashService.Object);
+            fingerprintCommandBuilder = new FingerprintCommandBuilder(fingerprintService.Object, audioService.Object, minHashService.Object);
         }
 
         [TestCleanup]
@@ -50,7 +50,7 @@
             audioService.Setup(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
 
-            List<bool[]> fingerprints = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+            List<bool[]> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                   .From(PathToAudioFile)
                                   .WithDefaultAlgorithmConfiguration()
                                   .FingerprintIt()
@@ -72,7 +72,7 @@
             audioService.Setup(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
             
-            List<Fingerprint> fingerprints = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+            List<Fingerprint> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                   .From(PathToAudioFile)
                                   .WithDefaultAlgorithmConfiguration()
                                   .FingerprintIt()
@@ -105,7 +105,7 @@
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
 
             List<SubFingerprint> subFingerprints =
-                fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile)
                                       .WithDefaultAlgorithmConfiguration()
                                       .FingerprintIt()
@@ -133,7 +133,7 @@
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
 
             List<SubFingerprint> subFingerprints =
-                fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
                                       .WithDefaultAlgorithmConfiguration()
                                       .FingerprintIt()
@@ -165,7 +165,7 @@
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
 
             List<SubFingerprint> subFingerprints =
-                fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+                fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
                                       .WithDefaultAlgorithmConfiguration()
                                       .FingerprintIt()

@@ -58,7 +58,7 @@
                     kernel.Bind<FFTWService>().To<FFTWService86>().WhenInjectedInto<CachedFFTWService>();
                 }
 
-                kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
+                kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
                 kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
                 kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
