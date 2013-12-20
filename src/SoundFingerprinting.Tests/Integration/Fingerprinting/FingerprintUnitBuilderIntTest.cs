@@ -12,7 +12,6 @@
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
-    using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Query;
@@ -85,7 +84,7 @@
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
             DefaultQueryConfiguration defaultQueryConfiguration = new DefaultQueryConfiguration();
-            QueryFingerprintService queryFingerprintService = new QueryFingerprintService(new CombinedHashingAlgorithm(), modelService);
+            QueryFingerprintService queryFingerprintService = new QueryFingerprintService(modelService);
             ITagService tagService = new BassAudioService();
             TagInfo info = tagService.GetTagInfo(PathToMp3);
             int releaseYear = info.Year;
@@ -133,8 +132,7 @@
             var fingerprints = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                             .From(PathToMp3)
                                             .WithDefaultAlgorithmConfiguration()
-                                            .FingerprintIt()
-                                            .ForTrack(track.Id)
+                                            .Fingerprint()
                                             .Result;
 
             modelService.InsertFingerprint(fingerprints);
@@ -149,15 +147,13 @@
             var naudioFingerprints = fingerprintCommandBuilderWithNAudio.BuildFingerprintCommand()
                                                         .From(PathToMp3)
                                                         .WithDefaultAlgorithmConfiguration()
-                                                        .FingerprintIt()
-                                                        .AsIs()
+                                                        .Fingerprint()
                                                         .Result;
 
             var bassFingerprints = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                                  .From(PathToMp3)
                                                  .WithDefaultAlgorithmConfiguration()
-                                                 .FingerprintIt()
-                                                 .AsIs()
+                                                 .Fingerprint()
                                                  .Result;
             int unmatchedItems = 0;
             int totalmatches = 0;
@@ -198,8 +194,7 @@
                 var list = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                           .From(PathToMp3)
                                           .WithCustomAlgorithmConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
-                                          .FingerprintIt()
-                                          .AsIs()
+                                          .Fingerprint()
                                           .Result;
                 long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
                 Assert.AreEqual(expected, list.Count);

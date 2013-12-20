@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Query
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Builder;
@@ -74,12 +73,11 @@
 
         public Task<QueryResult> Query()
         {
-            return createFingerprintMethod().Fingerprint()
+            return createFingerprintMethod().Hash()
                                             .ContinueWith(task =>
                                                 {
-                                                    var rawFingerprints =
-                                                        task.Result.Select(fingerprint => fingerprint.Signature);
-                                                    return queryFingerprintService.Query(rawFingerprints, queryConfiguration); 
+                                                    var hashes = task.Result;
+                                                    return queryFingerprintService.Query(hashes, queryConfiguration); 
                                                 });
         }
 

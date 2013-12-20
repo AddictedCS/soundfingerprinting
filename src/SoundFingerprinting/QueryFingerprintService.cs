@@ -4,7 +4,6 @@
     using System.Linq;
 
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
@@ -12,30 +11,27 @@
 
     public class QueryFingerprintService : IQueryFingerprintService
     {
-        private readonly ICombinedHashingAlgoritm hashingAlgorithm;
         private readonly IModelService modelService;
 
         public QueryFingerprintService()
-            : this(DependencyResolver.Current.Get<ICombinedHashingAlgoritm>(), DependencyResolver.Current.Get<IModelService>())
+            : this(DependencyResolver.Current.Get<IModelService>())
         {
         }
 
-        public QueryFingerprintService(ICombinedHashingAlgoritm hashingAlgorithm, IModelService modelService)
+        public QueryFingerprintService(IModelService modelService)
         {
-            this.hashingAlgorithm = hashingAlgorithm;
             this.modelService = modelService;
         }
 
-        public QueryResult Query(IEnumerable<bool[]> fingerprints, IQueryConfiguration queryConfiguration)
+        public QueryResult Query(IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
         {
             Dictionary<int, int> hammingSimilarities = new Dictionary<int, int>();
-            foreach (var fingerprint in fingerprints)
+            foreach (var hash in hashes)
             {
-                var tuple = hashingAlgorithm.Hash(fingerprint, queryConfiguration.NumberOfLSHTables, queryConfiguration.NumberOfMinHashesPerTable);
-                var subFingerprints = modelService.ReadSubFingerprintsByHashBucketsHavingThreshold(tuple.Item2, queryConfiguration.ThresholdVotes);
+                var subFingerprints = modelService.ReadSubFingerprintsByHashBucketsHavingThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int similarity = HashingUtils.CalculateHammingSimilarity(tuple.Item1, subFingerprint.Item1.Signature);
+                    int similarity = HashingUtils.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Item1.Signature);
                     if (hammingSimilarities.ContainsKey(subFingerprint.Item1.TrackId))
                     {
                         hammingSimilarities[subFingerprint.Item1.TrackId] += similarity;

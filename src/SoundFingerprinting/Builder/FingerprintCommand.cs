@@ -2,12 +2,10 @@ namespace SoundFingerprinting.Builder
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
 
@@ -23,8 +21,6 @@ namespace SoundFingerprinting.Builder
 
         private Func<List<bool[]>> createFingerprintsMethod;
 
-        private int trackId;
-
         public FingerprintCommand(IFingerprintService fingerprintService, IAudioService audioService, IMinHashService minHashService, ILSHService lshService)
         {
             this.fingerprintService = fingerprintService;
@@ -35,49 +31,17 @@ namespace SoundFingerprinting.Builder
 
         public IFingerprintingConfiguration Configuration { get; private set; }
 
-        public IFingerprintCommand ForTrack(Track track)
+        public Task<List<bool[]>> Fingerprint()
         {
-            trackId = track.Id;
-            return this;
+            return Task.Factory.StartNew(createFingerprintsMethod).ContinueWith(task => task.Result);
         }
 
-        public Task<List<Fingerprint>> Fingerprint()
+        public Task<List<HashData>> Hash()
         {
-            return Task.Factory.StartNew(createFingerprintsMethod).ContinueWith(fingerprintResult =>
-                { 
-                    var fingerprints = fingerprintResult.Result;
-                    return AssociateFingerprintsWithTrack(fingerprints);
-                });
-        }
-
-        public Task<List<SubFingerprint>> Encode()
-        {
-            return Task.Factory.StartNew(createFingerprintsMethod)
+            return Task.Factory
+                .StartNew(createFingerprintsMethod)
                 .ContinueWith(fingerprintsResult => HashFingerprints(fingerprintsResult.Result))
-                .ContinueWith(hashesResult => AssociateSubFingerprintsWithTrack(hashesResult.Result));
-        }
-
-        public Task<Dictionary<SubFingerprint, List<HashBinMinHash>>> Hash()
-        {
-            return Encode().ContinueWith(subFingerprintResult =>
-                {
-                    var subFingerprints = subFingerprintResult.Result;
-                    Dictionary<SubFingerprint, List<HashBinMinHash>> hashes = new Dictionary<SubFingerprint, List<HashBinMinHash>>();
-                    foreach (var subFingerprint in subFingerprints)
-                    {
-                        var hashBins = new List<HashBinMinHash>();
-                        long[] groupedSubFingerprint = lshService.Hash(subFingerprint.Signature, Configuration.NumberOfLSHTables, Configuration.NumberOfMinHashesPerTable);
-                        for (int i = 0; i < groupedSubFingerprint.Length; i++)
-                        {
-                            int tableNumber = i + 1;
-                            hashBins.Add(new HashBinMinHash(groupedSubFingerprint[i], tableNumber, subFingerprint.Id));
-                        }
-
-                        hashes.Add(subFingerprint, hashBins);
-                    }
-
-                    return hashes;
-                });
+                .ContinueWith(subFingerprintResult => GroupSubFingerprintsIntoBuckets(subFingerprintResult.Result));
         }
 
         public IWithFingerprintConfiguration From(string pathToAudioFile)
@@ -141,19 +105,19 @@ namespace SoundFingerprinting.Builder
             return subFingerprints;
         }
 
-        private List<Fingerprint> AssociateFingerprintsWithTrack(IReadOnlyCollection<bool[]> rawFingerprints)
+        private List<HashData> GroupSubFingerprintsIntoBuckets(IEnumerable<byte[]> subFingerprints)
         {
-            int fingerprintIndex = 0;
-            return
-                rawFingerprints.Select(
-                    rawFingerprint =>
-                    new Fingerprint(rawFingerprint, trackId, fingerprintIndex++, rawFingerprints.Count)).ToList();
-        }
+            List<HashData> hashDatas = new List<HashData>();
+            Parallel.ForEach(
+                subFingerprints,
+                subFingerprint =>
+                    {
+                        long[] groupedSubFingerprint = lshService.Hash(
+                            subFingerprint, Configuration.NumberOfLSHTables, Configuration.NumberOfMinHashesPerTable);
+                        hashDatas.Add(new HashData(subFingerprint, groupedSubFingerprint));
+                    });
 
-        private List<SubFingerprint> AssociateSubFingerprintsWithTrack(IEnumerable<byte[]> rawSubfingerprints)
-        {
-            return
-                rawSubfingerprints.Select(rawSubfingerprint => new SubFingerprint(rawSubfingerprint, trackId)).ToList();
+            return hashDatas;
         }
     }
 }

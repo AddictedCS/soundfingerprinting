@@ -4,18 +4,13 @@ namespace SoundFingerprinting.Builder
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao.Entities;
 
     public interface IFingerprintCommand
     {
         IFingerprintingConfiguration Configuration { get; }
 
-        IFingerprintCommand ForTrack(Track track);
+        Task<List<bool[]>> Fingerprint();
 
-        Task<List<Fingerprint>> Fingerprint();
-
-        Task<List<SubFingerprint>> Encode();
-
-        Task<Dictionary<SubFingerprint, List<HashBinMinHash>>> Hash();
+        Task<List<HashData>> Hash();
     }
 }

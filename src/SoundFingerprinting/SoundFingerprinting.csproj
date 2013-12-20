@@ -69,6 +69,7 @@
     <Compile Include="FFT\FFTW\X64\InteropFFTW.cs" />
     <Compile Include="FFT\FFTW\X64\InteropFFTWF.cs" />
     <Compile Include="Hashing\MinHash\DefaultPermutations.cs" />
+    <Compile Include="HashData.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
     <Compile Include="Strides\IStride.cs" />

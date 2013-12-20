@@ -7,6 +7,6 @@
 
     public interface IQueryFingerprintService
     {
-        QueryResult Query(IEnumerable<bool[]> fingerprints, IQueryConfiguration queryConfiguration);
+        QueryResult Query(IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration);
     }
 }
