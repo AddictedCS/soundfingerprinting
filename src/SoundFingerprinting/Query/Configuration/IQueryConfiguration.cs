@@ -7,5 +7,7 @@
         int NumberOfMinHashesPerTable { get; }
 
         int ThresholdVotes { get; }
+
+        int MaximumNumberOfTracksToReturnAsResult { get; set; }
     }
 }

@@ -122,7 +122,7 @@
             QueryResult result = queryFingerprintService.Query(fingerprints, defaultQueryConfiguration);
 
             Assert.IsTrue(result.IsSuccessful);
-            Assert.AreEqual(track.Id, result.BestMatch.Id);
+            Assert.AreEqual(track.Id, result.Results[0].Track.Id);
         }
 
         [TestMethod]

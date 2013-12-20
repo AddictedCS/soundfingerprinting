@@ -54,7 +54,7 @@
         public void QueryIsBuiltFromFileCorrectly()
         {
             const string PathToFile = "path-to-file";
-            QueryResult dummyResult = new QueryResult { IsSuccessful = true, BestMatch = It.IsAny<Track>() };
+            QueryResult dummyResult = new QueryResult { IsSuccessful = true, Results = It.IsAny<List<ResultData>>() };
             List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
             fingerprintUnitBuilder.Setup(builder => builder.BuildAudioFingerprintingUnit()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile)).Returns(withAlgorithConfiguration.Object);
@@ -78,7 +78,7 @@
             const string PathToFile = "path-to-file";
             const int StartAtSecond = 120;
             const int SecondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult { IsSuccessful = true, BestMatch = It.IsAny<Track>() };
+            QueryResult dummyResult = new QueryResult { IsSuccessful = true, Results = It.IsAny<List<ResultData>>() };
             List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
             fingerprintUnitBuilder.Setup(builder => builder.BuildAudioFingerprintingUnit()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);

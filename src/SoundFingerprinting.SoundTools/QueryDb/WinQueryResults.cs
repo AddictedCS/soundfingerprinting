@@ -24,7 +24,7 @@
         private const string ColResultName = "ResultSongNameTitle";
         private const string ColResult = "Result";
         private const string ColHammingAvg = "HammingAvg";
-        private const string ColNumberOfCandidates = "NumberOfCandidates";
+        private const string ColNumberOfCandidates = "TotalNumberOfAnalyzedCandidates";
         private const string ColISRC = "ISRC";
 
         private readonly int hashKeys;
@@ -184,7 +184,7 @@
                         }
 
                         verified++;
-                        Track recognizedTrack = queryResult.BestMatch;
+                        Track recognizedTrack = queryResult.Results[0].Track;
                         bool isSuccessful = actualTrack == null || recognizedTrack.Id == actualTrack.Id;
                         if (isSuccessful)
                         {
@@ -196,7 +196,7 @@
                             new object[]
                                 {
                                     title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist,
-                                    isSuccessful, queryResult.Similarity, queryResult.NumberOfCandidates,
+                                    isSuccessful, queryResult.Results[0].Similarity, queryResult.TotalNumberOfAnalyzedCandidates,
                                     recognizedTrack.ISRC
                                 },
                             Color.Empty);
@@ -242,7 +242,7 @@
                                                 return;
                                             }
 
-                                            Track recognizedTrack = queryResult.BestMatch;
+                                            Track recognizedTrack = queryResult.Results[0].Track;
                                             recognized++;
                                             verified++;
 

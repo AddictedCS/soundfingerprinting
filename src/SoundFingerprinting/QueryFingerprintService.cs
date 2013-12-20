@@ -49,14 +49,15 @@
 
             if (hammingSimilarities.Any())
             {
-                var bestMatch = hammingSimilarities.Aggregate((l, r) => l.Value > r.Value ? l : r);
+                var topMatches = hammingSimilarities.OrderBy(pair => pair.Value).Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult);
+                List<ResultData> resultSet = topMatches.Select(match => new ResultData { Track = modelService.ReadTrackById(match.Key), Similarity = match.Value }).ToList();
+
                 return new QueryResult
-                           {
-                               BestMatch = modelService.ReadTrackById(bestMatch.Key),
-                               IsSuccessful = true,
-                               Similarity = bestMatch.Value,
-                               NumberOfCandidates = hammingSimilarities.Count
-                           };
+                    {
+                        IsSuccessful = true,
+                        TotalNumberOfAnalyzedCandidates = hammingSimilarities.Count,
+                        Results = resultSet
+                    };
             }
 
             return new QueryResult();
