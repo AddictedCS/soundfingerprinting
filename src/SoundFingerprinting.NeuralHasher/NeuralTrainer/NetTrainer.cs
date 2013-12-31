@@ -190,7 +190,7 @@
         public Dictionary<int, List<BasicMLData>> GetNormalizedTrackFingerprints(IActivationFunction function, int fingerprintsPerTrack, int outputs)
         {
             IList<Track> tracks = modelService.ReadTracks();
-            IDictionary<int, IList<Fingerprint>> unnormalized = modelService.ReadFingerprintsTrackId(tracks, fingerprintsPerTrack);
+            IDictionary<int, IList<Fingerprint>> unnormalized = modelService.ReadFingerprintsByMultipleTrackId(tracks, fingerprintsPerTrack);
             Dictionary<int, List<BasicMLData>> retVal = new Dictionary<int, List<BasicMLData>>();
             int neededTracks = (int)Math.Pow(2, outputs);
             int count = 0;

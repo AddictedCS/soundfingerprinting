@@ -13,8 +13,6 @@ namespace SoundFingerprinting.Dao
 
         void InsertTrack(Track track);
 
-        void InsertTrack(IEnumerable<Track> collection);
-
         void InsertHashBin(HashBinMinHash hashBin);
 
         void InsertHashBin(IEnumerable<HashBinMinHash> collection);
