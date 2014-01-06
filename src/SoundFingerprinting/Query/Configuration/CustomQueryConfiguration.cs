@@ -4,15 +4,8 @@
     {
         public CustomQueryConfiguration()
         {
-            DefaultQueryConfiguration defaultConfiguration = new DefaultQueryConfiguration();
-            NumberOfLSHTables = defaultConfiguration.NumberOfLSHTables;
-            NumberOfMinHashesPerTable = defaultConfiguration.NumberOfMinHashesPerTable;
-            ThresholdVotes = defaultConfiguration.ThresholdVotes;
+            ThresholdVotes = new DefaultQueryConfiguration().ThresholdVotes;
         }
-
-        public int NumberOfLSHTables { get; set; }
-
-        public int NumberOfMinHashesPerTable { get; set; }
 
         public int ThresholdVotes { get; set; }
     }
