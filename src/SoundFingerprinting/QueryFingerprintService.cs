@@ -29,7 +29,7 @@
             Dictionary<int, int> hammingSimilarities = new Dictionary<int, int>();
             foreach (var hash in hashes)
             {
-                var subFingerprints = modelService.ReadSubFingerprintsByHashBucketsHavingThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
+                var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     int similarity = HashingUtils.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Item1.Signature);

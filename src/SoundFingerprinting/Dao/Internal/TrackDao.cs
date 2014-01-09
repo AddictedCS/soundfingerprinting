@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Dao.Internal
 {
     using System.Collections.Generic;
 
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
 
     internal class TrackDao : AbstractDao
     {
@@ -18,42 +18,42 @@ namespace SoundFingerprinting.Dao.Internal
         {
         }
 
-        public void Insert(Track track)
+        public int Insert(TrackData track)
         {
-            track.Id = PrepareStoredProcedure(SpInsertTrack)
+            return PrepareStoredProcedure(SpInsertTrack)
                             .WithParametersFromModel(track)
                             .Execute()
                             .AsScalar<int>();
         }
 
-        public IList<Track> Read()
+        public IList<TrackData> Read()
         {
             return PrepareStoredProcedure(SpReadTracks)
                         .Execute()
-                        .AsListOfModel<Track>();
+                        .AsListOfModel<TrackData>();
         }
 
-        public Track ReadById(int id)
+        public TrackData ReadById(int id)
         {
             return PrepareStoredProcedure(SpReadTrackById)
                         .WithParameter("Id", id)
                         .Execute()
-                        .AsModel<Track>();
+                        .AsModel<TrackData>();
         }
 
-        public Track ReadTrackByArtistAndTitleName(string artist, string title)
+        public TrackData ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return PrepareStoredProcedure(SpReadTrackByArtistSongName)
                         .WithParameter("Artist", artist)
                         .WithParameter("Title", title)
-                        .Execute().AsModel<Track>();
+                        .Execute().AsModel<TrackData>();
         }
 
-        public Track ReadTrackByISRC(string isrc)
+        public TrackData ReadTrackByISRC(string isrc)
         {
             return PrepareStoredProcedure(SpReadTrackByISRC)
                         .WithParameter("ISRC", isrc)
-                        .Execute().AsModel<Track>();
+                        .Execute().AsModel<TrackData>();
         }
 
         public int DeleteTrack(int trackId)

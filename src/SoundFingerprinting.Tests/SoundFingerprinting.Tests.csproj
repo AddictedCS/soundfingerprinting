@@ -62,13 +62,13 @@
   <ItemGroup>
     <Compile Include="Integration\AbstractIntegrationTest.cs" />
     <Compile Include="Integration\AudioProxies\BassAudioServiceTest.cs" />
-    <Compile Include="Integration\HashBinDaoTest.cs" />
-    <Compile Include="Integration\SubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\TrackDaoTest.cs" />
+    <Compile Include="Integration\Dao\HashBinMinHashDaoTest.cs" />
+    <Compile Include="Integration\Dao\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\TrackDaoTest.cs" />
     <Compile Include="Unit\AudioProxies\StrideTest.cs" />
     <Compile Include="Integration\AudioProxies\TagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />
-    <Compile Include="Integration\DbStorage\ModelServiceTest.cs" />
+    <Compile Include="Integration\Dao\ModelServiceTest.cs" />
     <Compile Include="Unit\Fingerprinting\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\Fingerprinting\FingerprintDescriptorTest.cs" />
     <Compile Include="Integration\Fingerprinting\FingerprintUnitBuilderIntTest.cs" />

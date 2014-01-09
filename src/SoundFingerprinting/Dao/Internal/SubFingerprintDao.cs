@@ -1,8 +1,6 @@
 ﻿namespace SoundFingerprinting.Dao.Internal
 {
-    using System.Collections.Generic;
-
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
 
     internal class SubFingerprintDao : AbstractDao
     {
@@ -14,27 +12,20 @@
         {
         }
 
-        public SubFingerprint ReadById(long id)
+        public SubFingerprintData ReadById(long id)
         {
             return PrepareStoredProcedure(SpReadSubFingerprintById)
                         .Execute()
-                        .AsModel<SubFingerprint>();
+                        .AsModel<SubFingerprintData>();
         }
 
-        public void Insert(SubFingerprint subFingerprint)
+        public long Insert(byte[] signature, int trackId)
         {
-            subFingerprint.Id = PrepareStoredProcedure(SpInsertSubFingerprint)
-                                .WithParametersFromModel(subFingerprint)
+            return PrepareStoredProcedure(SpInsertSubFingerprint)
+                                .WithParameter("Signature", signature)
+                                .WithParameter("TrackId", trackId)
                                 .Execute()
                                 .AsScalar<long>();
-        }
-
-        public void Insert(IEnumerable<SubFingerprint> collection)
-        {
-            foreach (var subFingerprint in collection)
-            {
-                Insert(subFingerprint);
-            }
         }
     }
 }

@@ -1,7 +1,15 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System;
+
+    [Serializable]
     public class TrackData
     {
+        public TrackData()
+        {
+            // no op
+        }
+
         public TrackData(string isrc, string artist, string title, string album, int releaseYear, int trackLength)
         {
             ISRC = isrc;
@@ -49,7 +57,7 @@
 
         public override int GetHashCode()
         {
-            return TrackReference.HashCode.GetHashCode();
+            return TrackReference.HashCode;
         }
     }
 }

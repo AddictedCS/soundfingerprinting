@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Dao.Internal;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
@@ -32,97 +31,68 @@
             permutationsDao = new PermutationsDao(databaseProviderFactory, modelBinderFactory);
         }
 
-        public void InsertSubFingerprint(SubFingerprint subFingerprint)
+        public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
-            subFingerprintDao.Insert(subFingerprint);
-        }
+            var subFingerprints = hashBinMinHashDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold);
+            var fingerprints = subFingerprints as IList<SubFingerprint> ?? subFingerprints.ToList();
+            if (subFingerprints != null && fingerprints.Any())
+            {
+                return fingerprints.Select(subFingerprint => new SubFingerprintData
+                                                                 {
+                                                                     Signature = subFingerprint.Signature, 
+                                                                     TrackReference = new RDBMSTrackReference(subFingerprint.TrackId), 
+                                                                     SubFingerprintReference = new RDBMSSubFingerprintReference(subFingerprint.Id)
+                                                                 })
+                                                                 .ToList();
+            }
 
-        public void InsertSubFingerprint(IEnumerable<SubFingerprint> subFingerprints)
-        {
-            subFingerprintDao.Insert(subFingerprints);
+            return Enumerable.Empty<SubFingerprintData>().ToList();
         }
-
+    
         public int[][] ReadPermutationsForLSHAlgorithm()
         {
             return permutationsDao.ReadPermutationsForLSHAlgorithm();
         }
 
-        public void InsertHashData(HashData hashData)
+        public ITrackReference InsertTrack(TrackData track)
+        {
+            return new RDBMSTrackReference(trackDao.Insert(GetTrackFromTrackData(track)));
+        }
+
+        
+        public void InsertHashDataForTrack(byte[] subFingerprintSignature, long[] hashBuckets, ITrackReference trackReference)
+        {
+            subFingerprintDao.Insert()
+        }
+
+        public IList<TrackData> ReadAllTracks()
         {
             throw new NotImplementedException();
         }
 
-        public ITrackReference InsertTrackData(TrackData track)
+        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
             throw new NotImplementedException();
         }
 
-        public void InsertTrack(Track track)
+        public TrackData ReadTrackByReference(ITrackReference trackReference)
         {
-            trackDao.Insert(track);
+            throw new NotImplementedException();
         }
 
-        public void InsertTrack(IEnumerable<Track> collection)
+        public TrackData ReadTrackByISRC(string isrc)
         {
-            trackDao.Insert(collection);
+            throw new NotImplementedException();
         }
 
-        public void InsertHashBin(HashBinMinHash hashBin)
+        public int DeleteTrack(ITrackReference trackReference)
         {
-            hashBinMinHashDao.Insert(hashBin);
+            throw new NotImplementedException();
         }
 
-        public void InsertHashBin(IEnumerable<HashBinMinHash> collection)
+        private static Track GetTrackFromTrackData(TrackData track)
         {
-            foreach (var hashBinMinHash in collection)
-            {
-                InsertHashBin(hashBinMinHash);
-            }
-        }
-
-        public IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold)
-        {
-            return hashBinMinHashDao.ReadSubFingerprintsByHashBucketsHavingThreshold(buckets, threshold);
-        }
-
-        public virtual IList<Track> ReadTracks()
-        {
-            return trackDao.Read();
-        }
-
-        public Track ReadTrackById(int id)
-        {
-            return trackDao.ReadById(id);
-        }
-
-        public Track ReadTrackByArtistAndTitleName(string artist, string title)
-        {
-            return trackDao.ReadTrackByArtistAndTitleName(artist, title);
-        }
-
-        public Track ReadTrackByISRC(string isrc)
-        {
-            return trackDao.ReadTrackByISRC(isrc);
-        }
-
-        public int DeleteTrack(int trackId)
-        {
-            return trackDao.DeleteTrack(trackId);
-        }
-
-        public int DeleteTrack(Track track)
-        {
-            return DeleteTrack(track.Id);
-        }
-
-        public int DeleteTrack(IEnumerable<int> collection)
-        {
-            return collection.Sum(trackId => trackDao.DeleteTrack(trackId));
-        }
-
-        public int DeleteTrack(IEnumerable<Track> collection)
-        {
-            return DeleteTrack(collection.Select(track => track.Id));
+            return new Track(track.ISRC, track.Artist, track.Title, track.Album, track.ReleaseYear, track.TrackLengthSec);
         }
     }
 }

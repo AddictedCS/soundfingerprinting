@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Dao.Internal
 {
-    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Dao.Entities;
@@ -17,7 +16,7 @@ namespace SoundFingerprinting.Dao.Internal
              // no op
         }
 
-        public void Insert(HashBinMinHash hashBin)
+        public void Insert(long[] hashBins, long subFingerprintId)
         {
             PrepareStoredProcedure(SpInsertMinhashHashbin)
                             .WithParametersFromModel(hashBin)
@@ -33,7 +32,7 @@ namespace SoundFingerprinting.Dao.Internal
                 .AsList(reader => new HashBinMinHash(reader.GetInt64("HashBin"), hashTable, reader.GetInt64("SubFingerprintId")));
         }
 
-        public IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] hashBuckets, int thresholdVotes)
+        public IEnumerable<SubFingerprint> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBuckets, int thresholdVotes)
         {
             return PrepareStoredProcedure(SpReadFingerprintsByHashBinHashTableAndThreshold)
                     .WithParameter("HashBin_1", hashBuckets[0])
@@ -68,8 +67,7 @@ namespace SoundFingerprinting.Dao.Internal
                             long id = reader.GetInt64("Id");
                             byte[] signature = (byte[])reader.GetRaw("Signature");
                             int trackId = reader.GetInt32("TrackId");
-                            int votes = reader.GetInt32("Votes");
-                            return new Tuple<SubFingerprint, int>(new SubFingerprint(signature, trackId) { Id = id }, votes);
+                            return new SubFingerprint(signature, trackId) { Id = id };
                         });
         }
     }

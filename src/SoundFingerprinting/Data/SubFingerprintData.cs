@@ -25,7 +25,7 @@
 
         public override int GetHashCode()
         {
-            return SubFingerprintReference.HashCode.GetHashCode();
+            return SubFingerprintReference.HashCode;
         }
     }
 }

@@ -64,12 +64,17 @@
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
+    <Compile Include="Data\ISubFingerprintReference.cs" />
+    <Compile Include="Data\ITrackReference.cs" />
+    <Compile Include="Data\SubFingerprintData.cs" />
+    <Compile Include="Data\RDBMSSubFingerprintReference.cs" />
+    <Compile Include="Data\RDBMSTrackReference.cs" />
+    <Compile Include="Data\TrackData.cs" />
     <Compile Include="FFT\FFTW\FFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWService64.cs" />
     <Compile Include="FFT\FFTW\X64\InteropFFTW.cs" />
     <Compile Include="FFT\FFTW\X64\InteropFFTWF.cs" />
     <Compile Include="Hashing\MinHash\DefaultPermutations.cs" />
-    <Compile Include="HashData.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
     <Compile Include="Strides\IStride.cs" />
@@ -78,7 +83,6 @@
     <Compile Include="Strides\StrideType.cs" />
     <Compile Include="Audio\TagInfo.cs" />
     <Compile Include="Dao\DefaultConnectionStringFactory.cs" />
-    <Compile Include="Dao\Entities\SubFingerprint.cs" />
     <Compile Include="Dao\IConnectionStringFactory.cs" />
     <Compile Include="Dao\IModelService.cs" />
     <Compile Include="Dao\Internal\AbstractDao.cs" />
@@ -88,7 +92,6 @@
     <Compile Include="Dao\Internal\Executor.cs" />
     <Compile Include="Dao\Internal\Extensions.cs" />
     <Compile Include="Dao\Conditions\ICondition.cs" />
-    <Compile Include="Dao\Internal\FingerprintDao.cs" />
     <Compile Include="Dao\Internal\HashBinMinHashDao.cs" />
     <Compile Include="Dao\Internal\IExecutor.cs" />
     <Compile Include="Dao\IModelBinder.cs" />
@@ -108,10 +111,6 @@
     <Compile Include="Dao\MsSqlDatabaseProviderFactory.cs" />
     <Compile Include="Dao\Utils\ArrayUtils.cs" />
     <Compile Include="Dao\ModelService.cs" />
-    <Compile Include="Dao\Entities\Fingerprint.cs" />
-    <Compile Include="Dao\Entities\AbstractHashBin.cs" />
-    <Compile Include="Dao\Entities\HashBinMinHash.cs" />
-    <Compile Include="Dao\Entities\Track.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Utils\ConstantQ\ConstQ.cs" />
     <Compile Include="Configuration\CustomFingerprintingConfiguration.cs" />
