@@ -8,19 +8,19 @@ namespace SoundFingerprinting.Dao
     {
         ITrackReference InsertTrack(TrackData track);
 
-        void InsertHashData(HashData hashData, ITrackReference trackReference);
+        void InsertHashDataForTrack(byte[] subFingerprintSignature, long[] hashBuckets, ITrackReference trackReference);
 
-        IList<TrackData> ReadTracks();
+        IList<TrackData> ReadAllTracks();
+
+        IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
         TrackData ReadTrackByReference(ITrackReference trackReference);
-
-        TrackData ReadTrackByArtistAndTitleName(string artist, string title);
 
         TrackData ReadTrackByISRC(string isrc);
 
         int DeleteTrack(ITrackReference trackReference);
 
-        IEnumerable<SubFingerprintData> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold);
+        IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold);
 
         int[][] ReadPermutationsForLSHAlgorithm();
     }

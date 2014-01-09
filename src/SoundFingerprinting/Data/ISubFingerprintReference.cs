@@ -2,6 +2,6 @@
 {
     public interface ISubFingerprintReference
     {
-        long Id { get; }
+        long HashCode { get; }
     }
 }

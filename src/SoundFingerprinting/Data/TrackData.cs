@@ -12,18 +12,44 @@
             TrackLengthSec = trackLength;
         }
 
-        public int Id { get; set; }
+        public TrackData(string isrc, string artist, string title, string album, int releaseYear, int trackLength, ITrackReference trackReference)
+            : this(isrc, artist, title, album, releaseYear, trackLength)
+        {
+            TrackReference = trackReference;
+        }
 
-        public string Artist { get; set; }
+        public string Artist { get; private set; }
 
-        public string Title { get; set; }
+        public string Title { get; private set; }
 
-        public string ISRC { get; set; }
+        public string ISRC { get; private set; }
 
-        public string Album { get; set; }
+        public string Album { get; private set; }
 
-        public int ReleaseYear { get; set; }
+        public int ReleaseYear { get; private set; }
 
-        public int TrackLengthSec { get; set; }
+        public int TrackLengthSec { get; private set; }
+
+        public ITrackReference TrackReference { get; private set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            if (!(obj is TrackData))
+            {
+                return false;
+            }
+
+            return ((TrackData)obj).TrackReference.HashCode == TrackReference.HashCode;
+        }
+
+        public override int GetHashCode()
+        {
+            return TrackReference.HashCode.GetHashCode();
+        }
     }
 }

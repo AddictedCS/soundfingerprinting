@@ -2,6 +2,6 @@
 {
     public interface ITrackReference
     {
-        long Id { get; }
+        long HashCode { get; }
     }
 }
