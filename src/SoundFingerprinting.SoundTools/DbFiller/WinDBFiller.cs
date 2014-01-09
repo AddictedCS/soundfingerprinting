@@ -15,7 +15,6 @@
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.LSH;
-    using SoundFingerprinting.NeuralHasher.Ensemble;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -214,26 +213,7 @@
                     hashKeys = (int)_nudHashKeys.Value; // If LSH is used # of keys per table
                     break;
                 case HashAlgorithm.NeuralHasher:
-                    if (string.IsNullOrEmpty(_tbPathToEnsemble.Text))
-                    {
-                        // Check if the path to ensemble is specified
-                        MessageBox.Show(Resources.SpecifyPathToNetworkEnsemble, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        FadeAllControls(false);
-                        return;
-                    }
-
-                    try
-                    {
-                        NeuralNetworkEnsemble.Load(_tbPathToEnsemble.Text); // Load the ensemble
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                        FadeAllControls(false);
-                        return;
-                    }
-
-                    break;
+                    throw new NotImplementedException();
                 case HashAlgorithm.None:
                     break;
             }
