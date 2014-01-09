@@ -33,18 +33,6 @@ CREATE TABLE Tracks
 	CONSTRAINT PK_TracksId PRIMARY KEY(Id)
 )
 GO 
--- TABLE WHICH WILL CONTAIN ALL THE INFORMATION RELATED TO THE FINGERPRINTS
--- THIS TABLE WILL BE EXCLUSIVELY USED BY NEURAL HASHER, AS LSH+MINHASH USES SUBFINGERPRINTS TABLE
-CREATE TABLE Fingerprints
-(
-	Id INT IDENTITY(1,1) NOT NULL,
-	Signature VARBINARY(4096) NOT NULL,
-	TotalFingerprintsPerTrack INT DEFAULT 0,
-	SongOrder INT DEFAULT -1,
-	TrackId INT NOT NULL,
-	CONSTRAINT PK_FingerprintsId PRIMARY KEY(Id),
-	CONSTRAINT FK_Fingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
-)
 -- TABLE WHICH CONTAINS ALL THE INFORMATION RELATED TO SUB_FINGERPRINTS
 -- USED BY LSH+MINHASH SCHEMA
 CREATE TABLE SubFingerprints
@@ -247,8 +235,6 @@ GO
 -- -------------------------------TABLE INDEXES------------------------------
 -- --------------------------------------------------------------------------
 -- --------------------------------------------------------------------------
-CREATE INDEX IX_TrackIdLookup ON Fingerprints(TrackId) 
-GO
 CREATE INDEX IX_TrackIdLookupOnSubfingerprints ON SubFingerprints(TrackId) 
 GO
 -- --------------------------------------------------------------------------
@@ -304,32 +290,6 @@ VALUES
 (
  	@ISRC, @Artist, @Title, @Album, @ReleaseYear, @TrackLengthSec
 );
-GO
-
--- INSERT A FINGERPRINT INTO FINGERPRINTS TABLE
--- USED BY NEURAL HASHER
-IF OBJECT_ID('sp_InsertFingerprint','P') IS NOT NULL
-	DROP PROCEDURE sp_InsertFingerprint
-GO
-CREATE PROCEDURE sp_InsertFingerprint
-	@Id INT,
-	@Signature VARBINARY(4096),
-	@TrackId INT,
-	@SongOrder INT,
-	@TotalFingerprintsPerTrack Int
-AS
-BEGIN
-INSERT INTO Fingerprints (
-	Signature,
-	TrackId,
-	SongOrder,
-	TotalFingerprintsPerTrack
-	) OUTPUT inserted.Id
-VALUES
-(
-	@Signature, @TrackId, @SongOrder, @TotalFingerprintsPerTrack
-);
-END
 GO
 -- INSERT INTO SUBFINGERPRINTS
 IF OBJECT_ID('sp_InsertSubFingerprint','P') IS NOT NULL
@@ -409,9 +369,9 @@ CREATE PROCEDURE sp_ReadFingerprintsByHashBinHashTableAndThreshold
 	@HashBin_21 BIGINT, @HashBin_22 BIGINT, @HashBin_23 BIGINT, @HashBin_24 BIGINT, @HashBin_25 BIGINT,
 	@Threshold INT
 AS
-SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature, Thresholded.Votes as Votes
+SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature
 FROM SubFingerprints, 
-	( SELECT Hashes.SubFingerprintId as SubFingerprintId, COUNT(Hashes.SubFingerprintId) AS Votes FROM 
+	( SELECT Hashes.SubFingerprintId as SubFingerprintId FROM 
 	   (
 		SELECT * FROM HashTable_1 WHERE HashBin = @HashBin_1
 		UNION ALL
@@ -470,68 +430,6 @@ WHERE SubFingerprints.Id = Thresholded.SubFingerprintId
 -- ------------------------------------------------------------------------------------------------------------
 GO
 
-IF OBJECT_ID('sp_ReadFingerprints','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadFingerprints
-GO
-CREATE PROCEDURE sp_ReadFingerprints
-AS
-SELECT Fingerprints.Id, Fingerprints.Signature, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId, Fingerprints.SongOrder FROM Fingerprints
-GO
-
-IF OBJECT_ID('sp_ReadFingerprintById','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadFingerprintById
-GO
-CREATE PROCEDURE sp_ReadFingerprintById
-	@Id INT
-AS
-SELECT Fingerprints.Id, Fingerprints.Signature, Fingerprints.TotalFingerprintsPerTrack, Fingerprints.TrackId, Fingerprints.SongOrder FROM Fingerprints WHERE Fingerprints.Id = @Id
-GO
-
-IF OBJECT_ID('sp_ReadFingerprintByTrackId','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadFingerprintByTrackId
-GO
-CREATE PROCEDURE sp_ReadFingerprintByTrackId
-	@Id INT,						-- TrackId
-	@NumberOfFingerprintsToRead INT -- Number of fingerprints to read
-AS
-BEGIN
-IF @NumberOfFingerprintsToRead <> 0
-	BEGIN
-	DECLARE @TOTAL INT
-	DECLARE @SKIP_END INT
-	DECLARE @STR_TO_EXECUTE NVARCHAR(2000)
-	DECLARE @PARAMS NVARCHAR(500)
-	SELECT @TOTAL = (SELECT COUNT(Fingerprints.Id) FROM Fingerprints WHERE Fingerprints.TrackId = @Id)
-	SELECT @SKIP_END =  @TOTAL/2 - @NumberOfFingerprintsToRead/2 + @NumberOfFingerprintsToRead
-
-	SELECT @STR_TO_EXECUTE =
-		N'SELECT Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder ' +
-		N'FROM (SELECT TOP '+ CAST(@NumberOfFingerprintsToRead AS VARCHAR(10)) + N' Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder '+
-		N'FROM (SELECT TOP '+ CAST(@SKIP_END AS VARCHAR(10)) + N' Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder FROM Fingerprints '+
-		N'WHERE Fingerprints.TrackId = @Id ORDER BY SongOrder ASC) as rel1 ORDER BY SongOrder DESC ) as rel2 ORDER BY SongOrder ASC'
-	SELECT @PARAMS = N'@Id INT'
-	EXEC sp_executesql @STR_TO_EXECUTE, @PARAMS, @Id
-	END
-ELSE
-	BEGIN
-	SELECT Id, Signature, TotalFingerprintsPerTrack, TrackId, SongOrder FROM Fingerprints WHERE Fingerprints.TrackId = @Id ORDER BY SongOrder ASC
-	END
-END
-GO
-
--- ----------------------------------------------------------------------------
--- ----------------------READ TRACK BY FINGERPRINT-----------------------------
--- ----------------------------------------------------------------------------
-IF OBJECT_ID('sp_ReadTrackByFingerprint','P') IS NOT NULL
-	DROP PROCEDURE sp_ReadTrackByFingerprint
-GO
-CREATE PROCEDURE sp_ReadTrackByFingerprint
-	@Id INT -- Fingerprint ID
-AS
-SELECT Tracks.Id, Tracks.Artist, Tracks.Title, Tracks.Album, Tracks.ISRC, Tracks.ReleaseYear, Tracks.TrackLengthSec FROM Tracks, Fingerprints
-WHERE Tracks.Id = Fingerprints.TrackId AND Fingerprints.Id = @Id
-GO
-
 -- ----------------------------------------------------------------------------
 -- ----------------------READ TRACK BY ARTIST NAME AND SONG NAME---------------
 -- ----------------------------------------------------------------------------
@@ -566,7 +464,6 @@ CREATE PROCEDURE sp_DeleteTrack
 	@Id INT
 AS
 BEGIN
-	DELETE FROM Fingerprints WHERE Fingerprints.TrackId = @Id
 	DELETE HashTable_1 FROM HashTable_1 INNER JOIN SubFingerprints ON HashTable_1.SubFingerprintId = SubFingerprints.Id AND SubFingerprints.TrackId = @Id
 	DELETE HashTable_2 FROM HashTable_2 INNER JOIN SubFingerprints ON HashTable_2.SubFingerprintId = SubFingerprints.Id AND SubFingerprints.TrackId = @Id
 	DELETE HashTable_3 FROM HashTable_3 INNER JOIN SubFingerprints ON HashTable_3.SubFingerprintId = SubFingerprints.Id AND SubFingerprints.TrackId = @Id
