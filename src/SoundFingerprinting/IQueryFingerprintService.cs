@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
 
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Query.Configuration;
 

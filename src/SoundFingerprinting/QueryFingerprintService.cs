@@ -4,6 +4,7 @@
     using System.Linq;
 
     using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;

@@ -4,6 +4,7 @@ namespace SoundFingerprinting.Builder
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
 
     public interface IFingerprintCommand
     {

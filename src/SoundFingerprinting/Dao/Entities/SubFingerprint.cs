@@ -3,7 +3,7 @@
     using System;
 
     [Serializable]
-    public class SubFingerprint
+    internal class SubFingerprint
     {
         public SubFingerprint()
         {

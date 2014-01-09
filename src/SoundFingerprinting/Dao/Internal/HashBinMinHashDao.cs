@@ -8,8 +8,8 @@ namespace SoundFingerprinting.Dao.Internal
     internal class HashBinMinHashDao : AbstractDao
     {
         private const string SpInsertMinhashHashbin = "sp_InsertHashBinMinHash";
-        private const string SpReadAllHashBinsFromHashTableMinHash = "sp_ReadAllHashBinsFromHashTableMinHash";
         private const string SpReadFingerprintsByHashBinHashTableAndThreshold = "sp_ReadFingerprintsByHashBinHashTableAndThreshold";
+        private const string SpReadHashBinsByHashTable = "sp_ReadHashBinsByHashTable";
 
         public HashBinMinHashDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
@@ -25,9 +25,12 @@ namespace SoundFingerprinting.Dao.Internal
                             .AsNonQuery();
         }
 
-        public IEnumerable<HashBinMinHash> ReadAll()
+        public IList<HashBinMinHash> ReadHashBinsByHashTable(int hashTable)
         {
-            return PrepareStoredProcedure(SpReadAllHashBinsFromHashTableMinHash).Execute().AsListOfModel<HashBinMinHash>();
+            return PrepareStoredProcedure(SpReadHashBinsByHashTable)
+                .WithParameter("HashTable", hashTable)
+                .Execute()
+                .AsList(reader => new HashBinMinHash(reader.GetInt64("HashBin"), hashTable, reader.GetInt64("SubFingerprintId")));
         }
 
         public IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] hashBuckets, int thresholdVotes)

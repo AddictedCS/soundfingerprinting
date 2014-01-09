@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting
+﻿namespace SoundFingerprinting.Data
 {
     public class HashData
     {

@@ -126,22 +126,6 @@
         }
 
         [TestMethod]
-        public void CreateFingerprintsFromFileAndInsertInDatabaseUsingBassProxyTest()
-        {
-            var track = InsertTrack();
-            var fingerprints = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
-                                            .From(PathToMp3)
-                                            .WithDefaultAlgorithmConfiguration()
-                                            .Fingerprint()
-                                            .Result;
-
-            modelService.InsertFingerprint(fingerprints);
-            var insertedFingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
-
-            AssertFingerprintsAreEquals(fingerprints, insertedFingerprints);
-        }
-
-        [TestMethod]
         public void CompareFingerprintsCreatedByDifferentProxiesTest()
         {
             var naudioFingerprints = fingerprintCommandBuilderWithNAudio.BuildFingerprintCommand()
@@ -199,28 +183,6 @@
                 long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
                 Assert.AreEqual(expected, list.Count);
                 File.Delete(tempFile);
-            }
-        }
-
-        private void AssertFingerprintsAreEquals(IReadOnlyCollection<Fingerprint> fingerprints, ICollection<Fingerprint> insertedFingerprints)
-        {
-            Assert.AreEqual(fingerprints.Count, insertedFingerprints.Count);
-            foreach (var fingerprint in fingerprints)
-            {
-                int fingerprintId = fingerprint.Id;
-                foreach (var insertedFingerprint in
-                    insertedFingerprints.Where(fingerprintSignature => fingerprintSignature.Id == fingerprintId))
-                {
-                    Assert.AreEqual(fingerprint.Signature.Length, insertedFingerprint.Signature.Length);
-
-                    for (int i = 0; i < fingerprint.Signature.Length; i++)
-                    {
-                        Assert.AreEqual(fingerprint.Signature[i], insertedFingerprint.Signature[i]);
-                    }
-
-                    Assert.AreEqual(fingerprint.TotalFingerprintsPerTrack, insertedFingerprint.TotalFingerprintsPerTrack);
-                    Assert.AreEqual(fingerprint.TrackId, insertedFingerprint.TrackId);
-                }
             }
         }
 

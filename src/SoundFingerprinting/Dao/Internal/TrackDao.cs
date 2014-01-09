@@ -10,7 +10,6 @@ namespace SoundFingerprinting.Dao.Internal
         private const string SpReadTracks = "sp_ReadTracks";
         private const string SpReadTrackById = "sp_ReadTrackById";
         private const string SpReadTrackByArtistSongName = "sp_ReadTrackByArtistAndSongName";
-        private const string SpReadTrackByFingerprint = "sp_ReadTrackByFingerprint";
         private const string SpDeleteTrack = "sp_DeleteTrack";
         private const string SpReadTrackByISRC = "sp_ReadTrackISRC";
         
@@ -21,25 +20,25 @@ namespace SoundFingerprinting.Dao.Internal
 
         public void Insert(Track track)
         {
-            track.Id = PrepareStoredProcedure(SpInsertTrack).WithParametersFromModel(track).Execute().AsScalar<int>();
-        }
-
-        public void Insert(IEnumerable<Track> collection)
-        {
-            foreach (var track in collection)
-            {
-                Insert(track);
-            }
+            track.Id = PrepareStoredProcedure(SpInsertTrack)
+                            .WithParametersFromModel(track)
+                            .Execute()
+                            .AsScalar<int>();
         }
 
         public IList<Track> Read()
         {
-            return PrepareStoredProcedure(SpReadTracks).Execute().AsListOfModel<Track>();
+            return PrepareStoredProcedure(SpReadTracks)
+                        .Execute()
+                        .AsListOfModel<Track>();
         }
 
         public Track ReadById(int id)
         {
-            return PrepareStoredProcedure(SpReadTrackById).WithParameter("Id", id).Execute().AsModel<Track>();
+            return PrepareStoredProcedure(SpReadTrackById)
+                        .WithParameter("Id", id)
+                        .Execute()
+                        .AsModel<Track>();
         }
 
         public Track ReadTrackByArtistAndTitleName(string artist, string title)
@@ -57,15 +56,12 @@ namespace SoundFingerprinting.Dao.Internal
                         .Execute().AsModel<Track>();
         }
 
-        public IList<Track> ReadTrackByFingerprintId(int id)
-        {
-            return
-                PrepareStoredProcedure(SpReadTrackByFingerprint).WithParameter("Id", id).Execute().AsListOfModel<Track>();
-        }
-
         public int DeleteTrack(int trackId)
         {
-            return PrepareStoredProcedure(SpDeleteTrack).WithParameter("Id", trackId).Execute().AsNonQuery();
+            return PrepareStoredProcedure(SpDeleteTrack)
+                        .WithParameter("Id", trackId)
+                        .Execute()
+                        .AsNonQuery();
         }
     }
 }

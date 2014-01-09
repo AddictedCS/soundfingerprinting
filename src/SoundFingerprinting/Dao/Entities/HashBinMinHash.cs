@@ -3,7 +3,7 @@
     using System;
 
     [Serializable]
-    public class HashBinMinHash : AbstractHashBin
+    internal class HashBinMinHash
     {
         public HashBinMinHash()
         {
@@ -11,10 +11,16 @@
         }
 
         public HashBinMinHash(long hashBin, int hashTable, long subFingerprintId)
-            : base(hashBin, hashTable)
+            : this()
         {
+            HashBin = hashBin;
+            HashTable = hashTable;
             SubFingerprintId = subFingerprintId;
         }
+
+        public long HashBin { get; set; }
+
+        public int HashTable { get; set; }
 
         public long SubFingerprintId { get; set; }
     }

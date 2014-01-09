@@ -82,8 +82,6 @@
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);
             withAlgorithConfiguration.Setup(config => config.WithDefaultAlgorithmConfiguration()).Returns(fingerprintCommand.Object);
-            fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Fingerprint()).Returns(
-                Task.Factory.StartNew(() => rawFingerprints.Select(rawFingerprint => new Fingerprint { Signature = rawFingerprint }).ToList()));
             queryFingerprintService.Setup(service => service.Query(rawFingerprints, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);
 
             QueryResult queryResult = fingerprintQueryBuilder.BuildQuery()

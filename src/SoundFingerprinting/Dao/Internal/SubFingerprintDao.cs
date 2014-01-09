@@ -7,10 +7,18 @@
     internal class SubFingerprintDao : AbstractDao
     {
         private const string SpInsertSubFingerprint = "sp_InsertSubFingerprint";
+        private const string SpReadSubFingerprintById = "sp_ReadSubFingerprintById";
 
         public SubFingerprintDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
+        }
+
+        public SubFingerprint ReadById(long id)
+        {
+            return PrepareStoredProcedure(SpReadSubFingerprintById)
+                        .Execute()
+                        .AsModel<SubFingerprint>();
         }
 
         public void Insert(SubFingerprint subFingerprint)

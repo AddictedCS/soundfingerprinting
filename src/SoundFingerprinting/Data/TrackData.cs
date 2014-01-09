@@ -1,16 +1,8 @@
-﻿namespace SoundFingerprinting.Dao.Entities
+﻿namespace SoundFingerprinting.Data
 {
-    using System;
-
-    [Serializable]
-    internal class Track
+    public class TrackData
     {
-        public Track()
-        {
-            // no op
-        }
-
-        public Track(string isrc, string artist, string title, string album, int releaseYear, int trackLength)
+        public TrackData(string isrc, string artist, string title, string album, int releaseYear, int trackLength)
         {
             ISRC = isrc;
             Artist = artist;

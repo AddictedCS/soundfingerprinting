@@ -6,12 +6,11 @@
 
     using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
     public class ModelService : IModelService
     {
-        private readonly FingerprintDao fingerprintDao;
-
         private readonly TrackDao trackDao;
 
         private readonly HashBinMinHashDao hashBinMinHashDao;
@@ -28,7 +27,6 @@
         public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
-            fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
             hashBinMinHashDao = new HashBinMinHashDao(databaseProviderFactory, modelBinderFactory);
             subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
             permutationsDao = new PermutationsDao(databaseProviderFactory, modelBinderFactory);
@@ -49,14 +47,14 @@
             return permutationsDao.ReadPermutationsForLSHAlgorithm();
         }
 
-        public void InsertFingerprint(Fingerprint fingerprint)
+        public void InsertHashData(HashData hashData)
         {
-            fingerprintDao.Insert(fingerprint);
+            throw new NotImplementedException();
         }
 
-        public void InsertFingerprint(IEnumerable<Fingerprint> collection)
+        public ITrackReference InsertTrackData(TrackData track)
         {
-            fingerprintDao.Insert(collection);
+            throw new NotImplementedException();
         }
 
         public void InsertTrack(Track track)
@@ -82,40 +80,9 @@
             }
         }
 
-        public IEnumerable<HashBinMinHash> ReadAll()
-        {
-            return hashBinMinHashDao.ReadAll();
-        }
-
         public IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold)
         {
             return hashBinMinHashDao.ReadSubFingerprintsByHashBucketsHavingThreshold(buckets, threshold);
-        }
-
-        public IList<Fingerprint> ReadFingerprints()
-        {
-            return fingerprintDao.Read();
-        }
-
-        public IList<Fingerprint> ReadFingerprintsByTrackId(int trackId, int numberOfFingerprintsToRead)
-        {
-            return fingerprintDao.ReadFingerprintsByTrackId(trackId, numberOfFingerprintsToRead);
-        }
-
-        public IDictionary<int, IList<Fingerprint>> ReadFingerprintsByMultipleTrackId(
-            IEnumerable<Track> tracks, int numberOfFingerprintsToRead)
-        {
-            return fingerprintDao.ReadFingerprintsByMultipleTrackId(tracks, numberOfFingerprintsToRead);
-        }
-
-        public Fingerprint ReadFingerprintById(int id)
-        {
-            return fingerprintDao.ReadById(id);
-        }
-
-        public IList<Fingerprint> ReadFingerprintById(IEnumerable<int> ids)
-        {
-            return fingerprintDao.ReadById(ids);
         }
 
         public virtual IList<Track> ReadTracks()
@@ -136,11 +103,6 @@
         public Track ReadTrackByISRC(string isrc)
         {
             return trackDao.ReadTrackByISRC(isrc);
-        }
-
-        public IList<Track> ReadTrackByFingerprint(int id)
-        {
-            return trackDao.ReadTrackByFingerprintId(id);
         }
 
         public int DeleteTrack(int trackId)
