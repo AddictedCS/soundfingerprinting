@@ -46,15 +46,19 @@
             return new RDBMSTrackReference(trackDao.Insert(track));
         }
 
-        public void InsertHashDataForTrack(byte[] subFingerprintSignature, long[] hashBuckets, ITrackReference trackReference)
+        public void InsertHashDataForTrack(IEnumerable<HashData> hashes, ITrackReference trackReference)
         {
             if (!(trackReference is RDBMSTrackReference))
             {
                 throw new NotSupportedException("Cannot insert non relational reference to relational database");
             }
 
-            long subFingerprintId = subFingerprintDao.Insert(subFingerprintSignature, ((RDBMSTrackReference)trackReference).Id);
-            hashBinDao.Insert(hashBuckets, subFingerprintId);
+            foreach (var hashData in hashes)
+            {
+                long subFingerprintId = subFingerprintDao.Insert(
+                    hashData.SubFingerprint, ((RDBMSTrackReference)trackReference).Id);
+                hashBinDao.Insert(hashData.HashBins, subFingerprintId);
+            }
         }
 
         public IList<TrackData> ReadAllTracks()

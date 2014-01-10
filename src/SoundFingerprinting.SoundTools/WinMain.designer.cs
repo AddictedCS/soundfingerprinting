@@ -97,20 +97,7 @@
             this.fillDatabaseToolStripMenuItem1.Size = new System.Drawing.Size(167, 22);
             this.fillDatabaseToolStripMenuItem1.Text = "Fill Database";
             this.fillDatabaseToolStripMenuItem1.Click += new System.EventHandler(this.FillDatabaseToolStripClick);
-            // 
-            // trainToolStripMenuItem
-            // 
-            this.trainToolStripMenuItem.Name = "trainToolStripMenuItem";
-            this.trainToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.trainToolStripMenuItem.Text = "Train Networks";
-            this.trainToolStripMenuItem.Click += new System.EventHandler(TrainToolStripMenuItemClick);
-            // 
-            // hashFingerprintsToolStripMenuItem
-            // 
-            this.hashFingerprintsToolStripMenuItem.Name = "hashFingerprintsToolStripMenuItem";
-            this.hashFingerprintsToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.hashFingerprintsToolStripMenuItem.Text = "Hash Fingerprints";
-            this.hashFingerprintsToolStripMenuItem.Click += new System.EventHandler(HashFingerprintsToolStripMenuItemClick);
+            
             // 
             // queryDatabaseToolStripMenuItem
             // 
@@ -207,26 +194,6 @@
             this._btnQueryDb.Text = "Query database";
             this._btnQueryDb.UseVisualStyleBackColor = true;
             this._btnQueryDb.Click += new System.EventHandler(this.BtnQueryDbClick);
-            // 
-            // _btnHashFingers
-            // 
-            this._btnHashFingers.Location = new System.Drawing.Point(39, 107);
-            this._btnHashFingers.Name = "_btnHashFingers";
-            this._btnHashFingers.Size = new System.Drawing.Size(145, 23);
-            this._btnHashFingers.TabIndex = 2;
-            this._btnHashFingers.Text = "Hash fingerprints";
-            this._btnHashFingers.UseVisualStyleBackColor = true;
-            this._btnHashFingers.Click += new System.EventHandler(BtnHashFingersClick);
-            // 
-            // _btnTrainNetworks
-            // 
-            this._btnTrainNetworks.Location = new System.Drawing.Point(39, 78);
-            this._btnTrainNetworks.Name = "_btnTrainNetworks";
-            this._btnTrainNetworks.Size = new System.Drawing.Size(146, 23);
-            this._btnTrainNetworks.TabIndex = 1;
-            this._btnTrainNetworks.Text = "Train Networks";
-            this._btnTrainNetworks.UseVisualStyleBackColor = true;
-            this._btnTrainNetworks.Click += new System.EventHandler(BtnTrainNetworksClick);
             // 
             // _btnFillDatabase
             // 

@@ -102,7 +102,7 @@
 
                                 List<bool[]> fingerprints = songToDraw.Fingerprint()
                                                                       .Result
-                                                                      .Select(fingerprint => fingerprint.Signature)
+                                                                      .Select(fingerprint => fingerprint)
                                                                       .ToList();
                                 int width = songToDraw.Configuration.FingerprintLength;
                                 int height = songToDraw.Configuration.LogBins;
@@ -132,7 +132,7 @@
                                     config => { config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint); });
                                 List<bool[]> result = songToDraw.Fingerprint()
                                                                 .Result
-                                                                .Select(fingerprint => fingerprint.Signature)
+                                                                .Select(fingerprint => fingerprint)
                                                                 .ToList();
                                 int i = -1;
                                 int width = songToDraw.Configuration.FingerprintLength;

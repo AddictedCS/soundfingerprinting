@@ -8,7 +8,7 @@ namespace SoundFingerprinting.Dao
     {
         ITrackReference InsertTrack(TrackData track);
 
-        void InsertHashDataForTrack(byte[] subFingerprintSignature, long[] hashBuckets, ITrackReference trackReference);
+        void InsertHashDataForTrack(IEnumerable<HashData> hashes, ITrackReference trackReference);
 
         IList<TrackData> ReadAllTracks();
 

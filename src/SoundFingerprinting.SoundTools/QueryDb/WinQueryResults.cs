@@ -5,13 +5,14 @@
     using System.Drawing;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -133,14 +134,14 @@
                             return;
                         }
 
-                        Track actualTrack = null;
+                        TrackData actualTrack = null;
                         if (!string.IsNullOrEmpty(isrc))
                         {
                             actualTrack = modelService.ReadTrackByISRC(isrc);
                         }
                         else if (!string.IsNullOrEmpty(tags.Artist) && !string.IsNullOrEmpty(tags.Title))
                         {
-                            actualTrack = modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title);
+                            actualTrack = modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title).FirstOrDefault();
                         }
 
                         var queryResult =
@@ -150,11 +151,11 @@
                                                         fingerprintConfig =>
                                                         {
                                                             fingerprintConfig.Stride = samplesToSkip;
+                                                            fingerprintConfig.NumberOfLSHTables = hashTables;
+                                                            fingerprintConfig.NumberOfMinHashesPerTable = hashKeys;
                                                         },
                                                         queryConfig =>
                                                         {
-                                                            queryConfig.NumberOfLSHTables = hashTables;
-                                                            queryConfig.NumberOfMinHashesPerTable = hashKeys;
                                                             queryConfig.ThresholdVotes = threshold;
                                                         })
                                                     .Query()
@@ -184,8 +185,8 @@
                         }
 
                         verified++;
-                        Track recognizedTrack = queryResult.BestMatch;
-                        bool isSuccessful = actualTrack == null || recognizedTrack.Id == actualTrack.Id;
+                        TrackData recognizedTrack = queryResult.BestMatch;
+                        bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.HashCode == actualTrack.TrackReference.HashCode;
                         if (isSuccessful)
                         {
                             recognized++;
@@ -224,11 +225,11 @@
                                         fingerprintConfig =>
                                         {
                                             fingerprintConfig.Stride = samplesToSkip;
+                                            fingerprintConfig.NumberOfLSHTables = hashTables;
+                                            fingerprintConfig.NumberOfMinHashesPerTable = hashKeys;
                                         },
                                         queryConfig =>
                                         {
-                                            queryConfig.NumberOfLSHTables = hashTables;
-                                            queryConfig.NumberOfMinHashesPerTable = hashKeys;
                                             queryConfig.ThresholdVotes = threshold;
                                         })
                                   .Query()
@@ -242,7 +243,7 @@
                                                 return;
                                             }
 
-                                            Track recognizedTrack = queryResult.BestMatch;
+                                            TrackData recognizedTrack = queryResult.BestMatch;
                                             recognized++;
                                             verified++;
 

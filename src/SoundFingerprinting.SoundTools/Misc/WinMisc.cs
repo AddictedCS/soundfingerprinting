@@ -231,11 +231,11 @@
 
             List<bool[]> fingerprintsDatabaseSong = databaseSong.Fingerprint()
                                                                 .Result
-                                                                .Select(fingerprint => fingerprint.Signature)
+                                                                .Select(fingerprint => fingerprint)
                                                                 .ToList();
             List<bool[]> fingerprintsQuerySong = querySong.Fingerprint()
                                                                 .Result
-                                                                .Select(fingerprint => fingerprint.Signature)
+                                                                .Select(fingerprint => fingerprint)
                                                                 .ToList();
             
             double max = double.MinValue;

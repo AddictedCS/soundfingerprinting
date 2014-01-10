@@ -87,7 +87,8 @@
             const int Threshold = 5;
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(track);
-            modelService.InsertHashDataForTrack(GenericSignature, GenericHashBuckets, trackReference);
+            var hashData = new HashData(GenericSignature, GenericHashBuckets);
+            modelService.InsertHashDataForTrack(new[] { hashData }, trackReference);
 
             modelService.DeleteTrack(trackReference);
 
@@ -103,7 +104,8 @@
             const int Threshold = 5;
             TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(expectedTrack);
-            modelService.InsertHashDataForTrack(GenericSignature, GenericHashBuckets, trackReference);
+            var hashData = new HashData(GenericSignature, GenericHashBuckets);
+            modelService.InsertHashDataForTrack(new[] { hashData }, trackReference);
 
             var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(GenericHashBuckets, Threshold);
 
@@ -127,9 +129,11 @@
             Assert.IsFalse(firstTrackReference.HashCode == secondTrackReference.HashCode);
             long[] firstTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             long[] secondTrackBuckets = new long[] { 2, 2, 4, 5, 6, 7, 7, 9, 10, 11, 12, 13, 14, 14, 16, 17, 18, 19, 20, 20, 22, 23, 24, 25, 26 };
+            var firstHashData = new HashData(GenericSignature, firstTrackBuckets);
+            var secondHashData = new HashData(GenericSignature, secondTrackBuckets);
 
-            modelService.InsertHashDataForTrack(GenericSignature, firstTrackBuckets, firstTrackReference);
-            modelService.InsertHashDataForTrack(GenericSignature, secondTrackBuckets, secondTrackReference);
+            modelService.InsertHashDataForTrack(new[] { firstHashData }, firstTrackReference);
+            modelService.InsertHashDataForTrack(new[] { secondHashData }, secondTrackReference);
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             long[] queryBuckets = new long[] { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };

@@ -104,10 +104,11 @@
             TrackData track = GetTrack(name);
             trackDao.Insert(track);
 
-            TrackData actualTrack = trackDao.ReadTrackByArtistAndTitleName(track.Artist, track.Title);
+            IList<TrackData> tracks = trackDao.ReadTrackByArtistAndTitleName(track.Artist, track.Title);
 
-            Assert.IsNotNull(actualTrack);
-            AssertTracksAreEqual(track, actualTrack);
+            Assert.IsNotNull(tracks);
+            Assert.IsTrue(tracks.Count == 1);
+            AssertTracksAreEqual(track, tracks[0]);
         }
 
         [TestMethod]
@@ -218,8 +219,9 @@
             string name = MethodBase.GetCurrentMethod().Name;
             string artist = name;
             string title = name;
-            TrackData track = trackDao.ReadTrackByArtistAndTitleName(artist, title);
-            Assert.IsNull(track);
+            var tracks = trackDao.ReadTrackByArtistAndTitleName(artist, title);
+            Assert.IsNotNull(tracks);
+            Assert.IsTrue(tracks.Count == 0);
         }
 
         private IEnumerable<TrackData> GetRandomListOfTracks(int count)

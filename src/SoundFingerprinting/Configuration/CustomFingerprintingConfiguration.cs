@@ -50,8 +50,8 @@ namespace SoundFingerprinting.Configuration
 
         public bool UseDynamicLogBase { get; set; }
 
-        public int NumberOfLSHTables { get; private set; }
+        public int NumberOfLSHTables { get; set; }
 
-        public int NumberOfMinHashesPerTable { get; private set; }
+        public int NumberOfMinHashesPerTable { get; set; }
     }
 }

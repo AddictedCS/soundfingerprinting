@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Integration.Fingerprinting
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,20 +9,33 @@
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
-    using SoundFingerprinting.Query;
-    using SoundFingerprinting.Query.Configuration;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
-    public class FingerprintUnitBuilderIntTest : AbstractIntegrationTest
+    public class FingerprintCommandBuilderIntTest : AbstractIntegrationTest
     {
-        private readonly ModelService modelService = new ModelService();
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(new FingerprintService(), new BassAudioService(), new MinHashService(new DefaultPermutations()), new LSHService());
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(new FingerprintService(), new NAudioService(), new MinHashService(new DefaultPermutations()), new LSHService());
-        private readonly ILSHService lshService = new LSHService();
+        private readonly ModelService modelService;
+
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithBass;
+
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio;
+
+        private readonly IFingerprintQueryBuilder fingerprintQueryBuilder;
+
+        public FingerprintCommandBuilderIntTest()
+        {
+            modelService = new ModelService();
+            var fingerprintService = new FingerprintService();
+            var minHashService = new MinHashService(new DefaultPermutations());
+            var lshService = new LSHService();
+            fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(fingerprintService, new BassAudioService(), minHashService, lshService);
+            fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(fingerprintService, new NAudioService(), minHashService, lshService);
+            fingerprintQueryBuilder = new FingerprintQueryBuilder(fingerprintCommandBuilderWithBass, new QueryFingerprintService(modelService));
+        }
 
         [TestMethod]
         public void CreateFingerprintsFromDefaultFileAndAssertNumberOfFingerprints()
@@ -53,30 +65,13 @@
                                         .Fingerprint();
 
             var fingerprints = fingerprinter.Result;
-            var subFingerprints = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+            var hashDatas = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                         .From(PathToMp3)
                                         .WithDefaultAlgorithmConfiguration()
                                         .Hash()
                                         .Result;
 
-            Assert.AreEqual(fingerprints.Count, subFingerprints.Count);
-        }
-
-        [TestMethod]
-        public void CreateFingerprintsFromFileAndInsertInDatabaseUsingDirectSoundProxyTest()
-        {
-            var track = InsertTrack();
-            var fingerprints = fingerprintCommandBuilderWithNAudio.BuildFingerprintCommand()
-                                            .From(PathToMp3)
-                                            .WithDefaultAlgorithmConfiguration()
-                                            .FingerprintIt()
-                                            .ForTrack(track.Id)
-                                            .Result;
-
-            modelService.InsertFingerprint(fingerprints);
-            var insertedFingerprints = modelService.ReadFingerprintsByTrackId(track.Id, 0);
-            
-            AssertFingerprintsAreEquals(fingerprints, insertedFingerprints);
+            Assert.AreEqual(fingerprints.Count, hashDatas.Count);
         }
 
         [TestMethod]
@@ -85,46 +80,32 @@
             const int StaticStride = 5115;
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
-            DefaultQueryConfiguration defaultQueryConfiguration = new DefaultQueryConfiguration();
-            QueryFingerprintService queryFingerprintService = new QueryFingerprintService(modelService);
             ITagService tagService = new BassAudioService();
             TagInfo info = tagService.GetTagInfo(PathToMp3);
             int releaseYear = info.Year;
-            Track track = new Track(info.ISRC, info.Artist, info.Title, info.Album, releaseYear, (int)info.Duration);
+            TrackData track = new TrackData(info.ISRC, info.Artist, info.Title, info.Album, releaseYear, (int)info.Duration);
+            var trackReference = modelService.InsertTrack(track);
 
-            modelService.InsertTrack(track);
-
-            var fingerprinter = fingerprintCommandBuilderWithBass
+            var hashDatas = fingerprintCommandBuilderWithBass
                                             .BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
                                             .WithCustomAlgorithmConfiguration(config =>
                                             {
                                                 config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                                             })
-                                            .FingerprintIt();
+                                            .Hash()
+                                            .Result;
 
-            var fingerprints = fingerprinter.AsIs().Result;
-            var subFingerprints = fingerprinter.HashIt().ForTrack(track.Id).Result;
+            modelService.InsertHashDataForTrack(hashDatas, trackReference);
 
-            modelService.InsertSubFingerprint(subFingerprints);
+            var queryResult = fingerprintQueryBuilder.BuildQuery()
+                                    .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                                    .WithDefaultConfigurations()
+                                    .Query()
+                                    .Result;
 
-            List<HashBinMinHash> hashBins = new List<HashBinMinHash>();
-            foreach (SubFingerprint subFingerprint in subFingerprints)
-            {
-                long[] groupedSubFingerprint = lshService.Hash(subFingerprint.Signature, defaultQueryConfiguration.NumberOfLSHTables, defaultQueryConfiguration.NumberOfMinHashesPerTable);
-                for (int i = 0; i < groupedSubFingerprint.Length; i++)
-                {
-                    int tableNumber = i + 1;
-                    hashBins.Add(new HashBinMinHash(groupedSubFingerprint[i], tableNumber, subFingerprint.Id));
-                }
-            }
-
-            modelService.InsertHashBin(hashBins);
-
-            QueryResult result = queryFingerprintService.Query(fingerprints, defaultQueryConfiguration);
-
-            Assert.IsTrue(result.IsSuccessful);
-            Assert.AreEqual(track.Id, result.BestMatch.Id);
+            Assert.IsTrue(queryResult.IsSuccessful);
+            Assert.AreEqual(trackReference.HashCode, queryResult.BestMatch.TrackReference.HashCode);
         }
 
         [TestMethod]
@@ -175,24 +156,18 @@
             {
                 string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
                 bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
-
                 long fileSize = new FileInfo(tempFile).Length;
+                
                 var list = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                           .From(PathToMp3)
                                           .WithCustomAlgorithmConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
                                           .Fingerprint()
                                           .Result;
+
                 long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
                 Assert.AreEqual(expected, list.Count);
                 File.Delete(tempFile);
             }
-        }
-
-        private Track InsertTrack()
-        {
-            Track track = new Track("ISRC", "Artist", "Title", "Album", 1986, 360);
-            modelService.InsertTrack(track);
-            return track;
         }
     }
 }
