@@ -8,8 +8,7 @@ namespace SoundFingerprinting.Dao.Internal
     internal class HashBinDao : AbstractDao
     {
         private const string SpReadFingerprintsByHashBinHashTableAndThreshold = "sp_ReadFingerprintsByHashBinHashTableAndThreshold";
-        private const string SpReadHashBinsByHashTable = "sp_ReadHashBinsByHashTable";
-
+        
         public HashBinDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
@@ -21,10 +20,7 @@ namespace SoundFingerprinting.Dao.Internal
             StringBuilder sqlToExecute = new StringBuilder();
             for (int i = 0; i < hashBins.Length; i++)
             {
-                sqlToExecute.Append("INSERT INTO HashTable_");
-                sqlToExecute.Append(i + 1);
-                sqlToExecute.Append("(HashBin, SubFingerprintId) VALUES(");
-                sqlToExecute.Append(hashBins[i] + "," + subFingerprintId + ");");
+                sqlToExecute.Append("INSERT INTO HashTable_" + (i + 1) + "(HashBin, SubFingerprintId) VALUES(" + hashBins[i] + "," + subFingerprintId + ");");
                 if (hashBins.Length > i + 1)
                 {
                     sqlToExecute.Append("\n\r");
@@ -36,14 +32,14 @@ namespace SoundFingerprinting.Dao.Internal
 
         public IList<HashBinData> ReadHashBinsByHashTable(int hashTable)
         {
-            return PrepareStoredProcedure(SpReadHashBinsByHashTable)
-                .WithParameter("HashTable", hashTable)
-                .Execute().AsList(
-                    reader =>
-                    new HashBinData(
-                        hashTable,
-                        reader.GetInt64("HashBin"),
-                        new RDBMSSubFingerprintReference(reader.GetInt64("SubFingerprintId"))));
+            string sqlToExecute = "SELECT * FROM HashTable_" + hashTable;
+            return PrepareSQLText(sqlToExecute).AsListOfComplexModel<HashBinData>(
+                (item, reader) =>
+                    {
+                        long subFingerprintId = reader.GetInt64("SubFingerprintId");
+                        item.SubFingerprintReference = new RDBMSSubFingerprintReference(subFingerprintId);
+                        item.HashTable = hashTable;
+                    });
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBuckets, int thresholdVotes)

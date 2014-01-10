@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Dao.Internal
 {
+    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Data;
@@ -12,7 +13,9 @@ namespace SoundFingerprinting.Dao.Internal
         private const string SpReadTrackByArtistSongName = "sp_ReadTrackByArtistAndSongName";
         private const string SpDeleteTrack = "sp_DeleteTrack";
         private const string SpReadTrackByISRC = "sp_ReadTrackISRC";
-        
+
+        private readonly Action<TrackData, IReader> trackReferenceReader = (item, reader) => { item.TrackReference = new RDBMSTrackReference(reader.GetInt32("Id")); };
+
         public TrackDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
@@ -30,7 +33,7 @@ namespace SoundFingerprinting.Dao.Internal
         {
             return PrepareStoredProcedure(SpReadTracks)
                         .Execute()
-                        .AsListOfModel<TrackData>();
+                        .AsListOfComplexModel(trackReferenceReader);
         }
 
         public TrackData ReadById(int id)
@@ -38,7 +41,7 @@ namespace SoundFingerprinting.Dao.Internal
             return PrepareStoredProcedure(SpReadTrackById)
                         .WithParameter("Id", id)
                         .Execute()
-                        .AsModel<TrackData>();
+                        .AsComplexModel(trackReferenceReader);
         }
 
         public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
@@ -46,14 +49,16 @@ namespace SoundFingerprinting.Dao.Internal
             return PrepareStoredProcedure(SpReadTrackByArtistSongName)
                         .WithParameter("Artist", artist)
                         .WithParameter("Title", title)
-                        .Execute().AsListOfModel<TrackData>();
+                        .Execute()
+                        .AsListOfComplexModel(trackReferenceReader);
         }
 
         public TrackData ReadTrackByISRC(string isrc)
         {
             return PrepareStoredProcedure(SpReadTrackByISRC)
                         .WithParameter("ISRC", isrc)
-                        .Execute().AsModel<TrackData>();
+                        .Execute()
+                        .AsComplexModel(trackReferenceReader);
         }
 
         public int DeleteTrack(int trackId)

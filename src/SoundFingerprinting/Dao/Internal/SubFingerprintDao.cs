@@ -15,8 +15,15 @@
         public SubFingerprintData ReadById(long id)
         {
             return PrepareStoredProcedure(SpReadSubFingerprintById)
+                        .WithParameter("Id", id)
                         .Execute()
-                        .AsModel<SubFingerprintData>();
+                        .AsComplexModel<SubFingerprintData>((item, reader) =>
+                            {
+                                long subFingerprintId = reader.GetInt64("Id");
+                                int trackId = reader.GetInt32("TrackId");
+                                item.SubFingerprintReference = new RDBMSSubFingerprintReference(subFingerprintId);
+                                item.TrackReference = new RDBMSTrackReference(trackId);
+                            });
         }
 
         public long Insert(byte[] signature, int trackId)

@@ -69,6 +69,31 @@ namespace SoundFingerprinting.Dao.Internal
                 });
         }
 
+        public TEntity AsComplexModel<TEntity>(Action<TEntity, IReader> customFieldPopulator,  params ICondition<TEntity>[] conditions)
+            where TEntity : new()
+        {
+            return SafeExec(() =>
+            {
+                IModelBinder<TEntity> modelBinder = modelBinderFactory.Create(conditions);
+                var reader = ExecuteReader();
+
+                if (reader.Read())
+                {
+                    TEntity entity = modelBinder.BindReader(
+                        reader,
+                        () =>
+                            {
+                                TEntity item = new TEntity();
+                                customFieldPopulator(item, reader);
+                                return item;
+                            });
+                    return entity;
+                }
+
+                return default(TEntity);
+            });
+        }
+
         public IList<T> AsList<T>(Func<IReader, T> factory)
         {
             return SafeExec(() =>
@@ -103,6 +128,32 @@ namespace SoundFingerprinting.Dao.Internal
 
                     return result;
                 });
+        }
+
+        public IList<TEntity> AsListOfComplexModel<TEntity>(Action<TEntity, IReader> customFieldPopulator, params ICondition<TEntity>[] conditions)
+            where TEntity : new()
+        {
+            return SafeExec(() =>
+            {
+                IModelBinder<TEntity> modelBinder = modelBinderFactory.Create(conditions);
+                Reader reader = ExecuteReader();
+                var result = new List<TEntity>();
+
+                while (reader.Read())
+                {
+                    TEntity entity = modelBinder.BindReader(
+                        reader,
+                        () =>
+                            {
+                                TEntity item = new TEntity();
+                                customFieldPopulator(item, reader);
+                                return item;
+                            });
+                    result.Add(entity);
+                }
+
+                return result;
+            });
         }
 
         public IDictionary<TKey, TValue> AsDictionary<TKey, TValue>(Func<IReader, TKey> keyFactory, Func<IReader, TValue> valueFactory)
