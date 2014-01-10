@@ -1,7 +1,9 @@
 namespace SoundFingerprinting.Builder
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -101,14 +103,14 @@ namespace SoundFingerprinting.Builder
 
         private List<byte[]> HashFingerprints(IEnumerable<bool[]> fingerprints)
         {
-            List<byte[]> subFingerprints = new List<byte[]>();
+            var subFingerprints = new ConcurrentBag<byte[]>();
             Parallel.ForEach(fingerprints, fingerprint => subFingerprints.Add(minHashService.Hash(fingerprint)));
-            return subFingerprints;
+            return subFingerprints.ToList();
         }
 
         private List<HashData> GroupSubFingerprintsIntoBuckets(IEnumerable<byte[]> subFingerprints)
         {
-            List<HashData> hashDatas = new List<HashData>();
+            var hashDatas = new ConcurrentBag<HashData>();
             Parallel.ForEach(
                 subFingerprints,
                 subFingerprint =>
@@ -118,7 +120,7 @@ namespace SoundFingerprinting.Builder
                         hashDatas.Add(new HashData(subFingerprint, groupedSubFingerprint));
                     });
 
-            return hashDatas;
+            return hashDatas.ToList();
         }
     }
 }

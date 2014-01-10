@@ -74,6 +74,7 @@
             audioService.Setup(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
+            lshService.Setup(service => service.Hash(rawSubFingerprint, 25, 4)).Returns(GenericHashBuckets);
 
             var hashDatas =
                 fingerprintCommandBuilder.BuildFingerprintCommand()
@@ -98,6 +99,7 @@
 
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
+            lshService.Setup(service => service.Hash(rawSubFingerprint, 25, 4)).Returns(GenericHashBuckets);
 
             var hashDatas =
                 fingerprintCommandBuilder.BuildFingerprintCommand()
@@ -126,6 +128,7 @@
             audioService.Setup(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
+            lshService.Setup(service => service.Hash(rawSubFingerprint, 25, 4)).Returns(GenericHashBuckets);
 
             var hashDatas =
                 fingerprintCommandBuilder.BuildFingerprintCommand()
