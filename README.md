@@ -3,42 +3,55 @@
 Soundfingerprinting is a C# framework designed for developers and researchers in the fields of audio processing, data mining, digital signal processing.  It implements an efficient algorithm of signal processing which will allow one to have a competent system of audio fingerprinting and signal recognition.
 
 ## Documentation
-See the [Wiki page](https://github.com/AddictedCS/soundfingerprinting/wiki) with the operational details and information 
+See the [Wiki page](https://github.com/AddictedCS/soundfingerprinting/wiki) for the operational details and information 
 
-Following is a code sample that shows how you would generate from an audio file sound sub-fingerprints, that can be stored and used later for recognition purposes. It expects on input path to audio file (that will be fingerprinted) and track id (by which you can later identify this specific audio file).
-
+Following is a code sample that shows how to generate sub-fingerprints from an audio file. The sub-fingerprints will be stored in a backend and used later by the algorithm to recognize unknown snippets of audio. The interfaces for fingerprinting and querying the stream have been implemented as [FluentInterface](http://martinfowler.com/bliki/FluentInterface.html) with Builder and Command patterns in mind.
 ```csharp
-public List<SubFingerprint> CreateSubFingerprintSignaturesFromFile(string pathToAudioFile, int trackId)
+private readonly IModelService modelService = new ModelService();
+private readonly IFingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
+
+public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToAudioFile)
 {
-    FingerprintUnitBuilder fingerprintUnitBuilder = new FingerprintUnitBuilder();
-    return fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
-                                 .From(pathToAudioFile)
-                                 .WithDefaultAlgorithmConfiguration()
-                                 .FingerprintIt()
-                                 .HashIt()
-                                 .ForTrack(trackId)
-                                 .Result;
+    TrackData track = new TrackData("GBBKS1200164", "Adele", "Skyfall", "Skyfall", 2012, 290);
+	
+    // store track metadata in the database
+    var trackReference = modelService.InsertTrack(track);
+
+    // create sub-fingerprints and its hash representation
+    var hashDatas = fingerprintCommandBuilder
+                                .BuildFingerprintCommand()
+                                .From(pathToAudioFile)
+                                .WithDefaultFingerprintConfig()
+                                .Hash()
+                                .Result;
+								
+    // store sub-fingerprints and hash representation in the underlying database 
+    modelService.InsertHashDataForTrack(hashDatas, trackReference);
 }
 ```
-After generating the sub-fingerprint signatures you might want to store them for later retrieval. Below is shown a code snippet for saving them to the default underlying storage, using <code>ModelService</code> class. Default storage is an MSSQL database those initialization script can be find [here](src/Scripts/DBScript.sql).
-```csharp
-public void StoreSubFingeprintSignatures(List<SubFingerprint> subFingerprintSignatures)
-{
-    ModelService modelService = new ModelService();
-    modelService.InsertSubFingerprint(fingerprintsToStore);
-}
-```
+The default underlying database is MSSQL, those connection management is handled by <code>ModelService</code> class. NoSQL data storage will be implemented in the upcomming releases. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to change connection string (<code>FingerprintConnectionString</code>) in your app.config file.
+
 Once you've inserted the fingerprints into the database, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, url, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 ```csharp
-public Track GetBestMatchForSong(String queryAudioFile)
+private readonly IQueryCommandBuilder queryCommandBuilder = new QueryCommandBuilder();
+
+public TrackData GetBestMatchForSong(string queryAudioFile)
 {
-    FingerprintQueryBuilder fingerprintQueryBuilder = new FingerprintQueryBuilder();
-    return fingerprintQueryBuilder.BuildQuery()
-                                  .From(queryAudioFile)
-                                  .WithDefaultConfigurations()
-                                  .Query()
-                                  .Result
-                                  .BestMatch;
+    int secondsToAnalyze = 10; // number of seconds to analyze from query file
+    int startAtSecond = 0;
+	
+    var queryResult = queryCommandBuilder.BuildQueryCommand()
+                                         .From(queryAudioFile, secondsToAnalyze, startAtSecond)
+                                         .WithDefaultConfigs()
+                                         .Query()
+                                         .Result;
+	
+    if(queryResult.IsSuccessful)
+    {
+        return queryResult.BestMatch; // successful match has been found
+    }
+	
+    return null; // no match has been found
 }
 ```
 
@@ -66,5 +79,5 @@ The framework is provided under [GPLv3](http://www.gnu.org/licenses/gpl.html) li
 
 The framework implements the algorithm from [Content Fingerprinting Using Wavelets](http://www.nhchau.com/files/cvmp_BalujaCovell.A4color.pdf) paper.
 
-&copy; Soundfingerprinting, 2010-2013, ciumac.sergiu@gmail.com
+&copy; Soundfingerprinting, 2010-2014, ciumac.sergiu@gmail.com
 
