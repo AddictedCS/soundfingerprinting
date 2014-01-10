@@ -10,6 +10,7 @@
     using System.Windows.Forms;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Image;

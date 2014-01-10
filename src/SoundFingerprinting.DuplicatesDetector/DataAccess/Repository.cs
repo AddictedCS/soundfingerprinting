@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Runtime.Serialization.Formatters.Binary;
 
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Strides;

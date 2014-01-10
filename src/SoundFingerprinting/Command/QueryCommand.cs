@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
 
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
 

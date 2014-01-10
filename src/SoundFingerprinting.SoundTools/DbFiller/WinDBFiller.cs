@@ -11,6 +11,7 @@
     using System.Windows.Forms;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Data;

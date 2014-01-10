@@ -153,8 +153,8 @@
     <Compile Include="Wavelets\WaveletUtils.cs" />
     <Compile Include="Command\IWithFingerprintConfiguration.cs" />
     <Compile Include="Command\IFingerprintCommand.cs" />
-    <Compile Include="IFingerprintCommandBuilder.cs" />
-    <Compile Include="FingerprintCommandBuilder.cs" />
+    <Compile Include="Builder\IFingerprintCommandBuilder.cs" />
+    <Compile Include="Builder\FingerprintCommandBuilder.cs" />
     <Compile Include="Hashing\ICombinedHashingAlgoritm.cs" />
     <Compile Include="Hashing\LSH\BoundedLSHService.cs" />
     <Compile Include="Hashing\LSH\ILSHService.cs" />
@@ -188,10 +188,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\CustomQueryConfiguration.cs" />
     <Compile Include="Configuration\DefaultQueryConfiguration.cs" />
-    <Compile Include="QueryCommandBuilder.cs" />
+    <Compile Include="Builder\QueryCommandBuilder.cs" />
     <Compile Include="Command\QueryCommand.cs" />
     <Compile Include="Command\IQueryCommand.cs" />
-    <Compile Include="IQueryCommandBuilder.cs" />
+    <Compile Include="Builder\IQueryCommandBuilder.cs" />
     <Compile Include="Command\IQuerySource.cs" />
     <Compile Include="Command\IWithQueryAndFingerprintConfiguration.cs" />
     <Compile Include="Configuration\IQueryConfiguration.cs" />

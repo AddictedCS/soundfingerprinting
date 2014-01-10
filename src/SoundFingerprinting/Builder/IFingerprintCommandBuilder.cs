@@ -1,4 +1,4 @@
-namespace SoundFingerprinting
+namespace SoundFingerprinting.Builder
 {
     using SoundFingerprinting.Command;
 

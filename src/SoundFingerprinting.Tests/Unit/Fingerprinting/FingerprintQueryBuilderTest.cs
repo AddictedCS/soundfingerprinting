@@ -7,6 +7,7 @@
 
     using Moq;
 
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;

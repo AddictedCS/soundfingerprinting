@@ -7,6 +7,7 @@
     using Moq;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;

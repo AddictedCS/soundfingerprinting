@@ -7,6 +7,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.FFT;

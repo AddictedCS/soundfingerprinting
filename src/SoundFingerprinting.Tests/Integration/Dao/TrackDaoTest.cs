@@ -8,6 +8,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.Internal;
     using SoundFingerprinting.Data;

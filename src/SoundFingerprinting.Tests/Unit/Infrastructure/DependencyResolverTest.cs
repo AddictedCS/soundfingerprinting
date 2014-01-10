@@ -2,6 +2,7 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Infrastructure;
 
     [TestClass]

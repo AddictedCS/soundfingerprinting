@@ -8,6 +8,7 @@
     using System.Windows.Forms;
     using System.Xml.Serialization;
 
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.SoundTools.Properties;
