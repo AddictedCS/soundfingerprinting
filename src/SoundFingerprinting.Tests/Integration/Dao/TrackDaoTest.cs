@@ -14,6 +14,7 @@
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
+    [TestClass]
     public class TrackDaoTest : AbstractIntegrationTest
     {
         private readonly TrackDao trackDao;

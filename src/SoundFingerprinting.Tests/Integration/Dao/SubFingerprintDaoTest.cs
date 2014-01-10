@@ -7,6 +7,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
+    [TestClass]
     public class SubFingerprintDaoTest : AbstractIntegrationTest
     {
         private readonly SubFingerprintDao subFingerprintDao;

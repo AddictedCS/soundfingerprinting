@@ -9,6 +9,7 @@
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
+    [TestClass]
     public class HashBinDaoTest : AbstractIntegrationTest
     {
         private readonly HashBinDao hashBinDao;
@@ -43,7 +44,7 @@
             {
                 var hashBins = hashBinDao.ReadHashBinsByHashTable(hashTable);
                 Assert.AreEqual(1, hashBins.Count);
-                Assert.AreEqual(GenericHashBuckets[hashTable - 1], hashBins[0]);
+                Assert.AreEqual(GenericHashBuckets[hashTable - 1], hashBins[0].HashBin);
             }
         }
 
