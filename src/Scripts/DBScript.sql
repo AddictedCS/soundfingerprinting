@@ -247,7 +247,6 @@ IF OBJECT_ID('sp_InsertTrack','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertTrack
 GO
 CREATE PROCEDURE sp_InsertTrack
-	@Id INT,
 	@ISRC VARCHAR(50),
 	@Artist VARCHAR(255),
 	@Title VARCHAR(255),
@@ -273,7 +272,6 @@ IF OBJECT_ID('sp_InsertSubFingerprint','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertSubFingerprint
 GO
 CREATE PROCEDURE sp_InsertSubFingerprint
-	@Id BIGINT,
 	@Signature VARBINARY(100),
 	@TrackId INT
 AS
@@ -330,6 +328,15 @@ CREATE PROCEDURE sp_ReadTrackById
 AS
 SELECT * FROM Tracks WHERE Tracks.Id = @Id
 GO
+IF OBJECT_ID('sp_ReadSubFingerprintById','P') IS NOT NULL
+	DROP PROCEDURE sp_ReadSubFingerprintById
+GO
+CREATE PROCEDURE sp_ReadSubFingerprintById
+	@Id INT
+AS
+BEGIN
+	SELECT * FROM SubFingerprints WHERE Id = @Id
+END
 --- ------------------------------------------------------------------------------------------------------------
 --- READ HASHBINS BY HASHBINS AND THRESHOLD TABLE
 --- ADDED 20.10.2013 CIUMAC SERGIU
