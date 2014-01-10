@@ -20,8 +20,6 @@
     {
         private readonly IAudioService audioService;
 
-        private readonly ITagService tagService;
-
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
         private readonly IFingerprintingConfiguration fingerprintingConfiguration;
@@ -32,14 +30,12 @@
 
         public WinDrawningTool(
             IAudioService audioService,
-            ITagService tagService,
             IFingerprintCommandBuilder fingerprintCommandBuilder,
             IFingerprintingConfiguration fingerprintingConfiguration,
             IImageService imageService,
             ISpectrumService spectrumService)
         {
             this.audioService = audioService;
-            this.tagService = tagService;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.fingerprintingConfiguration = fingerprintingConfiguration;
             this.imageService = imageService;
@@ -88,7 +84,6 @@
 
                     string imageFilename = Path.GetFullPath(saveFileDialog.FileName);
                     bool normalize = _cbNormalize.Checked;
-                    bool noWindow = _cbWindow.Checked;
 
                     Task.Factory.StartNew(
                         () =>
