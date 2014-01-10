@@ -73,12 +73,9 @@
 
         public Task<QueryResult> Query()
         {
-            return createFingerprintMethod().Hash()
-                                            .ContinueWith(task =>
-                                                {
-                                                    var hashes = task.Result;
-                                                    return queryFingerprintService.Query(hashes, queryConfiguration); 
-                                                });
+            return createFingerprintMethod()
+                                     .Hash()
+                                     .ContinueWith(task => queryFingerprintService.Query(task.Result, queryConfiguration), TaskContinuationOptions.ExecuteSynchronously);
         }
 
         public IFingerprintQueryCommand WithQueryConfiguration(IQueryConfiguration configuration)

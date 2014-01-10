@@ -12,6 +12,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Query.Configuration;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 
@@ -24,7 +25,7 @@
 
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio;
 
-        private readonly IFingerprintQueryBuilder fingerprintQueryBuilder;
+        private readonly IQueryFingerprintService queryFingerprintService;
 
         public FingerprintCommandBuilderIntTest()
         {
@@ -34,7 +35,7 @@
             var lshService = new LSHService();
             fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(fingerprintService, new BassAudioService(), minHashService, lshService);
             fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(fingerprintService, new NAudioService(), minHashService, lshService);
-            fingerprintQueryBuilder = new FingerprintQueryBuilder(fingerprintCommandBuilderWithBass, new QueryFingerprintService(modelService));
+            queryFingerprintService = new QueryFingerprintService(modelService);
         }
 
         [TestMethod]
@@ -77,7 +78,6 @@
         [TestMethod]
         public void CreateFingerprintsInsertThenQueryAndGetTheRightResult()
         {
-            const int StaticStride = 5115;
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
             ITagService tagService = new BassAudioService();
@@ -89,20 +89,12 @@
             var hashDatas = fingerprintCommandBuilderWithBass
                                             .BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
-                                            .WithCustomAlgorithmConfiguration(config =>
-                                            {
-                                                config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
-                                            })
+                                            .WithDefaultAlgorithmConfiguration()
                                             .Hash()
                                             .Result;
-
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
 
-            var queryResult = fingerprintQueryBuilder.BuildQuery()
-                                    .From(PathToMp3, SecondsToProcess, StartAtSecond)
-                                    .WithDefaultConfigurations()
-                                    .Query()
-                                    .Result;
+            var queryResult = queryFingerprintService.Query(hashDatas, new DefaultQueryConfiguration());
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual(trackReference.HashCode, queryResult.BestMatch.TrackReference.HashCode);

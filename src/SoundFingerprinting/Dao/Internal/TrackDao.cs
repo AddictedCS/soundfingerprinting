@@ -23,10 +23,13 @@ namespace SoundFingerprinting.Dao.Internal
 
         public int Insert(TrackData track)
         {
-            return PrepareStoredProcedure(SpInsertTrack)
+            int id = PrepareStoredProcedure(SpInsertTrack)
                             .WithParametersFromModel(track)
                             .Execute()
                             .AsScalar<int>();
+            var trackReference = new RDBMSTrackReference(id);
+            track.TrackReference = trackReference;
+            return id;
         }
 
         public IList<TrackData> ReadAll()
