@@ -29,7 +29,7 @@ public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToA
     modelService.InsertHashDataForTrack(hashDatas, trackReference);
 }
 ```
-The default underlying database is MSSQL, those connection management is handled by <code>ModelService</code> class. NoSQL data storage will be implemented in the upcomming releases. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to change connection string (<code>FingerprintConnectionString</code>) in your app.config file.
+The default underlying database is MSSQL, those connection management is handled by <code>ModelService</code> class. NoSQL data storage will be implemented in the upcomming releases. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to change connection string <code>FingerprintConnectionString</code> in your app.config file.
 
 Once you've inserted the fingerprints into the database, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, url, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 ```csharp
@@ -38,14 +38,14 @@ private readonly IQueryCommandBuilder queryCommandBuilder = new QueryCommandBuil
 public TrackData GetBestMatchForSong(string queryAudioFile)
 {
     int secondsToAnalyze = 10; // number of seconds to analyze from query file
-    int startAtSecond = 0;
+    int startAtSecond = 0; // start at the begining
 	
+    // query the underlying database for similary audio sub-fingerprints
     var queryResult = queryCommandBuilder.BuildQueryCommand()
                                          .From(queryAudioFile, secondsToAnalyze, startAtSecond)
                                          .WithDefaultConfigs()
                                          .Query()
                                          .Result;
-	
     if(queryResult.IsSuccessful)
     {
         return queryResult.BestMatch; // successful match has been found
