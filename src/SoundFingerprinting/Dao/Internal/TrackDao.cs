@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Dao.Internal
                             .AsScalar<int>();
         }
 
-        public IList<TrackData> Read()
+        public IList<TrackData> ReadAll()
         {
             return PrepareStoredProcedure(SpReadTracks)
                         .Execute()
@@ -41,12 +41,12 @@ namespace SoundFingerprinting.Dao.Internal
                         .AsModel<TrackData>();
         }
 
-        public TrackData ReadTrackByArtistAndTitleName(string artist, string title)
+        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return PrepareStoredProcedure(SpReadTrackByArtistSongName)
                         .WithParameter("Artist", artist)
                         .WithParameter("Title", title)
-                        .Execute().AsModel<TrackData>();
+                        .Execute().AsListOfModel<TrackData>();
         }
 
         public TrackData ReadTrackByISRC(string isrc)

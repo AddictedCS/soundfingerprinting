@@ -26,19 +26,19 @@
             TrackReference = trackReference;
         }
 
-        public string Artist { get; private set; }
+        public string Artist { get; set; }
 
-        public string Title { get; private set; }
+        public string Title { get; set; }
 
-        public string ISRC { get; private set; }
+        public string ISRC { get; set; }
 
-        public string Album { get; private set; }
+        public string Album { get; set; }
 
-        public int ReleaseYear { get; private set; }
+        public int ReleaseYear { get; set; }
 
-        public int TrackLengthSec { get; private set; }
+        public int TrackLengthSec { get; set; }
 
-        public ITrackReference TrackReference { get; private set; }
+        public ITrackReference TrackReference { get; set; }
 
         public override bool Equals(object obj)
         {

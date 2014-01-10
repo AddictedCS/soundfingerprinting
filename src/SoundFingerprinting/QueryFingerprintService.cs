@@ -26,20 +26,20 @@
 
         public QueryResult Query(IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
         {
-            Dictionary<int, int> hammingSimilarities = new Dictionary<int, int>();
+            Dictionary<ITrackReference, int> hammingSimilarities = new Dictionary<ITrackReference, int>();
             foreach (var hash in hashes)
             {
                 var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int similarity = HashingUtils.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Item1.Signature);
-                    if (hammingSimilarities.ContainsKey(subFingerprint.Item1.TrackId))
+                    int similarity = HashingUtils.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Signature);
+                    if (hammingSimilarities.ContainsKey(subFingerprint.TrackReference))
                     {
-                        hammingSimilarities[subFingerprint.Item1.TrackId] += similarity;
+                        hammingSimilarities[subFingerprint.TrackReference] += similarity;
                     }
                     else
                     {
-                        hammingSimilarities.Add(subFingerprint.Item1.TrackId, similarity);
+                        hammingSimilarities.Add(subFingerprint.TrackReference, similarity);
                     }
                 }
             }
@@ -49,7 +49,7 @@
                 var bestMatch = hammingSimilarities.Aggregate((l, r) => l.Value > r.Value ? l : r);
                 return new QueryResult
                            {
-                               BestMatch = modelService.ReadTrackById(bestMatch.Key),
+                               BestMatch = modelService.ReadTrackByReference(bestMatch.Key),
                                IsSuccessful = true,
                                Similarity = bestMatch.Value,
                                NumberOfCandidates = hammingSimilarities.Count

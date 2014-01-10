@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,7 +10,6 @@
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Query;
@@ -23,8 +21,8 @@
     public class FingerprintUnitBuilderIntTest : AbstractIntegrationTest
     {
         private readonly ModelService modelService = new ModelService();
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(new FingerprintService(), new BassAudioService(), new MinHashService(new DefaultPermutations()));
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(new FingerprintService(), new NAudioService(), new MinHashService(new DefaultPermutations()));
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(new FingerprintService(), new BassAudioService(), new MinHashService(new DefaultPermutations()), new LSHService());
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(new FingerprintService(), new NAudioService(), new MinHashService(new DefaultPermutations()), new LSHService());
         private readonly ILSHService lshService = new LSHService();
 
         [TestMethod]
@@ -41,7 +39,7 @@
             int samples = (int)(seconds * audioFingerprintingUnit.Configuration.SampleRate);
             int expectedFingerprints = (samples / StaticStride) - 1;
 
-            var fingerprints = audioFingerprintingUnit.FingerprintIt().AsIs().Result;
+            var fingerprints = audioFingerprintingUnit.Fingerprint().Result;
 
             Assert.AreEqual(expectedFingerprints, fingerprints.Count);
         }
@@ -52,10 +50,14 @@
             var fingerprinter = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                         .From(PathToMp3)
                                         .WithDefaultAlgorithmConfiguration()
-                                        .FingerprintIt();
+                                        .Fingerprint();
 
-            var fingerprints = fingerprinter.AsIs().Result;
-            var subFingerprints = fingerprinter.HashIt().AsIs().Result;
+            var fingerprints = fingerprinter.Result;
+            var subFingerprints = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+                                        .From(PathToMp3)
+                                        .WithDefaultAlgorithmConfiguration()
+                                        .Hash()
+                                        .Result;
 
             Assert.AreEqual(fingerprints.Count, subFingerprints.Count);
         }

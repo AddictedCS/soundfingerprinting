@@ -1,7 +1,22 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System;
+
+    [Serializable]
     public class SubFingerprintData
     {
+        public SubFingerprintData()
+        {
+            // no op
+        }
+
+        public SubFingerprintData(byte[] signature, ISubFingerprintReference subFingerprintReference, ITrackReference trackReference)
+        {
+            Signature = signature;
+            SubFingerprintReference = subFingerprintReference;
+            TrackReference = trackReference;
+        }
+
         public byte[] Signature { get; set; }
 
         public ISubFingerprintReference SubFingerprintReference { get; set; }
@@ -20,7 +35,7 @@
                 return false;
             }
 
-            return ((SubFingerprintData)obj).SubFingerprintReference.GetHashCode() == SubFingerprintReference.GetHashCode();
+            return ((SubFingerprintData)obj).SubFingerprintReference.HashCode == SubFingerprintReference.HashCode;
         }
 
         public override int GetHashCode()

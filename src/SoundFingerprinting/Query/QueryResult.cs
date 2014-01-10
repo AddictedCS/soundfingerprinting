@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Query
 {
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
 
     public class QueryResult
     {
@@ -8,7 +8,7 @@
 
         public int Similarity { get; set; }
 
-        public Track BestMatch { get; set; }
+        public TrackData BestMatch { get; set; }
 
         public int NumberOfCandidates { get; set; }
     }

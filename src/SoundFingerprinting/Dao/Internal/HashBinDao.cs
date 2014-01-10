@@ -1,16 +1,16 @@
 namespace SoundFingerprinting.Dao.Internal
 {
     using System.Collections.Generic;
+    using System.Text;
 
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
 
-    internal class HashBinMinHashDao : AbstractDao
+    internal class HashBinDao : AbstractDao
     {
-        private const string SpInsertMinhashHashbin = "sp_InsertHashBinMinHash";
         private const string SpReadFingerprintsByHashBinHashTableAndThreshold = "sp_ReadFingerprintsByHashBinHashTableAndThreshold";
         private const string SpReadHashBinsByHashTable = "sp_ReadHashBinsByHashTable";
 
-        public HashBinMinHashDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
+        public HashBinDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
              // no op
@@ -18,21 +18,35 @@ namespace SoundFingerprinting.Dao.Internal
 
         public void Insert(long[] hashBins, long subFingerprintId)
         {
-            PrepareStoredProcedure(SpInsertMinhashHashbin)
-                            .WithParametersFromModel(hashBin)
-                            .Execute()
-                            .AsNonQuery();
+            StringBuilder sqlToExecute = new StringBuilder();
+            for (int i = 0; i < hashBins.Length; i++)
+            {
+                sqlToExecute.Append("INSERT INTO HashTable_");
+                sqlToExecute.Append(i + 1);
+                sqlToExecute.Append("(HashBin, SubFingerprintId) VALUES(");
+                sqlToExecute.Append(hashBins[i] + "," + subFingerprintId + ");");
+                if (hashBins.Length > i + 1)
+                {
+                    sqlToExecute.Append("\n\r");
+                }
+            }
+
+            PrepareSQLText(sqlToExecute.ToString()).AsNonQuery();
         }
 
-        public IList<HashBinMinHash> ReadHashBinsByHashTable(int hashTable)
+        public IList<HashBinData> ReadHashBinsByHashTable(int hashTable)
         {
             return PrepareStoredProcedure(SpReadHashBinsByHashTable)
                 .WithParameter("HashTable", hashTable)
-                .Execute()
-                .AsList(reader => new HashBinMinHash(reader.GetInt64("HashBin"), hashTable, reader.GetInt64("SubFingerprintId")));
+                .Execute().AsList(
+                    reader =>
+                    new HashBinData(
+                        hashTable,
+                        reader.GetInt64("HashBin"),
+                        new RDBMSSubFingerprintReference(reader.GetInt64("SubFingerprintId"))));
         }
 
-        public IEnumerable<SubFingerprint> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBuckets, int thresholdVotes)
+        public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBuckets, int thresholdVotes)
         {
             return PrepareStoredProcedure(SpReadFingerprintsByHashBinHashTableAndThreshold)
                     .WithParameter("HashBin_1", hashBuckets[0])
@@ -67,7 +81,8 @@ namespace SoundFingerprinting.Dao.Internal
                             long id = reader.GetInt64("Id");
                             byte[] signature = (byte[])reader.GetRaw("Signature");
                             int trackId = reader.GetInt32("TrackId");
-                            return new SubFingerprint(signature, trackId) { Id = id };
+                            return new SubFingerprintData(
+                                signature, new RDBMSSubFingerprintReference(id), new RDBMSTrackReference(trackId));
                         });
         }
     }

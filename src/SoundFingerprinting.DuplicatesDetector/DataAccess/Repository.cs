@@ -52,7 +52,6 @@
                                                        .WithCustomAlgorithmConfiguration(config => config.Stride = stride)
                                                        .Fingerprint()
                                                        .Result
-                                                       .Select(fingerprint => fingerprint.Signature)
                                                        .ToList();
 
             storage.InsertTrack(track); /*Insert track into the storage*/

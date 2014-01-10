@@ -51,7 +51,6 @@ namespace SoundFingerprinting.Dao
         }
 
         public DbType GetParameterType<T>()
-            where T : struct
         {
             return databaseTypes[typeof(T)];
         }

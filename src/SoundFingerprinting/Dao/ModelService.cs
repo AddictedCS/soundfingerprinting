@@ -12,7 +12,7 @@
     {
         private readonly TrackDao trackDao;
 
-        private readonly HashBinMinHashDao hashBinMinHashDao;
+        private readonly HashBinDao hashBinDao;
 
         private readonly SubFingerprintDao subFingerprintDao;
 
@@ -26,29 +26,16 @@
         public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
-            hashBinMinHashDao = new HashBinMinHashDao(databaseProviderFactory, modelBinderFactory);
+            hashBinDao = new HashBinDao(databaseProviderFactory, modelBinderFactory);
             subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
             permutationsDao = new PermutationsDao(databaseProviderFactory, modelBinderFactory);
         }
 
         public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
-            var subFingerprints = hashBinMinHashDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold);
-            var fingerprints = subFingerprints as IList<SubFingerprint> ?? subFingerprints.ToList();
-            if (subFingerprints != null && fingerprints.Any())
-            {
-                return fingerprints.Select(subFingerprint => new SubFingerprintData
-                                                                 {
-                                                                     Signature = subFingerprint.Signature, 
-                                                                     TrackReference = new RDBMSTrackReference(subFingerprint.TrackId), 
-                                                                     SubFingerprintReference = new RDBMSSubFingerprintReference(subFingerprint.Id)
-                                                                 })
-                                                                 .ToList();
-            }
-
-            return Enumerable.Empty<SubFingerprintData>().ToList();
+            return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold).ToList();
         }
-    
+
         public int[][] ReadPermutationsForLSHAlgorithm()
         {
             return permutationsDao.ReadPermutationsForLSHAlgorithm();
@@ -56,43 +43,53 @@
 
         public ITrackReference InsertTrack(TrackData track)
         {
-            return new RDBMSTrackReference(trackDao.Insert(GetTrackFromTrackData(track)));
+            return new RDBMSTrackReference(trackDao.Insert(track));
         }
 
-        
         public void InsertHashDataForTrack(byte[] subFingerprintSignature, long[] hashBuckets, ITrackReference trackReference)
         {
-            subFingerprintDao.Insert()
+            if (!(trackReference is RDBMSTrackReference))
+            {
+                throw new NotSupportedException("Cannot insert non relational reference to relational database");
+            }
+
+            long subFingerprintId = subFingerprintDao.Insert(subFingerprintSignature, ((RDBMSTrackReference)trackReference).Id);
+            hashBinDao.Insert(hashBuckets, subFingerprintId);
         }
 
         public IList<TrackData> ReadAllTracks()
         {
-            throw new NotImplementedException();
+            return trackDao.ReadAll();
         }
 
         public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
-            throw new NotImplementedException();
+            return trackDao.ReadTrackByArtistAndTitleName(artist, title);
         }
 
         public TrackData ReadTrackByReference(ITrackReference trackReference)
         {
-            throw new NotImplementedException();
+            if (!(trackReference is RDBMSTrackReference))
+            {
+                throw new NotSupportedException("Cannot read a non relational reference from relational database");
+            }
+
+            return trackDao.ReadById(((RDBMSTrackReference)trackReference).Id);
         }
 
         public TrackData ReadTrackByISRC(string isrc)
         {
-            throw new NotImplementedException();
+            return trackDao.ReadTrackByISRC(isrc);
         }
 
         public int DeleteTrack(ITrackReference trackReference)
         {
-            throw new NotImplementedException();
-        }
+            if (!(trackReference is RDBMSTrackReference))
+            {
+                throw new NotSupportedException("Cannot delete a non relational reference from relational database");
+            }
 
-        private static Track GetTrackFromTrackData(TrackData track)
-        {
-            return new Track(track.ISRC, track.Artist, track.Title, track.Album, track.ReleaseYear, track.TrackLengthSec);
+            return trackDao.DeleteTrack(((RDBMSTrackReference)trackReference).Id);
         }
     }
 }

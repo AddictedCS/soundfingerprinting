@@ -4,14 +4,14 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
-    public class HashBinMinHashDaoTest : AbstractIntegrationTest
+    public class HashBinDaoTest : AbstractIntegrationTest
     {
-        private readonly HashBinMinHashDao hashBinMinHashDao;
+        private readonly HashBinDao hashBinDao;
         
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly ITagService tagService;
@@ -19,9 +19,9 @@
         private readonly TrackDao trackDao;
         private readonly SubFingerprintDao subFingerprintDao;
 
-        public HashBinMinHashDaoTest()
+        public HashBinDaoTest()
         {
-            hashBinMinHashDao = new HashBinMinHashDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
+            hashBinDao = new HashBinDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
 
             fingerprintCommandBuilder = DependencyResolver.Current.Get<IFingerprintCommandBuilder>();
             tagService = DependencyResolver.Current.Get<ITagService>();
@@ -33,19 +33,17 @@
         [TestMethod]
         public void InsertReadTest()
         {
-            Track track = new Track("isrc", "artist", "title", "album", 1986, 200);
-            trackDao.Insert(track);
-            SubFingerprint subFingerprint = new SubFingerprint(GenericSignature, track.Id);
-            subFingerprintDao.Insert(subFingerprint);
+            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            int trackId = trackDao.Insert(track);
+            long subFingerprintId = subFingerprintDao.Insert(GenericSignature, trackId);
 
-            int hashTable = 1;
-            foreach (var b in GenericSignature)
+            hashBinDao.Insert(GenericHashBuckets, subFingerprintId);
+
+            for (int hashTable = 1; hashTable <= GenericHashBuckets.Length; hashTable++)
             {
-                HashBinMinHash hashBinMinHash = new HashBinMinHash(b, hashTable++, subFingerprint.Id);
-                hashBinMinHashDao.Insert(hashBinMinHash);
-                var hashBins = hashBinMinHashDao.ReadHashBinsByHashTable(hashTable);
+                var hashBins = hashBinDao.ReadHashBinsByHashTable(hashTable);
                 Assert.AreEqual(1, hashBins.Count);
-                Assert.AreEqual(b, hashBins[0]);
+                Assert.AreEqual(GenericHashBuckets[hashTable - 1], hashBins[0]);
             }
         }
 
@@ -55,8 +53,8 @@
             const int StaticStride = 5115;
             TagInfo tagInfo = tagService.GetTagInfo(PathToMp3);
             int releaseYear = tagInfo.Year;
-            Track track = new Track(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
-            trackDao.Insert(track);
+            TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
+            int trackId = trackDao.Insert(track);
             var hashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3)
@@ -69,19 +67,13 @@
 
             foreach (var hash in hashData)
             {
-                var subFingerprint = new SubFingerprint(hash.SubFingerprint, track.Id);
-                subFingerprintDao.Insert(subFingerprint);
-                int tableNumber = 1;
-                foreach (var hashBin in hash.HashBins)
-                {
-                    var hashBinModel = new HashBinMinHash(hashBin, tableNumber++, subFingerprint.Id);
-                    hashBinMinHashDao.Insert(hashBinModel);
-                }
+                long subFingerprintId = subFingerprintDao.Insert(hash.SubFingerprint, trackId);
+                hashBinDao.Insert(hash.HashBins, subFingerprintId);
             }
 
             for (int hashTable = 1; hashTable <= 25; hashTable++)
             {
-                var hashBins = hashBinMinHashDao.ReadHashBinsByHashTable(hashTable);
+                var hashBins = hashBinDao.ReadHashBinsByHashTable(hashTable);
                 Assert.AreEqual(hashData.Count, hashBins.Count);
             }
         }

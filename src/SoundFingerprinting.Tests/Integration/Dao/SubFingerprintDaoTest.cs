@@ -3,8 +3,8 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
     public class SubFingerprintDaoTest : AbstractIntegrationTest
@@ -21,32 +21,36 @@
         [TestMethod]
         public void InsertTest()
         {
-            Track track = new Track("isrc", "artist", "title", "album", 1986, 200);
-            trackDao.Insert(track);
-            SubFingerprint subFingerprint = new SubFingerprint(GenericSignature, track.Id);
+            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            int trackId = trackDao.Insert(track);
+            
+            long subFingerprintId = subFingerprintDao.Insert(GenericSignature, trackId);
 
-            subFingerprintDao.Insert(subFingerprint);
-
-            Assert.IsFalse(subFingerprint.Id == 0);
+            Assert.IsFalse(subFingerprintId == 0);
         }
 
         [TestMethod]
         public void ReadTest()
         {
-            Track track = new Track("isrc", "artist", "title", "album", 1986, 200);
-            trackDao.Insert(track);
-            SubFingerprint expected = new SubFingerprint(GenericSignature, track.Id);
-            subFingerprintDao.Insert(expected);
+            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            int trackId = trackDao.Insert(track);
+            
+            long subFingerprintId = subFingerprintDao.Insert(GenericSignature, trackId);
 
-            SubFingerprint actual = subFingerprintDao.ReadById(expected.Id);
+            SubFingerprintData actual = subFingerprintDao.ReadById(subFingerprintId);
 
-            AsserSubFingerprintsAreEqual(expected, actual);
+            AsserSubFingerprintsAreEqual(
+                new SubFingerprintData(
+                    GenericSignature,
+                    new RDBMSSubFingerprintReference(subFingerprintId),
+                    new RDBMSTrackReference(trackId)),
+                actual);
         }
 
-        private void AsserSubFingerprintsAreEqual(SubFingerprint expected, SubFingerprint actual)
+        private void AsserSubFingerprintsAreEqual(SubFingerprintData expected, SubFingerprintData actual)
         {
-            Assert.AreEqual(expected.Id, actual.Id);
-            Assert.AreEqual(expected.TrackId, actual.TrackId);
+            Assert.AreEqual(expected.SubFingerprintReference.HashCode, actual.SubFingerprintReference.HashCode);
+            Assert.AreEqual(expected.TrackReference.HashCode, actual.TrackReference.HashCode);
             for (int i = 0; i < expected.Signature.Length; i++)
             {
                 Assert.AreEqual(expected.Signature[i], actual.Signature[i]);

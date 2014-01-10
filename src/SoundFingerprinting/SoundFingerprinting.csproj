@@ -64,6 +64,8 @@
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
+    <Compile Include="Data\HashBinData.cs" />
+    <Compile Include="Data\HashData.cs" />
     <Compile Include="Data\ISubFingerprintReference.cs" />
     <Compile Include="Data\ITrackReference.cs" />
     <Compile Include="Data\SubFingerprintData.cs" />
@@ -92,7 +94,7 @@
     <Compile Include="Dao\Internal\Executor.cs" />
     <Compile Include="Dao\Internal\Extensions.cs" />
     <Compile Include="Dao\Conditions\ICondition.cs" />
-    <Compile Include="Dao\Internal\HashBinMinHashDao.cs" />
+    <Compile Include="Dao\Internal\HashBinDao.cs" />
     <Compile Include="Dao\Internal\IExecutor.cs" />
     <Compile Include="Dao\IModelBinder.cs" />
     <Compile Include="Dao\IModelBinderFactory.cs" />

@@ -9,95 +9,115 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     public class TrackDaoTest : AbstractIntegrationTest
     {
         private readonly TrackDao trackDao;
-        
+
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
+
         private readonly ITagService tagService;
 
         private readonly SubFingerprintDao subFingerprintDao;
-        private readonly HashBinMinHashDao hashBinMinHashDao;
+
+        private readonly HashBinDao hashBinDao;
 
         public TrackDaoTest()
         {
             fingerprintCommandBuilder = DependencyResolver.Current.Get<IFingerprintCommandBuilder>();
             tagService = DependencyResolver.Current.Get<ITagService>();
-            trackDao = new TrackDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-            subFingerprintDao = new SubFingerprintDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-            hashBinMinHashDao = new HashBinMinHashDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
+            trackDao = new TrackDao(
+                DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
+                DependencyResolver.Current.Get<IModelBinderFactory>());
+            subFingerprintDao = new SubFingerprintDao(
+                DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
+                DependencyResolver.Current.Get<IModelBinderFactory>());
+            hashBinDao = new HashBinDao(
+                DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
+                DependencyResolver.Current.Get<IModelBinderFactory>());
         }
 
         [TestMethod]
-        public void InsertReadTrackTest()
+        public void InsertTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            var expectedTrack = GetTrack(name);
-            trackDao.Insert(expectedTrack);
+            var track = GetTrack(name);
 
-            Assert.AreNotEqual(int.MinValue, expectedTrack.Id);
-            var listOfTracks = trackDao.Read();
+            trackDao.Insert(track);
+
+            Assert.IsFalse(track.TrackReference.HashCode == 0);
+            Assert.IsTrue(track.TrackReference is RDBMSTrackReference);
+            Assert.IsFalse(((RDBMSTrackReference)track.TrackReference).Id == 0);
+        }
+
+        [TestMethod]
+        public void ReadTrackTest()
+        {
+            string name = MethodBase.GetCurrentMethod().Name;
+            var track = GetTrack(name);
+            int trackId = trackDao.Insert(track);
+
+            var listOfTracks = trackDao.ReadAll();
+
             Assert.AreEqual(1, listOfTracks.Count);
-
-            Track actualTrack = trackDao.ReadById(expectedTrack.Id);
-            AssertTracksAreEqual(expectedTrack, actualTrack);
+            TrackData actualTrack = trackDao.ReadById(trackId);
+            AssertTracksAreEqual(track, actualTrack);
         }
 
         [TestMethod]
         public void InsertMultipleTrackAtOnceTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            List<Track> expectedTracks = new List<Track>();
-            const int TrackCount = 10;
+            List<TrackData> tracks = new List<TrackData>();
+            const int TrackCount = 100;
             for (int i = 0; i < TrackCount; i++)
             {
-                Track expectedTrack = GetTrack(name);
-                expectedTracks.Add(expectedTrack);
-                trackDao.Insert(expectedTrack);
-            }
-            
-            foreach (Track track in expectedTracks)
-            {
-                Assert.AreNotEqual(int.MinValue, track.Id);
+                var track = GetTrack(name);
+                tracks.Add(track);
+                trackDao.Insert(track);
             }
 
-            var actualTracks = trackDao.Read();
-            Assert.AreEqual(expectedTracks.Count, actualTracks.Count);
+            foreach (var track in tracks)
+            {
+                Assert.IsNotNull(track.TrackReference);
+                Assert.IsFalse(track.TrackReference.HashCode == 0);
+            }
+
+            var actualTracks = trackDao.ReadAll();
+            Assert.AreEqual(tracks.Count, actualTracks.Count);
             for (int i = 0; i < actualTracks.Count; i++)
             {
                 AssertTracksAreEqual(
-                    expectedTracks[i], actualTracks.First(track => track.Id == expectedTracks[i].Id));
+                    tracks[i],
+                    actualTracks.First(track => track.TrackReference.HashCode == tracks[i].TrackReference.HashCode));
             }
         }
 
         [TestMethod]
-        public void ReadTrackByArtistAndTitle()
+        public void ReadTrackByArtistAndTitleTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            const int FakeId = int.MinValue;
-            Track expectedTrack = GetTrack(name);
-            trackDao.Insert(expectedTrack);
-            Assert.AreNotEqual(FakeId, expectedTrack.Id);
+            TrackData track = GetTrack(name);
+            trackDao.Insert(track);
 
-            Track actualTrack = trackDao.ReadTrackByArtistAndTitleName(expectedTrack.Artist, expectedTrack.Title);
+            TrackData actualTrack = trackDao.ReadTrackByArtistAndTitleName(track.Artist, track.Title);
 
             Assert.IsNotNull(actualTrack);
-            AssertTracksAreEqual(expectedTrack, actualTrack);
+            AssertTracksAreEqual(track, actualTrack);
         }
 
         [TestMethod]
-        public void ReadTrackByISRC()
+        public void ReadTrackByISRCTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Track expectedTrack = GetTrack(name);
+            TrackData expectedTrack = GetTrack(name);
             trackDao.Insert(expectedTrack);
 
-            Track actualTrack = trackDao.ReadTrackByISRC(expectedTrack.ISRC);
+            TrackData actualTrack = trackDao.ReadTrackByISRC(expectedTrack.ISRC);
 
             AssertTracksAreEqual(expectedTrack, actualTrack);
         }
@@ -105,31 +125,35 @@
         [TestMethod]
         public void DeleteCollectionOfTracksTest()
         {
-            List<Track> tracks = GetRandomListOfTracks(10);
+            const int NumberOfTracks = 10;
+            IEnumerable<TrackData> tracks = GetRandomListOfTracks(NumberOfTracks);
+            List<int> trackIds = new List<int>();
             foreach (var track in tracks)
             {
-                trackDao.Insert(track);
+                trackIds.Add(trackDao.Insert(track));
             }
 
-            var allTracks = trackDao.Read();
+            var allTracks = trackDao.ReadAll();
 
             Assert.IsTrue(allTracks.Count > 0);
-            foreach (var track in tracks)
+            foreach (var trackId in trackIds)
             {
-                trackDao.DeleteTrack(track.Id);
+                trackDao.DeleteTrack(trackId);
             }
 
-            Assert.IsTrue(trackDao.Read().Count == 0);
+            Assert.IsTrue(trackDao.ReadAll().Count == 0);
         }
 
         [TestMethod]
         public void DeleteOneTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
-            Track track = GetTrack(name);
-            trackDao.Insert(track);
-            trackDao.DeleteTrack(track.Id);
-            Assert.IsNull(trackDao.ReadById(track.Id));
+            TrackData track = GetTrack(name);
+            int trackId = trackDao.Insert(track);
+
+            trackDao.DeleteTrack(trackId);
+
+            Assert.IsNull(trackDao.ReadById(trackId));
         }
 
         [TestMethod]
@@ -140,8 +164,8 @@
             const int StartAtSecond = 30;
             TagInfo tagInfo = tagService.GetTagInfo(PathToMp3);
             int releaseYear = tagInfo.Year;
-            Track track = new Track(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
-            trackDao.Insert(track);
+            TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
+            int trackId = trackDao.Insert(track);
             var hashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, SecondsToProcess, StartAtSecond)
@@ -152,19 +176,12 @@
                 .Hash()
                 .Result;
 
-            List<SubFingerprint> subFingerprints = new List<SubFingerprint>();
+            List<long> subFingerprintIds = new List<long>();
             foreach (var hash in hashData)
             {
-                var subFingerprint = new SubFingerprint(hash.SubFingerprint, track.Id);
-                subFingerprintDao.Insert(subFingerprint);
-                int tableNumber = 1;
-                foreach (var hashBin in hash.HashBins)
-                {
-                    var hashBinModel = new HashBinMinHash(hashBin, tableNumber++, subFingerprint.Id);
-                    hashBinMinHashDao.Insert(hashBinModel);
-                }
-
-                subFingerprints.Add(subFingerprint);
+                long subFingerprintId = subFingerprintDao.Insert(hash.SubFingerprint, trackId);
+                hashBinDao.Insert(hash.HashBins, subFingerprintId);
+                subFingerprintIds.Add(subFingerprintId);
             }
 
             var actualTrack = trackDao.ReadTrackByISRC(tagInfo.ISRC);
@@ -172,29 +189,27 @@
             AssertTracksAreEqual(track, actualTrack);
 
             // Act
-            int modifiedRows = trackDao.DeleteTrack(track.Id);
+            int modifiedRows = trackDao.DeleteTrack(trackId);
             Assert.IsNull(trackDao.ReadTrackByISRC(tagInfo.ISRC));
-            foreach (var subFingerprint in subFingerprints)
+            foreach (var id in subFingerprintIds)
             {
-                Assert.IsTrue(subFingerprint.Id != 0);
-                Assert.IsNull(subFingerprintDao.ReadById(subFingerprint.Id));
+                Assert.IsTrue(id != 0);
+                Assert.IsNull(subFingerprintDao.ReadById(id));
             }
 
             for (int i = 1; i <= 25; i++)
             {
-                Assert.IsTrue(hashBinMinHashDao.ReadHashBinsByHashTable(i).Count == 0);
+                Assert.IsTrue(hashBinDao.ReadHashBinsByHashTable(i).Count == 0);
             }
 
-            Assert.AreEqual(1 + subFingerprints.Count + (25 * subFingerprints.Count), modifiedRows);
+            Assert.AreEqual(1 + hashData.Count + (25 * hashData.Count), modifiedRows);
         }
 
         [TestMethod]
         public void DeleteNonExistentTrackTest()
         {
-            Track track = new Track();
-            const int Expected = 0;
-            int actual = trackDao.DeleteTrack(track.Id);
-            Assert.AreEqual(Expected, actual);
+            int actual = trackDao.DeleteTrack(1234);
+            Assert.AreEqual(0, actual);
         }
 
         [TestMethod]
@@ -203,16 +218,16 @@
             string name = MethodBase.GetCurrentMethod().Name;
             string artist = name;
             string title = name;
-            Track actual = trackDao.ReadTrackByArtistAndTitleName(artist, title);
-            Assert.IsNull(actual);
+            TrackData track = trackDao.ReadTrackByArtistAndTitleName(artist, title);
+            Assert.IsNull(track);
         }
 
-        private List<Track> GetRandomListOfTracks(int count)
+        private IEnumerable<TrackData> GetRandomListOfTracks(int count)
         {
-            var tracks = new List<Track>();
+            var tracks = new List<TrackData>();
             for (int i = 0; i < count; i++)
             {
-                Track track = GetTrack(MethodBase.GetCurrentMethod().Name);
+                TrackData track = GetTrack(MethodBase.GetCurrentMethod().Name);
                 track.ISRC += i;
                 tracks.Add(track);
             }
@@ -220,18 +235,18 @@
             return tracks;
         }
 
-        private Track GetTrack(string methodName)
+        private TrackData GetTrack(string methodName)
         {
             string isrc = Guid.NewGuid().ToString();
             string albumName = methodName + "album name";
             string artist = methodName + "artist";
             string title = methodName + "title";
-            return new Track(isrc, artist, title, albumName, 1986, 360);
+            return new TrackData(isrc, artist, title, albumName, 1986, 360);
         }
 
-        private void AssertTracksAreEqual(Track expectedTrack, Track actualTrack)
+        private void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
         {
-            Assert.AreEqual(expectedTrack.Id, actualTrack.Id);
+            Assert.AreEqual(expectedTrack.TrackReference.HashCode, actualTrack.TrackReference.HashCode);
             Assert.AreEqual(expectedTrack.Album, actualTrack.Album);
             Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
             Assert.AreEqual(expectedTrack.Title, actualTrack.Title);

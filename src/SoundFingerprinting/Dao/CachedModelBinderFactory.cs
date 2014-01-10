@@ -33,7 +33,7 @@ namespace SoundFingerprinting.Dao
             return modelBinder;
         }
 
-        public DbType GetParameterType<T>() where T : struct
+        public DbType GetParameterType<T>()
         {
             return modelBinderFactory.GetParameterType<T>();
         }
