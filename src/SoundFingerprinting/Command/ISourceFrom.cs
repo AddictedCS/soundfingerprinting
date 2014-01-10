@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.Builder
+namespace SoundFingerprinting.Command
 {
     public interface ISourceFrom
     {

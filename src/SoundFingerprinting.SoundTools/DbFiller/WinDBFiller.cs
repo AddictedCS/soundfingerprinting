@@ -303,7 +303,7 @@
                                 (StrideType)_cmbStrideType.SelectedIndex,
                                 (int)_nudStride.Value,
                                 0,
-                                new DefaultFingerprintingConfiguration().SamplesPerFingerprint);
+                                new DefaultFingerprintConfiguration().SamplesPerFingerprint);
                         }),
                 null);
 
@@ -414,7 +414,7 @@
                     var hashDatas = fingerprintCommandBuilder
                                         .BuildFingerprintCommand()
                                         .From(fileList[i])
-                                        .WithCustomAlgorithmConfiguration(
+                                        .WithFingerprintConfig(
                                             config =>
                                                 {
                                                     config.TopWavelets = topWavelets;

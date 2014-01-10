@@ -8,7 +8,7 @@
     using System.Windows.Forms;
     using System.Xml.Serialization;
 
-    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Command;
     using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
@@ -124,7 +124,7 @@
 
                         var databaseSong = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                   .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
-                                                  .WithCustomAlgorithmConfiguration(
+                                                  .WithFingerprintConfig(
                                                     config =>
                                                         {
                                                             config.MinFrequency = (int)_nudMinFrequency.Value;
@@ -144,7 +144,7 @@
                             querySong =
                                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                                           .From(_tbSongToCompare.Text, secondsToProcess, startAtSecond)
-                                                          .WithCustomAlgorithmConfiguration(
+                                                          .WithFingerprintConfig(
                                                               config =>
                                                                   {
                                                                       config.MinFrequency = (int)_nudMinFrequency.Value;
@@ -164,7 +164,7 @@
                             querySong =
                                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                                           .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
-                                                          .WithCustomAlgorithmConfiguration(
+                                                          .WithFingerprintConfig(
                                                               config =>
                                                                   {
                                                                       config.MinFrequency = (int)_nudMinFrequency.Value;

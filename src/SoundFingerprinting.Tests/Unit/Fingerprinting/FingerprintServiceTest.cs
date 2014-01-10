@@ -44,7 +44,7 @@
         public void CreateFingerprintsTest()
         {
             float[] samples = TestUtilities.GenerateRandomFloatArray(5512 * 10);
-            var configuration = new DefaultFingerprintingConfiguration();
+            var configuration = new DefaultFingerprintConfiguration();
             float[][] logarithmizedSpectrum = new[]
                                      {
                                          TestUtilities.GenerateRandomFloatArray(2048), 

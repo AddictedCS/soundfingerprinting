@@ -51,11 +51,11 @@
             List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
 
             audioService.Setup(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
-            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
+            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
 
             List<bool[]> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                   .From(PathToAudioFile)
-                                  .WithDefaultAlgorithmConfiguration()
+                                  .WithDefaultFingerprintConfig()
                                   .Fingerprint()
                                   .Result;
 
@@ -72,14 +72,14 @@
             byte[] rawSubFingerprint = TestUtilities.GenerateRandomByteArray(100);
 
             audioService.Setup(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
-            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
+            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
             lshService.Setup(service => service.Hash(rawSubFingerprint, 25, 4)).Returns(GenericHashBuckets);
 
             var hashDatas =
                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile)
-                                      .WithDefaultAlgorithmConfiguration()
+                                      .WithDefaultFingerprintConfig()
                                       .Hash()
                                       .Result;
 
@@ -97,14 +97,14 @@
             List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
             byte[] rawSubFingerprint = TestUtilities.GenerateRandomByteArray(100);
 
-            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
+            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
             lshService.Setup(service => service.Hash(rawSubFingerprint, 25, 4)).Returns(GenericHashBuckets);
 
             var hashDatas =
                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
-                                      .WithDefaultAlgorithmConfiguration()
+                                      .WithDefaultFingerprintConfig()
                                       .Hash()
                                       .Result;
 
@@ -126,14 +126,14 @@
             byte[] rawSubFingerprint = TestUtilities.GenerateRandomByteArray(100);
 
             audioService.Setup(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond)).Returns(samples);
-            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintingConfiguration>())).Returns(rawFingerprints);
+            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(rawSubFingerprint);
             lshService.Setup(service => service.Hash(rawSubFingerprint, 25, 4)).Returns(GenericHashBuckets);
 
             var hashDatas =
                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
-                                      .WithDefaultAlgorithmConfiguration()
+                                      .WithDefaultFingerprintConfig()
                                       .Hash()
                                       .Result;
 

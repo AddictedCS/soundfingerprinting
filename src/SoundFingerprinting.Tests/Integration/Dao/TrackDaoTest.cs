@@ -171,7 +171,7 @@
             var hashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, SecondsToProcess, StartAtSecond)
-                .WithCustomAlgorithmConfiguration(config =>
+                .WithFingerprintConfig(config =>
                     {
                         config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                     })

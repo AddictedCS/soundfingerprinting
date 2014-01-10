@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Query
+﻿namespace SoundFingerprinting.Command
 {
     public interface IQuerySource
     {

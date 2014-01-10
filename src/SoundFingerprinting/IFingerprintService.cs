@@ -6,6 +6,6 @@
 
     public interface IFingerprintService
     {
-        List<bool[]> CreateFingerprints(float[] samples, IFingerprintingConfiguration fingerprintingConfiguration);
+        List<bool[]> CreateFingerprints(float[] samples, IFingerprintConfiguration fingerprintConfiguration);
     }
 }

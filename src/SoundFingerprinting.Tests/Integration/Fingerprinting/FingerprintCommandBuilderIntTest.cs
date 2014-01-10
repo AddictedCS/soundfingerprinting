@@ -8,11 +8,11 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
-    using SoundFingerprinting.Query.Configuration;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 
@@ -46,10 +46,10 @@
             
             var audioFingerprintingUnit = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                         .From(PathToMp3)
-                                        .WithCustomAlgorithmConfiguration(config => { config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); });
+                                        .WithFingerprintConfig(config => { config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); });
                                     
             double seconds = tagService.GetTagInfo(PathToMp3).Duration;
-            int samples = (int)(seconds * audioFingerprintingUnit.Configuration.SampleRate);
+            int samples = (int)(seconds * audioFingerprintingUnit.FingerprintConfiguration.SampleRate);
             int expectedFingerprints = (samples / StaticStride) - 1;
 
             var fingerprints = audioFingerprintingUnit.Fingerprint().Result;
@@ -62,13 +62,13 @@
         {
             var fingerprinter = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                         .From(PathToMp3)
-                                        .WithDefaultAlgorithmConfiguration()
+                                        .WithDefaultFingerprintConfig()
                                         .Fingerprint();
 
             var fingerprints = fingerprinter.Result;
             var hashDatas = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                         .From(PathToMp3)
-                                        .WithDefaultAlgorithmConfiguration()
+                                        .WithDefaultFingerprintConfig()
                                         .Hash()
                                         .Result;
 
@@ -89,7 +89,7 @@
             var hashDatas = fingerprintCommandBuilderWithBass
                                             .BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
-                                            .WithDefaultAlgorithmConfiguration()
+                                            .WithDefaultFingerprintConfig()
                                             .Hash()
                                             .Result;
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
@@ -105,13 +105,13 @@
         {
             var naudioFingerprints = fingerprintCommandBuilderWithNAudio.BuildFingerprintCommand()
                                                         .From(PathToMp3)
-                                                        .WithDefaultAlgorithmConfiguration()
+                                                        .WithDefaultFingerprintConfig()
                                                         .Fingerprint()
                                                         .Result;
 
             var bassFingerprints = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                                  .From(PathToMp3)
-                                                 .WithDefaultAlgorithmConfiguration()
+                                                 .WithDefaultFingerprintConfig()
                                                  .Fingerprint()
                                                  .Result;
             int unmatchedItems = 0;
@@ -152,7 +152,7 @@
                 
                 var list = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                           .From(PathToMp3)
-                                          .WithCustomAlgorithmConfiguration(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
+                                          .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
                                           .Fingerprint()
                                           .Result;
 

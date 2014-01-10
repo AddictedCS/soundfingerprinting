@@ -49,7 +49,7 @@
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
             List<bool[]> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                        .From(samples)
-                                                       .WithCustomAlgorithmConfiguration(config => config.Stride = stride)
+                                                       .WithFingerprintConfig(config => config.Stride = stride)
                                                        .Fingerprint()
                                                        .Result
                                                        .ToList();

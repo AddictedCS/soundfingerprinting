@@ -33,15 +33,15 @@ namespace SoundFingerprinting
             this.fingerprintDescriptor = fingerprintDescriptor;
         }
 
-        public List<bool[]> CreateFingerprints(float[] samples, IFingerprintingConfiguration fingerprintingConfiguration)
+        public List<bool[]> CreateFingerprints(float[] samples, IFingerprintConfiguration fingerprintConfiguration)
         {
-            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, fingerprintingConfiguration);
+            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration);
             return CreateFingerprintsFromLogSpectrum(
                 spectrum,
-                fingerprintingConfiguration.Stride,
-                fingerprintingConfiguration.FingerprintLength,
-                fingerprintingConfiguration.Overlap,
-                fingerprintingConfiguration.TopWavelets);
+                fingerprintConfiguration.Stride,
+                fingerprintConfiguration.FingerprintLength,
+                fingerprintConfiguration.Overlap,
+                fingerprintConfiguration.TopWavelets);
         }
 
         private List<bool[]> CreateFingerprintsFromLogSpectrum(float[][] logarithmizedSpectrum, IStride stride, int fingerprintLength, int overlap, int topWavelets)

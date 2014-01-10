@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
-    using SoundFingerprinting.Query.Configuration;
 
     public interface IQueryFingerprintService
     {

@@ -52,7 +52,7 @@
             return frames;
         }
 
-        public float[][] CreateLogSpectrogram(float[] samples, IFingerprintingConfiguration configuration)
+        public float[][] CreateLogSpectrogram(float[] samples, IFingerprintConfiguration configuration)
         {
             if (configuration.NormalizeSignal)
             {
@@ -116,7 +116,7 @@
             return sumFreq;
         }
 
-        private int[] GenerateLogFrequenciesDynamicBase(IFingerprintingConfiguration configuration)
+        private int[] GenerateLogFrequenciesDynamicBase(IFingerprintConfiguration configuration)
         {
             double logBase =
                 Math.Exp(
@@ -141,7 +141,7 @@
         /// <returns>
         /// Log indexes
         /// </returns>
-        private int[] GenerateLogFrequencies(IFingerprintingConfiguration configuration)
+        private int[] GenerateLogFrequencies(IFingerprintConfiguration configuration)
         {
             if (configuration.UseDynamicLogBase)
             {
@@ -151,7 +151,7 @@
             return GenerateStaticLogFrequencies(configuration);
         }
 
-        private int[] GenerateStaticLogFrequencies(IFingerprintingConfiguration configuration)
+        private int[] GenerateStaticLogFrequencies(IFingerprintConfiguration configuration)
         {
             double logMin = Math.Log(configuration.MinFrequency, configuration.LogBase);
             double logMax = Math.Log(configuration.MaxFrequency, configuration.LogBase);

@@ -3,12 +3,12 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
-    using SoundFingerprinting.Query.Configuration;
 
     public class QueryFingerprintService : IQueryFingerprintService
     {

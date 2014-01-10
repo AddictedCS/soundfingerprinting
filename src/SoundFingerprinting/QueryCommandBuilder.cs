@@ -1,28 +1,29 @@
 ﻿namespace SoundFingerprinting
 {
+    using SoundFingerprinting.Command;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
 
-    public class FingerprintQueryBuilder : IFingerprintQueryBuilder
+    public class QueryCommandBuilder : IQueryCommandBuilder
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
 
-        public FingerprintQueryBuilder()
+        public QueryCommandBuilder()
             : this(DependencyResolver.Current.Get<IFingerprintCommandBuilder>(), DependencyResolver.Current.Get<IQueryFingerprintService>())
         {
             // no op
         }
 
-        public FingerprintQueryBuilder(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
+        public QueryCommandBuilder(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
         }
 
-        public IQuerySource BuildQuery()
+        public IQuerySource BuildQueryCommand()
         {
-            return new FingerprintingQueryCommand(fingerprintCommandBuilder, queryFingerprintService);
+            return new QueryCommand(fingerprintCommandBuilder, queryFingerprintService);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Query.Configuration
+﻿namespace SoundFingerprinting.Configuration
 {
     public class QueryConfiguration : IQueryConfiguration
     {

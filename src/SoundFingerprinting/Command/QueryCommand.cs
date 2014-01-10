@@ -1,13 +1,12 @@
-﻿namespace SoundFingerprinting.Query
+﻿namespace SoundFingerprinting.Command
 {
     using System;
     using System.Threading.Tasks;
 
-    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Query.Configuration;
+    using SoundFingerprinting.Query;
 
-    internal sealed class FingerprintingQueryCommand : IQuerySource, IWithQueryConfiguration, IWithQueryAndFingerprintConfiguration, IFingerprintQueryCommand
+    internal sealed class QueryCommand : IQuerySource, IWithQueryAndFingerprintConfiguration, IQueryCommand
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
@@ -16,7 +15,7 @@
         private Func<IFingerprintCommand> createFingerprintMethod;
         private IQueryConfiguration queryConfiguration;
 
-        public FingerprintingQueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
+        public QueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
@@ -40,34 +39,33 @@
             return this;
         }
 
-        public IFingerprintQueryCommand WithConfigurations(IFingerprintingConfiguration fingerprintingConfiguration, IQueryConfiguration configuration)
+        public IQueryCommand WithConfigs(IFingerprintConfiguration fingerprintConfiguration, IQueryConfiguration configuration)
         {
             queryConfiguration = configuration;
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithAlgorithmConfiguration(fingerprintingConfiguration);
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithFingerprintConfig(fingerprintConfiguration);
             return this;
         }
 
-        public IFingerprintQueryCommand WithConfigurations<T1, T2>() where T1 : IFingerprintingConfiguration, new() where T2 : IQueryConfiguration, new()
+        public IQueryCommand WithConfigs<T1, T2>() where T1 : IFingerprintConfiguration, new() where T2 : IQueryConfiguration, new()
         {
             queryConfiguration = new T2();
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithAlgorithmConfiguration<T1>();
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithFingerprintConfig<T1>();
             return this;
         }
 
-        public IFingerprintQueryCommand WithCustomConfigurations(
-            Action<CustomFingerprintingConfiguration> fingerprintingConfigurationTransformation, Action<CustomQueryConfiguration> queryConfigurationTransformation)
+        public IQueryCommand WithConfigs(Action<CustomFingerprintConfiguration> fingerprintConfig, Action<CustomQueryConfiguration> queryConfig)
         {
             CustomQueryConfiguration customQueryConfiguration = new CustomQueryConfiguration();
             queryConfiguration = customQueryConfiguration;
-            queryConfigurationTransformation(customQueryConfiguration);
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithCustomAlgorithmConfiguration(fingerprintingConfigurationTransformation);
+            queryConfig(customQueryConfiguration);
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithFingerprintConfig(fingerprintConfig);
             return this;
         }
 
-        public IFingerprintQueryCommand WithDefaultConfigurations()
+        public IQueryCommand WithDefaultConfigs()
         {
             queryConfiguration = new DefaultQueryConfiguration();
-            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithDefaultAlgorithmConfiguration();
+            createFingerprintMethod = () => fingerprintingMethodFromSelector().WithDefaultFingerprintConfig();
             return this;
         }
 
@@ -76,12 +74,6 @@
             return createFingerprintMethod()
                                      .Hash()
                                      .ContinueWith(task => queryFingerprintService.Query(task.Result, queryConfiguration), TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        public IFingerprintQueryCommand WithQueryConfiguration(IQueryConfiguration configuration)
-        {
-            queryConfiguration = configuration;
-            return this;
         }
     }
 }

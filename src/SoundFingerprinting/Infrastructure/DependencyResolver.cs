@@ -45,7 +45,7 @@
                 kernel.Bind<IFingerprintService>().To<FingerprintService>();
                 kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
-                kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
+                kernel.Bind<IFingerprintConfiguration>().To<DefaultFingerprintConfiguration>();
                 kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
 
@@ -73,7 +73,7 @@
                 kernel.Bind<IPermutations>().To<DefaultPermutations>();
                 
                 kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
-                kernel.Bind<IFingerprintQueryBuilder>().To<FingerprintQueryBuilder>();
+                kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
                 kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
             }
 

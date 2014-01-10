@@ -1,7 +1,7 @@
 namespace SoundFingerprinting
 {
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Command;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Infrastructure;

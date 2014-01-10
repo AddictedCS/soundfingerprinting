@@ -7,15 +7,15 @@
 
     using Moq;
 
-    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Command;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
-    using SoundFingerprinting.Query.Configuration;
 
     [TestClass]
     public class FingerprintQueryBuilderTest : AbstractTest
     {
-        private FingerprintQueryBuilder fingerprintQueryBuilder;
+        private QueryCommandBuilder queryCommandBuilder;
 
         private Mock<IFingerprintCommandBuilder> fingerprintCommandBuilder;
         private Mock<IQueryFingerprintService> queryFingerprintService;
@@ -34,7 +34,7 @@
             fingerprintCommand = new Mock<IFingerprintCommand>(MockBehavior.Strict);
             queryFingerprintService = new Mock<IQueryFingerprintService>(MockBehavior.Strict);
             
-            fingerprintQueryBuilder = new FingerprintQueryBuilder(fingerprintCommandBuilder.Object, queryFingerprintService.Object);
+            queryCommandBuilder = new QueryCommandBuilder(fingerprintCommandBuilder.Object, queryFingerprintService.Object);
         }
 
         [TestCleanup]
@@ -55,13 +55,13 @@
             List<HashData> hashDatas = new List<HashData>(new[] { new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets) });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithDefaultAlgorithmConfiguration()).Returns(fingerprintCommand.Object);
+            withAlgorithConfiguration.Setup(config => config.WithDefaultFingerprintConfig()).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
             queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);
 
-            QueryResult queryResult = fingerprintQueryBuilder.BuildQuery()
+            QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
                                    .From(PathToFile)
-                                   .WithDefaultConfigurations()
+                                   .WithDefaultConfigs()
                                    .Query()
                                    .Result;
 
@@ -78,13 +78,13 @@
             List<HashData> hashDatas = new List<HashData>(new[] { new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets) });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithDefaultAlgorithmConfiguration()).Returns(fingerprintCommand.Object);
+            withAlgorithConfiguration.Setup(config => config.WithDefaultFingerprintConfig()).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
             queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);
 
-            QueryResult queryResult = fingerprintQueryBuilder.BuildQuery()
+            QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
                                    .From(PathToFile, SecondsToQuery, StartAtSecond)
-                                   .WithDefaultConfigurations()
+                                   .WithDefaultConfigs()
                                    .Query()
                                    .Result;
 

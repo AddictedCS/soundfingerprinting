@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Configuration
 {
     using SoundFingerprinting.Strides;
     
-    public interface IFingerprintingConfiguration
+    public interface IFingerprintConfiguration
     {
         /// <summary>
         ///   Gets number of samples to read in order to create single signature.

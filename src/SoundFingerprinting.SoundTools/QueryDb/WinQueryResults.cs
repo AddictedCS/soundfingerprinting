@@ -37,7 +37,7 @@
         private readonly IStride queryStride;
         private readonly ITagService tagService;
         private readonly IModelService modelService;
-        private readonly IFingerprintQueryBuilder fingerprintQueryBuilder;
+        private readonly IQueryCommandBuilder queryCommandBuilder;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         private bool stopQuerying;
@@ -51,7 +51,7 @@
             IStride queryStride,
             ITagService tagService,
             IModelService modelService,
-            IFingerprintQueryBuilder fingerprintQueryBuilder)
+            IQueryCommandBuilder queryCommandBuilder)
         {
             InitializeComponent();
             Icon = Resources.Sound;
@@ -63,7 +63,7 @@
             this.threshold = threshold;
             this.tagService = tagService;
             this.modelService = modelService;
-            this.fingerprintQueryBuilder = fingerprintQueryBuilder;
+            this.queryCommandBuilder = queryCommandBuilder;
 
             // ReSharper disable PossibleNullReferenceException
             _dgvResults.Columns.Add(ColSongName, "Initial Song");
@@ -145,9 +145,9 @@
                         }
 
                         var queryResult =
-                            fingerprintQueryBuilder.BuildQuery()
+                            queryCommandBuilder.BuildQueryCommand()
                                                    .From(pathToFile, secondsToAnalyze, startSecond)
-                                                   .WithCustomConfigurations(
+                                                   .WithConfigs(
                                                         fingerprintConfig =>
                                                         {
                                                             fingerprintConfig.Stride = samplesToSkip;
@@ -219,9 +219,9 @@
         {
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-            fingerprintQueryBuilder.BuildQuery()
+            queryCommandBuilder.BuildQueryCommand()
                                    .From(samples)
-                                   .WithCustomConfigurations(
+                                   .WithConfigs(
                                         fingerprintConfig =>
                                         {
                                             fingerprintConfig.Stride = samplesToSkip;

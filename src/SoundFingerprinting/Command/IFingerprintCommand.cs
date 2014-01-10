@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.Builder
+namespace SoundFingerprinting.Command
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -8,7 +8,7 @@ namespace SoundFingerprinting.Builder
 
     public interface IFingerprintCommand
     {
-        IFingerprintingConfiguration Configuration { get; }
+        IFingerprintConfiguration FingerprintConfiguration { get; }
 
         Task<List<bool[]>> Fingerprint();
 

@@ -2,9 +2,9 @@ namespace SoundFingerprinting.Configuration
 {
     using SoundFingerprinting.Strides;
     
-    public class DefaultFingerprintingConfiguration : IFingerprintingConfiguration
+    public class DefaultFingerprintConfiguration : IFingerprintConfiguration
     {
-        public DefaultFingerprintingConfiguration()
+        public DefaultFingerprintConfiguration()
         {
             FingerprintLength = 128;
             Overlap = 64;
