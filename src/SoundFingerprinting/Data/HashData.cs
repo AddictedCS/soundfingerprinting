@@ -1,7 +1,15 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System;
+
+    [Serializable]
     public class HashData
     {
+        public HashData()
+        {
+            // no op
+        }
+
         public HashData(byte[] subFingerprint, long[] hashBins)
         {
             SubFingerprint = subFingerprint;

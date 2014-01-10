@@ -2,6 +2,8 @@
 {
     using System;
 
+    using SoundFingerprinting.Dao;
+
     [Serializable]
     public class TrackData
     {
@@ -38,6 +40,7 @@
 
         public int TrackLengthSec { get; set; }
 
+        [IgnoreBinding]
         public ITrackReference TrackReference { get; set; }
 
         public override bool Equals(object obj)

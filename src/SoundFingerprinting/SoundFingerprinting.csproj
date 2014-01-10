@@ -64,6 +64,7 @@
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
+    <Compile Include="Dao\IgnoreBindingAttribute.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
     <Compile Include="Data\ISubFingerprintReference.cs" />

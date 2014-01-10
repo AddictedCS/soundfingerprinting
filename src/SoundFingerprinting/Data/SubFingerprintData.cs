@@ -2,6 +2,8 @@
 {
     using System;
 
+    using SoundFingerprinting.Dao;
+
     [Serializable]
     public class SubFingerprintData
     {
@@ -19,8 +21,10 @@
 
         public byte[] Signature { get; set; }
 
+        [IgnoreBinding]
         public ISubFingerprintReference SubFingerprintReference { get; set; }
 
+        [IgnoreBinding]
         public ITrackReference TrackReference { get; set; }
 
         public override bool Equals(object obj)

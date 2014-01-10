@@ -1,7 +1,17 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System;
+
+    using SoundFingerprinting.Dao;
+
+    [Serializable]
     public class HashBinData
     {
+        public HashBinData()
+        {
+            // no op    
+        }
+
         public HashBinData(int hashTable, long hashBin)
         {
             HashTable = hashTable;
@@ -14,10 +24,12 @@
             SubFingerprintReference = subFingerprintReference;
         }
 
-        public int HashTable { get; private set; }
+        [IgnoreBinding]
+        public int HashTable { get; set; }
 
-        public long HashBin { get; private set; }
+        public long HashBin { get; set; }
 
-        public ISubFingerprintReference SubFingerprintReference { get; private set; }
+        [IgnoreBinding]
+        public ISubFingerprintReference SubFingerprintReference { get; set; }
     }
 }

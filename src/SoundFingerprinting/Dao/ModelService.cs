@@ -43,7 +43,10 @@
 
         public ITrackReference InsertTrack(TrackData track)
         {
-            return new RDBMSTrackReference(trackDao.Insert(track));
+            int id = trackDao.Insert(track);
+            var trackReference = new RDBMSTrackReference(id);
+            track.TrackReference = trackReference;
+            return trackReference;
         }
 
         public void InsertHashDataForTrack(IEnumerable<HashData> hashes, ITrackReference trackReference)
