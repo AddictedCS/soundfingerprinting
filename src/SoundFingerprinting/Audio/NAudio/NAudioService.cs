@@ -13,6 +13,11 @@
         private IWavePlayer waveOutDevice;
         private WaveStream mainOutputStream;
 
+        ~NAudioService()
+        {
+            Dispose(false);
+        }
+
         public bool IsRecordingSupported
         {
             get
@@ -27,11 +32,6 @@
             {
                 return NAudioSupportedFormats;
             }
-        }
-
-        public override void Dispose()
-        {
-            throw new NotImplementedException();
         }
         
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
@@ -135,6 +135,25 @@
         public float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
             throw new NotImplementedException();
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                // dispose managed resources
+                if (waveOutDevice != null)
+                {
+                    waveOutDevice.Dispose();
+                }
+
+                if (mainOutputStream != null)
+                {
+                    mainOutputStream.Dispose();
+                }
+            }
+
+            // release unmanaged resources
         }
 
         private WaveStream CreateInputStream(string fileName)
