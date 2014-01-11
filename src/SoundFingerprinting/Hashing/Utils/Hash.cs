@@ -6,7 +6,7 @@
     /// <summary>
     ///   Hash class used in hashing purposes (projection hash with random permutations used)
     /// </summary>
-    public class Hash
+    public class Hash : IDisposable
     {
         /// <summary>
         ///   Lock object for multithreading purposes
@@ -22,6 +22,11 @@
         ///   Matrix of random projection values
         /// </summary>
         private int[][] randomMatrix;
+
+        ~Hash()
+        {
+            Dispose(false);
+        }
 
         /// <summary>
         ///   Get a random matrix for projection purposes
@@ -72,6 +77,20 @@
             }
 
             return hashes;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                rng.Dispose();
+            }
         }
 
         /// <summary>
