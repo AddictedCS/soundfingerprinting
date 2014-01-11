@@ -36,7 +36,7 @@
             }
         }
 
-        private class DefaultDependencyResolver : IDependencyResolver
+        private sealed class DefaultDependencyResolver : IDependencyResolver, IDisposable
         {
             private readonly IKernel kernel;
 
@@ -76,6 +76,11 @@
                 kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
                 kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
                 kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
+            }
+
+            ~DefaultDependencyResolver()
+            {
+                Dispose(false);
             }
 
             public object GetService(Type serviceType)
@@ -118,13 +123,27 @@
                 }
             }
 
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void Dispose(bool isDisposing)
+            {
+                if (isDisposing)
+                {
+                    kernel.Dispose();
+                }
+            }
+
             private void RemoveBindingsForType(Type type)
             {
                 foreach (var binding in kernel.GetBindings(type))
                 {
                     kernel.RemoveBinding(binding);
                 }
-            }
+            }   
         }
     }
 }
