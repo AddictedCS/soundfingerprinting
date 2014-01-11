@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.FFT.FFTW.X64
+﻿namespace SoundFingerprinting.FFT.FFTW.X86
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -11,21 +11,21 @@
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1612:ElementParameterDocumentationMustMatchElementParameters", Justification = "Reviewed. Suppression is OK here.")]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1625:ElementDocumentationMustNotBeCopiedAndPasted", Justification = "Reviewed. Suppression is OK here.")]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1615:ElementReturnValueMustBeDocumented", Justification = "Reviewed. Suppression is OK here.")]
-    internal class InteropFFTWF
+    internal class FFTWFNativeMethods
     {
         /// <summary>
         /// Allocates FFTW-optimized unmanaged memory
         /// </summary>
         /// <param name="length">Amount to allocate, in bytes</param>
         /// <returns>Pointer to allocated memory</returns>
-        [DllImport(@"x64\libfftw3f-3.dll", EntryPoint = "fftwf_malloc", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"x86\libfftw3f-3.dll", EntryPoint = "fftwf_malloc", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr malloc(int length);
 
         /// <summary>
         /// Deallocates memory allocated by FFTW malloc
         /// </summary>
         /// <param name="mem">Pointer to memory to release</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_free",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern void free(IntPtr mem);
@@ -34,7 +34,7 @@
         /// Deallocates an FFTW plan and all associated resources
         /// </summary>
         /// <param name="plan">Pointer to the plan to release</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_destroy_plan",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern void destroy_plan(IntPtr plan);
@@ -46,7 +46,7 @@
         /// attempt to execute them nor to destroy them. You can however create and execute/destroy new plans, 
         /// in which case FFTW starts accumulating wisdom information again. 
         /// fftw_cleanup does not deallocate your plans; you should still call fftw_destroy_plan for this purpose.</remarks>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_cleanup",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern void cleanup();
@@ -63,7 +63,7 @@
         /// permitting) in Patient. If InteropFFTWFlags.Exhaustive is specified instead, the planner will further progress to 
         /// Exhaustive mode. 
         /// </remarks>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_set_timelimit",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern void set_timelimit(double seconds);
@@ -73,7 +73,7 @@
         /// </summary>
         /// <param name="plan">Pointer to the plan to execute</param>
         /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_execute",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern void execute(IntPtr plan);
@@ -86,7 +86,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_1d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_1d(int n, IntPtr input, IntPtr output, InteropFFTWDirection direction, InteropFFTWFlags flags);
@@ -100,7 +100,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_2d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_2d(int nx, int ny, IntPtr input, IntPtr output, InteropFFTWDirection direction, InteropFFTWFlags flags);
@@ -115,7 +115,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_3d", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_3d(int nx, int ny, int nz, IntPtr input, IntPtr output, InteropFFTWDirection direction, InteropFFTWFlags flags);
 
@@ -128,7 +128,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft(int rank, int[] n, IntPtr input, IntPtr output, InteropFFTWDirection direction, InteropFFTWFlags flags);
 
@@ -139,7 +139,7 @@
         /// <param name="input">Pointer to an array of 4-byte real numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll", EntryPoint = "fftwf_plan_dft_r2c_1d", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"x86\libfftw3f-3.dll", EntryPoint = "fftwf_plan_dft_r2c_1d", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_r2c_1d(int n, IntPtr input, IntPtr output, InteropFFTWFlags flags);
 
         /// <summary>
@@ -150,7 +150,7 @@
         /// <param name="input">Pointer to an array of 4-byte real numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_r2c_2d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_r2c_2d(int nx, int ny, IntPtr input, IntPtr output, InteropFFTWFlags flags);
@@ -164,7 +164,7 @@
         /// <param name="input">Pointer to an array of 4-byte real numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_r2c_3d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_r2c_3d(int nx, int ny, int nz, IntPtr input, IntPtr output, InteropFFTWFlags flags);
@@ -177,7 +177,7 @@
         /// <param name="input">Pointer to an array of 4-byte real numbers</param>
         /// <param name="output">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_r2c",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_r2c(int rank, int[] n, IntPtr input, IntPtr output, InteropFFTWFlags flags);
@@ -189,7 +189,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 4-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_c2r_1d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_c2r_1d(int n, IntPtr input, IntPtr output, InteropFFTWFlags flags);
@@ -202,7 +202,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 4-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_c2r_2d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_c2r_2d(int nx, int ny, IntPtr input, IntPtr output, InteropFFTWFlags flags);
@@ -216,7 +216,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 4-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_c2r_3d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_c2r_3d(int nx, int ny, int nz, IntPtr input, IntPtr output, InteropFFTWFlags flags);
@@ -229,7 +229,7 @@
         /// <param name="input">Pointer to an array of 8-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 4-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_dft_c2r",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr dft_c2r(int rank, int[] n, IntPtr input, IntPtr output, InteropFFTWFlags flags);
@@ -242,7 +242,7 @@
         /// <param name="output">Pointer to an array of 4-byte real numbers</param>
         /// <param name="kind">The kind of real-to-real transform to compute</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_r2r_1d",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr r2r_1d(int n, IntPtr input, IntPtr output, InteropFFTWKind kind, InteropFFTWFlags flags);
@@ -257,7 +257,7 @@
         /// <param name="kindx">The kind of real-to-real transform to compute along the first dimension</param>
         /// <param name="kindy">The kind of real-to-real transform to compute along the second dimension</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_r2r_2d", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr r2r_2d(int nx, int ny, IntPtr input, IntPtr output, InteropFFTWKind kindx, InteropFFTWKind kindy, InteropFFTWFlags flags);
 
@@ -273,7 +273,7 @@
         /// <param name="kindy">The kind of real-to-real transform to compute along the second dimension</param>
         /// <param name="kindz">The kind of real-to-real transform to compute along the third dimension</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_r2r_3d", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr r2r_3d(
             int nx, int ny, int nz, IntPtr input, IntPtr output, InteropFFTWKind kindx, InteropFFTWKind kindy, InteropFFTWKind kindz, InteropFFTWFlags flags);
@@ -287,7 +287,7 @@
         /// <param name="output">Pointer to an array of 4-byte real numbers</param>
         /// <param name="kind">An array containing the kind of real-to-real transform to compute along each dimension</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_plan_r2r", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr r2r(int rank, int[] n, IntPtr input, IntPtr output, InteropFFTWKind[] kind, InteropFFTWFlags flags);
 
@@ -299,7 +299,7 @@
         /// <param name="mul">Reference to double to hold number of muls</param>
         /// <param name="fma">Reference to double to hold number of fmas (fused multiply-add)</param>
         /// <remarks>Total flops ~= add+mul+2*fma or add+mul+fma if fma is supported</remarks>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_flops",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern void flops(IntPtr plan, ref double add, ref double mul, ref double fma);
@@ -308,7 +308,7 @@
         /// Outputs a "nerd-readable" version of the specified plan to stdout
         /// </summary>
         /// <param name="plan">The plan to output</param>
-        [DllImport(@"x64\libfftw3f-3.dll",
+        [DllImport(@"x86\libfftw3f-3.dll",
              EntryPoint = "fftwf_print_plan",
              ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         public static extern void print_plan(IntPtr plan);
