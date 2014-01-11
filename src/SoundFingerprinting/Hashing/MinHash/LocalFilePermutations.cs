@@ -5,7 +5,7 @@
     using System.Globalization;
     using System.IO;
 
-    public class LocalPermutations : IPermutations
+    public class LocalFilePermutations : IPermutations
     {
         private readonly string pathToPermutations;
 
@@ -13,7 +13,7 @@
 
         private int[][] permutations;
         
-        public LocalPermutations(string pathToPermutations, string separator)
+        public LocalFilePermutations(string pathToPermutations, string separator)
         {
             this.pathToPermutations = pathToPermutations;
             this.separator = separator;

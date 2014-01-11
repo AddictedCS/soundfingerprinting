@@ -8,7 +8,7 @@
     using SoundFingerprinting.Wavelets;
 
     [TestClass]
-    public class HaarWaveletTest : AbstractTest
+    public class StandardHaarWaveletDecompositionTest : AbstractTest
     {
         private IWaveletDecomposition waveletDecomposition;
 
@@ -19,7 +19,7 @@
         }
 
         [TestMethod]
-        public void ComputeHaarWaveletsTest()
+        public void StandardDecompositionTest()
         {
             const int Rows = 128;
             const int Cols = 32;

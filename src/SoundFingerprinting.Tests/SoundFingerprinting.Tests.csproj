@@ -70,17 +70,21 @@
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\Dao\ModelServiceTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
+    <Compile Include="Unit\Hashing\CombinedHashingAlgorithmTest.cs" />
+    <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
+    <Compile Include="Unit\Hashing\MinHash\DatabasePermutationsTest.cs" />
+    <Compile Include="Unit\Hashing\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Integration\Builder\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
     <Compile Include="Unit\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />
-    <Compile Include="Unit\Utils\FingerprintUtilsTest.cs" />
     <Compile Include="Unit\Utils\AbsComparatorTest.cs" />
-    <Compile Include="Unit\Wavelets\HaarWaveletTest.cs" />
+    <Compile Include="Unit\Wavelets\StandardHaarWaveletDecompositionTest.cs" />
     <Compile Include="Unit\Infrastructure\DependencyResolverTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtilities.cs" />
+    <Compile Include="Unit\Wavelets\WaveletServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -113,7 +113,6 @@
     <Compile Include="Dao\Internal\TrackDao.cs" />
     <Compile Include="Dao\Internal\TypeRegistry.cs" />
     <Compile Include="Dao\MsSqlDatabaseProviderFactory.cs" />
-    <Compile Include="Dao\Utils\ArrayUtils.cs" />
     <Compile Include="Dao\ModelService.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Utils\ConstantQ\ConstQ.cs" />
@@ -178,7 +177,7 @@
     <Compile Include="Hashing\MinHash\IMinMutualSelector.cs" />
     <Compile Include="Hashing\MinHash\IPermutations.cs" />
     <Compile Include="Hashing\Utils\IPrecisionSupport.cs" />
-    <Compile Include="Hashing\MinHash\LocalPermutations.cs" />
+    <Compile Include="Hashing\MinHash\LocalFilePermutations.cs" />
     <Compile Include="Hashing\MinHash\MinHashService.cs" />
     <Compile Include="Hashing\MinHash\PermutationGeneratorService.cs" />
     <Compile Include="Hashing\Utils\Precision.cs" />
