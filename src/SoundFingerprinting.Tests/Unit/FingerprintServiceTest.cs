@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Fingerprinting
+﻿namespace SoundFingerprinting.Tests.Unit
 {
     using System.Collections.Generic;
 

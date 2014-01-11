@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Fingerprinting.FFT.FFTW
+﻿namespace SoundFingerprinting.Tests.Unit.FFT.FFTW
 {
     using System;
     using System.Runtime.InteropServices;
@@ -31,7 +31,7 @@
         }
 
         [TestMethod]
-        public void FFTAlgorithmCalledSeveralTimesWithCachedFFTPlans()
+        public void FFTWAlgorithmCalledSeveralTimesWithCachedFFTWPlans()
         {
             const int FFTLength = 2048;
             const int NumberOfInvocations = 5;

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Fingerprinting
+﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -14,7 +14,7 @@
     using SoundFingerprinting.Query;
 
     [TestClass]
-    public class FingerprintQueryBuilderTest : AbstractTest
+    public class QueryCommandBuilderTest : AbstractTest
     {
         private QueryCommandBuilder queryCommandBuilder;
 

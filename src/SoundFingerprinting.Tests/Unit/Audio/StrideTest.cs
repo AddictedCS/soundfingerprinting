@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.AudioProxies
+﻿namespace SoundFingerprinting.Tests.Unit.Audio
 {
     using System;
 

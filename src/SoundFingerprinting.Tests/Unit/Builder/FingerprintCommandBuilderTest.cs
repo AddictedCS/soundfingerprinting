@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Fingerprinting
+﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
     using System.Collections.Generic;
 
@@ -145,6 +145,32 @@
             }
 
             audioService.Verify(service => service.ReadMonoFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond));
+        }
+
+        [TestMethod]
+        public void CorrectFingerprintConfigurationIsUsedWithInstanceConfigTest()
+        {
+            const string PathToAudioFile = "path-to-audio-file";
+
+            var configuration = new CustomFingerprintConfiguration { FingerprintLength = 1234 };
+
+            var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
+                                                              .From(PathToAudioFile)
+                                                              .WithFingerprintConfig(configuration);
+
+            Assert.AreEqual(configuration, fingerprintCommand.FingerprintConfiguration);
+            Assert.AreEqual(
+                configuration.FingerprintLength, fingerprintCommand.FingerprintConfiguration.FingerprintLength);
+        }
+
+        [TestMethod]
+        public void CorrectFingerprintConfigurationIsUsedWithTemplateConfigTest()
+        {
+            var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
+                                                              .From("path-to-mp3-file")
+                                                              .WithFingerprintConfig<DefaultFingerprintConfiguration>();
+
+            Assert.IsTrue(fingerprintCommand.FingerprintConfiguration is DefaultFingerprintConfiguration);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Fingerprinting.Utils
+﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
     using System;
     using System.Linq;

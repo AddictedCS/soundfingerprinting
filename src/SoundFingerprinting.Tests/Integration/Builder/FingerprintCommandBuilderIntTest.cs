@@ -1,7 +1,9 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Fingerprinting
+﻿namespace SoundFingerprinting.Tests.Integration.Builder
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -68,7 +70,7 @@
 
             var fingerprints = fingerprinter.Result;
             var hashDatas = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
-                                        .From(PathToMp3)
+                                        .From(fingerprints)
                                         .WithDefaultFingerprintConfig()
                                         .Hash()
                                         .Result;
@@ -81,10 +83,10 @@
         {
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
-            ITagService tagService = new BassAudioService();
+            var tagService = new BassAudioService();
             TagInfo info = tagService.GetTagInfo(PathToMp3);
-            int releaseYear = info.Year;
-            TrackData track = new TrackData(info.ISRC, info.Artist, info.Title, info.Album, releaseYear, (int)info.Duration);
+            TrackData track = new TrackData(
+                info.ISRC, info.Artist, info.Title, info.Album, info.Year, (int)info.Duration);
             var trackReference = modelService.InsertTrack(track);
 
             var hashDatas = fingerprintCommandBuilderWithBass
@@ -93,12 +95,40 @@
                                             .WithDefaultFingerprintConfig()
                                             .Hash()
                                             .Result;
+
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
 
             var queryResult = queryFingerprintService.Query(hashDatas, new DefaultQueryConfiguration());
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual(trackReference.HashCode, queryResult.BestMatch.TrackReference.HashCode);
+        }
+
+        [TestMethod]
+        public void CreateFingerprintsFromFileAndFromAudioSamplesAndGetTheSameResultTest()
+        {
+            const int SecondsToProcess = 20;
+            const int StartAtSecond = 15;
+            using (var audioService = new BassAudioService())
+            {
+                float[] samples = audioService.ReadMonoFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
+
+                var hashDatasFromFile = fingerprintCommandBuilderWithBass
+                                            .BuildFingerprintCommand()
+                                            .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                                            .WithDefaultFingerprintConfig()
+                                            .Hash()
+                                            .Result;
+
+                var hashDatasFromSamples = fingerprintCommandBuilderWithBass
+                                            .BuildFingerprintCommand()
+                                            .From(samples)
+                                            .WithDefaultFingerprintConfig()
+                                            .Hash()
+                                            .Result;
+
+                AssertHashDatasAreTheSame(hashDatasFromFile, hashDatasFromSamples);
+            }
         }
 
         [TestMethod]
@@ -160,6 +190,50 @@
                 long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
                 Assert.AreEqual(expected, list.Count);
                 File.Delete(tempFile);
+            }
+        }
+
+        [TestMethod]
+        public void CreateFingerprintsWithTheSameFingerprintCommandTest()
+        {
+            const int SecondsToProcess = 20;
+            const int StartAtSecond = 15;
+
+            var fingerprintCommand = fingerprintCommandBuilderWithBass
+                                            .BuildFingerprintCommand()
+                                            .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                                            .WithDefaultFingerprintConfig();
+            
+            var firstHashDatas = fingerprintCommand.Hash().Result;
+            var secondHashDatas = fingerprintCommand.Hash().Result;
+
+            AssertHashDatasAreTheSame(firstHashDatas, secondHashDatas);
+        }
+
+        private List<HashData> SortHashesByFirstValueOfHashBin(IEnumerable<HashData> hashDatasFromFile)
+        {
+            return hashDatasFromFile.OrderBy(hashData => hashData.HashBins[0]).ToList();
+        }
+
+        private void AssertHashDatasAreTheSame(List<HashData> firstHashDatas, List<HashData> secondHashDatas)
+        {
+            Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);
+         
+            // hashes are not ordered the same way as parallel computation is involved
+            firstHashDatas = SortHashesByFirstValueOfHashBin(firstHashDatas);
+            secondHashDatas = SortHashesByFirstValueOfHashBin(secondHashDatas);
+
+            for (int i = 0; i < firstHashDatas.Count; i++)
+            {
+                for (int j = 0; j < firstHashDatas[i].SubFingerprint.Length; j++)
+                {
+                    Assert.AreEqual(firstHashDatas[i].SubFingerprint[j], secondHashDatas[i].SubFingerprint[j]);
+                }
+
+                for (int j = 0; j < firstHashDatas[i].HashBins.Length; j++)
+                {
+                    Assert.AreEqual(firstHashDatas[i].HashBins[j], secondHashDatas[i].HashBins[j]);
+                }
             }
         }
     }

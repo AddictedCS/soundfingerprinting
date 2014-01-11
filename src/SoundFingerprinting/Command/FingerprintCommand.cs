@@ -64,6 +64,12 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
+        public IWithFingerprintConfiguration From(IEnumerable<bool[]> fingerprints)
+        {
+            createFingerprintsMethod = fingerprints.ToList;
+            return this;
+        }
+
         public IWithFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
             createFingerprintsMethod = () =>
