@@ -1,9 +1,8 @@
 ﻿namespace SoundFingerprinting.FFT.FFTW
 {
     using System;
-    using System.Runtime.InteropServices;
 
-    public abstract class FFTWService : IFFTService
+    public abstract class FFTWService : IFFTService, IDisposable
     {
         public abstract float[] FFTForward(float[] signal, int startIndex, int length);
 
@@ -18,5 +17,13 @@
         public abstract void FreePlan(IntPtr fftPlan);
 
         public abstract void Execute(IntPtr fftPlan);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected abstract void Dispose(bool isDisposing);
     }
 }

@@ -53,5 +53,15 @@
         {
             InteropFFTW.execute(fftPlan);
         }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                // release managed resources
+            }
+
+            // release unmanaged resources
+        }
     }
 }
