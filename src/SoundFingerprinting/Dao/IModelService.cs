@@ -21,7 +21,5 @@ namespace SoundFingerprinting.Dao
         int DeleteTrack(ITrackReference trackReference);
 
         IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold);
-
-        int[][] ReadPermutationsForLSHAlgorithm();
     }
 }

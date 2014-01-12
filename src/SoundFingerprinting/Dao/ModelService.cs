@@ -16,8 +16,6 @@
 
         private readonly SubFingerprintDao subFingerprintDao;
 
-        private readonly PermutationsDao permutationsDao;
-
         public ModelService()
             : this(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>())
         {
@@ -28,17 +26,11 @@
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
             hashBinDao = new HashBinDao(databaseProviderFactory, modelBinderFactory);
             subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
-            permutationsDao = new PermutationsDao(databaseProviderFactory, modelBinderFactory);
         }
 
         public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
             return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold).ToList();
-        }
-
-        public int[][] ReadPermutationsForLSHAlgorithm()
-        {
-            return permutationsDao.ReadPermutationsForLSHAlgorithm();
         }
 
         public ITrackReference InsertTrack(TrackData track)

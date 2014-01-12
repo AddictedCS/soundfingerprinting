@@ -72,7 +72,6 @@
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\Hashing\CombinedHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
-    <Compile Include="Unit\Hashing\MinHash\DatabasePermutationsTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Integration\Builder\FingerprintCommandBuilderIntTest.cs" />
