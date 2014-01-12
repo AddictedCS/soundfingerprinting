@@ -47,18 +47,22 @@
             if (hammingSimilarities.Any())
             {
                 var topMatches = hammingSimilarities.OrderBy(pair => pair.Value).Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult);
-                List<ResultData> resultSet = topMatches.Select(match => new ResultData { Track = modelService.ReadTrackById(match.Key), Similarity = match.Value }).ToList();
+                List<ResultEntry> resultSet = topMatches.Select(match => new ResultEntry { Track = modelService.ReadTrackByReference(match.Key), Similarity = match.Value }).ToList();
 
                 return new QueryResult
                            {
-                               BestMatch = modelService.ReadTrackByReference(bestMatch.Key),
+                               Results = resultSet,
                                IsSuccessful = true,
-                               Similarity = bestMatch.Value,
-                               NumberOfCandidates = hammingSimilarities.Count
+                               TotalNumberOfAnalyzedCandidates = hammingSimilarities.Count
                            };
             }
 
-            return new QueryResult();
+            return new QueryResult
+                {
+                    Results = Enumerable.Empty<ResultEntry>().ToList(),
+                    IsSuccessful = false,
+                    TotalNumberOfAnalyzedCandidates = 0
+                };
         }
     }
 }

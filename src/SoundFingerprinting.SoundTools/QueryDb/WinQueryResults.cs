@@ -186,7 +186,7 @@
                         }
 
                         verified++;
-                        TrackData recognizedTrack = queryResult.BestMatch;
+                        TrackData recognizedTrack = queryResult.Results[0].Track;
                         bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.HashCode == actualTrack.TrackReference.HashCode;
                         if (isSuccessful)
                         {
@@ -244,7 +244,7 @@
                                                 return;
                                             }
 
-                                            TrackData recognizedTrack = queryResult.Results[0].BestMatch;
+                                            TrackData recognizedTrack = queryResult.Results[0].Track;
                                             recognized++;
                                             verified++;
 

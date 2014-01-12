@@ -101,7 +101,8 @@
             var queryResult = queryFingerprintService.Query(hashDatas, new DefaultQueryConfiguration());
 
             Assert.IsTrue(queryResult.IsSuccessful);
-            Assert.AreEqual(trackReference.HashCode, queryResult.BestMatch.TrackReference.HashCode);
+            Assert.AreEqual(1, queryResult.Results.Count);
+            Assert.AreEqual(trackReference.HashCode, queryResult.Results[0].Track.TrackReference.HashCode);
         }
 
         [TestMethod]

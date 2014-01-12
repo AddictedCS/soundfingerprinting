@@ -79,7 +79,7 @@
     <Compile Include="FFT\FFTW\X64\FFTWNativeMethods.cs" />
     <Compile Include="FFT\FFTW\X64\FFTWFNativeMethods.cs" />
     <Compile Include="Hashing\MinHash\DefaultPermutations.cs" />
-    <Compile Include="Query\ResultData.cs" />
+    <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
     <Compile Include="Strides\IStride.cs" />
@@ -197,7 +197,7 @@
     <Compile Include="IQueryFingerprintService.cs" />
     <Compile Include="Configuration\QueryConfiguration.cs" />
     <Compile Include="QueryFingerprintService.cs" />
-    <Compile Include="QueryResult.cs" />
+    <Compile Include="Query\QueryResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

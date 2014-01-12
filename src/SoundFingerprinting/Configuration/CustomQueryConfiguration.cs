@@ -4,9 +4,13 @@
     {
         public CustomQueryConfiguration()
         {
-            ThresholdVotes = new DefaultQueryConfiguration().ThresholdVotes;
+            var defaultQueryConfig = new DefaultQueryConfiguration();
+            ThresholdVotes = defaultQueryConfig.ThresholdVotes;
+            MaximumNumberOfTracksToReturnAsResult = defaultQueryConfig.MaximumNumberOfTracksToReturnAsResult;
         }
 
         public int ThresholdVotes { get; set; }
+
+        public int MaximumNumberOfTracksToReturnAsResult { get; set; }
     }
 }
