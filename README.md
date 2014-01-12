@@ -3,9 +3,8 @@
 Soundfingerprinting is a C# framework designed for developers and researchers in the fields of audio processing, data mining, digital signal processing.  It implements an efficient algorithm of signal processing which will allow one to have a competent system of audio fingerprinting and signal recognition.
 
 ## Documentation
-See the [Wiki page](https://github.com/AddictedCS/soundfingerprinting/wiki) for the operational details and information 
 
-Following is a code sample that shows how to generate sub-fingerprints from an audio file. The sub-fingerprints will be stored in a backend and used later by the algorithm to recognize unknown snippets of audio. The interfaces for fingerprinting and querying the stream have been implemented as [FluentInterface](http://martinfowler.com/bliki/FluentInterface.html) with Builder and Command patterns in mind.
+Following is a code sample that shows how to generate sub-fingerprints from an audio file. The sub-fingerprints will be stored in the backend and used later by the algorithm to recognize unknown snippets of audio. The interfaces for fingerprinting and querying the stream have been implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) with [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns in mind.
 ```csharp
 private readonly IModelService modelService = new ModelService();
 private readonly IFingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
@@ -25,7 +24,7 @@ public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToA
                                 .Hash()
                                 .Result;
 								
-    // store sub-fingerprints and hash representation in the underlying database 
+    // store sub-fingerprints and its hash representation in the database 
     modelService.InsertHashDataForTrack(hashDatas, trackReference);
 }
 ```
@@ -40,7 +39,7 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     int secondsToAnalyze = 10; // number of seconds to analyze from query file
     int startAtSecond = 0; // start at the begining
 	
-    // query the underlying database for similary audio sub-fingerprints
+    // query the underlying database for similar audio sub-fingerprints
     var queryResult = queryCommandBuilder.BuildQueryCommand()
                                          .From(queryAudioFile, secondsToAnalyze, startAtSecond)
                                          .WithDefaultConfigs()
@@ -54,13 +53,41 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     return null; // no match has been found
 }
 ```
-The code is still in pre-release phase, thus the signatures of the above used classes might change.
+The code is still in active development phase, thus the signatures of the above used classes might change.
+See the [Wiki Page](https://github.com/AddictedCS/soundfingerprinting/wiki) for the operational details and information. 
+
 ### Extension capabilities
-The framework was built with loose coupling in mind thus all components involved in fingerprinting can be easily substituted. If you would like to switch from Bass.NET library to NAudio because of licencing concerns, you can do it by simply binding the interfaces <code>IAudioService</code>, <code>IExtendedAudioService</code> to <code>NAudioService</code> implementation.
+The framework was built with loose coupling in mind thus all components involved in fingerprinting can be easily substituted. If you would like to switch from Bass.Net library to NAudio because of licencing concerns, you can do it by simply binding the interfaces <code>IAudioService</code>, <code>IExtendedAudioService</code> to <code>NAudioService</code> implementation.
 ```csharp
 DependencyResolver.Current.Bind<IAudioService, NAudioService>();
 DependencyResolver.Current.Bind<IExtendedAudioService, NAudioService>();
 ```
+### Algorithm configuration
+Fingerprinting and Querying algorithms can be easily parametrized with corresponding configuration objects passed as parameters on command creation.
+
+```csharp
+ var hashDatas = fingerprintCommandBuilder
+                           .BuildFingerprintCommand()
+                           .From(samples)
+                           .WithFingerprintConfig(
+	                            config =>
+	                            {
+	                                config.TopWavelets = 250; // increase number of top wavelets
+	                                config.Stride = new RandomStride(512, 256); // stride between sub-fingerprints
+	                            })
+                           .Hash()
+                           .Result;
+```
+Each and every configuration parameter can influence the recognition rate, required storage, computational cost, etc. Stick with the defaults, unless you would like to experiment. 
+
+### Third party libraries involved
+Following is the list of third party libraries used by SoundFingerprinting project.
+* [Bass.Net](http://www.un4seen.com/) - used as a default framework for audio processing tasks.
+* [NAudio](http://naudio.codeplex.com/) - can be used as a substitution for Bass.Net. 
+* [FFTW](http://www.fftw.org/) - used as a default framework for FFT algorithm.
+* [Exocortex](http://www.exocortex.org/dsp/) - can be used as a substitution for FFTW.
+* [Encog](http://www.heatonresearch.com/encog) - used by Neural Hasher (which is still under development, and will be released as a separate component). SoundFingerprinting library does not include it in its release.
+* [Ninject](http://www.ninject.org/) - used to take advantage of dependency inversion principle.
 
 ## Binaries
     git clone git@github.com:AddictedCS/soundfingerprinting.git
@@ -70,7 +97,7 @@ In order to build latest version of the <code>SoundFingerprinting</code> assembl
     .\build.cmd
 ### Get it on NuGet
 
-    Install-Package SoundFingerprinting -Pre
+    Install-Package SoundFingerprinting
 
 ## Demo
 My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting)
