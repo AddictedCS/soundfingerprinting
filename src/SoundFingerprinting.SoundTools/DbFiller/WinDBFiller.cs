@@ -452,7 +452,7 @@
                 return modelService.ReadTrackByISRC(isrc) != null;
             }
 
-            return modelService.ReadTrackByArtistAndTitleName(artist, title) != null;
+            return modelService.ReadTrackByArtistAndTitleName(artist, title).Any();
         }
 
         private void FadeAllControls(bool visible)
