@@ -186,7 +186,7 @@
                         }
 
                         verified++;
-                        TrackData recognizedTrack = queryResult.Results[0].Track;
+                        TrackData recognizedTrack = queryResult.BestMatch.Track;
                         bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.HashCode == actualTrack.TrackReference.HashCode;
                         if (isSuccessful)
                         {
@@ -198,7 +198,7 @@
                             new object[]
                                 {
                                     title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist,
-                                    isSuccessful, queryResult.Results[0].Similarity, queryResult.TotalNumberOfAnalyzedCandidates,
+                                    isSuccessful, queryResult.BestMatch.Similarity, queryResult.AnalyzedCandidatesCount,
                                     recognizedTrack.ISRC
                                 },
                             Color.Empty);
@@ -244,7 +244,7 @@
                                                 return;
                                             }
 
-                                            TrackData recognizedTrack = queryResult.Results[0].Track;
+                                            TrackData recognizedTrack = queryResult.BestMatch.Track;
                                             recognized++;
                                             verified++;
 

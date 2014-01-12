@@ -200,7 +200,7 @@
             return data;
         }
 
-        public float[] ReadMonoFromURL(string urlToResource, int sampleRate, int secondsToDownload)
+        public float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload)
         {
             int stream = Bass.BASS_StreamCreateURL(
                 urlToResource, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT, null, IntPtr.Zero);

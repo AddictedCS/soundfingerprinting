@@ -127,7 +127,7 @@
             }
         }
 
-        public float[] ReadMonoFromURL(string urlToResource, int sampleRate, int secondsToDownload)
+        public float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload)
         {
             throw new NotImplementedException("Use Bass.NET");
         }

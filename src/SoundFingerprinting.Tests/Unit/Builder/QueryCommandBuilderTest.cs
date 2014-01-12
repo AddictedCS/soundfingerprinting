@@ -52,7 +52,7 @@
         public void QueryIsBuiltFromFileCorrectly()
         {
             const string PathToFile = "path-to-file";
-            QueryResult dummyResult = new QueryResult { IsSuccessful = true, Results = It.IsAny<List<ResultEntry>>() };
+            QueryResult dummyResult = new QueryResult { IsSuccessful = true, ResultEntries = It.IsAny<List<ResultEntry>>() };
             List<HashData> hashDatas = new List<HashData>(new[] { new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets) });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile)).Returns(withAlgorithConfiguration.Object);
@@ -75,7 +75,7 @@
             const string PathToFile = "path-to-file";
             const int StartAtSecond = 120;
             const int SecondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult { IsSuccessful = true, Results = It.IsAny<List<ResultEntry>>() };
+            QueryResult dummyResult = new QueryResult { IsSuccessful = true, ResultEntries = It.IsAny<List<ResultEntry>>() };
             List<HashData> hashDatas = new List<HashData>(new[] { new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets) });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);

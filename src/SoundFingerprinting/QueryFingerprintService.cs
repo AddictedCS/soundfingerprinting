@@ -51,17 +51,17 @@
 
                 return new QueryResult
                            {
-                               Results = resultSet,
+                               ResultEntries = resultSet,
                                IsSuccessful = true,
-                               TotalNumberOfAnalyzedCandidates = hammingSimilarities.Count
+                               AnalyzedCandidatesCount = hammingSimilarities.Count
                            };
             }
 
             return new QueryResult
                 {
-                    Results = Enumerable.Empty<ResultEntry>().ToList(),
+                    ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
                     IsSuccessful = false,
-                    TotalNumberOfAnalyzedCandidates = 0
+                    AnalyzedCandidatesCount = 0
                 };
         }
     }

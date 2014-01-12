@@ -25,7 +25,7 @@
         /// <param name = "targetSampleRate">Target sample rate</param>
         void RecodeFileToMonoWave(string pathToFile, string outputPathToFile, int targetSampleRate);
 
-        float[] ReadMonoFromURL(string urlToResource, int sampleRate, int secondsToDownload);
+        float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload);
 
         float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord);
     }
