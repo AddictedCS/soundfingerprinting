@@ -25,5 +25,15 @@ namespace SoundFingerprinting.Dao.Internal
             databaseCommand.CommandTimeout = CommandTimeoutInSeconds;
             return new ParameterBinder(connection, databaseCommand, modelBinderFactory);
         }
+
+        public IExecutor PrepareSQLText(string sqlToExecute)
+        {
+            IDbConnection connection = databaseProvider.CreateConnection();
+            IDbCommand databaseCommand = connection.CreateCommand();
+            databaseCommand.CommandText = sqlToExecute;
+            databaseCommand.CommandType = CommandType.Text;
+            databaseCommand.CommandTimeout = CommandTimeoutInSeconds;
+            return new ParameterBinder(connection, databaseCommand, modelBinderFactory).Execute();
+        }
     }
 }

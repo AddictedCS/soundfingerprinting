@@ -4,21 +4,19 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
     public class ModelService : IModelService
     {
-        private readonly FingerprintDao fingerprintDao;
-
         private readonly TrackDao trackDao;
 
-        private readonly HashBinMinHashDao hashBinMinHashDao;
+        private readonly HashBinDao hashBinDao;
 
         private readonly SubFingerprintDao subFingerprintDao;
 
-        private readonly PermutationsDao permutationsDao;
+        private readonly FingerprintDao fingerprintDao;
 
         public ModelService()
             : this(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>())
@@ -28,139 +26,91 @@
         public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
         {
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
-            fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
-            hashBinMinHashDao = new HashBinMinHashDao(databaseProviderFactory, modelBinderFactory);
+            hashBinDao = new HashBinDao(databaseProviderFactory, modelBinderFactory);
             subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
-            permutationsDao = new PermutationsDao(databaseProviderFactory, modelBinderFactory);
+            fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
         }
 
-        public void InsertSubFingerprint(SubFingerprint subFingerprint)
+        public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
-            subFingerprintDao.Insert(subFingerprint);
+            return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold).ToList();
         }
 
-        public void InsertSubFingerprint(IEnumerable<SubFingerprint> subFingerprints)
+        public IModelReference InsertFingerprint(FingerprintData fingerprintData)
         {
-            subFingerprintDao.Insert(subFingerprints);
+            if (!(fingerprintData.TrackReference is SQLModelReference<int>))
+            {
+                throw new NotSupportedException("Cannot insert a non relational reference to relational database");
+            }
+
+            int fingerprintId = fingerprintDao.Insert(fingerprintData.Signature, ((SQLModelReference<int>)fingerprintData.TrackReference).Id);
+            return fingerprintData.FingerprintReference = new SQLModelReference<int>(fingerprintId);
         }
 
-        public int[][] ReadPermutationsForLSHAlgorithm()
-        {
-            return permutationsDao.ReadPermutationsForLSHAlgorithm();
-        }
-
-        public void InsertFingerprint(Fingerprint fingerprint)
-        {
-            fingerprintDao.Insert(fingerprint);
-        }
-
-        public void InsertFingerprint(IEnumerable<Fingerprint> collection)
-        {
-            fingerprintDao.Insert(collection);
-        }
-
-        public void InsertTrack(Track track)
+        public IModelReference InsertTrack(TrackData track)
         {
             trackDao.Insert(track);
+            return track.TrackReference;
         }
 
-        public void InsertTrack(IEnumerable<Track> collection)
+        public void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference)
         {
-            trackDao.Insert(collection);
-        }
-
-        public void InsertHashBin(HashBinMinHash hashBin)
-        {
-            hashBinMinHashDao.Insert(hashBin);
-        }
-
-        public void InsertHashBin(IEnumerable<HashBinMinHash> collection)
-        {
-            foreach (var hashBinMinHash in collection)
+            if (!(trackReference is SQLModelReference<int>))
             {
-                InsertHashBin(hashBinMinHash);
+                throw new NotSupportedException("Cannot insert non relational reference to relational database");
+            }
+
+            foreach (var hashData in hashes)
+            {
+                long subFingerprintId = subFingerprintDao.Insert(
+                    hashData.SubFingerprint, ((SQLModelReference<int>)trackReference).Id);
+                hashBinDao.Insert(hashData.HashBins, subFingerprintId);
             }
         }
 
-        public IEnumerable<HashBinMinHash> ReadAll()
+        public IList<TrackData> ReadAllTracks()
         {
-            return hashBinMinHashDao.ReadAll();
+            return trackDao.ReadAll();
         }
 
-        public IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold)
-        {
-            return hashBinMinHashDao.ReadSubFingerprintsByHashBucketsHavingThreshold(buckets, threshold);
-        }
-
-        public IList<Fingerprint> ReadFingerprints()
-        {
-            return fingerprintDao.Read();
-        }
-
-        public IList<Fingerprint> ReadFingerprintsByTrackId(int trackId, int numberOfFingerprintsToRead)
-        {
-            return fingerprintDao.ReadFingerprintsByTrackId(trackId, numberOfFingerprintsToRead);
-        }
-
-        public IDictionary<int, IList<Fingerprint>> ReadFingerprintsByMultipleTrackId(
-            IEnumerable<Track> tracks, int numberOfFingerprintsToRead)
-        {
-            return fingerprintDao.ReadFingerprintsByMultipleTrackId(tracks, numberOfFingerprintsToRead);
-        }
-
-        public Fingerprint ReadFingerprintById(int id)
-        {
-            return fingerprintDao.ReadById(id);
-        }
-
-        public IList<Fingerprint> ReadFingerprintById(IEnumerable<int> ids)
-        {
-            return fingerprintDao.ReadById(ids);
-        }
-
-        public virtual IList<Track> ReadTracks()
-        {
-            return trackDao.Read();
-        }
-
-        public Track ReadTrackById(int id)
-        {
-            return trackDao.ReadById(id);
-        }
-
-        public Track ReadTrackByArtistAndTitleName(string artist, string title)
+        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return trackDao.ReadTrackByArtistAndTitleName(artist, title);
         }
 
-        public Track ReadTrackByISRC(string isrc)
+        public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
+        {
+            if (!(trackReference is SQLModelReference<int>))
+            {
+                throw new NotSupportedException("Cannot read non relational data from relational database");
+            }
+
+            return fingerprintDao.ReadFingerprintsByTrackId(((SQLModelReference<int>)trackReference).Id);
+        }
+
+        public TrackData ReadTrackByReference(IModelReference trackReference)
+        {
+            if (!(trackReference is SQLModelReference<int>))
+            {
+                throw new NotSupportedException("Cannot read a non relational reference from relational database");
+            }
+
+            return trackDao.ReadById(((SQLModelReference<int>)trackReference).Id);
+        }
+
+        public TrackData ReadTrackByISRC(string isrc)
         {
             return trackDao.ReadTrackByISRC(isrc);
         }
 
-        public IList<Track> ReadTrackByFingerprint(int id)
+        public int DeleteTrack(IModelReference trackReference)
         {
-            return trackDao.ReadTrackByFingerprintId(id);
-        }
+            if (!(trackReference is SQLModelReference<int>))
+            {
+                throw new NotSupportedException("Cannot delete a non relational reference from relational database");
+            }
 
-        public int DeleteTrack(int trackId)
-        {
-            return trackDao.DeleteTrack(trackId);
-        }
-
-        public int DeleteTrack(Track track)
-        {
-            return DeleteTrack(track.Id);
-        }
-
-        public int DeleteTrack(IEnumerable<int> collection)
-        {
-            return collection.Sum(trackId => trackDao.DeleteTrack(trackId));
-        }
-
-        public int DeleteTrack(IEnumerable<Track> collection)
-        {
-            return DeleteTrack(collection.Select(track => track.Id));
+            return trackDao.DeleteTrack(((SQLModelReference<int>)trackReference).Id);
         }
     }
 }

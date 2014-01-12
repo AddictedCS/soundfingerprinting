@@ -51,7 +51,6 @@ namespace SoundFingerprinting.Dao
         }
 
         public DbType GetParameterType<T>()
-            where T : struct
         {
             return databaseTypes[typeof(T)];
         }
@@ -69,6 +68,11 @@ namespace SoundFingerprinting.Dao
 
             foreach (var propertyInfo in properties)
             {
+                if (Attribute.IsDefined(propertyInfo, typeof(IgnoreBindingAttribute)))
+                {
+                    continue;
+                }
+
                 bool isPropStatic = (propertyInfo.CanRead && propertyInfo.GetGetMethod().IsStatic) || (propertyInfo.CanWrite && propertyInfo.GetSetMethod().IsStatic);
 
                 if (isPropStatic)

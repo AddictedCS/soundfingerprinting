@@ -1,8 +1,9 @@
 namespace SoundFingerprinting.Dao.Internal
 {
+    using System;
     using System.Collections.Generic;
 
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
 
     internal class TrackDao : AbstractDao
     {
@@ -10,62 +11,65 @@ namespace SoundFingerprinting.Dao.Internal
         private const string SpReadTracks = "sp_ReadTracks";
         private const string SpReadTrackById = "sp_ReadTrackById";
         private const string SpReadTrackByArtistSongName = "sp_ReadTrackByArtistAndSongName";
-        private const string SpReadTrackByFingerprint = "sp_ReadTrackByFingerprint";
         private const string SpDeleteTrack = "sp_DeleteTrack";
         private const string SpReadTrackByISRC = "sp_ReadTrackISRC";
-        
+
+        private readonly Action<TrackData, IReader> trackReferenceReader = (item, reader) => { item.TrackReference = new SQLModelReference<int>(reader.GetInt32("Id")); };
+
         public TrackDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
         }
 
-        public void Insert(Track track)
+        public int Insert(TrackData track)
         {
-            track.Id = PrepareStoredProcedure(SpInsertTrack).WithParametersFromModel(track).Execute().AsScalar<int>();
+            int id = PrepareStoredProcedure(SpInsertTrack)
+                            .WithParametersFromModel(track)
+                            .Execute()
+                            .AsScalar<int>();
+            var trackReference = new SQLModelReference<int>(id);
+            track.TrackReference = trackReference;
+            return id;
         }
 
-        public void Insert(IEnumerable<Track> collection)
+        public IList<TrackData> ReadAll()
         {
-            foreach (var track in collection)
-            {
-                Insert(track);
-            }
+            return PrepareStoredProcedure(SpReadTracks)
+                        .Execute()
+                        .AsListOfComplexModel(trackReferenceReader);
         }
 
-        public IList<Track> Read()
+        public TrackData ReadById(int id)
         {
-            return PrepareStoredProcedure(SpReadTracks).Execute().AsListOfModel<Track>();
+            return PrepareStoredProcedure(SpReadTrackById)
+                        .WithParameter("Id", id)
+                        .Execute()
+                        .AsComplexModel(trackReferenceReader);
         }
 
-        public Track ReadById(int id)
-        {
-            return PrepareStoredProcedure(SpReadTrackById).WithParameter("Id", id).Execute().AsModel<Track>();
-        }
-
-        public Track ReadTrackByArtistAndTitleName(string artist, string title)
+        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return PrepareStoredProcedure(SpReadTrackByArtistSongName)
                         .WithParameter("Artist", artist)
                         .WithParameter("Title", title)
-                        .Execute().AsModel<Track>();
+                        .Execute()
+                        .AsListOfComplexModel(trackReferenceReader);
         }
 
-        public Track ReadTrackByISRC(string isrc)
+        public TrackData ReadTrackByISRC(string isrc)
         {
             return PrepareStoredProcedure(SpReadTrackByISRC)
                         .WithParameter("ISRC", isrc)
-                        .Execute().AsModel<Track>();
-        }
-
-        public IList<Track> ReadTrackByFingerprintId(int id)
-        {
-            return
-                PrepareStoredProcedure(SpReadTrackByFingerprint).WithParameter("Id", id).Execute().AsListOfModel<Track>();
+                        .Execute()
+                        .AsComplexModel(trackReferenceReader);
         }
 
         public int DeleteTrack(int trackId)
         {
-            return PrepareStoredProcedure(SpDeleteTrack).WithParameter("Id", trackId).Execute().AsNonQuery();
+            return PrepareStoredProcedure(SpDeleteTrack)
+                        .WithParameter("Id", trackId)
+                        .Execute()
+                        .AsNonQuery();
         }
     }
 }

@@ -39,7 +39,7 @@ namespace SoundFingerprinting.Dao.Internal
             return this;
         }
 
-        public IParameterBinder WithParameter<T>(string name, T value) where T : struct
+        public IParameterBinder WithParameter<T>(string name, T value)
         {
             CreateParameter(name, value, modelBinderFactory.GetParameterType<T>());
             return this;

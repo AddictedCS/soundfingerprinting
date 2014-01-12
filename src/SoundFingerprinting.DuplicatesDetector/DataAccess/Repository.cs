@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Runtime.Serialization.Formatters.Binary;
 
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Strides;
@@ -15,7 +16,7 @@
     /// </summary>
     public class Repository
     {
-        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
         private readonly ICombinedHashingAlgoritm combinedHashingAlgorithm;
 
@@ -24,11 +25,11 @@
         /// </summary>
         private readonly IStorage storage;
 
-        public Repository(IFingerprintUnitBuilder fingerprintUnitBuilder, IStorage storage, ICombinedHashingAlgoritm combinedHashingAlgorithm)
+        public Repository(IFingerprintCommandBuilder fingerprintCommandBuilder, IStorage storage, ICombinedHashingAlgoritm combinedHashingAlgorithm)
         {
             this.combinedHashingAlgorithm = combinedHashingAlgorithm;
             this.storage = storage;
-            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
+            this.fingerprintCommandBuilder = fingerprintCommandBuilder;
         }
 
         /// <summary>
@@ -47,12 +48,12 @@
             }
 
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
-            List<bool[]> fingerprints = fingerprintUnitBuilder.BuildAudioFingerprintingUnit()
+            List<bool[]> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                        .From(samples)
-                                                       .WithCustomAlgorithmConfiguration(config => config.Stride = stride)
-                                                       .FingerprintIt()
-                                                       .AsIs()
-                                                       .Result;
+                                                       .WithFingerprintConfig(config => config.Stride = stride)
+                                                       .Fingerprint()
+                                                       .Result
+                                                       .ToList();
 
             storage.InsertTrack(track); /*Insert track into the storage*/
             /*Get signature's hash signature, and associate it to a specific track*/

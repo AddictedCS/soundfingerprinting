@@ -1,59 +1,29 @@
 namespace SoundFingerprinting.Dao
 {
-    using System;
     using System.Collections.Generic;
 
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
 
     public interface IModelService
     {
-        void InsertFingerprint(Fingerprint fingerprint);
+        IModelReference InsertFingerprint(FingerprintData fingerprintData);
 
-        void InsertFingerprint(IEnumerable<Fingerprint> collection);
+        IModelReference InsertTrack(TrackData track);
 
-        void InsertTrack(Track track);
+        void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference);
 
-        void InsertHashBin(HashBinMinHash hashBin);
+        IList<TrackData> ReadAllTracks();
 
-        void InsertHashBin(IEnumerable<HashBinMinHash> collection);
+        IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
-        IList<Fingerprint> ReadFingerprints();
+        IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference);
+            
+        TrackData ReadTrackByReference(IModelReference trackReference);
 
-        IList<Fingerprint> ReadFingerprintsByTrackId(int trackId, int numberOfFingerprintsToRead);
+        TrackData ReadTrackByISRC(string isrc);
 
-        IDictionary<int, IList<Fingerprint>> ReadFingerprintsByMultipleTrackId(
-            IEnumerable<Track> tracks, int numberOfFingerprintsToRead);
+        int DeleteTrack(IModelReference trackReference);
 
-        Fingerprint ReadFingerprintById(int id);
-
-        IList<Fingerprint> ReadFingerprintById(IEnumerable<int> ids);
-
-        IList<Track> ReadTracks();
-
-        Track ReadTrackById(int id);
-
-        Track ReadTrackByArtistAndTitleName(string artist, string title);
-
-        Track ReadTrackByISRC(string isrc);
-
-        IList<Track> ReadTrackByFingerprint(int id);
-
-        int DeleteTrack(int trackId);
-
-        int DeleteTrack(Track track);
-
-        int DeleteTrack(IEnumerable<int> collection);
-
-        int DeleteTrack(IEnumerable<Track> collection);
-
-        IEnumerable<HashBinMinHash> ReadAll();
-
-        IEnumerable<Tuple<SubFingerprint, int>> ReadSubFingerprintsByHashBucketsHavingThreshold(long[] buckets, int threshold);
-
-        void InsertSubFingerprint(SubFingerprint subFingerprint);
-
-        void InsertSubFingerprint(IEnumerable<SubFingerprint> subFingerprints);
-
-        int[][] ReadPermutationsForLSHAlgorithm();
+        IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold);
     }
 }

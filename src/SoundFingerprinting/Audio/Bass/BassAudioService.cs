@@ -92,12 +92,9 @@
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="BassAudioService"/> class.
-        /// </summary>
         ~BassAudioService()
         {
-            Dispose(true);
+            Dispose(false);
         }
 
         public bool IsRecordingSupported
@@ -284,7 +281,6 @@
             using (WaveWriter waveWriter = new WaveWriter(pathToFile, mixerStream, true))
             {
                 waveWriter.Write(samples, samples.Length);
-                waveWriter.Close();
             }
 
             Bass.BASS_StreamFree(mixerStream);
@@ -362,18 +358,13 @@
             return tag;
         }
 
-        public override void Dispose()
-        {
-            Dispose(false);
-            alreadyDisposed = true;
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool isDisposing)
+        protected override void Dispose(bool isDisposing)
         {
             if (!alreadyDisposed)
             {
-                if (!isDisposing)
+                alreadyDisposed = true;
+
+                if (isDisposing)
                 {
                     // release managed resources
                 }

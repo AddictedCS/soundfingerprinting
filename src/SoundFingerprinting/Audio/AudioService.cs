@@ -8,14 +8,20 @@ namespace SoundFingerprinting.Audio
     {
         public abstract IReadOnlyCollection<string> SupportedFormats { get; }
 
-        public abstract void Dispose();
-
         public abstract float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond);
 
         public float[] ReadMonoFromFile(string pathToFile, int sampleRate)
         {
             return ReadMonoFromFile(pathToFile, sampleRate, 0, 0);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected abstract void Dispose(bool isDisposing);
 
         protected float[] ConcatenateChunksOfSamples(List<float[]> chunks)
         {

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("SoundFingerprinting")]
@@ -11,4 +12,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("585f314e-cdad-4c85-a00f-cb4821d158ac")]
-[assembly: AssemblyInformationalVersionAttribute("0.4.4-alpha")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Tests")]
+[assembly: AssemblyInformationalVersionAttribute("0.5.0.0")]
+[assembly: AssemblyVersion("0.5.0.0")]

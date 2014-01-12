@@ -7,6 +7,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.FFT;
@@ -35,7 +36,7 @@
             }
         }
 
-        private class DefaultDependencyResolver : IDependencyResolver
+        private sealed class DefaultDependencyResolver : IDependencyResolver, IDisposable
         {
             private readonly IKernel kernel;
 
@@ -45,7 +46,7 @@
                 kernel.Bind<IFingerprintService>().To<FingerprintService>();
                 kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
-                kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
+                kernel.Bind<IFingerprintConfiguration>().To<DefaultFingerprintConfiguration>();
                 kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>();
 
@@ -58,7 +59,7 @@
                     kernel.Bind<FFTWService>().To<FFTWService86>().WhenInjectedInto<CachedFFTWService>();
                 }
 
-                kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
+                kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
                 kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
                 kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
@@ -73,8 +74,13 @@
                 kernel.Bind<IPermutations>().To<DefaultPermutations>();
                 
                 kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
-                kernel.Bind<IFingerprintQueryBuilder>().To<FingerprintQueryBuilder>();
+                kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
                 kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
+            }
+
+            ~DefaultDependencyResolver()
+            {
+                Dispose(false);
             }
 
             public object GetService(Type serviceType)
@@ -117,13 +123,27 @@
                 }
             }
 
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void Dispose(bool isDisposing)
+            {
+                if (isDisposing)
+                {
+                    kernel.Dispose();
+                }
+            }
+
             private void RemoveBindingsForType(Type type)
             {
                 foreach (var binding in kernel.GetBindings(type))
                 {
                     kernel.RemoveBinding(binding);
                 }
-            }
+            }   
         }
     }
 }

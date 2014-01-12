@@ -14,9 +14,7 @@
     using Encog.Neural.Networks.Training.Propagation.Resilient;
 
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.NeuralHasher.Utils;
-    using SoundFingerprinting.Utils;
 
     /// <summary>
     ///   Training callback
@@ -189,29 +187,7 @@
 
         public Dictionary<int, List<BasicMLData>> GetNormalizedTrackFingerprints(IActivationFunction function, int fingerprintsPerTrack, int outputs)
         {
-            IList<Track> tracks = modelService.ReadTracks();
-            IDictionary<int, IList<Fingerprint>> unnormalized = modelService.ReadFingerprintsByMultipleTrackId(tracks, fingerprintsPerTrack);
-            Dictionary<int, List<BasicMLData>> retVal = new Dictionary<int, List<BasicMLData>>();
-            int neededTracks = (int)Math.Pow(2, outputs);
-            int count = 0;
-
-            FingerprintDescriptor descriptor = new FingerprintDescriptor();
-            foreach (var pair in unnormalized)
-            {
-                retVal.Add(pair.Key, new List<BasicMLData>());
-                foreach (Fingerprint fingerprint in pair.Value)
-                {
-                    retVal[pair.Key].Add(new BasicMLData(NormalizeUtils.NormalizeDesiredInputInPlace(function, descriptor.DecodeFingerprint(fingerprint.Signature))));
-                }
-
-                count++;
-                if (count > neededTracks - 1)
-                {
-                    break;
-                }
-            }
-
-            return retVal;
+            throw new NotImplementedException();
         }
 
         /// <summary>

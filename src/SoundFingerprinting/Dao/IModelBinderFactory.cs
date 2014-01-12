@@ -8,6 +8,6 @@ namespace SoundFingerprinting.Dao
     {
         IModelBinder<TModel> Create<TModel>(params ICondition<TModel>[] conditions) where TModel : new();
 
-        DbType GetParameterType<T>() where T : struct;
+        DbType GetParameterType<T>();
     }
 }

@@ -1,32 +1,38 @@
 ﻿namespace SoundFingerprinting.Dao.Internal
 {
-    using System.Collections.Generic;
-
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
 
     internal class SubFingerprintDao : AbstractDao
     {
         private const string SpInsertSubFingerprint = "sp_InsertSubFingerprint";
+        private const string SpReadSubFingerprintById = "sp_ReadSubFingerprintById";
 
         public SubFingerprintDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {
         }
 
-        public void Insert(SubFingerprint subFingerprint)
+        public SubFingerprintData ReadById(long id)
         {
-            subFingerprint.Id = PrepareStoredProcedure(SpInsertSubFingerprint)
-                                .WithParametersFromModel(subFingerprint)
-                                .Execute()
-                                .AsScalar<long>();
+            return PrepareStoredProcedure(SpReadSubFingerprintById)
+                        .WithParameter("Id", id)
+                        .Execute()
+                        .AsComplexModel<SubFingerprintData>((item, reader) =>
+                            {
+                                long subFingerprintId = reader.GetInt64("Id");
+                                int trackId = reader.GetInt32("TrackId");
+                                item.SubFingerprintReference = new SQLModelReference<long>(subFingerprintId);
+                                item.TrackReference = new SQLModelReference<int>(trackId);
+                            });
         }
 
-        public void Insert(IEnumerable<SubFingerprint> collection)
+        public long Insert(byte[] signature, int trackId)
         {
-            foreach (var subFingerprint in collection)
-            {
-                Insert(subFingerprint);
-            }
+            return PrepareStoredProcedure(SpInsertSubFingerprint)
+                                .WithParameter("Signature", signature)
+                                .WithParameter("TrackId", trackId)
+                                .Execute()
+                                .AsScalar<long>();
         }
     }
 }

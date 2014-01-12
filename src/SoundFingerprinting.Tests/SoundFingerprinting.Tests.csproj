@@ -61,25 +61,30 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration\AbstractIntegrationTest.cs" />
-    <Compile Include="Integration\AudioProxies\BassAudioServiceTest.cs" />
-    <Compile Include="Unit\AudioProxies\StrideTest.cs" />
-    <Compile Include="Integration\AudioProxies\TagServiceTest.cs" />
+    <Compile Include="Integration\Audio\BassAudioServiceTest.cs" />
+    <Compile Include="Integration\Dao\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\HashBinDaoTest.cs" />
+    <Compile Include="Integration\Dao\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\TrackDaoTest.cs" />
+    <Compile Include="Unit\Audio\StrideTest.cs" />
+    <Compile Include="Integration\Audio\TagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />
-    <Compile Include="Integration\DbStorage\ModelServiceTest.cs" />
-    <Compile Include="Unit\Fingerprinting\FFT\FFTW\CachedFFTWServiceTest.cs" />
-    <Compile Include="Unit\Fingerprinting\FingerprintDescriptorTest.cs" />
-    <Compile Include="Integration\Fingerprinting\FingerprintUnitBuilderIntTest.cs" />
-    <Compile Include="Unit\Fingerprinting\FingerprintQueryBuilderTest.cs" />
-    <Compile Include="Unit\Fingerprinting\FingerprintServiceTest.cs" />
-    <Compile Include="Unit\Fingerprinting\FingerprintUnitBuilderTest.cs" />
-    <Compile Include="Unit\Fingerprinting\FingerprintUtilsTest.cs" />
-    <Compile Include="Unit\Fingerprinting\Utils\AbsComparatorTest.cs" />
-    <Compile Include="Unit\Fingerprinting\Utils\FingerprintDescriptorTest.cs" />
-    <Compile Include="Unit\Fingerprinting\Wavelets\HaarWaveletTest.cs" />
+    <Compile Include="Integration\Dao\ModelServiceTest.cs" />
+    <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
+    <Compile Include="Unit\Hashing\CombinedHashingAlgorithmTest.cs" />
+    <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
+    <Compile Include="Unit\Hashing\MinHash\MinHashServiceTest.cs" />
+    <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
+    <Compile Include="Integration\Builder\FingerprintCommandBuilderIntTest.cs" />
+    <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
+    <Compile Include="Unit\FingerprintServiceTest.cs" />
+    <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />
+    <Compile Include="Unit\Utils\AbsComparatorTest.cs" />
+    <Compile Include="Unit\Wavelets\StandardHaarWaveletDecompositionTest.cs" />
     <Compile Include="Unit\Infrastructure\DependencyResolverTest.cs" />
-    <Compile Include="Unit\NeuralHashing\BinaryOutputUtilTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestUtilities.cs" />
+    <Compile Include="Unit\Wavelets\WaveletServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -87,10 +92,6 @@
     <None Include="TestEnvironment\floatsamples.bin" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.NeuralHasher\SoundFingerprinting.NeuralHasher.csproj">
-      <Project>{87cc569e-7d2a-4159-8cc1-dd1b563553f5}</Project>
-      <Name>SoundFingerprinting.NeuralHasher</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>

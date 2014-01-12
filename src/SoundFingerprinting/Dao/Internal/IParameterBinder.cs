@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Dao.Internal
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
 
     using SoundFingerprinting.Dao.Conditions;
@@ -12,7 +11,7 @@ namespace SoundFingerprinting.Dao.Internal
 
         IParameterBinder WithParameter(string name, int value);
 
-        IParameterBinder WithParameter<T>(string name, T value) where T : struct;
+        IParameterBinder WithParameter<T>(string name, T value);
 
         IParameterBinder WithParameter(string name, DateTime value);
 

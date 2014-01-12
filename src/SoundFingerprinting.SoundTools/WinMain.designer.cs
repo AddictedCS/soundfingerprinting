@@ -46,8 +46,6 @@
             this.waveletDecompositionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._gbMain = new System.Windows.Forms.GroupBox();
             this._btnQueryDb = new System.Windows.Forms.Button();
-            this._btnHashFingers = new System.Windows.Forms.Button();
-            this._btnTrainNetworks = new System.Windows.Forms.Button();
             this._btnFillDatabase = new System.Windows.Forms.Button();
             this._msMain.SuspendLayout();
             this._gbMain.SuspendLayout();
@@ -70,13 +68,13 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
             // 
@@ -88,34 +86,30 @@
             this.hashFingerprintsToolStripMenuItem,
             this.queryDatabaseToolStripMenuItem});
             this.fillDatabaseToolStripMenuItem.Name = "fillDatabaseToolStripMenuItem";
-            this.fillDatabaseToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.fillDatabaseToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.fillDatabaseToolStripMenuItem.Text = "Tasks";
             // 
             // fillDatabaseToolStripMenuItem1
             // 
             this.fillDatabaseToolStripMenuItem1.Name = "fillDatabaseToolStripMenuItem1";
-            this.fillDatabaseToolStripMenuItem1.Size = new System.Drawing.Size(167, 22);
+            this.fillDatabaseToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.fillDatabaseToolStripMenuItem1.Text = "Fill Database";
             this.fillDatabaseToolStripMenuItem1.Click += new System.EventHandler(this.FillDatabaseToolStripClick);
             // 
             // trainToolStripMenuItem
             // 
             this.trainToolStripMenuItem.Name = "trainToolStripMenuItem";
-            this.trainToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.trainToolStripMenuItem.Text = "Train Networks";
-            this.trainToolStripMenuItem.Click += new System.EventHandler(TrainToolStripMenuItemClick);
+            this.trainToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             // 
             // hashFingerprintsToolStripMenuItem
             // 
             this.hashFingerprintsToolStripMenuItem.Name = "hashFingerprintsToolStripMenuItem";
-            this.hashFingerprintsToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.hashFingerprintsToolStripMenuItem.Text = "Hash Fingerprints";
-            this.hashFingerprintsToolStripMenuItem.Click += new System.EventHandler(HashFingerprintsToolStripMenuItemClick);
+            this.hashFingerprintsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             // 
             // queryDatabaseToolStripMenuItem
             // 
             this.queryDatabaseToolStripMenuItem.Name = "queryDatabaseToolStripMenuItem";
-            this.queryDatabaseToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.queryDatabaseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.queryDatabaseToolStripMenuItem.Text = "Query database";
             this.queryDatabaseToolStripMenuItem.Click += new System.EventHandler(this.QueryDatabaseToolStripClick);
             // 
@@ -130,66 +124,64 @@
             this.similarityCalculationToolStripMenuItem,
             this.waveletDecompositionToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
             // 
             // minHashPermGeneratorToolStripMenuItem
             // 
             this.minHashPermGeneratorToolStripMenuItem.Name = "minHashPermGeneratorToolStripMenuItem";
-            this.minHashPermGeneratorToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.minHashPermGeneratorToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.minHashPermGeneratorToolStripMenuItem.Text = "Min-Hash perm generator";
             this.minHashPermGeneratorToolStripMenuItem.Click += new System.EventHandler(this.MinHashPermGeneratorToolStripClick);
             // 
             // audioToolToolStripMenuItem
             // 
             this.audioToolToolStripMenuItem.Name = "audioToolToolStripMenuItem";
-            this.audioToolToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.audioToolToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.audioToolToolStripMenuItem.Text = "Drawning Tool";
-            this.audioToolToolStripMenuItem.Click += new System.EventHandler(AudioToolToolStripMenuItemClick);
+            this.audioToolToolStripMenuItem.Click += new System.EventHandler(this.AudioToolToolStripMenuItemClick);
             // 
             // randomPermutationToolStripMenuItem
             // 
             this.randomPermutationToolStripMenuItem.Name = "randomPermutationToolStripMenuItem";
-            this.randomPermutationToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.randomPermutationToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.randomPermutationToolStripMenuItem.Text = "Random file permutation";
-            this.randomPermutationToolStripMenuItem.Click += new System.EventHandler(RandomPermutationToolStripMenuItemClick);
+            this.randomPermutationToolStripMenuItem.Click += new System.EventHandler(this.RandomPermutationToolStripMenuItemClick);
             // 
             // fFMpegResamplerToolStripMenuItem
             // 
             this.fFMpegResamplerToolStripMenuItem.Name = "fFMpegResamplerToolStripMenuItem";
-            this.fFMpegResamplerToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.fFMpegResamplerToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.fFMpegResamplerToolStripMenuItem.Text = "FFMpeg Resampler";
-            this.fFMpegResamplerToolStripMenuItem.Click += new System.EventHandler(FFMpegResamplerToolStripMenuItemClick);
+            this.fFMpegResamplerToolStripMenuItem.Click += new System.EventHandler(this.FFMpegResamplerToolStripMenuItemClick);
             // 
             // bassResamplerToolStripMenuItem
             // 
             this.bassResamplerToolStripMenuItem.Name = "bassResamplerToolStripMenuItem";
-            this.bassResamplerToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.bassResamplerToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.bassResamplerToolStripMenuItem.Text = "Bass Resampler";
-            this.bassResamplerToolStripMenuItem.Click += new System.EventHandler(BassResamplerToolStripMenuItemClick);
+            this.bassResamplerToolStripMenuItem.Click += new System.EventHandler(this.BassResamplerToolStripMenuItemClick);
             // 
             // similarityCalculationToolStripMenuItem
             // 
             this.similarityCalculationToolStripMenuItem.Name = "similarityCalculationToolStripMenuItem";
-            this.similarityCalculationToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.similarityCalculationToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.similarityCalculationToolStripMenuItem.Text = "Similarity calculation";
-            this.similarityCalculationToolStripMenuItem.Click += new System.EventHandler(SimilarityCalculationToolStripMenuItemClick);
+            this.similarityCalculationToolStripMenuItem.Click += new System.EventHandler(this.SimilarityCalculationToolStripMenuItemClick);
             // 
             // waveletDecompositionToolStripMenuItem
             // 
             this.waveletDecompositionToolStripMenuItem.Name = "waveletDecompositionToolStripMenuItem";
-            this.waveletDecompositionToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.waveletDecompositionToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.waveletDecompositionToolStripMenuItem.Text = "Wavelet decomposition";
-            this.waveletDecompositionToolStripMenuItem.Click += new System.EventHandler(WaveletDecompositionToolStripMenuItemClick);
+            this.waveletDecompositionToolStripMenuItem.Click += new System.EventHandler(this.WaveletDecompositionToolStripMenuItemClick);
             // 
             // _gbMain
             // 
-            this._gbMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this._gbMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._gbMain.Controls.Add(this._btnQueryDb);
-            this._gbMain.Controls.Add(this._btnHashFingers);
-            this._gbMain.Controls.Add(this._btnTrainNetworks);
             this._gbMain.Controls.Add(this._btnFillDatabase);
             this._gbMain.Location = new System.Drawing.Point(12, 27);
             this._gbMain.Name = "_gbMain";
@@ -200,7 +192,7 @@
             // 
             // _btnQueryDb
             // 
-            this._btnQueryDb.Location = new System.Drawing.Point(39, 49);
+            this._btnQueryDb.Location = new System.Drawing.Point(39, 87);
             this._btnQueryDb.Name = "_btnQueryDb";
             this._btnQueryDb.Size = new System.Drawing.Size(145, 23);
             this._btnQueryDb.TabIndex = 3;
@@ -208,29 +200,9 @@
             this._btnQueryDb.UseVisualStyleBackColor = true;
             this._btnQueryDb.Click += new System.EventHandler(this.BtnQueryDbClick);
             // 
-            // _btnHashFingers
-            // 
-            this._btnHashFingers.Location = new System.Drawing.Point(39, 107);
-            this._btnHashFingers.Name = "_btnHashFingers";
-            this._btnHashFingers.Size = new System.Drawing.Size(145, 23);
-            this._btnHashFingers.TabIndex = 2;
-            this._btnHashFingers.Text = "Hash fingerprints";
-            this._btnHashFingers.UseVisualStyleBackColor = true;
-            this._btnHashFingers.Click += new System.EventHandler(BtnHashFingersClick);
-            // 
-            // _btnTrainNetworks
-            // 
-            this._btnTrainNetworks.Location = new System.Drawing.Point(39, 78);
-            this._btnTrainNetworks.Name = "_btnTrainNetworks";
-            this._btnTrainNetworks.Size = new System.Drawing.Size(146, 23);
-            this._btnTrainNetworks.TabIndex = 1;
-            this._btnTrainNetworks.Text = "Train Networks";
-            this._btnTrainNetworks.UseVisualStyleBackColor = true;
-            this._btnTrainNetworks.Click += new System.EventHandler(BtnTrainNetworksClick);
-            // 
             // _btnFillDatabase
             // 
-            this._btnFillDatabase.Location = new System.Drawing.Point(39, 19);
+            this._btnFillDatabase.Location = new System.Drawing.Point(39, 58);
             this._btnFillDatabase.Name = "_btnFillDatabase";
             this._btnFillDatabase.Size = new System.Drawing.Size(146, 23);
             this._btnFillDatabase.TabIndex = 0;
@@ -272,8 +244,6 @@
         private System.Windows.Forms.ToolStripMenuItem fFMpegResamplerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem audioToolToolStripMenuItem;
         private System.Windows.Forms.GroupBox _gbMain;
-        private System.Windows.Forms.Button _btnHashFingers;
-        private System.Windows.Forms.Button _btnTrainNetworks;
         private System.Windows.Forms.Button _btnFillDatabase;
         private System.Windows.Forms.ToolStripMenuItem queryDatabaseToolStripMenuItem;
         private System.Windows.Forms.Button _btnQueryDb;
