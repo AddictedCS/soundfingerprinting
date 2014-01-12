@@ -54,8 +54,13 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     return null; // no match has been found
 }
 ```
-
 The code is still in pre-release phase, thus the signatures of the above used classes might change.
+### Extension capabilities
+The framework was built with loose coupling in mind thus all components involved in fingerprinting can be easily substituted. If you would like to switch from Bass.NET library to NAudio because of licencing concerns, you can do it by simply binding the interfaces <code>IAudioService</code>, <code>IExtendedAudioService</code> to <code>NAudioService</code> implementation.
+```csharp
+DependencyResolver.Current.Bind<IAudioService, NAudioService>();
+DependencyResolver.Current.Bind<IExtendedAudioService, NAudioService>();
+```
 
 ## Binaries
     git clone git@github.com:AddictedCS/soundfingerprinting.git
