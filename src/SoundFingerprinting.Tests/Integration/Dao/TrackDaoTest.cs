@@ -52,8 +52,8 @@
             trackDao.Insert(track);
 
             Assert.IsFalse(track.TrackReference.HashCode == 0);
-            Assert.IsTrue(track.TrackReference is RDBMSTrackReference);
-            Assert.IsFalse(((RDBMSTrackReference)track.TrackReference).Id == 0);
+            Assert.IsTrue(track.TrackReference is SQLModelReference<int>);
+            Assert.IsFalse(((SQLModelReference<int>)track.TrackReference).Id == 0);
         }
 
         [TestMethod]

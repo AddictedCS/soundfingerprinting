@@ -38,8 +38,8 @@ namespace SoundFingerprinting.Dao.Internal
                             return new FingerprintData
                                 {
                                     Signature = GetBoolArrayFromByte(byteSignature),
-                                    FingerprintReference = new RDBMSFingerprintReference(fingerprintId),
-                                    TrackReference = new RDBMSTrackReference(dbTrackId)
+                                    FingerprintReference = new SQLModelReference<int>(fingerprintId),
+                                    TrackReference = new SQLModelReference<int>(dbTrackId)
                                 };
                         });
         }

@@ -21,8 +21,8 @@
                             {
                                 long subFingerprintId = reader.GetInt64("Id");
                                 int trackId = reader.GetInt32("TrackId");
-                                item.SubFingerprintReference = new RDBMSSubFingerprintReference(subFingerprintId);
-                                item.TrackReference = new RDBMSTrackReference(trackId);
+                                item.SubFingerprintReference = new SQLModelReference<long>(subFingerprintId);
+                                item.TrackReference = new SQLModelReference<int>(trackId);
                             });
         }
 

@@ -12,7 +12,7 @@
             // no op
         }
 
-        public SubFingerprintData(byte[] signature, ISubFingerprintReference subFingerprintReference, ITrackReference trackReference)
+        public SubFingerprintData(byte[] signature, IModelReference subFingerprintReference, IModelReference trackReference)
         {
             Signature = signature;
             SubFingerprintReference = subFingerprintReference;
@@ -22,10 +22,10 @@
         public byte[] Signature { get; set; }
 
         [IgnoreBinding]
-        public ISubFingerprintReference SubFingerprintReference { get; set; }
+        public IModelReference SubFingerprintReference { get; set; }
 
         [IgnoreBinding]
-        public ITrackReference TrackReference { get; set; }
+        public IModelReference TrackReference { get; set; }
 
         public override bool Equals(object obj)
         {

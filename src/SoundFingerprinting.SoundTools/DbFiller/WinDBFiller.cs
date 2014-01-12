@@ -379,7 +379,7 @@
                     continue;
                 }
 
-                ITrackReference trackReference;
+                IModelReference trackReference;
                 try
                 {
                     lock (this)

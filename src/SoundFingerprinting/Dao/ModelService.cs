@@ -36,26 +36,26 @@
             return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold).ToList();
         }
 
-        public IFingerprintReference InsertFingerprint(FingerprintData fingerprintData)
+        public IModelReference InsertFingerprint(FingerprintData fingerprintData)
         {
-            if (!(fingerprintData.TrackReference is RDBMSTrackReference))
+            if (!(fingerprintData.TrackReference is SQLModelReference<int>))
             {
                 throw new NotSupportedException("Cannot insert a non relational reference to relational database");
             }
 
-            int fingerprintId = fingerprintDao.Insert(fingerprintData.Signature, ((RDBMSTrackReference)fingerprintData.TrackReference).Id);
-            return fingerprintData.FingerprintReference = new RDBMSFingerprintReference(fingerprintId);
+            int fingerprintId = fingerprintDao.Insert(fingerprintData.Signature, ((SQLModelReference<int>)fingerprintData.TrackReference).Id);
+            return fingerprintData.FingerprintReference = new SQLModelReference<int>(fingerprintId);
         }
 
-        public ITrackReference InsertTrack(TrackData track)
+        public IModelReference InsertTrack(TrackData track)
         {
             trackDao.Insert(track);
             return track.TrackReference;
         }
 
-        public void InsertHashDataForTrack(IEnumerable<HashData> hashes, ITrackReference trackReference)
+        public void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference)
         {
-            if (!(trackReference is RDBMSTrackReference))
+            if (!(trackReference is SQLModelReference<int>))
             {
                 throw new NotSupportedException("Cannot insert non relational reference to relational database");
             }
@@ -63,7 +63,7 @@
             foreach (var hashData in hashes)
             {
                 long subFingerprintId = subFingerprintDao.Insert(
-                    hashData.SubFingerprint, ((RDBMSTrackReference)trackReference).Id);
+                    hashData.SubFingerprint, ((SQLModelReference<int>)trackReference).Id);
                 hashBinDao.Insert(hashData.HashBins, subFingerprintId);
             }
         }
@@ -78,24 +78,24 @@
             return trackDao.ReadTrackByArtistAndTitleName(artist, title);
         }
 
-        public IList<FingerprintData> ReadFingerprintsByTrackReference(ITrackReference trackReference)
+        public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
-            if (!(trackReference is RDBMSTrackReference))
+            if (!(trackReference is SQLModelReference<int>))
             {
                 throw new NotSupportedException("Cannot read non relational data from relational database");
             }
 
-            return fingerprintDao.ReadFingerprintsByTrackId(((RDBMSTrackReference)trackReference).Id);
+            return fingerprintDao.ReadFingerprintsByTrackId(((SQLModelReference<int>)trackReference).Id);
         }
 
-        public TrackData ReadTrackByReference(ITrackReference trackReference)
+        public TrackData ReadTrackByReference(IModelReference trackReference)
         {
-            if (!(trackReference is RDBMSTrackReference))
+            if (!(trackReference is SQLModelReference<int>))
             {
                 throw new NotSupportedException("Cannot read a non relational reference from relational database");
             }
 
-            return trackDao.ReadById(((RDBMSTrackReference)trackReference).Id);
+            return trackDao.ReadById(((SQLModelReference<int>)trackReference).Id);
         }
 
         public TrackData ReadTrackByISRC(string isrc)
@@ -103,14 +103,14 @@
             return trackDao.ReadTrackByISRC(isrc);
         }
 
-        public int DeleteTrack(ITrackReference trackReference)
+        public int DeleteTrack(IModelReference trackReference)
         {
-            if (!(trackReference is RDBMSTrackReference))
+            if (!(trackReference is SQLModelReference<int>))
             {
                 throw new NotSupportedException("Cannot delete a non relational reference from relational database");
             }
 
-            return trackDao.DeleteTrack(((RDBMSTrackReference)trackReference).Id);
+            return trackDao.DeleteTrack(((SQLModelReference<int>)trackReference).Id);
         }
     }
 }

@@ -6,23 +6,23 @@ namespace SoundFingerprinting.Dao
 
     public interface IModelService
     {
-        IFingerprintReference InsertFingerprint(FingerprintData fingerprintData);
+        IModelReference InsertFingerprint(FingerprintData fingerprintData);
 
-        ITrackReference InsertTrack(TrackData track);
+        IModelReference InsertTrack(TrackData track);
 
-        void InsertHashDataForTrack(IEnumerable<HashData> hashes, ITrackReference trackReference);
+        void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference);
 
         IList<TrackData> ReadAllTracks();
 
         IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
-        IList<FingerprintData> ReadFingerprintsByTrackReference(ITrackReference trackReference);
+        IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference);
             
-        TrackData ReadTrackByReference(ITrackReference trackReference);
+        TrackData ReadTrackByReference(IModelReference trackReference);
 
         TrackData ReadTrackByISRC(string isrc);
 
-        int DeleteTrack(ITrackReference trackReference);
+        int DeleteTrack(IModelReference trackReference);
 
         IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold);
     }

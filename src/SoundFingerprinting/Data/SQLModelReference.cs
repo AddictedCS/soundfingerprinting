@@ -1,19 +1,19 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    internal class RDBMSFingerprintReference : IFingerprintReference
+    internal class SQLModelReference<T> : IModelReference
     {
-        public RDBMSFingerprintReference(int id)
+        public SQLModelReference(T id)
         {
             Id = id;
         }
 
-        public int Id { get; private set; }
+        public T Id { get; private set; }
 
         public int HashCode
         {
             get
             {
-                return Id;
+                return Id.GetHashCode();
             }
         }
     }

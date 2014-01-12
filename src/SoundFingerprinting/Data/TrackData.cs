@@ -22,7 +22,7 @@
             TrackLengthSec = trackLength;
         }
 
-        public TrackData(string isrc, string artist, string title, string album, int releaseYear, int trackLength, ITrackReference trackReference)
+        public TrackData(string isrc, string artist, string title, string album, int releaseYear, int trackLength, IModelReference trackReference)
             : this(isrc, artist, title, album, releaseYear, trackLength)
         {
             TrackReference = trackReference;
@@ -41,7 +41,7 @@
         public int TrackLengthSec { get; set; }
 
         [IgnoreBinding]
-        public ITrackReference TrackReference { get; set; }
+        public IModelReference TrackReference { get; set; }
 
         public override bool Equals(object obj)
         {

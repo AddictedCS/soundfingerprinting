@@ -26,7 +26,7 @@
 
         public QueryResult Query(IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
         {
-            Dictionary<ITrackReference, int> hammingSimilarities = new Dictionary<ITrackReference, int>();
+            Dictionary<IModelReference, int> hammingSimilarities = new Dictionary<IModelReference, int>();
             foreach (var hash in hashes)
             {
                 var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);

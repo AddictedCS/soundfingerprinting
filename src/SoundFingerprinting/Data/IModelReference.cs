@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    public interface ISubFingerprintReference
+    public interface IModelReference
     {
         int HashCode { get; }
     }

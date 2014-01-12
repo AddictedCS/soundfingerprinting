@@ -12,7 +12,7 @@
             // no op
         }
 
-        public FingerprintData(bool[] signature, ITrackReference trackReference)
+        public FingerprintData(bool[] signature, IModelReference trackReference)
         {
             Signature = signature;
             TrackReference = trackReference;
@@ -22,9 +22,9 @@
         public bool[] Signature { get; set; }
 
         [IgnoreBinding]
-        public IFingerprintReference FingerprintReference { get; set; }
+        public IModelReference FingerprintReference { get; set; }
 
         [IgnoreBinding]
-        public ITrackReference TrackReference { get; set; }
+        public IModelReference TrackReference { get; set; }
     }
 }

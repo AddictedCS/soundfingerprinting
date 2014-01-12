@@ -70,13 +70,9 @@
     <Compile Include="Data\FingerprintData.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
-    <Compile Include="Data\IFingerprintReference.cs" />
-    <Compile Include="Data\ISubFingerprintReference.cs" />
-    <Compile Include="Data\ITrackReference.cs" />
-    <Compile Include="Data\RDBMSFingerprintReference.cs" />
+    <Compile Include="Data\IModelReference.cs" />
+    <Compile Include="Data\SQLModelReference.cs" />
     <Compile Include="Data\SubFingerprintData.cs" />
-    <Compile Include="Data\RDBMSSubFingerprintReference.cs" />
-    <Compile Include="Data\RDBMSTrackReference.cs" />
     <Compile Include="Data\TrackData.cs" />
     <Compile Include="FFT\FFTW\FFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWService64.cs" />
