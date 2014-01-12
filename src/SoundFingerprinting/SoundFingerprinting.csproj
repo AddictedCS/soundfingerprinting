@@ -66,10 +66,14 @@
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
     <Compile Include="Dao\IgnoreBindingAttribute.cs" />
+    <Compile Include="Dao\Internal\FingerprintDao.cs" />
+    <Compile Include="Data\FingerprintData.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
+    <Compile Include="Data\IFingerprintReference.cs" />
     <Compile Include="Data\ISubFingerprintReference.cs" />
     <Compile Include="Data\ITrackReference.cs" />
+    <Compile Include="Data\RDBMSFingerprintReference.cs" />
     <Compile Include="Data\SubFingerprintData.cs" />
     <Compile Include="Data\RDBMSSubFingerprintReference.cs" />
     <Compile Include="Data\RDBMSTrackReference.cs" />

@@ -59,8 +59,33 @@ BEGIN
 	DROP TABLE Fingerprints
 END
 GO
+CREATE TABLE Fingerprints
+(
+	Id INT IDENTITY(1,1) NOT NULL,
+	Signature VARBINARY(4096) NOT NULL,
+	TrackId INT NOT NULL,
+	CONSTRAINT PK_FingerprintsId PRIMARY KEY(Id),
+	CONSTRAINT FK_Fingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
+)
+GO
+-- INSERT A FINGERPRINT INTO FINGERPRINTS TABLE USED BY NEURAL HASHER
 IF OBJECT_ID('sp_InsertFingerprint','P') IS NOT NULL
 	DROP PROCEDURE sp_InsertFingerprint
+GO
+CREATE PROCEDURE sp_InsertFingerprint
+	@Signature VARBINARY(4096),
+	@TrackId INT
+AS
+BEGIN
+INSERT INTO Fingerprints (
+	Signature,
+	TrackId
+	) OUTPUT inserted.Id
+VALUES
+(
+	@Signature, @TrackId
+);
+END
 GO
 IF OBJECT_ID('sp_ReadFingerprints','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadFingerprints
@@ -70,6 +95,13 @@ IF OBJECT_ID('sp_ReadFingerprintById','P') IS NOT NULL
 GO
 IF OBJECT_ID('sp_ReadFingerprintByTrackId','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadFingerprintByTrackId
+GO
+CREATE PROCEDURE sp_ReadFingerprintByTrackId
+	@TrackId INT
+AS
+BEGIN
+	SELECT * FROM Fingerprints WHERE TrackId = @TrackId
+END
 GO
 IF OBJECT_ID('sp_ReadTrackByFingerprint','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadTrackByFingerprint

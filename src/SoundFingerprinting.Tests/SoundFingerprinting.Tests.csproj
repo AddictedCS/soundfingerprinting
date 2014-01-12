@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Integration\AbstractIntegrationTest.cs" />
     <Compile Include="Integration\Audio\BassAudioServiceTest.cs" />
+    <Compile Include="Integration\Dao\FingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\HashBinDaoTest.cs" />
     <Compile Include="Integration\Dao\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\TrackDaoTest.cs" />

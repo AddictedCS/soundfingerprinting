@@ -34,6 +34,16 @@ CREATE TABLE SubFingerprints
 	CONSTRAINT FK_SubFingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
+-- TABLE FOR FINGERPRINTS (NEURAL NASHER)
+CREATE TABLE Fingerprints
+(
+	Id INT IDENTITY(1,1) NOT NULL,
+	Signature VARBINARY(4096) NOT NULL,
+	TrackId INT NOT NULL,
+	CONSTRAINT PK_FingerprintsId PRIMARY KEY(Id),
+	CONSTRAINT FK_Fingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
+)
+GO
 CREATE TABLE HashTable_1
 (
 	HashBin BIGINT NOT NULL,								    
@@ -210,6 +220,8 @@ CREATE TABLE HashTable_25
 )
 GO
 -- TABLE INDEXES
+CREATE INDEX IX_TrackIdLookup ON Fingerprints(TrackId) 
+GO
 CREATE INDEX IX_TrackIdLookupOnSubfingerprints ON SubFingerprints(TrackId) 
 GO
 -- INSERT A TRACK INTO TRACKS TABLE
@@ -256,6 +268,25 @@ VALUES
 );
 END
 GO
+-- INSERT A FINGERPRINT INTO FINGERPRINTS TABLE USED BY NEURAL HASHER
+IF OBJECT_ID('sp_InsertFingerprint','P') IS NOT NULL
+	DROP PROCEDURE sp_InsertFingerprint
+GO
+CREATE PROCEDURE sp_InsertFingerprint
+	@Signature VARBINARY(4096),
+	@TrackId INT
+AS
+BEGIN
+INSERT INTO Fingerprints (
+	Signature,
+	TrackId
+	) OUTPUT inserted.Id
+VALUES
+(
+	@Signature, @TrackId
+);
+END
+GO
 -- READ ALL TRACKS FROM THE DATABASE
 IF OBJECT_ID('sp_ReadTracks','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadTracks
@@ -264,7 +295,6 @@ CREATE PROCEDURE sp_ReadTracks
 AS
 SELECT * FROM Tracks
 GO
-
 -- READ A TRACK BY ITS IDENTIFIER
 IF OBJECT_ID('sp_ReadTrackById','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadTrackById
@@ -284,6 +314,18 @@ AS
 BEGIN
 	SELECT * FROM SubFingerprints WHERE Id = @Id
 END
+GO
+-- READ FINGERPRINTS BY TRACK ID
+IF OBJECT_ID('sp_ReadFingerprintByTrackId','P') IS NOT NULL
+	DROP PROCEDURE sp_ReadFingerprintByTrackId
+GO
+CREATE PROCEDURE sp_ReadFingerprintByTrackId
+	@TrackId INT
+AS
+BEGIN
+	SELECT * FROM Fingerprints WHERE TrackId = @TrackId
+END
+GO
 --- ------------------------------------------------------------------------------------------------------------
 --- READ HASHBINS BY HASHBINS AND THRESHOLD TABLE
 --- ADDED 20.10.2013 CIUMAC SERGIU

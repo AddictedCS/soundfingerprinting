@@ -6,6 +6,8 @@ namespace SoundFingerprinting.Dao
 
     public interface IModelService
     {
+        IFingerprintReference InsertFingerprint(FingerprintData fingerprintData);
+
         ITrackReference InsertTrack(TrackData track);
 
         void InsertHashDataForTrack(IEnumerable<HashData> hashes, ITrackReference trackReference);
@@ -14,6 +16,8 @@ namespace SoundFingerprinting.Dao
 
         IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
+        IList<FingerprintData> ReadFingerprintsByTrackReference(ITrackReference trackReference);
+            
         TrackData ReadTrackByReference(ITrackReference trackReference);
 
         TrackData ReadTrackByISRC(string isrc);

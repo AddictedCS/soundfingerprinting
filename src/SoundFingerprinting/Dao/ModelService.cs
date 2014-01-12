@@ -16,6 +16,8 @@
 
         private readonly SubFingerprintDao subFingerprintDao;
 
+        private readonly FingerprintDao fingerprintDao;
+
         public ModelService()
             : this(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>())
         {
@@ -26,11 +28,23 @@
             trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
             hashBinDao = new HashBinDao(databaseProviderFactory, modelBinderFactory);
             subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
+            fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
         }
 
         public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
             return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold).ToList();
+        }
+
+        public IFingerprintReference InsertFingerprint(FingerprintData fingerprintData)
+        {
+            if (!(fingerprintData.TrackReference is RDBMSTrackReference))
+            {
+                throw new NotSupportedException("Cannot insert a non relational reference to relational database");
+            }
+
+            int fingerprintId = fingerprintDao.Insert(fingerprintData.Signature, ((RDBMSTrackReference)fingerprintData.TrackReference).Id);
+            return fingerprintData.FingerprintReference = new RDBMSFingerprintReference(fingerprintId);
         }
 
         public ITrackReference InsertTrack(TrackData track)
@@ -62,6 +76,16 @@
         public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return trackDao.ReadTrackByArtistAndTitleName(artist, title);
+        }
+
+        public IList<FingerprintData> ReadFingerprintsByTrackReference(ITrackReference trackReference)
+        {
+            if (!(trackReference is RDBMSTrackReference))
+            {
+                throw new NotSupportedException("Cannot read non relational data from relational database");
+            }
+
+            return fingerprintDao.ReadFingerprintsByTrackId(((RDBMSTrackReference)trackReference).Id);
         }
 
         public TrackData ReadTrackByReference(ITrackReference trackReference)
