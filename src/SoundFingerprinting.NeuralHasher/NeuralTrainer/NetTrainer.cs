@@ -14,9 +14,7 @@
     using Encog.Neural.Networks.Training.Propagation.Resilient;
 
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
     using SoundFingerprinting.NeuralHasher.Utils;
-    using SoundFingerprinting.Utils;
 
     /// <summary>
     ///   Training callback
