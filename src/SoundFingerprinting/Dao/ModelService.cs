@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 

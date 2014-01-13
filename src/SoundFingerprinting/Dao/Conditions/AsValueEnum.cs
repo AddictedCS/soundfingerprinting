@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Dao.Conditions
     using System.Reflection;
     using System.Text.RegularExpressions;
 
-    using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Dao.SQL;
 
     public class AsValueEnum<TModel> : ICondition<TModel>
     {

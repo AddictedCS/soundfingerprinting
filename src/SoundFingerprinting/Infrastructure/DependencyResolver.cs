@@ -10,6 +10,8 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.RAM;
+    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.Hashing;
@@ -76,6 +78,10 @@
                 kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
                 kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
                 kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
+
+                kernel.Bind<IRAMStorage>().To<RAMStorage>()
+                                          .InSingletonScope()
+                                          .WithConstructorArgument("numberOfHashTables", new DefaultFingerprintConfiguration().NumberOfLSHTables);
             }
 
             ~DefaultDependencyResolver()

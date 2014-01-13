@@ -3,7 +3,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Internal;
+    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
