@@ -14,7 +14,7 @@ namespace SoundFingerprinting.Dao.Internal
         private const string SpDeleteTrack = "sp_DeleteTrack";
         private const string SpReadTrackByISRC = "sp_ReadTrackISRC";
 
-        private readonly Action<TrackData, IReader> trackReferenceReader = (item, reader) => { item.TrackReference = new SQLModelReference<int>(reader.GetInt32("Id")); };
+        private readonly Action<TrackData, IReader> trackReferenceReader = (item, reader) => { item.TrackReference = new ModelReference<int>(reader.GetInt32("Id")); };
 
         public TrackDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
@@ -27,7 +27,7 @@ namespace SoundFingerprinting.Dao.Internal
                             .WithParametersFromModel(track)
                             .Execute()
                             .AsScalar<int>();
-            var trackReference = new SQLModelReference<int>(id);
+            var trackReference = new ModelReference<int>(id);
             track.TrackReference = trackReference;
             return id;
         }

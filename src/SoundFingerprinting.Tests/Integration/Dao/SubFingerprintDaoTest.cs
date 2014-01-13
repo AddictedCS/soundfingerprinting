@@ -43,8 +43,8 @@
             AsserSubFingerprintsAreEqual(
                 new SubFingerprintData(
                     GenericSignature,
-                    new SQLModelReference<long>(subFingerprintId),
-                    new SQLModelReference<int>(trackId)),
+                    new ModelReference<long>(subFingerprintId),
+                    new ModelReference<int>(trackId)),
                 actual);
         }
 

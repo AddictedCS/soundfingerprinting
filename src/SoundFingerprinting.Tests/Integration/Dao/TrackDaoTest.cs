@@ -52,8 +52,8 @@
             trackDao.Insert(track);
 
             Assert.IsFalse(track.TrackReference.HashCode == 0);
-            Assert.IsTrue(track.TrackReference is SQLModelReference<int>);
-            Assert.IsFalse(((SQLModelReference<int>)track.TrackReference).Id == 0);
+            Assert.IsTrue(track.TrackReference is ModelReference<int>);
+            Assert.IsFalse(((ModelReference<int>)track.TrackReference).Id == 0);
         }
 
         [TestMethod]
@@ -246,16 +246,6 @@
             string artist = methodName + "artist";
             string title = methodName + "title";
             return new TrackData(isrc, artist, title, albumName, 1986, 360);
-        }
-
-        private void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
-        {
-            Assert.AreEqual(expectedTrack.TrackReference.HashCode, actualTrack.TrackReference.HashCode);
-            Assert.AreEqual(expectedTrack.Album, actualTrack.Album);
-            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
-            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
-            Assert.AreEqual(expectedTrack.TrackLengthSec, actualTrack.TrackLengthSec);
-            Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
         }
     }
 }

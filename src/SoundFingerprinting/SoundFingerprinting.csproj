@@ -66,12 +66,15 @@
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
     <Compile Include="Dao\IgnoreBindingAttribute.cs" />
+    <Compile Include="Dao\InMemory\FingerprintStorageDao.cs" />
+    <Compile Include="Dao\InMemory\InMemoryModelService.cs" />
+    <Compile Include="Dao\InMemory\TrackStorageDao.cs" />
     <Compile Include="Dao\Internal\FingerprintDao.cs" />
     <Compile Include="Data\FingerprintData.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
     <Compile Include="Data\IModelReference.cs" />
-    <Compile Include="Data\SQLModelReference.cs" />
+    <Compile Include="Data\ModelReference.cs" />
     <Compile Include="Data\SubFingerprintData.cs" />
     <Compile Include="Data\TrackData.cs" />
     <Compile Include="FFT\FFTW\FFTWService.cs" />

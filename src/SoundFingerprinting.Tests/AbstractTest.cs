@@ -2,6 +2,8 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Data;
+
     [DeploymentItem(@"x86", @"x86")]
     [DeploymentItem(@"x64", @"x64")]
     [DeploymentItem(@"libfftw3-3.dll")]
@@ -48,5 +50,15 @@
                                                          };
 
         protected readonly long[] GenericHashBuckets = new[] { 1L, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
+
+        protected void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
+        {
+            Assert.AreEqual(expectedTrack.TrackReference.HashCode, actualTrack.TrackReference.HashCode);
+            Assert.AreEqual(expectedTrack.Album, actualTrack.Album);
+            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
+            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
+            Assert.AreEqual(expectedTrack.TrackLengthSec, actualTrack.TrackLengthSec);
+            Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
+        }
     }
 }

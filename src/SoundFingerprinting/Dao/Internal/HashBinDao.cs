@@ -37,7 +37,7 @@ namespace SoundFingerprinting.Dao.Internal
                 (item, reader) =>
                     {
                         long subFingerprintId = reader.GetInt64("SubFingerprintId");
-                        item.SubFingerprintReference = new SQLModelReference<long>(subFingerprintId);
+                        item.SubFingerprintReference = new ModelReference<long>(subFingerprintId);
                         item.HashTable = hashTable;
                     });
         }
@@ -78,7 +78,7 @@ namespace SoundFingerprinting.Dao.Internal
                             byte[] signature = (byte[])reader.GetRaw("Signature");
                             int trackId = reader.GetInt32("TrackId");
                             return new SubFingerprintData(
-                                signature, new SQLModelReference<long>(id), new SQLModelReference<int>(trackId));
+                                signature, new ModelReference<long>(id), new ModelReference<int>(trackId));
                         });
         }
     }

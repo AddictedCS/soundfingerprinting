@@ -70,6 +70,7 @@
     <Compile Include="Integration\Audio\TagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\Dao\ModelServiceTest.cs" />
+    <Compile Include="Unit\Dao\TrackStorageDaoTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\Hashing\CombinedHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />

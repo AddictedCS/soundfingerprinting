@@ -1,8 +1,8 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    internal class SQLModelReference<T> : IModelReference
+    internal class ModelReference<T> : IModelReference
     {
-        public SQLModelReference(T id)
+        public ModelReference(T id)
         {
             Id = id;
         }
@@ -24,12 +24,12 @@
                 return false;
             }
 
-            if (!(obj is SQLModelReference<T>))
+            if (!(obj is ModelReference<T>))
             {
                 return false;
             }
 
-            return Id.Equals(((SQLModelReference<T>)obj).Id);
+            return Id.Equals(((ModelReference<T>)obj).Id);
         }
 
         public override int GetHashCode()
