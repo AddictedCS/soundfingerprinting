@@ -1,22 +1,23 @@
 ﻿namespace SoundFingerprinting.Dao.InMemory
 {
-    using System.Collections.Concurrent;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
+    using SoundFingerprinting.Dao.Internal;
     using SoundFingerprinting.Data;
 
-    internal class TrackStorageDao
+    internal class TrackStorageDao : ITrackDao
     {
         private static int counter;
 
         private readonly object lockObject = new object();
 
-        private readonly ConcurrentDictionary<int, TrackData> storage;
-
+        private readonly RAMStorage storage;
+        
         public TrackStorageDao()
         {
-            storage = new ConcurrentDictionary<int, TrackData>();
+            storage = RAMStorage.Instance;
         }
 
         public int Insert(TrackData track)
@@ -24,38 +25,81 @@
             lock (lockObject)
             {
                 counter++;
-                storage[counter] = track;
-                IModelReference trackReference = new ModelReference<int>(counter);
-                track.TrackReference = trackReference;
+                storage.Tracks[counter] = track;
+                track.TrackReference = new ModelReference<int>(counter);
                 return counter;
             }
         }
 
-        public TrackData ReadByISRC(string isrc)
+        public TrackData ReadTrackByISRC(string isrc)
         {
-            return storage.FirstOrDefault(pair => pair.Value.ISRC == isrc).Value;
+            return storage.Tracks.FirstOrDefault(pair => pair.Value.ISRC == isrc).Value;
         }
 
         public IList<TrackData> ReadAll()
         {
-            return storage.Values.ToList();
+            return storage.Tracks.Values.ToList();
         }
 
         public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
-            return storage.Where(pair => pair.Value.Artist == artist && pair.Value.Title == title)
+            return storage.Tracks.Where(pair => pair.Value.Artist == artist && pair.Value.Title == title)
                           .Select(pair => pair.Value)
                           .ToList();
         }
 
         public TrackData ReadById(int id)
         {
-            if (storage.ContainsKey(id))
+            if (storage.Tracks.ContainsKey(id))
             {
-                return storage[id];
+                return storage.Tracks[id];
             }
 
             return null;
+        }
+
+        public int DeleteTrack(int trackId)
+        {
+            int count = 0;
+            if (storage.Tracks.Remove(trackId))
+            {
+                count++;
+                if (storage.Fingerprints.ContainsKey(trackId))
+                {
+                    count += storage.Fingerprints[trackId].Count;
+                    storage.Fingerprints.Remove(trackId);
+                }
+
+                var subFingerprintIds = storage.SubFingerprints
+                                 .Where(pair => pair.Value.TrackReference.Equals(trackId))
+                                 .Select(pair => pair.Key)
+                                 .ToList();
+
+                count += subFingerprintIds.Count;
+                foreach (var id in subFingerprintIds)
+                {
+                    storage.SubFingerprints.Remove(id);
+                }
+
+                foreach (var hashTable in storage.HashTables)
+                {
+                    foreach (var hashBins in hashTable.Value)
+                    {
+                        foreach (var id in subFingerprintIds)
+                        {
+                            lock (((ICollection)hashBins.Value).SyncRoot)
+                            {
+                                if (hashBins.Value.Remove(id))
+                                {
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return count;
         }
     }
 }

@@ -5,7 +5,7 @@ namespace SoundFingerprinting.Dao.Internal
 
     using SoundFingerprinting.Data;
 
-    internal class TrackDao : AbstractDao
+    internal class TrackDao : AbstractDao, ITrackDao
     {
         private const string SpInsertTrack = "sp_InsertTrack";
         private const string SpReadTracks = "sp_ReadTracks";

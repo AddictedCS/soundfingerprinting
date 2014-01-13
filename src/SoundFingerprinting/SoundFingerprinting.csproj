@@ -67,9 +67,15 @@
     <Compile Include="Audio\NAudio\NAudioService.cs" />
     <Compile Include="Dao\IgnoreBindingAttribute.cs" />
     <Compile Include="Dao\InMemory\FingerprintStorageDao.cs" />
+    <Compile Include="Dao\InMemory\HashBinStorageDao.cs" />
     <Compile Include="Dao\InMemory\InMemoryModelService.cs" />
+    <Compile Include="Dao\InMemory\RAMStorage.cs" />
+    <Compile Include="Dao\InMemory\SubFingerprintStorageDao.cs" />
     <Compile Include="Dao\InMemory\TrackStorageDao.cs" />
     <Compile Include="Dao\Internal\FingerprintDao.cs" />
+    <Compile Include="Dao\Internal\IHashBinDao.cs" />
+    <Compile Include="Dao\Internal\ISubFingerprintDao.cs" />
+    <Compile Include="Dao\Internal\ITrackDao.cs" />
     <Compile Include="Data\FingerprintData.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />

@@ -43,7 +43,7 @@
             TrackData expected = new TrackData(ISRC, "artist", "title", "album", 2012, 200);
             trackStorageDao.Insert(expected);
 
-            var actual = trackStorageDao.ReadByISRC(ISRC);
+            var actual = trackStorageDao.ReadTrackByISRC(ISRC);
 
             Assert.IsNotNull(actual);
             AssertTracksAreEqual(expected, actual);
@@ -52,7 +52,7 @@
         [TestMethod]
         public void ReadByNonExistentISRCTest()
         {
-            var track = trackStorageDao.ReadByISRC("isrc");
+            var track = trackStorageDao.ReadTrackByISRC("isrc");
             Assert.IsNull(track);
         }
 

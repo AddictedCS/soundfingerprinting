@@ -2,7 +2,7 @@
 {
     using SoundFingerprinting.Data;
 
-    internal class SubFingerprintDao : AbstractDao
+    internal class SubFingerprintDao : AbstractDao, ISubFingerprintDao
     {
         private const string SpInsertSubFingerprint = "sp_InsertSubFingerprint";
         private const string SpReadSubFingerprintById = "sp_ReadSubFingerprintById";

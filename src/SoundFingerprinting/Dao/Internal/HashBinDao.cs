@@ -5,7 +5,7 @@ namespace SoundFingerprinting.Dao.Internal
 
     using SoundFingerprinting.Data;
 
-    internal class HashBinDao : AbstractDao
+    internal class HashBinDao : AbstractDao, IHashBinDao
     {
         private const string SpReadFingerprintsByHashBinHashTableAndThreshold = "sp_ReadFingerprintsByHashBinHashTableAndThreshold";
         
@@ -30,15 +30,15 @@ namespace SoundFingerprinting.Dao.Internal
             PrepareSQLText(sqlToExecute.ToString()).AsNonQuery();
         }
 
-        public IList<HashBinData> ReadHashBinsByHashTable(int hashTable)
+        public IList<HashBinData> ReadHashBinsByHashTable(int hashTableId)
         {
-            string sqlToExecute = "SELECT * FROM HashTable_" + hashTable;
+            string sqlToExecute = "SELECT * FROM HashTable_" + hashTableId;
             return PrepareSQLText(sqlToExecute).AsListOfComplexModel<HashBinData>(
                 (item, reader) =>
                     {
                         long subFingerprintId = reader.GetInt64("SubFingerprintId");
                         item.SubFingerprintReference = new ModelReference<long>(subFingerprintId);
-                        item.HashTable = hashTable;
+                        item.HashTable = hashTableId;
                     });
         }
 
