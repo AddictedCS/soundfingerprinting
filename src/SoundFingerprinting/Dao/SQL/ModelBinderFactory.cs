@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Dao.SQL
     using System.Linq;
     using System.Reflection;
 
-    using SoundFingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.SQL.Conditions;
 
     public class ModelBinderFactory : IModelBinderFactory
     {

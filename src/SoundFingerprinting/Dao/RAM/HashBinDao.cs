@@ -74,9 +74,9 @@
             Dictionary<long, int> subFingeprintCount = new Dictionary<long, int>();
             foreach (var hashBin in hashBuckets)
             {
-                if (storage.HashTables[table - 1].ContainsKey(hashBin))
+                if (storage.HashTables[table].ContainsKey(hashBin))
                 {
-                    foreach (var subFingerprintId in storage.HashTables[table - 1][hashBin])
+                    foreach (var subFingerprintId in storage.HashTables[table][hashBin])
                     {
                         if (subFingeprintCount.ContainsKey(subFingerprintId))
                         {

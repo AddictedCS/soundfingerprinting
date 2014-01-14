@@ -4,31 +4,24 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
 
-    public class ModelService : IModelService
+    public abstract class ModelService : IModelService
     {
-        private readonly TrackDao trackDao;
+        private readonly ITrackDao trackDao;
 
-        private readonly HashBinDao hashBinDao;
+        private readonly IHashBinDao hashBinDao;
 
-        private readonly SubFingerprintDao subFingerprintDao;
+        private readonly ISubFingerprintDao subFingerprintDao;
 
-        private readonly FingerprintDao fingerprintDao;
+        private readonly IFingerprintDao fingerprintDao;
 
-        public ModelService()
-            : this(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>())
+        protected ModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao)
         {
-        }
-
-        public ModelService(IDatabaseProviderFactory databaseProviderFactory, IModelBinderFactory modelBinderFactory)
-        {
-            trackDao = new TrackDao(databaseProviderFactory, modelBinderFactory);
-            hashBinDao = new HashBinDao(databaseProviderFactory, modelBinderFactory);
-            subFingerprintDao = new SubFingerprintDao(databaseProviderFactory, modelBinderFactory);
-            fingerprintDao = new FingerprintDao(databaseProviderFactory, modelBinderFactory);
+            this.trackDao = trackDao;
+            this.hashBinDao = hashBinDao;
+            this.subFingerprintDao = subFingerprintDao;
+            this.fingerprintDao = fingerprintDao;
         }
 
         public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)

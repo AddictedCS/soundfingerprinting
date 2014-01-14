@@ -66,7 +66,7 @@
                 kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
                 kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
                 kernel.Bind<IModelBinderFactory>().To<ModelBinderFactory>().WhenInjectedInto<CachedModelBinderFactory>();
-                kernel.Bind<IModelService>().To<ModelService>();
+                kernel.Bind<IModelService>().To<SqlModelService>();
                 kernel.Bind<IPermutationGeneratorService>().To<PermutationGeneratorService>();
                 kernel.Bind<IImageService>().To<ImageService>();
                 kernel.Bind<ISpectrumService>().To<SpectrumService>();

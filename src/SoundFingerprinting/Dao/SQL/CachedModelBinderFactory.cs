@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Dao.SQL
     using System.Collections.Generic;
     using System.Data;
 
-    using SoundFingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.SQL.Conditions;
     using SoundFingerprinting.Infrastructure;
 
     public class CachedModelBinderFactory : IModelBinderFactory

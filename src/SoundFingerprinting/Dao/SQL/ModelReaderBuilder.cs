@@ -7,7 +7,7 @@ namespace SoundFingerprinting.Dao.SQL
     using System.Linq.Expressions;
     using System.Reflection;
 
-    using SoundFingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.SQL.Conditions;
 
     internal class ModelReaderBuilder<TModel>
     {

@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Dao.SQL
     using System;
     using System.Data;
 
-    using SoundFingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.SQL.Conditions;
 
     public interface IParameterBinder
     {

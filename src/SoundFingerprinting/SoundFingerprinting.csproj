@@ -66,6 +66,7 @@
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\NAudio\NAudioService.cs" />
     <Compile Include="Dao\IFingerprintDao.cs" />
+    <Compile Include="Dao\RAM\InMemoryModelService.cs" />
     <Compile Include="Dao\RAM\IRAMStorage.cs" />
     <Compile Include="Dao\SQL\IgnoreBindingAttribute.cs" />
     <Compile Include="Dao\RAM\FingerprintDao.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Dao\IHashBinDao.cs" />
     <Compile Include="Dao\ISubFingerprintDao.cs" />
     <Compile Include="Dao\ITrackDao.cs" />
+    <Compile Include="Dao\SQL\SqlModelService.cs" />
     <Compile Include="Data\FingerprintData.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
@@ -102,11 +104,11 @@
     <Compile Include="Dao\IModelService.cs" />
     <Compile Include="Dao\SQL\AbstractDao.cs" />
     <Compile Include="Dao\SQL\IDatabaseProviderFactory.cs" />
-    <Compile Include="Dao\Conditions\AsValueEnum.cs" />
+    <Compile Include="Dao\SQL\Conditions\AsValueEnum.cs" />
     <Compile Include="Dao\SQL\CachedModelBinderFactory.cs" />
     <Compile Include="Dao\SQL\Executor.cs" />
     <Compile Include="Dao\SQL\Extensions.cs" />
-    <Compile Include="Dao\Conditions\ICondition.cs" />
+    <Compile Include="Dao\SQL\Conditions\ICondition.cs" />
     <Compile Include="Dao\SQL\HashBinDao.cs" />
     <Compile Include="Dao\SQL\IExecutor.cs" />
     <Compile Include="Dao\SQL\IModelBinder.cs" />

@@ -13,6 +13,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
@@ -32,7 +33,7 @@
 
         public FingerprintCommandBuilderIntTest()
         {
-            modelService = new ModelService();
+            modelService = new SqlModelService();
             var fingerprintService = new FingerprintService();
             var minHashService = new MinHashService(new DefaultPermutations());
             var lshService = new LSHService();

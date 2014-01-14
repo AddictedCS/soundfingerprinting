@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Dao.SQL
     using System;
     using System.Collections.Generic;
 
-    using SoundFingerprinting.Dao.Conditions;
+    using SoundFingerprinting.Dao.SQL.Conditions;
 
     public interface IExecutor
     {

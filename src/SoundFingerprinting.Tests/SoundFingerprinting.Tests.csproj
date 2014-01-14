@@ -65,9 +65,11 @@
     <Compile Include="Integration\Dao\AbstractFingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\AbstractHashBinDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\HashBinDaoTest.cs" />
+    <Compile Include="Integration\Dao\RAM\InMemoryModelServiceTest.cs" />
     <Compile Include="Integration\Dao\SQL\FingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\SQL\HashBinDaoTest.cs" />
     <Compile Include="Integration\Dao\AbstractSubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\SQL\SqlModelServiceTest.cs" />
     <Compile Include="Integration\Dao\SQL\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\AbstractTrackDaoTest.cs" />
     <Compile Include="Integration\Dao\SQL\TrackDaoTest.cs" />
