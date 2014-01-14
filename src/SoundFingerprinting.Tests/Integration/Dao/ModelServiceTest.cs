@@ -175,15 +175,5 @@
                 Assert.AreEqual(GenericFingerprint[i], fingerprints[0].Signature[i]);
             }
         }
-
-        private void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
-        {
-            Assert.AreEqual(expectedTrack.TrackReference.HashCode, actualTrack.TrackReference.HashCode);
-            Assert.AreEqual(expectedTrack.Album, actualTrack.Album);
-            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
-            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
-            Assert.AreEqual(expectedTrack.TrackLengthSec, actualTrack.TrackLengthSec);
-            Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
-        }
     }
 }

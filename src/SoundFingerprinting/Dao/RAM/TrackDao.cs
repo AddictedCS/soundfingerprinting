@@ -77,7 +77,7 @@
                 }
 
                 var subFingerprintIds = storage.SubFingerprints
-                                 .Where(pair => pair.Value.TrackReference.Equals(trackId))
+                                 .Where(pair => ((ModelReference<int>)pair.Value.TrackReference).Id == trackId)
                                  .Select(pair => pair.Key)
                                  .ToList();
 

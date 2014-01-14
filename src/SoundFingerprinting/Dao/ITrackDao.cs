@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Dao
 
     using SoundFingerprinting.Data;
 
-    internal interface ITrackDao
+    public interface ITrackDao
     {
         int Insert(TrackData track);
 

@@ -4,11 +4,20 @@ namespace SoundFingerprinting.Dao.SQL
     using System.Collections.Generic;
 
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Infrastructure;
 
     internal class FingerprintDao : AbstractDao, IFingerprintDao
     {
         private const string SpInsertFingerprint = "sp_InsertFingerprint";
         private const string SpReadFingerprintByTrackId = "sp_ReadFingerprintByTrackId";
+
+        public FingerprintDao()
+            : base(
+                DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
+                DependencyResolver.Current.Get<IModelBinderFactory>())
+        {
+            // no op
+        }
 
         public FingerprintDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)

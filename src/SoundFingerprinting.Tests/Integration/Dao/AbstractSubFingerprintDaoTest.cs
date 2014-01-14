@@ -3,29 +3,21 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
 
-    [TestClass]
-    public class SubFingerprintDaoTest : AbstractIntegrationTest
+    public abstract class AbstractSubFingerprintDaoTest : AbstractIntegrationTest
     {
-        private readonly SubFingerprintDao subFingerprintDao;
-        private readonly TrackDao trackDao;
+        public abstract ISubFingerprintDao SubFingerprintDao { get; set; }
 
-        public SubFingerprintDaoTest()
-        {
-            subFingerprintDao = new SubFingerprintDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-            trackDao = new TrackDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-        }
+        public abstract ITrackDao TrackDao { get; set; }
 
         [TestMethod]
         public void InsertTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            int trackId = trackDao.Insert(track);
+            int trackId = TrackDao.Insert(track);
             
-            long subFingerprintId = subFingerprintDao.Insert(GenericSignature, trackId);
+            long subFingerprintId = SubFingerprintDao.Insert(GenericSignature, trackId);
 
             Assert.IsFalse(subFingerprintId == 0);
         }
@@ -34,11 +26,11 @@
         public void ReadTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            int trackId = trackDao.Insert(track);
+            int trackId = TrackDao.Insert(track);
             
-            long subFingerprintId = subFingerprintDao.Insert(GenericSignature, trackId);
+            long subFingerprintId = SubFingerprintDao.Insert(GenericSignature, trackId);
 
-            SubFingerprintData actual = subFingerprintDao.ReadById(subFingerprintId);
+            SubFingerprintData actual = SubFingerprintDao.ReadById(subFingerprintId);
 
             AsserSubFingerprintsAreEqual(
                 new SubFingerprintData(

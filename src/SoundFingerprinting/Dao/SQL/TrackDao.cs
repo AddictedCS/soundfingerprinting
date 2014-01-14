@@ -4,6 +4,7 @@ namespace SoundFingerprinting.Dao.SQL
     using System.Collections.Generic;
 
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Infrastructure;
 
     internal class TrackDao : AbstractDao, ITrackDao
     {
@@ -15,6 +16,14 @@ namespace SoundFingerprinting.Dao.SQL
         private const string SpReadTrackByISRC = "sp_ReadTrackISRC";
 
         private readonly Action<TrackData, IReader> trackReferenceReader = (item, reader) => { item.TrackReference = new ModelReference<int>(reader.GetInt32("Id")); };
+
+        public TrackDao()
+            : base(
+                DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
+                DependencyResolver.Current.Get<IModelBinderFactory>())
+        {
+            // no op
+        }
 
         public TrackDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)

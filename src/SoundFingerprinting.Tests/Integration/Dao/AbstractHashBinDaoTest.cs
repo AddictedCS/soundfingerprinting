@@ -1,50 +1,49 @@
 ﻿namespace SoundFingerprinting.Tests.Integration.Dao
 {
+    using System.Threading.Tasks;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
-    [TestClass]
-    public class HashBinDaoTest : AbstractIntegrationTest
+    public abstract class AbstractHashBinDaoTest : AbstractIntegrationTest
     {
-        private readonly HashBinDao hashBinDao;
-        
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly ITagService tagService;
 
-        private readonly TrackDao trackDao;
-        private readonly SubFingerprintDao subFingerprintDao;
-
-        public HashBinDaoTest()
+        protected AbstractHashBinDaoTest()
         {
-            hashBinDao = new HashBinDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-
             fingerprintCommandBuilder = DependencyResolver.Current.Get<IFingerprintCommandBuilder>();
             tagService = DependencyResolver.Current.Get<ITagService>();
-            
-            trackDao = new TrackDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-            subFingerprintDao = new SubFingerprintDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
         }
+
+        public abstract IHashBinDao HashBinDao { get; set; }
+
+        public abstract ITrackDao TrackDao { get; set; }
+
+        public abstract ISubFingerprintDao SubFingerprintDao { get; set; }
 
         [TestMethod]
         public void InsertReadTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            int trackId = trackDao.Insert(track);
-            long subFingerprintId = subFingerprintDao.Insert(GenericSignature, trackId);
+            int trackId = TrackDao.Insert(track);
 
-            hashBinDao.Insert(GenericHashBuckets, subFingerprintId);
+            for (int i = 0; i < 100; i++)
+            {
+                long subFingerprintId = SubFingerprintDao.Insert(GenericSignature, trackId);
+                HashBinDao.Insert(GenericHashBuckets, subFingerprintId);
+            }
 
             for (int hashTable = 1; hashTable <= GenericHashBuckets.Length; hashTable++)
             {
-                var hashBins = hashBinDao.ReadHashBinsByHashTable(hashTable);
-                Assert.AreEqual(1, hashBins.Count);
+                var hashBins = HashBinDao.ReadHashBinsByHashTable(hashTable);
+                Assert.AreEqual(100, hashBins.Count);
                 Assert.AreEqual(GenericHashBuckets[hashTable - 1], hashBins[0].HashBin);
             }
         }
@@ -56,7 +55,7 @@
             TagInfo tagInfo = tagService.GetTagInfo(PathToMp3);
             int releaseYear = tagInfo.Year;
             TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
-            int trackId = trackDao.Insert(track);
+            int trackId = TrackDao.Insert(track);
             var hashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3)
@@ -69,13 +68,13 @@
 
             foreach (var hash in hashData)
             {
-                long subFingerprintId = subFingerprintDao.Insert(hash.SubFingerprint, trackId);
-                hashBinDao.Insert(hash.HashBins, subFingerprintId);
+                long subFingerprintId = SubFingerprintDao.Insert(hash.SubFingerprint, trackId);
+                HashBinDao.Insert(hash.HashBins, subFingerprintId);
             }
 
             for (int hashTable = 1; hashTable <= 25; hashTable++)
             {
-                var hashBins = hashBinDao.ReadHashBinsByHashTable(hashTable);
+                var hashBins = HashBinDao.ReadHashBinsByHashTable(hashTable);
                 Assert.AreEqual(hashData.Count, hashBins.Count);
             }
         }

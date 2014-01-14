@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Dao
 {
     using SoundFingerprinting.Data;
 
-    internal interface ISubFingerprintDao
+    public interface ISubFingerprintDao
     {
         SubFingerprintData ReadById(long id);
 

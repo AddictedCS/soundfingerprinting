@@ -67,7 +67,7 @@
             hashTables = new ConcurrentDictionary<int, ConcurrentDictionary<long, List<long>>>();
             fingerprints = new ConcurrentDictionary<int, List<FingerprintData>>();
 
-            for (int table = 0; table < numberOfHashTables; table++)
+            for (int table = 1; table <= numberOfHashTables; table++)
             {
                 hashTables[table] = new ConcurrentDictionary<long, List<long>>();
             }

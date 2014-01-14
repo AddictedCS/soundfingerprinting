@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Dao
 
     using SoundFingerprinting.Data;
 
-    internal interface IHashBinDao
+    public interface IHashBinDao
     {
         void Insert(long[] hashBins, long subFingerprintId);
 

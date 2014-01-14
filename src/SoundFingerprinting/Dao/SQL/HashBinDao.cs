@@ -4,11 +4,20 @@ namespace SoundFingerprinting.Dao.SQL
     using System.Text;
 
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Infrastructure;
 
     internal class HashBinDao : AbstractDao, IHashBinDao
     {
         private const string SpReadFingerprintsByHashBinHashTableAndThreshold = "sp_ReadFingerprintsByHashBinHashTableAndThreshold";
-        
+
+        public HashBinDao()
+            : base(
+                DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
+                DependencyResolver.Current.Get<IModelBinderFactory>())
+        {
+            // no op   
+        }
+
         public HashBinDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)
         {

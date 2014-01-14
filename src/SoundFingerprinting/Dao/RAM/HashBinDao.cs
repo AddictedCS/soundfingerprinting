@@ -24,17 +24,17 @@
 
         public void Insert(long[] hashBins, long subFingerprintId)
         {
-            int table = 0;
+            int table = 1;
             foreach (var hashTable in storage.HashTables)
             {
-                if (!hashTable.Value.ContainsKey(hashBins[table]))
+                if (!hashTable.Value.ContainsKey(hashBins[table - 1]))
                 {
-                    hashTable.Value[hashBins[table]] = new List<long>();
+                    hashTable.Value[hashBins[table - 1]] = new List<long>();
                 }
 
-                lock (((ICollection)hashTable.Value[hashBins[table]]).SyncRoot)
+                lock (((ICollection)hashTable.Value[hashBins[table - 1]]).SyncRoot)
                 {
-                    hashTable.Value[hashBins[table]].Add(subFingerprintId);
+                    hashTable.Value[hashBins[table - 1]].Add(subFingerprintId);
                 }
 
                 table++;
@@ -70,13 +70,13 @@
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
             long[] hashBuckets, int thresholdVotes)
         {
-            int table = 0;
+            int table = 1;
             Dictionary<long, int> subFingeprintCount = new Dictionary<long, int>();
             foreach (var hashBin in hashBuckets)
             {
-                if (storage.HashTables[table].ContainsKey(hashBin))
+                if (storage.HashTables[table - 1].ContainsKey(hashBin))
                 {
-                    foreach (var subFingerprintId in storage.HashTables[table][hashBin])
+                    foreach (var subFingerprintId in storage.HashTables[table - 1][hashBin])
                     {
                         if (subFingeprintCount.ContainsKey(subFingerprintId))
                         {

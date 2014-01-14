@@ -1,11 +1,19 @@
 ﻿namespace SoundFingerprinting.Dao.SQL
 {
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Infrastructure;
 
     internal class SubFingerprintDao : AbstractDao, ISubFingerprintDao
     {
         private const string SpInsertSubFingerprint = "sp_InsertSubFingerprint";
         private const string SpReadSubFingerprintById = "sp_ReadSubFingerprintById";
+
+        public SubFingerprintDao() : base(
+                DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
+                DependencyResolver.Current.Get<IModelBinderFactory>())
+        {
+            // no op
+        }
 
         public SubFingerprintDao(IDatabaseProviderFactory databaseProvider, IModelBinderFactory modelBinderFactory)
             : base(databaseProvider, modelBinderFactory)

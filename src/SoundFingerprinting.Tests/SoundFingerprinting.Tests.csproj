@@ -62,17 +62,22 @@
   <ItemGroup>
     <Compile Include="Integration\AbstractIntegrationTest.cs" />
     <Compile Include="Integration\Audio\BassAudioServiceTest.cs" />
-    <Compile Include="Integration\Dao\FingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\HashBinDaoTest.cs" />
-    <Compile Include="Integration\Dao\SubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\TrackDaoTest.cs" />
+    <Compile Include="Integration\Dao\AbstractFingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\AbstractHashBinDaoTest.cs" />
+    <Compile Include="Integration\Dao\RAM\HashBinDaoTest.cs" />
+    <Compile Include="Integration\Dao\SQL\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\SQL\HashBinDaoTest.cs" />
+    <Compile Include="Integration\Dao\AbstractSubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\SQL\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\AbstractTrackDaoTest.cs" />
+    <Compile Include="Integration\Dao\SQL\TrackDaoTest.cs" />
     <Compile Include="Unit\Audio\StrideTest.cs" />
     <Compile Include="Integration\Audio\TagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\Dao\ModelServiceTest.cs" />
-    <Compile Include="Unit\Dao\RAM\FingerprintDaoTest.cs" />
-    <Compile Include="Unit\Dao\RAM\SubFingerprintDaoTest.cs" />
-    <Compile Include="Unit\Dao\RAM\TrackStorageDaoTest.cs" />
+    <Compile Include="Integration\Dao\RAM\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\RAM\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\Dao\RAM\TrackDaoTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\Hashing\CombinedHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
@@ -103,7 +108,9 @@
   <ItemGroup>
     <Content Include="TestEnvironment\Kryptonite.mp3" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Unit\Dao\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E

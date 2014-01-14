@@ -1,33 +1,39 @@
 ﻿namespace SoundFingerprinting.Tests.Integration.Dao
 {
+    using System.Threading.Tasks;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
 
-    [TestClass]
-    public class FingerprintDaoTest : AbstractIntegrationTest
+    public abstract class AbstractFingerprintDaoTest : AbstractIntegrationTest
     {
-        private readonly FingerprintDao fingerprintDao;
-        private readonly TrackDao trackDao;
+        public abstract IFingerprintDao FingerprintDao { get; set; }
 
-        public FingerprintDaoTest()
-        {
-            fingerprintDao = new FingerprintDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-            trackDao = new TrackDao(DependencyResolver.Current.Get<IDatabaseProviderFactory>(), DependencyResolver.Current.Get<IModelBinderFactory>());
-        }
+        public abstract ITrackDao TrackDao { get; set; }
 
         [TestMethod]
         public void InsertTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            int trackId = trackDao.Insert(track);
+            int trackId = TrackDao.Insert(track);
 
-            int id = fingerprintDao.Insert(GenericFingerprint, trackId);
+            int id = FingerprintDao.Insert(GenericFingerprint, trackId);
 
             Assert.IsFalse(id == 0);
+        }
+
+        [TestMethod]
+        public void MultipleFingerprintsInsertTest()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                var trackData = new TrackData("isrc" + i, "artist", "title", "album", 2012, 200);
+                int trackId = TrackDao.Insert(trackData);
+                int id = FingerprintDao.Insert(GenericFingerprint, trackId);
+                Assert.IsFalse(id == 0);
+            }
         }
 
         [TestMethod]
@@ -35,14 +41,14 @@
         {
             const int NumberOfFingerprints = 100;
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            int trackId = trackDao.Insert(track);
+            int trackId = TrackDao.Insert(track);
 
             for (int i = 0; i < NumberOfFingerprints; i++)
             {
-                fingerprintDao.Insert(GenericFingerprint, trackId);
+                FingerprintDao.Insert(GenericFingerprint, trackId);
             }
-           
-            var fingerprints = fingerprintDao.ReadFingerprintsByTrackId(trackId);
+
+            var fingerprints = FingerprintDao.ReadFingerprintsByTrackId(trackId);
 
             Assert.IsTrue(fingerprints.Count == NumberOfFingerprints);
 
