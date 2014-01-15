@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Utils
 {
-    public interface IFingerprintDescriptor
+    internal interface IFingerprintDescriptor
     {
         /// <summary>
         ///   Encode the integer representation of the fingerprint into Boolean array

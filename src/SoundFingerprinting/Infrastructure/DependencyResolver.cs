@@ -70,7 +70,6 @@
                 kernel.Bind<IPermutationGeneratorService>().To<PermutationGeneratorService>();
                 kernel.Bind<IImageService>().To<ImageService>();
                 kernel.Bind<ISpectrumService>().To<SpectrumService>();
-                kernel.Bind<IWaveletService>().To<WaveletService>();
                 kernel.Bind<IMinHashService>().To<MinHashService>();
                 kernel.Bind<ILSHService>().To<LSHService>();
                 kernel.Bind<IPermutations>().To<DefaultPermutations>();

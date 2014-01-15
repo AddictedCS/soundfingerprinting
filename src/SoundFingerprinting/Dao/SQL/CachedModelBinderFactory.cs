@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Dao.SQL
     using SoundFingerprinting.Dao.SQL.Conditions;
     using SoundFingerprinting.Infrastructure;
 
-    public class CachedModelBinderFactory : IModelBinderFactory
+    internal class CachedModelBinderFactory : IModelBinderFactory
     {
         private readonly IModelBinderFactory modelBinderFactory;
         private readonly Dictionary<string, object> cache = new Dictionary<string, object>();
