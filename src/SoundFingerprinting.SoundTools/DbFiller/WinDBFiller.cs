@@ -15,7 +15,6 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -27,15 +26,12 @@
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); /*File filters*/
         private readonly IModelService modelService; /*Dal Signature service*/
-        private readonly ILSHService lshService;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly ITagService tagService;
         private volatile int badFiles; /*Number of Bad files*/
         private volatile int duplicates; /*Number of Duplicates*/
         private List<string> fileList; /*List of file to process*/
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH; /*Hashing algorithm*/
-        private int hashKeys;
-        private int hashTables;
         private volatile int left; /*Number of left items*/
         private volatile int processed; /*Number of Processed files*/
         private bool stopFlag;
@@ -43,11 +39,9 @@
         public WinDbFiller(
             IFingerprintCommandBuilder fingerprintCommandBuilder,
             ITagService tagService,
-            IModelService modelService,
-            ILSHService lshService)
+            IModelService modelService)
         {
             this.modelService = modelService;
-            this.lshService = lshService;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.tagService = tagService;
             InitializeComponent();
@@ -210,8 +204,6 @@
             switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
-                    hashTables = (int)_nudHashTables.Value; // If LSH is used # of Hash tables
-                    hashKeys = (int)_nudHashKeys.Value; // If LSH is used # of keys per table
                     break;
                 case HashAlgorithm.NeuralHasher:
                     throw new NotImplementedException();

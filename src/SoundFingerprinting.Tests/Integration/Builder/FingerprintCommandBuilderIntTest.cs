@@ -15,8 +15,7 @@
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Hashing.LSH;
-    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 
@@ -35,10 +34,11 @@
         {
             modelService = new SqlModelService();
             var fingerprintService = new FingerprintService();
-            var minHashService = new MinHashService(new DefaultPermutations());
-            var lshService = new LSHService();
-            fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(fingerprintService, new BassAudioService(), minHashService, lshService);
-            fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(fingerprintService, new NAudioService(), minHashService, lshService);
+            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm();
+            fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(
+                fingerprintService, new BassAudioService(), lshAlgorithm);
+            fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(
+                fingerprintService, new NAudioService(), lshAlgorithm);
             queryFingerprintService = new QueryFingerprintService(modelService);
         }
 

@@ -18,16 +18,16 @@
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
-        private readonly ICombinedHashingAlgoritm combinedHashingAlgorithm;
+        private readonly ILocalitySensitiveHashingAlgorithm localitySensitiveHashingAlgorithm;
 
         /// <summary>
         ///   Storage for hash signatures and tracks
         /// </summary>
         private readonly IStorage storage;
 
-        public Repository(IFingerprintCommandBuilder fingerprintCommandBuilder, IStorage storage, ICombinedHashingAlgoritm combinedHashingAlgorithm)
+        public Repository(IFingerprintCommandBuilder fingerprintCommandBuilder, IStorage storage, ILocalitySensitiveHashingAlgorithm localitySensitiveHashingAlgorithm)
         {
-            this.combinedHashingAlgorithm = combinedHashingAlgorithm;
+            this.localitySensitiveHashingAlgorithm = localitySensitiveHashingAlgorithm;
             this.storage = storage;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
         }
@@ -157,7 +157,7 @@
             List<HashSignature> signatures = new List<HashSignature>();
             foreach (bool[] fingerprint in fingerprints)
             {
-                long[] buckets = combinedHashingAlgorithm.Hash(fingerprint, hashTables, hashKeys).Item2;
+                long[] buckets = localitySensitiveHashingAlgorithm.Hash(fingerprint, hashTables, hashKeys).HashBins;
                 long[] hashSignature = new long[buckets.Length];
                 int tableCount = 0;
                 foreach (long bucket in buckets)

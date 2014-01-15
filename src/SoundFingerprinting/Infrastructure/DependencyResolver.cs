@@ -15,7 +15,6 @@
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.Hashing;
-    using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Image;
     using SoundFingerprinting.Utils;
@@ -71,10 +70,9 @@
                 kernel.Bind<IImageService>().To<ImageService>();
                 kernel.Bind<ISpectrumService>().To<SpectrumService>();
                 kernel.Bind<IMinHashService>().To<MinHashService>();
-                kernel.Bind<ILSHService>().To<LSHService>();
                 kernel.Bind<IPermutations>().To<DefaultPermutations>();
                 
-                kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
+                kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>();
                 kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
                 kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
 

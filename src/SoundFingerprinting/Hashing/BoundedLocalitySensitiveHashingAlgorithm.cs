@@ -1,6 +1,6 @@
-﻿namespace SoundFingerprinting.Hashing.LSH
+﻿namespace SoundFingerprinting.Hashing
 {
-    public class BoundedLSHService : ILSHService
+    public class BoundedLocalitySensitiveHashingAlgorithm : LocalitySensitiveHashingAlgorithm
     {
         /// <summary>
         ///   Maximum number of hash buckets in the database
@@ -29,16 +29,11 @@
         /// </summary>
         private const int B = 0;
 
-        private readonly ILSHService lshAlgorithm;
-
-        public BoundedLSHService(ILSHService lshAlgorithm)
+        protected override long[] GroupIntoHashTables(
+            byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable)
         {
-            this.lshAlgorithm = lshAlgorithm;
-        }
+            var hashes = base.GroupIntoHashTables(minHashes, numberOfHashTables, numberOfHashesPerTable);
 
-        public long[] Hash(byte[] source, int numberOfHashTables, int numberOfHashesPerTable)
-        {
-            long[] hashes = lshAlgorithm.Hash(source, numberOfHashTables, numberOfHashesPerTable);
             for (int i = 0; i < hashes.Length; i++)
             {
                 hashes[i] = (((A * hashes[i]) + B) % PrimeP) % HashBucketSize;

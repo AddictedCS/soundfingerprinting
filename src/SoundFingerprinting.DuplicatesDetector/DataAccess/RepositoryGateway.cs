@@ -129,7 +129,7 @@
             audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
             tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
-            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintCommandBuilder>(), storage, ServiceContainer.Kernel.Get<ICombinedHashingAlgoritm>());
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintCommandBuilder>(), storage, ServiceContainer.Kernel.Get<ILocalitySensitiveHashingAlgorithm>());
         }
 
         /// <summary>

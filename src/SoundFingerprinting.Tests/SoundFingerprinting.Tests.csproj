@@ -81,7 +81,7 @@
     <Compile Include="Integration\Dao\RAM\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\TrackDaoTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
-    <Compile Include="Unit\Hashing\CombinedHashingAlgorithmTest.cs" />
+    <Compile Include="Unit\Hashing\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />

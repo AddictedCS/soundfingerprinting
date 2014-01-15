@@ -29,7 +29,7 @@
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
             ServiceContainer.Kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
             ServiceContainer.Kernel.Bind<IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
-            ServiceContainer.Kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
+            ServiceContainer.Kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>();
         }
     }
 }
