@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Hashing
 {
     using System;
-    using System.Collections;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,7 +20,6 @@
         public void SetUp()
         {
             minHashService = new Mock<IMinHashService>(MockBehavior.Strict);
-            
             lshAlgorithm = new LocalitySensitiveHashingAlgorithm(minHashService.Object);
         }
 
@@ -32,18 +30,34 @@
         }
 
         [TestMethod]
-        public void CombinedHashingInvokesBothAlgorithmsTest()
+        public void LshAlgorithmTest()
         {
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(
-                new byte[] { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3 });
+                new byte[] { 1, 0, 1, 0, 0, 6, 0, 1, 0, 9, 0, 2, 8, 7, 6, 3 });
 
             var hash = lshAlgorithm.Hash(GenericFingerprint, 4, 4);
 
             Assert.IsNotNull(hash);
-            Assert.AreEqual(hash.HashBins[0], BitConverter.ToInt32(new byte[] { 0, 0, 0, 0 }, 0));
-            Assert.AreEqual(hash.HashBins[1], BitConverter.ToInt32(new byte[] { 0, 0, 0, 1 }, 0));
-            Assert.AreEqual(hash.HashBins[2], BitConverter.ToInt32(new byte[] { 0, 0, 0, 2 }, 0));
-            Assert.AreEqual(hash.HashBins[3], BitConverter.ToInt32(new byte[] { 0, 0, 0, 3 }, 0));
+            Assert.AreEqual(hash.HashBins[0], BitConverter.ToInt32(new byte[] { 1, 0, 1, 0 }, 0));
+            Assert.AreEqual(hash.HashBins[1], BitConverter.ToInt32(new byte[] { 0, 6, 0, 1 }, 0));
+            Assert.AreEqual(hash.HashBins[2], BitConverter.ToInt32(new byte[] { 0, 9, 0, 2 }, 0));
+            Assert.AreEqual(hash.HashBins[3], BitConverter.ToInt32(new byte[] { 8, 7, 6, 3 }, 0));
+        }
+
+        [TestMethod]
+        public void LshAlgorithmTestForNonPowerOfTwoHashKeys()
+        {
+            minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(
+                new byte[] { 1, 0, 1, 0, 0, 6, 0, 1, 0, 9, 0, 2, 8, 7, 6 });
+
+            var hash = lshAlgorithm.Hash(GenericFingerprint, 5, 3);
+
+            Assert.IsNotNull(hash);
+            Assert.AreEqual(hash.HashBins[0], BitConverter.ToInt32(new byte[] { 1, 0, 1, 0 }, 0));
+            Assert.AreEqual(hash.HashBins[1], BitConverter.ToInt32(new byte[] { 0, 0, 6, 0 }, 0));
+            Assert.AreEqual(hash.HashBins[2], BitConverter.ToInt32(new byte[] { 0, 1, 0, 0 }, 0));
+            Assert.AreEqual(hash.HashBins[3], BitConverter.ToInt32(new byte[] { 9, 0, 2, 0 }, 0));
+            Assert.AreEqual(hash.HashBins[4], BitConverter.ToInt32(new byte[] { 8, 7, 6, 0 }, 0));
         }
     }
 }

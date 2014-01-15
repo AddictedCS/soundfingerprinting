@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Hashing
 {
     using System;
+    using System.Diagnostics;
 
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing.MinHash;
@@ -38,21 +39,51 @@
         /// <returns>Collection of Pairs with Key = Hash table index, Value = Hash bin</returns>
         protected virtual long[] GroupIntoHashTables(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable)
         {
-            long[] result = new long[numberOfHashTables];
-
-            for (int i = 0; i < numberOfHashTables /*hash functions*/; i++)
+            if (numberOfHashesPerTable % 2 != 0)
             {
-                byte[] array = new byte[MaxNumberOfItemsPerKey];
-                for (int j = 0; j < numberOfHashesPerTable /*r min hash signatures*/; j++)
-                {
-                    array[j] = minHashes[(i * numberOfHashesPerTable) + j];
-                }
-
-                long hashbucket = BitConverter.ToInt64(array, 0); // actual value of the signature
-                result[i] = hashbucket;
+                Trace.WriteLine(
+                    "Number of min hash values per table is not equal to power of 2. Expect performance penalty", "Warning");
+                return NonPowerOfTwoGroupIntoHashBucket(minHashes, numberOfHashTables, numberOfHashesPerTable);
             }
 
-            return result;
+            return PowerOfTwoGroupIntoHashBucket(minHashes, numberOfHashTables, numberOfHashesPerTable);
+        }
+
+        private long[] PowerOfTwoGroupIntoHashBucket(
+            byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable)
+        {
+            long[] hashBuckets = new long[numberOfHashTables];
+
+            for (int i = 0; i < numberOfHashTables; i++)
+            {
+                if (numberOfHashesPerTable == 2)
+                {
+                    hashBuckets[i] = BitConverter.ToInt16(minHashes, i * numberOfHashesPerTable);
+                }
+                else if (numberOfHashTables == 4)
+                {
+                    hashBuckets[i] = BitConverter.ToInt32(minHashes, i * numberOfHashesPerTable);
+                }
+                else
+                {
+                    hashBuckets[i] = BitConverter.ToInt64(minHashes, i * numberOfHashesPerTable);
+                }
+            }
+
+            return hashBuckets;
+        }
+
+        private long[] NonPowerOfTwoGroupIntoHashBucket(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable)
+        {
+            long[] hashBuckets = new long[numberOfHashTables];
+            byte[] array = new byte[MaxNumberOfItemsPerKey];
+            for (int i = 0; i < numberOfHashTables; i++)
+            {
+                Array.Copy(minHashes, i * numberOfHashesPerTable, array, 0, numberOfHashesPerTable);
+                hashBuckets[i] = BitConverter.ToInt64(array, 0);
+            }
+
+            return hashBuckets;
         }
     }
 }
