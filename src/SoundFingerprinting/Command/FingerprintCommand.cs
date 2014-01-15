@@ -10,23 +10,22 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing;
-    using SoundFingerprinting.Hashing.MinHash;
 
     internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
     {
         private readonly IAudioService audioService;
 
-        private readonly ILocalitySensitiveHashingAlgorithm localitySensitiveHashingAlgorithm;
+        private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
         
         private readonly IFingerprintService fingerprintService;
 
         private Func<List<bool[]>> createFingerprintsMethod;
 
-        public FingerprintCommand(IFingerprintService fingerprintService, IAudioService audioService, ILocalitySensitiveHashingAlgorithm localitySensitiveHashingAlgorithm)
+        public FingerprintCommand(IFingerprintService fingerprintService, IAudioService audioService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
         {
             this.fingerprintService = fingerprintService;
             this.audioService = audioService;
-            this.localitySensitiveHashingAlgorithm = localitySensitiveHashingAlgorithm;
+            this.lshAlgorithm = lshAlgorithm;
         }
 
         public IFingerprintConfiguration FingerprintConfiguration { get; private set; }
@@ -110,7 +109,7 @@ namespace SoundFingerprinting.Command
                 fingerprints,
                 fingerprint =>
                     {
-                        var hashData = localitySensitiveHashingAlgorithm.Hash(
+                        var hashData = lshAlgorithm.Hash(
                             fingerprint,
                             FingerprintConfiguration.NumberOfLSHTables,
                             FingerprintConfiguration.NumberOfMinHashesPerTable);

@@ -9,7 +9,7 @@ namespace SoundFingerprinting.Builder
     {
         private readonly IFingerprintService fingerprintService;
         private readonly IAudioService audioService;
-        private readonly ILocalitySensitiveHashingAlgorithm localitySensitiveHashingAlgorithm;
+        private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
 
         public FingerprintCommandBuilder()
             : this(
@@ -19,16 +19,16 @@ namespace SoundFingerprinting.Builder
         {
         }
 
-        public FingerprintCommandBuilder(IFingerprintService fingerprintService, IAudioService audioService, ILocalitySensitiveHashingAlgorithm localitySensitiveHashingAlgorithm)
+        public FingerprintCommandBuilder(IFingerprintService fingerprintService, IAudioService audioService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
         {
             this.fingerprintService = fingerprintService;
             this.audioService = audioService;
-            this.localitySensitiveHashingAlgorithm = localitySensitiveHashingAlgorithm;
+            this.lshAlgorithm = lshAlgorithm;
         }
 
         public ISourceFrom BuildFingerprintCommand()
         {
-            return new FingerprintCommand(fingerprintService, audioService, localitySensitiveHashingAlgorithm);
+            return new FingerprintCommand(fingerprintService, audioService, lshAlgorithm);
         }
     }
 }

@@ -13,7 +13,7 @@
     [TestClass]
     public class LocalitySensitiveHashingAlgorithmTest : AbstractTest
     {
-        private LocalitySensitiveHashingAlgorithm localitySensitiveHashingAlgorithm;
+        private LocalitySensitiveHashingAlgorithm lshAlgorithm;
 
         private Mock<IMinHashService> minHashService;
 
@@ -22,7 +22,7 @@
         {
             minHashService = new Mock<IMinHashService>(MockBehavior.Strict);
             
-            localitySensitiveHashingAlgorithm = new LocalitySensitiveHashingAlgorithm(minHashService.Object);
+            lshAlgorithm = new LocalitySensitiveHashingAlgorithm(minHashService.Object);
         }
 
         [TestCleanup]
@@ -37,7 +37,7 @@
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(
                 new byte[] { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3 });
 
-            var hash = localitySensitiveHashingAlgorithm.Hash(GenericFingerprint, 4, 4);
+            var hash = lshAlgorithm.Hash(GenericFingerprint, 4, 4);
 
             Assert.IsNotNull(hash);
             Assert.AreEqual(hash.HashBins[0], BitConverter.ToInt32(new byte[] { 0, 0, 0, 0 }, 0));
