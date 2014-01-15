@@ -18,17 +18,17 @@
 
         private readonly ISpectrumService spectrumService;
 
-        private readonly IWaveletService waveletService;
+        private readonly IWaveletDecomposition waveletDecomposition;
 
         public ImageService()
-            : this(DependencyResolver.Current.Get<ISpectrumService>(), DependencyResolver.Current.Get<IWaveletService>())
+            : this(DependencyResolver.Current.Get<ISpectrumService>(), DependencyResolver.Current.Get<IWaveletDecomposition>())
         {
         }
 
-        public ImageService(ISpectrumService spectrumService, IWaveletService waveletService)
+        private ImageService(ISpectrumService spectrumService, IWaveletDecomposition waveletDecomposition)
         {
             this.spectrumService = spectrumService;
-            this.waveletService = waveletService;
+            this.waveletDecomposition = waveletDecomposition;
         }
 
         public Image GetImageForFingerprint(bool[] data, int width, int height)
@@ -197,7 +197,7 @@
         {
             List<float[][]> spetralImages = spectrumService.CutLogarithmizedSpectrum(
                 spectrum, strideBetweenConsecutiveImages, fingerprintLength, overlap);
-            waveletService.ApplyWaveletTransformInPlace(spetralImages);
+            waveletDecomposition.DecomposeImagesInPlace(spetralImages);
 
             int width = spetralImages[0].GetLength(0);
             int height = spetralImages[0][0].Length;

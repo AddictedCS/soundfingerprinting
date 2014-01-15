@@ -8,6 +8,7 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
@@ -20,16 +21,21 @@
 
         private Mock<ISpectrumService> spectrumService;
 
-        private Mock<IWaveletService> waveletService;
+        private Mock<IWaveletDecomposition> waveletDecomposition;
 
         [TestInitialize]
         public void SetUp()
         {
             fingerprintDescriptor = new Mock<IFingerprintDescriptor>(MockBehavior.Strict);
             spectrumService = new Mock<ISpectrumService>(MockBehavior.Strict);
-            waveletService = new Mock<IWaveletService>(MockBehavior.Strict);
+            waveletDecomposition = new Mock<IWaveletDecomposition>(MockBehavior.Strict);
 
-            fingerprintService = new FingerprintService(fingerprintDescriptor.Object, spectrumService.Object, waveletService.Object);
+            DependencyResolver.Current.Bind<IFingerprintDescriptor, IFingerprintDescriptor>(
+                fingerprintDescriptor.Object);
+            DependencyResolver.Current.Bind<ISpectrumService, ISpectrumService>(spectrumService.Object);
+            DependencyResolver.Current.Bind<IWaveletDecomposition, IWaveletDecomposition>(waveletDecomposition.Object);
+
+            fingerprintService = new FingerprintService();
         }
 
         [TestCleanup]
@@ -37,7 +43,7 @@
         {
             fingerprintDescriptor.VerifyAll();
             spectrumService.VerifyAll();
-            waveletService.VerifyAll();
+            waveletDecomposition.VerifyAll();
         }
 
         [TestMethod]
@@ -60,7 +66,7 @@
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, configuration)).Returns(logarithmizedSpectrum);
             spectrumService.Setup(service => service.CutLogarithmizedSpectrum(logarithmizedSpectrum, configuration.Stride, configuration.FingerprintLength, configuration.Overlap))
                            .Returns(dividedLogSpectrum);
-            waveletService.Setup(service => service.ApplyWaveletTransformInPlace(dividedLogSpectrum));
+            waveletDecomposition.Setup(service => service.DecomposeImagesInPlace(dividedLogSpectrum));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), configuration.TopWavelets)).Returns(GenericFingerprint);
 
             List<bool[]> rawFingerprints = fingerprintService.CreateFingerprints(samples, configuration);

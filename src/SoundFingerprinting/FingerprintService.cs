@@ -14,7 +14,7 @@ namespace SoundFingerprinting
     {
         private readonly ISpectrumService spectrumService;
 
-        private readonly IWaveletService waveletService;
+        private readonly IWaveletDecomposition waveletDecomposition;
 
         private readonly IFingerprintDescriptor fingerprintDescriptor;
 
@@ -22,14 +22,14 @@ namespace SoundFingerprinting
             : this(
                 DependencyResolver.Current.Get<IFingerprintDescriptor>(),
                 DependencyResolver.Current.Get<ISpectrumService>(),
-                DependencyResolver.Current.Get<IWaveletService>())
+                DependencyResolver.Current.Get<IWaveletDecomposition>())
         {
         }
 
-        public FingerprintService(IFingerprintDescriptor fingerprintDescriptor, ISpectrumService spectrumService, IWaveletService waveletService)
+        private FingerprintService(IFingerprintDescriptor fingerprintDescriptor, ISpectrumService spectrumService, IWaveletDecomposition waveletDecomposition)
         {
             this.spectrumService = spectrumService;
-            this.waveletService = waveletService;
+            this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
         }
 
@@ -47,10 +47,10 @@ namespace SoundFingerprinting
         private List<bool[]> CreateFingerprintsFromLogSpectrum(float[][] logarithmizedSpectrum, IStride stride, int fingerprintLength, int overlap, int topWavelets)
         {
             List<float[][]> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, stride, fingerprintLength, overlap);
-            
-            waveletService.ApplyWaveletTransformInPlace(spectralImages);
 
-            List<bool[]> fingerprints = new List<bool[]>();
+            waveletDecomposition.DecomposeImagesInPlace(spectralImages);
+
+            var fingerprints = new List<bool[]>();
             foreach (var spectralImage in spectralImages)
             {
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets);

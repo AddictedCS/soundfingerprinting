@@ -153,9 +153,7 @@
     <Compile Include="Wavelets\NonStandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />
-    <Compile Include="Wavelets\IWaveletService.cs" />
     <Compile Include="FFT\SpectrumService.cs" />
-    <Compile Include="Wavelets\WaveletService.cs" />
     <Compile Include="Command\FingerprintCommand.cs" />
     <Compile Include="Command\ISourceFrom.cs" />
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
