@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Dao.SQL
         {
         }
 
-        public MsSqlDatabaseProviderFactory(IConnectionStringFactory connectionStringFactory)
+        private MsSqlDatabaseProviderFactory(IConnectionStringFactory connectionStringFactory)
         {
             this.connectionStringFactory = connectionStringFactory;
             databaseProvider = SqlClientFactory.Instance;

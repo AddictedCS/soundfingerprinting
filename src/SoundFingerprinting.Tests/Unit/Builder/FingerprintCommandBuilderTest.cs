@@ -11,6 +11,7 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.Infrastructure;
 
     [TestClass]
     public class FingerprintCommandBuilderTest : AbstractTest
@@ -30,7 +31,12 @@
             audioService = new Mock<IAudioService>(MockBehavior.Strict);
             lshAlgorithm = new Mock<ILocalitySensitiveHashingAlgorithm>(MockBehavior.Strict);
 
-            fingerprintCommandBuilder = new FingerprintCommandBuilder(fingerprintService.Object, audioService.Object, lshAlgorithm.Object);
+            DependencyResolver.Current.Bind<IFingerprintService, IFingerprintService>(fingerprintService.Object);
+            DependencyResolver.Current.Bind<IAudioService, IAudioService>(audioService.Object);
+            DependencyResolver.Current.Bind<ILocalitySensitiveHashingAlgorithm, ILocalitySensitiveHashingAlgorithm>(
+                lshAlgorithm.Object);
+
+            fingerprintCommandBuilder = new FingerprintCommandBuilder();
         }
 
         [TestCleanup]

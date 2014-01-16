@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
-    public class CachedFFTWService : FFTWService
+    internal class CachedFFTWService : FFTWService
     {
         private readonly FFTWService fftwService;
 

@@ -8,7 +8,7 @@ namespace SoundFingerprinting.Dao.SQL
 
     using SoundFingerprinting.Dao.SQL.Conditions;
 
-    public class ModelBinderFactory : IModelBinderFactory
+    internal class ModelBinderFactory : IModelBinderFactory
     {
         private readonly Dictionary<Type, DbType> databaseTypes = new Dictionary<Type, DbType>
             {

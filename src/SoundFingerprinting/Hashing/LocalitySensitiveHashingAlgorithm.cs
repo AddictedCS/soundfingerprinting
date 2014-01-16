@@ -17,7 +17,7 @@
         {
         }
 
-        public LocalitySensitiveHashingAlgorithm(IMinHashService minHashService)
+        private LocalitySensitiveHashingAlgorithm(IMinHashService minHashService)
         {
             this.minHashService = minHashService;
         }
@@ -60,7 +60,7 @@
                 {
                     hashBuckets[i] = BitConverter.ToInt16(minHashes, i * numberOfHashesPerTable);
                 }
-                else if (numberOfHashTables == 4)
+                else if (numberOfHashesPerTable == 4)
                 {
                     hashBuckets[i] = BitConverter.ToInt32(minHashes, i * numberOfHashesPerTable);
                 }

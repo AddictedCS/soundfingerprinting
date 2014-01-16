@@ -2,19 +2,14 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Moq;
+
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.FFT;
 
     [TestClass]
     public class DependencyResolverTest
     {
-        [TestMethod]
-        public void ResolveFingerprintCommandBuilderThroughDependencyResolver()
-        {
-            IFingerprintCommandBuilder builder = DependencyResolver.Current.Get<IFingerprintCommandBuilder>();
-            Assert.IsNotNull(builder);
-        }
-
         [TestMethod]
         public void ResolveDefaultInterfacesForFingerprintCommandTest()
         {

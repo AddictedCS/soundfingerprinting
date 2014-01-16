@@ -11,8 +11,6 @@
     /// </remarks>
     public class StandardHaarWaveletDecomposition : HaarWaveletDecomposition
     {
-        #region IWaveletDecomposition Members
-
         /// <summary>
         ///   Apply Haar Wavelet decomposition on the image
         /// </summary>
@@ -21,8 +19,6 @@
         {
             DecomposeImage(image);
         }
-
-        #endregion
 
         private void Decomposition(float[] array)
         {

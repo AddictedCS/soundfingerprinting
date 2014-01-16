@@ -8,6 +8,7 @@
 
     using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Infrastructure;
 
     [TestClass]
     public class LocalitySensitiveHashingAlgorithmTest : AbstractTest
@@ -20,7 +21,8 @@
         public void SetUp()
         {
             minHashService = new Mock<IMinHashService>(MockBehavior.Strict);
-            lshAlgorithm = new LocalitySensitiveHashingAlgorithm(minHashService.Object);
+            DependencyResolver.Current.Bind<IMinHashService, IMinHashService>(minHashService.Object);
+            lshAlgorithm = new LocalitySensitiveHashingAlgorithm();
         }
 
         [TestCleanup]

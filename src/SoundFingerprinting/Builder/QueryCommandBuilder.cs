@@ -11,10 +11,9 @@
         public QueryCommandBuilder()
             : this(DependencyResolver.Current.Get<IFingerprintCommandBuilder>(), DependencyResolver.Current.Get<IQueryFingerprintService>())
         {
-            // no op
         }
 
-        public QueryCommandBuilder(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
+        private QueryCommandBuilder(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;

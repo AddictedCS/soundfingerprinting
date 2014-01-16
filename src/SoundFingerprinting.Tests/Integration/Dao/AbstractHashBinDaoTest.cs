@@ -18,7 +18,7 @@
 
         protected AbstractHashBinDaoTest()
         {
-            fingerprintCommandBuilder = DependencyResolver.Current.Get<IFingerprintCommandBuilder>();
+            fingerprintCommandBuilder = new FingerprintCommandBuilder();
             tagService = DependencyResolver.Current.Get<ITagService>();
         }
 

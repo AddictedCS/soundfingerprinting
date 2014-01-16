@@ -5,6 +5,7 @@
     using Moq;
 
     using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.Infrastructure;
 
     [TestClass]
     public class MinHashServiceTest : AbstractTest
@@ -17,8 +18,8 @@
         public void SetUp()
         {
             permutations = new Mock<IPermutations>(MockBehavior.Strict);
-
-            minHashService = new MinHashService(permutations.Object);
+            DependencyResolver.Current.Bind<IPermutations, IPermutations>(permutations.Object);
+            minHashService = new MinHashService();
         }
 
         [TestCleanup]
