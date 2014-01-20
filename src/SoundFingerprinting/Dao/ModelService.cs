@@ -61,6 +61,16 @@
             }
         }
 
+        public IList<HashData> ReadHashDataByTrack(IModelReference trackReference)
+        {
+            if (!(trackReference is ModelReference<int>))
+            {
+                throw new NotSupportedException();
+            }
+
+            return hashBinDao.ReadHashDataByTrackId(((ModelReference<int>)trackReference).Id);
+        }
+
         public IList<TrackData> ReadAllTracks()
         {
             return trackDao.ReadAll();

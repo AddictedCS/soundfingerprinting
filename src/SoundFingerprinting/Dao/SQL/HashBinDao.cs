@@ -51,6 +51,11 @@ namespace SoundFingerprinting.Dao.SQL
                     });
         }
 
+        public IList<HashData> ReadHashDataByTrackId(int trackId)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBuckets, int thresholdVotes)
         {
             return PrepareStoredProcedure(SpReadFingerprintsByHashBinHashTableAndThreshold)

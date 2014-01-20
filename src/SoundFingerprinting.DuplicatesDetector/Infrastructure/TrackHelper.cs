@@ -29,14 +29,18 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
         public static Track GetTrack(int mintracklen, int maxtracklen, string filename, ITagService tagService)
         {
             TagInfo tags = tagService.GetTagInfo(filename); // get file tags
-            string artist, title;
+            string artist, title, isrc, album;
             double duration;
+            int year;
             if (tags == null)
             {
                 /*The song does not contain any tags*/
                 artist = "Unknown Artist";
                 title = "Unknown Title";
+                isrc = "Uknown ISRC";
+                album = "Uknown Album";
                 duration = new FileInfo(filename).Length;
+                year = 0;
             }
             else
             {
@@ -44,6 +48,9 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
                 artist = tags.Artist;
                 title = tags.Title;
                 duration = tags.Duration;
+                year = tags.Year;
+                isrc = tags.ISRC;
+                album = tags.Album;
             }
 
             /*assign a name to music files that don't have tags*/
@@ -64,8 +71,7 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
                 return null;
             }
 
-            Track track = new Track(artist, title, Path.GetFullPath(filename), duration);
-            return track;
+            return new Track(Path.GetFullPath(filename), isrc, artist, title, album, year, (int)duration);
         }
     }
 }

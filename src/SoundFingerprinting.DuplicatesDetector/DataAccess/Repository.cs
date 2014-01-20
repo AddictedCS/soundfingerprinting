@@ -2,13 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Runtime.Serialization.Formatters.Binary;
 
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DuplicatesDetector.Model;
-    using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Strides;
 
     /// <summary>
@@ -16,20 +16,17 @@
     /// </summary>
     public class Repository
     {
+        private readonly IModelService modelService;
+
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
-        private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
+        private readonly IQueryFingerprintService queryFingerprintService;
 
-        /// <summary>
-        ///   Storage for hash signatures and tracks
-        /// </summary>
-        private readonly IStorage storage;
-
-        public Repository(IFingerprintCommandBuilder fingerprintCommandBuilder, IStorage storage, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
+        public Repository(IModelService modelService, IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
-            this.lshAlgorithm = lshAlgorithm;
-            this.storage = storage;
+            this.modelService = modelService;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
+            this.queryFingerprintService = queryFingerprintService;
         }
 
         /// <summary>
@@ -47,21 +44,16 @@
                 return; /*track is not eligible*/
             }
 
+            var trackReference = modelService.InsertTrack(track);
+           
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
-            List<bool[]> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
+            var hashes = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                        .From(samples)
                                                        .WithFingerprintConfig(config => config.Stride = stride)
-                                                       .Fingerprint()
-                                                       .Result
-                                                       .ToList();
-
-            storage.InsertTrack(track); /*Insert track into the storage*/
-            /*Get signature's hash signature, and associate it to a specific track*/
-            IEnumerable<HashSignature> creationalsignatures = GetSignatures(fingerprints, track, hashTables, hashKeys);
-            foreach (HashSignature hash in creationalsignatures)
-            {
-                storage.InsertHash(hash);
-            }
+                                                       .Hash()
+                                                       .Result;
+           
+            modelService.InsertHashDataForTrack(hashes, trackReference);
         }
 
         /// <summary>
@@ -72,43 +64,45 @@
         /// <param name = "numberOfFingerprintThreshold">Number of fingerprints threshold</param>
         /// <param name = "callback">Callback invoked at each processed track</param>
         /// <returns>Sets of duplicates</returns>
-        public HashSet<Track>[] FindDuplicates(List<Track> tracks, int threshold, int numberOfFingerprintThreshold, Action<Track, int, int> callback)
+        public HashSet<Track>[] FindDuplicates(IList<TrackData> tracks, int threshold, int numberOfFingerprintThreshold, Action<Track, int, int> callback)
         {
             List<HashSet<Track>> duplicates = new List<HashSet<Track>>();
             int total = tracks.Count, current = 0;
-            foreach (Track track in tracks)
+            var queryConfiguration = new QueryConfiguration(threshold, -1);
+            foreach (var track in tracks)
             {
-                Dictionary<Track, int> trackDuplicates = new Dictionary<Track, int>(); /*this will be a set with duplicates*/
-                HashSet<HashSignature> fingerprints = storage.GetHashSignatures(track); /*get all existing signatures for a specific track*/
-                foreach (HashSignature fingerprint in fingerprints)
-                {
-                    Dictionary<Track, int> results = storage.GetTracks(fingerprint, threshold); /*get all duplicate track without the original track*/
-                    foreach (KeyValuePair<Track, int> result in results)
-                    {
-                        if (!trackDuplicates.ContainsKey(result.Key))
-                        {
-                            trackDuplicates.Add(result.Key, 1);
-                        }
-                        else
-                        {
-                            trackDuplicates[result.Key]++;
-                        }
-                    }
-                }
+                HashSet<Track> trackDuplicates = new HashSet<Track>();
 
-                if (trackDuplicates.Any())
+                var hashes = modelService.ReadHashDataByTrack(track.TrackReference);
+                var result = queryFingerprintService.Query(hashes, queryConfiguration);
+
+                if (result.IsSuccessful)
                 {
-                    var actualDuplicates = trackDuplicates.Where(pair => pair.Value > numberOfFingerprintThreshold).ToList();
-                    if (actualDuplicates.Any())
+                    foreach (var resultEntry in result.ResultEntries)
                     {
-                        HashSet<Track> duplicatePair = new HashSet<Track>(actualDuplicates.Select(pair => pair.Key)) { track };
+                        if (track.Equals(resultEntry.Track))
+                        {
+                            continue;
+                        }
+
+                        if (numberOfFingerprintThreshold > resultEntry.Similarity)
+                        {
+                            continue;
+                        }
+
+                        trackDuplicates.Add((Track)resultEntry.Track);
+                    }
+
+                    if (trackDuplicates.Any())
+                    {
+                        HashSet<Track> duplicatePair = new HashSet<Track>(trackDuplicates) { (Track)track };
                         duplicates.Add(duplicatePair);
                     }
                 }
 
                 if (callback != null)
                 {
-                    callback.Invoke(track, total, ++current);
+                    callback.Invoke((Track)track, total, ++current);
                 }
             }
 
@@ -120,7 +114,7 @@
                     IEnumerable<Track> result = set.Intersect(duplicates[j]);
                     if (result.Any())
                     {
-                        foreach (Track track in duplicates[j]) 
+                        foreach (Track track in duplicates[j])
                         {
                             // collapse all duplicates in one set
                             set.Add(track);
@@ -131,7 +125,7 @@
                     }
                 }
             }
-            
+
             return duplicates.ToArray();
         }
 
@@ -140,36 +134,7 @@
         /// </summary>
         public void ClearStorage()
         {
-            storage.ClearAll();
-        }
-
-        public void SerializeStorage(string pathToSerializedStorage)
-        {
-            using (Stream stream = new FileStream(pathToSerializedStorage, FileMode.CreateNew))
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(stream, storage);
-            }
-        }
-
-        private IEnumerable<HashSignature> GetSignatures(IEnumerable<bool[]> fingerprints, Track track, int hashTables, int hashKeys)
-        {
-            List<HashSignature> signatures = new List<HashSignature>();
-            foreach (bool[] fingerprint in fingerprints)
-            {
-                long[] buckets = lshAlgorithm.Hash(fingerprint, hashTables, hashKeys).HashBins;
-                long[] hashSignature = new long[buckets.Length];
-                int tableCount = 0;
-                foreach (long bucket in buckets)
-                {
-                    hashSignature[tableCount++] = bucket;
-                }
-
-                HashSignature hash = new HashSignature(track, hashSignature); /*associate track to hash-signature*/
-                signatures.Add(hash);
-            }
-
-            return signatures; /*Return the signatures*/
+             throw new NotImplementedException();
         }
     }
 }

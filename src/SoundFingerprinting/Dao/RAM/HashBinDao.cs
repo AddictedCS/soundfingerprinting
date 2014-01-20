@@ -67,6 +67,33 @@
             return Enumerable.Empty<HashBinData>().ToList();
         }
 
+        public IList<HashData> ReadHashDataByTrackId(int trackId)
+        {
+            var subFingerprintsIds =
+                storage.SubFingerprints.Where(pair => ((ModelReference<int>)pair.Value.TrackReference).Id == trackId).
+                    ToList();
+            List<HashData> hashes = new List<HashData>();
+            foreach (var subFingerprint in subFingerprintsIds)
+            {
+                var hashBuckets = new List<long>();
+                foreach (var hashTable in storage.HashTables)
+                {
+                    foreach (var hashBucket in hashTable.Value)
+                    {
+                        if (hashBucket.Value.Contains(subFingerprint.Key))
+                        {
+                            hashBuckets.Add(hashBucket.Key);
+                            break;
+                        }
+                    }
+                }
+
+                hashes.Add(new HashData(subFingerprint.Value.Signature, hashBuckets.ToArray()));
+            }
+
+            return hashes;
+        }
+
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
             long[] hashBuckets, int thresholdVotes)
         {

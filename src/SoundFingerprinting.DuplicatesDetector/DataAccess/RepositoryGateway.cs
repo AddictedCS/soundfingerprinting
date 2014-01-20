@@ -13,11 +13,13 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Dao;
     using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.DuplicatesDetector.ViewModel;
     using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     /// <summary>
@@ -97,10 +99,7 @@
         /// </summary>
         private readonly Repository repository;
 
-        /// <summary>
-        ///   Storage for hash signatures and tracks
-        /// </summary>
-        private readonly IStorage storage;
+        private readonly IModelService modelService;
 
         /// <summary>
         ///   Cancelation token used to abort all the processing
@@ -109,27 +108,14 @@
 
         public RepositoryGateway()
         {
-#if TEST
-            if (File.Exists("serialized.ss"))
-            {
-                using (Stream file = new FileStream("serialized.ss", FileMode.Open))
-                {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    storage = (IStorage)formatter.Deserialize(file);
-                }
-            }
-            else
-            {
-                storage = ServiceContainer.Kernel.Get<IStorage>(new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
-            }
-#else
-            storage = ServiceContainer.Kernel.Get<IStorage>(new ConstructorArgument("numberOfHashTables", NumberOfHashTables));
-#endif  
-
             audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
             tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
-            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintCommandBuilder>(), storage, ServiceContainer.Kernel.Get<ILocalitySensitiveHashingAlgorithm>());
+            repository = new Repository(
+                DependencyResolver.Current.Get<IModelService>(),
+                DependencyResolver.Current.Get<IFingerprintCommandBuilder>(),
+                DependencyResolver.Current.Get<IQueryFingerprintService>());
+            modelService = DependencyResolver.Current.Get<IModelService>();
         }
 
         /// <summary>
@@ -187,7 +173,7 @@
         /// <returns>Set of tracks that are duplicate</returns>
         public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
         {
-            var duplicates = repository.FindDuplicates(storage.GetAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
+            var duplicates = repository.FindDuplicates(modelService.ReadAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
 #if TEST
             repository.SerializeStorage("serialized.ss");
 #endif
