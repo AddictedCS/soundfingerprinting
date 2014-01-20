@@ -1,9 +1,9 @@
 ﻿namespace SoundFingerprinting.Infrastructure
 {
-    public class ConstructorArgument<T>
+    public class ConstructorArgument
     {
         public string Name { get; set; }
 
-        public T Instance { get; set; }
+        public object Instance { get; set; }
     }
 }

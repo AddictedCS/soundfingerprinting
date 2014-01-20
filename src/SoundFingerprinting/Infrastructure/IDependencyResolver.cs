@@ -1,10 +1,12 @@
 ﻿namespace SoundFingerprinting.Infrastructure
 {
+    using System.Collections.Generic;
+
     public interface IDependencyResolver
     {
         T Get<T>();
 
-        TInterface Get<TInterface, T2>(ConstructorArgument<T2>[] constructorArguments);
+        TInterface Get<TInterface>(IEnumerable<ConstructorArgument> constructorArguments);
 
         void Bind<TInterface, TImplementation>() where TImplementation : TInterface;
 

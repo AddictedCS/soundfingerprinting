@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Infrastructure
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     using Ninject;
@@ -94,9 +95,9 @@
                 return kernel.Get<T>();
             }
 
-            public TInterface Get<TInterface, T2>(ConstructorArgument<T2>[] constructorArguments)
+            public TInterface Get<TInterface>(IEnumerable<ConstructorArgument> constructorArguments)
             {
-                var arguments = constructorArguments.Select(constructorArgument => (IParameter)new ConstructorArgument(constructorArgument.Name, constructorArgument.Instance)).ToList();
+                var arguments = constructorArguments.Select(constructorArgument => (IParameter)new Ninject.Parameters.ConstructorArgument(constructorArgument.Name, constructorArgument.Instance)).ToList();
                 return kernel.Get<TInterface>(arguments.ToArray());
             }
 

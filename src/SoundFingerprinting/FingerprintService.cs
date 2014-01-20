@@ -26,6 +26,15 @@ namespace SoundFingerprinting
         {
         }
 
+        public FingerprintService(IFFTService fftService, IWaveletDecomposition waveletDecomposition)
+            : this(
+                DependencyResolver.Current.Get<ISpectrumService>(
+                    new[] { new ConstructorArgument { Name = "fftService", Instance = fftService } }),
+                waveletDecomposition,
+                DependencyResolver.Current.Get<IFingerprintDescriptor>())
+        {
+        }
+
         private FingerprintService(
             ISpectrumService spectrumService,
             IWaveletDecomposition waveletDecomposition,
