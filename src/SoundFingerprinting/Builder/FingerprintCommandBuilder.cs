@@ -19,7 +19,7 @@ namespace SoundFingerprinting.Builder
         {
         }
 
-        private FingerprintCommandBuilder(IFingerprintService fingerprintService, IAudioService audioService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
+        public FingerprintCommandBuilder(IFingerprintService fingerprintService, IAudioService audioService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
         {
             this.fingerprintService = fingerprintService;
             this.audioService = audioService;
