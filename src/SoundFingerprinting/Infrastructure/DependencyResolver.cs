@@ -1,7 +1,7 @@
 ﻿namespace SoundFingerprinting.Infrastructure
 {
     using System;
-    using System.Collections.Generic;
+    using System.Linq;
 
     using Ninject;
     using Ninject.Parameters;
@@ -89,19 +89,15 @@
                 Dispose(false);
             }
 
-            public object GetService(Type serviceType)
-            {
-                return kernel.GetService(serviceType);
-            }
-
-            public IEnumerable<object> GetServices(Type serviceType)
-            {
-                return kernel.GetAll(serviceType);
-            }
-
             public T Get<T>()
             {
                 return kernel.Get<T>();
+            }
+
+            public TInterface Get<TInterface, T2>(ConstructorArgument<T2>[] constructorArguments)
+            {
+                var arguments = constructorArguments.Select(constructorArgument => (IParameter)new ConstructorArgument(constructorArgument.Name, constructorArgument.Instance)).ToList();
+                return kernel.Get<TInterface>(arguments.ToArray());
             }
 
             public void Bind<TInterface, TImplementation>() where TImplementation : TInterface
@@ -109,24 +105,19 @@
                 kernel.Rebind<TInterface>().To<TImplementation>();
             }
 
+            public void BindAsSingleton<TInterface, TImplementation>() where TImplementation : TInterface
+            {
+                kernel.Rebind<TInterface>().To<TImplementation>().InSingletonScope();
+            }
+
             public void Bind<TInterface, TImplementation>(TImplementation constant) where TImplementation : TInterface
             {
-                if (constant is IPermutations)
-                {
-                    RemoveBindingsForType(typeof(IPermutations));
-                    kernel.Bind<IPermutations>().To<CachedPermutations>();
-                    kernel.Bind<IPermutations>().ToConstant((IPermutations)constant).WhenInjectedInto<CachedPermutations>();
-                }
-                else if (constant is IModelBinderFactory)
-                {
-                    RemoveBindingsForType(typeof(IModelBinderFactory));
-                    kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
-                    kernel.Rebind<IModelBinderFactory>().ToConstant((IModelBinderFactory)constant).WhenInjectedInto<CachedModelBinderFactory>();
-                }
-                else
-                {
-                    kernel.Rebind<TInterface>().ToConstant(constant);
-                }
+                kernel.Rebind<TInterface>().ToConstant(constant);
+            }
+
+            public void BindAsSingleton<TInterface, TImplementation>(TImplementation constant) where TImplementation : TInterface
+            {
+                kernel.Bind<TInterface>().To<TImplementation>().InSingletonScope();
             }
 
             public void Dispose()
@@ -142,14 +133,6 @@
                     kernel.Dispose();
                 }
             }
-
-            private void RemoveBindingsForType(Type type)
-            {
-                foreach (var binding in kernel.GetBindings(type))
-                {
-                    kernel.RemoveBinding(binding);
-                }
-            }   
         }
     }
 }
