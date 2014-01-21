@@ -22,7 +22,7 @@
             this.storage = storage;
         }
 
-        public void Insert(long[] hashBins, long subFingerprintId)
+        public void Insert(long[] hashBins, long subFingerprintId, int trackId)
         {
             int table = 1;
             foreach (var hashTable in storage.HashTables)
@@ -69,9 +69,7 @@
 
         public IList<HashData> ReadHashDataByTrackId(int trackId)
         {
-            var subFingerprintsIds =
-                storage.SubFingerprints.Where(pair => ((ModelReference<int>)pair.Value.TrackReference).Id == trackId).
-                    ToList();
+            var subFingerprintsIds = storage.SubFingerprints.Where(pair => ((ModelReference<int>)pair.Value.TrackReference).Id == trackId).ToList();
             List<HashData> hashes = new List<HashData>();
             foreach (var subFingerprint in subFingerprintsIds)
             {

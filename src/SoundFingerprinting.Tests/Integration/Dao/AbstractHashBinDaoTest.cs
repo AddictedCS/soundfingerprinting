@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Integration.Dao
 {
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -38,7 +37,7 @@
             for (int i = 0; i < 100; i++)
             {
                 long subFingerprintId = SubFingerprintDao.Insert(GenericSignature, trackId);
-                HashBinDao.Insert(GenericHashBuckets, subFingerprintId);
+                HashBinDao.Insert(GenericHashBuckets, subFingerprintId, trackId);
             }
 
             for (int hashTable = 1; hashTable <= GenericHashBuckets.Length; hashTable++)
@@ -70,7 +69,7 @@
             foreach (var hash in hashData)
             {
                 long subFingerprintId = SubFingerprintDao.Insert(hash.SubFingerprint, trackId);
-                HashBinDao.Insert(hash.HashBins, subFingerprintId);
+                HashBinDao.Insert(hash.HashBins, subFingerprintId, trackId);
             }
 
             for (int hashTable = 1; hashTable <= 25; hashTable++)
@@ -97,7 +96,7 @@
             foreach (var hash in firstHashData)
             {
                 long subFingerprintId = SubFingerprintDao.Insert(hash.SubFingerprint, firstTrackId);
-                HashBinDao.Insert(hash.HashBins, subFingerprintId);
+                HashBinDao.Insert(hash.HashBins, subFingerprintId, firstTrackId);
             }
 
             TrackData secondTrack = new TrackData("isrc", "artist", "title", "album", 2012, 200);
@@ -114,7 +113,7 @@
             foreach (var hash in secondHashData)
             {
                 long subFingerprintId = SubFingerprintDao.Insert(hash.SubFingerprint, secondTrackId);
-                HashBinDao.Insert(hash.HashBins, subFingerprintId);
+                HashBinDao.Insert(hash.HashBins, subFingerprintId, secondTrackId);
             }
 
             IList<HashData> resultFirstHashData = HashBinDao.ReadHashDataByTrackId(firstTrackId);

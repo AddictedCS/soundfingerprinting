@@ -48,200 +48,250 @@ CREATE TABLE HashTable_1
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_1 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_1_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_1_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_1_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_2
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_2 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_2_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_2_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_2_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_3
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_3 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_3_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_3_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_3_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_4
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_4 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_4_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_4_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_4_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_5
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_5 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_5_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_5_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_5_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_6
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_6 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_6_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_6_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_6_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_7
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_7 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_7_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_7_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_7_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_8
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_8 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_8_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_8_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_8_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_9
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_9 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_9_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)	
+	CONSTRAINT FK_HashTable_9_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_9_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)	
 )
 GO
 CREATE TABLE HashTable_10
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_10 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_10_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_10_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_10_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_11
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_11 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_11_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_11_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_11_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_12
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_12 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_12_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_12_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_12_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_13
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_13 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_13_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_13_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_13_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_14
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_14 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_14_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_14_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_14_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_15
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_15 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_15_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_15_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_15_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_16
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_16 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_16_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_16_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_16_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_17
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_17 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_17_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_17_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_17_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_18
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_18 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_18_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_18_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_18_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_19
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_19 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_19_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_19_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_19_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_20
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_20 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_20_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_20_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_20_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_21
 (	
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_21 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_21_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_21_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_21_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_22
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_22 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_22_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_22_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_22_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_23
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_23 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_23_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_23_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_23_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_24
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_24 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_24_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_24_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_24_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 CREATE TABLE HashTable_25
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
+	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_25 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_25_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
+	CONSTRAINT FK_HashTable_25_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
+	CONSTRAINT FK_HashTable_25_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
 )
 GO
 -- TABLE INDEXES

@@ -24,12 +24,12 @@ namespace SoundFingerprinting.Dao.SQL
              // no op
         }
 
-        public void Insert(long[] hashBins, long subFingerprintId)
+        public void Insert(long[] hashBins, long subFingerprintId, int trackId)
         {
             StringBuilder sqlToExecute = new StringBuilder();
             for (int i = 0; i < hashBins.Length; i++)
             {
-                sqlToExecute.Append("INSERT INTO HashTable_" + (i + 1) + "(HashBin, SubFingerprintId) VALUES(" + hashBins[i] + "," + subFingerprintId + ");");
+                sqlToExecute.Append("INSERT INTO HashTable_" + (i + 1) + "(HashBin, SubFingerprintId, TrackId) VALUES(" + hashBins[i] + "," + subFingerprintId + "," + trackId + ");");
                 if (hashBins.Length > i + 1)
                 {
                     sqlToExecute.Append("\n\r");
