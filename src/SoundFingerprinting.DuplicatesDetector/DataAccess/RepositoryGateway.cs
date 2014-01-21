@@ -3,13 +3,10 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
     using System.Threading.Tasks;
 
     using Ninject;
-    using Ninject.Parameters;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
@@ -18,7 +15,6 @@
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.DuplicatesDetector.ViewModel;
-    using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
@@ -97,7 +93,7 @@
         /// <summary>
         ///   Repository for storage, permutations, algorithm
         /// </summary>
-        private readonly Repository repository;
+        private readonly DuplicatesDetectorService duplicatesDetectorService;
 
         private readonly IModelService modelService;
 
@@ -111,7 +107,7 @@
             audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
             tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
-            repository = new Repository(
+            duplicatesDetectorService = new DuplicatesDetectorService(
                 DependencyResolver.Current.Get<IModelService>(),
                 DependencyResolver.Current.Get<IFingerprintCommandBuilder>(),
                 DependencyResolver.Current.Get<IQueryFingerprintService>());
@@ -156,7 +152,7 @@
                         catch (AggregateException) /*here we are sure all consumers are done processing*/
                         {
                             callback.Invoke(null, null);
-                            repository.ClearStorage(); /*its safe to clear the storage, no more thread is executing*/
+                            duplicatesDetectorService.ClearStorage(); /*its safe to clear the storage, no more thread is executing*/
                         }
                         catch (Exception ex)
                         {
@@ -173,10 +169,7 @@
         /// <returns>Set of tracks that are duplicate</returns>
         public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
         {
-            var duplicates = repository.FindDuplicates(modelService.ReadAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
-#if TEST
-            repository.SerializeStorage("serialized.ss");
-#endif
+            var duplicates = duplicatesDetectorService.FindDuplicates(modelService.ReadAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
             return duplicates;
         }
 
@@ -275,7 +268,7 @@
                             if (tuple != null)
                             {
                                 /*Long running procedure*/
-                                repository.CreateInsertFingerprints(tuple.Item2, tuple.Item1, createStride, NumberOfHashTables, NumberOfKeys);
+                                duplicatesDetectorService.CreateInsertFingerprints(tuple.Item2, tuple.Item1, createStride, NumberOfHashTables, NumberOfKeys);
 
                                 processedtracks.Add(tuple.Item1);
                                 if (processed != null)
