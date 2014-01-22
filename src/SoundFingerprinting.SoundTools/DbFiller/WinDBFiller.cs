@@ -11,11 +11,10 @@
     using System.Windows.Forms;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
-    using SoundFingerprinting.Hashing.LSH;
-    using SoundFingerprinting.NeuralHasher.Ensemble;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -27,28 +26,23 @@
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); /*File filters*/
         private readonly IModelService modelService; /*Dal Signature service*/
-        private readonly ILSHService lshService;
-        private readonly IFingerprintUnitBuilder fingerprintUnitBuilder;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly ITagService tagService;
         private volatile int badFiles; /*Number of Bad files*/
         private volatile int duplicates; /*Number of Duplicates*/
         private List<string> fileList; /*List of file to process*/
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH; /*Hashing algorithm*/
-        private int hashKeys;
-        private int hashTables;
         private volatile int left; /*Number of left items*/
         private volatile int processed; /*Number of Processed files*/
         private bool stopFlag;
         
         public WinDbFiller(
-            IFingerprintUnitBuilder fingerprintUnitBuilder,
+            IFingerprintCommandBuilder fingerprintCommandBuilder,
             ITagService tagService,
-            IModelService modelService,
-            ILSHService lshService)
+            IModelService modelService)
         {
             this.modelService = modelService;
-            this.lshService = lshService;
-            this.fingerprintUnitBuilder = fingerprintUnitBuilder;
+            this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.tagService = tagService;
             InitializeComponent();
             Icon = Resources.Sound;
@@ -210,30 +204,9 @@
             switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
-                    hashTables = (int)_nudHashTables.Value; // If LSH is used # of Hash tables
-                    hashKeys = (int)_nudHashKeys.Value; // If LSH is used # of keys per table
                     break;
                 case HashAlgorithm.NeuralHasher:
-                    if (string.IsNullOrEmpty(_tbPathToEnsemble.Text))
-                    {
-                        // Check if the path to ensemble is specified
-                        MessageBox.Show(Resources.SpecifyPathToNetworkEnsemble, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        FadeAllControls(false);
-                        return;
-                    }
-
-                    try
-                    {
-                        NeuralNetworkEnsemble.Load(_tbPathToEnsemble.Text); // Load the ensemble
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                        FadeAllControls(false);
-                        return;
-                    }
-
-                    break;
+                    throw new NotImplementedException();
                 case HashAlgorithm.None:
                     break;
             }
@@ -323,7 +296,7 @@
                                 (StrideType)_cmbStrideType.SelectedIndex,
                                 (int)_nudStride.Value,
                                 0,
-                                new DefaultFingerprintingConfiguration().SamplesPerFingerprint);
+                                new DefaultFingerprintConfiguration().SamplesPerFingerprint);
                         }),
                 null);
 
@@ -398,7 +371,7 @@
                     continue;
                 }
 
-                Track track;
+                IModelReference trackReference;
                 try
                 {
                     lock (this)
@@ -413,8 +386,8 @@
                             continue;
                         }
 
-                        track = new Track(isrc, artist, title, album, releaseYear, (int)duration);
-                        modelService.InsertTrack(track); // Insert new Track in the database
+                        var track = new TrackData(isrc, artist, title, album, releaseYear, (int)duration);
+                        trackReference = modelService.InsertTrack(track); // Insert new Track in the database
                     }
                 }
                 catch (Exception e)
@@ -431,24 +404,20 @@
                 int count;
                 try
                 {
-                    List<SubFingerprint> subFingerprintsToTrack =
-                        fingerprintUnitBuilder
-                                        .BuildAudioFingerprintingUnit()
+                    var hashDatas = fingerprintCommandBuilder
+                                        .BuildFingerprintCommand()
                                         .From(fileList[i])
-                                        .WithCustomAlgorithmConfiguration(
+                                        .WithFingerprintConfig(
                                             config =>
                                                 {
                                                     config.TopWavelets = topWavelets;
                                                     config.Stride = stride;
                                                 })
-                                         .FingerprintIt()
-                                         .HashIt()
-                                         .ForTrack(track.Id)
+                                         .Hash()
                                          .Result; // Create SubFingerprints
 
-                    modelService.InsertSubFingerprint(subFingerprintsToTrack);
-                    count = subFingerprintsToTrack.Count;
-                    HashSubFingerprintsUsingMinHash(subFingerprintsToTrack);
+                    modelService.InsertHashDataForTrack(hashDatas, trackReference);
+                    count = hashDatas.Count;
                 }
                 catch (Exception e)
                 {
@@ -475,24 +444,7 @@
                 return modelService.ReadTrackByISRC(isrc) != null;
             }
 
-            return modelService.ReadTrackByArtistAndTitleName(artist, title) != null;
-        }
-
-        private void HashSubFingerprintsUsingMinHash(IEnumerable<SubFingerprint> listOfSubFingerprintsToHash)
-        {
-            List<HashBinMinHash> listToInsert = new List<HashBinMinHash>();
-            foreach (SubFingerprint subFingerprint in listOfSubFingerprintsToHash)
-            {
-                long[] buckets = lshService.Hash(subFingerprint.Signature, hashTables, hashKeys);
-                int tableCount = 1;
-                foreach (long bucket in buckets)
-                {
-                    HashBinMinHash hash = new HashBinMinHash(bucket, tableCount++, subFingerprint.Id);
-                    listToInsert.Add(hash);
-                }
-            }
-
-            modelService.InsertHashBin(listToInsert);
+            return modelService.ReadTrackByArtistAndTitleName(artist, title).Any();
         }
 
         private void FadeAllControls(bool visible)

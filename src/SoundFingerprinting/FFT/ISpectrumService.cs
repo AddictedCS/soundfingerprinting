@@ -19,6 +19,6 @@
 
         float[][] CreateSpectrogram(float[] samples, int overlap, int wdftSize);
 
-        float[][] CreateLogSpectrogram(float[] samples, IFingerprintingConfiguration configuration);
+        float[][] CreateLogSpectrogram(float[] samples, IFingerprintConfiguration configuration);
     }
 }

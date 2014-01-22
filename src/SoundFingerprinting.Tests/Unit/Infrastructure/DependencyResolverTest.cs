@@ -2,17 +2,26 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Infrastructure;
+    using Moq;
+
+    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.FFT;
 
     [TestClass]
     public class DependencyResolverTest
     {
         [TestMethod]
-        public void TestResolveFingerprintUnitBuilder()
+        public void ResolveDefaultInterfacesForFingerprintCommandTest()
         {
-            IFingerprintUnitBuilder builder = DependencyResolver.Current.Get<IFingerprintUnitBuilder>();
-            Assert.IsNotNull(builder);
-            Assert.AreEqual(typeof(FingerprintUnitBuilder), builder.GetType());
+            IFingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
+            Assert.IsNotNull(fingerprintCommandBuilder);
+        }
+
+        [TestMethod]
+        public void ResolverDefaultInterfacesForQueryCommandTest()
+        {
+            IQueryCommandBuilder queryCommandBuilder = new QueryCommandBuilder();
+            Assert.IsNotNull(queryCommandBuilder);
         }
     }
 }

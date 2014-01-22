@@ -4,6 +4,10 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Dao.RAM;
+    using SoundFingerprinting.Infrastructure;
+
     [DeploymentItem(@"floatsamples.bin")]
     [DeploymentItem(@"Kryptonite.mp3")]
     [TestClass]
@@ -21,6 +25,7 @@
         public virtual void TearDown()
         {
             transactionPerTestScope.Dispose();
+            DependencyResolver.Current.Get<IRAMStorage>().Reset(new DefaultFingerprintConfiguration().NumberOfLSHTables);
         }
     }
 }

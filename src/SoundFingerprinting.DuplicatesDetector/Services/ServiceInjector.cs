@@ -3,6 +3,7 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DuplicatesDetector.DataAccess;
     using SoundFingerprinting.Hashing;
 
@@ -26,9 +27,9 @@
             ServiceContainer.Kernel.Bind<IWindowService>().To<WindowService>();
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
             ServiceContainer.Kernel.Bind<IStorage>().To<RamStorage>();
-            ServiceContainer.Kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
+            ServiceContainer.Kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
             ServiceContainer.Kernel.Bind<IExtendedAudioService, ITagService>().To<BassAudioService>().InSingletonScope();
-            ServiceContainer.Kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
+            ServiceContainer.Kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>();
         }
     }
 }

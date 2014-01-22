@@ -10,6 +10,7 @@
     using System.Windows.Forms;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.SoundTools.Properties;
@@ -17,7 +18,7 @@
 
     public partial class WinCheckHashBins : Form
     {
-        private readonly IFingerprintQueryBuilder queryBuilder;
+        private readonly IQueryCommandBuilder queryCommandBuilder;
         private readonly ITagService tagService;
         private readonly IModelService modelService;
         private readonly IExtendedAudioService audioService;
@@ -25,9 +26,9 @@
         private List<string> fileList = new List<string>();
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
-        public WinCheckHashBins(IFingerprintQueryBuilder queryBuilder, ITagService tagService, IModelService modelService, IExtendedAudioService audioService)
+        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IExtendedAudioService audioService)
         {
-            this.queryBuilder = queryBuilder;
+            this.queryCommandBuilder = queryCommandBuilder;
             this.tagService = tagService;
             this.modelService = modelService;
             this.audioService = audioService;
@@ -142,7 +143,7 @@
 
         private void BtnStartClick(object sender, EventArgs e)
         {
-            DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
+            DefaultFingerprintConfiguration configuration = new DefaultFingerprintConfiguration();
             switch (hashAlgorithm)
             {
                 case HashAlgorithm.LSH:
@@ -161,7 +162,7 @@
                         WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                         tagService,
                         modelService,
-                        queryBuilder);
+                        queryCommandBuilder);
                     winQueryResults.Show();
                     winQueryResults.Refresh();
                     winQueryResults.ExtractCandidatesWithMinHashAlgorithm(fileList);
@@ -175,7 +176,7 @@
 
         private void BtnQueryFromMicrophoneClick(object sender, EventArgs e)
         {
-            DefaultFingerprintingConfiguration configuration = new DefaultFingerprintingConfiguration();
+            DefaultFingerprintConfiguration configuration = new DefaultFingerprintConfiguration();
             int secondsToRecord = (int)_nudSecondsToRecord.Value;
             int sampleRate = (int)_nudSampleRate.Value;
             string pathToFile = "mic_" + DateTime.Now.Ticks + ".wav";
@@ -193,7 +194,7 @@
                             WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                             tagService,
                             modelService,
-                            queryBuilder);
+                            queryCommandBuilder);
                         winQueryResults.Show();
                         winQueryResults.Refresh();
                         winQueryResults.ExtractCandidatesUsingSamples(task.Result);

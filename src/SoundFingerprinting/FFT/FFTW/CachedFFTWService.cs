@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
-    public class CachedFFTWService : FFTWService, IDisposable
+    internal class CachedFFTWService : FFTWService
     {
         private readonly FFTWService fftwService;
 
@@ -21,7 +21,7 @@
 
         ~CachedFFTWService()
         {
-            Dispose(true);
+            Dispose(false);
         }
 
         public override float[] FFTForward(float[] signal, int startIndex, int length)
@@ -42,13 +42,6 @@
                 FreePlan(fftPlan);
                 return result;
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(false);
-            alreadyDisposed = true;
-            GC.SuppressFinalize(this);
         }
 
         public override IntPtr GetInput(int length)
@@ -102,11 +95,12 @@
             return plan;
         }
 
-        protected void Dispose(bool isDisposing)
+        protected override void Dispose(bool isDisposing)
         {
             if (!alreadyDisposed)
             {
-                if (!isDisposing)
+                alreadyDisposed = true;
+                if (isDisposing)
                 {
                     // release managed resources
                 }

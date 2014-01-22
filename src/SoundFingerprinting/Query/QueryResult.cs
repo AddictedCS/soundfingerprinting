@@ -1,15 +1,27 @@
 ﻿namespace SoundFingerprinting.Query
 {
-    using SoundFingerprinting.Dao.Entities;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class QueryResult
     {
         public bool IsSuccessful { get; set; }
 
-        public int Similarity { get; set; }
+        public List<ResultEntry> ResultEntries { get; set; }
 
-        public Track BestMatch { get; set; }
+        public int AnalyzedCandidatesCount { get; set; }
 
-        public int NumberOfCandidates { get; set; }
+        public ResultEntry BestMatch
+        {
+            get
+            {
+                if (ResultEntries != null && ResultEntries.Any())
+                {
+                    return ResultEntries[0];
+                }
+
+                return null;
+            }
+        }
     }
 }

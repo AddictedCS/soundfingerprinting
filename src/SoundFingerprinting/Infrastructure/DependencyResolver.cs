@@ -4,15 +4,18 @@
     using System.Collections.Generic;
 
     using Ninject;
+    using Ninject.Parameters;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.RAM;
+    using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.Hashing;
-    using SoundFingerprinting.Hashing.LSH;
     using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Image;
     using SoundFingerprinting.Utils;
@@ -35,7 +38,7 @@
             }
         }
 
-        private class DefaultDependencyResolver : IDependencyResolver
+        private sealed class DefaultDependencyResolver : IDependencyResolver, IDisposable
         {
             private readonly IKernel kernel;
 
@@ -43,38 +46,47 @@
             {
                 kernel = new StandardKernel();
                 kernel.Bind<IFingerprintService>().To<FingerprintService>();
-                kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>();
-                kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>();
-                kernel.Bind<IFingerprintingConfiguration>().To<DefaultFingerprintingConfiguration>();
-                kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>();
-                kernel.Bind<IFFTService>().To<CachedFFTWService>();
-
+                kernel.Bind<ISpectrumService>().To<SpectrumService>();
+                kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>().InSingletonScope();
+                kernel.Bind<IFFTService>().To<CachedFFTWService>().InSingletonScope();
                 if (Environment.Is64BitProcess)
                 {
-                    kernel.Bind<FFTWService>().To<FFTWService64>().WhenInjectedInto<CachedFFTWService>();
+                    kernel.Bind<FFTWService>().To<FFTWService64>().WhenInjectedInto<CachedFFTWService>().InSingletonScope();
                 }
                 else
                 {
-                    kernel.Bind<FFTWService>().To<FFTWService86>().WhenInjectedInto<CachedFFTWService>();
+                    kernel.Bind<FFTWService>().To<FFTWService86>().WhenInjectedInto<CachedFFTWService>().InSingletonScope();
                 }
 
-                kernel.Bind<IFingerprintUnitBuilder>().To<FingerprintUnitBuilder>();
+                kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
+                kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
+              
+                kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>().InSingletonScope();
+                kernel.Bind<IModelBinderFactory>().To<ModelBinderFactory>()
+                                                  .WhenInjectedInto<CachedModelBinderFactory>();
+              
                 kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
-                kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>();
-                kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
-                kernel.Bind<IModelBinderFactory>().To<ModelBinderFactory>().WhenInjectedInto<CachedModelBinderFactory>();
-                kernel.Bind<IModelService>().To<ModelService>();
-                kernel.Bind<IPermutationGeneratorService>().To<PermutationGeneratorService>();
-                kernel.Bind<IImageService>().To<ImageService>();
-                kernel.Bind<ISpectrumService>().To<SpectrumService>();
-                kernel.Bind<IWaveletService>().To<WaveletService>();
-                kernel.Bind<IMinHashService>().To<MinHashService>();
-                kernel.Bind<ILSHService>().To<LSHService>();
-                kernel.Bind<IPermutations>().To<DefaultPermutations>();
+                kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>().InSingletonScope();
                 
-                kernel.Bind<ICombinedHashingAlgoritm>().To<CombinedHashingAlgorithm>();
-                kernel.Bind<IFingerprintQueryBuilder>().To<FingerprintQueryBuilder>();
+                kernel.Bind<IModelService>().To<SqlModelService>().InSingletonScope();
+                kernel.Bind<IPermutationGeneratorService>().To<PermutationGeneratorService>().InSingletonScope();
+                kernel.Bind<IImageService>().To<ImageService>();
+                kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
+                kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
+                kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();
+
+                kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
                 kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
+                kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
+                
+                kernel.Bind<IRAMStorage>().To<RAMStorage>()
+                                          .InSingletonScope()
+                                          .WithConstructorArgument("numberOfHashTables", new DefaultFingerprintConfiguration().NumberOfLSHTables);
+            }
+
+            ~DefaultDependencyResolver()
+            {
+                Dispose(false);
             }
 
             public object GetService(Type serviceType)
@@ -99,13 +111,13 @@
 
             public void Bind<TInterface, TImplementation>(TImplementation constant) where TImplementation : TInterface
             {
-                if (constant as IPermutations != null)
+                if (constant is IPermutations)
                 {
                     RemoveBindingsForType(typeof(IPermutations));
                     kernel.Bind<IPermutations>().To<CachedPermutations>();
                     kernel.Bind<IPermutations>().ToConstant((IPermutations)constant).WhenInjectedInto<CachedPermutations>();
                 }
-                else if (constant as IModelBinderFactory != null)
+                else if (constant is IModelBinderFactory)
                 {
                     RemoveBindingsForType(typeof(IModelBinderFactory));
                     kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>();
@@ -117,13 +129,27 @@
                 }
             }
 
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void Dispose(bool isDisposing)
+            {
+                if (isDisposing)
+                {
+                    kernel.Dispose();
+                }
+            }
+
             private void RemoveBindingsForType(Type type)
             {
                 foreach (var binding in kernel.GetBindings(type))
                 {
                     kernel.RemoveBinding(binding);
                 }
-            }
+            }   
         }
     }
 }

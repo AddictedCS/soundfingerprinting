@@ -2,11 +2,12 @@
 {
     using System.Collections.Generic;
 
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
-    using SoundFingerprinting.Query.Configuration;
 
     public interface IQueryFingerprintService
     {
-        QueryResult Query(IEnumerable<bool[]> fingerprints, IQueryConfiguration queryConfiguration);
+        QueryResult Query(IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration);
     }
 }

@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Utils
     using System;
     using System.Collections.Generic;
 
-    public class AbsComparator : IComparer<float>
+    internal class AbsComparator : IComparer<float>
     {
         public int Compare(float x, float y)
         {

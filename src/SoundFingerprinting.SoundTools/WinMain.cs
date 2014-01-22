@@ -10,8 +10,6 @@ namespace SoundFingerprinting.SoundTools
     using SoundFingerprinting.SoundTools.FFMpegResampler;
     using SoundFingerprinting.SoundTools.FilePermutations;
     using SoundFingerprinting.SoundTools.Misc;
-    using SoundFingerprinting.SoundTools.NetworkEnsembling;
-    using SoundFingerprinting.SoundTools.NetworkTrainer;
     using SoundFingerprinting.SoundTools.PermutationGenerator;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.SoundTools.QueryDb;
@@ -68,30 +66,6 @@ namespace SoundFingerprinting.SoundTools
         private void FFMpegResamplerToolStripMenuItemClick(object sender, EventArgs e)
         {
             WinFfMpegResampler win = DependencyResolver.Current.Get<WinFfMpegResampler>();
-            win.Show();
-        }
-
-        private void BtnTrainNetworksClick(object sender, EventArgs e)
-        {
-            WinNetworkTrainer win = DependencyResolver.Current.Get<WinNetworkTrainer>();
-            win.Show();
-        }
-
-        private void BtnHashFingersClick(object sender, EventArgs e)
-        {
-            WinEnsembleHash win = DependencyResolver.Current.Get<WinEnsembleHash>();
-            win.Show();
-        }
-
-        private void TrainToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            WinNetworkTrainer win = DependencyResolver.Current.Get<WinNetworkTrainer>();
-            win.Show();
-        }
-
-        private void HashFingerprintsToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            WinEnsembleHash win = DependencyResolver.Current.Get<WinEnsembleHash>();
             win.Show();
         }
 

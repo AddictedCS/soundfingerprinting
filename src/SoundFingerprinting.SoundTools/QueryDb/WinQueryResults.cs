@@ -5,13 +5,15 @@
     using System.Drawing;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.Entities;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -24,7 +26,7 @@
         private const string ColResultName = "ResultSongNameTitle";
         private const string ColResult = "Result";
         private const string ColHammingAvg = "HammingAvg";
-        private const string ColNumberOfCandidates = "NumberOfCandidates";
+        private const string ColNumberOfCandidates = "TotalNumberOfAnalyzedCandidates";
         private const string ColISRC = "ISRC";
 
         private readonly int hashKeys;
@@ -36,7 +38,7 @@
         private readonly IStride queryStride;
         private readonly ITagService tagService;
         private readonly IModelService modelService;
-        private readonly IFingerprintQueryBuilder fingerprintQueryBuilder;
+        private readonly IQueryCommandBuilder queryCommandBuilder;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         private bool stopQuerying;
@@ -50,7 +52,7 @@
             IStride queryStride,
             ITagService tagService,
             IModelService modelService,
-            IFingerprintQueryBuilder fingerprintQueryBuilder)
+            IQueryCommandBuilder queryCommandBuilder)
         {
             InitializeComponent();
             Icon = Resources.Sound;
@@ -62,7 +64,7 @@
             this.threshold = threshold;
             this.tagService = tagService;
             this.modelService = modelService;
-            this.fingerprintQueryBuilder = fingerprintQueryBuilder;
+            this.queryCommandBuilder = queryCommandBuilder;
 
             // ReSharper disable PossibleNullReferenceException
             _dgvResults.Columns.Add(ColSongName, "Initial Song");
@@ -133,31 +135,31 @@
                             return;
                         }
 
-                        Track actualTrack = null;
+                        TrackData actualTrack = null;
                         if (!string.IsNullOrEmpty(isrc))
                         {
                             actualTrack = modelService.ReadTrackByISRC(isrc);
                         }
                         else if (!string.IsNullOrEmpty(tags.Artist) && !string.IsNullOrEmpty(tags.Title))
                         {
-                            actualTrack = modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title);
+                            actualTrack = modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title).FirstOrDefault();
                         }
 
                         var queryResult =
-                            fingerprintQueryBuilder.BuildQuery()
+                            queryCommandBuilder.BuildQueryCommand()
                                                    .From(pathToFile, secondsToAnalyze, startSecond)
-                                                   .WithCustomConfigurations(
+                                                   .WithConfigs(
                                                         fingerprintConfig =>
                                                         {
                                                             fingerprintConfig.Stride = samplesToSkip;
+                                                            fingerprintConfig.NumberOfLSHTables = hashTables;
+                                                            fingerprintConfig.NumberOfMinHashesPerTable = hashKeys;
                                                         },
                                                         queryConfig =>
                                                         {
-                                                            queryConfig.NumberOfLSHTables = hashTables;
-                                                            queryConfig.NumberOfMinHashesPerTable = hashKeys;
                                                             queryConfig.ThresholdVotes = threshold;
                                                         })
-                                                    .Query(cancellationTokenSource.Token)
+                                                    .Query()
                                                     .Result;
 
                         if (cancellationTokenSource.IsCancellationRequested)
@@ -184,8 +186,8 @@
                         }
 
                         verified++;
-                        Track recognizedTrack = queryResult.BestMatch;
-                        bool isSuccessful = actualTrack == null || recognizedTrack.Id == actualTrack.Id;
+                        TrackData recognizedTrack = queryResult.BestMatch.Track;
+                        bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.HashCode == actualTrack.TrackReference.HashCode;
                         if (isSuccessful)
                         {
                             recognized++;
@@ -196,7 +198,7 @@
                             new object[]
                                 {
                                     title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist,
-                                    isSuccessful, queryResult.Similarity, queryResult.NumberOfCandidates,
+                                    isSuccessful, queryResult.BestMatch.Similarity, queryResult.AnalyzedCandidatesCount,
                                     recognizedTrack.ISRC
                                 },
                             Color.Empty);
@@ -218,20 +220,20 @@
         {
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;
-            fingerprintQueryBuilder.BuildQuery()
+            queryCommandBuilder.BuildQueryCommand()
                                    .From(samples)
-                                   .WithCustomConfigurations(
+                                   .WithConfigs(
                                         fingerprintConfig =>
                                         {
                                             fingerprintConfig.Stride = samplesToSkip;
+                                            fingerprintConfig.NumberOfLSHTables = hashTables;
+                                            fingerprintConfig.NumberOfMinHashesPerTable = hashKeys;
                                         },
                                         queryConfig =>
                                         {
-                                            queryConfig.NumberOfLSHTables = hashTables;
-                                            queryConfig.NumberOfMinHashesPerTable = hashKeys;
                                             queryConfig.ThresholdVotes = threshold;
                                         })
-                                  .Query(cancellationTokenSource.Token)
+                                  .Query()
                                   .ContinueWith(
                                         t =>
                                         {
@@ -242,7 +244,7 @@
                                                 return;
                                             }
 
-                                            Track recognizedTrack = queryResult.BestMatch;
+                                            TrackData recognizedTrack = queryResult.BestMatch.Track;
                                             recognized++;
                                             verified++;
 

@@ -1,10 +1,17 @@
 ﻿namespace SoundFingerprinting.Wavelets
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public abstract class HaarWaveletDecomposition : IWaveletDecomposition
     {
         public abstract void DecomposeImageInPlace(float[][] image);
+
+        public void DecomposeImagesInPlace(IEnumerable<float[][]> logarithmizedSpectrum)
+        {
+            Parallel.ForEach(logarithmizedSpectrum, DecomposeImageInPlace);
+        }
 
         protected void DecompositionStep(float[] array, int h)
         {

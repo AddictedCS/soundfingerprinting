@@ -1,7 +1,15 @@
 ﻿namespace SoundFingerprinting.Wavelets
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
     public class IntegralImage : IWaveletDecomposition
     {
+        public void DecomposeImagesInPlace(IEnumerable<float[][]> images)
+        {
+            Parallel.ForEach(images, DecomposeImageInPlace);
+        }
+
         public void DecomposeImageInPlace(float[][] image)
         {
             int nframes = image.Length;

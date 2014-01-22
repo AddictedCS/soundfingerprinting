@@ -12,6 +12,7 @@
     using Ninject.Parameters;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.Services;
@@ -128,7 +129,7 @@
             audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
             tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
-            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintUnitBuilder>(), storage, ServiceContainer.Kernel.Get<ICombinedHashingAlgoritm>());
+            repository = new Repository(ServiceContainer.Kernel.Get<IFingerprintCommandBuilder>(), storage, ServiceContainer.Kernel.Get<ILocalitySensitiveHashingAlgorithm>());
         }
 
         /// <summary>
