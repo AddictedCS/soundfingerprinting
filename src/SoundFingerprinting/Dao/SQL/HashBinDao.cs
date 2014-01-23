@@ -10,6 +10,8 @@ namespace SoundFingerprinting.Dao.SQL
     {
         private const string SpReadFingerprintsByHashBinHashTableAndThreshold = "sp_ReadFingerprintsByHashBinHashTableAndThreshold";
 
+        private const string SpReadHashDataByTrackId = "sp_ReadHashDataByTrackId";
+
         public HashBinDao()
             : base(
                 DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
@@ -53,7 +55,20 @@ namespace SoundFingerprinting.Dao.SQL
 
         public IList<HashData> ReadHashDataByTrackId(int trackId)
         {
-            throw new System.NotImplementedException();
+            const int HashTablesCount = 25;
+            return PrepareStoredProcedure(SpReadHashDataByTrackId).WithParameter("TrackId", trackId)
+                .Execute()
+                .AsList(reader =>
+                    {
+                        byte[] signature = (byte[])reader.GetRaw("Signature");
+                        long[] hashBins = new long[HashTablesCount];
+                        for (int i = 1; i <= HashTablesCount; i++)
+                        {
+                            hashBins[i - 1] = reader.GetInt64("HashBin_" + i);
+                        }
+
+                        return new HashData(signature, hashBins);
+                    });
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBuckets, int thresholdVotes)

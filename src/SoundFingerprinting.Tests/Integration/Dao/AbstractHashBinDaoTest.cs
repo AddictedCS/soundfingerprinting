@@ -116,28 +116,11 @@
                 HashBinDao.Insert(hash.HashBins, subFingerprintId, secondTrackId);
             }
 
-            IList<HashData> resultFirstHashData = HashBinDao.ReadHashDataByTrackId(firstTrackId);
-            AssertHashDatasAreEqual(firstHashData, resultFirstHashData);
+            var resultFirstHashData = HashBinDao.ReadHashDataByTrackId(firstTrackId);
+            AssertHashDatasAreTheSame(firstHashData, resultFirstHashData);
 
             IList<HashData> resultSecondHashData = HashBinDao.ReadHashDataByTrackId(secondTrackId);
-            AssertHashDatasAreEqual(secondHashData, resultSecondHashData);
-        }
-
-        private static void AssertHashDatasAreEqual(List<HashData> firstHashData, IList<HashData> resultFirstHashData)
-        {
-            Assert.AreEqual(firstHashData.Count, resultFirstHashData.Count);
-            for (int i = 0; i < firstHashData.Count; i++)
-            {
-                for (int j = 0; j < firstHashData[i].HashBins.Length; j++)
-                {
-                    Assert.AreEqual(firstHashData[i].HashBins[j], resultFirstHashData[i].HashBins[j]);
-                }
-
-                for (int j = 0; j < firstHashData[i].SubFingerprint.Length; j++)
-                {
-                    Assert.AreEqual(firstHashData[i].SubFingerprint[j], resultFirstHashData[i].SubFingerprint[j]);
-                }
-            }
+            AssertHashDatasAreTheSame(secondHashData, resultSecondHashData);
         }
     }
 }
