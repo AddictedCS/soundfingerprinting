@@ -53,12 +53,22 @@
                 throw new NotSupportedException("Cannot insert non relational reference to relational database");
             }
 
+            int trackId = ((ModelReference<int>)trackReference).Id;
             foreach (var hashData in hashes)
             {
-                long subFingerprintId = subFingerprintDao.Insert(
-                    hashData.SubFingerprint, ((ModelReference<int>)trackReference).Id);
-                hashBinDao.Insert(hashData.HashBins, subFingerprintId);
+                long subFingerprintId = subFingerprintDao.Insert(hashData.SubFingerprint, trackId);
+                hashBinDao.Insert(hashData.HashBins, subFingerprintId, trackId);
             }
+        }
+
+        public IList<HashData> ReadHashDataByTrack(IModelReference trackReference)
+        {
+            if (!(trackReference is ModelReference<int>))
+            {
+                throw new NotSupportedException();
+            }
+
+            return hashBinDao.ReadHashDataByTrackId(((ModelReference<int>)trackReference).Id);
         }
 
         public IList<TrackData> ReadAllTracks()

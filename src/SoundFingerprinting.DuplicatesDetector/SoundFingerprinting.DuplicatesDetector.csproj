@@ -110,9 +110,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataAccess\IStorage.cs" />
-    <Compile Include="DataAccess\RamStorage.cs" />
-    <Compile Include="DataAccess\Repository.cs" />
+    <Compile Include="DataAccess\DuplicatesDetectorService.cs" />
     <Compile Include="Infrastructure\TrackHelper.cs" />
     <Compile Include="Model\Item.cs" />
     <Compile Include="Model\HashSignature.cs" />

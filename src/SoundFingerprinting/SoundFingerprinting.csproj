@@ -92,6 +92,7 @@
     <Compile Include="FFT\FFTW\X64\FFTWFNativeMethods.cs" />
     <Compile Include="Hashing\BoundedLocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="Hashing\MinHash\DefaultPermutations.cs" />
+    <Compile Include="Infrastructure\ConstructorArgument.cs" />
     <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />

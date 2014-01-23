@@ -10,6 +10,8 @@ namespace SoundFingerprinting.Dao.SQL
     {
         private const string SpReadFingerprintsByHashBinHashTableAndThreshold = "sp_ReadFingerprintsByHashBinHashTableAndThreshold";
 
+        private const string SpReadHashDataByTrackId = "sp_ReadHashDataByTrackId";
+
         public HashBinDao()
             : base(
                 DependencyResolver.Current.Get<IDatabaseProviderFactory>(),
@@ -24,12 +26,12 @@ namespace SoundFingerprinting.Dao.SQL
              // no op
         }
 
-        public void Insert(long[] hashBins, long subFingerprintId)
+        public void Insert(long[] hashBins, long subFingerprintId, int trackId)
         {
             StringBuilder sqlToExecute = new StringBuilder();
             for (int i = 0; i < hashBins.Length; i++)
             {
-                sqlToExecute.Append("INSERT INTO HashTable_" + (i + 1) + "(HashBin, SubFingerprintId) VALUES(" + hashBins[i] + "," + subFingerprintId + ");");
+                sqlToExecute.Append("INSERT INTO HashTable_" + (i + 1) + "(HashBin, SubFingerprintId, TrackId) VALUES(" + hashBins[i] + "," + subFingerprintId + "," + trackId + ");");
                 if (hashBins.Length > i + 1)
                 {
                     sqlToExecute.Append("\n\r");
@@ -48,6 +50,24 @@ namespace SoundFingerprinting.Dao.SQL
                         long subFingerprintId = reader.GetInt64("SubFingerprintId");
                         item.SubFingerprintReference = new ModelReference<long>(subFingerprintId);
                         item.HashTable = hashTableId;
+                    });
+        }
+
+        public IList<HashData> ReadHashDataByTrackId(int trackId)
+        {
+            const int HashTablesCount = 25;
+            return PrepareStoredProcedure(SpReadHashDataByTrackId).WithParameter("TrackId", trackId)
+                .Execute()
+                .AsList(reader =>
+                    {
+                        byte[] signature = (byte[])reader.GetRaw("Signature");
+                        long[] hashBins = new long[HashTablesCount];
+                        for (int i = 1; i <= HashTablesCount; i++)
+                        {
+                            hashBins[i - 1] = reader.GetInt64("HashBin_" + i);
+                        }
+
+                        return new HashData(signature, hashBins);
                     });
         }
 

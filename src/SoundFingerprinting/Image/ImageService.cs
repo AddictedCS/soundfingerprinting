@@ -25,7 +25,7 @@
         {
         }
 
-        private ImageService(ISpectrumService spectrumService, IWaveletDecomposition waveletDecomposition)
+        public ImageService(ISpectrumService spectrumService, IWaveletDecomposition waveletDecomposition)
         {
             this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;

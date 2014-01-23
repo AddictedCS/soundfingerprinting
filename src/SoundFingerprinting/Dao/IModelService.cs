@@ -12,6 +12,8 @@ namespace SoundFingerprinting.Dao
 
         void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference);
 
+        IList<HashData> ReadHashDataByTrack(IModelReference trackReference);
+            
         IList<TrackData> ReadAllTracks();
 
         IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
