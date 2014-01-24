@@ -42,9 +42,16 @@
       <HintPath>..\Externals\Bass\Bass.Net.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="linq2db, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f19f8aed7feff67e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\linq2db.1.0.1.1\lib\net40\linq2db.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -52,6 +59,14 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite, Version=1.0.90.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Data.SQLite.1.0.90.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.90.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Data.SQLite.1.0.90.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +81,7 @@
     <Compile Include="Integration\Dao\AbstractHashBinDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\HashBinDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\InMemoryModelServiceTest.cs" />
+    <Compile Include="Integration\Dao\Sqlite\TrackDaoTest.cs" />
     <Compile Include="Integration\Dao\SQL\FingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\SQL\HashBinDaoTest.cs" />
     <Compile Include="Integration\Dao\AbstractSubFingerprintDaoTest.cs" />
@@ -108,6 +124,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="TestEnvironment\Kryptonite.mp3" />
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Unit\Dao\" />

@@ -36,9 +36,18 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Net4">
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll</HintPath>
+    </Reference>
     <Reference Include="Bass.Net, Version=2.4.8.3, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Externals\Bass\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="linq2db">
+      <HintPath>..\packages\linq2db.1.0.1.1\lib\net40\linq2db.dll</HintPath>
     </Reference>
     <Reference Include="NAudio, Version=1.7.0.15, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -68,6 +77,7 @@
     <Compile Include="Dao\IFingerprintDao.cs" />
     <Compile Include="Dao\RAM\InMemoryModelService.cs" />
     <Compile Include="Dao\RAM\IRAMStorage.cs" />
+    <Compile Include="Dao\Sqlite\TrackDao.cs" />
     <Compile Include="Dao\SQL\IgnoreBindingAttribute.cs" />
     <Compile Include="Dao\RAM\FingerprintDao.cs" />
     <Compile Include="Dao\RAM\HashBinDao.cs" />
@@ -211,7 +221,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll">
+      <Link>AutoMapper.Net4.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E

@@ -61,7 +61,10 @@
 
         public override int GetHashCode()
         {
-            return TrackReference.HashCode;
+            if (TrackReference != null)
+                return TrackReference.HashCode;
+
+            return base.GetHashCode();
         }
     }
 }
