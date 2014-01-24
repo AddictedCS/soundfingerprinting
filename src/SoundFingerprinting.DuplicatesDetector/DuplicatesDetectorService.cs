@@ -12,9 +12,11 @@
 
     public class DuplicatesDetectorService
     {
+        private const int MinimumHammingSimilarity = 0;
+
         private const int ThresholdVotes = 5;
 
-        private const int MinimumHammingSimilarity = 0;
+        private readonly IStride createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
 
         private readonly IModelService modelService;
 
@@ -34,10 +36,7 @@
         /// </summary>
         /// <param name = "samples">Down sampled to 5512 samples</param>
         /// <param name = "track">Track</param>
-        /// <param name = "stride">Stride</param>
-        /// <param name = "hashTables">Number of hash tables</param>
-        /// <param name = "hashKeys">Number of hash keys</param>
-        public void CreateInsertFingerprints(float[] samples, Track track, IStride stride, int hashTables, int hashKeys)
+        public void CreateInsertFingerprints(float[] samples, Track track)
         {
             if (track == null)
             {
@@ -49,7 +48,7 @@
             /*Create fingerprints that will be used as initial fingerprints to be queried*/
             var hashes = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                        .From(samples)
-                                                       .WithFingerprintConfig(config => config.Stride = stride)
+                                                       .WithFingerprintConfig(config => config.Stride = createStride)
                                                        .Hash()
                                                        .Result;
            

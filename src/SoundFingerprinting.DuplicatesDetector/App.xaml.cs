@@ -2,6 +2,7 @@
 {
     using System.Windows;
 
+    using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.DuplicatesDetector.ViewModel;
 

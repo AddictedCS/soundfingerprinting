@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.DuplicatesDetector.Services
+﻿namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
 {
     using Ninject;
 

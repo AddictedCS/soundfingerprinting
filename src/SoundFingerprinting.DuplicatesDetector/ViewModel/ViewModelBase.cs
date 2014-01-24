@@ -6,6 +6,7 @@
 
     using Ninject;
 
+    using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Services;
 
     /// <summary>
