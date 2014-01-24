@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting.Dao
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -31,11 +30,6 @@
 
         public IModelReference InsertFingerprint(FingerprintData fingerprintData)
         {
-            if (!(fingerprintData.TrackReference is ModelReference<int>))
-            {
-                throw new NotSupportedException("Cannot insert a non relational reference to relational database");
-            }
-
             int fingerprintId = fingerprintDao.Insert(fingerprintData.Signature, ((ModelReference<int>)fingerprintData.TrackReference).Id);
             return fingerprintData.FingerprintReference = new ModelReference<int>(fingerprintId);
         }
@@ -48,11 +42,6 @@
 
         public void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference)
         {
-            if (!(trackReference is ModelReference<int>))
-            {
-                throw new NotSupportedException("Cannot insert non relational reference to relational database");
-            }
-
             int trackId = ((ModelReference<int>)trackReference).Id;
             foreach (var hashData in hashes)
             {
@@ -63,11 +52,6 @@
 
         public IList<HashData> ReadHashDataByTrack(IModelReference trackReference)
         {
-            if (!(trackReference is ModelReference<int>))
-            {
-                throw new NotSupportedException();
-            }
-
             return hashBinDao.ReadHashDataByTrackId(((ModelReference<int>)trackReference).Id);
         }
 
@@ -83,21 +67,11 @@
 
         public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
-            if (!(trackReference is ModelReference<int>))
-            {
-                throw new NotSupportedException("Cannot read non relational data from relational database");
-            }
-
             return fingerprintDao.ReadFingerprintsByTrackId(((ModelReference<int>)trackReference).Id);
         }
 
         public TrackData ReadTrackByReference(IModelReference trackReference)
         {
-            if (!(trackReference is ModelReference<int>))
-            {
-                throw new NotSupportedException("Cannot read a non relational reference from relational database");
-            }
-
             return trackDao.ReadById(((ModelReference<int>)trackReference).Id);
         }
 
@@ -108,11 +82,6 @@
 
         public int DeleteTrack(IModelReference trackReference)
         {
-            if (!(trackReference is ModelReference<int>))
-            {
-                throw new NotSupportedException("Cannot delete a non relational reference from relational database");
-            }
-
             return trackDao.DeleteTrack(((ModelReference<int>)trackReference).Id);
         }
     }
