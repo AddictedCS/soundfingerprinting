@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LinqToDB;
 using LinqToDB.Data;
+using LinqToDB.DataProvider.SQLite;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using SoundFingerprinting.Dao;
@@ -24,25 +25,31 @@ namespace SoundFingerprinting.Tests.Integration.Dao.Sqlite
             //HashBinDao = new HashBinDao();
         }
 
-        [SetUp]
-        public void Setup()
-        {
-            if (File.Exists("TestData.sqlite"))
-                File.Delete("TestData.sqlite");
+        private string _sqliteFile;
 
-            SQLiteConnection.CreateFile("TestData.sqlite");
-            using (var db = new DataConnection("SQLite"))
+        [SetUp]
+        [TestInitialize]
+        public override void SetUp()
+        {
+            _sqliteFile = Guid.NewGuid() + ".sqlite";
+
+            SQLiteConnection.CreateFile(_sqliteFile);
+            using (var db = new DataConnection(new SQLiteDataProvider(), string.Format("Data Source={0}", _sqliteFile)))
             {
                 db.CreateTable<Track>();
             }
             
+            base.SetUp();
         }
 
         [TearDown]
-        public void TearDown()
+        [TestCleanup]
+        public override void TearDown()
         {
-            if (File.Exists("TestData.sqlite"))
-                File.Delete("TestData.sqlite");
+            if (File.Exists(_sqliteFile))
+                File.Delete(_sqliteFile);
+
+            base.TearDown();
         }
 
         public override sealed ITrackDao TrackDao { get; set; }
