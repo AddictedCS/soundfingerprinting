@@ -12,7 +12,6 @@
     using System.Windows.Forms;
     using System.Windows.Input;
 
-    using SoundFingerprinting.DuplicatesDetector.DataAccess;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.Services;
 
@@ -41,7 +40,7 @@
         /// <summary>
         ///   Repository gateway
         /// </summary>
-        private readonly RepositoryGateway gate;
+        private readonly DuplicatesDetectorFacade gate;
 
         /// <summary>
         ///   Add single music file command
@@ -100,7 +99,7 @@
             TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             try
             {
-                gate = new RepositoryGateway();
+                gate = new DuplicatesDetectorFacade();
             }
             catch (Exception ex)
             {
@@ -235,7 +234,7 @@
                         Task.Factory.StartNew(
                             () =>
                             {
-                                int count = Helper.CountNumberOfMusicFiles(selectedPath, musicFileFilters, true);
+                                int count = Helper.CountNumberOfMusicFiles(selectedPath, musicFileFilters);
 
                                 lock (LockObject)
                                 {
@@ -294,7 +293,7 @@
             else
             {
                 // if there are already paths that have been processed, use only new ones
-                IEnumerable<Item> except = Paths.Except(processedPaths);
+                var except = Paths.Except(processedPaths).ToList();
                 pathsToBeProcessed = new HashSet<Item>(except);
                 if (pathsToBeProcessed.Count == 0)
                 {
