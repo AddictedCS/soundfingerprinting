@@ -43,16 +43,11 @@ namespace SoundFingerprinting.Tests.Integration.Dao
             string name = MethodBase.GetCurrentMethod().Name;
             var track = GetTrack(name);
 
-            var res = TrackDao.Insert(track);
+            TrackDao.Insert(track);
 
-            NUnit.Framework.Assert.That(res, Is.GreaterThan(0));
-
-            if (track.TrackReference != null)
-            {
-                Assert.IsFalse(track.TrackReference.HashCode == 0);
-                Assert.IsTrue(track.TrackReference is ModelReference<int>);
-                Assert.IsFalse(((ModelReference<int>) track.TrackReference).Id == 0);
-            }
+            Assert.IsFalse(track.TrackReference.HashCode == 0);
+            Assert.IsTrue(track.TrackReference is ModelReference<int>);
+            Assert.IsFalse(((ModelReference<int>) track.TrackReference).Id == 0);
         }
 
         [TestMethod]
