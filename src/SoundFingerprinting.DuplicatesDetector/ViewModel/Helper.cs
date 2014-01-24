@@ -14,9 +14,8 @@
         /// </summary>
         /// <param name = "path">Path of the root folder</param>
         /// <param name = "filters">Search filters</param>
-        /// <param name = "includeSubdirectories">Include subdirectories in the search</param>
         /// <returns>Number of music files</returns>
-        public static int CountNumberOfMusicFiles(string path, IEnumerable<string> filters, bool includeSubdirectories)
+        public static int CountNumberOfMusicFiles(string path, IEnumerable<string> filters)
         {
             int files = 0;
             DirectoryInfo root = new DirectoryInfo(path);
@@ -42,43 +41,37 @@
                 catch (SecurityException)
                 {
                     /*you don't have the permission of viewing this files*/
-                    files += 0;
                 }
                 catch (DirectoryNotFoundException)
                 {
                     /*directory not found*/
-                    files += 0;
                 }
                 catch (ArgumentNullException)
                 {
                     /*bad parameters*/
-                    files += 0;
                 }
             }
 
-            if (includeSubdirectories)
+            DirectoryInfo[] directories;
+            try
             {
-                DirectoryInfo[] directories;
+                directories = root.GetDirectories();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                /*directory wasn't found*/
+                return files;
+            }
+
+            foreach (DirectoryInfo directory in directories)
+            {
                 try
                 {
-                    directories = root.GetDirectories();
+                    files += CountNumberOfMusicFiles(directory.FullName, listOfFilters);
                 }
-                catch (DirectoryNotFoundException)
+                catch (PathTooLongException)
                 {
-                    /*directory wasn't found*/
-                    return files;
-                }
-
-                foreach (DirectoryInfo directory in directories)
-                {
-                    try
-                    {
-                        files += CountNumberOfMusicFiles(directory.FullName, listOfFilters, true);
-                    }
-                    catch (PathTooLongException)
-                    {
-                        // swalow
-                    }
+                    // swalow
                 }
             }
 
@@ -90,9 +83,8 @@
         /// </summary>
         /// <param name = "path">Path of the root folder</param>
         /// <param name = "filters">Search filters</param>
-        /// <param name = "includeSubdirectories">Include subdirectories in the search</param>
         /// <returns>List with the music files</returns>
-        public static List<string> GetMusicFiles(string path, IEnumerable<string> filters, bool includeSubdirectories)
+        public static List<string> GetMusicFiles(string path, IEnumerable<string> filters)
         {
             List<string> files = new List<string>();
             DirectoryInfo root = new DirectoryInfo(path);
@@ -127,29 +119,26 @@
                 }
             }
 
-            if (includeSubdirectories)
+            DirectoryInfo[] directories;
+            try
             {
-                DirectoryInfo[] directories;
+                directories = root.GetDirectories();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                /*directory wasn't found*/
+                return files;
+            }
+
+            foreach (DirectoryInfo directory in directories)
+            {
                 try
                 {
-                    directories = root.GetDirectories();
+                    files.AddRange(GetMusicFiles(directory.FullName, listOfFilters));
                 }
-                catch (DirectoryNotFoundException)
+                catch (PathTooLongException)
                 {
-                    /*directory wasn't found*/
-                    return files;
-                }
-
-                foreach (DirectoryInfo directory in directories)
-                {
-                    try
-                    {
-                        files.AddRange(GetMusicFiles(directory.FullName, listOfFilters, true));
-                    }
-                    catch (PathTooLongException)
-                    {
-                        // continue
-                    }
+                    // continue
                 }
             }
 

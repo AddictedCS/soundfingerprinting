@@ -2,25 +2,14 @@
 {
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.RAM;
-    using SoundFingerprinting.DuplicatesDetector.DataAccess;
-    using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.Infrastructure;
 
-    /// <summary>
-    ///   Service injector loads all the services into Service Container on Application startup
-    /// </summary>
-    /// <remarks>
-    ///   Dependency injection with Service Locator
-    /// </remarks>
     public static class ServiceInjector
     {
-        /// <summary>
-        ///   Add bindings that will be applied within the application runtime
-        /// </summary>
         public static void InjectServices()
         {
             ServiceContainer.Kernel.Bind<IFolderBrowserDialogService>().To<FolderBrowserDialogService>();
@@ -30,7 +19,18 @@
             ServiceContainer.Kernel.Bind<IWindowService>().To<WindowService>();
             ServiceContainer.Kernel.Bind<IGenericViewWindow>().To<GenericViewWindowService>();
 
-            DependencyResolver.Current.Bind<IModelService, InMemoryModelService>();
+            DependencyResolver.Current.BindAsSingleton<IModelService, InMemoryModelService>();
+
+            ServiceContainer.Kernel.Bind<DuplicatesDetectorService>().ToMethod(
+                context =>
+                new DuplicatesDetectorService(
+                    DependencyResolver.Current.Get<IModelService>(),
+                    DependencyResolver.Current.Get<IFingerprintCommandBuilder>(),
+                    DependencyResolver.Current.Get<IQueryFingerprintService>())).InSingletonScope();
+
+            ServiceContainer.Kernel.Bind<DuplicatesDetectorFacade>().ToSelf().InSingletonScope();
+            ServiceContainer.Kernel.Bind<TrackHelper>().ToSelf().InSingletonScope();
+            ServiceContainer.Kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>();
         }
     }
 }

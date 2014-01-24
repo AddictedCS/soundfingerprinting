@@ -110,7 +110,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataAccess\DuplicatesDetectorService.cs" />
+    <Compile Include="DuplicatesDetectorService.cs" />
     <Compile Include="Infrastructure\TrackHelper.cs" />
     <Compile Include="Model\Item.cs" />
     <Compile Include="Model\HashSignature.cs" />
@@ -143,7 +143,7 @@
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\PathListViewModel.cs" />
     <Compile Include="ViewModel\ReportViewModel.cs" />
-    <Compile Include="DataAccess\RepositoryGateway.cs" />
+    <Compile Include="DuplicatesDetectorFacade.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="View\GenericView.xaml.cs">
       <DependentUpon>GenericView.xaml</DependentUpon>

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.DuplicatesDetector.DataAccess
+﻿namespace SoundFingerprinting.DuplicatesDetector
 {
     using System;
     using System.Collections.Generic;
@@ -7,15 +7,15 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.Strides;
 
-    /// <summary>
-    ///   Singleton class for repository container
-    /// </summary>
     public class DuplicatesDetectorService
     {
+        private const int ThresholdVotes = 5;
+
+        private const int MinimumHammingSimilarity = 0;
+
         private readonly IModelService modelService;
 
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
@@ -59,16 +59,14 @@
         /// <summary>
         ///   Find duplicates between existing tracks in the database
         /// </summary>
-        /// <param name = "tracks">Tracks to be processed (this list should contain only tracks that have been inserted previously)</param>
-        /// <param name = "threshold">Number of threshold tables</param>
-        /// <param name = "numberOfFingerprintThreshold">Number of fingerprints threshold</param>
         /// <param name = "callback">Callback invoked at each processed track</param>
         /// <returns>Sets of duplicates</returns>
-        public HashSet<Track>[] FindDuplicates(IList<TrackData> tracks, int threshold, int numberOfFingerprintThreshold, Action<Track, int, int> callback)
+        public HashSet<Track>[] FindDuplicates(Action<Track, int, int> callback)
         {
+            var tracks = modelService.ReadAllTracks();
             List<HashSet<Track>> duplicates = new List<HashSet<Track>>();
             int total = tracks.Count, current = 0;
-            var queryConfiguration = new QueryConfiguration(threshold, -1);
+            var queryConfiguration = new QueryConfiguration(ThresholdVotes, int.MaxValue);
             foreach (var track in tracks)
             {
                 HashSet<Track> trackDuplicates = new HashSet<Track>();
@@ -85,7 +83,7 @@
                             continue;
                         }
 
-                        if (numberOfFingerprintThreshold > resultEntry.Similarity)
+                        if (MinimumHammingSimilarity > resultEntry.Similarity)
                         {
                             continue;
                         }

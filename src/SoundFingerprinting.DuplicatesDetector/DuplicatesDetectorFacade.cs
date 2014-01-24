@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.DuplicatesDetector.DataAccess
+﻿namespace SoundFingerprinting.DuplicatesDetector
 {
     using System;
     using System.Collections.Concurrent;
@@ -8,20 +8,16 @@
 
     using Ninject;
 
-    using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Dao;
     using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.DuplicatesDetector.ViewModel;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     /// <summary>
-    ///   Class which prepares the data for Repository analysis of the tracks (does all the "dirty job")
+    ///   Facade which prepares the data for analysis of the tracks (does all the "dirty job")
     /// </summary>
-    public class RepositoryGateway
+    public class DuplicatesDetectorFacade
     {
         /// <summary>
         ///   Maximum track length (track's bigger than this value will be discarded)
@@ -63,17 +59,6 @@
         private const int NumberOfKeys = 4;
 
         /// <summary>
-        ///   Number of threshold votes for a file to be considerate a duplicate
-        /// </summary>
-        private const int ThresholdVotes = 5;
-
-        /// <summary>
-        ///   Value of threshold percentage of fingerprints that needs to be gathered
-        ///   in order to be considered a possible result
-        /// </summary>
-        private const int ThresholdFingerprintsToVote = 7;
-
-        /// <summary>
         ///   Down sampling rate
         /// </summary>
         /// <remarks>
@@ -81,37 +66,19 @@
         /// </remarks>
         private const int SampleRate = 5512;
 
-        private readonly ITagService tagService;
-
-        private readonly IExtendedAudioService audioService;
-
-        /// <summary>
-        ///   Creational stride (used in hashing audio objects)
-        /// </summary>
         private readonly IStride createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
 
-        /// <summary>
-        ///   Repository for storage, permutations, algorithm
-        /// </summary>
         private readonly DuplicatesDetectorService duplicatesDetectorService;
 
-        private readonly IModelService modelService;
+        private readonly TrackHelper trackHelper;
 
-        /// <summary>
-        ///   Cancelation token used to abort all the processing
-        /// </summary>
         private CancellationTokenSource cts;
 
-        public RepositoryGateway()
+        public DuplicatesDetectorFacade()
         {
-            audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
-            tagService = ServiceContainer.Kernel.Get<ITagService>();
             cts = new CancellationTokenSource();
-            duplicatesDetectorService = new DuplicatesDetectorService(
-                DependencyResolver.Current.Get<IModelService>(),
-                DependencyResolver.Current.Get<IFingerprintCommandBuilder>(),
-                DependencyResolver.Current.Get<IQueryFingerprintService>());
-            modelService = DependencyResolver.Current.Get<IModelService>();
+            duplicatesDetectorService = ServiceContainer.Kernel.Get<DuplicatesDetectorService>();
+            trackHelper = ServiceContainer.Kernel.Get<TrackHelper>();
         }
 
         /// <summary>
@@ -127,12 +94,12 @@
             Action<List<Track>, Exception> callback,
             Action<Track> trackProcessed)
         {
-            List<string> files = new List<string>();
-            foreach (Item path in paths)
+            var files = new List<string>();
+            foreach (var path in paths)
             {
                 if (path.IsFolder)
                 {
-                    files.AddRange(Helper.GetMusicFiles(path.Path, fileFilters, true)); // get music file names
+                    files.AddRange(Helper.GetMusicFiles(path.Path, fileFilters)); // get music file names
                 }
                 else
                 {
@@ -140,13 +107,12 @@
                 }
             }
 
-            List<Track> tracks = null;
             Task.Factory.StartNew(
                 () =>
                     {
                         try
                         {
-                            tracks = ProcessFiles(files, trackProcessed);
+                            var tracks = ProcessFiles(files, trackProcessed);
                             callback.Invoke(tracks, null);
                         }
                         catch (AggregateException) /*here we are sure all consumers are done processing*/
@@ -156,7 +122,7 @@
                         }
                         catch (Exception ex)
                         {
-                            callback.Invoke(tracks, ex);
+                            callback.Invoke(null, ex);
                         }
                     },
                 cts.Token);
@@ -169,8 +135,7 @@
         /// <returns>Set of tracks that are duplicate</returns>
         public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
         {
-            var duplicates = duplicatesDetectorService.FindDuplicates(modelService.ReadAllTracks(), ThresholdVotes, ThresholdFingerprintsToVote, callback);
-            return duplicates;
+            return duplicatesDetectorService.FindDuplicates(callback);
         }
 
         /// <summary>
@@ -200,11 +165,11 @@
 
             // ~317 songs are allowed for 15 seconds snippet at 5512 Hz sample rate
             BlockingCollection<Tuple<Track, float[]>> buffer = new BlockingCollection<Tuple<Track, float[]>>(Buffersize);
-            List<Track> processedtracks = new List<Track>();
-            List<Task> consumers = new List<Task>();
-            List<Task> producers = new List<Task>();
+            var processedtracks = new List<Track>();
+            var consumers = new List<Task>();
+            var producers = new List<Task>();
             CancellationToken token = cts.Token;
-            ConcurrentBag<string> bag = new ConcurrentBag<string>(files);
+            var bag = new ConcurrentBag<string>(files);
 
             int maxprod = numProcs > 2 ? 2 : numProcs;
             for (var i = 0; i < maxprod; i++)
@@ -230,8 +195,8 @@
                                 float[] samples;
                                 try
                                 {
-                                    track = TrackHelper.GetTrack(MinTrackLength, MaxTrackLength, file, tagService); // lame casting I know
-                                    samples = TrackHelper.GetTrackSamples(track, audioService, SampleRate, SecondsToProcess, StartProcessingAtSecond);
+                                    track = trackHelper.GetTrack(MinTrackLength, MaxTrackLength, file); // lame casting I know
+                                    samples = trackHelper.GetTrackSamples(track, SampleRate, SecondsToProcess, StartProcessingAtSecond);
                                 }
                                 catch
                                 {
