@@ -89,7 +89,7 @@
 
                 foreach (var hashTable in storage.HashTables)
                 {
-                    foreach (var hashBins in hashTable.Value)
+                    foreach (var hashBins in hashTable)
                     {
                         foreach (var id in subFingerprintIds)
                         {

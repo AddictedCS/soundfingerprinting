@@ -13,7 +13,7 @@ namespace SoundFingerprinting.Dao.RAM
 
         IDictionary<int, List<FingerprintData>> Fingerprints { get; }
 
-        IDictionary<int, ConcurrentDictionary<long, List<long>>> HashTables { get; }
+        ConcurrentDictionary<long, List<long>>[] HashTables { get; }
 
         int NumberOfHashTables { get; }
 

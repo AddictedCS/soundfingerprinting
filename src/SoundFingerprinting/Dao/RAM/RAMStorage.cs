@@ -11,7 +11,7 @@
 
         private ConcurrentDictionary<int, TrackData> tracks;
 
-        private ConcurrentDictionary<int, ConcurrentDictionary<long, List<long>>> hashTables;
+        private ConcurrentDictionary<long, List<long>>[] hashTables;
 
         private ConcurrentDictionary<int, List<FingerprintData>> fingerprints;
 
@@ -44,7 +44,7 @@
             }
         }
 
-        public IDictionary<int, ConcurrentDictionary<long, List<long>>> HashTables
+        public ConcurrentDictionary<long, List<long>>[] HashTables
         {
             get
             {
@@ -64,10 +64,10 @@
             NumberOfHashTables = numberOfHashTables;
             subFingerprints = new ConcurrentDictionary<long, SubFingerprintData>();
             tracks = new ConcurrentDictionary<int, TrackData>();
-            hashTables = new ConcurrentDictionary<int, ConcurrentDictionary<long, List<long>>>();
+            hashTables = new ConcurrentDictionary<long, List<long>>[NumberOfHashTables];
             fingerprints = new ConcurrentDictionary<int, List<FingerprintData>>();
 
-            for (int table = 1; table <= numberOfHashTables; table++)
+            for (int table = 0; table < numberOfHashTables; table++)
             {
                 hashTables[table] = new ConcurrentDictionary<long, List<long>>();
             }
