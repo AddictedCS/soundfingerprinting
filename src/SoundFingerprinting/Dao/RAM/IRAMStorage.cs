@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Dao.RAM
 {
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Data;
@@ -11,9 +10,11 @@ namespace SoundFingerprinting.Dao.RAM
 
         IDictionary<int, TrackData> Tracks { get; }
 
+        IDictionary<int, IDictionary<long, HashData>> TracksHashes { get; }
+
         IDictionary<int, List<FingerprintData>> Fingerprints { get; }
 
-        ConcurrentDictionary<long, List<long>>[] HashTables { get; }
+        IDictionary<long, List<long>>[] HashTables { get; }
 
         int NumberOfHashTables { get; }
 

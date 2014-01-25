@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Dao.RAM
 {
+    using System.Collections.Concurrent;
+
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
@@ -37,9 +39,14 @@
             lock (lockObject)
             {
                 counter++;
-                SubFingerprintData subFingerprint = new SubFingerprintData(
-                    signature, new ModelReference<long>(counter), new ModelReference<int>(trackId));
+                SubFingerprintData subFingerprint = new SubFingerprintData(signature, new ModelReference<long>(counter), new ModelReference<int>(trackId));
                 storage.SubFingerprints[counter] = subFingerprint;
+                if (!storage.TracksHashes.ContainsKey(trackId))
+                {
+                    storage.TracksHashes[trackId] = new ConcurrentDictionary<long, HashData>();
+                }
+
+                storage.TracksHashes[trackId][counter] = new HashData { SubFingerprint = signature };
                 return counter;
             }
         }

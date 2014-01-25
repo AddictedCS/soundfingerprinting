@@ -25,20 +25,21 @@
         public void Insert(long[] hashBins, long subFingerprintId, int trackId)
         {
             int table = 0;
-            foreach (var hashTable in storage.HashTables)
+            lock (((ICollection)storage.HashTables).SyncRoot)
             {
-                if (!hashTable.ContainsKey(hashBins[table]))
+                foreach (var hashTable in storage.HashTables)
                 {
-                    hashTable[hashBins[table]] = new List<long>();
-                }
+                    if (!hashTable.ContainsKey(hashBins[table]))
+                    {
+                        hashTable[hashBins[table]] = new List<long>();
+                    }
 
-                lock (((ICollection)hashTable[hashBins[table]]).SyncRoot)
-                {
                     hashTable[hashBins[table]].Add(subFingerprintId);
+                    table++;
                 }
-
-                table++;
             }
+
+            storage.TracksHashes[trackId][subFingerprintId].HashBins = hashBins;
         }
 
         public IList<HashBinData> ReadHashBinsByHashTable(int hashTableId)
@@ -69,27 +70,7 @@
 
         public IList<HashData> ReadHashDataByTrackId(int trackId)
         {
-            var subFingerprintsIds = storage.SubFingerprints.Where(pair => ((ModelReference<int>)pair.Value.TrackReference).Id == trackId).ToList();
-            List<HashData> hashes = new List<HashData>();
-            foreach (var subFingerprint in subFingerprintsIds)
-            {
-                var hashBuckets = new List<long>();
-                foreach (var hashTable in storage.HashTables)
-                {
-                    foreach (var hashBucket in hashTable)
-                    {
-                        if (hashBucket.Value.Contains(subFingerprint.Key))
-                        {
-                            hashBuckets.Add(hashBucket.Key);
-                            break;
-                        }
-                    }
-                }
-
-                hashes.Add(new HashData(subFingerprint.Value.Signature, hashBuckets.ToArray()));
-            }
-
-            return hashes;
+            return storage.TracksHashes[trackId].Values.ToList();
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
@@ -110,7 +91,6 @@
                         }
 
                         subFingeprintCount[subFingerprintId]++;
-
                     }
                 }
 

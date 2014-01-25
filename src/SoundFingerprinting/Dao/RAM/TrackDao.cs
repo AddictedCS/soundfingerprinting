@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting.Dao.RAM
 {
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -93,15 +92,17 @@
                     {
                         foreach (var id in subFingerprintIds)
                         {
-                            lock (((ICollection)hashBins.Value).SyncRoot)
+                            if (hashBins.Value.Remove(id))
                             {
-                                if (hashBins.Value.Remove(id))
-                                {
-                                    count++;
-                                }
+                                count++;
                             }
                         }
                     }
+                }
+
+                if (storage.TracksHashes.ContainsKey(trackId))
+                {
+                    storage.TracksHashes.Remove(trackId);
                 }
             }
 
