@@ -64,9 +64,15 @@
                     }
 
                     // Set Sample Rate / MONO
-                    if (!Bass.BASS_Init(0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
+                    if (!Bass.BASS_Init(-1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
                     {
-                        throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                        Trace.WriteLine(
+                            "Failed to find a sound device on running machine. Playing audio files will not be supported: " + Bass.BASS_ErrorGetCode().ToString(),
+                            "Warning");
+                        if (!Bass.BASS_Init(0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
+                        {
+                            throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                        }
                     }
 
                     /*Set filter for anti aliasing*/
@@ -84,7 +90,7 @@
                     // use default device
                     if (!Bass.BASS_RecordInit(-1))
                     {
-                        Debug.WriteLine("No recording device could be found on running machine. Recording is not supported: " + Bass.BASS_ErrorGetCode().ToString());
+                        Trace.WriteLine("No recording device could be found on running machine. Recording is not supported: " + Bass.BASS_ErrorGetCode().ToString(), "Warning");
                     }
                 }
 
