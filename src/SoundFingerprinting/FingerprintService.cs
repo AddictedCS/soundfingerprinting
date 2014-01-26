@@ -1,9 +1,7 @@
 namespace SoundFingerprinting
 {
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
@@ -61,19 +59,17 @@ namespace SoundFingerprinting
         {
             List<float[][]> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, stride, fingerprintLength, overlap);
             waveletDecomposition.DecomposeImagesInPlace(spectralImages);
-            var fingerprints = new ConcurrentBag<bool[]>();
-            Parallel.ForEach(
-                spectralImages,
-                spectralImage =>
-                    {
-                        bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets);
-                        if (!IsSilence(image))
-                        {
-                            fingerprints.Add(image);
-                        }
-                    });
+            var fingerprints = new List<bool[]>();
+            foreach (var spectralImage in spectralImages)
+            {
+                bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets);
+                if (!IsSilence(image))
+                {
+                    fingerprints.Add(image);
+                }
+            }
 
-            return fingerprints.ToList();
+            return fingerprints;
         }
 
         private bool IsSilence(IEnumerable<bool> image)

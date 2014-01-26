@@ -126,12 +126,13 @@
             return duplicates.ToArray();
         }
 
-        /// <summary>
-        ///   Clear current storage
-        /// </summary>
         public void ClearStorage()
         {
-             throw new NotImplementedException();
+            var tracks = modelService.ReadAllTracks();
+            foreach (var track in tracks)
+            {
+                modelService.DeleteTrack(track.TrackReference);
+            }
         }
     }
 }
