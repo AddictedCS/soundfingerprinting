@@ -15,7 +15,7 @@
     /// <summary>
     ///   Facade which prepares the data for analysis of the tracks (does all the "dirty job")
     /// </summary>
-    public class DuplicatesDetectorFacade
+    public class DuplicatesDetectorFacade : IDisposable
     {
         /// <summary>
         ///   Maximum track length (track's bigger than this value will be discarded)
@@ -65,6 +65,11 @@
             cts = new CancellationTokenSource();
             duplicatesDetectorService = ServiceContainer.Kernel.Get<DuplicatesDetectorService>();
             trackHelper = ServiceContainer.Kernel.Get<TrackHelper>();
+        }
+
+        ~DuplicatesDetectorFacade()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -131,6 +136,20 @@
         {
             cts.Cancel();
             cts = new CancellationTokenSource();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                cts.Dispose();
+            }
         }
 
         /// <summary>
