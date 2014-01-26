@@ -5,12 +5,11 @@
         public DefaultQueryConfiguration()
         {
             ThresholdVotes = 5;
-
             MaximumNumberOfTracksToReturnAsResult = 25;
         }
 
-        public int ThresholdVotes { get; private set; }
+        public int ThresholdVotes { get; protected set; }
 
-        public int MaximumNumberOfTracksToReturnAsResult { get; private set; }
+        public int MaximumNumberOfTracksToReturnAsResult { get; protected set; }
     }
 }

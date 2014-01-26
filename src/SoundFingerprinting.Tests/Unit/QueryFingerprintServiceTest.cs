@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit
 {
+    using System;
     using System.Collections.Generic;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,7 +27,7 @@
         }
 
         [TestMethod]
-        public void QueryTestMaximumNumberOfTracksLessThanPossibleResults()
+        public void MaximumNumberOfTracksLessThanPossibleResultsTest()
         {
             long[] buckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             var queryHash = new HashData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, buckets);
