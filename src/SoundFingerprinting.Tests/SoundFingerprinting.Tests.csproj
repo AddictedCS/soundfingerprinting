@@ -80,6 +80,7 @@
     <Compile Include="Integration\Dao\RAM\FingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\TrackDaoTest.cs" />
+    <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\Hashing\LocalitySensitiveHashingAlgorithmTest.cs" />

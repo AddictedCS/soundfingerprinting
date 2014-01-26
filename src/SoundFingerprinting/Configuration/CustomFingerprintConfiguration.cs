@@ -1,57 +1,246 @@
 namespace SoundFingerprinting.Configuration
 {
+    using System;
+
     using SoundFingerprinting.Strides;
     
-    public class CustomFingerprintConfiguration : IFingerprintConfiguration
+    public class CustomFingerprintConfiguration : DefaultFingerprintConfiguration
     {
-        public CustomFingerprintConfiguration()
+        public new int Overlap
         {
-            DefaultFingerprintConfiguration defaultFingerprint = new DefaultFingerprintConfiguration();
-            SamplesPerFingerprint = defaultFingerprint.SamplesPerFingerprint;
-            Overlap = defaultFingerprint.Overlap;
-            WdftSize = defaultFingerprint.WdftSize;
-            MinFrequency = defaultFingerprint.MinFrequency;
-            MaxFrequency = defaultFingerprint.MaxFrequency;
-            TopWavelets = defaultFingerprint.TopWavelets;
-            SampleRate = defaultFingerprint.SampleRate;
-            LogBase = defaultFingerprint.LogBase;
-            FingerprintLength = defaultFingerprint.FingerprintLength;
-            Stride = defaultFingerprint.Stride;
-            LogBins = defaultFingerprint.LogBins;
-            NormalizeSignal = defaultFingerprint.NormalizeSignal;
-            UseDynamicLogBase = defaultFingerprint.UseDynamicLogBase;
-            NumberOfLSHTables = defaultFingerprint.NumberOfLSHTables;
-            NumberOfMinHashesPerTable = defaultFingerprint.NumberOfMinHashesPerTable;
+            get
+            {
+                return base.Overlap;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentException("Overlap can't be negative", "value");
+                }
+
+                base.Overlap = value;
+            }
         }
 
-        public int SamplesPerFingerprint { get; set; }
+        public new int WdftSize
+        {
+            get
+            {
+                return base.WdftSize;
+            }
 
-        public int Overlap { get; set; }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentException("WdftSize can't be negative", "value");
+                }
 
-        public int WdftSize { get; set; }
+                base.WdftSize = value;
+            }
+        }
 
-        public int MinFrequency { get; set; }
+        public new int MinFrequency
+        {
+            get
+            {
+                return base.MinFrequency;
+            }
 
-        public int MaxFrequency { get; set; }
+            set
+            {
+                if (value <= 0 || value > 44100)
+                {
+                    throw new ArgumentException("MinFrequency can't be negative or bigger than 44100", "value");
+                }
 
-        public int TopWavelets { get; set; }
+                base.MinFrequency = value;
+            }
+        }
 
-        public int SampleRate { get; set; }
+        public new int MaxFrequency
+        {
+            get
+            {
+                return base.MaxFrequency;
+            }
 
-        public double LogBase { get; set; }
+            set
+            {
+                if (value <= 0 || value > 44100)
+                {
+                    throw new ArgumentException("MaxFrequency can't be negative or bigger than 44100", "value");
+                }
 
-        public int LogBins { get; private set; }
+                base.MaxFrequency = value;
+            }
+        }
 
-        public int FingerprintLength { get; set; }
+        public new int TopWavelets
+        {
+            get
+            {
+                return base.TopWavelets;
+            }
 
-        public IStride Stride { get; set; }
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("TopWavelets can't be negative or equal to 0", "value");
+                }
 
-        public bool NormalizeSignal { get; set; }
+                base.TopWavelets = value;
+            }
+        }
 
-        public bool UseDynamicLogBase { get; set; }
+        public new int SampleRate
+        {
+            get
+            {
+                return base.SampleRate;
+            }
 
-        public int NumberOfLSHTables { get; set; }
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("SampleRate can't be negative or equal to 0", "value");
+                }
 
-        public int NumberOfMinHashesPerTable { get; set; }
+                base.SampleRate = value;
+            }
+        }
+
+        public new double LogBase
+        {
+            get
+            {
+                return base.LogBase;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("LogBase can't be negative or equal to 0", "value");
+                }
+
+                base.LogBase = value;
+            }
+        }
+
+        public new int LogBins
+        {
+            get
+            {
+                return base.LogBins;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("LogBins can't be negative or equal to 0", "value");
+                }
+
+                base.LogBins = value;
+            }
+        }
+
+        public new int FingerprintLength
+        {
+            get
+            {
+                return base.FingerprintLength;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("FingerprintLength can't be negative or equal to 0", "value");
+                }
+
+                base.FingerprintLength = value;
+            }
+        }
+
+        public new IStride Stride
+        {
+            get
+            {
+                return base.Stride;
+            }
+
+            set
+            {
+                base.Stride = value;
+            }
+        }
+
+        public new bool NormalizeSignal
+        {
+            get
+            {
+                return base.NormalizeSignal;
+            }
+
+            set
+            {
+                base.NormalizeSignal = value;
+            }
+        }
+
+        public new bool UseDynamicLogBase
+        {
+            get
+            {
+                return base.UseDynamicLogBase;
+            }
+
+            set
+            {
+                base.UseDynamicLogBase = value;
+            }
+        }
+
+        public new int NumberOfLSHTables
+        {
+            get
+            {
+                return base.NumberOfLSHTables;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("NumberOfLSHTables can't be negative or equal to 0", "value");
+                }
+
+                base.NumberOfLSHTables = value;
+            }
+        }
+
+        public new int NumberOfMinHashesPerTable
+        {
+            get
+            {
+                return base.NumberOfMinHashesPerTable;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("NumberOfMinHashesPerTable can't be negative or equal to 0", "value");
+                }
+
+                base.NumberOfMinHashesPerTable = value;
+            }
+        }
     }
 }
