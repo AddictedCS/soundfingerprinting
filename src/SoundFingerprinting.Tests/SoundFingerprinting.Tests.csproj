@@ -84,6 +84,7 @@
     <Compile Include="Unit\Hashing\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\MinHashServiceTest.cs" />
+    <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Integration\Builder\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
@@ -109,9 +110,7 @@
   <ItemGroup>
     <Content Include="TestEnvironment\Kryptonite.mp3" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Unit\Dao\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E
