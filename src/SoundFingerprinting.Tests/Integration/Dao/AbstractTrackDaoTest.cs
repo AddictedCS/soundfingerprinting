@@ -15,6 +15,7 @@
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
+    [TestClass]
     public abstract class AbstractTrackDaoTest : AbstractIntegrationTest
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;

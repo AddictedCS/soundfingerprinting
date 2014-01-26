@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Pre-Release package. More to come in following releases.</releaseNotes>
+    <releaseNotes>Bug fixes. Algorithm adjustments and backend storage improvements. InMemory storage added.</releaseNotes>
     <copyright>Copyright 2013, Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
   </metadata>
