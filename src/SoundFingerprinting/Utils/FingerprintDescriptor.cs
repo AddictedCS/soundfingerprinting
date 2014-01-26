@@ -44,7 +44,7 @@ namespace SoundFingerprinting.Utils
             float[] concatenated = new float[rows * cols]; /* 128 * 32 */
             for (int row = 0; row < rows; row++)
             {
-                Array.Copy(frames[row], 0, concatenated, row * frames[row].Length, frames[row].Length);
+                Buffer.BlockCopy(frames[row], 0, concatenated, row * frames[row].Length * 4, frames[row].Length * 4);
             }
 
             int[] indexes = Enumerable.Range(0, concatenated.Length).ToArray();
