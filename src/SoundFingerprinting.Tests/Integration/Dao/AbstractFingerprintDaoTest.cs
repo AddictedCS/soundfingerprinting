@@ -1,12 +1,11 @@
 ﻿namespace SoundFingerprinting.Tests.Integration.Dao
 {
-    using System.Threading.Tasks;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Data;
 
+    [TestClass]
     public abstract class AbstractFingerprintDaoTest : AbstractIntegrationTest
     {
         public abstract IFingerprintDao FingerprintDao { get; set; }

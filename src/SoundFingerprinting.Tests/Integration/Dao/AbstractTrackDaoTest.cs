@@ -17,6 +17,7 @@ namespace SoundFingerprinting.Tests.Integration.Dao
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
+    [TestClass]
     [TestFixture]
     public abstract class AbstractTrackDaoTest : AbstractIntegrationTest
     {

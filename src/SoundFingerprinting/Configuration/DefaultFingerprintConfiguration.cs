@@ -8,7 +8,6 @@ namespace SoundFingerprinting.Configuration
         {
             FingerprintLength = 128;
             Overlap = 64;
-            SamplesPerFingerprint = FingerprintLength * Overlap;
             WdftSize = 2048;
             MinFrequency = 318;
             MaxFrequency = 2000;
@@ -26,103 +25,103 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets number of samples to read in order to create single signature. The granularity is 1.48 seconds
         /// </summary>
-        /// <remarks>
-        ///   Default = 8192
-        /// </remarks>
-        public int SamplesPerFingerprint { get; private set; }
+        public int SamplesPerFingerprint
+        {
+            get
+            {
+                return FingerprintLength * Overlap;
+            }
+        }
 
         /// <summary>
-        ///   Gets overlap between the sub fingerprints, 11.6 ms
+        ///   Gets or sets overlap between the sub fingerprints, 11.6 ms
         /// </summary>
         /// <remarks>
         ///   Default = 64
         /// </remarks>
-        public int Overlap { get; private set; }
+        public int Overlap { get; protected set; }
 
         /// <summary>
-        ///   Gets size of the WDFT block, 371 ms
+        ///   Gets or sets size of the WDFT block, 371 ms
         /// </summary>
         /// <remarks>
         ///   Default = 2048
         /// </remarks>
-        public int WdftSize { get; private set; }
+        public int WdftSize { get; protected set; }
 
         /// <summary>
-        ///   Gets frequency range which is taken into account when creating the signature
+        ///   Gets or sets frequency range which is taken into account when creating the signature
         /// </summary>
         /// <remarks>
         ///   Default = 318
         /// </remarks>
-        public int MinFrequency { get; private set; }
+        public int MinFrequency { get; protected set; }
 
         /// <summary>
-        ///   Gets frequency range which is taken into account when creating the signature
+        ///   Gets or sets frequency range which is taken into account when creating the signature
         /// </summary>
         /// <remarks>
         ///   Default = 2000
         /// </remarks>
-        public int MaxFrequency { get; private set; }
+        public int MaxFrequency { get; protected set; }
 
         /// <summary>
-        ///   Gets number of Top wavelets to consider
+        ///   Gets or sets number of Top wavelets to consider
         /// </summary>
         /// <remarks>
         ///   Default = 200
         /// </remarks>
-        public int TopWavelets { get; private set; }
+        public int TopWavelets { get; protected set; }
 
         /// <summary>
-        ///   Gets sample rate at which the audio file will be pre-processed
+        ///   Gets or sets sample rate at which the audio file will be pre-processed
         /// </summary>
         /// <remarks>
         ///   Default = 5512
         /// </remarks>
-        public int SampleRate { get; private set; }
+        public int SampleRate { get; protected set; }
 
         /// <summary>
-        ///   Gets log base used for computing the logarithmically spaced frequency bins
+        ///   Gets or sets log base used for computing the logarithmically spaced frequency bins
         /// </summary>
         /// <remarks>
         ///   Default = 10
         /// </remarks>
-        public double LogBase { get; private set; }
+        public double LogBase { get; protected set; }
 
         /// <summary>
-        /// Gets number of logarithmically spaced bins between the frequency components computed by Fast Fourier Transform.
+        /// Gets or sets number of logarithmically spaced bins between the frequency components computed by Fast Fourier Transform.
         /// </summary>
-        public int LogBins { get; private set; }
+        public int LogBins { get; protected set; }
 
         /// <summary>
-        ///   Gets signature's length
+        ///   Gets or sets signature's length
         /// </summary>
-        public int FingerprintLength { get; private set; }
+        public int FingerprintLength { get; protected set; }
 
         /// <summary>
-        /// Gets default stride size between 2 consecutive signature
+        /// Gets or sets default stride size between 2 consecutive signature
         /// </summary>
-        /// <remarks>
-        ///  Default = 5115
-        /// </remarks>
-        public IStride Stride { get; private set; }
+        public IStride Stride { get; protected set; }
 
         /// <summary>
-        /// Gets a value indicating whether the algorithm has to normalize the signal
+        /// Gets or sets a value indicating whether the algorithm has to normalize the signal
         /// </summary>
-        public bool NormalizeSignal { get; private set; }
+        public bool NormalizeSignal { get; protected set; }
 
         /// <summary>
-        /// Gets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
+        /// Gets or sets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
         /// </summary>
-        public bool UseDynamicLogBase { get; private set; }
+        public bool UseDynamicLogBase { get; protected set; }
 
         /// <summary>
-        /// Gets the number of LSH tables to split
+        /// Gets or sets the number of LSH tables to split
         /// </summary>
-        public int NumberOfLSHTables { get; private set; }
+        public int NumberOfLSHTables { get; protected set; }
 
         /// <summary>
-        /// Gets the number of Min Hashes per table
+        /// Gets or sets the number of Min Hashes per table
         /// </summary>
-        public int NumberOfMinHashesPerTable { get; private set; }
+        public int NumberOfMinHashesPerTable { get; protected set; }
     }
 }

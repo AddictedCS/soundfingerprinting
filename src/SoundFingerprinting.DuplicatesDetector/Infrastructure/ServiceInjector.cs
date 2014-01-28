@@ -1,11 +1,11 @@
-﻿namespace SoundFingerprinting.DuplicatesDetector.Services
+﻿namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
 {
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.RAM;
-    using SoundFingerprinting.DuplicatesDetector.Infrastructure;
+    using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.Infrastructure;
 
     public static class ServiceInjector

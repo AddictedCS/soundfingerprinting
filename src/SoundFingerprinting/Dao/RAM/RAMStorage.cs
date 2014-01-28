@@ -7,13 +7,15 @@
 
     internal class RAMStorage : IRAMStorage
     {
-        private ConcurrentDictionary<long, SubFingerprintData> subFingerprints;
+        private IDictionary<long, SubFingerprintData> subFingerprints;
 
-        private ConcurrentDictionary<int, TrackData> tracks;
+        private IDictionary<int, TrackData> tracks;
 
-        private ConcurrentDictionary<int, ConcurrentDictionary<long, List<long>>> hashTables;
+        private IDictionary<int, IDictionary<long, HashData>> tracksHashes;
 
-        private ConcurrentDictionary<int, List<FingerprintData>> fingerprints;
+        private IDictionary<long, List<long>>[] hashTables;
+
+        private IDictionary<int, List<FingerprintData>> fingerprints;
 
         public RAMStorage(int numberOfHashTables)
         {
@@ -36,6 +38,14 @@
             }
         }
 
+        public IDictionary<int, IDictionary<long, HashData>> TracksHashes
+        {
+            get
+            {
+                return tracksHashes;
+            }
+        }
+
         public IDictionary<int, List<FingerprintData>> Fingerprints
         {
             get
@@ -44,7 +54,7 @@
             }
         }
 
-        public IDictionary<int, ConcurrentDictionary<long, List<long>>> HashTables
+        public IDictionary<long, List<long>>[] HashTables
         {
             get
             {
@@ -62,14 +72,15 @@
         private void Initialize(int numberOfHashTables)
         {
             NumberOfHashTables = numberOfHashTables;
-            subFingerprints = new ConcurrentDictionary<long, SubFingerprintData>();
-            tracks = new ConcurrentDictionary<int, TrackData>();
-            hashTables = new ConcurrentDictionary<int, ConcurrentDictionary<long, List<long>>>();
+            subFingerprints = new Dictionary<long, SubFingerprintData>();
+            tracks = new Dictionary<int, TrackData>();
+            tracksHashes = new Dictionary<int, IDictionary<long, HashData>>();
+            hashTables = new Dictionary<long, List<long>>[NumberOfHashTables];
             fingerprints = new ConcurrentDictionary<int, List<FingerprintData>>();
 
-            for (int table = 1; table <= numberOfHashTables; table++)
+            for (int table = 0; table < numberOfHashTables; table++)
             {
-                hashTables[table] = new ConcurrentDictionary<long, List<long>>();
+                hashTables[table] = new Dictionary<long, List<long>>();
             }
         }
     }

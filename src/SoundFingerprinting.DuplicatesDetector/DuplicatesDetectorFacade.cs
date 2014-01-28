@@ -10,14 +10,12 @@
 
     using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Model;
-    using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.DuplicatesDetector.ViewModel;
-    using SoundFingerprinting.Strides;
 
     /// <summary>
     ///   Facade which prepares the data for analysis of the tracks (does all the "dirty job")
     /// </summary>
-    public class DuplicatesDetectorFacade
+    public class DuplicatesDetectorFacade : IDisposable
     {
         /// <summary>
         ///   Maximum track length (track's bigger than this value will be discarded)
@@ -47,17 +45,7 @@
         ///   Minimum track length (track's less than this value will be discarded)
         /// </summary>
         private const int MinTrackLength = SecondsToProcess + StartProcessingAtSecond + 1;
-
-        /// <summary>
-        ///   Number of LSH tables
-        /// </summary>
-        private const int NumberOfHashTables = 25;
-
-        /// <summary>
-        ///   Number of Min Hash keys per 1 hash function (1 LSH table)
-        /// </summary>
-        private const int NumberOfKeys = 4;
-
+       
         /// <summary>
         ///   Down sampling rate
         /// </summary>
@@ -65,9 +53,7 @@
         ///   If you want to change this, contact ciumac.sergiu@gmail.com
         /// </remarks>
         private const int SampleRate = 5512;
-
-        private readonly IStride createStride = new IncrementalRandomStride(512, 1024, 128 * 64, 0);
-
+       
         private readonly DuplicatesDetectorService duplicatesDetectorService;
 
         private readonly TrackHelper trackHelper;
@@ -79,6 +65,11 @@
             cts = new CancellationTokenSource();
             duplicatesDetectorService = ServiceContainer.Kernel.Get<DuplicatesDetectorService>();
             trackHelper = ServiceContainer.Kernel.Get<TrackHelper>();
+        }
+
+        ~DuplicatesDetectorFacade()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -145,6 +136,20 @@
         {
             cts.Cancel();
             cts = new CancellationTokenSource();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                cts.Dispose();
+            }
         }
 
         /// <summary>
@@ -233,7 +238,7 @@
                             if (tuple != null)
                             {
                                 /*Long running procedure*/
-                                duplicatesDetectorService.CreateInsertFingerprints(tuple.Item2, tuple.Item1, createStride, NumberOfHashTables, NumberOfKeys);
+                                duplicatesDetectorService.CreateInsertFingerprints(tuple.Item2, tuple.Item1);
 
                                 processedtracks.Add(tuple.Item1);
                                 if (processed != null)

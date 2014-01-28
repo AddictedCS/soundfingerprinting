@@ -96,10 +96,13 @@
     <Compile Include="Integration\Dao\RAM\FingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\Dao\RAM\TrackDaoTest.cs" />
+    <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
+    <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\Hashing\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\MinHashServiceTest.cs" />
+    <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Integration\Builder\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
@@ -131,9 +134,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Unit\Dao\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E

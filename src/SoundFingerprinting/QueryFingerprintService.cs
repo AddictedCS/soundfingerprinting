@@ -26,7 +26,7 @@
 
         public QueryResult Query(IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
         {
-            Dictionary<IModelReference, int> hammingSimilarities = new Dictionary<IModelReference, int>();
+            var hammingSimilarities = new Dictionary<IModelReference, int>();
             foreach (var hash in hashes)
             {
                 var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
@@ -46,8 +46,8 @@
 
             if (hammingSimilarities.Any())
             {
-                var topMatches = hammingSimilarities.OrderBy(pair => pair.Value).Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult);
-                List<ResultEntry> resultSet = topMatches.Select(match => new ResultEntry { Track = modelService.ReadTrackByReference(match.Key), Similarity = match.Value }).ToList();
+                var topMatches = hammingSimilarities.OrderByDescending(pair => pair.Value).Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult);
+                var resultSet = topMatches.Select(match => new ResultEntry { Track = modelService.ReadTrackByReference(match.Key), Similarity = match.Value }).ToList();
 
                 return new QueryResult
                            {

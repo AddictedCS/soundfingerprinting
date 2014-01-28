@@ -58,19 +58,15 @@ namespace SoundFingerprinting
         private List<bool[]> CreateFingerprintsFromLogSpectrum(float[][] logarithmizedSpectrum, IStride stride, int fingerprintLength, int overlap, int topWavelets)
         {
             List<float[][]> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, stride, fingerprintLength, overlap);
-
             waveletDecomposition.DecomposeImagesInPlace(spectralImages);
-
             var fingerprints = new List<bool[]>();
             foreach (var spectralImage in spectralImages)
             {
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage, topWavelets);
-                if (IsSilence(image))
+                if (!IsSilence(image))
                 {
-                    continue;
+                    fingerprints.Add(image);
                 }
-
-                fingerprints.Add(image);
             }
 
             return fingerprints;

@@ -113,7 +113,6 @@
     <Compile Include="DuplicatesDetectorService.cs" />
     <Compile Include="Infrastructure\TrackHelper.cs" />
     <Compile Include="Model\Item.cs" />
-    <Compile Include="Model\HashSignature.cs" />
     <Compile Include="Model\ResultItem.cs" />
     <Compile Include="Model\Track.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -133,8 +132,8 @@
     <Compile Include="Services\MessageBoxService.cs" />
     <Compile Include="Services\OpenFileDialogService.cs" />
     <Compile Include="Services\SaveFileDialogService.cs" />
-    <Compile Include="Services\ServiceContainer.cs" />
-    <Compile Include="Services\ServiceInjector.cs" />
+    <Compile Include="Infrastructure\ServiceContainer.cs" />
+    <Compile Include="Infrastructure\ServiceInjector.cs" />
     <Compile Include="Services\WindowService.cs" />
     <Compile Include="Themes\SetIdConverter.cs" />
     <Compile Include="ViewModel\BooleanToVisibilityConverter.cs" />

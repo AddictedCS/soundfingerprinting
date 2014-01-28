@@ -77,5 +77,27 @@
                 Assert.AreEqual(GenericFingerprint, fingerprint);
             }
         }
+
+        [TestMethod]
+        public void SilenceIsNotFingerprinted()
+        {
+            float[] samples = TestUtilities.GenerateRandomFloatArray(5512 * 10);
+            var configuration = new DefaultFingerprintConfiguration();
+            float[][] logarithmizedSpectrum = new[] { TestUtilities.GenerateRandomFloatArray(2048) };
+            List<float[][]> dividedLogSpectrum = new List<float[][]> { new[] { TestUtilities.GenerateRandomFloatArray(2048) } };
+
+            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, configuration)).Returns(logarithmizedSpectrum);
+            spectrumService.Setup(
+                service => service.CutLogarithmizedSpectrum(logarithmizedSpectrum, configuration.Stride, configuration.FingerprintLength, configuration.Overlap))
+                           .Returns(dividedLogSpectrum);
+
+            waveletDecomposition.Setup(service => service.DecomposeImagesInPlace(dividedLogSpectrum));
+            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), configuration.TopWavelets))
+                                 .Returns(new[] { false, false, false, false, false, false, false, false });
+
+            List<bool[]> rawFingerprints = fingerprintService.CreateFingerprints(samples, configuration);
+
+            Assert.IsTrue(rawFingerprints.Count == 0);
+        }
     }
 }

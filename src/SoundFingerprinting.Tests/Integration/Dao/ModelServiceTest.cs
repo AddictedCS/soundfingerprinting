@@ -9,6 +9,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Tests.Integration;
 
+    [TestClass]
     public abstract class ModelServiceTest : AbstractIntegrationTest
     {
         private readonly IModelService modelService;

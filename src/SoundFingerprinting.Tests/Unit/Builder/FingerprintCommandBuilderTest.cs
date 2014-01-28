@@ -149,6 +149,28 @@
         }
 
         [TestMethod]
+        public void SubFingerprintsAreBuiltCorrectlyFromFingerprintsTest()
+        {
+            List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
+
+            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, 25, 4)).Returns(
+                new HashData(GenericSignature, GenericHashBuckets));
+
+            var hashDatas =
+                fingerprintCommandBuilder.BuildFingerprintCommand()
+                                      .From(rawFingerprints)
+                                      .WithDefaultFingerprintConfig()
+                                      .Hash()
+                                      .Result;
+
+            Assert.AreEqual(3, hashDatas.Count);
+            foreach (var hashData in hashDatas)
+            {
+                Assert.AreEqual(GenericSignature, hashData.SubFingerprint);
+            }
+        }
+
+        [TestMethod]
         public void CorrectFingerprintConfigurationIsUsedWithInstanceConfigTest()
         {
             const string PathToAudioFile = "path-to-audio-file";

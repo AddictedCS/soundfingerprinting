@@ -1,16 +1,43 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
-    public class CustomQueryConfiguration : IQueryConfiguration
+    using System;
+
+    public class CustomQueryConfiguration : DefaultQueryConfiguration
     {
-        public CustomQueryConfiguration()
+        public new int ThresholdVotes
         {
-            var defaultQueryConfig = new DefaultQueryConfiguration();
-            ThresholdVotes = defaultQueryConfig.ThresholdVotes;
-            MaximumNumberOfTracksToReturnAsResult = defaultQueryConfig.MaximumNumberOfTracksToReturnAsResult;
+            get
+            {
+                return base.ThresholdVotes;
+            }
+
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentException("ThresholdVotes cannot be less than 0", "value");
+                }
+
+                base.ThresholdVotes = value;
+            }
         }
 
-        public int ThresholdVotes { get; set; }
+        public new int MaximumNumberOfTracksToReturnAsResult
+        {
+            get
+            {
+                return base.MaximumNumberOfTracksToReturnAsResult;
+            }
 
-        public int MaximumNumberOfTracksToReturnAsResult { get; set; }
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException("MaximumNumberOfTracksToReturnAsResult cannot be less or equal to 0", "value");
+                }
+
+                base.MaximumNumberOfTracksToReturnAsResult = value;
+            }
+        }
     }
 }

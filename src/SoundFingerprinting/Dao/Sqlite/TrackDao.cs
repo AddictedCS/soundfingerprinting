@@ -1,18 +1,14 @@
-﻿#region
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
-using LinqToDB;
-using LinqToDB.Data;
-using LinqToDB.Mapping;
-using SoundFingerprinting.Data;
-
-#endregion
-
-namespace SoundFingerprinting.Dao.Sqlite
+﻿namespace SoundFingerprinting.Dao.Sqlite
 {
+    ﻿using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using AutoMapper;
+    using LinqToDB;
+    using LinqToDB.Data;
+    using LinqToDB.Mapping;
+    using SoundFingerprinting.Data;
+
     internal class Track
     {
         [Column(IsPrimaryKey = true, IsIdentity = true)]
