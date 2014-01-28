@@ -1,32 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LinqToDB;
-using LinqToDB.Data;
-using LinqToDB.DataProvider.SQLite;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NUnit.Framework;
-using SoundFingerprinting.Dao;
-using SoundFingerprinting.Dao.Sqlite;
-
-namespace SoundFingerprinting.Tests.Integration.Dao.Sqlite
+﻿namespace SoundFingerprinting.Tests.Integration.Dao.Sqlite
 {
+    using System;
+    using System.Data.SQLite;
+    using System.IO;
+    using LinqToDB;
+    using LinqToDB.Data;
+    using LinqToDB.DataProvider.SQLite;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
+    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.Sqlite;
+
     [TestClass]
     public class TrackDaoTest : AbstractTrackDaoTest
     {
-        public TrackDaoTest()
-        {
-            TrackDao = new TrackDao("SQLite");
-            //SubFingerprintDao = new SubFingerprintDao();
-            //HashBinDao = new HashBinDao();
-        }
-
-        private string _sqliteFile;
-
         [SetUp]
         [TestInitialize]
         public override void SetUp()
@@ -38,7 +25,7 @@ namespace SoundFingerprinting.Tests.Integration.Dao.Sqlite
             {
                 db.CreateTable<Track>();
             }
-            
+
             base.SetUp();
         }
 
@@ -51,6 +38,15 @@ namespace SoundFingerprinting.Tests.Integration.Dao.Sqlite
 
             base.TearDown();
         }
+
+        public TrackDaoTest()
+        {
+            TrackDao = new TrackDao("SQLite");
+            //SubFingerprintDao = new SubFingerprintDao();
+            //HashBinDao = new HashBinDao();
+        }
+
+        private string _sqliteFile;
 
         public override sealed ITrackDao TrackDao { get; set; }
 
