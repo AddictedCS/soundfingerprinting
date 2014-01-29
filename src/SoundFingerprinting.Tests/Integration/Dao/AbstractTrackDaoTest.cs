@@ -5,9 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Dao;
@@ -178,7 +176,7 @@
             Assert.IsTrue(allTracks.Count > 0);
             foreach (var trackId in trackIds)
             {
-                TrackDao.DeleteTrack(trackId);
+                Assert.AreEqual(TrackDao.DeleteTrack(trackId), 1);
             }
 
             Assert.IsTrue(TrackDao.ReadAll().Count == 0);

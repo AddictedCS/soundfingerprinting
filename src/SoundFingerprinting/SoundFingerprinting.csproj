@@ -38,9 +38,21 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Net4, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll</HintPath>
+    </Reference>
     <Reference Include="Bass.Net, Version=2.4.6.4, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Externals\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="linq2db, Version=1.0.2.0, Culture=neutral, PublicKeyToken=f19f8aed7feff67e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\linq2db.1.0.2\lib\net45\linq2db.dll</HintPath>
     </Reference>
     <Reference Include="NAudio, Version=1.7.0.15, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -70,6 +82,8 @@
     <Compile Include="Dao\IFingerprintDao.cs" />
     <Compile Include="Dao\RAM\InMemoryModelService.cs" />
     <Compile Include="Dao\RAM\IRAMStorage.cs" />
+    <Compile Include="Dao\Sqlite\SqliteModelService.cs" />
+    <Compile Include="Dao\Sqlite\TrackDao.cs" />
     <Compile Include="Dao\SQL\IgnoreBindingAttribute.cs" />
     <Compile Include="Dao\RAM\FingerprintDao.cs" />
     <Compile Include="Dao\RAM\HashBinDao.cs" />
@@ -82,6 +96,7 @@
     <Compile Include="Dao\ITrackDao.cs" />
     <Compile Include="Dao\SQL\SqlModelService.cs" />
     <Compile Include="Data\FingerprintData.cs" />
+    <Compile Include="Data\FingerprintRawData.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
     <Compile Include="Data\IModelReference.cs" />
@@ -215,6 +230,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll">
+      <Link>AutoMapper.Net4.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="x64\bass.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
