@@ -82,5 +82,10 @@ namespace SoundFingerprinting.Configuration
         /// Gets the number of Min Hashes per table
         /// </summary>
         int NumberOfMinHashesPerTable { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the algorithm should include fingerprints for silence regions in audio file
+        /// </summary>
+        bool IncludeSilenceFingerprints { get; }
     }
 }

@@ -20,6 +20,7 @@ namespace SoundFingerprinting.Configuration
             UseDynamicLogBase = false;
             NumberOfLSHTables = 25;
             NumberOfMinHashesPerTable = 4;
+            IncludeSilenceFingerprints = false;
         }
 
         /// <summary>
@@ -123,5 +124,7 @@ namespace SoundFingerprinting.Configuration
         /// Gets or sets the number of Min Hashes per table
         /// </summary>
         public int NumberOfMinHashesPerTable { get; protected set; }
+
+        public bool IncludeSilenceFingerprints { get; protected set; }
     }
 }

@@ -91,6 +91,7 @@
     <Compile Include="Dao\ITrackDao.cs" />
     <Compile Include="Dao\SQL\SqlModelService.cs" />
     <Compile Include="Data\FingerprintData.cs" />
+    <Compile Include="Data\FingerprintRawData.cs" />
     <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
     <Compile Include="Data\IModelReference.cs" />
