@@ -28,6 +28,12 @@
             return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold).ToList();
         }
 
+        public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
+        {
+            return
+                hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, threshold, trackGroupId).ToList();
+        }
+
         public IModelReference InsertFingerprint(FingerprintData fingerprintData)
         {
             int fingerprintId = fingerprintDao.Insert(fingerprintData.Signature, ((ModelReference<int>)fingerprintData.TrackReference).Id);

@@ -100,5 +100,19 @@
             return subFingeprintCount.Where(pair => pair.Value >= thresholdVotes)
                                      .Select(pair => storage.SubFingerprints[pair.Key]);
         }
+
+        public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] hashBuckets, int thresholdVotes, string trackGroupId)
+        {
+            var trackIds = storage.Tracks.Where(pair => pair.Value.GroupId == trackGroupId)
+                                         .Select(pair => pair.Value.TrackReference).ToList();
+            
+            if (trackIds.Any())
+            {
+                return ReadSubFingerprintDataByHashBucketsWithThreshold(hashBuckets, thresholdVotes)
+                    .Where(subFingerprint => trackIds.Contains(subFingerprint.TrackReference));
+            }
+
+            return Enumerable.Empty<SubFingerprintData>();
+        }
     }
 }
