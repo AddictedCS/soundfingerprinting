@@ -1,6 +1,7 @@
 TestResult.xml
 src/TestResults/
 .vagrant
+*.Cache
 
 ?bin/
 obj/
