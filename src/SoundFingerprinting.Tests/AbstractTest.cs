@@ -6,9 +6,6 @@
 
     [DeploymentItem(@"x86", @"x86")]
     [DeploymentItem(@"x64", @"x64")]
-    [DeploymentItem(@"libfftw3-3.dll")]
-    [DeploymentItem(@"libfftw3f-3.dll")]
-    [DeploymentItem(@"libfftw3l-3.dll")]
     [TestClass]
     public abstract class AbstractTest
     {

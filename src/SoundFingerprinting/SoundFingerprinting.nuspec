@@ -10,14 +10,14 @@
     <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Bug fixes. Algorithm adjustments and backend storage improvements. InMemory storage added.</releaseNotes>
+    <releaseNotes>Backend storage improvements. Native dlls deployment type changed in order to support NuGet install for web base applications.</releaseNotes>
     <copyright>Copyright 2013, Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
   </metadata>
 	<files>
-		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net35" />
-		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net40" />
-		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net45" />
+		<file src="..\Externals\Bass.Net.dll" target="lib\net35" />
+		<file src="..\Externals\Bass.Net.dll" target="lib\net40" />
+		<file src="..\Externals\Bass.Net.dll" target="lib\net45" />
 		<file src="..\Scripts\*.ps1" target="tools\net35" />
 		<file src="..\Scripts\*.ps1" target="tools\net40" />
 		<file src="..\Scripts\*.ps1" target="tools\net45" />
