@@ -28,6 +28,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -54,20 +56,6 @@
     <ApplicationIcon>Resources\2-Music.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net, Version=2.4.8.3, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Externals\Bass\Bass.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="encog-core-cs">
-      <HintPath>..\packages\encog-dotnet-core.3.0.0\lib\net40\encog-core-cs.dll</HintPath>
-    </Reference>
-    <Reference Include="NAudio">
-      <HintPath>..\packages\NAudio.1.7-alpha05\lib\net35\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Ninject.3.0.1.10\lib\net40\Ninject.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -112,7 +100,6 @@
       <DependentUpon>WinFilePermutation.cs</DependentUpon>
     </Compile>
     <Compile Include="HashAlgorithm.cs" />
-    <Compile Include="DI\IDependencyResolver.cs" />
     <Compile Include="Misc\SimilarityResult.cs" />
     <Compile Include="Misc\WinMisc.cs">
       <SubType>Form</SubType>
@@ -120,7 +107,6 @@
     <Compile Include="Misc\WinMisc.designer.cs">
       <DependentUpon>WinMisc.cs</DependentUpon>
     </Compile>
-    <Compile Include="DI\NinjectDependencyResolver.cs" />
     <Compile Include="PermutationGenerator\WinPermGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -227,7 +213,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -246,9 +231,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E
-xcopy "$(SolutionDir)\Externals\FFTW\*.*" "$(TargetDir)" /Y /I /E</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

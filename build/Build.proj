@@ -2,7 +2,7 @@
 <PropertyGroup>
   <Configuration Condition="$(Configuration) == ''">Release</Configuration>
   <SolutionFile>..\src\SoundFingerprinting.sln</SolutionFile>
-  <NugetExecutable>..\tools\nuget.exe</NugetExecutable>
+  <NugetExecutable>..\src\.nuget\NuGet.exe</NugetExecutable>
   <MSTestExecutable>..\tools\MSTest.exe</MSTestExecutable>
   <SoundFingerprintingLibProject>..\src\SoundFingerprinting\SoundFingerprinting.csproj</SoundFingerprintingLibProject>
   <SoundFingerprintingOutputDir>$(Configuration)\SoundFingerprinting</SoundFingerprintingOutputDir>

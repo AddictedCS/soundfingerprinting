@@ -6,9 +6,6 @@
 
     [DeploymentItem(@"x86", @"x86")]
     [DeploymentItem(@"x64", @"x64")]
-    [DeploymentItem(@"libfftw3-3.dll")]
-    [DeploymentItem(@"libfftw3f-3.dll")]
-    [DeploymentItem(@"libfftw3l-3.dll")]
     [TestClass]
     public abstract class AbstractTest
     {
@@ -60,6 +57,7 @@
             Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
             Assert.AreEqual(expectedTrack.TrackLengthSec, actualTrack.TrackLengthSec);
             Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
+            Assert.AreEqual(expectedTrack.GroupId, actualTrack.GroupId);
         }
     }
 }

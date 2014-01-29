@@ -26,6 +26,7 @@ CREATE TABLE Tracks
 	Album VARCHAR(255),
 	ReleaseYear INT DEFAULT 0,
 	TrackLengthSec INT DEFAULT 0,
+	GroupId VARCHAR(20),
 	CONSTRAINT CK_TracksTrackLength CHECK(TrackLengthSec > -1),
 	CONSTRAINT CK_ReleaseYear CHECK(ReleaseYear > -1),
 	CONSTRAINT PK_TracksId PRIMARY KEY(Id)
@@ -56,250 +57,200 @@ CREATE TABLE HashTable_1
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_1 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_1_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_1_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_1_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_2
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_2 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_2_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_2_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_2_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_3
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_3 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_3_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_3_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_3_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_4
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_4 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_4_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_4_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_4_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_5
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_5 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_5_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_5_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_5_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_6
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_6 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_6_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_6_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_6_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_7
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_7 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_7_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_7_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_7_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_8
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_8 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_8_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_8_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_8_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_9
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_9 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_9_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_9_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)	
+	CONSTRAINT FK_HashTable_9_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_10
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_10 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_10_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_10_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_10_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_11
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_11 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_11_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_11_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_11_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_12
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_12 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_12_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_12_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_12_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_13
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_13 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_13_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_13_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_13_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_14
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_14 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_14_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_14_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_14_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_15
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_15 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_15_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_15_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_15_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_16
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_16 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_16_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_16_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_16_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_17
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_17 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_17_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_17_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_17_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_18
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_18 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_18_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_18_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_18_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_19
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_19 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_19_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_19_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_19_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_20
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_20 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_20_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_20_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_20_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_21
 (	
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_21 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_21_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_21_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_21_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_22
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_22 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_22_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_22_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_22_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_23
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_23 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_23_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_23_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_23_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_24
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_24 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_24_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_24_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_24_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 CREATE TABLE HashTable_25
 (
 	HashBin BIGINT NOT NULL,								    
 	SubFingerprintId BIGINT NOT NULL,
-	TrackId INT NOT NULL,
 	CONSTRAINT PK_HashBinsMinHashId_25 PRIMARY KEY(HashBin, SubFingerprintId),
-	CONSTRAINT FK_HashTable_25_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id),
-	CONSTRAINT FK_HashTable_25_Track FOREIGN KEY(TrackId) REFERENCES dbo.Tracks(Id)
+	CONSTRAINT FK_HashTable_25_SubFingerprints FOREIGN KEY(SubFingerprintId) REFERENCES dbo.SubFingerprints(Id)
 )
 GO
 -- TABLE INDEXES
@@ -317,7 +268,8 @@ CREATE PROCEDURE sp_InsertTrack
 	@Title VARCHAR(255),
 	@Album VARCHAR(255),
 	@ReleaseYear INT,
-	@TrackLengthSec INT
+	@TrackLengthSec INT,
+	@GroupId VARCHAR(20)
 AS
 INSERT INTO Tracks (
 	ISRC,
@@ -325,11 +277,12 @@ INSERT INTO Tracks (
 	Title,
 	Album,
 	ReleaseYear,
-	TrackLengthSec
+	TrackLengthSec,
+	GroupId
 	) OUTPUT inserted.Id
 VALUES
 (
- 	@ISRC, @Artist, @Title, @Album, @ReleaseYear, @TrackLengthSec
+ 	@ISRC, @Artist, @Title, @Album, @ReleaseYear, @TrackLengthSec, @GroupId
 );
 GO
 -- INSERT INTO SUBFINGERPRINTS
@@ -484,6 +437,76 @@ FROM SubFingerprints,
 	) AS Thresholded
 WHERE SubFingerprints.Id = Thresholded.SubFingerprintId	
 GO
+IF OBJECT_ID('sp_ReadSubFingerprintsByHashBinHashTableAndThresholdWithGroupId','P') IS NOT NULL
+	DROP PROCEDURE sp_ReadSubFingerprintsByHashBinHashTableAndThresholdWithGroupId
+GO
+CREATE PROCEDURE sp_ReadSubFingerprintsByHashBinHashTableAndThresholdWithGroupId
+	@HashBin_1 BIGINT, @HashBin_2 BIGINT, @HashBin_3 BIGINT, @HashBin_4 BIGINT, @HashBin_5 BIGINT, 
+	@HashBin_6 BIGINT, @HashBin_7 BIGINT, @HashBin_8 BIGINT, @HashBin_9 BIGINT, @HashBin_10 BIGINT,
+	@HashBin_11 BIGINT, @HashBin_12 BIGINT, @HashBin_13 BIGINT, @HashBin_14 BIGINT, @HashBin_15 BIGINT, 
+	@HashBin_16 BIGINT, @HashBin_17 BIGINT, @HashBin_18 BIGINT, @HashBin_19 BIGINT, @HashBin_20 BIGINT,
+	@HashBin_21 BIGINT, @HashBin_22 BIGINT, @HashBin_23 BIGINT, @HashBin_24 BIGINT, @HashBin_25 BIGINT,
+	@Threshold INT, @GroupId VARCHAR(20)
+AS
+SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature
+FROM SubFingerprints INNER JOIN
+	( SELECT Hashes.SubFingerprintId as SubFingerprintId FROM 
+	   (
+	    SELECT * FROM HashTable_1 WHERE HashBin = @HashBin_1
+		UNION ALL
+		SELECT * FROM HashTable_2 WHERE HashBin = @HashBin_2
+		UNION ALL
+		SELECT * FROM HashTable_3 WHERE HashBin = @HashBin_3
+		UNION ALL
+		SELECT * FROM HashTable_4 WHERE HashBin = @HashBin_4
+		UNION ALL
+		SELECT * FROM HashTable_5 WHERE HashBin = @HashBin_5
+		UNION ALL
+		SELECT * FROM HashTable_6 WHERE HashBin = @HashBin_6
+		UNION ALL
+		SELECT * FROM HashTable_7 WHERE HashBin = @HashBin_7
+		UNION ALL
+		SELECT * FROM HashTable_8 WHERE HashBin = @HashBin_8
+		UNION ALL
+		SELECT * FROM HashTable_9 WHERE HashBin = @HashBin_9
+		UNION ALL
+		SELECT * FROM HashTable_10 WHERE HashBin = @HashBin_10
+		UNION ALL
+		SELECT * FROM HashTable_11 WHERE HashBin = @HashBin_11
+		UNION ALL
+		SELECT * FROM HashTable_12 WHERE HashBin = @HashBin_12
+		UNION ALL
+		SELECT * FROM HashTable_13 WHERE HashBin = @HashBin_13
+		UNION ALL
+		SELECT * FROM HashTable_14 WHERE HashBin = @HashBin_14
+		UNION ALL
+		SELECT * FROM HashTable_15 WHERE HashBin = @HashBin_15
+		UNION ALL
+		SELECT * FROM HashTable_16 WHERE HashBin = @HashBin_16
+		UNION ALL
+		SELECT * FROM HashTable_17 WHERE HashBin = @HashBin_17
+		UNION ALL
+		SELECT * FROM HashTable_18 WHERE HashBin = @HashBin_18
+		UNION ALL
+		SELECT * FROM HashTable_19 WHERE HashBin = @HashBin_19
+		UNION ALL
+		SELECT * FROM HashTable_20 WHERE HashBin = @HashBin_20
+		UNION ALL
+		SELECT * FROM HashTable_21 WHERE HashBin = @HashBin_21
+		UNION ALL
+		SELECT * FROM HashTable_22 WHERE HashBin = @HashBin_22
+		UNION ALL
+		SELECT * FROM HashTable_23 WHERE HashBin = @HashBin_23
+		UNION ALL
+		SELECT * FROM HashTable_24 WHERE HashBin = @HashBin_24
+		UNION ALL
+		SELECT * FROM HashTable_25 WHERE HashBin = @HashBin_25
+	  ) AS Hashes
+	 GROUP BY Hashes.SubFingerprintId
+	 HAVING COUNT(Hashes.SubFingerprintId) >= @Threshold
+	) AS Thresholded ON SubFingerprints.Id = Thresholded.SubFingerprintId	
+INNER JOIN Tracks ON SubFingerprints.TrackId = Tracks.Id AND Tracks.GroupId = @GroupId
+GO
 IF OBJECT_ID('sp_ReadHashDataByTrackId','P') IS NOT NULL
 	DROP PROCEDURE sp_ReadHashDataByTrackId
 GO
@@ -497,31 +520,32 @@ SELECT SubFingerprints.Signature as Signature, HashTable_1.SubFingerprintId as S
        HashTable_16.HashBin as HashBin_16, HashTable_17.HashBin as HashBin_17, HashTable_18.HashBin as HashBin_18, HashTable_19.HashBin as HashBin_19, HashTable_20.HashBin as HashBin_20,
        HashTable_21.HashBin as HashBin_21, HashTable_22.HashBin as HashBin_22, HashTable_23.HashBin as HashBin_23, HashTable_24.HashBin as HashBin_24, HashTable_25.HashBin as HashBin_25
 	   FROM HashTable_1 
-					 INNER JOIN HashTable_2 ON HashTable_1.SubFingerprintId = HashTable_2.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_3 ON HashTable_1.SubFingerprintId = HashTable_3.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_4 ON HashTable_1.SubFingerprintId = HashTable_4.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_5 ON HashTable_1.SubFingerprintId = HashTable_5.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_6 ON HashTable_1.SubFingerprintId = HashTable_6.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_7 ON HashTable_1.SubFingerprintId = HashTable_7.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_8 ON HashTable_1.SubFingerprintId = HashTable_8.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_9 ON HashTable_1.SubFingerprintId = HashTable_9.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_10 ON HashTable_1.SubFingerprintId = HashTable_10.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_11 ON HashTable_1.SubFingerprintId = HashTable_11.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_12 ON HashTable_1.SubFingerprintId = HashTable_12.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_13 ON HashTable_1.SubFingerprintId = HashTable_13.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_14 ON HashTable_1.SubFingerprintId = HashTable_14.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_15 ON HashTable_1.SubFingerprintId = HashTable_15.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_16 ON HashTable_1.SubFingerprintId = HashTable_16.SubFingerprintId AND HashTable_1.TrackId = @TrackId 
-					 INNER JOIN HashTable_17 ON HashTable_1.SubFingerprintId = HashTable_17.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_18 ON HashTable_1.SubFingerprintId = HashTable_18.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_19 ON HashTable_1.SubFingerprintId = HashTable_19.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_20 ON HashTable_1.SubFingerprintId = HashTable_20.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_21 ON HashTable_1.SubFingerprintId = HashTable_21.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_22 ON HashTable_1.SubFingerprintId = HashTable_22.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_23 ON HashTable_1.SubFingerprintId = HashTable_23.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_24 ON HashTable_1.SubFingerprintId = HashTable_24.SubFingerprintId AND HashTable_1.TrackId = @TrackId
-					 INNER JOIN HashTable_25 ON HashTable_1.SubFingerprintId = HashTable_25.SubFingerprintId AND HashTable_1.TrackId = @TrackId
+					 INNER JOIN HashTable_2 ON HashTable_1.SubFingerprintId = HashTable_2.SubFingerprintId
+					 INNER JOIN HashTable_3 ON HashTable_1.SubFingerprintId = HashTable_3.SubFingerprintId
+					 INNER JOIN HashTable_4 ON HashTable_1.SubFingerprintId = HashTable_4.SubFingerprintId 
+					 INNER JOIN HashTable_5 ON HashTable_1.SubFingerprintId = HashTable_5.SubFingerprintId
+					 INNER JOIN HashTable_6 ON HashTable_1.SubFingerprintId = HashTable_6.SubFingerprintId
+					 INNER JOIN HashTable_7 ON HashTable_1.SubFingerprintId = HashTable_7.SubFingerprintId
+					 INNER JOIN HashTable_8 ON HashTable_1.SubFingerprintId = HashTable_8.SubFingerprintId
+					 INNER JOIN HashTable_9 ON HashTable_1.SubFingerprintId = HashTable_9.SubFingerprintId
+					 INNER JOIN HashTable_10 ON HashTable_1.SubFingerprintId = HashTable_10.SubFingerprintId
+					 INNER JOIN HashTable_11 ON HashTable_1.SubFingerprintId = HashTable_11.SubFingerprintId
+					 INNER JOIN HashTable_12 ON HashTable_1.SubFingerprintId = HashTable_12.SubFingerprintId
+					 INNER JOIN HashTable_13 ON HashTable_1.SubFingerprintId = HashTable_13.SubFingerprintId
+					 INNER JOIN HashTable_14 ON HashTable_1.SubFingerprintId = HashTable_14.SubFingerprintId
+					 INNER JOIN HashTable_15 ON HashTable_1.SubFingerprintId = HashTable_15.SubFingerprintId
+					 INNER JOIN HashTable_16 ON HashTable_1.SubFingerprintId = HashTable_16.SubFingerprintId
+					 INNER JOIN HashTable_17 ON HashTable_1.SubFingerprintId = HashTable_17.SubFingerprintId
+					 INNER JOIN HashTable_18 ON HashTable_1.SubFingerprintId = HashTable_18.SubFingerprintId
+					 INNER JOIN HashTable_19 ON HashTable_1.SubFingerprintId = HashTable_19.SubFingerprintId
+					 INNER JOIN HashTable_20 ON HashTable_1.SubFingerprintId = HashTable_20.SubFingerprintId
+					 INNER JOIN HashTable_21 ON HashTable_1.SubFingerprintId = HashTable_21.SubFingerprintId
+					 INNER JOIN HashTable_22 ON HashTable_1.SubFingerprintId = HashTable_22.SubFingerprintId
+					 INNER JOIN HashTable_23 ON HashTable_1.SubFingerprintId = HashTable_23.SubFingerprintId
+					 INNER JOIN HashTable_24 ON HashTable_1.SubFingerprintId = HashTable_24.SubFingerprintId
+					 INNER JOIN HashTable_25 ON HashTable_1.SubFingerprintId = HashTable_25.SubFingerprintId
 					 INNER JOIN SubFingerprints ON HashTable_1.SubFingerprintId = SubFingerprints.Id
+					 WHERE SubFingerprints.TrackId = @TrackId
 END					 
 -- READ TRACK BY ARTIST NAME AND SONG NAME
 IF OBJECT_ID('sp_ReadTrackByArtistAndSongName','P') IS NOT NULL

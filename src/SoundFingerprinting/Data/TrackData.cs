@@ -2,7 +2,6 @@
 {
     using System;
 
-    using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.SQL;
 
     [Serializable]
@@ -40,6 +39,8 @@
         public int ReleaseYear { get; set; }
 
         public int TrackLengthSec { get; set; }
+
+        public string GroupId { get; set; }
 
         [IgnoreBinding]
         public IModelReference TrackReference { get; set; }

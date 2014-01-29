@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Dao
 
     public interface IHashBinDao
     {
-        void Insert(long[] hashBins, long subFingerprintId, int trackId);
+        void Insert(long[] hashBins, long subFingerprintId);
 
         IList<HashBinData> ReadHashBinsByHashTable(int hashTableId);
 
@@ -14,5 +14,8 @@ namespace SoundFingerprinting.Dao
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
             long[] hashBuckets, int thresholdVotes);
+
+        IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(
+            long[] hashBuckets, int thresholdVotes, string trackGroupId);
     }
 }

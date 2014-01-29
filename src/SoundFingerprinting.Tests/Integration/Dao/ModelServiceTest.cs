@@ -150,6 +150,34 @@
         }
 
         [TestMethod]
+        public void ReadSubFingerprintsByHashBucketsHavingThresholdWithGroupIdTest()
+        {
+            const int Threshold = 5;
+            TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200)
+                { GroupId = "first-group-id" };
+            var firstTrackReference = modelService.InsertTrack(firstTrack);
+            TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200)
+                { GroupId = "second-group-id" };
+            var secondTrackReference = modelService.InsertTrack(secondTrack);
+            Assert.IsFalse(firstTrackReference.HashCode == secondTrackReference.HashCode);
+            long[] firstTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
+            long[] secondTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
+            var firstHashData = new HashData(GenericSignature, firstTrackBuckets);
+            var secondHashData = new HashData(GenericSignature, secondTrackBuckets);
+
+            modelService.InsertHashDataForTrack(new[] { firstHashData }, firstTrackReference);
+            modelService.InsertHashDataForTrack(new[] { secondHashData }, secondTrackReference);
+
+            // query buckets are similar with 5 elements from first track and 4 elements from second track
+            long[] queryBuckets = new long[] { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
+
+            var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(queryBuckets, Threshold, "first-group-id");
+
+            Assert.IsTrue(subFingerprints.Count == 1);
+            Assert.AreEqual(firstTrackReference.HashCode, subFingerprints[0].TrackReference.HashCode);
+        }
+
+        [TestMethod]
         public void InsertFingerprintTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);

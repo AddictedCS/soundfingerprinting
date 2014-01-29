@@ -51,7 +51,10 @@
             ConcurrentBag<int> ids = new ConcurrentBag<int>();
             for (int i = 0; i < 1000; i++)
             {
-                int id = TrackDao.Insert(new TrackData("isrc", "artist", "title", "album", 2012, 200));
+                int id = TrackDao.Insert(new TrackData("isrc", "artist", "title", "album", 2012, 200)
+                    {
+                        GroupId = "group-id"
+                    });
                 Assert.IsFalse(ids.Contains(id));
                 ids.Add(id);
             }
@@ -75,7 +78,10 @@
         [TestMethod]
         public void ReadByIdTest()
         {
-            var track = new TrackData("isrc", "artist", "title", "album", 2012, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 2012, 200)
+                {
+                    GroupId = "group-id"
+                };
             int id = TrackDao.Insert(track);
 
             var actualTrack = TrackDao.ReadById(id);
@@ -212,7 +218,7 @@
             foreach (var hash in hashData)
             {
                 long subFingerprintId = SubFingerprintDao.Insert(hash.SubFingerprint, trackId);
-                HashBinDao.Insert(hash.HashBins, subFingerprintId, trackId);
+                HashBinDao.Insert(hash.HashBins, subFingerprintId);
                 subFingerprintIds.Add(subFingerprintId);
             }
 
@@ -264,7 +270,7 @@
             string albumName = methodName + "album name";
             string artist = methodName + "artist";
             string title = methodName + "title";
-            return new TrackData(isrc, artist, title, albumName, 1986, 360);
+            return new TrackData(isrc, artist, title, albumName, 1986, 360) { GroupId = Guid.NewGuid().ToString().Substring(0, 20) };
         }
     }
 }
