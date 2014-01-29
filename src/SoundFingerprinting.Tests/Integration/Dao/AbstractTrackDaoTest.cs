@@ -1,15 +1,11 @@
-﻿using NUnit.Framework;
-
-namespace SoundFingerprinting.Tests.Integration.Dao
+﻿namespace SoundFingerprinting.Tests.Integration.Dao
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Dao;
@@ -18,7 +14,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
     using SoundFingerprinting.Strides;
 
     [TestClass]
-    [TestFixture]
     public abstract class AbstractTrackDaoTest : AbstractIntegrationTest
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
@@ -38,7 +33,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         public abstract IHashBinDao HashBinDao { get; set; }
 
         [TestMethod]
-        [Test]
         public void InsertTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
@@ -48,7 +42,7 @@ namespace SoundFingerprinting.Tests.Integration.Dao
 
             Assert.IsFalse(track.TrackReference.HashCode == 0);
             Assert.IsTrue(track.TrackReference is ModelReference<int>);
-            Assert.IsFalse(((ModelReference<int>) track.TrackReference).Id == 0);
+            Assert.IsFalse(((ModelReference<int>)track.TrackReference).Id == 0);
         }
 
         [TestMethod]
@@ -64,7 +58,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void ReadAllTracksTest()
         {
             TrackData firstTrack = new TrackData("first isrc", "artist", "title", "album", 2012, 200);
@@ -80,7 +73,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void ReadByIdTest()
         {
             var track = new TrackData("isrc", "artist", "title", "album", 2012, 200);
@@ -92,7 +84,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void ReadByNonExistentIdTest()
         {
             var track = TrackDao.ReadById(-1);
@@ -101,7 +92,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void InsertMultipleTrackAtOnceTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
@@ -131,7 +121,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void ReadTrackByArtistAndTitleTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
@@ -146,7 +135,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void ReadByNonExistentArtistAndTitleTest()
         {
             var tracks = TrackDao.ReadTrackByArtistAndTitleName("artist", "title");
@@ -155,7 +143,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void ReadTrackByISRCTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
@@ -168,7 +155,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void DeleteCollectionOfTracksTest()
         {
             const int NumberOfTracks = 10;
@@ -184,14 +170,13 @@ namespace SoundFingerprinting.Tests.Integration.Dao
             Assert.IsTrue(allTracks.Count > 0);
             foreach (var trackId in trackIds)
             {
-                NUnit.Framework.Assert.That(TrackDao.DeleteTrack(trackId), Is.EqualTo(1));
+                Assert.AreEqual(TrackDao.DeleteTrack(trackId), 1);
             }
 
             Assert.IsTrue(TrackDao.ReadAll().Count == 0);
         }
 
         [TestMethod]
-        [Test]
         public void DeleteOneTrackTest()
         {
             string name = MethodBase.GetCurrentMethod().Name;
@@ -204,7 +189,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void DeleteHashBinsAndSubfingerprintsOnTrackDelete()
         {
             const int StaticStride = 5115;
@@ -255,7 +239,6 @@ namespace SoundFingerprinting.Tests.Integration.Dao
         }
 
         [TestMethod]
-        [Test]
         public void DeleteNonExistentTrackTest()
         {
             int actual = TrackDao.DeleteTrack(1234);

@@ -2,20 +2,19 @@
 {
     using System;
     using System.IO;
-
+    using Configuration;
+    using Data;
+    using Infrastructure;
+    using Integration;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
+    using SoundFingerprinting.Dao.RAM;
     using SoundFingerprinting.Dao.SQL;
-    using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Strides;
-    using SoundFingerprinting.Tests.Integration;
+    using Strides;
 
     [TestClass]
     public class FingerprintCommandBuilderIntTest : AbstractIntegrationTest
@@ -31,6 +30,8 @@
         public FingerprintCommandBuilderIntTest()
         {
             modelService = new SqlModelService();
+            modelService = new InMemoryModelService();
+
             DependencyResolver.Current.Bind<IAudioService, BassAudioService>();
             fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder();
             DependencyResolver.Current.Bind<IAudioService, NAudioService>();
