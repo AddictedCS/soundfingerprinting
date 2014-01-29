@@ -15,3 +15,6 @@ _ReSharper*
 TestResult.xml
 src/TestResults/
 .vagrant
+packages*/
+*.exe
+!NuGet.exe
