@@ -246,8 +246,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy "$(SolutionDir)\Externals\Bass\*.*" "$(TargetDir)" /Y /I /E
-xcopy "$(SolutionDir)\Externals\FFTW\*.*" "$(TargetDir)" /Y /I /E</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

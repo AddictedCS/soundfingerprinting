@@ -18,10 +18,6 @@
 		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net35" />
 		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net40" />
 		<file src="..\Externals\Bass\Bass.Net.dll" target="lib\net45" />
-		<file src="..\Externals\Bass\x64\*.dll" target="native\x64" />
-		<file src="..\Externals\Bass\x86\*.dll" target="native\x86" />
-		<file src="..\Externals\FFTW\x64\*.dll" target="native\x64" />
-		<file src="..\Externals\FFTW\x86\*.dll" target="native\x86" />
 		<file src="..\Scripts\*.ps1" target="tools\net35" />
 		<file src="..\Scripts\*.ps1" target="tools\net40" />
 		<file src="..\Scripts\*.ps1" target="tools\net45" />
