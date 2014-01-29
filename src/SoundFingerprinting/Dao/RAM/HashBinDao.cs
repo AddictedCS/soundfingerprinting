@@ -22,7 +22,7 @@
             this.storage = storage;
         }
 
-        public void Insert(long[] hashBins, long subFingerprintId, int trackId)
+        public void Insert(long[] hashBins, long subFingerprintId)
         {
             int table = 0;
             lock (((ICollection)storage.HashTables).SyncRoot)
@@ -37,9 +37,10 @@
                     hashTable[hashBins[table]].Add(subFingerprintId);
                     table++;
                 }
-            }
 
-            storage.TracksHashes[trackId][subFingerprintId].HashBins = hashBins;
+                int trackId = ((ModelReference<int>)storage.SubFingerprints[subFingerprintId].TrackReference).Id;
+                storage.TracksHashes[trackId][subFingerprintId].HashBins = hashBins;
+            }
         }
 
         public IList<HashBinData> ReadHashBinsByHashTable(int hashTableId)

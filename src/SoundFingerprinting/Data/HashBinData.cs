@@ -2,17 +2,11 @@
 {
     using System;
 
-    using SoundFingerprinting.Dao;
     using SoundFingerprinting.Dao.SQL;
 
     [Serializable]
     public class HashBinData
     {
-        public HashBinData()
-        {
-            // no op    
-        }
-
         [IgnoreBinding]
         public int HashTable { get; set; }
 

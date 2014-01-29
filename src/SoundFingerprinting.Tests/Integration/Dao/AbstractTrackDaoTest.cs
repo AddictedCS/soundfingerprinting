@@ -220,7 +220,7 @@
             foreach (var hash in hashData)
             {
                 long subFingerprintId = SubFingerprintDao.Insert(hash.SubFingerprint, trackId);
-                HashBinDao.Insert(hash.HashBins, subFingerprintId, trackId);
+                HashBinDao.Insert(hash.HashBins, subFingerprintId);
                 subFingerprintIds.Add(subFingerprintId);
             }
 
