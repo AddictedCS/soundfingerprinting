@@ -48,6 +48,8 @@
                 kernel = new StandardKernel();
                 kernel.Bind<IFingerprintService>().To<FingerprintService>();
                 kernel.Bind<ISpectrumService>().To<SpectrumService>();
+                kernel.Bind<ILogUtility>().To<LogUtility>().InSingletonScope();
+                kernel.Bind<IAudioSamplesNormalizer>().To<AudioSamplesNormalizer>().InSingletonScope();
                 kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>().InSingletonScope();
                 kernel.Bind<IFFTService>().To<CachedFFTWService>().InSingletonScope();
                 if (Environment.Is64BitProcess)

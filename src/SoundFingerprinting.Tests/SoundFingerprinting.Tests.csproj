@@ -81,6 +81,8 @@
     <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
+    <Compile Include="Unit\FFT\LogUtilityTest.cs" />
+    <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
     <Compile Include="Unit\Hashing\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\CachedPermutationsTest.cs" />
     <Compile Include="Unit\Hashing\MinHash\MinHashServiceTest.cs" />
