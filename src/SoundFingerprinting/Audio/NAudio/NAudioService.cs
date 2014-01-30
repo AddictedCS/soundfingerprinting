@@ -141,7 +141,6 @@
         {
             if (isDisposing)
             {
-                // dispose managed resources
                 if (waveOutDevice != null)
                 {
                     waveOutDevice.Dispose();
@@ -152,24 +151,17 @@
                     mainOutputStream.Dispose();
                 }
             }
-
-            // release unmanaged resources
         }
 
         private WaveStream CreateInputStream(string fileName)
         {
-            WaveChannel32 inputStream;
-            if (fileName.EndsWith(".mp3"))
-            {
-                WaveStream mp3Reader = new Mp3FileReader(fileName);
-                inputStream = new WaveChannel32(mp3Reader);
-            }
-            else
+            if (!fileName.EndsWith(".mp3"))
             {
                 throw new InvalidOperationException("Unsupported extension");
             }
 
-            return inputStream;
+            WaveStream mp3Reader = new Mp3FileReader(fileName);
+            return new WaveChannel32(mp3Reader);
         }
     }
 }
