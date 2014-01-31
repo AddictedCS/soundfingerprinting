@@ -44,7 +44,7 @@
             audioSamplesNormalizer.VerifyAll();
             logUtility.VerifyAll();
         }
-
+        
         [TestMethod]
         public void CreateLogSpectrogramTest()
         {

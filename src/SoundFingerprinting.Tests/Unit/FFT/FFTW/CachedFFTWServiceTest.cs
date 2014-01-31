@@ -20,7 +20,6 @@
         public void SetUp()
         {
             fftwService = new Mock<FFTWService>(MockBehavior.Strict);
-
             cachedFFTWService = new CachedFFTWService(fftwService.Object);
         }
 

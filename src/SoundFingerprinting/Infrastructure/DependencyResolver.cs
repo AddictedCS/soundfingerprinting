@@ -120,7 +120,7 @@
 
             public void BindAsSingleton<TInterface, TImplementation>(TImplementation constant) where TImplementation : TInterface
             {
-                kernel.Bind<TInterface>().To<TImplementation>().InSingletonScope();
+                kernel.Rebind<TInterface>().To<TImplementation>().InSingletonScope();
             }
 
             public void Dispose()

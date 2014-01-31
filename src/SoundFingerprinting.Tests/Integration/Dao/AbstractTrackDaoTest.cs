@@ -18,21 +18,24 @@
     [TestClass]
     public abstract class AbstractTrackDaoTest : AbstractIntegrationTest
     {
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
+        private IFingerprintCommandBuilder fingerprintCommandBuilder;
 
-        private readonly ITagService tagService;
-
-        protected AbstractTrackDaoTest()
-        {
-            fingerprintCommandBuilder = new FingerprintCommandBuilder();
-            tagService = DependencyResolver.Current.Get<ITagService>();
-        }
+        private ITagService tagService;
 
         public abstract ITrackDao TrackDao { get; set; }
 
         public abstract ISubFingerprintDao SubFingerprintDao { get; set; }
 
         public abstract IHashBinDao HashBinDao { get; set; }
+
+        [TestInitialize]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            fingerprintCommandBuilder = new FingerprintCommandBuilder();
+            tagService = DependencyResolver.Current.Get<ITagService>();
+        }
 
         [TestMethod]
         public void InsertTrackTest()

@@ -20,16 +20,19 @@
     [TestClass]
     public class FingerprintCommandBuilderIntTest : AbstractIntegrationTest
     {
-        private readonly ModelService modelService;
+        private ModelService modelService;
 
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithBass;
+        private IFingerprintCommandBuilder fingerprintCommandBuilderWithBass;
 
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio;
+        private IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio;
 
-        private readonly IQueryFingerprintService queryFingerprintService;
+        private IQueryFingerprintService queryFingerprintService;
 
-        public FingerprintCommandBuilderIntTest()
+        [TestInitialize]
+        public override void SetUp()
         {
+            base.SetUp();
+
             modelService = new SqlModelService();
             DependencyResolver.Current.Bind<IAudioService, BassAudioService>();
             fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder();
