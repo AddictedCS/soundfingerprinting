@@ -171,7 +171,7 @@
     <Compile Include="LSH\LocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="MinHash\CachedPermutations.cs" />
     <Compile Include="MinHash\IMinHashService.cs" />
-    <Compile Include="Math\HashingUtils.cs" />
+    <Compile Include="Math\SimilarityUtility.cs" />
     <Compile Include="Infrastructure\DependencyResolver.cs" />
     <Compile Include="Infrastructure\IDependencyResolver.cs" />
     <Compile Include="MinHash\IPermutations.cs" />

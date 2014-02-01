@@ -32,7 +32,7 @@
                 var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int similarity = HashingUtils.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Signature);
+                    int similarity = SimilarityUtility.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Signature);
                     if (hammingSimilarities.ContainsKey(subFingerprint.TrackReference))
                     {
                         hammingSimilarities[subFingerprint.TrackReference] += similarity;
