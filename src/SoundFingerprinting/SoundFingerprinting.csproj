@@ -168,7 +168,6 @@
     <Compile Include="Wavelets\IntegralImage.cs" />
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
     <Compile Include="Utils\ConstantQ\SparKernel.cs" />
-    <Compile Include="Wavelets\WaveletUtils.cs" />
     <Compile Include="Command\IWithFingerprintConfiguration.cs" />
     <Compile Include="Command\IFingerprintCommand.cs" />
     <Compile Include="Builder\IFingerprintCommandBuilder.cs" />
