@@ -5,7 +5,7 @@
     using System.IO;
     using System.Windows.Forms;
 
-    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.MinHash.Permutations;
     using SoundFingerprinting.SoundTools.Properties;
 
     public partial class WinFilePermutation : Form

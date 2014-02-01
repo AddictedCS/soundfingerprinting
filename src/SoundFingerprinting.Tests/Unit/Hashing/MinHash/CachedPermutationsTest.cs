@@ -4,7 +4,7 @@
 
     using Moq;
 
-    using SoundFingerprinting.Hashing.MinHash;
+    using SoundFingerprinting.MinHash;
 
     [TestClass]
     public class CachedPermutationsTest : AbstractTest

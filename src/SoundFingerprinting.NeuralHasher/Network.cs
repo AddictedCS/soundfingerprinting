@@ -8,7 +8,7 @@
     using Encog.Neural.Data.Basic;
     using Encog.Neural.Networks;
 
-    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Math;
 
     /// <summary>
     ///   Network - represent a collection of connected layers
@@ -85,7 +85,7 @@
 
             for (int i = 0; i < outputsCount /*10*/; i++)
             {
-                MedianResponces[i] = SignalUtils.Median(responses[i]);
+                MedianResponces[i] = MathUtility.Median(responses[i]);
             }
         }
 

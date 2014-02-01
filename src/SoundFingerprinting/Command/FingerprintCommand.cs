@@ -9,7 +9,7 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Hashing;
+    using SoundFingerprinting.LSH;
 
     internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
     {

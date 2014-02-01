@@ -6,9 +6,9 @@
 
     using Moq;
 
-    using SoundFingerprinting.Hashing;
-    using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.LSH;
+    using SoundFingerprinting.MinHash;
 
     [TestClass]
     public class LocalitySensitiveHashingAlgorithmTest : AbstractTest

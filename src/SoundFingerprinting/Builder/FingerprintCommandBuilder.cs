@@ -2,8 +2,8 @@ namespace SoundFingerprinting.Builder
 {
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.LSH;
 
     public class FingerprintCommandBuilder : IFingerprintCommandBuilder
     {

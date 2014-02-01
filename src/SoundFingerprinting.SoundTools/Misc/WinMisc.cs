@@ -10,7 +10,7 @@
 
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
     

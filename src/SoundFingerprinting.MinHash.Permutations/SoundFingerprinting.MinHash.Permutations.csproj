@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{87CC569E-7D2A-4159-8CC1-DD1B563553F5}</ProjectGuid>
+    <ProjectGuid>{E3F08F02-26A2-4731-941E-2FFD38C197B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SoundFingerprinting.NeuralHasher</RootNamespace>
-    <AssemblyName>SoundFingerprinting.NeuralHasher</AssemblyName>
+    <RootNamespace>SoundFingerprinting.MinHash.Permutations</RootNamespace>
+    <AssemblyName>SoundFingerprinting.MinHash.Permutations</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -23,7 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,52 +30,26 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="encog-core-cs">
-      <HintPath>..\packages\encog-dotnet-core.3.0.0\lib\net40\encog-core-cs.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActivationFunctions\BipolarSigmoidFunction.cs" />
-    <Compile Include="ActivationFunctions\HyperbolicTangensFunction.cs" />
-    <Compile Include="ActivationFunctions\IActivationFunction.cs" />
-    <Compile Include="ActivationFunctions\SigmoidFunction.cs" />
-    <Compile Include="ActivationFunctions\StepFunction.cs" />
-    <Compile Include="Ensemble\NeuralNetworkEnsemble.cs" />
-    <Compile Include="Ensemble\NeuralNetworkHashingException.cs" />
-    <Compile Include="MMI\MinimalMutualInfoGroup.cs" />
-    <Compile Include="MMI\MinimalMutualInfoPair.cs" />
-    <Compile Include="MMI\MinimalMutualInfoPattern.cs" />
-    <Compile Include="MMI\MutualInformation.cs" />
-    <Compile Include="Network.cs" />
-    <Compile Include="NeuralTrainer\NetTrainer.cs" />
-    <Compile Include="NeuralTrainer\NetTrainerException.cs" />
-    <Compile Include="NeuralTrainer\NetworkPerformanceMeter.cs" />
-    <Compile Include="NeuralTrainer\TrainingAsyncResult.cs" />
-    <Compile Include="NeuralTrainer\TrainingStatus.cs" />
+    <Compile Include="AgressiveSelector.cs" />
+    <Compile Include="ConservativeSelector.cs" />
+    <Compile Include="Hash.cs" />
+    <Compile Include="IMinMutualSelector.cs" />
+    <Compile Include="IPermutationGeneratorService.cs" />
+    <Compile Include="MinMutualSelector.cs" />
+    <Compile Include="PermutationGeneratorService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\BinaryOutputUtil.cs" />
-    <Compile Include="Utils\FloatRange.cs" />
-    <Compile Include="Utils\NormalizeUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <Compile Include="SummedAcrossSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.Math\SoundFingerprinting.Math.csproj">
       <Project>{7cbcbe23-0f9f-49d7-b9ea-abfbaa1a4a14}</Project>
       <Name>SoundFingerprinting.Math</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
-      <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
-      <Name>SoundFingerprinting</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
