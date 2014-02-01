@@ -16,7 +16,6 @@
     using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
-    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
@@ -72,7 +71,6 @@
                 kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>().InSingletonScope();
                 
                 kernel.Bind<IModelService>().To<SqlModelService>().InSingletonScope();
-                kernel.Bind<IImageService>().To<ImageService>();
                 kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
                 kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
                 kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();

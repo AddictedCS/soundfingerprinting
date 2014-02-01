@@ -53,8 +53,6 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -174,8 +172,6 @@
     <Compile Include="MinHash\CachedPermutations.cs" />
     <Compile Include="MinHash\IMinHashService.cs" />
     <Compile Include="Math\HashingUtils.cs" />
-    <Compile Include="Image\IImageService.cs" />
-    <Compile Include="Image\ImageService.cs" />
     <Compile Include="Infrastructure\DependencyResolver.cs" />
     <Compile Include="Infrastructure\IDependencyResolver.cs" />
     <Compile Include="MinHash\IPermutations.cs" />
