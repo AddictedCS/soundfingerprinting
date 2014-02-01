@@ -80,21 +80,21 @@
 
         public List<float[][]> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, IStride strideBetweenConsecutiveImages, int fingerprintImageLength, int overlap)
         {
-            int start = strideBetweenConsecutiveImages.FirstStride / overlap;
-            int logarithmicBins = logarithmizedSpectrum[0].Length;
+            int index = (int)((float)strideBetweenConsecutiveImages.FirstStride / overlap);
+            int numberOfLogBins = logarithmizedSpectrum[0].Length;
             List<float[][]> spectralImages = new List<float[][]>();
 
             int width = logarithmizedSpectrum.GetLength(0);
             
-            while (start + fingerprintImageLength <= width)
+            while (index + fingerprintImageLength <= width)
             {
-                float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, logarithmicBins);
+                float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
                 for (int i = 0; i < fingerprintImageLength; i++)
                 {
-                    Array.Copy(logarithmizedSpectrum[start + i], spectralImage[i], logarithmicBins);
+                    Array.Copy(logarithmizedSpectrum[index + i], spectralImage[i], numberOfLogBins);
                 }
 
-                start += fingerprintImageLength + (strideBetweenConsecutiveImages.GetNextStride() / overlap);
+                index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.GetNextStride() / overlap);
                 spectralImages.Add(spectralImage);
             }
 

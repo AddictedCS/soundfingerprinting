@@ -51,7 +51,6 @@
             var configuration = new CustomFingerprintConfiguration { NormalizeSignal = true };
             float[] samples = TestUtilities.GenerateRandomFloatArray((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
             
-
             audioSamplesNormalizer.Setup(service => service.NormalizeInPlace(samples));
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(configuration)).Returns(new int[33]);
             fftService.Setup(service => service.FFTForward(samples, It.IsAny<int>(), configuration.WdftSize))
@@ -72,7 +71,6 @@
             var configuration = new CustomFingerprintConfiguration { NormalizeSignal = false };
             float[] samples = TestUtilities.GenerateRandomFloatArray(configuration.SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
 
-
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(configuration)).Returns(new int[33]);
             fftService.Setup(service => service.FFTForward(samples, It.IsAny<int>(), configuration.WdftSize))
                       .Returns(TestUtilities.GenerateRandomFloatArray(2048));
@@ -86,6 +84,20 @@
             Assert.AreEqual(32, result[0].Length);
         }
 
+        [TestMethod]
+        public void CreateLogSpectrogramFromSamplesLessThanFourierTransformWindowLength()
+        {
+            var configuration = new DefaultFingerprintConfiguration();
+            float[] samples = TestUtilities.GenerateRandomFloatArray(configuration.WdftSize - 1);
+
+            logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(configuration)).Returns(new int[33]);
+            
+            float[][] result = spectrumService.CreateLogSpectrogram(samples, configuration);
+
+            logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(configuration), Times.Once());
+
+            Assert.AreEqual(0, result.Length); // 128
+        }
 
         [TestMethod]
         public void CutLogarithmizedSpectrumTest()
@@ -119,6 +131,23 @@
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, stride, config.FingerprintLength, config.Overlap);
             
             Assert.AreEqual(1, cutLogarithmizedSpectrum.Count);
+        }
+
+        [TestMethod]
+        public void CutLogarithmizedSpectrumWithAnIncrementalStaticStride()
+        {
+            DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
+            int logSpectrumLength = (config.FingerprintLength * 24) + config.Overlap;
+            var stride = new IncrementalStaticStride(config.SamplesPerFingerprint / 2, config.SamplesPerFingerprint, 0);
+            var logSpectrum = new float[logSpectrumLength][];
+            for (int i = 0; i < logSpectrumLength; i++)
+            {
+                logSpectrum[i] = new float[32];
+            }
+
+            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, stride, config.FingerprintLength, config.Overlap);
+
+            Assert.AreEqual(48, cutLogarithmizedSpectrum.Count);
         }
 
         [TestMethod]
