@@ -39,5 +39,18 @@
                 base.MaximumNumberOfTracksToReturnAsResult = value;
             }
         }
+
+        public new string TrackGroupId
+        {
+            get
+            {
+                return base.TrackGroupId;
+            }
+
+            set
+            {
+                base.TrackGroupId = value;
+            }
+        }
     }
 }

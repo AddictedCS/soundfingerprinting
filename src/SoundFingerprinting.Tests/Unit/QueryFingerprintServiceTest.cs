@@ -113,5 +113,34 @@
             Assert.AreEqual(1, queryResult.AnalyzedCandidatesCount);
             Assert.AreEqual(1, queryResult.ResultEntries.Count);
         }
+
+        [TestMethod]
+        public void OnlyTracksWithGroupIdAreConsideredAsPotentialCandidatesTest()
+        {
+            long[] buckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var queryHash = new HashData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, buckets);
+            const int DefaultThreshold = 5;
+            const int FirstTrackId = 20;
+            const int FirstSubFingerprintId = 10;
+            var firstTrackReference = new ModelReference<int>(FirstTrackId);
+            SubFingerprintData firstResult = new SubFingerprintData(
+                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                new ModelReference<int>(FirstSubFingerprintId),
+                firstTrackReference);
+      
+            modelService.Setup(
+                service =>
+                service.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, DefaultThreshold, "group-id"))
+                .Returns(new List<SubFingerprintData> { firstResult });
+            modelService.Setup(service => service.ReadTrackByReference(firstTrackReference)).Returns(
+                new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
+
+            var queryResult = queryFingerprintService.Query(
+                new List<HashData> { queryHash }, new CustomQueryConfiguration { TrackGroupId = "group-id" });
+
+            Assert.IsTrue(queryResult.IsSuccessful);
+            Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
+            Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
+        }
     }
 }

@@ -29,7 +29,7 @@
             var hammingSimilarities = new Dictionary<IModelReference, int>();
             foreach (var hash in hashes)
             {
-                var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
+                var subFingerprints = GetSubFingerprints(hash, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     int similarity = SimilarityUtility.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Signature);
@@ -63,6 +63,18 @@
                     IsSuccessful = false,
                     AnalyzedCandidatesCount = 0
                 };
+        }
+
+        private IEnumerable<SubFingerprintData> GetSubFingerprints(HashData hash, IQueryConfiguration queryConfiguration)
+        {
+            if (!string.IsNullOrEmpty(queryConfiguration.TrackGroupId))
+            {
+                return modelService.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(
+                    hash.HashBins, queryConfiguration.ThresholdVotes, queryConfiguration.TrackGroupId);
+            }
+
+            return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(
+                hash.HashBins, queryConfiguration.ThresholdVotes);
         }
     }
 }

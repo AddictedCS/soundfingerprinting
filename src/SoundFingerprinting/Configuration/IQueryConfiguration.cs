@@ -5,5 +5,7 @@
         int ThresholdVotes { get; }
 
         int MaximumNumberOfTracksToReturnAsResult { get; }
+
+        string TrackGroupId { get; }
     }
 }
