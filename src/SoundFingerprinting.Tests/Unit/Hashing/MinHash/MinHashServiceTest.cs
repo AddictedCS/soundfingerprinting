@@ -4,8 +4,8 @@
 
     using Moq;
 
-    using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.MinHash;
 
     [TestClass]
     public class MinHashServiceTest : AbstractTest

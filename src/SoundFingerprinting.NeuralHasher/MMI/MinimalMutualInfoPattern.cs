@@ -5,7 +5,6 @@
     using System.Data;
     using System.Linq;
 
-    using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.Math;
 
     [Serializable]

@@ -16,9 +16,9 @@
     using SoundFingerprinting.Dao.SQL;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
-    using SoundFingerprinting.Hashing;
-    using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Image;
+    using SoundFingerprinting.LSH;
+    using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 

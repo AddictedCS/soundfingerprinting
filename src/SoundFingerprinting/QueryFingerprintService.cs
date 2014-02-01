@@ -6,8 +6,8 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     public class QueryFingerprintService : IQueryFingerprintService

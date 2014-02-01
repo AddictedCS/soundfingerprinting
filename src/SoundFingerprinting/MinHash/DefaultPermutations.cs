@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.MinHash
 {
     using System.Diagnostics.CodeAnalysis;
 

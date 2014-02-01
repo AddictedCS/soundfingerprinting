@@ -6,8 +6,6 @@
     using System.Text;
     using System.Windows.Forms;
 
-    using SoundFingerprinting.Hashing.MinHash;
-    using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.MinHash.Permutations;
     using SoundFingerprinting.SoundTools.Properties;
 

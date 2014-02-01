@@ -8,7 +8,6 @@
     using Encog.Neural.Data.Basic;
     using Encog.Neural.Networks;
 
-    using SoundFingerprinting.Hashing.Utils;
     using SoundFingerprinting.Math;
 
     /// <summary>

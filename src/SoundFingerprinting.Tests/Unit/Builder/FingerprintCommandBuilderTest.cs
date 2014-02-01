@@ -10,8 +10,8 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Hashing;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.LSH;
 
     [TestClass]
     public class FingerprintCommandBuilderTest : AbstractTest

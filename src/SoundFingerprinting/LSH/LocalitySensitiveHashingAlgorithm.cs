@@ -1,11 +1,11 @@
-﻿namespace SoundFingerprinting.Hashing
+﻿namespace SoundFingerprinting.LSH
 {
     using System;
     using System.Diagnostics;
 
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Hashing.MinHash;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.MinHash;
 
     public class LocalitySensitiveHashingAlgorithm : ILocalitySensitiveHashingAlgorithm
     {

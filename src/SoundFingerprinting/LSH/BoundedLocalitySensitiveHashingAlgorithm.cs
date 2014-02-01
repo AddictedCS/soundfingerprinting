@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing
+﻿namespace SoundFingerprinting.LSH
 {
     public class BoundedLocalitySensitiveHashingAlgorithm : LocalitySensitiveHashingAlgorithm
     {
