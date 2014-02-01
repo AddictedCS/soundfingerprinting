@@ -1,10 +1,12 @@
 ﻿namespace SoundFingerprinting.DuplicatesDetector.Model
 {
+    using SoundFingerprinting.Data;
+
     public class ResultItem
     {
-        private readonly Track track;
+        private readonly TrackData track;
 
-        public ResultItem(int setId, Track track)
+        public ResultItem(int setId, TrackData track)
         {
             SetId = setId;
             this.track = track;
@@ -24,12 +26,12 @@
 
         public string FileName
         {
-            get { return System.IO.Path.GetFileName(track.Path); }
+            get { return System.IO.Path.GetFileName(track.Album); }
         }
 
         public string Path
         {
-            get { return track.Path; }
+            get { return track.Album; }
         }
 
         public double TrackLength

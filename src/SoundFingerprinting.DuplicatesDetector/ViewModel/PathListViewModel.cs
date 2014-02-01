@@ -12,6 +12,7 @@
     using System.Windows.Forms;
     using System.Windows.Input;
 
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.Services;
 
@@ -457,7 +458,7 @@
         /// </summary>
         private void FindDuplicates()
         {
-            HashSet<Track>[] duplicates = null;
+            HashSet<TrackData>[] duplicates = null;
             Task.Factory.StartNew(
                 () =>
                 {

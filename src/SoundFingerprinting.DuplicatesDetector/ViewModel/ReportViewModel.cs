@@ -12,6 +12,7 @@
     using Ninject;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.Services;
@@ -67,7 +68,7 @@
         /// <summary>
         ///   Raw results
         /// </summary>
-        private HashSet<Track>[] rawResult;
+        private HashSet<TrackData>[] rawResult;
 
         /// <summary>
         ///   Results displayed
@@ -109,7 +110,7 @@
 
         public ResultItem SelectedItem { get; set; }
 
-        public HashSet<Track>[] Sets
+        public HashSet<TrackData>[] Sets
         {
             get
             {
@@ -261,13 +262,13 @@
                 array[i][2] = "Artist";
                 array[i][3] = "Title";
                 i++;
-                foreach (HashSet<Track> set in Sets)
+                foreach (HashSet<TrackData> set in Sets)
                 {
-                    foreach (Track track in set)
+                    foreach (TrackData track in set)
                     {
                         array[i] = new object[4];
                         array[i][0] = setId;
-                        array[i][1] = track.Path;
+                        array[i][1] = track.Album;
                         array[i][2] = track.Artist;
                         array[i][3] = track.Title;
                         i++;
@@ -352,11 +353,11 @@
         /// </summary>
         /// <param name = "rawData">Raw data</param>
         /// <returns>List of items for view</returns>
-        private List<ResultItem> ProcessRawData(IEnumerable<HashSet<Track>> rawData)
+        private List<ResultItem> ProcessRawData(IEnumerable<HashSet<TrackData>> rawData)
         {
             List<ResultItem> showResults = new List<ResultItem>();
             int counter = 0;
-            foreach (HashSet<Track> item in rawData)
+            foreach (HashSet<TrackData> item in rawData)
             {
                 showResults.AddRange(item.Select(track => new ResultItem(counter, track)));
                 counter++;
@@ -373,13 +374,13 @@
                 int count = 1;
                 foreach (var duplicate in set)
                 {
-                    string fileName = Path.GetFileName(duplicate.Path);
+                    string fileName = Path.GetFileName(duplicate.Album); // Path is stored in album
                     if (!hasUniqueFiles)
                     {
                         fileName = string.Format("{0}_{1}", count, fileName);
                     }
 
-                    string srcPath = duplicate.Path;
+                    string srcPath = duplicate.Album;
                     if (fileName != null)
                     {
                         string dstPath = Path.Combine(selectedPath, fileName);
@@ -388,7 +389,7 @@
                             try
                             {
                                 File.Move(srcPath, dstPath);
-                                duplicate.Path = dstPath;
+                                duplicate.Album = dstPath;
                             }
                             catch
                             {
@@ -402,12 +403,12 @@
             }
         }
 
-        private bool CheckIfUniqueNames(IEnumerable<Track> source)
+        private bool CheckIfUniqueNames(IEnumerable<TrackData> source)
         {
             Dictionary<string, bool> distinct = new Dictionary<string, bool>();
             foreach (var track in source)
             {
-                string fileName = Path.GetFileName(track.Path);
+                string fileName = Path.GetFileName(track.Album);
                 if (fileName != null)
                 {
                     if (distinct.ContainsKey(fileName))

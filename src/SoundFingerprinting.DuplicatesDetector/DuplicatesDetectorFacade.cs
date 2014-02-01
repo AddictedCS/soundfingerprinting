@@ -8,6 +8,7 @@
 
     using Ninject;
 
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Model;
     using SoundFingerprinting.DuplicatesDetector.ViewModel;
@@ -82,8 +83,8 @@
         public void ProcessTracksAsync(
             IEnumerable<Item> paths,
             string[] fileFilters,
-            Action<List<Track>, Exception> callback,
-            Action<Track> trackProcessed)
+            Action<List<TrackData>, Exception> callback,
+            Action<TrackData> trackProcessed)
         {
             var files = new List<string>();
             foreach (var path in paths)
@@ -124,7 +125,7 @@
         /// </summary>
         /// <param name = "callback">Callback invoked at each processed track</param>
         /// <returns>Set of tracks that are duplicate</returns>
-        public HashSet<Track>[] FindAllDuplicates(Action<Track, int, int> callback)
+        public HashSet<TrackData>[] FindAllDuplicates(Action<TrackData, int, int> callback)
         {
             return duplicatesDetectorService.FindDuplicates(callback);
         }
@@ -158,7 +159,7 @@
         /// <param name = "files">List of files to be hashed</param>
         /// <param name = "processed">Callback invoked once 1 track is processed</param>
         /// <returns>List of processed tracks</returns>
-        private List<Track> ProcessFiles(IEnumerable<string> files, Action<Track> processed)
+        private List<TrackData> ProcessFiles(IEnumerable<string> files, Action<TrackData> processed)
         {
             /*preprocessing stage ended, now make sure to do the actual job*/
 
@@ -169,8 +170,8 @@
                 (int)((1024.0 * BufferSize) / ((double)SampleRate * SecondsToProcess / 1000 * 4 / 1024));
 
             // ~317 songs are allowed for 15 seconds snippet at 5512 Hz sample rate
-            BlockingCollection<Tuple<Track, float[]>> buffer = new BlockingCollection<Tuple<Track, float[]>>(Buffersize);
-            var processedtracks = new List<Track>();
+            var buffer = new BlockingCollection<Tuple<TrackData, float[]>>(Buffersize);
+            var processedtracks = new List<TrackData>();
             var consumers = new List<Task>();
             var producers = new List<Task>();
             CancellationToken token = cts.Token;
@@ -196,7 +197,7 @@
                                     return;
                                 }
 
-                                Track track;
+                                TrackData track;
                                 float[] samples;
                                 try
                                 {
@@ -212,7 +213,7 @@
 
                                 try
                                 {
-                                    buffer.TryAdd(new Tuple<Track, float[]>(track, samples), 1, token); /*producer*/
+                                    buffer.TryAdd(new Tuple<TrackData, float[]>(track, samples), 1, token); /*producer*/
                                 }
                                 catch (OperationCanceledException)
                                 {
@@ -233,7 +234,7 @@
                 consumers.Add(Task.Factory.StartNew(
                     () =>
                     {
-                        foreach (Tuple<Track, float[]> tuple in buffer.GetConsumingEnumerable()) /*If OCE is thrown it will be caught in the caller's AggregateException*/
+                        foreach (Tuple<TrackData, float[]> tuple in buffer.GetConsumingEnumerable()) /*If OCE is thrown it will be caught in the caller's AggregateException*/
                         {
                             if (tuple != null)
                             {

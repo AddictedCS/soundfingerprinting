@@ -104,7 +104,6 @@
     <Compile Include="Infrastructure\TrackHelper.cs" />
     <Compile Include="Model\Item.cs" />
     <Compile Include="Model\ResultItem.cs" />
-    <Compile Include="Model\Track.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

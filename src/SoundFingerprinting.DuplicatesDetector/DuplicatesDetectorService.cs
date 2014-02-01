@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
+    
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Dao;
-    using SoundFingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
 
     public class DuplicatesDetectorService
@@ -36,7 +36,7 @@
         /// </summary>
         /// <param name = "samples">Down sampled to 5512 samples</param>
         /// <param name = "track">Track</param>
-        public void CreateInsertFingerprints(float[] samples, Track track)
+        public void CreateInsertFingerprints(float[] samples, TrackData track)
         {
             if (track == null)
             {
@@ -60,15 +60,15 @@
         /// </summary>
         /// <param name = "callback">Callback invoked at each processed track</param>
         /// <returns>Sets of duplicates</returns>
-        public HashSet<Track>[] FindDuplicates(Action<Track, int, int> callback)
+        public HashSet<TrackData>[] FindDuplicates(Action<TrackData, int, int> callback)
         {
             var tracks = modelService.ReadAllTracks();
-            List<HashSet<Track>> duplicates = new List<HashSet<Track>>();
+            var duplicates = new List<HashSet<TrackData>>();
             int total = tracks.Count, current = 0;
             var queryConfiguration = new CustomQueryConfiguration { ThresholdVotes = ThresholdVotes, MaximumNumberOfTracksToReturnAsResult = int.MaxValue };
             foreach (var track in tracks)
             {
-                HashSet<Track> trackDuplicates = new HashSet<Track>();
+                var trackDuplicates = new HashSet<TrackData>();
 
                 var hashes = modelService.ReadHashDataByTrack(track.TrackReference);
                 var result = queryFingerprintService.Query(hashes, queryConfiguration);
@@ -87,31 +87,31 @@
                             continue;
                         }
 
-                        trackDuplicates.Add((Track)resultEntry.Track);
+                        trackDuplicates.Add(resultEntry.Track);
                     }
 
                     if (trackDuplicates.Any())
                     {
-                        HashSet<Track> duplicatePair = new HashSet<Track>(trackDuplicates) { (Track)track };
+                        HashSet<TrackData> duplicatePair = new HashSet<TrackData>(trackDuplicates) { track };
                         duplicates.Add(duplicatePair);
                     }
                 }
 
                 if (callback != null)
                 {
-                    callback.Invoke((Track)track, total, ++current);
+                    callback.Invoke(track, total, ++current);
                 }
             }
 
             for (int i = 0; i < duplicates.Count - 1; i++)
             {
-                HashSet<Track> set = duplicates[i];
+                HashSet<TrackData> set = duplicates[i];
                 for (int j = i + 1; j < duplicates.Count; j++)
                 {
-                    IEnumerable<Track> result = set.Intersect(duplicates[j]);
+                    IEnumerable<TrackData> result = set.Intersect(duplicates[j]);
                     if (result.Any())
                     {
-                        foreach (Track track in duplicates[j])
+                        foreach (var track in duplicates[j])
                         {
                             // collapse all duplicates in one set
                             set.Add(track);

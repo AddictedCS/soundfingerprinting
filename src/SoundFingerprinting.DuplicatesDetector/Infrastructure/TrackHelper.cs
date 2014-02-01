@@ -3,7 +3,7 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
     using System.IO;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.DuplicatesDetector.Model;
+    using SoundFingerprinting.Data;
 
     public class TrackHelper
     {
@@ -17,20 +17,20 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
             this.audioService = audioService;
         }
 
-        public float[] GetTrackSamples(Track track, int sampleRate, int secondsToRead, int startAtSecond)
+        public float[] GetTrackSamples(TrackData track, int sampleRate, int secondsToRead, int startAtSecond)
         {
-            if (track == null || track.Path == null)
+            if (track == null || track.Album == null)
             {
                 return null;
             }
 
-            return audioService.ReadMonoFromFile(track.Path, sampleRate, secondsToRead, startAtSecond);
+            return audioService.ReadMonoFromFile(track.Album, sampleRate, secondsToRead, startAtSecond);
         }
 
-        public Track GetTrack(int mintracklen, int maxtracklen, string filename)
+        public TrackData GetTrack(int mintracklen, int maxtracklen, string filename)
         {
             TagInfo tags = tagService.GetTagInfo(filename); // get file tags
-            string artist, title, isrc, album;
+            string artist, title, isrc;
             double duration;
             int year;
             if (tags == null)
@@ -39,7 +39,6 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
                 artist = "Unknown Artist";
                 title = "Unknown Title";
                 isrc = "Uknown ISRC";
-                album = "Uknown Album";
                 duration = new FileInfo(filename).Length;
                 year = 0;
             }
@@ -51,7 +50,6 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
                 duration = tags.Duration;
                 year = tags.Year;
                 isrc = tags.ISRC;
-                album = tags.Album;
             }
 
             /*assign a name to music files that don't have tags*/
@@ -72,7 +70,7 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
                 return null;
             }
 
-            return new Track(Path.GetFullPath(filename), isrc, artist, title, album, year, (int)duration);
+            return new TrackData(isrc, artist, title, Path.GetFullPath(filename), year, (int)duration);
         }
     }
 }
