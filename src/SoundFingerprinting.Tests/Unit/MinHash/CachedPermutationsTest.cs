@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Hashing.MinHash
+﻿namespace SoundFingerprinting.Tests.Unit.MinHash
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

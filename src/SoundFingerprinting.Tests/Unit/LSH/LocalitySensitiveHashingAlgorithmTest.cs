@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Hashing
+﻿namespace SoundFingerprinting.Tests.Unit.LSH
 {
     using System;
 
