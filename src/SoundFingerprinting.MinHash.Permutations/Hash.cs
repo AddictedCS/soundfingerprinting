@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.Utils
+﻿namespace SoundFingerprinting.MinHash.Permutations
 {
     using System;
     using System.Security.Cryptography;

@@ -1,10 +1,10 @@
-﻿namespace SoundFingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.MinHash.Permutations
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
-    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Math;
 
     /// <summary>
     ///   Conservative selection of L groups of permutations according to the minimal mutual information spread accross the elements of the group
@@ -39,7 +39,7 @@
                         double maxMutualInfo = double.MinValue; /*Find the Maximum accross the Group*/
                         foreach (int[] groupMember in @group.Value)
                         {
-                            double mi = SignalUtils.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
+                            double mi = MathUtility.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
                             /*Find the maximum of a Group G*/
                             if (maxMutualInfo < mi)
                             {

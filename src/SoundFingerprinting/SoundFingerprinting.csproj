@@ -42,13 +42,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Externals\Bass.Net.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=2.6.1.30, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MathNet.Numerics.2.6.2\lib\net40\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics.IO">
-      <HintPath>..\packages\MathNet.Numerics.2.6.2\lib\net40\MathNet.Numerics.IO.dll</HintPath>
-    </Reference>
     <Reference Include="NAudio, Version=1.7.0.15, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NAudio.1.7\lib\net35\NAudio.dll</HintPath>
@@ -61,7 +54,6 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -142,7 +134,6 @@
     <Compile Include="Dao\SQL\MsSqlDatabaseProviderFactory.cs" />
     <Compile Include="Dao\ModelService.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
-    <Compile Include="Utils\ConstantQ\ConstQ.cs" />
     <Compile Include="Configuration\CustomFingerprintConfiguration.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
     <Compile Include="FFT\Exocortex\Complex.cs" />
@@ -174,32 +165,22 @@
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\IntegralImage.cs" />
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
-    <Compile Include="Utils\ConstantQ\SparKernel.cs" />
     <Compile Include="Command\IWithFingerprintConfiguration.cs" />
     <Compile Include="Command\IFingerprintCommand.cs" />
     <Compile Include="Builder\IFingerprintCommandBuilder.cs" />
     <Compile Include="Builder\FingerprintCommandBuilder.cs" />
     <Compile Include="Hashing\ILocalitySensitiveHashingAlgorithm.cs" />
-    <Compile Include="Hashing\MinHash\AgressiveSelector.cs" />
     <Compile Include="Hashing\LocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="Hashing\MinHash\CachedPermutations.cs" />
-    <Compile Include="Hashing\MinHash\ConservativeSelector.cs" />
     <Compile Include="Hashing\MinHash\IMinHashService.cs" />
-    <Compile Include="Hashing\Utils\Hash.cs" />
-    <Compile Include="Hashing\MinHash\IPermutationGeneratorService.cs" />
-    <Compile Include="Hashing\MinHash\MinMutualSelector.cs" />
     <Compile Include="Hashing\Utils\HashingUtils.cs" />
     <Compile Include="Image\IImageService.cs" />
     <Compile Include="Image\ImageService.cs" />
     <Compile Include="Infrastructure\DependencyResolver.cs" />
     <Compile Include="Infrastructure\IDependencyResolver.cs" />
-    <Compile Include="Hashing\MinHash\IMinMutualSelector.cs" />
     <Compile Include="Hashing\MinHash\IPermutations.cs" />
     <Compile Include="Hashing\MinHash\LocalFilePermutations.cs" />
     <Compile Include="Hashing\MinHash\MinHashService.cs" />
-    <Compile Include="Hashing\MinHash\PermutationGeneratorService.cs" />
-    <Compile Include="Hashing\Utils\SignalUtils.cs" />
-    <Compile Include="Hashing\MinHash\SummedAcrossSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\CustomQueryConfiguration.cs" />
     <Compile Include="Configuration\DefaultQueryConfiguration.cs" />

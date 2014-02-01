@@ -224,6 +224,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.MinHash.Permutations\SoundFingerprinting.MinHash.Permutations.csproj">
+      <Project>{e3f08f02-26a2-4731-941e-2ffd38c197b5}</Project>
+      <Name>SoundFingerprinting.MinHash.Permutations</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>

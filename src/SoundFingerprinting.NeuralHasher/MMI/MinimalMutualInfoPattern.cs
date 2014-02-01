@@ -6,6 +6,7 @@
     using System.Linq;
 
     using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Math;
 
     [Serializable]
     public class MinimalMutualInfoPattern
@@ -253,7 +254,7 @@
                         samples2[k] = outputs[k][j];
                     }
 
-                    double mutualInf = SignalUtils.MutualInformation(samples1, samples2);
+                    double mutualInf = MathUtility.MutualInformation(samples1, samples2);
                     mmiPairs.Add(new MinimalMutualInfoPair(i, j, mutualInf));
                 }
             }

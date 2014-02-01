@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Hashing.Utils
+﻿namespace SoundFingerprinting.Math
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -6,7 +6,7 @@
 
     using MathNet.Numerics.Statistics;
 
-    public static class SignalUtils
+    public static class MathUtility
     {
         private const double Epsilon = 0.001;
 

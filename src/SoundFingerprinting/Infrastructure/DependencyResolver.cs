@@ -72,7 +72,6 @@
                 kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>().InSingletonScope();
                 
                 kernel.Bind<IModelService>().To<SqlModelService>().InSingletonScope();
-                kernel.Bind<IPermutationGeneratorService>().To<PermutationGeneratorService>().InSingletonScope();
                 kernel.Bind<IImageService>().To<ImageService>();
                 kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
                 kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();

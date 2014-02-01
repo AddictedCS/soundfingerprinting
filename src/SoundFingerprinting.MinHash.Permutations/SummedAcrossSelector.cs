@@ -1,11 +1,11 @@
-﻿namespace SoundFingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.MinHash.Permutations
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
-    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Math;
 
     /// <summary>
     ///   Summed accross selection of LGroups of permutations according to the minimal mutual information 
@@ -31,7 +31,7 @@
             Dictionary<int, double> entropy = new Dictionary<int, double>();
             foreach (KeyValuePair<int, int[]> pair in randomPermutationPool)
             {
-                double ent = SignalUtils.CalculateEntropy(pair.Value);
+                double ent = MathUtility.CalculateEntropy(pair.Value);
                 entropy.Add(pair.Key, ent);
             }
 
@@ -78,7 +78,7 @@
                         double totalMinMutualInfo = 0;
                         foreach (int[] groupMember in group.Value)
                         {
-                            totalMinMutualInfo += SignalUtils.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
+                            totalMinMutualInfo += MathUtility.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
                         }
 
                         /*Actual summed accross selection*/

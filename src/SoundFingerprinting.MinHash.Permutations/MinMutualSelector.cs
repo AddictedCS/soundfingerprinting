@@ -1,10 +1,10 @@
-﻿namespace SoundFingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.MinHash.Permutations
 {
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
-    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Math;
 
     public abstract class MinMutualSelector : IMinMutualSelector
     {
@@ -21,7 +21,7 @@
             Dictionary<int, double> entropy = new Dictionary<int, double>();
             foreach (KeyValuePair<int, int[]> pair in randomPermutationPool)
             {
-                double ent = SignalUtils.CalculateEntropy(pair.Value);
+                double ent = MathUtility.CalculateEntropy(pair.Value);
                 entropy.Add(pair.Key, ent);
             }
 

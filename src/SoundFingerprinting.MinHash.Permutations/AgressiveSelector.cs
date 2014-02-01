@@ -1,10 +1,10 @@
-﻿namespace SoundFingerprinting.Hashing.MinHash
+﻿namespace SoundFingerprinting.MinHash.Permutations
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
-    using SoundFingerprinting.Hashing.Utils;
+    using SoundFingerprinting.Math;
 
     /// <summary>
     ///   Aggressive selector of LGroup of permutation
@@ -35,7 +35,7 @@
                         foreach (int[] groupMember in group.Value)
                         {
                             /*Actual agressive selection*/
-                            double mi = SignalUtils.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
+                            double mi = MathUtility.MutualInformation(randomPermutationPool[permutationIndex], groupMember);
                             if (minMutualInfo > mi)
                             {
                                 minMutualInfo = mi;
