@@ -89,6 +89,10 @@ Following is the list of third party libraries used by SoundFingerprinting proje
 * [Encog](http://www.heatonresearch.com/encog) - used by Neural Hasher (which is still under development, and will be released as a separate component). SoundFingerprinting library does not include it in its release.
 * [Ninject](http://www.ninject.org/) - used to take advantage of dependency inversion principle.
 
+### FAQ
+- Can I apply this algorithm for speech recognition purposes?
+No. The granularity of one fingerprint is roughly ~1.86 seconds, thus any sound recording which is less than that will be disregarded.
+
 ## Binaries
     git clone git@github.com:AddictedCS/soundfingerprinting.git
     
