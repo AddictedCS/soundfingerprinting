@@ -4,6 +4,8 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
+    using MathNet.Numerics.Statistics;
+
     public static class SignalUtils
     {
         private const double Epsilon = 0.001;

@@ -4,12 +4,6 @@
 
     public static class HashingUtils
     {
-        /// <summary>
-        ///   Calculate Hamming Distance between two fingerprints
-        /// </summary>
-        /// <param name = "a">Signature 'A'</param>
-        /// <param name = "b">Signature 'B'</param>
-        /// <returns>Hamming distance</returns>
         public static int CalculateHammingDistance(bool[] a, bool[] b)
         {
             int distance = 0;
@@ -43,12 +37,6 @@
             return a.Length - CalculateHammingDistance(a, b);
         }
 
-        /// <summary>
-        ///   Calculate hamming distance between 2 longs
-        /// </summary>
-        /// <param name = "a">First item</param>
-        /// <param name = "b">Second item</param>
-        /// <returns>Hamming distance</returns>
         public static int CalculateHammingDistance(long a, long b)
         {
             long dist = 0, val = a ^ b;
