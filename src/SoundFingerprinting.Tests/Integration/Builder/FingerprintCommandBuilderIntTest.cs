@@ -210,5 +210,21 @@
 
             AssertHashDatasAreTheSame(firstHashDatas, secondHashDatas);
         }
+
+        [TestMethod]
+        public void CreateFingerprintFromSamplesWhichAreExactlyEqualToMinimumLength()
+        {
+            DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
+
+            float[] samples = TestUtilities.GenerateRandomFloatArray(config.SamplesPerFingerprint + config.WdftSize);
+
+            var hash = fingerprintCommandBuilderWithBass
+                                                .BuildFingerprintCommand()
+                                                .From(samples)
+                                                .WithDefaultFingerprintConfig()
+                                                .Hash()
+                                                .Result;
+            Assert.AreEqual(1, hash.Count);
+        }
     }
 }

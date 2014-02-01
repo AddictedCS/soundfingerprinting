@@ -86,7 +86,7 @@
 
             int width = logarithmizedSpectrum.GetLength(0);
             
-            while (start + fingerprintImageLength < width)
+            while (start + fingerprintImageLength <= width)
             {
                 float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, logarithmicBins);
                 for (int i = 0; i < fingerprintImageLength; i++)
