@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Image
+﻿namespace SoundFingerprinting.SoundTools.DrawningTool
 {
     using System;
     using System.Collections.Generic;

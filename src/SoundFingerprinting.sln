@@ -24,8 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.MinHash
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Math", "SoundFingerprinting.Math\SoundFingerprinting.Math.csproj", "{7CBCBE23-0F9F-49D7-B9EA-ABFBAA1A4A14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Image", "SoundFingerprinting.Image\SoundFingerprinting.Image.csproj", "{A721FBE1-B213-4D7F-9479-254AABF34E25}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,16 +104,6 @@ Global
 		{7CBCBE23-0F9F-49D7-B9EA-ABFBAA1A4A14}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{7CBCBE23-0F9F-49D7-B9EA-ABFBAA1A4A14}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{7CBCBE23-0F9F-49D7-B9EA-ABFBAA1A4A14}.Release|x86.ActiveCfg = Release|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{A721FBE1-B213-4D7F-9479-254AABF34E25}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

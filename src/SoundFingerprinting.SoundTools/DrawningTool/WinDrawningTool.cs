@@ -13,7 +13,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Image;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
     

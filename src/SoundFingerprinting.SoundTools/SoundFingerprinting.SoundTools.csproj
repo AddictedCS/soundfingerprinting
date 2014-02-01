@@ -81,6 +81,8 @@
     <Compile Include="DbFiller\WinDBFiller.designer.cs">
       <DependentUpon>WinDBFiller.cs</DependentUpon>
     </Compile>
+    <Compile Include="DrawningTool\IImageService.cs" />
+    <Compile Include="DrawningTool\ImageService.cs" />
     <Compile Include="DrawningTool\WinDrawningTool.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -224,10 +226,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Image\SoundFingerprinting.Image.csproj">
-      <Project>{a721fbe1-b213-4d7f-9479-254aabf34e25}</Project>
-      <Name>SoundFingerprinting.Image</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.MinHash.Permutations\SoundFingerprinting.MinHash.Permutations.csproj">
       <Project>{e3f08f02-26a2-4731-941e-2ffd38c197b5}</Project>
       <Name>SoundFingerprinting.MinHash.Permutations</Name>
