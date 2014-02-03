@@ -134,12 +134,6 @@
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\CustomFingerprintConfiguration.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
-    <Compile Include="FFT\Exocortex\Complex.cs" />
-    <Compile Include="FFT\Exocortex\ComplexArray.cs" />
-    <Compile Include="FFT\Exocortex\ComplexF.cs" />
-    <Compile Include="FFT\Exocortex\ExocortexFFTService.cs" />
-    <Compile Include="FFT\Exocortex\Fourier.cs" />
-    <Compile Include="FFT\Exocortex\FourierDirection.cs" />
     <Compile Include="FFT\FFTW\CachedFFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWArray.cs" />
     <Compile Include="FFT\FFTW\X86\FFTWFNativeMethods.cs" />

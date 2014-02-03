@@ -82,7 +82,7 @@
         {
             int index = (int)((float)strideBetweenConsecutiveImages.FirstStride / overlap);
             int numberOfLogBins = logarithmizedSpectrum[0].Length;
-            List<float[][]> spectralImages = new List<float[][]>();
+            var spectralImages = new List<float[][]>();
 
             int width = logarithmizedSpectrum.GetLength(0);
             
