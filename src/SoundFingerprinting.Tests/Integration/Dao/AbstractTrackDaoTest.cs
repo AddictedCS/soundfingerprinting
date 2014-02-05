@@ -256,6 +256,19 @@
             Assert.AreEqual(0, actual);
         }
 
+        [TestMethod]
+        public void InserTrackShouldAcceptEmptyEntriesCodes()
+        {
+            TrackData track = new TrackData(string.Empty, string.Empty, string.Empty, string.Empty, 1986, 200);
+           
+            var trackReference = TrackDao.Insert(track);
+
+            var actualTrack = TrackDao.ReadById(trackReference.GetHashCode());
+
+            Assert.IsNotNull(trackReference);
+            AssertTracksAreEqual(track, actualTrack);
+        }
+
         private IEnumerable<TrackData> GetRandomListOfTracks(int count)
         {
             var tracks = new List<TrackData>();
