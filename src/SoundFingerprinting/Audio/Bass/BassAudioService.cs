@@ -6,6 +6,8 @@
     using System.IO;
     using System.Linq;
 
+    using SoundFingerprinting.Infrastructure;
+
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Fx;
     using Un4seen.Bass.AddOn.Mix;
@@ -22,7 +24,9 @@
     /// </remarks>
     public class BassAudioService : AudioService, IExtendedAudioService, ITagService
     {
-        private const int DefaultSampleRate = 44100;
+        public const int DefaultSampleRate = 44100;
+
+        public const int DefaultBufferLengthInSeconds = 20;
 
         private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", "mp3", ".ogg", ".flac" };
 
@@ -33,6 +37,12 @@
         private bool alreadyDisposed;
 
         public BassAudioService()
+            : this(DependencyResolver.Current.Get<IBassServiceProxy>())
+        {
+            // no op
+        }
+
+        private BassAudioService(IBassServiceProxy bassServiceProxy)
         {
             lock (LockObject)
             {
@@ -50,8 +60,6 @@
                         // Dummy calls made for loading the assemblies
 #pragma warning disable 168
                         bool isBassLoad = Bass.LoadMe(targetPath);
-                        bool isBassMixLoad = BassMix.LoadMe(targetPath);
-                        bool isBassFxLoad = BassFx.LoadMe(targetPath);
                         int bassVersion = Bass.BASS_GetVersion();
                         int bassMixVersion = BassMix.BASS_Mixer_GetVersion();
                         int bassfxVersion = BassFx.BASS_FX_GetVersion();
