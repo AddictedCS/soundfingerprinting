@@ -116,13 +116,13 @@
             }
         }
 
-        public void RecodeFileToMonoWave(string pathToFile, string pathToResultFile, int sampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
             using (Mp3FileReader reader = new Mp3FileReader(pathToFile))
             {
                 using (var resampler = new MediaFoundationResampler(reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
                 {
-                    WaveFileWriter.CreateWaveFile(pathToResultFile, resampler);
+                    WaveFileWriter.CreateWaveFile(pathToRecodedFile, resampler);
                 }
             }
         }
@@ -132,7 +132,7 @@
             throw new NotImplementedException("Use Bass.NET");
         }
 
-        public float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
+        public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
             throw new NotImplementedException("Use Bass.NET");
         }

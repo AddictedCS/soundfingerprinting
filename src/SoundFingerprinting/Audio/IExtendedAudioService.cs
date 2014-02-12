@@ -21,12 +21,12 @@
         ///   Recode the file
         /// </summary>
         /// <param name = "pathToFile">Initial file</param>
-        /// <param name = "pathToResultFile">Target file</param>
+        /// <param name = "pathToRecodedFile">Target file</param>
         /// <param name = "sampleRate">Target sample rate</param>
-        void RecodeFileToMonoWave(string pathToFile, string pathToResultFile, int sampleRate);
+        void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate);
 
         float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload);
 
-        float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord);
+        float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord);
     }
 }

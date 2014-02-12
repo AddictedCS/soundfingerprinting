@@ -181,7 +181,7 @@
             int sampleRate = (int)_nudSampleRate.Value;
             string pathToFile = "mic_" + DateTime.Now.Ticks + ".wav";
             _gbQueryMicrophoneBox.Enabled = false;
-            Task<float[]>.Factory.StartNew(() => audioService.RecordFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord)).ContinueWith(
+            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord)).ContinueWith(
                 task =>
                     {
                         _gbQueryMicrophoneBox.Enabled = true;

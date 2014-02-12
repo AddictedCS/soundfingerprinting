@@ -114,21 +114,11 @@
             return DownsampleStreamWithMixer(stream, sampleRate, secondsToDownload, 0);
         }
 
-        public float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
+        public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
-            var samples = RecordFromMicrophone(sampleRate, secondsToRecord);
-
-            WaveWriter waveWriter = new WaveWriter(pathToFile, 1, sampleRate, 4 * 8, true);
-            waveWriter.Write(samples, samples.Length);
-            waveWriter.Close();
-
+            var samples = ReadFromMicrophone(sampleRate, secondsToRecord);
+            WriteSamplesToWavFile(pathToFile, sampleRate, 1, samples);
             return samples;
-        }
-
-        public float[] RecordFromMicrophone(int sampleRate, int secondsToRecord)
-        {
-            int stream = CreateStreamByStartingToRecord(sampleRate);
-            return DownsampleStreamWithMixer(stream, sampleRate, secondsToRecord, 0);
         }
 
         public int PlayFile(string filename)
@@ -148,36 +138,10 @@
             ReleaseStream(stream);
         }
 
-        public void RecodeFileToMonoWave(string pathToFile, string pathToResultFile, int sampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
-            int stream = 0, mixerStream = 0;
-
-            try
-            {
-                stream = CreateStream(
-                    pathToFile, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-                mixerStream = CreateMixerStream(sampleRate);
-                CombineStreams(mixerStream, stream);
-                WaveWriter waveWriter = new WaveWriter(pathToResultFile, mixerStream, true);
-                float[] buffer = new float[sampleRate * DefaultBufferLengthInSeconds];
-                while (true)
-                {
-                    int bytesRead = bassServiceProxy.ChannelGetData(mixerStream, buffer, buffer.Length * 4);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-
-                    waveWriter.Write(buffer, bytesRead);
-                }
-
-                waveWriter.Close();
-            }
-            finally
-            {
-                ReleaseStream(mixerStream);
-                ReleaseStream(stream);
-            }
+            float[] samples = ReadMonoFromFile(pathToFile, sampleRate);
+            WriteSamplesToWavFile(pathToRecodedFile, sampleRate, 1, samples);
         }
 
         public TagInfo GetTagInfo(string pathToAudioFile)
@@ -417,7 +381,7 @@
 
         private float[] ReadChannelDataFromUnderlyingMixerStream(int mixerStream, int secondsToRead, int sampleRate)
         {
-            float[] buffer = new float[sampleRate * DefaultBufferLengthInSeconds]; // 20 seconds buffer
+            float[] buffer = new float[sampleRate * DefaultBufferLengthInSeconds];
             int totalBytesToRead = secondsToRead == 0 ? int.MaxValue : secondsToRead * sampleRate * 4;
             int totalBytesRead = 0;
             List<float[]> chunks = new List<float[]>();
@@ -478,6 +442,19 @@
                 ReleaseStream(mixerStream);
                 ReleaseStream(stream);
             }
+        }
+
+        private void WriteSamplesToWavFile(string pathToFile, int sampleRate, int channels, float[] samples)
+        {
+            WaveWriter waveWriter = new WaveWriter(pathToFile, channels, sampleRate, 8 * 4, true);
+            waveWriter.Write(samples, samples.Length * 4);
+            waveWriter.Close();
+        }
+
+        private float[] ReadFromMicrophone(int sampleRate, int secondsToRecord)
+        {
+            int stream = CreateStreamByStartingToRecord(sampleRate);
+            return DownsampleStreamWithMixer(stream, sampleRate, secondsToRecord, 0);
         }
     }
 }
