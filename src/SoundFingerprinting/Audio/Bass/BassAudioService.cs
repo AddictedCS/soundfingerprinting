@@ -104,68 +104,31 @@
 
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
-            int stream = 0, mixerStream = 0;
-
-            try
-            {
-                stream = CreateStream(pathToFile, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-                SeekToSecondInCaseIfRequired(stream, startAtSecond);
-                mixerStream = CreateMixerStream(sampleRate);
-                CombineStreams(mixerStream, stream);
-                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToRead, sampleRate);
-            }
-            finally
-            {
-                ReleaseStream(mixerStream, pathToFile);
-                ReleaseStream(stream, pathToFile);
-            }
+            int stream = CreateStream(pathToFile, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+            return DownsampleStreamWithMixer(stream, sampleRate, secondsToRead, startAtSecond);
         }
 
         public float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload)
         {
-            int stream = 0, mixerStream = 0;
-            
-            try
-            {
-                stream = CreateStreamToUrl(urlToResource);
-                mixerStream = CreateMixerStream(sampleRate);
-                CombineStreams(mixerStream, stream);
-                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToDownload, sampleRate);
-            }
-            finally
-            {
-                ReleaseStream(mixerStream, urlToResource);
-                ReleaseStream(stream, urlToResource);
-            }
+            int stream = CreateStreamToUrl(urlToResource);
+            return DownsampleStreamWithMixer(stream, sampleRate, secondsToDownload, 0);
         }
 
         public float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
             var samples = RecordFromMicrophone(sampleRate, secondsToRecord);
 
-            using (WaveWriter waveWriter = new WaveWriter(pathToFile, 1, sampleRate, 4 * 8, true))
-            {
-                waveWriter.Write(samples, samples.Length);
-            }
+            WaveWriter waveWriter = new WaveWriter(pathToFile, 1, sampleRate, 4 * 8, true);
+            waveWriter.Write(samples, samples.Length);
+            waveWriter.Close();
 
             return samples;
         }
 
         public float[] RecordFromMicrophone(int sampleRate, int secondsToRecord)
         {
-            int stream = 0, mixerStream = 0;
-            try
-            {
-                stream = CreateStreamByStartingToRecord(sampleRate);
-                mixerStream = CreateMixerStream(sampleRate);
-                CombineStreams(mixerStream, stream);
-                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToRecord, sampleRate);
-            }
-            finally
-            {
-                ReleaseStream(mixerStream, "microphone");
-                ReleaseStream(stream, "microphone");
-            }
+            int stream = CreateStreamByStartingToRecord(sampleRate);
+            return DownsampleStreamWithMixer(stream, sampleRate, secondsToRecord, 0);
         }
 
         public int PlayFile(string filename)
@@ -182,7 +145,7 @@
 
         public void StopPlayingFile(int stream)
         {
-            ReleaseStream(stream, "stream from a playing file");
+            ReleaseStream(stream);
         }
 
         public void RecodeFileToMonoWave(string pathToFile, string pathToResultFile, int sampleRate)
@@ -212,8 +175,8 @@
             }
             finally
             {
-                ReleaseStream(mixerStream, pathToFile);
-                ReleaseStream(stream, pathToFile);
+                ReleaseStream(mixerStream);
+                ReleaseStream(stream);
             }
         }
 
@@ -334,8 +297,7 @@
             }
 
             Uri uri = new Uri(executingPath);
-            string targetPath = Path.Combine(uri.LocalPath, Utils.Is64Bit ? "x64" : "x86");
-            return targetPath;
+            return Path.Combine(uri.LocalPath, Utils.Is64Bit ? "x64" : "x86");
         }
 
         private void SetDefaultConfigs()
@@ -365,11 +327,10 @@
             }
         }
 
-        private void NotifyErrorWhenReleasingMemoryStream(string pathToFile, int mixerStream)
+        private void NotifyErrorWhenReleasingMemoryStream(int stream)
         {
             Trace.WriteLine(
-                "Could not release stream " + mixerStream + " generated from path " + pathToFile
-                + ". Possible memory leak! Bass Error: " + bassServiceProxy.GetLastError(),
+                "Could not release stream " + stream + ". Possible memory leak! Bass Error: " + bassServiceProxy.GetLastError(),
                 "Error");
         }
 
@@ -446,11 +407,11 @@
             return stream;
         }
 
-        private void ReleaseStream(int stream, string pathToFile)
+        private void ReleaseStream(int stream)
         {
             if (stream != 0 && !bassServiceProxy.FreeStream(stream))
             {
-                NotifyErrorWhenReleasingMemoryStream(pathToFile, stream);
+                NotifyErrorWhenReleasingMemoryStream(stream);
             }
         }
 
@@ -500,6 +461,23 @@
             }
 
             return ConcatenateChunksOfSamples(chunks);
+        }
+
+        private float[] DownsampleStreamWithMixer(int stream, int sampleRate, int secondsToRead, int startAtSecond)
+        {
+            int mixerStream = 0;
+            try
+            {
+                SeekToSecondInCaseIfRequired(stream, startAtSecond);
+                mixerStream = CreateMixerStream(sampleRate);
+                CombineStreams(mixerStream, stream);
+                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToRead, sampleRate);
+            }
+            finally
+            {
+                ReleaseStream(mixerStream);
+                ReleaseStream(stream);
+            }
         }
     }
 }
