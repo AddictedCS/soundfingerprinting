@@ -6,6 +6,7 @@ namespace SoundFingerprinting.Audio.Bass
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Fx;
     using Un4seen.Bass.AddOn.Mix;
+    using Un4seen.Bass.AddOn.Tags;
 
     internal class BassServiceProxy : IBassServiceProxy
     {
@@ -84,6 +85,21 @@ namespace SoundFingerprinting.Audio.Bass
             return Bass.BASS_StreamCreateFile(pathToAudioFile, 0, 0, flags);
         }
 
+        public int CreateStreamFromUrl(string urlToResource, BASSFlag flags)
+        {
+            return Bass.BASS_StreamCreateURL(urlToResource, 0, flags, null, IntPtr.Zero);
+        }
+
+        public int StartRecording(int sampleRate, int numberOfChannels, BASSFlag flags)
+        {
+            return Bass.BASS_RecordStart(sampleRate, numberOfChannels, flags, null, IntPtr.Zero);
+        }
+
+        public bool StartPlaying(int stream)
+        {
+            return Bass.BASS_ChannelPlay(stream, false);
+        }
+
         public int CreateMixerStream(int sampleRate, int channels, BASSFlag flags)
         {
             return BassMix.BASS_Mixer_StreamCreate(sampleRate, channels, flags);
@@ -117,6 +133,11 @@ namespace SoundFingerprinting.Audio.Bass
         public bool BassFree()
         {
             return Bass.BASS_Free();
+        }
+
+        public TAG_INFO GetTagsFromFile(string pathToFile)
+        {
+            return BassTags.BASS_TAG_GetFromFile(pathToFile);
         }
     }
 }

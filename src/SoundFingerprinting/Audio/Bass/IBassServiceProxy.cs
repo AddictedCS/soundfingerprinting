@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     using Un4seen.Bass;
+    using Un4seen.Bass.AddOn.Tags;
 
     internal interface IBassServiceProxy
     {
@@ -36,6 +37,12 @@
 
         int CreateStream(string pathToAudioFile, BASSFlag flags);
 
+        int CreateStreamFromUrl(string urlToResource, BASSFlag flags);
+
+        int StartRecording(int sampleRate, int numberOfChannels, BASSFlag flags);
+
+        bool StartPlaying(int stream);
+
         int CreateMixerStream(int sampleRate, int channels, BASSFlag flags);
 
         bool CombineMixerStreams(int mixerStream, int stream, BASSFlag flags);
@@ -49,5 +56,7 @@
         bool PluginFree(int number);
 
         bool BassFree();
+
+        TAG_INFO GetTagsFromFile(string pathToFile);
     }
 }

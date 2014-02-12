@@ -9,12 +9,11 @@
     using SoundFingerprinting.Infrastructure;
 
     using Un4seen.Bass;
-    using Un4seen.Bass.AddOn.Mix;
     using Un4seen.Bass.AddOn.Tags;
     using Un4seen.Bass.Misc;
 
     /// <summary>
-    ///   Bass Proxy for Bass.Net API
+    ///   Bass Audio Service
     /// </summary>
     /// <remarks>
     ///   BASS is an audio library for use in Windows and Mac OSX software. 
@@ -103,26 +102,17 @@
             }
         }
 
-        /// <summary>
-        ///   Read mono from file
-        /// </summary>
-        /// <param name = "pathToFile">Name of the file</param>
-        /// <param name = "sampleRate">Output sample rate</param>
-        /// <param name = "secondsToRead">Milliseconds to read</param>
-        /// <param name = "startAtSecond">Start millisecond</param>
-        /// <returns>Array of samples</returns>
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
             int stream = 0, mixerStream = 0;
 
             try
             {
-                stream = CreateStream(pathToFile);
-                mixerStream = CreateMixerStream(sampleRate, numberOfChannels: 1);
-                CombineStreams(mixerStream, stream);
+                stream = CreateStream(pathToFile, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
                 SeekToSecondInCaseIfRequired(stream, startAtSecond);
-                var chunks = ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToRead, sampleRate);
-                return ConcatenateChunksOfSamples(chunks);
+                mixerStream = CreateMixerStream(sampleRate);
+                CombineStreams(mixerStream, stream);
+                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToRead, sampleRate);
             }
             finally
             {
@@ -133,139 +123,103 @@
 
         public float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload)
         {
-            int stream = Bass.BASS_StreamCreateURL(
-                urlToResource, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT, null, IntPtr.Zero);
-
-            if (stream == 0)
+            int stream = 0, mixerStream = 0;
+            
+            try
             {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                stream = CreateStreamToUrl(urlToResource);
+                mixerStream = CreateMixerStream(sampleRate);
+                CombineStreams(mixerStream, stream);
+                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToDownload, sampleRate);
             }
-
-            int mixerStream = BassMix.BASS_Mixer_StreamCreate(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-            if (mixerStream == 0)
+            finally
             {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                ReleaseStream(mixerStream, urlToResource);
+                ReleaseStream(stream, urlToResource);
             }
+        }
 
-            if (!BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
+        public float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
+        {
+            var samples = RecordFromMicrophone(sampleRate, secondsToRecord);
+
+            using (WaveWriter waveWriter = new WaveWriter(pathToFile, 1, sampleRate, 4 * 8, true))
             {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                waveWriter.Write(samples, samples.Length);
             }
-
-            float[] samples = ReadSamplesFromContinuousMixedStream(sampleRate, secondsToDownload, mixerStream);
-
-            Bass.BASS_StreamFree(mixerStream);
-            Bass.BASS_StreamFree(stream);
 
             return samples;
         }
 
         public float[] RecordFromMicrophone(int sampleRate, int secondsToRecord)
         {
-            int stream = Bass.BASS_RecordStart(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT, null, IntPtr.Zero);
-
-            if (stream == 0)
+            int stream = 0, mixerStream = 0;
+            try
             {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                stream = CreateStreamByStartingToRecord(sampleRate);
+                mixerStream = CreateMixerStream(sampleRate);
+                CombineStreams(mixerStream, stream);
+                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToRecord, sampleRate);
             }
-
-            int mixerStream = BassMix.BASS_Mixer_StreamCreate(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-            if (mixerStream == 0)
+            finally
             {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                ReleaseStream(mixerStream, "microphone");
+                ReleaseStream(stream, "microphone");
             }
-
-            if (!BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
-
-            float[] samples = ReadSamplesFromContinuousMixedStream(sampleRate, secondsToRecord, mixerStream);
-
-            Bass.BASS_StreamFree(mixerStream);
-            Bass.BASS_StreamFree(stream);
-
-            return samples;
-        }
-
-        public float[] RecordFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
-        {
-            int stream = Bass.BASS_RecordStart(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT, null, IntPtr.Zero);
-
-            if (stream == 0)
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
-
-            int mixerStream = BassMix.BASS_Mixer_StreamCreate(sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-            if (mixerStream == 0)
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
-
-            if (!BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
-
-            float[] samples = ReadSamplesFromContinuousMixedStream(sampleRate, secondsToRecord, mixerStream);
-            using (WaveWriter waveWriter = new WaveWriter(pathToFile, mixerStream, true))
-            {
-                waveWriter.Write(samples, samples.Length);
-            }
-
-            Bass.BASS_StreamFree(mixerStream);
-            Bass.BASS_StreamFree(stream);
-
-            return samples;
         }
 
         public int PlayFile(string filename)
         {
-            int stream = Bass.BASS_StreamCreateFile(filename, 0, 0, BASSFlag.BASS_DEFAULT);
-            Bass.BASS_ChannelPlay(stream, false);
+            int stream = CreateStream(filename, BASSFlag.BASS_DEFAULT);
+
+            if (bassServiceProxy.StartPlaying(stream))
+            {
+                throw new BassAudioServiceException(bassServiceProxy.GetLastError());
+            }
+
             return stream;
         }
 
         public void StopPlayingFile(int stream)
         {
-            if (stream != 0)
-            {
-                Bass.BASS_StreamFree(stream);
-            }
+            ReleaseStream(stream, "stream from a playing file");
         }
 
-        public void RecodeFileToMonoWave(string pathToFile, string outputPathToFile, int targetSampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string pathToResultFile, int sampleRate)
         {
-            int stream = Bass.BASS_StreamCreateFile(pathToFile, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-            TAG_INFO tags = new TAG_INFO();
-            BassTags.BASS_TAG_GetFromFile(stream, tags);
-            int mixerStream = BassMix.BASS_Mixer_StreamCreate(targetSampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-            if (!BassMix.BASS_Mixer_StreamAddChannel(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
-            {
-                throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-            }
+            int stream = 0, mixerStream = 0;
 
-            WaveWriter waveWriter = new WaveWriter(outputPathToFile, mixerStream, true);
-            const int Length = 5512 * 10 * 4;
-            float[] buffer = new float[Length];
-            while (true)
+            try
             {
-                int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, Length);
-                if (bytesRead == 0)
+                stream = CreateStream(
+                    pathToFile, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+                mixerStream = CreateMixerStream(sampleRate);
+                CombineStreams(mixerStream, stream);
+                WaveWriter waveWriter = new WaveWriter(pathToResultFile, mixerStream, true);
+                float[] buffer = new float[sampleRate * DefaultBufferLengthInSeconds];
+                while (true)
                 {
-                    break;
+                    int bytesRead = bassServiceProxy.ChannelGetData(mixerStream, buffer, buffer.Length * 4);
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+
+                    waveWriter.Write(buffer, bytesRead);
                 }
 
-                waveWriter.Write(buffer, bytesRead);
+                waveWriter.Close();
             }
-
-            waveWriter.Close();
+            finally
+            {
+                ReleaseStream(mixerStream, pathToFile);
+                ReleaseStream(stream, pathToFile);
+            }
         }
 
         public TagInfo GetTagInfo(string pathToAudioFile)
         {
-            TAG_INFO tags = BassTags.BASS_TAG_GetFromFile(pathToAudioFile);
+            TAG_INFO tags = bassServiceProxy.GetTagsFromFile(pathToAudioFile);
             if (tags == null)
             {
                 return new TagInfo { IsEmpty = true };
@@ -321,46 +275,6 @@
             }
         }
 
-        private float[] ReadSamplesFromContinuousMixedStream(int sampleRate, int secondsToDownload, int mixerStream)
-        {
-            float[] buffer = new float[secondsToDownload * sampleRate * 4];
-            int totalBytesToRead = secondsToDownload * sampleRate * 4;
-            int totalBytesRead = 0;
-            List<float[]> chunks = new List<float[]>();
-            while (totalBytesRead < totalBytesToRead)
-            {
-                int bytesRead = Bass.BASS_ChannelGetData(mixerStream, buffer, buffer.Length);
-
-                if (bytesRead == -1)
-                {
-                    throw new Exception(Bass.BASS_ErrorGetCode().ToString());
-                }
-
-                if (bytesRead == 0)
-                {
-                    continue;
-                }
-
-                totalBytesRead += bytesRead;
-
-                float[] chunk;
-                if (totalBytesRead > totalBytesToRead)
-                {
-                    chunk = new float[(totalBytesToRead - (totalBytesRead - bytesRead)) / 4];
-                    Array.Copy(buffer, chunk, (totalBytesToRead - (totalBytesRead - bytesRead)) / 4);
-                }
-                else
-                {
-                    chunk = new float[bytesRead / 4];
-                    Array.Copy(buffer, chunk, bytesRead / 4);
-                }
-
-                chunks.Add(chunk);
-            }
-
-            return ConcatenateChunksOfSamples(chunks);
-        }
-
         private bool IsSafeToDisposeNativeBassLibrary()
         {
             return initializedInstances == 1;
@@ -368,7 +282,6 @@
 
         private void LoadBassLibraries(string targetPath)
         {
-            // dummy calls to load bass libraries
             if (!bassServiceProxy.BassLoadMe(targetPath))
             {
                 throw new BassAudioServiceException("Could not load bass native libraries from the following path: " + targetPath);
@@ -383,7 +296,8 @@
             {
                 throw new BassAudioServiceException("Could not load bassfx library from the following path: " + targetPath);
             }
-
+            
+            // dummy calls to load bass libraries
             bassServiceProxy.GetVersion();
             bassServiceProxy.GetMixerVersion();
             bassServiceProxy.GetFxVersion();
@@ -394,9 +308,9 @@
             if (!bassServiceProxy.Init(-1, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
             {
                 Trace.WriteLine("Failed to find a sound device on running machine. Playing audio files will not be supported. " + bassServiceProxy.GetLastError(), "Warning");
-                if (!Bass.BASS_Init(0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO, IntPtr.Zero))
+                if (!bassServiceProxy.Init(0, DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
                 {
-                    throw new Exception(Bass.BASS_ErrorGetCode().ToString());
+                    throw new BassAudioServiceException(bassServiceProxy.GetLastError());
                 }
             }
         }
@@ -435,7 +349,7 @@
             /*Set floating parameters to be passed*/
             if (!bassServiceProxy.SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true))
             {
-                throw new Exception(bassServiceProxy.GetLastError());
+                throw new BassAudioServiceException(bassServiceProxy.GetLastError());
             }
         }
 
@@ -478,12 +392,13 @@
             }
         }
 
-        private int CreateMixerStream(int sampleRate, int numberOfChannels)
+        private int CreateMixerStream(int sampleRate)
         {
             int mixerStream = bassServiceProxy.CreateMixerStream(
                 sampleRate,
-                numberOfChannels,
+                1,
                 BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+
             if (mixerStream == 0)
             {
                 throw new BassAudioServiceException(bassServiceProxy.GetLastError());
@@ -492,11 +407,36 @@
             return mixerStream;
         }
 
-        private int CreateStream(string pathToFile)
+        private int CreateStream(string pathToFile, BASSFlag flags)
         {
             // create streams for re-sampling
-            int stream = bassServiceProxy.CreateStream(
-                pathToFile, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+            int stream = bassServiceProxy.CreateStream(pathToFile, flags);
+
+            if (stream == 0)
+            {
+                throw new BassAudioServiceException(bassServiceProxy.GetLastError());
+            }
+
+            return stream;
+        }
+
+        private int CreateStreamToUrl(string urlToResource)
+        {
+            int stream = bassServiceProxy.CreateStreamFromUrl(
+                urlToResource, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+
+            if (stream == 0)
+            {
+                throw new BassAudioServiceException(bassServiceProxy.GetLastError());
+            }
+
+            return stream;
+        }
+
+        private int CreateStreamByStartingToRecord(int sampleRate)
+        {
+            int stream = bassServiceProxy.StartRecording(
+                sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
 
             if (stream == 0)
             {
@@ -514,12 +454,12 @@
             }
         }
 
-        private List<float[]> ReadChannelDataFromUnderlyingMixerStream(int mixerStream, int secondsToRead, int sampleRate)
+        private float[] ReadChannelDataFromUnderlyingMixerStream(int mixerStream, int secondsToRead, int sampleRate)
         {
             float[] buffer = new float[sampleRate * DefaultBufferLengthInSeconds]; // 20 seconds buffer
-            List<float[]> chunks = new List<float[]>();
             int totalBytesToRead = secondsToRead == 0 ? int.MaxValue : secondsToRead * sampleRate * 4;
             int totalBytesRead = 0;
+            List<float[]> chunks = new List<float[]>();
             while (totalBytesRead < totalBytesToRead)
             {
                 // get re-sampled/mono data
@@ -559,7 +499,7 @@
                     "Could not read requested number of seconds " + secondsToRead + ", audio file is not that long");
             }
 
-            return chunks;
+            return ConcatenateChunksOfSamples(chunks);
         }
     }
 }

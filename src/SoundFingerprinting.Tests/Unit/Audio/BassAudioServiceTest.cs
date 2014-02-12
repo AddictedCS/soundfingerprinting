@@ -82,6 +82,21 @@
 
         [TestMethod]
         [ExpectedException(typeof(BassAudioServiceException))]
+        public void ReadMonoFromUrlThrowsExceptionInCaseIfNoStreamIsCreated()
+        {
+            bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not create stream from specified path");
+
+            bassServiceProxy.Setup(
+                proxy =>
+                proxy.CreateStreamFromUrl(
+                    "path-to-audio-file",
+                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(0);
+
+            bassAudioService.ReadMonoFromUrl("path-to-audio-file", 5512, 10);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BassAudioServiceException))]
         public void ReadMonoFromFileThrowsExceptionInCaseIfNoMixerStreamIsCreated()
         {
             const int StreamId = 123;
@@ -136,8 +151,7 @@
         public void ReadMonoFromFileSeekFailsWithError()
         {
             const int StreamId = 123;
-            const int MixerStreamId = 124;
-
+            
             bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not seek to specified second");
 
             bassServiceProxy.Setup(
@@ -145,18 +159,9 @@
                 proxy.CreateStream(
                     "path-to-audio-file",
                     BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(StreamId);
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateMixerStream(
-                    5512, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT))
-                    .Returns(MixerStreamId);
-            bassServiceProxy.Setup(proxy => proxy.CombineMixerStreams(MixerStreamId, StreamId, BASSFlag.BASS_MIXER_FILTER))
-                    .Returns(true);
             bassServiceProxy.Setup(proxy => proxy.ChannelSetPosition(StreamId, 10)).Returns(false);
-
             bassServiceProxy.Setup(proxy => proxy.FreeStream(StreamId)).Returns(true);
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(MixerStreamId)).Returns(true);
-
+            
             bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512, 10, 10);
         }
 

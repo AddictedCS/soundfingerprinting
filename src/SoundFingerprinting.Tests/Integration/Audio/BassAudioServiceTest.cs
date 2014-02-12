@@ -59,11 +59,11 @@
         [TestMethod]
         public void ReadMonoFromFileTest()
         {
-            using (BassAudioService bass = new BassAudioService())
+            using (BassAudioService bassAudioService = new BassAudioService())
             {
-                string tempFile = string.Format(@"{0}\{1}", Path.GetTempPath(), "0.wav");
-                bass.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
-                float[] samples = bass.ReadMonoFromFile(PathToMp3, SampleRate);
+                string tempFile = string.Format(@"{0}{1}", Path.GetTempPath(), "0.wav");
+                bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, SampleRate);
+                float[] samples = bassAudioService.ReadMonoFromFile(PathToMp3, SampleRate);
                 FileInfo info = new FileInfo(tempFile);
                 long expectedSize = info.Length - WaveHeader;
                 long actualSize = samples.Length * (BitsPerSample / 8);
