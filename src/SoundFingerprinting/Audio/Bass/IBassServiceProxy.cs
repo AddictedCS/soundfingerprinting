@@ -4,11 +4,15 @@
 
     using Un4seen.Bass;
 
-    public interface IBassServiceProxy
+    internal interface IBassServiceProxy
     {
         void RegisterBass(string email, string registrationKey);
 
-        bool LoadMe(string targetPath);
+        bool BassLoadMe(string targetPath);
+
+        bool BassMixLoadMe(string targetPath);
+
+        bool BassFxLoadMe(string targetPath);
 
         int GetVersion();
 
@@ -18,13 +22,15 @@
 
         IDictionary<int, string> PluginLoadDirectory(string path);
 
-        bool Init(int sampleRate);
+        bool Init(int deviceNumber, int sampleRate, BASSInit flags);
 
-        bool SetDefaultConfigs();
+        bool SetConfig(BASSConfig config, int value);
+
+        bool SetConfig(BASSConfig config, bool value);
+
+        bool RecordInit(int deviceNumber);
 
         string GetLastError();
-
-        int StreamCreateFile(string pathToFile);
 
         int GetRecordingDevice();
 
@@ -37,9 +43,11 @@
         bool ChannelSetPosition(int stream, int seekToSecond);
 
         int ChannelGetData(int stream, float[] buffer, int lengthInBytes);
-    }
 
-    internal class BassServiceProxy
-    {
+        bool FreeStream(int stream);
+
+        bool PluginFree(int number);
+
+        bool BassFree();
     }
 }

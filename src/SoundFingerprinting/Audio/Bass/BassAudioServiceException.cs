@@ -4,6 +4,9 @@
 
     public class BassAudioServiceException : Exception
     {
-        // no op
+        public BassAudioServiceException(string message)
+            : base(message)
+        {
+        }
     }
 }
