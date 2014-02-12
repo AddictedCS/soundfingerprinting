@@ -116,13 +116,13 @@
             }
         }
 
-        public void RecodeFileToMonoWave(string pathToFile, string outputPathToFile, int targetSampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string pathToResultFile, int sampleRate)
         {
             using (Mp3FileReader reader = new Mp3FileReader(pathToFile))
             {
-                using (var resampler = new MediaFoundationResampler(reader, WaveFormat.CreateIeeeFloatWaveFormat(targetSampleRate, 1)))
+                using (var resampler = new MediaFoundationResampler(reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
                 {
-                    WaveFileWriter.CreateWaveFile(outputPathToFile, resampler);
+                    WaveFileWriter.CreateWaveFile(pathToResultFile, resampler);
                 }
             }
         }

@@ -57,6 +57,9 @@
     <Compile Include="Audio\AudioSamplesNormalizer.cs" />
     <Compile Include="Audio\AudioService.cs" />
     <Compile Include="Audio\Bass\BassAudioService.cs" />
+    <Compile Include="Audio\Bass\BassAudioServiceException.cs" />
+    <Compile Include="Audio\Bass\BassServiceProxy.cs" />
+    <Compile Include="Audio\Bass\IBassServiceProxy.cs" />
     <Compile Include="Audio\IAudioSamplesNormalizer.cs" />
     <Compile Include="Audio\IAudioService.cs" />
     <Compile Include="Audio\IExtendedAudioService.cs" />

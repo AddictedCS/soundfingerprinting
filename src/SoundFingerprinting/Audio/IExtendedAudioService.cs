@@ -21,9 +21,9 @@
         ///   Recode the file
         /// </summary>
         /// <param name = "pathToFile">Initial file</param>
-        /// <param name = "outputPathToFile">Target file</param>
-        /// <param name = "targetSampleRate">Target sample rate</param>
-        void RecodeFileToMonoWave(string pathToFile, string outputPathToFile, int targetSampleRate);
+        /// <param name = "pathToResultFile">Target file</param>
+        /// <param name = "sampleRate">Target sample rate</param>
+        void RecodeFileToMonoWave(string pathToFile, string pathToResultFile, int sampleRate);
 
         float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload);
 

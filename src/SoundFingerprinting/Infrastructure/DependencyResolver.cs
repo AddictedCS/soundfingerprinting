@@ -62,6 +62,7 @@
 
                 kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
                 kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
+                kernel.Bind<IBassServiceProxy>().To<BassServiceProxy>().InSingletonScope();
               
                 kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>().InSingletonScope();
                 kernel.Bind<IModelBinderFactory>().To<ModelBinderFactory>()
