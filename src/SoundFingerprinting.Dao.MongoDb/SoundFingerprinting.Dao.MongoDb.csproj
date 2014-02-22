@@ -32,7 +32,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.8.3\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.8.3\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -41,6 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractDao.cs" />
+    <Compile Include="Config\MongoDbConnectionSection.cs" />
+    <Compile Include="Data\MongoModelReference.cs" />
+    <Compile Include="Entities\Fingerprint.cs" />
+    <Compile Include="FingerprintDao.cs" />
+    <Compile Include="IMongoDatabaseProviderFactory.cs" />
+    <Compile Include="IMongoDbConnectionStringFactory.cs" />
+    <Compile Include="MongoDatabaseProviderFactory.cs" />
+    <Compile Include="MongoDbConnectionStringFactory.cs" />
     <Compile Include="MongoDbModelService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -50,6 +66,10 @@
       <Name>SoundFingerprinting</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

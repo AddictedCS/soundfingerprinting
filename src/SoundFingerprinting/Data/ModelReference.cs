@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    internal class ModelReference<T> : IModelReference
+    public class ModelReference<T> : IModelReference
     {
         public ModelReference(T id)
         {

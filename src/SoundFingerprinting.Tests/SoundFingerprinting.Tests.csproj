@@ -45,6 +45,12 @@
       <HintPath>..\Externals\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.8.3\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.8.3\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
@@ -85,6 +91,7 @@
     <Compile Include="Integration\Dao\RAM\TrackDaoTest.cs" />
     <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
+    <Compile Include="Unit\Dao\MongoDb\MongoDatabaseProviderFactoryTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
@@ -113,6 +120,10 @@
     <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
       <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
       <Name>SoundFingerprinting.Audio.NAudio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.Dao.MongoDb\SoundFingerprinting.Dao.MongoDb.csproj">
+      <Project>{c294f4cc-678d-4cc9-905a-041395931c58}</Project>
+      <Name>SoundFingerprinting.Dao.MongoDb</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
