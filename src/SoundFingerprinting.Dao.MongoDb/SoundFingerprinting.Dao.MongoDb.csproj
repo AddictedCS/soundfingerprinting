@@ -49,14 +49,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractDao.cs" />
-    <Compile Include="Config\MongoDbConnectionSection.cs" />
+    <Compile Include="Connection\MongoDbConnectionSection.cs" />
     <Compile Include="Data\MongoModelReference.cs" />
     <Compile Include="Entities\Fingerprint.cs" />
     <Compile Include="FingerprintDao.cs" />
-    <Compile Include="IMongoDatabaseProviderFactory.cs" />
-    <Compile Include="IMongoDbConnectionStringFactory.cs" />
-    <Compile Include="MongoDatabaseProviderFactory.cs" />
-    <Compile Include="MongoDbConnectionStringFactory.cs" />
+    <Compile Include="Connection\IMongoDatabaseProviderFactory.cs" />
+    <Compile Include="Connection\IMongoDbConnectionStringFactory.cs" />
+    <Compile Include="Connection\MongoDatabaseProviderFactory.cs" />
+    <Compile Include="Connection\MongoDbConnectionStringFactory.cs" />
     <Compile Include="MongoDbModelService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Dao.MongoDb
+﻿namespace SoundFingerprinting.Dao.MongoDb.Connection
 {
     public interface IMongoDbConnectionStringFactory
     {

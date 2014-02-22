@@ -92,6 +92,7 @@
     <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
     <Compile Include="Unit\Dao\MongoDb\MongoDatabaseProviderFactoryTest.cs" />
+    <Compile Include="Unit\Dao\MongoDb\MongoDbConnectionStringFactoryTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
