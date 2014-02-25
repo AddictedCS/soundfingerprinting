@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
 
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
@@ -9,8 +10,6 @@
     internal class FingerprintDao : IFingerprintDao
     {
         private static int counter;
-
-        private readonly object lockObject = new object();
 
         private readonly IRAMStorage storage;
 
@@ -25,31 +24,25 @@
             this.storage = storage;
         }
 
-        public int Insert(bool[] signature, int trackId)
+        public IModelReference InsertFingerprint(bool[] signature, IModelReference trackReference)
         {
-            lock (lockObject)
+            if (!storage.Fingerprints.ContainsKey(trackReference))
             {
-                counter++;
-
-                if (!storage.Fingerprints.ContainsKey(trackId))
-                {
-                    storage.Fingerprints[trackId] = new List<FingerprintData>();
-                }
-
-                storage.Fingerprints[trackId].Add(
-                    new FingerprintData(signature, new ModelReference<int>(trackId))
-                        {
-                            FingerprintReference = new ModelReference<int>(counter) 
-                        });
-                return counter;
+                storage.Fingerprints[trackReference] = new List<FingerprintData>();
             }
+
+            var fingerprintReference = new ModelReference<int>(Interlocked.Increment(ref counter));
+
+            storage.Fingerprints[trackReference].Add(
+                new FingerprintData(signature, trackReference) { FingerprintReference = fingerprintReference });
+            return fingerprintReference;
         }
 
-        public IList<FingerprintData> ReadFingerprintsByTrackId(int trackId)
+        public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
-            if (storage.Fingerprints.ContainsKey(trackId))
+            if (storage.Fingerprints.ContainsKey(trackReference))
             {
-                return storage.Fingerprints[trackId];
+                return storage.Fingerprints[trackReference];
             }
 
             return Enumerable.Empty<FingerprintData>().ToList();
