@@ -6,8 +6,8 @@ namespace SoundFingerprinting.Dao
 
     public interface IFingerprintDao
     {
-        int Insert(bool[] signature, int trackId);
+        IModelReference Insert(bool[] signature, IModelReference trackId);
 
-        IList<FingerprintData> ReadFingerprintsByTrackId(int trackId);
+        IList<FingerprintData> ReadFingerprintsByTrackId(IModelReference trackId);
     }
-}
+} 

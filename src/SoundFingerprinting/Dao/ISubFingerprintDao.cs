@@ -4,8 +4,8 @@ namespace SoundFingerprinting.Dao
 
     public interface ISubFingerprintDao
     {
-        SubFingerprintData ReadById(long id);
+        SubFingerprintData ReadById(IModelReference subFingerprintReference);
 
-        long Insert(byte[] signature, int trackId);
+        IModelReference Insert(byte[] signature, IModelReference trackReference);
     }
 }

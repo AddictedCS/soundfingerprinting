@@ -6,11 +6,11 @@ namespace SoundFingerprinting.Dao
 
     public interface IHashBinDao
     {
-        void Insert(long[] hashBins, long subFingerprintId);
+        void Insert(long[] hashBins, IModelReference subFingerprintReference);
 
         IList<HashBinData> ReadHashBinsByHashTable(int hashTableId);
 
-        IList<HashData> ReadHashDataByTrackId(int trackId);
+        IList<HashData> ReadHashDataByTrackId(IModelReference trackReference);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
             long[] hashBuckets, int thresholdVotes);
