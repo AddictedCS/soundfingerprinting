@@ -2,6 +2,11 @@
 {
     public interface IModelReference
     {
-        int HashCode { get; }
+        object Id { get; }
+    }
+
+    public interface IModelReference<out T> : IModelReference
+    {
+        new T Id { get; }
     }
 }
