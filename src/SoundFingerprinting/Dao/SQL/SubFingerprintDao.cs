@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Dao.SQL
 {
+    using System.Data;
+
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
@@ -20,27 +22,27 @@
         {
         }
 
-        public SubFingerprintData ReadById(long id)
+        public SubFingerprintData Read(IModelReference subFingerprintReference)
         {
             return PrepareStoredProcedure(SpReadSubFingerprintById)
-                        .WithParameter("Id", id)
+                        .WithParameter("Id", subFingerprintReference.Id, DbType.Int64)
                         .Execute()
                         .AsComplexModel<SubFingerprintData>((item, reader) =>
                             {
-                                long subFingerprintId = reader.GetInt64("Id");
-                                int trackId = reader.GetInt32("TrackId");
-                                item.SubFingerprintReference = new ModelReference<long>(subFingerprintId);
-                                item.TrackReference = new ModelReference<int>(trackId);
+                                item.SubFingerprintReference = new ModelReference<long>(reader.GetInt64("Id"));
+                                item.TrackReference = new ModelReference<int>(reader.GetInt32("TrackId"));
                             });
         }
 
-        public long Insert(byte[] signature, int trackId)
+        public IModelReference InsertSubFingerprint(byte[] signature, IModelReference trackReference)
         {
-            return PrepareStoredProcedure(SpInsertSubFingerprint)
+            long subFingerprintId = PrepareStoredProcedure(SpInsertSubFingerprint)
                                 .WithParameter("Signature", signature)
-                                .WithParameter("TrackId", trackId)
+                                .WithParameter("TrackId", trackReference.Id, DbType.Int32)
                                 .Execute()
                                 .AsScalar<long>();
+
+            return new ModelReference<long>(subFingerprintId);
         }
     }
 }

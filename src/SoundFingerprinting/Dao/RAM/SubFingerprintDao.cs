@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Dao.RAM
 {
     using System.Collections.Concurrent;
+    using System.Threading;
 
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
@@ -8,8 +9,6 @@
     internal class SubFingerprintDao : ISubFingerprintDao
     {
         private static long counter;
-
-        private readonly object lockObject = new object();
 
         private readonly IRAMStorage storage;
 
@@ -24,31 +23,27 @@
             this.storage = storage;
         }
 
-        public SubFingerprintData ReadById(long id)
+        public SubFingerprintData Read(IModelReference subFingerprintReference)
         {
-            if (storage.SubFingerprints.ContainsKey(id))
+            if (storage.SubFingerprints.ContainsKey(subFingerprintReference))
             {
-                return storage.SubFingerprints[id];
+                return storage.SubFingerprints[subFingerprintReference];
             }
 
             return null;
         }
 
-        public long Insert(byte[] signature, int trackId)
+        public IModelReference InsertSubFingerprint(byte[] signature, IModelReference trackReference)
         {
-            lock (lockObject)
+            var subFingerprintReference = new ModelReference<long>(Interlocked.Increment(ref counter));
+            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(signature, subFingerprintReference, trackReference);
+            if (!storage.TracksHashes.ContainsKey(trackReference))
             {
-                counter++;
-                SubFingerprintData subFingerprint = new SubFingerprintData(signature, new ModelReference<long>(counter), new ModelReference<int>(trackId));
-                storage.SubFingerprints[counter] = subFingerprint;
-                if (!storage.TracksHashes.ContainsKey(trackId))
-                {
-                    storage.TracksHashes[trackId] = new ConcurrentDictionary<long, HashData>();
-                }
-
-                storage.TracksHashes[trackId][counter] = new HashData { SubFingerprint = signature };
-                return counter;
+                storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashData>();
             }
+
+            storage.TracksHashes[trackReference][subFingerprintReference] = new HashData { SubFingerprint = signature };
+            return subFingerprintReference;
         }
     }
 }

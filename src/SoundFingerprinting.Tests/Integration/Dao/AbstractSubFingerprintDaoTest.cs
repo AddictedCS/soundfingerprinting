@@ -16,35 +16,29 @@
         public void InsertTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            int trackId = TrackDao.Insert(track);
+            var trackReference = TrackDao.InsertTrack(track);
             
-            long subFingerprintId = SubFingerprintDao.Insert(GenericSignature, trackId);
+            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, trackReference);
 
-            Assert.IsFalse(subFingerprintId == 0);
+            AssertModelReferenceIsInitialized(subFingerprintReference);
         }
 
         [TestMethod]
         public void ReadTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            int trackId = TrackDao.Insert(track);
-            
-            long subFingerprintId = SubFingerprintDao.Insert(GenericSignature, trackId);
+            var trackReference = TrackDao.InsertTrack(track);
+            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, trackReference);
 
-            SubFingerprintData actual = SubFingerprintDao.ReadById(subFingerprintId);
+            SubFingerprintData actual = SubFingerprintDao.Read(subFingerprintReference);
 
-            AsserSubFingerprintsAreEqual(
-                new SubFingerprintData(
-                    GenericSignature,
-                    new ModelReference<long>(subFingerprintId),
-                    new ModelReference<int>(trackId)),
-                actual);
+            AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericSignature, subFingerprintReference, trackReference), actual);
         }
 
         private void AsserSubFingerprintsAreEqual(SubFingerprintData expected, SubFingerprintData actual)
         {
-            Assert.AreEqual(expected.SubFingerprintReference.HashCode, actual.SubFingerprintReference.HashCode);
-            Assert.AreEqual(expected.TrackReference.HashCode, actual.TrackReference.HashCode);
+            Assert.AreEqual(expected.SubFingerprintReference, actual.SubFingerprintReference);
+            Assert.AreEqual(expected.TrackReference, actual.TrackReference);
             for (int i = 0; i < expected.Signature.Length; i++)
             {
                 Assert.AreEqual(expected.Signature[i], actual.Signature[i]);
