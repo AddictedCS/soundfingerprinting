@@ -2,6 +2,7 @@ namespace SoundFingerprinting.Dao.SQL
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
 
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
@@ -30,15 +31,13 @@ namespace SoundFingerprinting.Dao.SQL
         {
         }
 
-        public int Insert(TrackData track)
+        public IModelReference InsertTrack(TrackData track)
         {
             int id = PrepareStoredProcedure(SpInsertTrack)
                             .WithParametersFromModel(track)
                             .Execute()
                             .AsScalar<int>();
-            var trackReference = new ModelReference<int>(id);
-            track.TrackReference = trackReference;
-            return id;
+            return track.TrackReference = new ModelReference<int>(id);
         }
 
         public IList<TrackData> ReadAll()
@@ -48,10 +47,10 @@ namespace SoundFingerprinting.Dao.SQL
                         .AsListOfComplexModel(trackReferenceReader);
         }
 
-        public TrackData ReadById(int id)
+        public TrackData ReadTrack(IModelReference trackReference)
         {
             return PrepareStoredProcedure(SpReadTrackById)
-                        .WithParameter("Id", id)
+                        .WithParameter("Id", trackReference.Id, DbType.Int32)
                         .Execute()
                         .AsComplexModel(trackReferenceReader);
         }
@@ -73,10 +72,10 @@ namespace SoundFingerprinting.Dao.SQL
                         .AsComplexModel(trackReferenceReader);
         }
 
-        public int DeleteTrack(int trackId)
+        public int DeleteTrack(IModelReference trackReference)
         {
             return PrepareStoredProcedure(SpDeleteTrack)
-                        .WithParameter("Id", trackId)
+                        .WithParameter("Id", trackReference.Id, DbType.Int32)
                         .Execute()
                         .AsNonQuery();
         }

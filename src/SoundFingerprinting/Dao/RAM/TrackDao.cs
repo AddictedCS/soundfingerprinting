@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
 
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
@@ -9,8 +10,6 @@
     internal class TrackDao : ITrackDao
     {
         private static int counter;
-
-        private readonly object lockObject = new object();
 
         private readonly IRAMStorage storage;
 
@@ -25,15 +24,11 @@
             this.storage = storage;
         }
 
-        public int Insert(TrackData track)
+        public IModelReference InsertTrack(TrackData track)
         {
-            lock (lockObject)
-            {
-                counter++;
-                storage.Tracks[counter] = track;
-                track.TrackReference = new ModelReference<int>(counter);
-                return counter;
-            }
+            var trackReference = new ModelReference<int>(Interlocked.Increment(ref counter));
+            storage.Tracks[trackReference] = track;
+            return track.TrackReference = trackReference;
         }
 
         public TrackData ReadTrackByISRC(string isrc)
@@ -53,46 +48,46 @@
                           .ToList();
         }
 
-        public TrackData ReadById(int id)
+        public TrackData ReadTrack(IModelReference trackReference)
         {
-            if (storage.Tracks.ContainsKey(id))
+            if (storage.Tracks.ContainsKey(trackReference))
             {
-                return storage.Tracks[id];
+                return storage.Tracks[trackReference];
             }
 
             return null;
         }
 
-        public int DeleteTrack(int trackId)
+        public int DeleteTrack(IModelReference trackReference)
         {
             int count = 0;
-            if (storage.Tracks.Remove(trackId))
+            if (storage.Tracks.Remove(trackReference))
             {
                 count++;
-                if (storage.Fingerprints.ContainsKey(trackId))
+                if (storage.Fingerprints.ContainsKey(trackReference))
                 {
-                    count += storage.Fingerprints[trackId].Count;
-                    storage.Fingerprints.Remove(trackId);
+                    count += storage.Fingerprints[trackReference].Count;
+                    storage.Fingerprints.Remove(trackReference);
                 }
 
-                var subFingerprintIds = storage.SubFingerprints
-                                 .Where(pair => ((ModelReference<int>)pair.Value.TrackReference).Id == trackId)
+                var subFingerprintReferences = storage.SubFingerprints
+                                 .Where(pair => pair.Value.TrackReference.Equals(trackReference))
                                  .Select(pair => pair.Key)
                                  .ToList();
 
-                count += subFingerprintIds.Count;
-                foreach (var id in subFingerprintIds)
+                count += subFingerprintReferences.Count;
+                foreach (var subFingerprintReference in subFingerprintReferences)
                 {
-                    storage.SubFingerprints.Remove(id);
+                    storage.SubFingerprints.Remove(subFingerprintReference);
                 }
 
                 foreach (var hashTable in storage.HashTables)
                 {
                     foreach (var hashBins in hashTable)
                     {
-                        foreach (var id in subFingerprintIds)
+                        foreach (var subFingerprintReference in subFingerprintReferences)
                         {
-                            if (hashBins.Value.Remove(id))
+                            if (hashBins.Value.Remove(subFingerprintReference))
                             {
                                 count++;
                             }
@@ -100,9 +95,9 @@
                     }
                 }
 
-                if (storage.TracksHashes.ContainsKey(trackId))
+                if (storage.TracksHashes.ContainsKey(trackReference))
                 {
-                    storage.TracksHashes.Remove(trackId);
+                    storage.TracksHashes.Remove(trackReference);
                 }
             }
 
