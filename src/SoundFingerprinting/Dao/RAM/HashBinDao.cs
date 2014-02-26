@@ -43,35 +43,14 @@
             }
         }
 
-        public IList<HashBinData> ReadHashBinsByHashTable(int hashTableId)
-        {
-            if (storage.HashTables.Length < hashTableId)
-            {
-                return Enumerable.Empty<HashBinData>().ToList();
-            }
-
-            var hashTable = storage.HashTables[hashTableId - 1];
-            var hashBins = new List<HashBinData>();
-            foreach (var hashBinPair in hashTable)
-            {
-                foreach (var subFingerprintId in hashBinPair.Value)
-                {
-                    HashBinData hashBin = new HashBinData
-                        {
-                            HashTable = hashTableId,
-                            HashBin = hashBinPair.Key,
-                            SubFingerprintReference = subFingerprintId
-                        };
-                    hashBins.Add(hashBin);
-                }
-            }
-
-            return hashBins;
-        }
-
         public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
         {
-            return storage.TracksHashes[trackReference].Values.ToList();
+            if (storage.TracksHashes.ContainsKey(trackReference))
+            {
+                return storage.TracksHashes[trackReference].Values.ToList();
+            }
+
+            return Enumerable.Empty<HashData>().ToList();
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(

@@ -208,14 +208,9 @@
                 Assert.IsTrue(id.GetHashCode() != 0);
                 Assert.IsNull(SubFingerprintDao.ReadSubFingerprint(id));
             }
-
-            const int NumberOfHashTables = 25;
-            for (int i = 1; i <= NumberOfHashTables; i++)
-            {
-                Assert.IsTrue(HashBinDao.ReadHashBinsByHashTable(i).Count == 0);
-            }
-
-            Assert.AreEqual(1 + hashData.Count + (NumberOfHashTables * hashData.Count), modifiedRows);
+ 
+            Assert.IsTrue(HashBinDao.ReadHashDataByTrackReference(actualTrack.TrackReference).Count == 0);
+            Assert.AreEqual(1 + hashData.Count + (25 * hashData.Count), modifiedRows);
         }
 
         [TestMethod]

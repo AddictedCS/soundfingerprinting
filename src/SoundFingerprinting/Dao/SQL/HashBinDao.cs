@@ -47,18 +47,6 @@ namespace SoundFingerprinting.Dao.SQL
             PrepareSQLText(sqlToExecute.ToString()).AsNonQuery();
         }
 
-        public IList<HashBinData> ReadHashBinsByHashTable(int hashTableId)
-        {
-            string sqlToExecute = "SELECT * FROM HashTable_" + hashTableId;
-            return PrepareSQLText(sqlToExecute).AsListOfComplexModel<HashBinData>(
-                (item, reader) =>
-                    {
-                        long subFingerprintId = reader.GetInt64("SubFingerprintId");
-                        item.SubFingerprintReference = new ModelReference<long>(subFingerprintId);
-                        item.HashTable = hashTableId;
-                    });
-        }
-
         public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
         {
             return PrepareStoredProcedure(SpReadHashDataByTrackId)

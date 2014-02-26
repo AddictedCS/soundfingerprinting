@@ -37,16 +37,13 @@
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = TrackDao.InsertTrack(track);
-            var hashData = Enumerable.Range(0, 100).Select(i => new HashData(GenericSignature, GenericHashBuckets));
-            
+            const int NumberOfHashBins = 100;
+            var hashData = Enumerable.Range(0, NumberOfHashBins).Select(i => new HashData(GenericSignature, GenericHashBuckets));
+
             InsertHashDataForTrack(hashData, trackReference);
-            
-            for (int hashTable = 1; hashTable <= GenericHashBuckets.Length; hashTable++)
-            {
-                var hashBins = HashBinDao.ReadHashBinsByHashTable(hashTable);
-                Assert.AreEqual(100, hashBins.Count);
-                Assert.AreEqual(GenericHashBuckets[hashTable - 1], hashBins[0].HashBin);
-            }
+
+            var hashDatas = HashBinDao.ReadHashDataByTrackReference(track.TrackReference);
+            Assert.AreEqual(NumberOfHashBins, hashDatas.Count);
         }
 
         [TestMethod]
@@ -66,13 +63,14 @@
                 })
                 .Hash()
                 .Result;
-            
-            InsertHashDataForTrack(hashData, trackReference);
 
-            for (int hashTable = 1; hashTable <= 25; hashTable++)
+            InsertHashDataForTrack(hashData, trackReference);
+            
+            var hashes = HashBinDao.ReadHashDataByTrackReference(track.TrackReference);
+            Assert.AreEqual(hashData.Count, hashes.Count);
+            foreach (var data in hashes)
             {
-                var hashBins = HashBinDao.ReadHashBinsByHashTable(hashTable);
-                Assert.AreEqual(hashData.Count, hashBins.Count);
+                Assert.AreEqual(25, data.HashBins.Length);
             }
         }
 

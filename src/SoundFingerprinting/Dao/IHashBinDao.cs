@@ -8,8 +8,6 @@ namespace SoundFingerprinting.Dao
     {
         void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference);
 
-        IList<HashBinData> ReadHashBinsByHashTable(int hashTableId);
-
         IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
