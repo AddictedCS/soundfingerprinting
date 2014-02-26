@@ -7,22 +7,22 @@
 
     internal class RAMStorage : IRAMStorage
     {
-        private IDictionary<long, SubFingerprintData> subFingerprints;
+        private IDictionary<IModelReference, SubFingerprintData> subFingerprints;
 
-        private IDictionary<int, TrackData> tracks;
+        private IDictionary<IModelReference, TrackData> tracks;
 
-        private IDictionary<int, IDictionary<long, HashData>> tracksHashes;
+        private IDictionary<IModelReference, IDictionary<IModelReference, HashData>> tracksHashes;
 
-        private IDictionary<long, List<long>>[] hashTables;
+        private IDictionary<long, List<IModelReference>>[] hashTables;
 
-        private IDictionary<int, List<FingerprintData>> fingerprints;
+        private IDictionary<IModelReference, List<FingerprintData>> fingerprints;
 
         public RAMStorage(int numberOfHashTables)
         {
             Initialize(numberOfHashTables);
         }
 
-        public IDictionary<long, SubFingerprintData> SubFingerprints
+        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints
         {
             get
             {
@@ -30,7 +30,7 @@
             }
         }
 
-        public IDictionary<int, TrackData> Tracks
+        public IDictionary<IModelReference, TrackData> Tracks
         {
             get
             {
@@ -38,7 +38,7 @@
             }
         }
 
-        public IDictionary<int, IDictionary<long, HashData>> TracksHashes
+        public IDictionary<IModelReference, IDictionary<IModelReference, HashData>> TracksHashes
         {
             get
             {
@@ -46,7 +46,7 @@
             }
         }
 
-        public IDictionary<int, List<FingerprintData>> Fingerprints
+        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints
         {
             get
             {
@@ -54,7 +54,7 @@
             }
         }
 
-        public IDictionary<long, List<long>>[] HashTables
+        public IDictionary<long, List<IModelReference>>[] HashTables
         {
             get
             {
@@ -72,15 +72,15 @@
         private void Initialize(int numberOfHashTables)
         {
             NumberOfHashTables = numberOfHashTables;
-            subFingerprints = new Dictionary<long, SubFingerprintData>();
-            tracks = new Dictionary<int, TrackData>();
-            tracksHashes = new Dictionary<int, IDictionary<long, HashData>>();
-            hashTables = new Dictionary<long, List<long>>[NumberOfHashTables];
-            fingerprints = new ConcurrentDictionary<int, List<FingerprintData>>();
+            subFingerprints = new Dictionary<IModelReference, SubFingerprintData>();
+            tracks = new Dictionary<IModelReference, TrackData>();
+            tracksHashes = new Dictionary<IModelReference, IDictionary<IModelReference, HashData>>();
+            hashTables = new Dictionary<long, List<IModelReference>>[NumberOfHashTables];
+            fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
 
             for (int table = 0; table < numberOfHashTables; table++)
             {
-                hashTables[table] = new Dictionary<long, List<long>>();
+                hashTables[table] = new Dictionary<long, List<IModelReference>>();
             }
         }
     }

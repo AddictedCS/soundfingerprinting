@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Dao.RAM
 {
+    using SoundFingerprinting.Data;
+
     public class InMemoryModelService : ModelService
     {
         public InMemoryModelService()

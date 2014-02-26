@@ -6,15 +6,15 @@ namespace SoundFingerprinting.Dao.RAM
 
     internal interface IRAMStorage
     {
-        IDictionary<long, SubFingerprintData> SubFingerprints { get; }
+        IDictionary<IModelReference, SubFingerprintData> SubFingerprints { get; }       // key: sub fingerprint reference
 
-        IDictionary<int, TrackData> Tracks { get; }
+        IDictionary<IModelReference, TrackData> Tracks { get; }                         // key: track reference
 
-        IDictionary<int, IDictionary<long, HashData>> TracksHashes { get; }
+        IDictionary<IModelReference, IDictionary<IModelReference, HashData>> TracksHashes { get; } // key: track reference, value: key - sub-fingerprint-id
 
-        IDictionary<int, List<FingerprintData>> Fingerprints { get; }
+        IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; }       // key: track reference
 
-        IDictionary<long, List<long>>[] HashTables { get; }
+        IDictionary<long, List<IModelReference>>[] HashTables { get; }                  // value: list of sub-fingerprints
 
         int NumberOfHashTables { get; }
 
