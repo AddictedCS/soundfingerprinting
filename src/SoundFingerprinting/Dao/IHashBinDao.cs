@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Dao
 
     public interface IHashBinDao
     {
-        void Insert(long[] hashBins, IModelReference subFingerprintReference);
+        void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference);
 
         IList<HashBinData> ReadHashBinsByHashTable(int hashTableId);
 

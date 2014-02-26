@@ -22,7 +22,7 @@
             this.storage = storage;
         }
 
-        public void Insert(long[] hashBins, long subFingerprintId)
+        public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference)
         {
             int table = 0;
             lock (((ICollection)storage.HashTables).SyncRoot)
@@ -31,15 +31,15 @@
                 {
                     if (!hashTable.ContainsKey(hashBins[table]))
                     {
-                        hashTable[hashBins[table]] = new List<long>();
+                        hashTable[hashBins[table]] = new List<IModelReference>();
                     }
 
-                    hashTable[hashBins[table]].Add(subFingerprintId);
+                    hashTable[hashBins[table]].Add(subFingerprintReference);
                     table++;
                 }
 
-                int trackId = ((ModelReference<int>)storage.SubFingerprints[subFingerprintId].TrackReference).Id;
-                storage.TracksHashes[trackId][subFingerprintId].HashBins = hashBins;
+                var trackReference = storage.SubFingerprints[subFingerprintReference].TrackReference;
+                storage.TracksHashes[trackReference][subFingerprintReference].HashBins = hashBins;
             }
         }
 
@@ -51,7 +51,7 @@
             }
 
             var hashTable = storage.HashTables[hashTableId - 1];
-            List<HashBinData> hashBins = new List<HashBinData>();
+            var hashBins = new List<HashBinData>();
             foreach (var hashBinPair in hashTable)
             {
                 foreach (var subFingerprintId in hashBinPair.Value)
@@ -60,7 +60,7 @@
                         {
                             HashTable = hashTableId,
                             HashBin = hashBinPair.Key,
-                            SubFingerprintReference = new ModelReference<long>(subFingerprintId)
+                            SubFingerprintReference = subFingerprintId
                         };
                     hashBins.Add(hashBin);
                 }
@@ -69,9 +69,9 @@
             return hashBins;
         }
 
-        public IList<HashData> ReadHashDataByTrackId(int trackId)
+        public IList<HashData> ReadHashDataByTrackId(IModelReference trackReference)
         {
-            return storage.TracksHashes[trackId].Values.ToList();
+            return storage.TracksHashes[trackReference].Values.ToList();
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
@@ -79,7 +79,7 @@
         {
             int table = 0;
             var hashTables = storage.HashTables;
-            Dictionary<long, int> subFingeprintCount = new Dictionary<long, int>();
+            var subFingeprintCount = new Dictionary<IModelReference, int>();
             foreach (var hashBin in hashBuckets)
             {
                 if (hashTables[table].ContainsKey(hashBin))
@@ -104,13 +104,13 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] hashBuckets, int thresholdVotes, string trackGroupId)
         {
-            var trackIds = storage.Tracks.Where(pair => pair.Value.GroupId == trackGroupId)
+            var trackReferences = storage.Tracks.Where(pair => pair.Value.GroupId == trackGroupId)
                                          .Select(pair => pair.Value.TrackReference).ToList();
             
-            if (trackIds.Any())
+            if (trackReferences.Any())
             {
                 return ReadSubFingerprintDataByHashBucketsWithThreshold(hashBuckets, thresholdVotes)
-                    .Where(subFingerprint => trackIds.Contains(subFingerprint.TrackReference));
+                    .Where(subFingerprint => trackReferences.Contains(subFingerprint.TrackReference));
             }
 
             return Enumerable.Empty<SubFingerprintData>();
