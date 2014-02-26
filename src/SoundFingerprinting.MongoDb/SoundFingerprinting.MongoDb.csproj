@@ -50,8 +50,8 @@
   <ItemGroup>
     <Compile Include="AbstractDao.cs" />
     <Compile Include="Connection\MongoDbConnectionSection.cs" />
-    <Compile Include="Data\MongoModelReference.cs" />
-    <Compile Include="Entities\Fingerprint.cs" />
+    <Compile Include="DAO\MongoModelReference.cs" />
+    <Compile Include="Data\Fingerprint.cs" />
     <Compile Include="FingerprintDao.cs" />
     <Compile Include="Connection\IMongoDatabaseProviderFactory.cs" />
     <Compile Include="Connection\IMongoDbConnectionStringFactory.cs" />

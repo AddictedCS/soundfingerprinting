@@ -1,8 +1,8 @@
-namespace SoundFingerprinting.Dao.MongoDb
+namespace SoundFingerprinting.MongoDb
 {
     using MongoDB.Driver;
 
-    using SoundFingerprinting.Dao.MongoDb.Connection;
+    using SoundFingerprinting.MongoDb.Connection;
 
     public abstract class AbstractDao
     {

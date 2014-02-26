@@ -1,8 +1,8 @@
-﻿namespace SoundFingerprinting.Dao.MongoDb.Entities
+﻿namespace SoundFingerprinting.MongoDb.Data
 {
     using MongoDB.Bson;
 
-    public class Fingerprint
+    internal class Fingerprint
     {
         public ObjectId Id { get; set; }
 

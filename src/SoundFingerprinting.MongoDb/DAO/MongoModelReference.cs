@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Dao.MongoDb.Data
+﻿namespace SoundFingerprinting.MongoDb.Data
 {
     using MongoDB.Bson;
 

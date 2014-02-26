@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Dao.MongoDb
+﻿namespace SoundFingerprinting.MongoDb
 {
     using System.Collections.Generic;
 

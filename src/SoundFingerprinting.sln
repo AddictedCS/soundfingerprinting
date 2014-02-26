@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.FFT.Exo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio.NAudio", "SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj", "{73A3FEE8-13EE-4EEB-9DB2-E52A30C8467A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Dao.MongoDb", "SoundFingerprinting.Dao.MongoDb\SoundFingerprinting.Dao.MongoDb.csproj", "{C294F4CC-678D-4CC9-905A-041395931C58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.MongoDb", "SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj", "{C294F4CC-678D-4CC9-905A-041395931C58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

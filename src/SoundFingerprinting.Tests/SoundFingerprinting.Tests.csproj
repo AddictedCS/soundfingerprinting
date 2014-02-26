@@ -122,9 +122,9 @@
       <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
       <Name>SoundFingerprinting.Audio.NAudio</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.Dao.MongoDb\SoundFingerprinting.Dao.MongoDb.csproj">
+    <ProjectReference Include="..\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj">
       <Project>{c294f4cc-678d-4cc9-905a-041395931c58}</Project>
-      <Name>SoundFingerprinting.Dao.MongoDb</Name>
+      <Name>SoundFingerprinting.MongoDb</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>

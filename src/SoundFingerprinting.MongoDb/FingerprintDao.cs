@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Dao.MongoDb
+﻿namespace SoundFingerprinting.MongoDb
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -7,10 +7,9 @@
     using MongoDB.Driver;
     using MongoDB.Driver.Linq;
 
-    using SoundFingerprinting.Dao.MongoDb.Connection;
-    using SoundFingerprinting.Dao.MongoDb.Data;
-    using SoundFingerprinting.Dao.MongoDb.Entities;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.MongoDb.Connection;
+    using SoundFingerprinting.MongoDb.Data;
 
     public class FingerprintDao : AbstractDao
     {

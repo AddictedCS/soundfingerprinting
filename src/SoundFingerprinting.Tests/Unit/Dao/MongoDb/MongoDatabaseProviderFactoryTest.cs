@@ -4,7 +4,7 @@
 
     using Moq;
 
-    using SoundFingerprinting.Dao.MongoDb.Connection;
+    using SoundFingerprinting.MongoDb.Connection;
 
     [TestClass]
     public class MongoDatabaseProviderFactoryTest : AbstractTest

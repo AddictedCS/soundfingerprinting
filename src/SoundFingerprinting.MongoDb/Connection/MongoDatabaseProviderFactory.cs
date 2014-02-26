@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.Dao.MongoDb.Connection
+namespace SoundFingerprinting.MongoDb.Connection
 {
     using MongoDB.Driver;
 

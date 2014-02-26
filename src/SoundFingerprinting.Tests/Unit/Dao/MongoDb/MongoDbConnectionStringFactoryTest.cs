@@ -2,7 +2,7 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Dao.MongoDb.Connection;
+    using SoundFingerprinting.MongoDb.Connection;
 
     [TestClass]
     public class MongoDbConnectionStringFactoryTest : AbstractTest
