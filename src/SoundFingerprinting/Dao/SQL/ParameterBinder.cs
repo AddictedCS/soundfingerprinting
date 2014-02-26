@@ -38,6 +38,12 @@ namespace SoundFingerprinting.Dao.SQL
             return this;
         }
 
+        public IParameterBinder WithParameter(string name, object value, DbType databaseType)
+        {
+            CreateParameter(name, value, databaseType);
+            return this;
+        }
+
         public IParameterBinder WithParameter<T>(string name, T value)
         {
             CreateParameter(name, value, modelBinderFactory.GetParameterType<T>());

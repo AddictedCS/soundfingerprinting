@@ -15,6 +15,8 @@ namespace SoundFingerprinting.Dao.SQL
 
         IParameterBinder WithParameter(string name, DateTime value);
 
+        IParameterBinder WithParameter(string name, object value, DbType databaseType);
+
         IParameterBinder WithParametersFromModel<TModel>(TModel model, params ICondition<TModel>[] conditions)
             where TModel : new();
 
