@@ -53,6 +53,12 @@
             }
         }
 
+        protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
+        {
+            Assert.IsNotNull(modelReference);
+            Assert.IsFalse(modelReference.GetHashCode() == 0);
+        }
+
         private List<HashData> SortHashesByFirstValueOfHashBin(IEnumerable<HashData> hashDatasFromFile)
         {
             return hashDatasFromFile.OrderBy(hashData => hashData.HashBins[0]).ToList();
