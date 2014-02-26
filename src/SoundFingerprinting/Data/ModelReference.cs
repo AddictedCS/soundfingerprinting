@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    public class ModelReference<T> : IModelReference
+    public class ModelReference<T> : IModelReference<T>
     {
         public ModelReference(T id)
         {
@@ -9,11 +9,11 @@
 
         public T Id { get; private set; }
 
-        public int HashCode
+        object IModelReference.Id
         {
             get
             {
-                return Id.GetHashCode();
+                return Id;
             }
         }
 

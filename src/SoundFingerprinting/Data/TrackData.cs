@@ -57,12 +57,12 @@
                 return false;
             }
 
-            return ((TrackData)obj).TrackReference.HashCode == TrackReference.HashCode;
+            return ((TrackData)obj).TrackReference.Equals(TrackReference);
         }
 
         public override int GetHashCode()
         {
-            return TrackReference.HashCode;
+            return TrackReference.GetHashCode();
         }
     }
 }
