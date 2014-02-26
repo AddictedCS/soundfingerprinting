@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
 
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
 
     public class MongoDbModelService : IModelService

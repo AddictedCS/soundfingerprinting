@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.Dao
+namespace SoundFingerprinting.DAO
 {
     using System.Collections.Generic;
 

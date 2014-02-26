@@ -7,8 +7,9 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao.RAM;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Infrastructure;
 
     [DeploymentItem(@"floatsamples.bin")]

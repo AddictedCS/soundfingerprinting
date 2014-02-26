@@ -11,13 +11,13 @@
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.RAM;
-    using SoundFingerprinting.Dao.SQL;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
+    using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.MinHash;
+    using SoundFingerprinting.SQL;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 

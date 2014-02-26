@@ -10,10 +10,10 @@
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.SQL;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.SQL;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 

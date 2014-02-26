@@ -2,8 +2,8 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.SQL;
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.SQL;
 
     [TestClass]
     public class SqlModelServiceTest : ModelServiceTest

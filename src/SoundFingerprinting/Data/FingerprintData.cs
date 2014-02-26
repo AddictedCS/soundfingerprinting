@@ -2,7 +2,8 @@
 {
     using System;
 
-    using SoundFingerprinting.Dao.SQL;
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.SQL;
 
     [Serializable]
     public class FingerprintData

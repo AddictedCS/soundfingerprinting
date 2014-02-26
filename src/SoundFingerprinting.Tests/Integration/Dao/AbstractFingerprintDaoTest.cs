@@ -2,7 +2,7 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
 
     [TestClass]

@@ -2,7 +2,7 @@
 {
     using MongoDB.Bson;
 
-    using SoundFingerprinting.Data;
+    using SoundFingerprinting.DAO;
 
     public class MongoModelReference : ModelReference<ObjectId>
     {

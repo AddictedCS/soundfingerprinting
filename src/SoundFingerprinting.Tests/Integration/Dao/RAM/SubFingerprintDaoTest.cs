@@ -2,8 +2,8 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.RAM;
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.InMemory;
 
     [TestClass]
     public class SubFingerprintDaoTest : AbstractSubFingerprintDaoTest

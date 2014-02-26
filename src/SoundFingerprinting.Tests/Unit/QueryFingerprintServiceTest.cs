@@ -7,7 +7,7 @@
     using Moq;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
 
     [TestClass]
