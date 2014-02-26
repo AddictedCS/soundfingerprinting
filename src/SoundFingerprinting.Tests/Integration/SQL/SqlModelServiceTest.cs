@@ -1,8 +1,7 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Dao.SQL
+﻿namespace SoundFingerprinting.Tests.Integration.SQL
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.SQL;
 
     [TestClass]

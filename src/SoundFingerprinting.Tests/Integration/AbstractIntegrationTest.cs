@@ -9,8 +9,8 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.InMemory;
 
     [DeploymentItem(@"floatsamples.bin")]
     [DeploymentItem(@"Kryptonite.mp3")]

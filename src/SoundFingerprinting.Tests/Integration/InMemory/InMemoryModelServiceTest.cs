@@ -1,8 +1,7 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Dao.RAM
+﻿namespace SoundFingerprinting.Tests.Integration.InMemory
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.InMemory;
 
     [TestClass]

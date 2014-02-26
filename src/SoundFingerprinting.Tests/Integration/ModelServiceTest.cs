@@ -1,13 +1,11 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Dao
+﻿namespace SoundFingerprinting.Tests.Integration
 {
     using System.Collections.Generic;
     using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
     public abstract class ModelServiceTest : AbstractIntegrationTest
