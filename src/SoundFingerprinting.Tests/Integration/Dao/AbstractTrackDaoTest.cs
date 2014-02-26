@@ -97,18 +97,13 @@
             const int TrackCount = 100;
             var tracks = InsertTracks(TrackCount);
 
-            foreach (var track in tracks)
-            {
-                AssertModelReferenceIsInitialized(track.TrackReference);
-            }
-
             var actualTracks = TrackDao.ReadAll();
+
             Assert.AreEqual(tracks.Count, actualTracks.Count);
             for (int i = 0; i < actualTracks.Count; i++)
             {
-                AssertTracksAreEqual(
-                    tracks[i],
-                    actualTracks.First(track => track.TrackReference.Equals(tracks[i].TrackReference)));
+                AssertModelReferenceIsInitialized(actualTracks[i].TrackReference);
+                AssertTracksAreEqual(tracks[i], actualTracks.First(track => track.TrackReference.Equals(tracks[i].TrackReference)));
             }
         }
 
@@ -118,7 +113,7 @@
             TrackData track = GetTrack();
             TrackDao.InsertTrack(track);
 
-            IList<TrackData> tracks = TrackDao.ReadTrackByArtistAndTitleName(track.Artist, track.Title);
+            var tracks = TrackDao.ReadTrackByArtistAndTitleName(track.Artist, track.Title);
 
             Assert.IsNotNull(tracks);
             Assert.IsTrue(tracks.Count == 1);
@@ -195,8 +190,8 @@
             var subFingerprintReferences = new List<IModelReference>();
             foreach (var hash in hashData)
             {
-                var subFingerprintReference = SubFingerprintDao.Insert(hash.SubFingerprint, trackReference);
-                HashBinDao.Insert(hash.HashBins, subFingerprintReference);
+                var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, trackReference);
+                HashBinDao.InsertHashBins(hash.HashBins, subFingerprintReference);
                 subFingerprintReferences.Add(subFingerprintReference);
             }
 
@@ -211,7 +206,7 @@
             foreach (var id in subFingerprintReferences)
             {
                 Assert.IsTrue(id.GetHashCode() != 0);
-                Assert.IsNull(SubFingerprintDao.ReadById(id));
+                Assert.IsNull(SubFingerprintDao.Read(id));
             }
 
             const int NumberOfHashTables = 25;
