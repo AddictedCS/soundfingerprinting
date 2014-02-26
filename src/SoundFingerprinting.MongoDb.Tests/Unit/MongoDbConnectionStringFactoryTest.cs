@@ -1,8 +1,9 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Dao.MongoDb
+﻿namespace SoundFingerprinting.MongoDb.Tests.Unit
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.MongoDb.Connection;
+    using SoundFingerprinting.Tests;
 
     [TestClass]
     public class MongoDbConnectionStringFactoryTest : AbstractTest
