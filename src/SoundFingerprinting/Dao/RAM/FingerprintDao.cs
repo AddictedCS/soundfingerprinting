@@ -24,18 +24,16 @@
             this.storage = storage;
         }
 
-        public IModelReference InsertFingerprint(bool[] signature, IModelReference trackReference)
+        public IModelReference InsertFingerprint(FingerprintData fingerprint)
         {
-            if (!storage.Fingerprints.ContainsKey(trackReference))
+            if (!storage.Fingerprints.ContainsKey(fingerprint.TrackReference))
             {
-                storage.Fingerprints[trackReference] = new List<FingerprintData>();
+                storage.Fingerprints[fingerprint.TrackReference] = new List<FingerprintData>();
             }
 
-            var fingerprintReference = new ModelReference<int>(Interlocked.Increment(ref counter));
+            storage.Fingerprints[fingerprint.TrackReference].Add(fingerprint);
 
-            storage.Fingerprints[trackReference].Add(
-                new FingerprintData(signature, trackReference) { FingerprintReference = fingerprintReference });
-            return fingerprintReference;
+            return fingerprint.FingerprintReference = new ModelReference<int>(Interlocked.Increment(ref counter));
         }
 
         public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)

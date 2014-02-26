@@ -6,7 +6,7 @@
 
     public class MongoDbModelService : IModelService
     {
-        public IModelReference InsertFingerprint(FingerprintData fingerprintData)
+        public IModelReference InsertFingerprint(FingerprintData fingerprint)
         {
             throw new System.NotImplementedException();
         }

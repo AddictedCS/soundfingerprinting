@@ -25,16 +25,16 @@ namespace SoundFingerprinting.Dao.SQL
         {
         }
 
-        public IModelReference InsertFingerprint(bool[] signature, IModelReference trackReference)
+        public IModelReference InsertFingerprint(FingerprintData fingerprint)
         {
-            byte[] byteSignature = GetByteArrayFromBool(signature);
+            byte[] byteSignature = GetByteArrayFromBool(fingerprint.Signature);
             var fingerprintId = PrepareStoredProcedure(SpInsertFingerprint)
                                 .WithParameter("Signature", byteSignature)
-                                .WithParameter("TrackId", trackReference.Id, DbType.Int32)
+                                .WithParameter("TrackId", fingerprint.TrackReference.Id, DbType.Int32)
                                 .Execute()
                                 .AsScalar<int>();
 
-            return new ModelReference<int>(fingerprintId);
+            return fingerprint.FingerprintReference = new ModelReference<int>(fingerprintId);
         }
 
         public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)

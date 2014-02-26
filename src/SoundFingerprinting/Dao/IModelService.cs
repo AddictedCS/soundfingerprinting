@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Dao
 
     public interface IModelService
     {
-        IModelReference InsertFingerprint(FingerprintData fingerprintData);
+        IModelReference InsertFingerprint(FingerprintData fingerprint);
 
         IModelReference InsertTrack(TrackData track);
 

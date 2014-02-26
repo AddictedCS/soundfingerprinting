@@ -35,9 +35,9 @@
                              .ToList();
         }
 
-        public IModelReference InsertFingerprint(FingerprintData fingerprintData)
+        public IModelReference InsertFingerprint(FingerprintData fingerprint)
         {
-            return fingerprintData.FingerprintReference = fingerprintDao.InsertFingerprint(fingerprintData.Signature, fingerprintData.TrackReference);
+            return fingerprintDao.InsertFingerprint(fingerprint);
         }
 
         public IModelReference InsertTrack(TrackData track)
