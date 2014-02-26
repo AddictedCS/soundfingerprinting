@@ -59,7 +59,7 @@ namespace SoundFingerprinting.Dao.SQL
                     });
         }
 
-        public IList<HashData> ReadHashDataByTrackId(IModelReference trackReference)
+        public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
         {
             return PrepareStoredProcedure(SpReadHashDataByTrackId)
                 .WithParameter("TrackId", trackReference.Id, DbType.Int32)

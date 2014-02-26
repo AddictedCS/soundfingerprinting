@@ -22,7 +22,7 @@
         {
         }
 
-        public SubFingerprintData Read(IModelReference subFingerprintReference)
+        public SubFingerprintData ReadSubFingerprint(IModelReference subFingerprintReference)
         {
             return PrepareStoredProcedure(SpReadSubFingerprintById)
                         .WithParameter("Id", subFingerprintReference.Id, DbType.Int64)

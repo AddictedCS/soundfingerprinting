@@ -69,7 +69,7 @@
             return hashBins;
         }
 
-        public IList<HashData> ReadHashDataByTrackId(IModelReference trackReference)
+        public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
         {
             return storage.TracksHashes[trackReference].Values.ToList();
         }

@@ -56,7 +56,7 @@
 
         public IList<HashData> ReadHashDataByTrack(IModelReference trackReference)
         {
-            return hashBinDao.ReadHashDataByTrackId(trackReference);
+            return hashBinDao.ReadHashDataByTrackReference(trackReference);
         }
 
         public IList<TrackData> ReadAllTracks()

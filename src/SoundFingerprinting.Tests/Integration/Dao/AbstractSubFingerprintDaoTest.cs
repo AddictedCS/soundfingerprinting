@@ -30,7 +30,7 @@
             var trackReference = TrackDao.InsertTrack(track);
             var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, trackReference);
 
-            SubFingerprintData actual = SubFingerprintDao.Read(subFingerprintReference);
+            SubFingerprintData actual = SubFingerprintDao.ReadSubFingerprint(subFingerprintReference);
 
             AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericSignature, subFingerprintReference, trackReference), actual);
         }

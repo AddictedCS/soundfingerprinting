@@ -23,7 +23,7 @@
             this.storage = storage;
         }
 
-        public SubFingerprintData Read(IModelReference subFingerprintReference)
+        public SubFingerprintData ReadSubFingerprint(IModelReference subFingerprintReference)
         {
             if (storage.SubFingerprints.ContainsKey(subFingerprintReference))
             {

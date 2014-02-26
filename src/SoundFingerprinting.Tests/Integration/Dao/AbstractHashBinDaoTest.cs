@@ -151,10 +151,10 @@
 
             InsertHashDataForTrack(secondHashData, secondTrackReference);
 
-            var resultFirstHashData = HashBinDao.ReadHashDataByTrackId(firstTrackReference);
+            var resultFirstHashData = HashBinDao.ReadHashDataByTrackReference(firstTrackReference);
             AssertHashDatasAreTheSame(firstHashData, resultFirstHashData);
 
-            IList<HashData> resultSecondHashData = HashBinDao.ReadHashDataByTrackId(secondTrackReference);
+            IList<HashData> resultSecondHashData = HashBinDao.ReadHashDataByTrackReference(secondTrackReference);
             AssertHashDatasAreTheSame(secondHashData, resultSecondHashData);
         }
 

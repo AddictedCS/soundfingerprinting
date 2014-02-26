@@ -206,7 +206,7 @@
             foreach (var id in subFingerprintReferences)
             {
                 Assert.IsTrue(id.GetHashCode() != 0);
-                Assert.IsNull(SubFingerprintDao.Read(id));
+                Assert.IsNull(SubFingerprintDao.ReadSubFingerprint(id));
             }
 
             const int NumberOfHashTables = 25;
