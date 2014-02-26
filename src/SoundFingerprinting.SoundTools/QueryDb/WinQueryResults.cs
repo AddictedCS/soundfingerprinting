@@ -187,7 +187,7 @@
 
                         verified++;
                         TrackData recognizedTrack = queryResult.BestMatch.Track;
-                        bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.HashCode == actualTrack.TrackReference.HashCode;
+                        bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
                         if (isSuccessful)
                         {
                             recognized++;

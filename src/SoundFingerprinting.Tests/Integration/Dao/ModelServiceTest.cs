@@ -26,8 +26,7 @@
 
             var trackReference = modelService.InsertTrack(track);
 
-            Assert.IsNotNull(trackReference);
-            Assert.IsFalse(trackReference.HashCode == 0);
+            AssertModelReferenceIsInitialized(trackReference);
         }
 
         [TestMethod]
@@ -71,7 +70,7 @@
         public void ReadMultipleTracksTest()
         {
             const int NumberOfTracks = 100;
-            HashSet<TrackData> allTracks = new HashSet<TrackData>();
+            var allTracks = new HashSet<TrackData>();
             for (int i = 0; i < NumberOfTracks; i++)
             {
                 TrackData track = new TrackData("isrc" + i, "artist", "title", "album", 1986, 200);
@@ -115,7 +114,7 @@
             var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(GenericHashBuckets, Threshold);
 
             Assert.IsTrue(subFingerprints.Count == 1);
-            Assert.AreEqual(trackReference.HashCode, subFingerprints[0].TrackReference.HashCode);
+            Assert.AreEqual(trackReference, subFingerprints[0].TrackReference);
             Assert.IsFalse(subFingerprints[0].SubFingerprintReference.GetHashCode() == 0);
             for (int i = 0; i < GenericSignature.Length; i++)
             {
@@ -131,7 +130,7 @@
             var firstTrackReference = modelService.InsertTrack(firstTrack);
             TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200);
             var secondTrackReference = modelService.InsertTrack(secondTrack);
-            Assert.IsFalse(firstTrackReference.HashCode == secondTrackReference.HashCode);
+            Assert.IsFalse(firstTrackReference.Equals(secondTrackReference));
             long[] firstTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             long[] secondTrackBuckets = new long[] { 2, 2, 4, 5, 6, 7, 7, 9, 10, 11, 12, 13, 14, 14, 16, 17, 18, 19, 20, 20, 22, 23, 24, 25, 26 };
             var firstHashData = new HashData(GenericSignature, firstTrackBuckets);
@@ -146,7 +145,7 @@
             var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(queryBuckets, Threshold);
 
             Assert.IsTrue(subFingerprints.Count == 1);
-            Assert.AreEqual(firstTrackReference.HashCode, subFingerprints[0].TrackReference.HashCode);
+            Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
 
         [TestMethod]
@@ -159,7 +158,7 @@
             TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200)
                 { GroupId = "second-group-id" };
             var secondTrackReference = modelService.InsertTrack(secondTrack);
-            Assert.IsFalse(firstTrackReference.HashCode == secondTrackReference.HashCode);
+            Assert.IsFalse(firstTrackReference.Equals(secondTrackReference));
             long[] firstTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             long[] secondTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             var firstHashData = new HashData(GenericSignature, firstTrackBuckets);
@@ -174,20 +173,19 @@
             var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(queryBuckets, Threshold, "first-group-id");
 
             Assert.IsTrue(subFingerprints.Count == 1);
-            Assert.AreEqual(firstTrackReference.HashCode, subFingerprints[0].TrackReference.HashCode);
+            Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
 
         [TestMethod]
         public void InsertFingerprintTest()
         {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(track);
-            FingerprintData fingerprint = new FingerprintData(GenericFingerprint, trackReference);
+            var fingerprint = new FingerprintData(GenericFingerprint, trackReference);
 
-            var fingerprintReference = modelService.InsertFingerprint(fingerprint);
+            modelService.InsertFingerprint(fingerprint);
 
-            Assert.IsFalse(fingerprintReference.HashCode == 0);
-            Assert.IsFalse(fingerprint.FingerprintReference.HashCode == 0);
+            AssertModelReferenceIsInitialized(fingerprint.FingerprintReference);
         }
 
         [TestMethod]
@@ -196,13 +194,13 @@
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(track);
             FingerprintData fingerprint = new FingerprintData(GenericFingerprint, trackReference);
-            var fingerprintReference = modelService.InsertFingerprint(fingerprint);
+            modelService.InsertFingerprint(fingerprint);
 
             var fingerprints = modelService.ReadFingerprintsByTrackReference(trackReference);
 
             Assert.IsTrue(fingerprints.Count == 1);
-            Assert.AreEqual(fingerprintReference.HashCode, fingerprints[0].FingerprintReference.HashCode);
-            Assert.AreEqual(trackReference.HashCode, fingerprints[0].TrackReference.HashCode);
+            Assert.AreEqual(fingerprint.FingerprintReference, fingerprints[0].FingerprintReference);
+            Assert.AreEqual(trackReference, fingerprints[0].TrackReference);
             for (int i = 0; i < GenericFingerprint.Length; i++)
             {
                 Assert.AreEqual(GenericFingerprint[i], fingerprints[0].Signature[i]);

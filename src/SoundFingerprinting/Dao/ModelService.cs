@@ -25,40 +25,38 @@
 
         public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
-            return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold).ToList();
+            return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold)
+                             .ToList();
         }
 
         public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
         {
-            return
-                hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, threshold, trackGroupId).ToList();
+            return hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, threshold, trackGroupId)
+                             .ToList();
         }
 
         public IModelReference InsertFingerprint(FingerprintData fingerprintData)
         {
-            int fingerprintId = fingerprintDao.Insert(fingerprintData.Signature, ((ModelReference<int>)fingerprintData.TrackReference).Id);
-            return fingerprintData.FingerprintReference = new ModelReference<int>(fingerprintId);
+            return fingerprintData.FingerprintReference = fingerprintDao.InsertFingerprint(fingerprintData.Signature, fingerprintData.TrackReference);
         }
 
         public IModelReference InsertTrack(TrackData track)
         {
-            trackDao.Insert(track);
-            return track.TrackReference;
+            return trackDao.InsertTrack(track);
         }
 
         public void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference)
         {
-            int trackId = ((ModelReference<int>)trackReference).Id;
             foreach (var hashData in hashes)
             {
-                long subFingerprintId = subFingerprintDao.Insert(hashData.SubFingerprint, trackId);
-                hashBinDao.Insert(hashData.HashBins, subFingerprintId);
+                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hashData.SubFingerprint, trackReference);
+                hashBinDao.InsertHashBins(hashData.HashBins, subFingerprintReference);
             }
         }
 
         public IList<HashData> ReadHashDataByTrack(IModelReference trackReference)
         {
-            return hashBinDao.ReadHashDataByTrackId(((ModelReference<int>)trackReference).Id);
+            return hashBinDao.ReadHashDataByTrackId(trackReference);
         }
 
         public IList<TrackData> ReadAllTracks()
@@ -73,12 +71,12 @@
 
         public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
-            return fingerprintDao.ReadFingerprintsByTrackId(((ModelReference<int>)trackReference).Id);
+            return fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
         }
 
         public TrackData ReadTrackByReference(IModelReference trackReference)
         {
-            return trackDao.ReadById(((ModelReference<int>)trackReference).Id);
+            return trackDao.ReadTrack(trackReference);
         }
 
         public TrackData ReadTrackByISRC(string isrc)
@@ -88,7 +86,7 @@
 
         public int DeleteTrack(IModelReference trackReference)
         {
-            return trackDao.DeleteTrack(((ModelReference<int>)trackReference).Id);
+            return trackDao.DeleteTrack(trackReference);
         }
     }
 }

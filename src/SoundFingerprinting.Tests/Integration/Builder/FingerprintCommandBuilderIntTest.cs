@@ -102,7 +102,7 @@
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual(1, queryResult.ResultEntries.Count);
-            Assert.AreEqual(trackReference.HashCode, queryResult.ResultEntries[0].Track.TrackReference.HashCode);
+            Assert.AreEqual(trackReference, queryResult.ResultEntries[0].Track.TrackReference);
         }
 
         [TestMethod]
