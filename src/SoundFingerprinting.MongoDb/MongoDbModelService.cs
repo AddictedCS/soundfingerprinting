@@ -1,70 +1,17 @@
 ﻿namespace SoundFingerprinting.MongoDb
 {
-    using System.Collections.Generic;
-
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.Data;
 
-    public class MongoDbModelService : IModelService
+    public class MongoDbModelService : ModelService
     {
-        public IModelReference InsertFingerprint(FingerprintData fingerprint)
+        public MongoDbModelService()
+            : this(new TrackDao(), new HashBinDao(), new SubFingerprintDao(), new FingerprintDao())
         {
-            throw new System.NotImplementedException();
         }
 
-        public IModelReference InsertTrack(TrackData track)
+        protected MongoDbModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao)
+            : base(trackDao, hashBinDao, subFingerprintDao, fingerprintDao)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IList<HashData> ReadHashDataByTrack(IModelReference trackReference)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IList<TrackData> ReadAllTracks()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public TrackData ReadTrackByReference(IModelReference trackReference)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public TrackData ReadTrackByISRC(string isrc)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public int DeleteTrack(IModelReference trackReference)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

@@ -4,42 +4,36 @@
     using System.Linq;
 
     using MongoDB.Bson;
-    using MongoDB.Driver;
     using MongoDB.Driver.Linq;
 
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
     using SoundFingerprinting.MongoDb.Data;
 
-    public class FingerprintDao : AbstractDao
+    internal class FingerprintDao : AbstractDao, IFingerprintDao
     {
-        private const string FingerprintsCollection = "Fingerprints";
-
-        public FingerprintDao(IMongoDatabaseProviderFactory databaseProvider)
-            : base(databaseProvider)
+        public FingerprintDao()
+            : base(DependencyResolver.Current.Get<IMongoDatabaseProviderFactory>())
         {
+            // no op
         }
 
-        public ObjectId Insert(bool[] signature, ObjectId trackId)
+        public IModelReference InsertFingerprint(FingerprintData fingerprintData)
         {
-            var collection = GetFingerprintsCollection();
-            var fingerprint = new Fingerprint { Signature = signature, TrackId = trackId };
+            var collection = GetCollection(FingerprintsCollection);
+            var fingerprint = new Fingerprint { Signature = fingerprintData.Signature, TrackId = (ObjectId)fingerprintData.TrackReference.Id };
             collection.Insert(fingerprint);
-            return fingerprint.Id;
+            return new MongoModelReference(fingerprint.Id);
         }
 
-        public IList<FingerprintData> ReadFingerprintsByTrackId(ObjectId trackId)
+        public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
-            return GetFingerprintsCollection().AsQueryable()
-                                              .Where(f => f.TrackId.Equals(trackId))
+            return GetCollection(FingerprintsCollection).AsQueryable()
+                                              .Where(f => f.TrackId.Equals(trackReference.Id))
                                               .Select(fingerprint => new FingerprintData(fingerprint.Signature, new MongoModelReference(fingerprint.TrackId)))
                                               .ToList();
-        }
-
-        private MongoCollection<Fingerprint> GetFingerprintsCollection()
-        {
-            var collection = Database.GetCollection<Fingerprint>(FingerprintsCollection);
-            return collection;
         }
     }
 }

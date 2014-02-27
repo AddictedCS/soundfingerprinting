@@ -65,6 +65,8 @@
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />
+    <Compile Include="Infrastructure\IModuleLoader.cs" />
+    <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
     <Compile Include="SQL\IgnoreBindingAttribute.cs" />
@@ -79,7 +81,6 @@
     <Compile Include="DAO\ITrackDao.cs" />
     <Compile Include="SQL\SqlModelService.cs" />
     <Compile Include="Data\FingerprintData.cs" />
-    <Compile Include="Data\HashBinData.cs" />
     <Compile Include="Data\HashData.cs" />
     <Compile Include="DAO\IModelReference.cs" />
     <Compile Include="DAO\ModelReference.cs" />

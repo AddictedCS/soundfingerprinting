@@ -20,7 +20,7 @@
         public void ReadMongoDbConnectionStringValue()
         {
             var connectionString = connectionStringFactory.GetConnectionString();
-            Assert.AreEqual("mongo://localhost", connectionString);
+            Assert.AreEqual("mongodb://localhost", connectionString);
         }
 
         [TestMethod]
@@ -28,7 +28,7 @@
         {
             var databaseName = connectionStringFactory.GetDatabaseName();
 
-            Assert.AreEqual("FingerprintsDb", databaseName);
+            Assert.AreEqual("FingerprintsDbTest", databaseName);
         }
     }
 }

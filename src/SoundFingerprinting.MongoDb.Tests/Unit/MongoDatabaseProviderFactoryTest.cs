@@ -32,13 +32,13 @@
         public void MongoDatabaseIsRetrievedCorrectly()
         {
             connectionStringFactory.Setup(f => f.GetConnectionString()).Returns("mongodb://localhost");
-            connectionStringFactory.Setup(f => f.GetDatabaseName()).Returns("FingerprintsDb");
+            connectionStringFactory.Setup(f => f.GetDatabaseName()).Returns("FingerprintsDbTest");
 
             var database = mongoDatabaseProviderFactory.GetDatabase();
 
             Assert.IsNotNull(database);
             Assert.AreEqual("localhost:27017", database.Server.Instance.Address.ToString());
-            Assert.AreEqual("FingerprintsDb", database.Name);
+            Assert.AreEqual("FingerprintsDbTest", database.Name);
         }
     }
 }
