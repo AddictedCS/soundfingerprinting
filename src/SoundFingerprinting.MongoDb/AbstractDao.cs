@@ -3,14 +3,9 @@ namespace SoundFingerprinting.MongoDb
     using MongoDB.Driver;
 
     using SoundFingerprinting.MongoDb.Connection;
-    using SoundFingerprinting.MongoDb.Data;
 
     internal abstract class AbstractDao
     {
-        public const string FingerprintsCollection = "Fingerprints";
-
-        public const string TracksCollection = "Tracks";
-
         private readonly IMongoDatabaseProviderFactory databaseProvider;
 
         protected AbstractDao(IMongoDatabaseProviderFactory databaseProvider)
@@ -26,9 +21,9 @@ namespace SoundFingerprinting.MongoDb
             }
         }
 
-        protected MongoCollection<Fingerprint> GetCollection(string collectionName)
+        protected MongoCollection<T> GetCollection<T>(string collectionName)
         {
-            return Database.GetCollection<Fingerprint>(collectionName);
+            return Database.GetCollection<T>(collectionName);
         }
     }
 }

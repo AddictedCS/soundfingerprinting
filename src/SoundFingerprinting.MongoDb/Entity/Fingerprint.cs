@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.MongoDb.Data
+﻿namespace SoundFingerprinting.MongoDb.Entity
 {
     using MongoDB.Bson;
 

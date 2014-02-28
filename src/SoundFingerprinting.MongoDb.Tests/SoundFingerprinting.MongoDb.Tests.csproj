@@ -61,11 +61,19 @@
     <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractFingerprintDaoTest.cs">
       <Link>Integration\AbstractFingerprintDaoTest.cs</Link>
     </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractHashBinDaoTest.cs">
+      <Link>Integration\AbstractHashBinDaoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractSubFingerprintDaoTest.cs">
+      <Link>Integration\AbstractSubFingerprintDaoTest.cs</Link>
+    </Compile>
     <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractTrackDaoTest.cs">
       <Link>Integration\AbstractTrackDaoTest.cs</Link>
     </Compile>
-    <Compile Include="Integration\DaoHelper.cs" />
+    <Compile Include="Integration\DaoTestHelper.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\HashBinDaoTest.cs" />
+    <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TrackDaoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit\Entity\TrackTest.cs" />

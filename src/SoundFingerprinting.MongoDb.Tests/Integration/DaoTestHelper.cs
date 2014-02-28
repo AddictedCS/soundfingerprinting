@@ -6,17 +6,17 @@
     using SoundFingerprinting.MongoDb.Connection;
     using SoundFingerprinting.MongoDb.Data;
 
-    internal class DaoHelper : AbstractDao
+    internal class DaoTestHelper : AbstractDao
     {
-        public DaoHelper()
+        public DaoTestHelper()
             : base(DependencyResolver.Current.Get<IMongoDatabaseProviderFactory>())
         {
             // no op
         }
 
-        public new MongoCollection<Fingerprint> GetCollection(string collectionName)
+        public new MongoCollection<T> GetCollection<T>(string collectionName)
         {
-            return base.GetCollection(collectionName);
+            return base.GetCollection<T>(collectionName);
         } 
     }
 }

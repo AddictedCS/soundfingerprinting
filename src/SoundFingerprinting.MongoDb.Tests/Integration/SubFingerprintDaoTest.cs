@@ -7,29 +7,26 @@
     using SoundFingerprinting.Tests.Integration.Dao;
 
     [TestClass]
-    public class TrackDaoTest : AbstractTrackDaoTest
+    public class SubFingerprintDaoTest : AbstractSubFingerprintDaoTest
     {
         private readonly DaoTestHelper daoTestHelper = new DaoTestHelper();
 
-        public TrackDaoTest()
+        public SubFingerprintDaoTest()
         {
-            TrackDao = new TrackDao();
             SubFingerprintDao = new SubFingerprintDao();
-            HashBinDao = new HashBinDao();
+            TrackDao = new TrackDao();
         }
-
-        public override sealed ITrackDao TrackDao { get; set; }
 
         public override sealed ISubFingerprintDao SubFingerprintDao { get; set; }
 
-        public override sealed IHashBinDao HashBinDao { get; set; }
+        public override sealed ITrackDao TrackDao { get; set; }
 
         [TestInitialize]
         public override void SetUp()
         {
             base.SetUp();
-            daoTestHelper.GetCollection<SubFingerprint>(MongoDb.SubFingerprintDao.SubFingerprints).RemoveAll();
-            daoTestHelper.GetCollection<Track>(MongoDb.TrackDao.Tracks).RemoveAll();
+            daoTestHelper.GetCollection<SubFingerprint>(MongoDb.SubFingerprintDao.SubFingerprints);
+            daoTestHelper.GetCollection<Track>(MongoDb.TrackDao.Tracks);
         }
     }
 }

@@ -6,6 +6,7 @@
 
     using SoundFingerprinting.Data;
     using SoundFingerprinting.MongoDb.Data;
+    using SoundFingerprinting.MongoDb.Entity;
     using SoundFingerprinting.Tests;
 
     [TestClass]

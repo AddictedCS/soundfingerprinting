@@ -12,7 +12,6 @@
         public HashBinDao()
             : base(DependencyResolver.Current.Get<IMongoDatabaseProviderFactory>())
         {
-            // no op
         }
 
         public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference)

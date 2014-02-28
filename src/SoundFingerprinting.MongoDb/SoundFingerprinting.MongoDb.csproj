@@ -55,8 +55,9 @@
     <Compile Include="AbstractDao.cs" />
     <Compile Include="Connection\MongoDbConnectionSection.cs" />
     <Compile Include="DAO\MongoModelReference.cs" />
-    <Compile Include="Data\Fingerprint.cs" />
-    <Compile Include="Data\Track.cs" />
+    <Compile Include="Entity\Fingerprint.cs" />
+    <Compile Include="Entity\SubFingerprint.cs" />
+    <Compile Include="Entity\Track.cs" />
     <Compile Include="FingerprintDao.cs" />
     <Compile Include="Connection\IMongoDatabaseProviderFactory.cs" />
     <Compile Include="Connection\IMongoDbConnectionStringFactory.cs" />
