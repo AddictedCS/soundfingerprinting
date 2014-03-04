@@ -4,7 +4,6 @@
 
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
-    using SoundFingerprinting.MongoDb.Data;
 
     internal class DaoTestHelper : AbstractDao
     {

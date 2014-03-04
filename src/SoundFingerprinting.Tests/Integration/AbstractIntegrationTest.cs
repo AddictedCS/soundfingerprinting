@@ -12,8 +12,8 @@
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.InMemory;
 
-    [DeploymentItem(@"floatsamples.bin")]
-    [DeploymentItem(@"Kryptonite.mp3")]
+    [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
+    [DeploymentItem(@"TestEnvironment\Kryptonite.mp3")]
     [TestClass]
     public abstract class AbstractIntegrationTest : AbstractTest
     {

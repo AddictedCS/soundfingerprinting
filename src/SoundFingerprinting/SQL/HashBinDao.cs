@@ -33,7 +33,7 @@ namespace SoundFingerprinting.SQL
              // no op
         }
 
-        public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference)
+        public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference, IModelReference trackReference)
         {
             StringBuilder sqlToExecute = new StringBuilder();
             for (int hashTable = 0; hashTable < hashBins.Length; hashTable++)
@@ -66,9 +66,9 @@ namespace SoundFingerprinting.SQL
                     });
         }
 
-        public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBuckets, int thresholdVotes)
+        public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBins, int thresholdVotes)
         {
-            return PrepareReadSubFingerprintsByHashBuckets(SpReadFingerprintsByHashBinHashTableAndThreshold, hashBuckets, thresholdVotes)
+            return PrepareReadSubFingerprintsByHashBuckets(SpReadFingerprintsByHashBinHashTableAndThreshold, hashBins, thresholdVotes)
                     .Execute()
                     .AsList(GetSubFingerprintData);
         }

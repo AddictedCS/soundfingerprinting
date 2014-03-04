@@ -23,7 +23,7 @@
             this.storage = storage;
         }
 
-        public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference)
+        public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference, IModelReference trackReference)
         {
             int table = 0;
             lock (((ICollection)storage.HashTables).SyncRoot)
@@ -39,7 +39,6 @@
                     table++;
                 }
 
-                var trackReference = storage.SubFingerprints[subFingerprintReference].TrackReference;
                 storage.TracksHashes[trackReference][subFingerprintReference].HashBins = hashBins;
             }
         }
@@ -55,12 +54,12 @@
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
-            long[] hashBuckets, int thresholdVotes)
+            long[] hashBins, int thresholdVotes)
         {
             int table = 0;
             var hashTables = storage.HashTables;
             var subFingeprintCount = new Dictionary<IModelReference, int>();
-            foreach (var hashBin in hashBuckets)
+            foreach (var hashBin in hashBins)
             {
                 if (hashTables[table].ContainsKey(hashBin))
                 {
