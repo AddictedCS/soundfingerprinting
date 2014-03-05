@@ -80,7 +80,6 @@
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TrackDaoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Unit\Entity\TrackTest.cs" />
     <Compile Include="Unit\MongoDatabaseProviderFactoryTest.cs" />
     <Compile Include="Unit\MongoDbConnectionStringFactoryTest.cs" />
   </ItemGroup>

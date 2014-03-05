@@ -21,26 +21,5 @@
         public int TrackLengthSec { get; set; }
 
         public string GroupId { get; set; }
-
-        public static Track FromTrackData(TrackData trackData)
-        {
-            Track track = new Track
-                {
-                    Artist = trackData.Artist,
-                    Title = trackData.Title,
-                    ISRC = trackData.ISRC,
-                    Album = trackData.Album,
-                    ReleaseYear = trackData.ReleaseYear,
-                    TrackLengthSec = trackData.TrackLengthSec,
-                    GroupId = trackData.GroupId
-                };
-
-            if (trackData.TrackReference != null)
-            {
-                track.Id = (ObjectId)trackData.TrackReference.Id;
-            }
-
-            return track;
-        }
     }
 }

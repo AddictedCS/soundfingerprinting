@@ -11,7 +11,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
-    using SoundFingerprinting.MongoDb.Data;
+    using SoundFingerprinting.MongoDb.DAO;
     using SoundFingerprinting.MongoDb.Entity;
 
     internal class HashBinDao : AbstractDao, IHashBinDao
@@ -25,8 +25,6 @@
 
         public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference, IModelReference trackReference)
         {
-            var collection = GetCollection<Hash>(HashBins);
-
             var hashes = new List<Hash>();
             for (int hashtable = 1; hashtable <= hashBins.Length; hashtable++)
             {
@@ -40,7 +38,7 @@
                 hashes.Add(hash);
             }
 
-            collection.InsertBatch(hashes);
+            GetCollection<Hash>(HashBins).InsertBatch(hashes);
         }
 
         public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
@@ -49,7 +47,7 @@
                                 .AsQueryable()
                                 .Where(h => h.TrackId.Equals(trackReference.Id))
                                 .ToList();
-            var subFingerprintIds = hashes.GroupBy(h => h.SubFingerprintId).Select(g => g.Key);
+            var subFingerprintIds = hashes.GroupBy(hash => hash.SubFingerprintId).Select(g => g.Key);
 
             var hashDatas = new List<HashData>();
             foreach (var subfingerprintId in subFingerprintIds)
@@ -70,8 +68,6 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBins, int thresholdVotes)
         {
-            var collection = GetCollection<Hash>(HashBins);
-
             var queries = new List<IMongoQuery>();
             for (int hashtable = 1; hashtable <= hashBins.Length; hashtable++)
             {
@@ -120,7 +116,7 @@
                     }
                 };
 
-            var result = collection.Aggregate(new[] { match, group, thresholdMatch, project });
+            var result = GetCollection<Hash>(HashBins).Aggregate(new[] { match, group, thresholdMatch, project });
 
             if (!result.ResultDocuments.Any())
             {
@@ -148,14 +144,12 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] hashBuckets, int thresholdVotes, string trackGroupId)
         {
-            var subFingerprints = ReadSubFingerprintDataByHashBucketsWithThreshold(hashBuckets, thresholdVotes);
-
             var tracksWithGroupId = GetCollection<Track>(TrackDao.Tracks).AsQueryable()
                                                                      .Where(track => track.GroupId.Equals(trackGroupId))
                                                                      .Select(track => track.Id)
                                                                      .ToList();
             
-            return subFingerprints.Where(s => tracksWithGroupId.Contains((ObjectId)s.TrackReference.Id));
+            return ReadSubFingerprintDataByHashBucketsWithThreshold(hashBuckets, thresholdVotes).Where(s => tracksWithGroupId.Contains((ObjectId)s.TrackReference.Id));
         }
     }
 }

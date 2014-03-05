@@ -9,7 +9,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
-    using SoundFingerprinting.MongoDb.Data;
+    using SoundFingerprinting.MongoDb.DAO;
     using SoundFingerprinting.MongoDb.Entity;
 
     internal class SubFingerprintDao : AbstractDao, ISubFingerprintDao
@@ -23,8 +23,7 @@
 
         public SubFingerprintData ReadSubFingerprint(IModelReference subFingerprintReference)
         {
-            var collection = GetCollection<SubFingerprint>(SubFingerprints);
-            return collection.AsQueryable()
+            return GetCollection<SubFingerprint>(SubFingerprints).AsQueryable()
                              .Where(s => s.Id.Equals(subFingerprintReference.Id))
                              .Select(s => new SubFingerprintData(s.Signature, new MongoModelReference(s.Id), new MongoModelReference(s.TrackId)))
                              .FirstOrDefault();
@@ -32,12 +31,11 @@
 
         public IModelReference InsertSubFingerprint(byte[] signature, IModelReference trackReference)
         {
-            var collection = GetCollection<SubFingerprint>(SubFingerprints);
             var subFingerprint = new SubFingerprint
                 { 
                     Signature = signature, TrackId = (ObjectId)trackReference.Id 
                 };
-            collection.Insert(subFingerprint);
+            GetCollection<SubFingerprint>(SubFingerprints).Insert(subFingerprint);
             return new MongoModelReference(subFingerprint.Id);
         }
     }

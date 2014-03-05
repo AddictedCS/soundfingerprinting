@@ -10,7 +10,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
-    using SoundFingerprinting.MongoDb.Data;
+    using SoundFingerprinting.MongoDb.DAO;
     using SoundFingerprinting.MongoDb.Entity;
 
     internal class FingerprintDao : AbstractDao, IFingerprintDao
@@ -25,9 +25,8 @@
 
         public IModelReference InsertFingerprint(FingerprintData fingerprintData)
         {
-            var collection = GetCollection<Fingerprint>(Fingerprints);
             var fingerprint = new Fingerprint { Signature = fingerprintData.Signature, TrackId = (ObjectId)fingerprintData.TrackReference.Id };
-            collection.Insert(fingerprint);
+            GetCollection<Fingerprint>(Fingerprints).Insert(fingerprint);
             return fingerprintData.FingerprintReference = new MongoModelReference(fingerprint.Id);
         }
 

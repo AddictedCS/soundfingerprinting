@@ -9,7 +9,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
-    using SoundFingerprinting.MongoDb.Data;
+    using SoundFingerprinting.MongoDb.DAO;
     using SoundFingerprinting.MongoDb.Entity;
 
     internal class TrackDao : AbstractDao, ITrackDao
@@ -24,9 +24,19 @@
 
         public IModelReference InsertTrack(TrackData trackData)
         {
-            var collection = GetCollection<Track>(Tracks);
-            var track = Track.FromTrackData(trackData);
-            collection.Insert(track);
+            var tracks = GetCollection<Track>(Tracks);
+            var track = new Track
+                {
+                    Album = trackData.Album,
+                    Artist = trackData.Artist,
+                    GroupId = trackData.GroupId,
+                    ISRC = trackData.ISRC,
+                    ReleaseYear = trackData.ReleaseYear,
+                    Title = trackData.Title,
+                    TrackLengthSec = trackData.TrackLengthSec
+                };
+
+            tracks.Insert(track);
             return trackData.TrackReference = new MongoModelReference(track.Id);
         }
 
