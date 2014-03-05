@@ -47,6 +47,7 @@
                                 .AsQueryable()
                                 .Where(h => h.TrackId.Equals(trackReference.Id))
                                 .ToList();
+
             var subFingerprintIds = hashes.GroupBy(hash => hash.SubFingerprintId).Select(g => g.Key);
 
             var hashDatas = new List<HashData>();
@@ -78,9 +79,7 @@
             }
 
             var query = BsonValue.Create(MongoDB.Driver.Builders.Query.Or(queries));
-
             var match = new BsonDocument { { "$match", query } };
-
             var group = new BsonDocument
                 {
                     {

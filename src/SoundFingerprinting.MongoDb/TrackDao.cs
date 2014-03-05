@@ -42,8 +42,8 @@
 
         public TrackData ReadTrack(IModelReference trackReference)
         {
-            return GetCollection<Track>(Tracks).AsQueryable().Where(t => t.Id.Equals(trackReference.Id))
-                                    .Select(t => GetTrackData(t))
+            return GetCollection<Track>(Tracks).AsQueryable().Where(track => track.Id.Equals(trackReference.Id))
+                                    .Select(track => GetTrackData(track))
                                     .FirstOrDefault();
         }
 
