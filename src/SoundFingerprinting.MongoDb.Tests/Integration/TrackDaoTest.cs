@@ -30,6 +30,7 @@
             base.SetUp();
             daoTestHelper.GetCollection<SubFingerprint>(MongoDb.SubFingerprintDao.SubFingerprints).RemoveAll();
             daoTestHelper.GetCollection<Track>(MongoDb.TrackDao.Tracks).RemoveAll();
+            daoTestHelper.GetCollection<Hash>(MongoDb.HashBinDao.HashBins).RemoveAll();
         }
     }
 }

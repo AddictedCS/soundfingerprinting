@@ -6,7 +6,9 @@
     {
         public ObjectId Id { get; set; }
 
-        public long[] HashBins { get; set; }
+        public int HashTable { get; set; }
+
+        public long HashBin { get; set; }
 
         public ObjectId SubFingerprintId { get; set; }
 

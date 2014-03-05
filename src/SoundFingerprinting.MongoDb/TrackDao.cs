@@ -40,10 +40,28 @@
 
         public int DeleteTrack(IModelReference trackReference)
         {
-            var collection = GetCollection<Track>(Tracks);
+            var tracks = GetCollection<Track>(Tracks);
             var query = MongoDB.Driver.Builders.Query<Track>.EQ(e => e.Id, trackReference.Id);
-            collection.Remove(query);
-            return 1;
+            var deleteTracksResult = tracks.Remove(query);
+
+            var subFingerprints = GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints);
+            var deleteSubFingerprintsQuery = MongoDB.Driver.Builders.Query<SubFingerprint>.EQ(
+                e => e.TrackId, trackReference.Id);
+            var deleteSubFingerprintsResult = subFingerprints.Remove(deleteSubFingerprintsQuery);
+
+            var hashBins = GetCollection<Hash>(HashBinDao.HashBins);
+            var deleteHashBinsQuery = MongoDB.Driver.Builders.Query<Hash>.EQ(e => e.TrackId, trackReference.Id);
+            var deleteHashResult = hashBins.Remove(deleteHashBinsQuery);
+
+            var fingerprints = GetCollection<Fingerprint>(FingerprintDao.Fingerprints);
+            var deleteFingerprintsQuery = MongoDB.Driver.Builders.Query<Fingerprint>.EQ(
+                e => e.TrackId, trackReference.Id);
+            var deleteFingerprintsResult = fingerprints.Remove(deleteFingerprintsQuery);
+
+            return
+                (int)
+                (deleteTracksResult.DocumentsAffected + deleteSubFingerprintsResult.DocumentsAffected
+                 + deleteHashResult.DocumentsAffected + deleteFingerprintsResult.DocumentsAffected);
         }
 
         public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)

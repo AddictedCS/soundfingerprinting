@@ -4,6 +4,7 @@
     using System.Linq;
 
     using MongoDB.Bson;
+    using MongoDB.Driver;
     using MongoDB.Driver.Linq;
 
     using SoundFingerprinting.DAO;
@@ -15,7 +16,7 @@
 
     internal class HashBinDao : AbstractDao, IHashBinDao
     {
-        private const string HashBins = "HashBins";
+        public const string HashBins = "HashBins";
 
         public HashBinDao()
             : base(DependencyResolver.Current.Get<IMongoDatabaseProviderFactory>())
@@ -25,27 +26,42 @@
         public void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference, IModelReference trackReference)
         {
             var collection = GetCollection<Hash>(HashBins);
-            collection.Insert(
-                new Hash
+
+            var hashes = new List<Hash>();
+            for (int hashtable = 1; hashtable <= hashBins.Length; hashtable++)
+            {
+                var hash = new Hash
                     {
-                        HashBins = hashBins,
+                        HashTable = hashtable,
+                        HashBin = hashBins[hashtable - 1],
                         SubFingerprintId = (ObjectId)subFingerprintReference.Id,
                         TrackId = (ObjectId)trackReference.Id
-                    });
+                    };
+                hashes.Add(hash);
+            }
+
+            collection.InsertBatch(hashes);
         }
 
         public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
         {
             var hashes = GetCollection<Hash>(HashBins)
                                 .AsQueryable()
-                                .Where(h => h.TrackId.Equals(trackReference.Id));
+                                .Where(h => h.TrackId.Equals(trackReference.Id))
+                                .ToList();
+            var subFingerprintIds = hashes.GroupBy(h => h.SubFingerprintId).Select(g => g.Key);
+
             var hashDatas = new List<HashData>();
-            foreach(var hash in hashes)
+            foreach (var subfingerprintId in subFingerprintIds)
             {
+                var hashBins = hashes.Where(h => h.SubFingerprintId.Equals(subfingerprintId))
+                                     .OrderBy(h => h.HashTable)
+                                     .Select(h => h.HashBin)
+                                     .ToArray();
                 var subFingerprint = GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints)
                                                         .AsQueryable()
-                                                        .First(s => s.Id.Equals(hash.SubFingerprintId));
-                var hashData = new HashData(subFingerprint.Signature, hash.HashBins);
+                                                        .First(s => s.Id.Equals(subfingerprintId));
+                var hashData = new HashData(subFingerprint.Signature, hashBins);
                 hashDatas.Add(hashData);
             }
 
@@ -54,43 +70,80 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBins, int thresholdVotes)
         {
-            var filteredSubFingerprints =
-                GetCollection<Hash>(HashBins).AsQueryable().Where(hash => FilterHashes(hashBins, thresholdVotes, hash)).
-                    Select(h => h.SubFingerprintId);
+            var collection = GetCollection<Hash>(HashBins);
 
-            var subs = new List<SubFingerprintData>();
-            foreach (var id in filteredSubFingerprints)
+            var queries = new List<IMongoQuery>();
+            for (int hashtable = 1; hashtable <= hashBins.Length; hashtable++)
             {
-                var subFingerprint =
-                    GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints).AsQueryable().First(
-                        s => s.Id.Equals(id));
-                var sub = new SubFingerprintData(
-                    subFingerprint.Signature,
-                    new MongoModelReference(subFingerprint.Id),
-                    new MongoModelReference(subFingerprint.TrackId));
-                subs.Add(sub);
+                var and = MongoDB.Driver.Builders.Query.And(
+                    MongoDB.Driver.Builders.Query.EQ("HashTable", hashtable),
+                    MongoDB.Driver.Builders.Query.EQ("HashBin", hashBins[hashtable - 1]));
+                queries.Add(and);
             }
 
-            return subs;
-        }
+            var query = BsonValue.Create(MongoDB.Driver.Builders.Query.Or(queries));
 
-        private static bool FilterHashes(long[] hashBins, int thresholdVotes, Hash hash)
-        {
-            int tableCount = 0;
-            for (int i = 0; i < hashBins.Length; i++)
-            {
-                if (hash.HashBins[i] == hashBins[i])
+            var match = new BsonDocument { { "$match", query } };
+
+            var group = new BsonDocument
                 {
-                    tableCount++;
-
-                    if (tableCount >= thresholdVotes)
                     {
-                        break;
+                        "$group",
+                        new BsonDocument
+                            {
+                                {
+                                    "_id",
+                                    new BsonDocument
+                                        {
+                                            { "SubFingerprintId", "$SubFingerprintId" }
+                                        }
+                                },
+                                { "Votes", new BsonDocument { { "$sum", 1 } } }
+                            }
                     }
-                }
+                };
+
+            var thresholdMatch = new BsonDocument
+                {
+                    { "$match", new BsonDocument { { "Votes", new BsonDocument { { "$gte", thresholdVotes } } } } } 
+                };
+
+            var project = new BsonDocument
+                {
+                    {
+                        "$project",
+                        new BsonDocument
+                            {
+                                { "_id", 0 },
+                                { "SubFingerprintId", "$_id.SubFingerprintId" }
+                            }
+                    }
+                };
+
+            var result = collection.Aggregate(new[] { match, group, thresholdMatch, project });
+
+            if (!result.ResultDocuments.Any())
+            {
+                return Enumerable.Empty<SubFingerprintData>().ToList();
             }
 
-            return tableCount >= thresholdVotes;
+            var subFingerprintDatas = new List<SubFingerprintData>();
+            foreach (var resultDocument in result.ResultDocuments)
+            {
+                var objectId = (ObjectId)resultDocument.GetValue("SubFingerprintId");
+                var subFingerprint = GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints)
+                                         .AsQueryable()
+                                         .First(s => s.Id.Equals(objectId));
+
+                subFingerprintDatas.Add(new SubFingerprintData
+                    {
+                        Signature = subFingerprint.Signature,
+                        SubFingerprintReference = new MongoModelReference(objectId),
+                        TrackReference = new MongoModelReference(subFingerprint.TrackId)
+                    });
+            }
+
+            return subFingerprintDatas;
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] hashBuckets, int thresholdVotes, string trackGroupId)
@@ -98,8 +151,10 @@
             var subFingerprints = ReadSubFingerprintDataByHashBucketsWithThreshold(hashBuckets, thresholdVotes);
 
             var tracksWithGroupId = GetCollection<Track>(TrackDao.Tracks).AsQueryable()
-                                                                         .Where(t => t.GroupId.Equals(trackGroupId))
-                                                                         .Select(t => t.Id);
+                                                                     .Where(track => track.GroupId.Equals(trackGroupId))
+                                                                     .Select(track => track.Id)
+                                                                     .ToList();
+            
             return subFingerprints.Where(s => tracksWithGroupId.Contains((ObjectId)s.TrackReference.Id));
         }
     }
