@@ -7,12 +7,13 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao.RAM;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.InMemory;
 
-    [DeploymentItem(@"floatsamples.bin")]
-    [DeploymentItem(@"Kryptonite.mp3")]
+    [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
+    [DeploymentItem(@"TestEnvironment\Kryptonite.mp3")]
     [TestClass]
     public abstract class AbstractIntegrationTest : AbstractTest
     {
@@ -51,6 +52,12 @@
                     Assert.AreEqual(firstHashDatas[i].HashBins[j], secondHashDatas[i].HashBins[j]);
                 }
             }
+        }
+
+        protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
+        {
+            Assert.IsNotNull(modelReference);
+            Assert.IsFalse(modelReference.GetHashCode() == 0);
         }
 
         private List<HashData> SortHashesByFirstValueOfHashBin(IEnumerable<HashData> hashDatasFromFile)

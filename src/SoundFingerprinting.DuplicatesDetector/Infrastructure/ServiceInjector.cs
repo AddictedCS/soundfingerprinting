@@ -3,10 +3,10 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.RAM;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.InMemory;
 
     public static class ServiceInjector
     {

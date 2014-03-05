@@ -12,7 +12,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Dao;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
@@ -187,7 +187,7 @@
 
                         verified++;
                         TrackData recognizedTrack = queryResult.BestMatch.Track;
-                        bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.HashCode == actualTrack.TrackReference.HashCode;
+                        bool isSuccessful = actualTrack == null || recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
                         if (isSuccessful)
                         {
                             recognized++;

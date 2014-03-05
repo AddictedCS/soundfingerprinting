@@ -2,7 +2,8 @@
 {
     using System;
 
-    using SoundFingerprinting.Dao.SQL;
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.SQL;
 
     [Serializable]
     public class SubFingerprintData
@@ -39,12 +40,12 @@
                 return false;
             }
 
-            return ((SubFingerprintData)obj).SubFingerprintReference.HashCode == SubFingerprintReference.HashCode;
+            return ((SubFingerprintData)obj).SubFingerprintReference.Equals(SubFingerprintReference);
         }
 
         public override int GetHashCode()
         {
-            return SubFingerprintReference.HashCode;
+            return SubFingerprintReference.GetHashCode();
         }
     }
 }

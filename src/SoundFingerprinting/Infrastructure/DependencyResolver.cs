@@ -3,23 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
 
     using Ninject;
     using Ninject.Parameters;
-
-    using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.RAM;
-    using SoundFingerprinting.Dao.SQL;
-    using SoundFingerprinting.FFT;
-    using SoundFingerprinting.FFT.FFTW;
-    using SoundFingerprinting.LSH;
-    using SoundFingerprinting.MinHash;
-    using SoundFingerprinting.Utils;
-    using SoundFingerprinting.Wavelets;
 
     public static class DependencyResolver
     {
@@ -45,44 +32,7 @@
             public DefaultDependencyResolver()
             {
                 kernel = new StandardKernel();
-                kernel.Bind<IFingerprintService>().To<FingerprintService>();
-                kernel.Bind<ISpectrumService>().To<SpectrumService>();
-                kernel.Bind<ILogUtility>().To<LogUtility>().InSingletonScope();
-                kernel.Bind<IAudioSamplesNormalizer>().To<AudioSamplesNormalizer>().InSingletonScope();
-                kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>().InSingletonScope();
-                kernel.Bind<IFFTService>().To<CachedFFTWService>().InSingletonScope();
-                if (Environment.Is64BitProcess)
-                {
-                    kernel.Bind<FFTWService>().To<FFTWService64>().WhenInjectedInto<CachedFFTWService>().InSingletonScope();
-                }
-                else
-                {
-                    kernel.Bind<FFTWService>().To<FFTWService86>().WhenInjectedInto<CachedFFTWService>().InSingletonScope();
-                }
-
-                kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
-                kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
-                kernel.Bind<IBassServiceProxy>().To<BassServiceProxy>().InSingletonScope();
-              
-                kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>().InSingletonScope();
-                kernel.Bind<IModelBinderFactory>().To<ModelBinderFactory>()
-                                                  .WhenInjectedInto<CachedModelBinderFactory>();
-              
-                kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
-                kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>().InSingletonScope();
-                
-                kernel.Bind<IModelService>().To<SqlModelService>().InSingletonScope();
-                kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
-                kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
-                kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();
-
-                kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
-                kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
-                kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
-                
-                kernel.Bind<IRAMStorage>().To<RAMStorage>()
-                                          .InSingletonScope()
-                                          .WithConstructorArgument("numberOfHashTables", new DefaultFingerprintConfiguration().NumberOfLSHTables);
+                LoadAllAssemblyBindings();
             }
 
             ~DefaultDependencyResolver()
@@ -133,6 +83,30 @@
                 {
                     kernel.Dispose();
                 }
+            }
+
+            private void LoadAllAssemblyBindings()
+            {
+                const string MainAssemblyName = "SoundFingerprinting";
+                var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies() 
+                                                .Where(assembly => assembly.FullName.Contains(MainAssemblyName));
+
+                foreach (var loadedAssembly in loadedAssemblies)
+                {
+                    var moduleLoaders = GetModuleLoaders(loadedAssembly);
+                    foreach (var moduleLoader in moduleLoaders)
+                    {
+                        moduleLoader.LoadAssemblyBindings(kernel);
+                    }
+                }
+            }
+
+            private IEnumerable<IModuleLoader> GetModuleLoaders(Assembly loadedAssembly)
+            {
+                var moduleLoaders = from type in loadedAssembly.GetTypes()
+                                    where type.GetInterfaces().Contains(typeof(IModuleLoader)) && type.GetConstructor(Type.EmptyTypes) != null
+                                    select Activator.CreateInstance(type) as IModuleLoader;
+                return moduleLoaders;
             }
         }
     }

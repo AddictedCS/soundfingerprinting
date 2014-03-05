@@ -45,8 +45,9 @@
       <HintPath>..\Externals\Bass.Net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    <Reference Include="Moq, Version=4.2.1402.2112, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Moq.4.2.1402.2112\lib\net40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -64,25 +65,25 @@
   <ItemGroup>
     <Compile Include="Integration\AbstractIntegrationTest.cs" />
     <Compile Include="Integration\Audio\BassAudioServiceTest.cs" />
-    <Compile Include="Integration\Dao\AbstractFingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\AbstractHashBinDaoTest.cs" />
-    <Compile Include="Integration\Dao\RAM\HashBinDaoTest.cs" />
-    <Compile Include="Integration\Dao\RAM\InMemoryModelServiceTest.cs" />
-    <Compile Include="Integration\Dao\SQL\FingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\SQL\HashBinDaoTest.cs" />
-    <Compile Include="Integration\Dao\AbstractSubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\SQL\SqlModelServiceTest.cs" />
-    <Compile Include="Integration\Dao\SQL\SubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\AbstractTrackDaoTest.cs" />
-    <Compile Include="Integration\Dao\SQL\TrackDaoTest.cs" />
+    <Compile Include="Integration\DAO\AbstractFingerprintDaoTest.cs" />
+    <Compile Include="Integration\DAO\AbstractHashBinDaoTest.cs" />
+    <Compile Include="Integration\InMemory\HashBinDaoTest.cs" />
+    <Compile Include="Integration\InMemory\InMemoryModelServiceTest.cs" />
+    <Compile Include="Integration\SQL\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\SQL\HashBinDaoTest.cs" />
+    <Compile Include="Integration\DAO\AbstractSubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\SQL\SqlModelServiceTest.cs" />
+    <Compile Include="Integration\SQL\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\DAO\AbstractTrackDaoTest.cs" />
+    <Compile Include="Integration\SQL\TrackDaoTest.cs" />
     <Compile Include="Unit\Audio\BassAudioServiceTest.cs" />
     <Compile Include="Unit\Audio\StrideTest.cs" />
     <Compile Include="Integration\Audio\TagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />
-    <Compile Include="Integration\Dao\ModelServiceTest.cs" />
-    <Compile Include="Integration\Dao\RAM\FingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\RAM\SubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\Dao\RAM\TrackDaoTest.cs" />
+    <Compile Include="Integration\ModelServiceTest.cs" />
+    <Compile Include="Integration\InMemory\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\InMemory\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\InMemory\TrackDaoTest.cs" />
     <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
@@ -107,12 +108,18 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="TestEnvironment\floatsamples.bin" />
+    <None Include="TestEnvironment\floatsamples.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
       <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
       <Name>SoundFingerprinting.Audio.NAudio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj">
+      <Project>{c294f4cc-678d-4cc9-905a-041395931c58}</Project>
+      <Name>SoundFingerprinting.MongoDb</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
@@ -120,7 +127,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestEnvironment\Kryptonite.mp3" />
+    <Content Include="TestEnvironment\Kryptonite.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

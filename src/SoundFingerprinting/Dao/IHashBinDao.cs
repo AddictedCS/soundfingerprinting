@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.Dao
+namespace SoundFingerprinting.DAO
 {
     using System.Collections.Generic;
 
@@ -6,14 +6,12 @@ namespace SoundFingerprinting.Dao
 
     public interface IHashBinDao
     {
-        void Insert(long[] hashBins, long subFingerprintId);
+        void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference, IModelReference trackReference);
 
-        IList<HashBinData> ReadHashBinsByHashTable(int hashTableId);
-
-        IList<HashData> ReadHashDataByTrackId(int trackId);
+        IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
-            long[] hashBuckets, int thresholdVotes);
+            long[] hashBins, int thresholdVotes);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(
             long[] hashBuckets, int thresholdVotes, string trackGroupId);

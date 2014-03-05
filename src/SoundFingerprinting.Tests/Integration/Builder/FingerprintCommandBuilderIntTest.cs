@@ -10,10 +10,10 @@
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Dao;
-    using SoundFingerprinting.Dao.SQL;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.SQL;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
 
@@ -102,7 +102,7 @@
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual(1, queryResult.ResultEntries.Count);
-            Assert.AreEqual(trackReference.HashCode, queryResult.ResultEntries[0].Track.TrackReference.HashCode);
+            Assert.AreEqual(trackReference, queryResult.ResultEntries[0].Track.TrackReference);
         }
 
         [TestMethod]

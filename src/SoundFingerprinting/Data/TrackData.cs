@@ -2,7 +2,8 @@
 {
     using System;
 
-    using SoundFingerprinting.Dao.SQL;
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.SQL;
 
     [Serializable]
     public class TrackData
@@ -57,12 +58,12 @@
                 return false;
             }
 
-            return ((TrackData)obj).TrackReference.HashCode == TrackReference.HashCode;
+            return ((TrackData)obj).TrackReference.Equals(TrackReference);
         }
 
         public override int GetHashCode()
         {
-            return TrackReference.HashCode;
+            return TrackReference.GetHashCode();
         }
     }
 }

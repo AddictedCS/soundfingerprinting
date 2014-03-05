@@ -56,7 +56,7 @@
 
         protected void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
         {
-            Assert.AreEqual(expectedTrack.TrackReference.HashCode, actualTrack.TrackReference.HashCode);
+            Assert.AreEqual(expectedTrack.TrackReference, actualTrack.TrackReference);
             Assert.AreEqual(expectedTrack.Album, actualTrack.Album);
             Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
             Assert.AreEqual(expectedTrack.Title, actualTrack.Title);

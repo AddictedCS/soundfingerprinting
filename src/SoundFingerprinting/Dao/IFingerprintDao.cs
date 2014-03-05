@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.Dao
+namespace SoundFingerprinting.DAO
 {
     using System.Collections.Generic;
 
@@ -6,8 +6,8 @@ namespace SoundFingerprinting.Dao
 
     public interface IFingerprintDao
     {
-        int Insert(bool[] signature, int trackId);
+        IModelReference InsertFingerprint(FingerprintData fingerprint);
 
-        IList<FingerprintData> ReadFingerprintsByTrackId(int trackId);
+        IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference);
     }
-}
+} 

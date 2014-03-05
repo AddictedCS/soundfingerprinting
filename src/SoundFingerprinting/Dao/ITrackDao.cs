@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.Dao
+namespace SoundFingerprinting.DAO
 {
     using System.Collections.Generic;
 
@@ -6,16 +6,16 @@ namespace SoundFingerprinting.Dao
 
     public interface ITrackDao
     {
-        int Insert(TrackData track);
+        IModelReference InsertTrack(TrackData track);
 
-        IList<TrackData> ReadAll();
+        TrackData ReadTrack(IModelReference trackReference);
 
-        TrackData ReadById(int id);
+        int DeleteTrack(IModelReference trackReference);
 
         IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
         TrackData ReadTrackByISRC(string isrc);
 
-        int DeleteTrack(int trackId);
+        IList<TrackData> ReadAll();
     }
 }
