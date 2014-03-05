@@ -70,9 +70,13 @@
     <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractTrackDaoTest.cs">
       <Link>Integration\AbstractTrackDaoTest.cs</Link>
     </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\ModelServiceTest.cs">
+      <Link>Integration\ModelServiceTest.cs</Link>
+    </Compile>
     <Compile Include="Integration\DaoTestHelper.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
     <Compile Include="Integration\HashBinDaoTest.cs" />
+    <Compile Include="Integration\MongoDbModelServiceTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TrackDaoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

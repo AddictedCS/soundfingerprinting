@@ -28,14 +28,17 @@
             var collection = GetCollection<Fingerprint>(Fingerprints);
             var fingerprint = new Fingerprint { Signature = fingerprintData.Signature, TrackId = (ObjectId)fingerprintData.TrackReference.Id };
             collection.Insert(fingerprint);
-            return new MongoModelReference(fingerprint.Id);
+            return fingerprintData.FingerprintReference = new MongoModelReference(fingerprint.Id);
         }
 
         public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
             return GetCollection<Fingerprint>(Fingerprints).AsQueryable()
                                               .Where(f => f.TrackId.Equals(trackReference.Id))
-                                              .Select(fingerprint => new FingerprintData(fingerprint.Signature, new MongoModelReference(fingerprint.TrackId)))
+                                              .Select(fingerprint => new FingerprintData(fingerprint.Signature, new MongoModelReference(fingerprint.TrackId))
+                                                  {
+                                                      FingerprintReference = new MongoModelReference(fingerprint.Id)
+                                                  })
                                               .ToList();
         }
     }

@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting.MongoDb
 {
-    using System;
     using System.Linq;
 
     using MongoDB.Bson;
