@@ -33,7 +33,7 @@
         public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
             return GetCollection<Fingerprint>(Fingerprints).AsQueryable()
-                                              .Where(f => f.TrackId.Equals(trackReference.Id))
+                                              .Where(fingerprint => fingerprint.TrackId.Equals(trackReference.Id))
                                               .Select(fingerprint => new FingerprintData(fingerprint.Signature, new MongoModelReference(fingerprint.TrackId))
                                                   {
                                                       FingerprintReference = new MongoModelReference(fingerprint.Id)

@@ -45,7 +45,7 @@
         {
             var hashes = GetCollection<Hash>(HashBins)
                                 .AsQueryable()
-                                .Where(h => h.TrackId.Equals(trackReference.Id))
+                                .Where(hash => hash.TrackId.Equals(trackReference.Id))
                                 .ToList();
 
             var subFingerprintIds = hashes.GroupBy(hash => hash.SubFingerprintId).Select(g => g.Key);
@@ -53,9 +53,9 @@
             var hashDatas = new List<HashData>();
             foreach (var subfingerprintId in subFingerprintIds)
             {
-                var hashBins = hashes.Where(h => h.SubFingerprintId.Equals(subfingerprintId))
-                                     .OrderBy(h => h.HashTable)
-                                     .Select(h => h.HashBin)
+                var hashBins = hashes.Where(hash => hash.SubFingerprintId.Equals(subfingerprintId))
+                                     .OrderBy(hash => hash.HashTable)
+                                     .Select(hash => hash.HashBin)
                                      .ToArray();
                 var subFingerprint = GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints)
                                                         .AsQueryable()
