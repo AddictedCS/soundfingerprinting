@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -25,10 +26,6 @@
         public const int DefaultSampleRate = 44100;
 
         public const int DefaultBufferLengthInSeconds = 20;
-
-        private const string RegistrationEmail = "gleb.godonoga@gmail.com";
-
-        private const string RegistrationKey = "2X155323152222";
 
         private const string FlacDllName = "bassflac.dll";
 
@@ -54,7 +51,7 @@
             {
                 if (!IsNativeBassLibraryInitialized)
                 {
-                    bassServiceProxy.RegisterBass(RegistrationEmail, RegistrationKey); // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used
+                    RegisterBassKey();
                     
                     string targetPath = GetTargetPathToLoadLibrariesFrom();
 
@@ -455,6 +452,18 @@
         {
             int stream = CreateStreamByStartingToRecord(sampleRate);
             return DownsampleStreamWithMixer(stream, sampleRate, secondsToRecord, 0);
+        }
+
+        private void RegisterBassKey()
+        {
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+            var bassConfigurationSection = config.GetSection("BassConfigurationSection") as BassConfigurationSection;
+
+            if (bassConfigurationSection != null)
+            {
+                bassServiceProxy.RegisterBass(bassConfigurationSection.Email, bassConfigurationSection.RegistrationKey); // Call to avoid the freeware splash screen. Didn't see it, but maybe it will appear if the Forms are used
+            }
         }
     }
 }

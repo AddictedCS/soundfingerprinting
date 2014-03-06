@@ -26,7 +26,10 @@
 
             if (!BassAudioService.IsNativeBassLibraryInitialized)
             {
-                bassServiceProxy.Setup(proxy => proxy.RegisterBass(It.IsAny<string>(), It.IsAny<string>()));
+                const string RegistrationEmail = "gleb.godonoga@gmail.com";
+                const string RegistrationKey = "2X155323152222";
+
+                bassServiceProxy.Setup(proxy => proxy.RegisterBass(RegistrationEmail, RegistrationKey));
                 bassServiceProxy.Setup(proxy => proxy.BassLoadMe(It.IsAny<string>())).Returns(true);
                 bassServiceProxy.Setup(proxy => proxy.BassMixLoadMe(It.IsAny<string>())).Returns(true);
                 bassServiceProxy.Setup(proxy => proxy.BassFxLoadMe(It.IsAny<string>())).Returns(true);
