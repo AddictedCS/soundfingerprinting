@@ -5,6 +5,7 @@
 
     using MongoDB.Bson;
     using MongoDB.Driver;
+    using MongoDB.Driver.Builders;
     using MongoDB.Driver.Linq;
 
     using SoundFingerprinting.DAO;
@@ -57,11 +58,12 @@
                                      .OrderBy(hash => hash.HashTable)
                                      .Select(hash => hash.HashBin)
                                      .ToArray();
+
                 var subFingerprint = GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints)
                                                         .AsQueryable()
                                                         .First(s => s.Id.Equals(subfingerprintId));
-                var hashData = new HashData(subFingerprint.Signature, hashBins);
-                hashDatas.Add(hashData);
+
+                hashDatas.Add(new HashData(subFingerprint.Signature, hashBins));
             }
 
             return hashDatas;
@@ -69,51 +71,10 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] hashBins, int thresholdVotes)
         {
-            var queries = new List<IMongoQuery>();
-            for (int hashtable = 1; hashtable <= hashBins.Length; hashtable++)
-            {
-                var and = MongoDB.Driver.Builders.Query.And(
-                    MongoDB.Driver.Builders.Query.EQ("HashTable", hashtable),
-                    MongoDB.Driver.Builders.Query.EQ("HashBin", hashBins[hashtable - 1]));
-                queries.Add(and);
-            }
-
-            var query = BsonValue.Create(MongoDB.Driver.Builders.Query.Or(queries));
-            var match = new BsonDocument { { "$match", query } };
-            var group = new BsonDocument
-                {
-                    {
-                        "$group",
-                        new BsonDocument
-                            {
-                                {
-                                    "_id",
-                                    new BsonDocument
-                                        {
-                                            { "SubFingerprintId", "$SubFingerprintId" }
-                                        }
-                                },
-                                { "Votes", new BsonDocument { { "$sum", 1 } } }
-                            }
-                    }
-                };
-
-            var thresholdMatch = new BsonDocument
-                {
-                    { "$match", new BsonDocument { { "Votes", new BsonDocument { { "$gte", thresholdVotes } } } } } 
-                };
-
-            var project = new BsonDocument
-                {
-                    {
-                        "$project",
-                        new BsonDocument
-                            {
-                                { "_id", 0 },
-                                { "SubFingerprintId", "$_id.SubFingerprintId" }
-                            }
-                    }
-                };
+            var match = GetMatchForHashBinsAggregation(hashBins);
+            var group = GetGroupBySubFingerprintIdAggregation();
+            var thresholdMatch = GetFilterByThresholdVotesCountAggregation(thresholdVotes);
+            var project = GetProjectionAggregation();
 
             var result = GetCollection<Hash>(HashBins).Aggregate(new[] { match, group, thresholdMatch, project });
 
@@ -149,6 +110,56 @@
                                                                      .ToList();
             
             return ReadSubFingerprintDataByHashBucketsWithThreshold(hashBuckets, thresholdVotes).Where(s => tracksWithGroupId.Contains((ObjectId)s.TrackReference.Id));
+        }
+
+        private BsonValue GetQueryForHashBins(long[] hashBins)
+        {
+            var queries = new List<IMongoQuery>();
+            for (int hashtable = 1; hashtable <= hashBins.Length; hashtable++)
+            {
+                var hashTableAndHashBinAreEqual = Query.And(
+                    Query.EQ("HashTable", hashtable), Query.EQ("HashBin", hashBins[hashtable - 1]));
+                queries.Add(hashTableAndHashBinAreEqual);
+            }
+
+            return BsonValue.Create(Query.Or(queries));
+        }
+
+        private BsonDocument GetMatchForHashBinsAggregation(long[] hashBins)
+        {
+            var query = GetQueryForHashBins(hashBins);
+            return new BsonDocument { { "$match", query } };
+        }
+
+        private BsonDocument GetGroupBySubFingerprintIdAggregation()
+        {
+            return new BsonDocument
+                {
+                    {
+                        "$group",
+                        new BsonDocument
+                            {
+                                { "_id", new BsonDocument { { "SubFingerprintId", "$SubFingerprintId" } } },
+                                { "Votes", new BsonDocument { { "$sum", 1 } } }
+                            }
+                    }
+                };
+        }
+
+        private BsonDocument GetFilterByThresholdVotesCountAggregation(int thresholdVotes)
+        {
+            return new BsonDocument
+                {
+                    { "$match", new BsonDocument { { "Votes", new BsonDocument { { "$gte", thresholdVotes } } } } } 
+                };
+        }
+
+        private BsonDocument GetProjectionAggregation()
+        {
+            return new BsonDocument
+                {
+                    { "$project", new BsonDocument { { "_id", 0 }, { "SubFingerprintId", "$_id.SubFingerprintId" } } } 
+                };
         }
     }
 }
