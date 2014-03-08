@@ -33,11 +33,13 @@
 
         private readonly IBassServiceProxy bassServiceProxy;
 
-        private bool alreadyDisposed;
+        private readonly SamplesAggregator samplesAggregator;
 
+        private bool alreadyDisposed;
+  
         public BassAudioService() : this(DependencyResolver.Current.Get<IBassServiceProxy>())
         {
-            // no op
+            samplesAggregator = new SamplesAggregator();
         }
 
         private BassAudioService(IBassServiceProxy bassServiceProxy)
@@ -193,11 +195,6 @@
                     initializedInstances--;
                 }
             }
-        }
-
-        protected override int ReadNextSamples(object source, float[] buffer)
-        {
-            return bassServiceProxy.ChannelGetData((int)source, buffer, buffer.Length * 4);
         }
 
         private bool IsSafeToDisposeNativeBassLibrary()
@@ -363,7 +360,7 @@
         private int CreateStreamByStartingToRecord(int sampleRate)
         {
             int stream = bassServiceProxy.StartRecording(
-                sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
+                sampleRate, 1, BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
 
             if (stream == 0)
             {
@@ -389,13 +386,18 @@
                 SeekToSecondInCaseIfRequired(stream, startAtSecond);
                 mixerStream = CreateMixerStream(sampleRate);
                 CombineStreams(mixerStream, stream);
-                return ReadSamplesFromSource(mixerStream, secondsToRead, sampleRate);
+                return samplesAggregator.ReadSamplesFromSource(mixerStream, secondsToRead, sampleRate, GetNextSamples);
             }
             finally
             {
                 ReleaseStream(mixerStream);
                 ReleaseStream(stream);
             }
+        }
+
+        private int GetNextSamples(int source, float[] buffer)
+        {
+            return bassServiceProxy.ChannelGetData(source, buffer, buffer.Length * 4);
         }
 
         private void WriteSamplesToWavFile(string pathToFile, int sampleRate, int channels, float[] samples)

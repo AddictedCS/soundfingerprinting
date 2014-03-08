@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using global::NAudio.Wave;
@@ -10,8 +11,15 @@
     {
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
 
+        private readonly SamplesAggregator samplesAggregator;
+
         private IWavePlayer waveOutDevice;
         private WaveStream mainOutputStream;
+
+        public NAudioService()
+        {
+            samplesAggregator = new SamplesAggregator();
+        }
 
         ~NAudioService()
         {
@@ -22,7 +30,7 @@
         {
             get
             {
-                return false;
+                return true;
             }
         }
 
@@ -44,7 +52,7 @@
                         reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
                 {
                     var pcmReader = new Pcm32BitToSampleProvider(resampler);
-                    return ReadSamplesFromSource(pcmReader, secondsToRead, sampleRate);
+                    return samplesAggregator.ReadSamplesFromSource(pcmReader, secondsToRead, sampleRate, GetNextSamples);
                 }
             }
         }
@@ -96,7 +104,41 @@
 
         public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
-            throw new NotImplementedException("Use Bass.NET");
+            var producer = new BlockingCollection<float[]>();
+            var waveFormat = new WaveFormat(sampleRate, 1);
+            var waveIn = new WaveInEvent { WaveFormat = waveFormat };
+            
+            waveIn.DataAvailable += (sender, e) =>
+                {
+                    byte[] buffer = e.Buffer;
+
+                    float[] chunk = new float[e.BytesRecorded / 2];
+
+                    for (int index = 0; index < e.BytesRecorded; index += 2)
+                    {
+                        short sample = (short)((buffer[index + 1] << 8) |
+                                                buffer[index + 0]);
+                        float sample32 = sample / 32768f;
+                        chunk[index / 2] = sample32;
+                    }
+
+                    producer.Add(chunk);
+                };
+
+            waveIn.RecordingStopped += (sender, args) => producer.CompleteAdding();
+            
+            waveIn.StartRecording();
+
+            float[] samples = samplesAggregator.ReadSamplesFromSource(producer, secondsToRecord, sampleRate, ConsumeRecordedSamples);
+
+            waveIn.StopRecording();
+
+            using (WaveFileWriter writer = new WaveFileWriter(pathToFile, waveFormat))
+            {
+                writer.WriteSamples(samples, 0, samples.Length);
+            }
+
+            return samples;
         }
 
         protected override void Dispose(bool isDisposing)
@@ -115,11 +157,6 @@
             }
         }
 
-        protected override int ReadNextSamples(object source, float[] buffer)
-        {
-            return ((Pcm32BitToSampleProvider)source).Read(buffer, 0, buffer.Length) * 4;
-        }
-
         private WaveStream CreateInputStream(string fileName)
         {
             var mp3Reader = new Mp3FileReader(fileName);
@@ -134,6 +171,18 @@
                 int bitsPerSample = reader.WaveFormat.BitsPerSample;
                 reader.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond, System.IO.SeekOrigin.Begin);
             }
+        }
+
+        private int GetNextSamples(Pcm32BitToSampleProvider pcm32BitToSampleProvider, float[] buffer)
+        {
+            return pcm32BitToSampleProvider.Read(buffer, 0, buffer.Length) * 4;
+        }
+
+        private int ConsumeRecordedSamples(BlockingCollection<float[]> producer, float[] buffer)
+        {
+            var samples = producer.Take();
+            Array.Copy(samples, buffer, samples.Length);
+            return samples.Length;
         }
     }
 }

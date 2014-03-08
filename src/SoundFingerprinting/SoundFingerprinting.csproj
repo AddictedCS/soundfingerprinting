@@ -66,6 +66,7 @@
     <Compile Include="Audio\IAudioService.cs" />
     <Compile Include="Audio\IExtendedAudioService.cs" />
     <Compile Include="Audio\ITagService.cs" />
+    <Compile Include="Audio\SamplesAggregator.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="Infrastructure\IModuleLoader.cs" />
     <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
