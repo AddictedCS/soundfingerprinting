@@ -117,24 +117,25 @@
         {
             var producer = new BlockingCollection<float[]>();
             var waveFormat = new WaveFormat(sampleRate, 1);
-            var waveIn = new WaveInEvent { WaveFormat = waveFormat };
-            
-            waveIn.DataAvailable += (sender, e) =>
-                {
-                    var chunk = GetFloatSamplesFromByte(e.BytesRecorded, e.Buffer);
-                    producer.Add(chunk);
-                };
+            float[] samples;
+            using (var waveIn = new WaveInEvent { WaveFormat = waveFormat })
+            {
+                waveIn.DataAvailable += (sender, e) =>
+                    {
+                        var chunk = GetFloatSamplesFromByte(e.BytesRecorded, e.Buffer);
+                        producer.Add(chunk);
+                    };
 
-            waveIn.RecordingStopped += (sender, args) => producer.CompleteAdding();
-            
-            waveIn.StartRecording();
+                waveIn.RecordingStopped += (sender, args) => producer.CompleteAdding();
 
-            float[] samples = samplesAggregator.ReadSamplesFromSource(producer, secondsToRecord, sampleRate, ConsumeRecordedSamples);
+                waveIn.StartRecording();
 
-            waveIn.StopRecording();
+                samples = samplesAggregator.ReadSamplesFromSource(producer, secondsToRecord, sampleRate, GetNextSamplesFromContinuousBlockingQueue);
+
+                waveIn.StopRecording();
+            }
 
             WriteSamplesToFile(pathToFile, waveFormat, samples);
-
             return samples;
         }
 
@@ -175,7 +176,7 @@
             return pcm32BitToSampleProvider.Read(buffer, 0, buffer.Length) * 4;
         }
 
-        private int ConsumeRecordedSamples(BlockingCollection<float[]> producer, float[] buffer)
+        private int GetNextSamplesFromContinuousBlockingQueue(BlockingCollection<float[]> producer, float[] buffer)
         {
             var samples = producer.Take();
             Array.Copy(samples, buffer, samples.Length);
