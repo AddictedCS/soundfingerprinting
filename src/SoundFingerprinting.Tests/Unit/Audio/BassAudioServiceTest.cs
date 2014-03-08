@@ -169,13 +169,11 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(AudioServiceException))]
         public void ChannelGetDataFailsWithError()
         {
             const int StreamId = 123;
             const int MixerStreamId = 124;
-
-            bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not retrieve bytes from the stream");
 
             bassServiceProxy.Setup(
                 proxy =>
@@ -198,7 +196,7 @@
             bassServiceProxy.Setup(
                 proxy =>
                 proxy.ChannelGetData(
-                    MixerStreamId, It.IsAny<float[]>(), 5512 * BassAudioService.DefaultBufferLengthInSeconds * 4))
+                    MixerStreamId, It.IsAny<float[]>(), 5512 * 10 * 4))
                     .Returns(BytesRead);
 
             bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512, 10, 10);
@@ -245,7 +243,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(AudioServiceException))]
         public void ReadMonoFromFileLessDataThanRequiredIsReceivedTest()
         {
             const int StreamId = 123;

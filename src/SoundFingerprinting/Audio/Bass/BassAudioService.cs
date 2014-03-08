@@ -397,7 +397,7 @@
 
         private int GetNextSamples(int source, float[] buffer)
         {
-            return bassServiceProxy.ChannelGetData(source, buffer, buffer.Length * 4);
+            return bassServiceProxy.ChannelGetData(source, buffer, buffer.Length * 4); 
         }
 
         private void WriteSamplesToWavFile(string pathToFile, int sampleRate, int channels, float[] samples)

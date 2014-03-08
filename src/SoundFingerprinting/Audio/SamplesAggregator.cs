@@ -20,7 +20,7 @@
             { 
                 int bytesRead = getNextSamples(source, buffer);
 
-                if (bytesRead == -1)
+                if (bytesRead  < 0)
                 {
                     throw new AudioServiceException("Number of bytes read is negative.");
                 }
@@ -91,7 +91,7 @@
 
         private int GetBufferLength(int sampleRate, int secondsToRead)
         {
-            if (secondsToRead > 0)
+            if (secondsToRead > 0 && secondsToRead < DefaultBufferLengthInSeconds)
             {
                 return sampleRate * secondsToRead;
             }
