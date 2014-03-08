@@ -179,7 +179,7 @@
         {
             var samples = producer.Take();
             Array.Copy(samples, buffer, samples.Length);
-            return samples.Length;
+            return samples.Length * 4;
         }
 
         private float[] GetFloatSamplesFromByte(int bytesRecorded, byte[] buffer)
