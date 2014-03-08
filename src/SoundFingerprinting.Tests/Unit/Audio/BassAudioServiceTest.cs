@@ -95,7 +95,7 @@
                     "path-to-audio-file",
                     BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(0);
 
-            bassAudioService.ReadMonoFromUrl("path-to-audio-file", 5512, 10);
+            bassAudioService.ReadMonoFromUrlToFile("path-to-audio-file", "path-to-output-location", 5512, 10);
         }
 
         [TestMethod]

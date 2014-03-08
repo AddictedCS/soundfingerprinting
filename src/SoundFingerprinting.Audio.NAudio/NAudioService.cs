@@ -97,9 +97,20 @@
             }
         }
 
-        public float[] ReadMonoFromUrl(string urlToResource, int sampleRate, int secondsToDownload)
+        public float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
         {
-            throw new NotImplementedException("Use Bass.NET");
+            using (var reader = new MediaFoundationReader(streamUrl))
+            {
+                using (
+                    var resampler = new MediaFoundationResampler(
+                        reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
+                {
+                    var pcmReader = new Pcm32BitToSampleProvider(resampler);
+                    var samples = samplesAggregator.ReadSamplesFromSource(pcmReader, secondsToDownload, sampleRate, GetNextSamples);
+                    WriteSamplesToFile(pathToFile, new WaveFormat(sampleRate, 1), samples);
+                    return samples;
+                }
+            }
         }
 
         public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
@@ -110,18 +121,7 @@
             
             waveIn.DataAvailable += (sender, e) =>
                 {
-                    byte[] buffer = e.Buffer;
-
-                    float[] chunk = new float[e.BytesRecorded / 2];
-
-                    for (int index = 0; index < e.BytesRecorded; index += 2)
-                    {
-                        short sample = (short)((buffer[index + 1] << 8) |
-                                                buffer[index + 0]);
-                        float sample32 = sample / 32768f;
-                        chunk[index / 2] = sample32;
-                    }
-
+                    var chunk = GetFloatSamplesFromByte(e.BytesRecorded, e.Buffer);
                     producer.Add(chunk);
                 };
 
@@ -133,10 +133,7 @@
 
             waveIn.StopRecording();
 
-            using (WaveFileWriter writer = new WaveFileWriter(pathToFile, waveFormat))
-            {
-                writer.WriteSamples(samples, 0, samples.Length);
-            }
+            WriteSamplesToFile(pathToFile, waveFormat, samples);
 
             return samples;
         }
@@ -183,6 +180,28 @@
             var samples = producer.Take();
             Array.Copy(samples, buffer, samples.Length);
             return samples.Length;
+        }
+
+        private float[] GetFloatSamplesFromByte(int bytesRecorded, byte[] buffer)
+        {
+            float[] chunk = new float[bytesRecorded / 2];
+
+            for (int index = 0; index < bytesRecorded; index += 2)
+            {
+                short sample = (short)((buffer[index + 1] << 8) | buffer[index + 0]);
+                float sample32 = sample / 32768f;
+                chunk[index / 2] = sample32;
+            }
+
+            return chunk;
+        }
+
+        private void WriteSamplesToFile(string pathToFile, WaveFormat waveFormat, float[] samples)
+        {
+            using (WaveFileWriter writer = new WaveFileWriter(pathToFile, waveFormat))
+            {
+                writer.WriteSamples(samples, 0, samples.Length);
+            }
         }
     }
 }

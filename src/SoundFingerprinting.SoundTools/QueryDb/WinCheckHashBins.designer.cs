@@ -35,6 +35,13 @@
             this._numSecondsToAnalyze = new System.Windows.Forms.NumericUpDown();
             this._lbNumberOfFingerprintsToAnalyze = new System.Windows.Forms.Label();
             this._gbSettings = new System.Windows.Forms.GroupBox();
+            this.gbUrl = new System.Windows.Forms.GroupBox();
+            this.tbUrlToResource = new System.Windows.Forms.TextBox();
+            this.nudSampleRateUrl = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.nudSecondsUrl = new System.Windows.Forms.NumericUpDown();
+            this.btnQueryFromUrl = new System.Windows.Forms.Button();
             this.cbFullSong = new System.Windows.Forms.CheckBox();
             this._gbQueryMicrophoneBox = new System.Windows.Forms.GroupBox();
             this._nudSampleRate = new System.Windows.Forms.NumericUpDown();
@@ -75,6 +82,9 @@
             ((System.ComponentModel.ISupportInitialize)(this._nudQueryStrideMax)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._numSecondsToAnalyze)).BeginInit();
             this._gbSettings.SuspendLayout();
+            this.gbUrl.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSampleRateUrl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSecondsUrl)).BeginInit();
             this._gbQueryMicrophoneBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._nudSampleRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._nudSecondsToRecord)).BeginInit();
@@ -161,6 +171,7 @@
             this._gbSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._gbSettings.Controls.Add(this.gbUrl);
             this._gbSettings.Controls.Add(this.cbFullSong);
             this._gbSettings.Controls.Add(this._gbQueryMicrophoneBox);
             this._gbSettings.Controls.Add(this.label3);
@@ -190,10 +201,94 @@
             this._gbSettings.Controls.Add(this._lbNumberOfFingerprintsToAnalyze);
             this._gbSettings.Location = new System.Drawing.Point(12, 12);
             this._gbSettings.Name = "_gbSettings";
-            this._gbSettings.Size = new System.Drawing.Size(554, 455);
+            this._gbSettings.Size = new System.Drawing.Size(554, 477);
             this._gbSettings.TabIndex = 53;
             this._gbSettings.TabStop = false;
             this._gbSettings.Text = "Settings";
+            // 
+            // gbUrl
+            // 
+            this.gbUrl.Controls.Add(this.tbUrlToResource);
+            this.gbUrl.Controls.Add(this.nudSampleRateUrl);
+            this.gbUrl.Controls.Add(this.label6);
+            this.gbUrl.Controls.Add(this.label7);
+            this.gbUrl.Controls.Add(this.nudSecondsUrl);
+            this.gbUrl.Controls.Add(this.btnQueryFromUrl);
+            this.gbUrl.Location = new System.Drawing.Point(288, 376);
+            this.gbUrl.Name = "gbUrl";
+            this.gbUrl.Size = new System.Drawing.Size(257, 88);
+            this.gbUrl.TabIndex = 78;
+            this.gbUrl.TabStop = false;
+            this.gbUrl.Text = "Query from URL";
+            // 
+            // tbUrlToResource
+            // 
+            this.tbUrlToResource.Location = new System.Drawing.Point(9, 58);
+            this.tbUrlToResource.Name = "tbUrlToResource";
+            this.tbUrlToResource.Size = new System.Drawing.Size(130, 20);
+            this.tbUrlToResource.TabIndex = 79;
+            // 
+            // nudSampleRateUrl
+            // 
+            this.nudSampleRateUrl.Location = new System.Drawing.Point(150, 32);
+            this.nudSampleRateUrl.Maximum = new decimal(new int[] {
+            44100,
+            0,
+            0,
+            0});
+            this.nudSampleRateUrl.Name = "nudSampleRateUrl";
+            this.nudSampleRateUrl.Size = new System.Drawing.Size(101, 20);
+            this.nudSampleRateUrl.TabIndex = 77;
+            this.nudSampleRateUrl.Value = new decimal(new int[] {
+            5512,
+            0,
+            0,
+            0});
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(149, 16);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(63, 13);
+            this.label6.TabIndex = 76;
+            this.label6.Text = "Sample rate";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 16);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(94, 13);
+            this.label7.TabIndex = 74;
+            this.label7.Text = "Seconds to record";
+            // 
+            // nudSecondsUrl
+            // 
+            this.nudSecondsUrl.Location = new System.Drawing.Point(9, 32);
+            this.nudSecondsUrl.Maximum = new decimal(new int[] {
+            120,
+            0,
+            0,
+            0});
+            this.nudSecondsUrl.Name = "nudSecondsUrl";
+            this.nudSecondsUrl.Size = new System.Drawing.Size(91, 20);
+            this.nudSecondsUrl.TabIndex = 75;
+            this.nudSecondsUrl.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // btnQueryFromUrl
+            // 
+            this.btnQueryFromUrl.Location = new System.Drawing.Point(148, 56);
+            this.btnQueryFromUrl.Name = "btnQueryFromUrl";
+            this.btnQueryFromUrl.Size = new System.Drawing.Size(103, 23);
+            this.btnQueryFromUrl.TabIndex = 73;
+            this.btnQueryFromUrl.Text = "Query From URL";
+            this.btnQueryFromUrl.UseVisualStyleBackColor = true;
+            this.btnQueryFromUrl.Click += new System.EventHandler(this.BtnQueryFromUrlClick);
             // 
             // cbFullSong
             // 
@@ -213,7 +308,7 @@
             this._gbQueryMicrophoneBox.Controls.Add(this.label4);
             this._gbQueryMicrophoneBox.Controls.Add(this._nudSecondsToRecord);
             this._gbQueryMicrophoneBox.Controls.Add(this._btnQueryFromMicrophone);
-            this._gbQueryMicrophoneBox.Location = new System.Drawing.Point(9, 351);
+            this._gbQueryMicrophoneBox.Location = new System.Drawing.Point(9, 376);
             this._gbQueryMicrophoneBox.Name = "_gbQueryMicrophoneBox";
             this._gbQueryMicrophoneBox.Size = new System.Drawing.Size(257, 88);
             this._gbQueryMicrophoneBox.TabIndex = 76;
@@ -614,7 +709,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(569, 479);
+            this.ClientSize = new System.Drawing.Size(569, 501);
             this.Controls.Add(this._gbSettings);
             this.MaximizeBox = false;
             this.Name = "WinCheckHashBins";
@@ -624,6 +719,10 @@
             ((System.ComponentModel.ISupportInitialize)(this._numSecondsToAnalyze)).EndInit();
             this._gbSettings.ResumeLayout(false);
             this._gbSettings.PerformLayout();
+            this.gbUrl.ResumeLayout(false);
+            this.gbUrl.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSampleRateUrl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSecondsUrl)).EndInit();
             this._gbQueryMicrophoneBox.ResumeLayout(false);
             this._gbQueryMicrophoneBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this._nudSampleRate)).EndInit();
@@ -689,5 +788,12 @@
         private System.Windows.Forms.NumericUpDown _nudSampleRate;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.CheckBox cbFullSong;
+        private System.Windows.Forms.GroupBox gbUrl;
+        private System.Windows.Forms.TextBox tbUrlToResource;
+        private System.Windows.Forms.NumericUpDown nudSampleRateUrl;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.NumericUpDown nudSecondsUrl;
+        private System.Windows.Forms.Button btnQueryFromUrl;
     }
 }

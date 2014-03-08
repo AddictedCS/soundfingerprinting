@@ -206,5 +206,21 @@
         {
             _numSecondsToAnalyze.Enabled = _numStartAtSecond.Enabled = !cbFullSong.Checked;
         }
+
+        private void BtnQueryFromUrlClick(object sender, EventArgs e)
+        {
+            string url = tbUrlToResource.Text;
+            int sampleRate = (int)nudSampleRateUrl.Value;
+            int seconds = (int)nudSecondsUrl.Value;
+            string pathToFile = "url_" + DateTime.Now.Ticks + ".wav";
+
+            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoFromUrlToFile(url, pathToFile, sampleRate, seconds))
+                .ContinueWith(task =>
+                    { 
+                        float[] samples = task.Result;
+                    
+                        
+                    });
+        }
     }
 }

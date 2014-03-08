@@ -3,6 +3,8 @@ namespace SoundFingerprinting.SoundTools
     using System;
     using System.Windows.Forms;
 
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.SoundTools.BassResampler;
     using SoundFingerprinting.SoundTools.DbFiller;
@@ -21,6 +23,8 @@ namespace SoundFingerprinting.SoundTools
         {
             InitializeComponent();
             Icon = Resources.Sound;
+            // DependencyResolver.Current.Bind<IAudioService, NAudioService>();
+            // DependencyResolver.Current.Bind<IExtendedAudioService, NAudioService>();
         }
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
