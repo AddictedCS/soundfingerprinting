@@ -23,10 +23,6 @@
     /// </remarks>
     public class BassAudioService : AudioService, IExtendedAudioService, ITagService
     {
-        public const int DefaultSampleRate = 44100;
-
-        public const int DefaultBufferLengthInSeconds = 20;
-
         private const string FlacDllName = "bassflac.dll";
 
         private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", "mp3", ".ogg", ".flac" };
@@ -199,6 +195,11 @@
             }
         }
 
+        protected override int ReadNextSamples(object source, float[] buffer)
+        {
+            return bassServiceProxy.ChannelGetData((int)source, buffer, buffer.Length * 4);
+        }
+
         private bool IsSafeToDisposeNativeBassLibrary()
         {
             return initializedInstances == 1;
@@ -221,7 +222,11 @@
                 throw new BassAudioServiceException("Could not load bassfx library from the following path: " + targetPath);
             }
             
-            // dummy calls to load bass libraries
+            DummyCallToLoadBassLibraries();
+        }
+
+        private void DummyCallToLoadBassLibraries()
+        {
             bassServiceProxy.GetVersion();
             bassServiceProxy.GetMixerVersion();
             bassServiceProxy.GetFxVersion();
@@ -376,54 +381,6 @@
             }
         }
 
-        private float[] ReadChannelDataFromUnderlyingMixerStream(int mixerStream, int secondsToRead, int sampleRate)
-        {
-            float[] buffer = new float[sampleRate * DefaultBufferLengthInSeconds];
-            int totalBytesToRead = secondsToRead == 0 ? int.MaxValue : secondsToRead * sampleRate * 4;
-            int totalBytesRead = 0;
-            List<float[]> chunks = new List<float[]>();
-            while (totalBytesRead < totalBytesToRead)
-            {
-                // get re-sampled/mono data
-                int bytesRead = bassServiceProxy.ChannelGetData(mixerStream, buffer, buffer.Length * 4);
-
-                if (bytesRead == -1)
-                {
-                    throw new BassAudioServiceException(bassServiceProxy.GetLastError());
-                }
-
-                if (bytesRead == 0)
-                {
-                    break;
-                }
-
-                totalBytesRead += bytesRead;
-
-                float[] chunk;
-
-                if (totalBytesRead > totalBytesToRead)
-                {
-                    chunk = new float[(totalBytesToRead - (totalBytesRead - bytesRead)) / 4];
-                    Array.Copy(buffer, chunk, (totalBytesToRead - (totalBytesRead - bytesRead)) / 4);
-                }
-                else
-                {
-                    chunk = new float[bytesRead / 4]; // each float contains 4 bytes
-                    Array.Copy(buffer, chunk, bytesRead / 4);
-                }
-
-                chunks.Add(chunk);
-            }
-
-            if (totalBytesRead < (secondsToRead * sampleRate * 4))
-            {
-                throw new BassAudioServiceException(
-                    "Could not read requested number of seconds " + secondsToRead + ", audio file is not that long");
-            }
-
-            return ConcatenateChunksOfSamples(chunks);
-        }
-
         private float[] DownsampleStreamWithMixer(int stream, int sampleRate, int secondsToRead, int startAtSecond)
         {
             int mixerStream = 0;
@@ -432,7 +389,7 @@
                 SeekToSecondInCaseIfRequired(stream, startAtSecond);
                 mixerStream = CreateMixerStream(sampleRate);
                 CombineStreams(mixerStream, stream);
-                return ReadChannelDataFromUnderlyingMixerStream(mixerStream, secondsToRead, sampleRate);
+                return ReadSamplesFromSource(mixerStream, secondsToRead, sampleRate);
             }
             finally
             {

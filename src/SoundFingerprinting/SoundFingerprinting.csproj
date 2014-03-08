@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Audio\AudioSamplesNormalizer.cs" />
     <Compile Include="Audio\AudioService.cs" />
+    <Compile Include="Audio\Bass\AudioServiceException.cs" />
     <Compile Include="Audio\Bass\BassAudioService.cs" />
     <Compile Include="Audio\Bass\BassAudioServiceException.cs" />
     <Compile Include="Audio\Bass\BassConfigurationSection.cs" />

@@ -10,7 +10,6 @@
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.SQL;
