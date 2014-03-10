@@ -15,7 +15,8 @@
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
-    
+    using SoundFingerprinting.Wavelets;
+
     public partial class WinDrawningTool : Form
     {
         private readonly IAudioService audioService;
@@ -31,14 +32,12 @@
         public WinDrawningTool(
             IAudioService audioService,
             IFingerprintCommandBuilder fingerprintCommandBuilder,
-            IFingerprintConfiguration fingerprintConfiguration,
-            IImageService imageService,
             ISpectrumService spectrumService)
         {
             this.audioService = audioService;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
-            this.fingerprintConfiguration = fingerprintConfiguration;
-            this.imageService = imageService;
+            fingerprintConfiguration = new DefaultFingerprintConfiguration();
+            imageService = new ImageService(spectrumService, new StandardHaarWaveletDecomposition());
             this.spectrumService = spectrumService;
 
             InitializeComponent();

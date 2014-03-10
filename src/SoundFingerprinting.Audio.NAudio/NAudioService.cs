@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Threading;
 
     using global::NAudio.Wave;
     using global::NAudio.Wave.SampleProviders;
@@ -44,15 +45,50 @@
 
         public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
         {
-            using (var reader = new MediaFoundationReader(pathToFile))
+            return ReadMonoFromSource(pathToFile, sampleRate, secondsToRead, startAtSecond, GetNextSamples);
+        }
+
+        public float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
+        {
+            float[] samples = ReadMonoFromSource(streamUrl, sampleRate, secondsToDownload, 0, GetNextStreamingSamples);
+            WriteSamplesToFile(pathToFile, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1), samples);
+            return samples;
+        }
+
+        public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
+        {
+            var producer = new BlockingCollection<float[]>();
+            var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+            float[] samples;
+            using (var waveIn = new WaveInEvent { WaveFormat = waveFormat })
             {
-                SeekToSecondInCaseIfRequired(startAtSecond, reader);
-                using (
-                    var resampler = new MediaFoundationResampler(
-                        reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
+                waveIn.DataAvailable += (sender, e) =>
+                    {
+                        var chunk = GetFloatSamplesFromByte(e.BytesRecorded, e.Buffer);
+                        producer.Add(chunk);
+                    };
+
+                waveIn.RecordingStopped += (sender, args) => producer.CompleteAdding();
+
+                waveIn.StartRecording();
+
+                samples = samplesAggregator.ReadSamplesFromSource(producer, secondsToRecord, sampleRate, GetNextSamplesFromContinuousBlockingQueue);
+
+                waveIn.StopRecording();
+            }
+
+            WriteSamplesToFile(pathToFile, waveFormat, samples);
+            return samples;
+        }
+
+        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
+        {
+            using (var reader = new Mp3FileReader(pathToFile))
+            {
+                var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+                using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
                 {
-                    var pcmReader = new Pcm32BitToSampleProvider(resampler);
-                    return samplesAggregator.ReadSamplesFromSource(pcmReader, secondsToRead, sampleRate, GetNextSamples);
+                    WaveFileWriter.CreateWaveFile(pathToRecodedFile, resampler);
                 }
             }
         }
@@ -84,59 +120,6 @@
                 waveOutDevice.Dispose();
                 waveOutDevice = null;
             }
-        }
-
-        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
-        {
-            using (var reader = new Mp3FileReader(pathToFile))
-            {
-                using (var resampler = new MediaFoundationResampler(reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
-                {
-                    WaveFileWriter.CreateWaveFile(pathToRecodedFile, resampler);
-                }
-            }
-        }
-
-        public float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
-        {
-            using (var reader = new MediaFoundationReader(streamUrl))
-            {
-                using (
-                    var resampler = new MediaFoundationResampler(
-                        reader, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
-                {
-                    var pcmReader = new Pcm32BitToSampleProvider(resampler);
-                    var samples = samplesAggregator.ReadSamplesFromSource(pcmReader, secondsToDownload, sampleRate, GetNextSamples);
-                    WriteSamplesToFile(pathToFile, new WaveFormat(sampleRate, 1), samples);
-                    return samples;
-                }
-            }
-        }
-
-        public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
-        {
-            var producer = new BlockingCollection<float[]>();
-            var waveFormat = new WaveFormat(sampleRate, 1);
-            float[] samples;
-            using (var waveIn = new WaveInEvent { WaveFormat = waveFormat })
-            {
-                waveIn.DataAvailable += (sender, e) =>
-                    {
-                        var chunk = GetFloatSamplesFromByte(e.BytesRecorded, e.Buffer);
-                        producer.Add(chunk);
-                    };
-
-                waveIn.RecordingStopped += (sender, args) => producer.CompleteAdding();
-
-                waveIn.StartRecording();
-
-                samples = samplesAggregator.ReadSamplesFromSource(producer, secondsToRecord, sampleRate, GetNextSamplesFromContinuousBlockingQueue);
-
-                waveIn.StopRecording();
-            }
-
-            WriteSamplesToFile(pathToFile, waveFormat, samples);
-            return samples;
         }
 
         protected override void Dispose(bool isDisposing)
@@ -171,9 +154,30 @@
             }
         }
 
-        private int GetNextSamples(Pcm32BitToSampleProvider pcm32BitToSampleProvider, float[] buffer)
+        private void WriteSamplesToFile(string pathToFile, WaveFormat waveFormat, float[] samples)
         {
-            return pcm32BitToSampleProvider.Read(buffer, 0, buffer.Length) * 4;
+            using (var writer = new WaveFileWriter(pathToFile, waveFormat))
+            {
+                writer.WriteSamples(samples, 0, samples.Length);
+            }
+        }
+
+        private int GetNextSamples(SampleProviderConverterBase sampleProvider, float[] buffer)
+        {
+            return sampleProvider.Read(buffer, 0, buffer.Length) * 4;
+        }
+
+        private int GetNextStreamingSamples(SampleProviderConverterBase sampleProvider, float[] buffer)
+        {
+            int bytesRead = GetNextSamples(sampleProvider, buffer);
+
+            while (bytesRead == 0)
+            {
+                Thread.Sleep(500); // lame but required to fill the buffer from continuous stream, either microphone or url
+                bytesRead = GetNextSamples(sampleProvider, buffer);
+            }
+
+            return bytesRead;
         }
 
         private int GetNextSamplesFromContinuousBlockingQueue(BlockingCollection<float[]> producer, float[] buffer)
@@ -185,23 +189,29 @@
 
         private float[] GetFloatSamplesFromByte(int bytesRecorded, byte[] buffer)
         {
-            float[] chunk = new float[bytesRecorded / 2];
-
-            for (int index = 0; index < bytesRecorded; index += 2)
+            int startIndex = 0;
+            float[] chunk = new float[bytesRecorded / 4];
+            int floatSampleIndex = 0;
+            while (startIndex < bytesRecorded)
             {
-                short sample = (short)((buffer[index + 1] << 8) | buffer[index + 0]);
-                float sample32 = sample / 32768f;
-                chunk[index / 2] = sample32;
+                chunk[floatSampleIndex++] = BitConverter.ToSingle(buffer, startIndex);
+                startIndex += 4;
             }
 
             return chunk;
         }
 
-        private void WriteSamplesToFile(string pathToFile, WaveFormat waveFormat, float[] samples)
+        private float[] ReadMonoFromSource(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, float[], int> getNextSamples)
         {
-            using (WaveFileWriter writer = new WaveFileWriter(pathToFile, waveFormat))
+            using (var reader = new MediaFoundationReader(pathToFile))
             {
-                writer.WriteSamples(samples, 0, samples.Length);
+                SeekToSecondInCaseIfRequired(startAtSecond, reader);
+                var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+                using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
+                {
+                    var waveToSampleProvider = new WaveToSampleProvider(resampler);
+                    return samplesAggregator.ReadSamplesFromSource(waveToSampleProvider, secondsToRead, sampleRate, getNextSamples);
+                }
             }
         }
     }

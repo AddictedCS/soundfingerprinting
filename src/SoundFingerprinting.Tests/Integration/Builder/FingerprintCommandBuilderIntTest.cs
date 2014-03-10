@@ -168,7 +168,7 @@
                 }
             }
 
-            Assert.AreEqual(true, (float)unmatchedItems / totalmatches < 0.02, "Rate: " + ((float)unmatchedItems / totalmatches));
+            Assert.AreEqual(true, (float)unmatchedItems / totalmatches < 0.002, "Rate: " + ((float)unmatchedItems / totalmatches));
             Assert.AreEqual(bassFingerprints.Count, naudioFingerprints.Count);
         }
 

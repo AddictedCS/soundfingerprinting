@@ -107,7 +107,7 @@
         public float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
         {
             int stream = CreateStreamToUrl(streamUrl);
-            var samples = DownsampleStreamWithMixer(stream, sampleRate, secondsToDownload, 0, GetStreamingNextSamples);
+            var samples = DownsampleStreamWithMixer(stream, sampleRate, secondsToDownload, 0, GetNextStreamingSamples);
             WriteSamplesToWavFile(pathToFile, sampleRate, 1, samples);
             return samples;
         }
@@ -399,11 +399,6 @@
             }
         }
 
-        private int GetNextSamples(int source, float[] buffer)
-        {
-            return bassServiceProxy.ChannelGetData(source, buffer, buffer.Length * 4); 
-        }
-
         private void WriteSamplesToWavFile(string pathToFile, int sampleRate, int channels, float[] samples)
         {
             WaveWriter waveWriter = new WaveWriter(pathToFile, channels, sampleRate, 8 * 4, true);
@@ -414,7 +409,7 @@
         private float[] ReadFromMicrophone(int sampleRate, int secondsToRecord)
         {
             int stream = CreateStreamByStartingToRecord(sampleRate);
-            return DownsampleStreamWithMixer(stream, sampleRate, secondsToRecord, 0, GetStreamingNextSamples);
+            return DownsampleStreamWithMixer(stream, sampleRate, secondsToRecord, 0, GetNextStreamingSamples);
         }
 
         private void RegisterBassKey()
@@ -429,14 +424,19 @@
             }
         }
 
-        private int GetStreamingNextSamples(int source, float[] buffer)
+        private int GetNextSamples(int source, float[] buffer)
         {
-            int bytesRead = bassServiceProxy.ChannelGetData(source, buffer, buffer.Length * 4);
+            return bassServiceProxy.ChannelGetData(source, buffer, buffer.Length * 4);
+        }
+
+        private int GetNextStreamingSamples(int source, float[] buffer)
+        {
+            int bytesRead = GetNextSamples(source, buffer);
 
             while (bytesRead == 0)
             {
-                Thread.Sleep(1000); // lame but required to fill the buffer from continuous stream, either microphone or url
-                bytesRead = bassServiceProxy.ChannelGetData(source, buffer, buffer.Length * 4);
+                Thread.Sleep(500); // lame but required to fill the buffer from continuous stream, either microphone or url
+                bytesRead = GetNextSamples(source, buffer);
             }
 
             return bytesRead;
