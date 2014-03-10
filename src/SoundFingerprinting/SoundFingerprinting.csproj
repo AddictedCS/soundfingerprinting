@@ -60,11 +60,16 @@
     <Compile Include="Audio\Bass\BassAudioService.cs" />
     <Compile Include="Audio\Bass\BassAudioServiceException.cs" />
     <Compile Include="Audio\Bass\BassConfigurationSection.cs" />
+    <Compile Include="Audio\Bass\BassResampler.cs" />
+    <Compile Include="Audio\Bass\BassSamplesProvider.cs" />
     <Compile Include="Audio\Bass\BassServiceProxy.cs" />
+    <Compile Include="Audio\Bass\BassTagService.cs" />
     <Compile Include="Audio\Bass\IBassServiceProxy.cs" />
+    <Compile Include="Audio\ContinuousStreamSamplesProvider.cs" />
     <Compile Include="Audio\IAudioSamplesNormalizer.cs" />
     <Compile Include="Audio\IAudioService.cs" />
     <Compile Include="Audio\IExtendedAudioService.cs" />
+    <Compile Include="Audio\ISamplesProvider.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\SamplesAggregator.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />

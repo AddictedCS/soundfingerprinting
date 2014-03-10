@@ -1,11 +1,12 @@
 ﻿namespace SoundFingerprinting.Audio.Bass
 {
+    using System;
     using System.Collections.Generic;
 
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Tags;
 
-    internal interface IBassServiceProxy
+    internal interface IBassServiceProxy : IDisposable
     {
         void RegisterBass(string email, string registrationKey);
 

@@ -2,6 +2,12 @@ namespace SoundFingerprinting.Audio.Bass
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading;
 
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Fx;
@@ -10,6 +16,20 @@ namespace SoundFingerprinting.Audio.Bass
 
     internal class BassServiceProxy : IBassServiceProxy
     {
+        private readonly BassLifetimeManager lifetimeManager;
+
+        private bool alreadyDisposed;
+
+        public BassServiceProxy()
+        {
+            lifetimeManager = new BassLifetimeManager(this);
+        }
+
+        ~BassServiceProxy()
+        {
+            Dispose(false);
+        }
+
         public void RegisterBass(string email, string registrationKey)
         {
             BassNet.Registration(email, registrationKey);
@@ -138,6 +158,195 @@ namespace SoundFingerprinting.Audio.Bass
         public TAG_INFO GetTagsFromFile(string pathToFile)
         {
             return BassTags.BASS_TAG_GetFromFile(pathToFile);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+            alreadyDisposed = true;
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (!alreadyDisposed)
+            {
+                lifetimeManager.Dispose();
+            }
+        }
+
+        internal class BassLifetimeManager : IDisposable
+        {
+            private const string FlacDllName = "bassflac.dll";
+
+            private static int initializedInstances;
+
+            private readonly IBassServiceProxy proxy;
+
+            private bool alreadyDisposed;
+
+            public BassLifetimeManager(IBassServiceProxy proxy)
+            {
+                this.proxy = proxy;
+                if (BassLibraryHasToBeInitialized)
+                {
+                    RegisterBassKey();
+                    string targetPath = GetTargetPathToLoadLibrariesFrom();
+                    LoadBassLibraries(targetPath);
+                    CheckIfFlacPluginIsLoaded(targetPath);
+                    InitializeBassLibraryWithAudioDevices();
+                    SetDefaultConfigs();
+                    InitializeRecordingDevice();
+                }
+            }
+
+            ~BassLifetimeManager()
+            {
+                Dispose(false);
+            }
+
+            public static bool IsNativeBassLibraryInitialized
+            {
+                get
+                {
+                    return initializedInstances > 0;
+                }
+            }
+
+            private bool BassLibraryHasToBeInitialized
+            {
+                get
+                {
+                    return Interlocked.Increment(ref initializedInstances) == 1;
+                }
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+                alreadyDisposed = true;
+            }
+
+            protected void Dispose(bool isDisposing)
+            {
+                if (!alreadyDisposed)
+                {
+                    if (Interlocked.Decrement(ref initializedInstances) == 0)
+                    {
+                        // 0 - free all loaded plugins
+                        if (!proxy.PluginFree(0))
+                        {
+                            Trace.WriteLine("Could not unload plugins for Bass library.", "Error");
+                        }
+
+                        if (!proxy.BassFree())
+                        {
+                            Trace.WriteLine("Could not free Bass library. Possible memory leak!", "Error");
+                        }
+                    }
+                }
+            }
+
+            private void RegisterBassKey()
+            {
+                var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+                var bassConfigurationSection = config.GetSection("BassConfigurationSection") as BassConfigurationSection;
+
+                if (bassConfigurationSection != null)
+                {
+                    proxy.RegisterBass(bassConfigurationSection.Email, bassConfigurationSection.RegistrationKey); // Call to avoid the freeware splash screen
+                }
+            }
+
+            private string GetTargetPathToLoadLibrariesFrom()
+            {
+                string executingPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+                if (string.IsNullOrEmpty(executingPath))
+                {
+                    throw new BassAudioServiceException(
+                        "Executing path of the application is null or empty. Could not find folders with native dll libraries.");
+                }
+
+                Uri uri = new Uri(executingPath);
+                return Path.Combine(uri.LocalPath, Utils.Is64Bit ? "x64" : "x86");
+            }
+
+            private void LoadBassLibraries(string targetPath)
+            {
+                if (!proxy.BassLoadMe(targetPath))
+                {
+                    throw new BassAudioServiceException("Could not load bass native libraries from the following path: " + targetPath);
+                }
+
+                if (!proxy.BassMixLoadMe(targetPath))
+                {
+                    throw new BassAudioServiceException("Could not load bassmix library from the following path: " + targetPath);
+                }
+
+                if (!proxy.BassFxLoadMe(targetPath))
+                {
+                    throw new BassAudioServiceException("Could not load bassfx library from the following path: " + targetPath);
+                }
+
+                DummyCallToLoadBassLibraries();
+            }
+
+            private void DummyCallToLoadBassLibraries()
+            {
+                proxy.GetVersion();
+                proxy.GetMixerVersion();
+                proxy.GetFxVersion();
+            }
+
+            private void InitializeBassLibraryWithAudioDevices()
+            {
+                if (!proxy.Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
+                {
+                    Trace.WriteLine("Failed to find a sound device on running machine. Playing audio files will not be supported. " + proxy.GetLastError(), "Warning");
+                    if (!proxy.Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
+                    {
+                        throw new BassAudioServiceException(proxy.GetLastError());
+                    }
+                }
+            }
+
+            private void CheckIfFlacPluginIsLoaded(string targetPath)
+            {
+                var loadedPlugIns = proxy.PluginLoadDirectory(targetPath);
+                if (!loadedPlugIns.Any(p => p.Value.EndsWith(FlacDllName)))
+                {
+                    Trace.WriteLine("Could not load bassflac.dll. FLAC format is not supported!", "Warning");
+                }
+            }
+
+            private void SetDefaultConfigs()
+            {
+                /*Set filter for anti aliasing*/
+                if (!proxy.SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50))
+                {
+                    throw new BassAudioServiceException(proxy.GetLastError());
+                }
+
+                /*Set floating parameters to be passed*/
+                if (!proxy.SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true))
+                {
+                    throw new BassAudioServiceException(proxy.GetLastError());
+                }
+            }
+
+            private void InitializeRecordingDevice()
+            {
+                const int DefaultDevice = -1;
+                if (!proxy.RecordInit(DefaultDevice))
+                {
+                    Trace.WriteLine(
+                        "No default recording device could be found on running machine. Recording is not supported: "
+                        + proxy.GetLastError(),
+                        "Warning");
+                }
+            }
         }
     }
 }
