@@ -11,7 +11,7 @@
     [TestClass]
     public class TagServiceTest : AbstractIntegrationTest
     {
-        private readonly ITagService tagService = new BassAudioService();
+        private readonly ITagService tagService = new BassTagService();
 
         [TestMethod]
         public void TagAreSuccessfullyReadFromFile()

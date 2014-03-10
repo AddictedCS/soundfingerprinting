@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Audio.Bass
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
 
     using SoundFingerprinting.Infrastructure;
 
@@ -16,7 +15,7 @@
     ///   Its purpose is to provide developers with powerful and efficient sample, stream (MP3, MP2, MP1, OGG, WAV, AIFF, custom generated, and more via add-ons), 
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
     /// </remarks>
-    public class BassAudioService : AudioService, IExtendedAudioService
+    public class BassAudioService : AudioService
     {
         private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", "mp3", ".ogg", ".flac" };
 
@@ -38,7 +37,7 @@
             Dispose(false);
         }
 
-        public bool IsRecordingSupported
+        public override bool IsRecordingSupported
         {
             get
             {
@@ -61,7 +60,7 @@
                       .Resample(stream, sampleRate, seconds, startAt, mixer => new BassSamplesProvider(proxy, mixer));
         }
 
-        public float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
+        public override float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
         {
             int stream = CreateStreamToUrl(streamUrl);
 
@@ -76,31 +75,14 @@
             return samples;
         }
 
-        public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
+        public override float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
             var samples = ReadFromMicrophone(sampleRate, secondsToRecord);
             WriteSamplesToWavFile(pathToFile, sampleRate, 1, samples);
             return samples;
         }
 
-        public int PlayFile(string filename)
-        {
-            int stream = CreateStream(filename, BASSFlag.BASS_DEFAULT);
-
-            if (proxy.StartPlaying(stream))
-            {
-                throw new BassAudioServiceException(proxy.GetLastError());
-            }
-
-            return stream;
-        }
-
-        public void StopPlayingFile(int stream)
-        {
-            ReleaseStream(stream);
-        }
-
-        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
+        public override void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
             float[] samples = ReadMonoFromFile(pathToFile, sampleRate);
             WriteSamplesToWavFile(pathToRecodedFile, sampleRate, 1, samples);
@@ -113,13 +95,6 @@
                 alreadyDisposed = true;
                 proxy.Dispose();
             }
-        }
-
-        private void NotifyErrorWhenReleasingMemoryStream(int stream)
-        {
-            Trace.WriteLine(
-                "Could not release stream " + stream + ". Possible memory leak! Bass Error: " + proxy.GetLastError(),
-                "Error");
         }
 
         private int CreateStream(string pathToFile, BASSFlag flags)
@@ -160,14 +135,6 @@
             }
 
             return stream;
-        }
-
-        private void ReleaseStream(int stream)
-        {
-            if (stream != 0 && !proxy.FreeStream(stream))
-            {
-                NotifyErrorWhenReleasingMemoryStream(stream);
-            }
         }
 
         private void WriteSamplesToWavFile(string pathToFile, int sampleRate, int channels, float[] samples)

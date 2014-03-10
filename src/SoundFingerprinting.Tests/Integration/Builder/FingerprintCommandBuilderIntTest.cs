@@ -44,7 +44,7 @@
         public void CreateFingerprintsFromDefaultFileAndAssertNumberOfFingerprints()
         {
             const int StaticStride = 5115;
-            ITagService tagService = new BassAudioService();
+            ITagService tagService = new BassTagService();
             
             var audioFingerprintingUnit = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
                                         .From(PathToMp3)
@@ -82,7 +82,7 @@
         {
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
-            var tagService = new BassAudioService();
+            var tagService = new BassTagService();
             TagInfo info = tagService.GetTagInfo(PathToMp3);
             TrackData track = new TrackData(
                 info.ISRC, info.Artist, info.Title, info.Album, info.Year, (int)info.Duration);

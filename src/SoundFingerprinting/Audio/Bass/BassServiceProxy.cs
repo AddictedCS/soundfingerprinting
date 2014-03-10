@@ -142,7 +142,15 @@ namespace SoundFingerprinting.Audio.Bass
 
         public bool FreeStream(int stream)
         {
-            return Bass.BASS_StreamFree(stream);
+            if (!Bass.BASS_StreamFree(stream))
+            {
+                Trace.WriteLine(
+                    "Could not release stream " + stream + ". Possible memory leak! Bass Error: " + GetLastError(),
+                    "Error");
+                return false;
+            }
+
+            return true;
         }
 
         public bool PluginFree(int number)

@@ -29,7 +29,8 @@
 
             ServiceContainer.Kernel.Bind<DuplicatesDetectorFacade>().ToSelf().InSingletonScope();
             ServiceContainer.Kernel.Bind<TrackHelper>().ToSelf().InSingletonScope();
-            ServiceContainer.Kernel.Bind<IAudioService, IExtendedAudioService>().To<BassAudioService>();
+            ServiceContainer.Kernel.Bind<IAudioService>().To<BassAudioService>().InSingletonScope();
+            ServiceContainer.Kernel.Bind<IPlayAudioFileService>().To<BassPlayAudioFileService>().InSingletonScope();
             ServiceContainer.Kernel.Bind<ITagService>().To<BassTagService>().InSingletonScope();
         }
     }

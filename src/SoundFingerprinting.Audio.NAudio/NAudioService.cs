@@ -7,7 +7,7 @@
     using global::NAudio.Wave;
     using global::NAudio.Wave.SampleProviders;
 
-    public class NAudioService : AudioService, IExtendedAudioService
+    public class NAudioService : AudioService, IPlayAudioFileService
     {
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
 

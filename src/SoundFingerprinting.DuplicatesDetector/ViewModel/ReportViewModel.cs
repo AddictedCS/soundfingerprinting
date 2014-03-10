@@ -28,7 +28,7 @@
         /// <summary>
         ///   Proxy used in playing files
         /// </summary>
-        private readonly IExtendedAudioService audioService = ServiceContainer.Kernel.Get<IExtendedAudioService>();
+        private readonly IPlayAudioFileService audioService = ServiceContainer.Kernel.Get<IPlayAudioFileService>();
 
         /// <summary>
         ///   Flag - if the player is playing something
@@ -83,7 +83,7 @@
         /// <summary>
         /// Pointer to currently playing stream
         /// </summary>
-        private int currentlyPlayingStream;
+        private object currentlyPlayingStream;
 
         public ReportViewModel()
         {

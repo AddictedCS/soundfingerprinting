@@ -24,7 +24,7 @@ namespace SoundFingerprinting.SoundTools
             InitializeComponent();
             Icon = Resources.Sound;
             DependencyResolver.Current.Bind<IAudioService, NAudioService>();
-            DependencyResolver.Current.Bind<IExtendedAudioService, NAudioService>();
+            DependencyResolver.Current.Bind<IPlayAudioFileService, NAudioService>();
         }
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)

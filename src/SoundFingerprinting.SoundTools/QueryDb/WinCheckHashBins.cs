@@ -21,12 +21,12 @@
         private readonly IQueryCommandBuilder queryCommandBuilder;
         private readonly ITagService tagService;
         private readonly IModelService modelService;
-        private readonly IExtendedAudioService audioService;
+        private readonly IPlayAudioFileService audioService;
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
         private List<string> fileList = new List<string>();
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
-        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IExtendedAudioService audioService)
+        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IPlayAudioFileService audioService)
         {
             this.queryCommandBuilder = queryCommandBuilder;
             this.tagService = tagService;

@@ -5,6 +5,8 @@
 
     public interface IAudioService : IDisposable
     {
+        bool IsRecordingSupported { get; }
+
         /// <summary>
         /// Gets the list of supported audio formats
         /// </summary>
@@ -27,5 +29,17 @@
         /// <param name = "sampleRate">Sample rate at which to read the file</param>
         /// <returns>Array with data</returns>
         float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate);
+
+        /// <summary>
+        ///   Recode the file
+        /// </summary>
+        /// <param name = "pathToFile">Initial file</param>
+        /// <param name = "pathToRecodedFile">Target file</param>
+        /// <param name = "sampleRate">Target sample rate</param>
+        void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate);
+
+        float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload);
+
+        float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord);
     }
 }

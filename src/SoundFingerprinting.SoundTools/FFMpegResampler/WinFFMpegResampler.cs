@@ -15,7 +15,7 @@
     {
         private readonly ITagService tagService;
 
-        private readonly IExtendedAudioService audioService;
+        private readonly IPlayAudioFileService audioService;
 
         private readonly List<string> fileList = new List<string>();
         private int bitRate;
@@ -27,7 +27,7 @@
         private int skipped;
         private bool stopped;
 
-        public WinFfMpegResampler(ITagService tagService, IExtendedAudioService audioService)
+        public WinFfMpegResampler(ITagService tagService, IPlayAudioFileService audioService)
         {
             this.tagService = tagService;
             this.audioService = audioService;

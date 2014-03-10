@@ -73,17 +73,10 @@
 
         private void ReleaseStream(int stream)
         {
-            if (stream != 0 && !proxy.FreeStream(stream))
+            if (stream != 0)
             {
-                NotifyErrorWhenReleasingMemoryStream(stream);
+                proxy.FreeStream(stream);
             }
-        }
-
-        private void NotifyErrorWhenReleasingMemoryStream(int stream)
-        {
-            Trace.WriteLine(
-                "Could not release stream " + stream + ". Possible memory leak! Bass Error: " + proxy.GetLastError(),
-                "Error");
         }
     }
 }
