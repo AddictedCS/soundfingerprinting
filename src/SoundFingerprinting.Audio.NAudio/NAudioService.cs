@@ -7,14 +7,11 @@
     using global::NAudio.Wave;
     using global::NAudio.Wave.SampleProviders;
 
-    public class NAudioService : AudioService, IPlayAudioFileService
+    public class NAudioService : AudioService
     {
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
 
         private readonly SamplesAggregator samplesAggregator;
-
-        private IWavePlayer waveOutDevice;
-        private WaveStream mainOutputStream;
 
         public NAudioService()
         {
@@ -26,7 +23,7 @@
             Dispose(false);
         }
 
-        public bool IsRecordingSupported
+        public override bool IsRecordingSupported
         {
             get
             {
@@ -47,7 +44,7 @@
             return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt, sp => new NAudioSamplesProvider(sp));
         }
 
-        public float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
+        public override float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
         {
             float[] samples = ReadMonoFromSource(
                 streamUrl,
@@ -59,7 +56,7 @@
             return samples;
         }
 
-        public float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
+        public override float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
         {
             var producer = new BlockingCollection<float[]>();
             var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
@@ -85,7 +82,7 @@
             return samples;
         }
 
-        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
+        public override void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
             using (var reader = new Mp3FileReader(pathToFile))
             {
@@ -97,55 +94,8 @@
             }
         }
 
-        public int PlayFile(string filename)
-        {
-            waveOutDevice = new WaveOut();
-            mainOutputStream = CreateInputStream(filename);
-            waveOutDevice.Init(mainOutputStream);
-            waveOutDevice.Play();
-            return waveOutDevice.GetHashCode();
-        }
-
-        public void StopPlayingFile(int stream)
-        {
-            if (waveOutDevice != null)
-            {
-                waveOutDevice.Stop();
-            }
-
-            if (mainOutputStream != null)
-            {
-                mainOutputStream.Close();
-                mainOutputStream = null;
-            }
-
-            if (waveOutDevice != null)
-            {
-                waveOutDevice.Dispose();
-                waveOutDevice = null;
-            }
-        }
-
         protected override void Dispose(bool isDisposing)
         {
-            if (isDisposing)
-            {
-                if (waveOutDevice != null)
-                {
-                    waveOutDevice.Dispose();
-                }
-
-                if (mainOutputStream != null)
-                {
-                    mainOutputStream.Dispose();
-                }
-            }
-        }
-
-        private WaveStream CreateInputStream(string fileName)
-        {
-            var mp3Reader = new Mp3FileReader(fileName);
-            return new WaveChannel32(mp3Reader);
         }
 
         private void SeekToSecondInCaseIfRequired(int startAtSecond, MediaFoundationReader reader)

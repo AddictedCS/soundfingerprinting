@@ -12,7 +12,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -21,12 +20,12 @@
         private readonly IQueryCommandBuilder queryCommandBuilder;
         private readonly ITagService tagService;
         private readonly IModelService modelService;
-        private readonly IPlayAudioFileService audioService;
+        private readonly IAudioService audioService;
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
         private List<string> fileList = new List<string>();
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
-        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IPlayAudioFileService audioService)
+        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IAudioService audioService)
         {
             this.queryCommandBuilder = queryCommandBuilder;
             this.tagService = tagService;

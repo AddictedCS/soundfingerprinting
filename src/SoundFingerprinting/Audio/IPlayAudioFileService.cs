@@ -5,9 +5,9 @@
         /// <summary>
         ///   Play file
         /// </summary>
-        /// <param name = "filename">Filename</param>
+        /// <param name = "pathToFile">Filename</param>
         /// <returns>Identifier for currently playing stream</returns>
-        object PlayFile(string filename);
+        object PlayFile(string pathToFile);
 
         /// <summary>
         /// Stop playing stream

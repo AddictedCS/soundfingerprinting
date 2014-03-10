@@ -18,9 +18,9 @@
             this.proxy = proxy;
         }
 
-        public object PlayFile(string filename)
+        public object PlayFile(string pathToFile)
         {
-            int stream = proxy.CreateStream(filename, BASSFlag.BASS_DEFAULT);
+            int stream = proxy.CreateStream(pathToFile, BASSFlag.BASS_DEFAULT);
 
             if (stream == 0)
             {
