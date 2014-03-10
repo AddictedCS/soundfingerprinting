@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Audio.Bass
 {
     using System;
-    using System.Diagnostics;
 
     using Un4seen.Bass;
 
