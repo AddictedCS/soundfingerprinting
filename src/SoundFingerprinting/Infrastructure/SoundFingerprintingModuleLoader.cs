@@ -37,7 +37,8 @@ namespace SoundFingerprinting.Infrastructure
             }
 
             kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
-            kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
+            kernel.Bind<IAudioService, IExtendedAudioService>().To<BassAudioService>().InSingletonScope();
+            kernel.Bind<ITagService>().To<BassTagService>().InSingletonScope();
             kernel.Bind<IBassServiceProxy>().To<BassServiceProxy>().InSingletonScope();
 
             kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>().InSingletonScope();

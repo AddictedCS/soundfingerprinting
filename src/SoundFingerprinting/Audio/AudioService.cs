@@ -11,11 +11,11 @@ namespace SoundFingerprinting.Audio
 
         public abstract IReadOnlyCollection<string> SupportedFormats { get; }
 
-        public abstract float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond);
+        public abstract float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt);
 
-        public float[] ReadMonoFromFile(string pathToFile, int sampleRate)
+        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate)
         {
-            return ReadMonoFromFile(pathToFile, sampleRate, 0, 0);
+            return ReadMonoFromFile(pathToSourceFile, sampleRate, 0, 0);
         }
 
         public void Dispose()

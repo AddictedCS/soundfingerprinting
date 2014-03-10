@@ -3,7 +3,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.InMemory;
@@ -30,7 +29,8 @@
 
             ServiceContainer.Kernel.Bind<DuplicatesDetectorFacade>().ToSelf().InSingletonScope();
             ServiceContainer.Kernel.Bind<TrackHelper>().ToSelf().InSingletonScope();
-            ServiceContainer.Kernel.Bind<ITagService, IAudioService, IExtendedAudioService>().To<BassAudioService>();
+            ServiceContainer.Kernel.Bind<IAudioService, IExtendedAudioService>().To<BassAudioService>();
+            ServiceContainer.Kernel.Bind<ITagService>().To<BassTagService>().InSingletonScope();
         }
     }
 }
