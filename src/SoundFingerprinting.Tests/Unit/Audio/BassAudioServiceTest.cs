@@ -23,31 +23,6 @@
         {
             bassServiceProxy = new Mock<IBassServiceProxy>(MockBehavior.Strict);
             DependencyResolver.Current.Bind<IBassServiceProxy, IBassServiceProxy>(bassServiceProxy.Object);
-
-            if (!BassAudioService.IsNativeBassLibraryInitialized)
-            {
-                const string RegistrationEmail = "gleb.godonoga@gmail.com";
-                const string RegistrationKey = "2X155323152222";
-
-                bassServiceProxy.Setup(proxy => proxy.RegisterBass(RegistrationEmail, RegistrationKey));
-                bassServiceProxy.Setup(proxy => proxy.BassLoadMe(It.IsAny<string>())).Returns(true);
-                bassServiceProxy.Setup(proxy => proxy.BassMixLoadMe(It.IsAny<string>())).Returns(true);
-                bassServiceProxy.Setup(proxy => proxy.BassFxLoadMe(It.IsAny<string>())).Returns(true);
-                bassServiceProxy.Setup(proxy => proxy.GetVersion()).Returns(1232);
-                bassServiceProxy.Setup(proxy => proxy.GetMixerVersion()).Returns(1233);
-                bassServiceProxy.Setup(proxy => proxy.GetFxVersion()).Returns(1234);
-                bassServiceProxy.Setup(proxy => proxy.PluginLoadDirectory(It.IsAny<string>())).Returns(
-                    new Dictionary<int, string> { { 1, "bassflac.dll" } });
-                bassServiceProxy.Setup(
-                    proxy =>
-                    proxy.Init(
-                        -1, BassAudioService.DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
-                    .Returns(true);
-                bassServiceProxy.Setup(proxy => proxy.SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50)).Returns(true);
-                bassServiceProxy.Setup(proxy => proxy.SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true)).Returns(true);
-                bassServiceProxy.Setup(proxy => proxy.RecordInit(-1)).Returns(true);
-            }
-
             bassAudioService = new BassAudioService();
         }
 

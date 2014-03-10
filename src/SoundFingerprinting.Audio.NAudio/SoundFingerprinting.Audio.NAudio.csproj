@@ -39,6 +39,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockingQueueSamplesProvider.cs" />
+    <Compile Include="NAudioSamplesProvider.cs" />
     <Compile Include="NAudioService.cs" />
     <Compile Include="NAudioServiceException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

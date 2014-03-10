@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Threading;
 
     using global::NAudio.Wave;
     using global::NAudio.Wave.SampleProviders;
@@ -43,14 +42,19 @@
             }
         }
 
-        public override float[] ReadMonoFromFile(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond)
+        public override float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
-            return ReadMonoFromSource(pathToFile, sampleRate, secondsToRead, startAtSecond, GetNextSamples);
+            return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt, sp => new NAudioSamplesProvider(sp));
         }
 
         public float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
         {
-            float[] samples = ReadMonoFromSource(streamUrl, sampleRate, secondsToDownload, 0, GetNextStreamingSamples);
+            float[] samples = ReadMonoFromSource(
+                streamUrl,
+                sampleRate,
+                secondsToDownload,
+                0,
+                sp => new ContinuousStreamSamplesProvider(new NAudioSamplesProvider(sp)));
             WriteSamplesToFile(pathToFile, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1), samples);
             return samples;
         }
@@ -72,7 +76,7 @@
 
                 waveIn.StartRecording();
 
-                samples = samplesAggregator.ReadSamplesFromSource(producer, secondsToRecord, sampleRate, GetNextSamplesFromContinuousBlockingQueue);
+                samples = samplesAggregator.ReadSamplesFromSource(new BlockingQueueSamplesProvider(producer), secondsToRecord, sampleRate);
 
                 waveIn.StopRecording();
             }
@@ -162,31 +166,6 @@
             }
         }
 
-        private int GetNextSamples(SampleProviderConverterBase sampleProvider, float[] buffer)
-        {
-            return sampleProvider.Read(buffer, 0, buffer.Length) * 4;
-        }
-
-        private int GetNextStreamingSamples(SampleProviderConverterBase sampleProvider, float[] buffer)
-        {
-            int bytesRead = GetNextSamples(sampleProvider, buffer);
-
-            while (bytesRead == 0)
-            {
-                Thread.Sleep(500); // lame but required to fill the buffer from continuous stream, either microphone or url
-                bytesRead = GetNextSamples(sampleProvider, buffer);
-            }
-
-            return bytesRead;
-        }
-
-        private int GetNextSamplesFromContinuousBlockingQueue(BlockingCollection<float[]> producer, float[] buffer)
-        {
-            var samples = producer.Take();
-            Array.Copy(samples, buffer, samples.Length);
-            return samples.Length * 4;
-        }
-
         private float[] GetFloatSamplesFromByte(int bytesRecorded, byte[] buffer)
         {
             int startIndex = 0;
@@ -201,7 +180,7 @@
             return chunk;
         }
 
-        private float[] ReadMonoFromSource(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, float[], int> getNextSamples)
+        private float[] ReadMonoFromSource(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, ISamplesProvider> getSamplesProvider)
         {
             using (var reader = new MediaFoundationReader(pathToFile))
             {
@@ -210,7 +189,7 @@
                 using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
                 {
                     var waveToSampleProvider = new WaveToSampleProvider(resampler);
-                    return samplesAggregator.ReadSamplesFromSource(waveToSampleProvider, secondsToRead, sampleRate, getNextSamples);
+                    return samplesAggregator.ReadSamplesFromSource(getSamplesProvider(waveToSampleProvider), secondsToRead, sampleRate);
                 }
             }
         }

@@ -10,15 +10,15 @@
     {
         public const int DefaultBufferLengthInSeconds = 20;
 
-        public float[] ReadSamplesFromSource<T>(T source, int secondsToRead, int sampleRate, Func<T, float[], int> getNextSamples)
+        public float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, int secondsToRead, int sampleRate)
         {
             var buffer = GetBuffer(secondsToRead, sampleRate);
             int totalBytesToRead = GetTotalBytesToRead(secondsToRead, sampleRate), totalBytesRead = 0;
             var chunks = new List<float[]>();
 
             while (totalBytesRead < totalBytesToRead)
-            { 
-                int bytesRead = getNextSamples(source, buffer);
+            {
+                int bytesRead = samplesProvider.GetNextSamples(buffer);
 
                 if (bytesRead  < 0)
                 {
