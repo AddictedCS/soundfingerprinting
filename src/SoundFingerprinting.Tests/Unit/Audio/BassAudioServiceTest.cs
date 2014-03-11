@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Audio
 {
-    using System.Collections.Generic;
+    using System;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,178 +8,98 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Infrastructure;
-
-    using Un4seen.Bass;
 
     [TestClass]
     public class BassAudioServiceTest : AbstractTest
     {
-        private const int DefaultBufferLengthInSeconds = 20;
+        private IAudioService audioService;
 
-        private BassAudioService bassAudioService;
+        private Mock<IBassServiceProxy> proxy;
 
-        private Mock<IBassServiceProxy> bassServiceProxy;
+        private Mock<IBassStreamFactory> streamFactory;
+
+        private Mock<IBassResampler> resampler;
 
         [TestInitialize]
         public void SetUp()
         {
-            bassServiceProxy = new Mock<IBassServiceProxy>(MockBehavior.Strict);
-            DependencyResolver.Current.Bind<IBassServiceProxy, IBassServiceProxy>(bassServiceProxy.Object);
-            bassAudioService = new BassAudioService();
+            proxy = new Mock<IBassServiceProxy>(MockBehavior.Strict);
+            streamFactory = new Mock<IBassStreamFactory>(MockBehavior.Strict);
+            resampler = new Mock<IBassResampler>(MockBehavior.Strict);
+
+            audioService = new BassAudioService(proxy.Object, streamFactory.Object, resampler.Object);
         }
 
         [TestCleanup]
         public void TearDown()
         {
-            bassServiceProxy.VerifyAll();
+            proxy.VerifyAll();
+            streamFactory.VerifyAll();
+            resampler.VerifyAll();
         }
 
         [TestMethod]
-        public void GetRecordingDeviceTest()
+        public void TestGetRecordingDevice()
         {
             const int RecordingDevice = 123;
-            bassServiceProxy.Setup(proxy => proxy.GetRecordingDevice()).Returns(RecordingDevice);
+            proxy.Setup(p => p.GetRecordingDevice()).Returns(RecordingDevice);
 
-            bool isSupported = bassAudioService.IsRecordingSupported;
+            bool isSupported = audioService.IsRecordingSupported;
 
             Assert.IsTrue(isSupported);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
-        public void ReadMonoFromFileThrowsExceptionInCaseIfNoStreamIsCreated()
+        public void TestReadMonoFromFile()
         {
-            bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not create stream from specified path");
+            const int StreamId = 100;
+            float[] samplesToReturn = new float[1024];
+            streamFactory.Setup(f => f.CreateStream("path-to-file")).Returns(StreamId);
+            resampler.Setup(r => r.Resample(StreamId, SampleRate, 0, 0, It.IsAny<Func<int, ISamplesProvider>>()))
+                .Returns(samplesToReturn);
 
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStream(
-                    "path-to-audio-file",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(0);
+            var samples = audioService.ReadMonoFromFile("path-to-file", SampleRate);
 
-            bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512);
+            Assert.AreEqual(samplesToReturn, samples);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
-        public void ReadMonoFromUrlThrowsExceptionInCaseIfNoStreamIsCreated()
+        public void TestReadMonoFromFileFromSpecificSecond()
         {
-            bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not create stream from specified path");
+            const int StreamId = 100;
+            float[] samplesToReturn = new float[1024];
+            streamFactory.Setup(f => f.CreateStream("path-to-file")).Returns(StreamId);
+            resampler.Setup(r => r.Resample(StreamId, SampleRate, 10, 20, It.IsAny<Func<int, ISamplesProvider>>())).Returns(samplesToReturn);
 
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStreamFromUrl(
-                    "path-to-streaming-url",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(0);
+            var samples = audioService.ReadMonoFromFile("path-to-file", SampleRate, 10, 20);
 
-            bassAudioService.ReadMonoSamplesFromStreamingUrl("path-to-streaming-url", 5512, 10);
+            Assert.AreEqual(samplesToReturn, samples);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
-        public void ReadMonoFromFileThrowsExceptionInCaseIfNoMixerStreamIsCreated()
+        public void TestReadMonoFromUrl()
         {
-            const int StreamId = 123;
+            const int StreamId = 100;
+            float[] samplesToReturn = new float[1024];
+            streamFactory.Setup(f => f.CreateStreamFromStreamingUrl("url-to-streaming-resource")).Returns(StreamId);
+            resampler.Setup(r => r.Resample(StreamId, SampleRate, 30, 0, It.IsAny<Func<int, ISamplesProvider>>())).Returns(samplesToReturn);
 
-            bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not create mixer stream");
+            var samples = audioService.ReadMonoSamplesFromStreamingUrl("url-to-streaming-resource", SampleRate, 30);
 
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStream(
-                    "path-to-audio-file",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(StreamId);
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateMixerStream(
-                    5512, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT))
-                    .Returns(0);
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(StreamId)).Returns(true);
-           
-            bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512);
+            Assert.AreEqual(samplesToReturn, samples);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
-        public void ReadMonoFromFileThrowsExceptionInCaseIfStreamCannotBeCombined()
+        public void TestReadMonoFromMicrophone()
         {
-            const int StreamId = 123;
-            const int MixerStreamId = 124;
+            const int StreamId = 100;
+            float[] samplesToReturn = new float[1024];
+            streamFactory.Setup(f => f.CreateStreamFromMicrophone(SampleRate)).Returns(StreamId);
+            resampler.Setup(r => r.Resample(StreamId, SampleRate, 30, 0, It.IsAny<Func<int, ISamplesProvider>>())).Returns(samplesToReturn);
 
-            bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not combine streams");
+            var samples = audioService.ReadMonoSamplesFromMicrophone(SampleRate, 30);
 
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStream(
-                    "path-to-audio-file",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(StreamId);
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateMixerStream(
-                    5512, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT))
-                    .Returns(MixerStreamId);
-            bassServiceProxy.Setup(proxy => proxy.CombineMixerStreams(MixerStreamId, StreamId, BASSFlag.BASS_MIXER_FILTER))
-                    .Returns(false);
-
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(StreamId)).Returns(true);
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(MixerStreamId)).Returns(true);
-
-            bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512);
+            Assert.AreEqual(samplesToReturn, samples);
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
-        public void ReadMonoFromFileSeekFailsWithError()
-        {
-            const int StreamId = 123;
-            
-            bassServiceProxy.Setup(proxy => proxy.GetLastError()).Returns("Could not seek to specified second");
-
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStream(
-                    "path-to-audio-file",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(StreamId);
-            bassServiceProxy.Setup(proxy => proxy.ChannelSetPosition(StreamId, 10)).Returns(false);
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(StreamId)).Returns(true);
-            
-            bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512, 10, 10);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(AudioServiceException))]
-        public void ChannelGetDataFailsWithError()
-        {
-            const int StreamId = 123;
-            const int MixerStreamId = 124;
-
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStream(
-                    "path-to-audio-file",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(StreamId);
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateMixerStream(
-                    5512, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT))
-                    .Returns(MixerStreamId);
-            bassServiceProxy.Setup(proxy => proxy.CombineMixerStreams(MixerStreamId, StreamId, BASSFlag.BASS_MIXER_FILTER))
-                    .Returns(true);
-            bassServiceProxy.Setup(proxy => proxy.ChannelSetPosition(StreamId, 10)).Returns(true);
-
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(StreamId)).Returns(true);
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(MixerStreamId)).Returns(true);
-
-            const int BytesRead = -1;
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.ChannelGetData(
-                    MixerStreamId, It.IsAny<float[]>(), 5512 * 10 * 4))
-                    .Returns(BytesRead);
-
-            bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512, 10, 10);
-        }
-
-       
     }
 }

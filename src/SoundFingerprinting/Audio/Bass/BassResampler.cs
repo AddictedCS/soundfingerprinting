@@ -12,8 +12,6 @@
 
         private readonly ISamplesAggregator samplesAggregator;
 
-
-
         public BassResampler(IBassServiceProxy proxy, IBassStreamFactory streamFactory, ISamplesAggregator samplesAggregator)
         {
             this.proxy = proxy;

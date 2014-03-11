@@ -29,7 +29,7 @@
         {
         }
 
-        private BassAudioService(IBassServiceProxy proxy, IBassStreamFactory streamFactory, IBassResampler bassResampler)
+        internal BassAudioService(IBassServiceProxy proxy, IBassStreamFactory streamFactory, IBassResampler bassResampler)
         {
             this.proxy = proxy;
             this.streamFactory = streamFactory;

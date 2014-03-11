@@ -2,8 +2,6 @@
 {
     using SoundFingerprinting.Infrastructure;
 
-    using Un4seen.Bass.AddOn.Tags;
-
     public class BassTagService : ITagService
     {
         private readonly IBassServiceProxy bassServiceProxy;

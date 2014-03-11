@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.Audio.Bass;
-
     public class SamplesAggregator : ISamplesAggregator
     {
         public const int DefaultBufferLengthInSeconds = 20;
