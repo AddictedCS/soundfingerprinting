@@ -67,10 +67,10 @@
             bassServiceProxy.Setup(
                 proxy =>
                 proxy.CreateStreamFromUrl(
-                    "path-to-audio-file",
+                    "path-to-streaming-url",
                     BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(0);
 
-            bassAudioService.ReadMonoFromUrlToFile("path-to-audio-file", "path-to-output-location", 5512, 10);
+            bassAudioService.ReadMonoSamplesFromStreamingUrl("path-to-streaming-url", 5512, 10);
         }
 
         [TestMethod]

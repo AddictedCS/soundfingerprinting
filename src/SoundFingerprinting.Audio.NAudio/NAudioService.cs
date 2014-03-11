@@ -44,7 +44,7 @@
             return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt, sp => new NAudioSamplesProvider(sp));
         }
 
-        public override float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload)
+        public override float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload)
         {
             float[] samples = ReadMonoFromSource(
                 streamUrl,
@@ -52,11 +52,10 @@
                 secondsToDownload,
                 0,
                 sp => new ContinuousStreamSamplesProvider(new NAudioSamplesProvider(sp)));
-            WriteSamplesToFile(pathToFile, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1), samples);
             return samples;
         }
 
-        public override float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord)
+        public override float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
         {
             var producer = new BlockingCollection<float[]>();
             var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
@@ -78,8 +77,15 @@
                 waveIn.StopRecording();
             }
 
-            WriteSamplesToFile(pathToFile, waveFormat, samples);
             return samples;
+        }
+
+        public override void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
+        {
+            using (var writer = new WaveFileWriter(pathToFile, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
+            {
+                writer.WriteSamples(samples, 0, samples.Length);
+            }
         }
 
         public override void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
@@ -119,14 +125,6 @@
                 int actualSampleRate = reader.WaveFormat.SampleRate;
                 int bitsPerSample = reader.WaveFormat.BitsPerSample;
                 reader.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond, System.IO.SeekOrigin.Begin);
-            }
-        }
-
-        private void WriteSamplesToFile(string pathToFile, WaveFormat waveFormat, float[] samples)
-        {
-            using (var writer = new WaveFileWriter(pathToFile, waveFormat))
-            {
-                writer.WriteSamples(samples, 0, samples.Length);
             }
         }
 

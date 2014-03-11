@@ -22,9 +22,11 @@ namespace SoundFingerprinting.Audio
 
         public abstract void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate);
 
-        public abstract float[] ReadMonoFromUrlToFile(string streamUrl, string pathToFile, int sampleRate, int secondsToDownload);
+        public abstract float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload);
 
-        public abstract float[] ReadMonoFromMicrophoneToFile(string pathToFile, int sampleRate, int secondsToRecord);
+        public abstract float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord);
+
+        public abstract void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate);
 
         public void Dispose()
         {

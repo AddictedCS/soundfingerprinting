@@ -180,9 +180,12 @@
             int sampleRate = (int)_nudSampleRate.Value;
             string pathToFile = "mic_" + DateTime.Now.Ticks + ".wav";
             _gbQueryMicrophoneBox.Enabled = false;
-            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoFromMicrophoneToFile(pathToFile, sampleRate, secondsToRecord)).ContinueWith(
+            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoSamplesFromMicrophone(sampleRate, secondsToRecord)).ContinueWith(
                 task =>
                     {
+                        var samples = task.Result;
+                        audioService.WriteSamplesToWaveFile(pathToFile, samples, sampleRate);
+
                         _gbQueryMicrophoneBox.Enabled = true;
                         WinQueryResults winQueryResults = new WinQueryResults(
                             secondsToRecord,
@@ -213,12 +216,11 @@
             int seconds = (int)nudSecondsUrl.Value;
             string pathToFile = "url_" + DateTime.Now.Ticks + ".wav";
 
-            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoFromUrlToFile(url, pathToFile, sampleRate, seconds))
+            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoSamplesFromStreamingUrl(url, sampleRate, seconds))
                 .ContinueWith(task =>
                     { 
                         float[] samples = task.Result;
-                    
-                        
+                        audioService.WriteSamplesToWaveFile(pathToFile, samples, sampleRate);    
                     });
         }
     }
