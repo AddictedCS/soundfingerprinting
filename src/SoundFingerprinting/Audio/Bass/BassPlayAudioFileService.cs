@@ -13,7 +13,7 @@
         {
         }
 
-        private BassPlayAudioFileService(IBassServiceProxy proxy)
+        internal BassPlayAudioFileService(IBassServiceProxy proxy)
         {
             this.proxy = proxy;
         }
@@ -27,7 +27,7 @@
                 throw new BassPlayAudioFileServiceException(proxy.GetLastError());
             }
 
-            if (proxy.StartPlaying(stream))
+            if (!proxy.StartPlaying(stream))
             {
                 throw new BassPlayAudioFileServiceException(proxy.GetLastError());
             }
