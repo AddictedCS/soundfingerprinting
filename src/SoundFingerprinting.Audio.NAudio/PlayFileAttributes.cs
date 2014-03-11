@@ -4,13 +4,13 @@
 
     public class PlayFileAttributes
     {
-        public PlayFileAttributes(WaveOut waveOut, WaveStream waveStream)
+        public PlayFileAttributes(IWavePlayer wavePlayer, WaveStream waveStream)
         {
-            WaveOut = waveOut;
+            WavePlayer = wavePlayer;
             WaveStream = waveStream;
         }
 
-        public WaveOut WaveOut { get; private set; }
+        public IWavePlayer WavePlayer { get; private set; }
 
         public WaveStream WaveStream { get; private set; }
     }
