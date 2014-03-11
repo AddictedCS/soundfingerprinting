@@ -7,7 +7,7 @@
     using global::NAudio.Wave;
     using global::NAudio.Wave.SampleProviders;
 
-    public class NAudioService : AudioService
+    public class NAudioService : IAudioService
     {
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
 
@@ -18,7 +18,7 @@
             samplesAggregator = new SamplesAggregator();
         }
 
-        public override bool IsRecordingSupported
+        public bool IsRecordingSupported
         {
             get
             {
@@ -26,20 +26,25 @@
             }
         }
 
-        public override IReadOnlyCollection<string> SupportedFormats
+        public IReadOnlyCollection<string> SupportedFormats
         {
             get
             {
                 return NAudioSupportedFormats;
             }
         }
+        
+        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate)
+        {
+            return ReadMonoFromFile(pathToSourceFile, sampleRate, 0, 0);
+        }
 
-        public override float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
+        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
             return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt, sp => new NAudioSamplesProvider(sp));
         }
 
-        public override float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload)
+        public float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload)
         {
             float[] samples = ReadMonoFromSource(
                 streamUrl,
@@ -50,7 +55,7 @@
             return samples;
         }
 
-        public override float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
+        public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
         {
             var producer = new BlockingCollection<float[]>();
             var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
@@ -75,7 +80,7 @@
             return samples;
         }
 
-        public override void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
+        public void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
         {
             using (var writer = new WaveFileWriter(pathToFile, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
             {
@@ -83,7 +88,7 @@
             }
         }
 
-        public override void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
             using (var reader = new Mp3FileReader(pathToFile))
             {

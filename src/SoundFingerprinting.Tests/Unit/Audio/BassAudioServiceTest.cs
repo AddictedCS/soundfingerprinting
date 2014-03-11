@@ -14,6 +14,8 @@
     [TestClass]
     public class BassAudioServiceTest : AbstractTest
     {
+        private const int DefaultBufferLengthInSeconds = 20;
+
         private BassAudioService bassAudioService;
 
         private Mock<IBassServiceProxy> bassServiceProxy;
@@ -203,12 +205,12 @@
             bassServiceProxy.Setup(proxy => proxy.FreeStream(MixerStreamId)).Returns(true);
 
             // 20 20 10 seconds
-            var queueBytesRead = new Queue<int>(new[] { DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4, DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4, DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4 / 2 });
+            var queueBytesRead = new Queue<int>(new[] { DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4 / 2 });
 
             bassServiceProxy.Setup(
                 proxy =>
                 proxy.ChannelGetData(
-                    MixerStreamId, It.IsAny<float[]>(), DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4))
+                    MixerStreamId, It.IsAny<float[]>(), DefaultSampleRate * DefaultBufferLengthInSeconds * 4))
                     .Returns(queueBytesRead.Dequeue);
             const int SecondsToRead = 45;
             
@@ -244,12 +246,12 @@
             bassServiceProxy.Setup(proxy => proxy.FreeStream(MixerStreamId)).Returns(true);
 
             // 20 20 10 seconds
-            var queueBytesRead = new Queue<int>(new[] { DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4, DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4, DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4 / 2, 0 });
+            var queueBytesRead = new Queue<int>(new[] { DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4 / 2, 0 });
 
             bassServiceProxy.Setup(
                 proxy =>
                 proxy.ChannelGetData(
-                    MixerStreamId, It.IsAny<float[]>(), DefaultSampleRate * BassAudioService.DefaultBufferLengthInSeconds * 4))
+                    MixerStreamId, It.IsAny<float[]>(), DefaultSampleRate * DefaultBufferLengthInSeconds * 4))
                     .Returns(queueBytesRead.Dequeue);
             const int SecondsToRead = 55;
 

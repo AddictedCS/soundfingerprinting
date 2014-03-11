@@ -15,7 +15,7 @@
     ///   Its purpose is to provide developers with powerful and efficient sample, stream (MP3, MP2, MP1, OGG, WAV, AIFF, custom generated, and more via add-ons), 
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
     /// </remarks>
-    public class BassAudioService : AudioService
+    public class BassAudioService : IAudioService
     {
         private const int NumberOfChannels = 1;
             
@@ -35,7 +35,7 @@
             bassResampler = new BassResampler(proxy);
         }
 
-        public override bool IsRecordingSupported
+        public bool IsRecordingSupported
         {
             get
             {
@@ -43,7 +43,7 @@
             }
         }
 
-        public override IReadOnlyCollection<string> SupportedFormats
+        public IReadOnlyCollection<string> SupportedFormats
         {
             get
             {
@@ -51,31 +51,36 @@
             }
         }
 
-        public override float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
+        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate)
+        {
+            return ReadMonoFromFile(pathToSourceFile, sampleRate, 0, 0);
+        }
+
+        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
             int stream = CreateStream(pathToSourceFile, GetDefaultFlags());
             return bassResampler.Resample(stream, sampleRate, seconds, startAt, mixer => new BassSamplesProvider(proxy, mixer));
         }
 
-        public override float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload)
+        public float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload)
         {
             int stream = CreateStreamToUrl(streamUrl);
             return bassResampler.Resample(stream, sampleRate, secondsToDownload, 0, mixer => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixer)));
         }
 
-        public override float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
+        public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
         {
             int stream = CreateStreamByStartingToRecord(sampleRate);
             return bassResampler.Resample(stream, sampleRate, secondsToRecord, 0, mixer => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixer)));
         }
 
-        public override void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
+        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
             float[] samples = ReadMonoFromFile(pathToFile, sampleRate);
             WriteSamplesToWaveFile(pathToRecodedFile, samples, sampleRate);
         }
 
-        public override void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
+        public void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
         {
             const int BitsPerSample = 4 * 8;
             var waveWriter = new WaveWriter(pathToFile, NumberOfChannels, sampleRate, BitsPerSample, true);

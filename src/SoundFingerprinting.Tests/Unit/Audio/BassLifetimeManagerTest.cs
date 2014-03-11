@@ -6,7 +6,6 @@
 
     using Moq;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Infrastructure;
 
@@ -106,7 +105,7 @@
                 new Dictionary<int, string> { { 1, "bassflac.dll" } });
             bassServiceProxy.Setup(
                 proxy =>
-                proxy.Init(-1, AudioService.DefaultSampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
+                proxy.Init(-1, SampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
                 .Returns(true);
             bassServiceProxy.Setup(proxy => proxy.SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50)).Returns(true);
             bassServiceProxy.Setup(proxy => proxy.SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true)).Returns(true);
