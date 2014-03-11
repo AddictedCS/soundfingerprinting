@@ -6,7 +6,7 @@
 
     using SoundFingerprinting.Audio.Bass;
 
-    public class SamplesAggregator
+    public class SamplesAggregator : ISamplesAggregator
     {
         public const int DefaultBufferLengthInSeconds = 20;
 
