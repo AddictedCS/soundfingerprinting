@@ -4,7 +4,6 @@
 
     using SoundFingerprinting.Infrastructure;
 
-    using Un4seen.Bass;
     using Un4seen.Bass.Misc;
 
     /// <summary>
@@ -17,22 +16,24 @@
     /// </remarks>
     public class BassAudioService : IAudioService
     {
-        private const int NumberOfChannels = 1;
-            
         private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", "mp3", ".ogg", ".flac" };
 
         private readonly IBassServiceProxy proxy;
 
-        private readonly BassResampler bassResampler;
+        private readonly IBassStreamFactory streamFactory;
 
-        public BassAudioService() : this(DependencyResolver.Current.Get<IBassServiceProxy>())
+        private readonly IBassResampler bassResampler;
+
+        public BassAudioService()
+            : this(DependencyResolver.Current.Get<IBassServiceProxy>(), DependencyResolver.Current.Get<IBassStreamFactory>(), DependencyResolver.Current.Get<IBassResampler>())
         {
         }
 
-        private BassAudioService(IBassServiceProxy proxy)
+        private BassAudioService(IBassServiceProxy proxy, IBassStreamFactory streamFactory, IBassResampler bassResampler)
         {
             this.proxy = proxy;
-            bassResampler = new BassResampler(proxy);
+            this.streamFactory = streamFactory;
+            this.bassResampler = bassResampler;
         }
 
         public bool IsRecordingSupported
@@ -58,20 +59,20 @@
 
         public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
-            int stream = CreateStream(pathToSourceFile, GetDefaultFlags());
-            return bassResampler.Resample(stream, sampleRate, seconds, startAt, mixer => new BassSamplesProvider(proxy, mixer));
+            int stream = streamFactory.CreateStream(pathToSourceFile);
+            return bassResampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));
         }
 
-        public float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload)
+        public float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload)
         {
-            int stream = CreateStreamToUrl(streamUrl);
-            return bassResampler.Resample(stream, sampleRate, secondsToDownload, 0, mixer => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixer)));
+            int stream = streamFactory.CreateStreamFromStreamingUrl(streamingUrl);
+            return bassResampler.Resample(stream, sampleRate, secondsToDownload, 0, mixerStream => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixerStream)));
         }
 
         public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
         {
-            int stream = CreateStreamByStartingToRecord(sampleRate);
-            return bassResampler.Resample(stream, sampleRate, secondsToRecord, 0, mixer => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixer)));
+            int stream = streamFactory.CreateStreamFromMicrophone(sampleRate);
+            return bassResampler.Resample(stream, sampleRate, secondsToRecord, 0, mixerStream => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixerStream)));
         }
 
         public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
@@ -83,51 +84,9 @@
         public void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
         {
             const int BitsPerSample = 4 * 8;
-            var waveWriter = new WaveWriter(pathToFile, NumberOfChannels, sampleRate, BitsPerSample, true);
+            var waveWriter = new WaveWriter(pathToFile, BassConstants.NumberOfChannels, sampleRate, BitsPerSample, true);
             waveWriter.Write(samples, samples.Length * 4);
             waveWriter.Close();
-        }
-
-        private int CreateStream(string pathToFile, BASSFlag flags)
-        {
-            // create streams for re-sampling
-            int stream = proxy.CreateStream(pathToFile, flags);
-
-            if (stream == 0)
-            {
-                throw new BassAudioServiceException(proxy.GetLastError());
-            }
-
-            return stream;
-        }
-
-        private int CreateStreamToUrl(string urlToResource)
-        {
-            int stream = proxy.CreateStreamFromUrl(urlToResource, GetDefaultFlags());
-
-            if (stream == 0)
-            {
-                throw new BassAudioServiceException(proxy.GetLastError());
-            }
-
-            return stream;
-        }
-
-        private int CreateStreamByStartingToRecord(int sampleRate)
-        {
-            int stream = proxy.StartRecording(sampleRate, NumberOfChannels, BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-
-            if (stream == 0)
-            {
-                throw new BassAudioServiceException(proxy.GetLastError());
-            }
-
-            return stream;
-        }
-
-        private BASSFlag GetDefaultFlags()
-        {
-            return BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT;
         }
     }
 }

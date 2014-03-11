@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Audio.Bass
+﻿namespace SoundFingerprinting.Audio
 {
     using System;
 

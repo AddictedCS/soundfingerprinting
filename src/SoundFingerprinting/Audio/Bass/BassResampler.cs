@@ -4,16 +4,21 @@
 
     using Un4seen.Bass;
 
-    internal class BassResampler
+    internal class BassResampler : IBassResampler
     {
         private readonly IBassServiceProxy proxy;
 
-        private readonly SamplesAggregator samplesAggregator;
+        private readonly IBassStreamFactory streamFactory;
 
-        internal BassResampler(IBassServiceProxy proxy)
+        private readonly ISamplesAggregator samplesAggregator;
+
+
+
+        public BassResampler(IBassServiceProxy proxy, IBassStreamFactory streamFactory, ISamplesAggregator samplesAggregator)
         {
             this.proxy = proxy;
-            samplesAggregator = new SamplesAggregator();
+            this.streamFactory = streamFactory;
+            this.samplesAggregator = samplesAggregator;
         }
 
         public float[] Resample(int sourceStream, int sampleRate, int seconds, int startAt, Func<int, ISamplesProvider> getSamplesProvider)
@@ -22,20 +27,15 @@
             try
             {
                 SeekToSecondInCaseIfRequired(sourceStream, startAt);
-                mixerStream = CreateMixerStream(sampleRate);
+                mixerStream = streamFactory.CreateMixerStream(sampleRate);
                 CombineStreams(mixerStream, sourceStream);
-                return ReadSamplesFromSource(getSamplesProvider(mixerStream), seconds, sampleRate);
+                return samplesAggregator.ReadSamplesFromSource(getSamplesProvider(mixerStream), seconds, sampleRate);
             }
             finally
             {
                 ReleaseStream(mixerStream);
                 ReleaseStream(sourceStream);
             }
-        }
-
-        protected virtual float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, int seconds, int sampleRate)
-        {
-            return samplesAggregator.ReadSamplesFromSource(samplesProvider, seconds, sampleRate);
         }
 
         private void SeekToSecondInCaseIfRequired(int stream, int startAtSecond)
@@ -55,19 +55,6 @@
             {
                 throw new BassAudioServiceException(proxy.GetLastError());
             }
-        }
-
-        private int CreateMixerStream(int sampleRate)
-        {
-            int mixerStream = proxy.CreateMixerStream(
-                sampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT);
-
-            if (mixerStream == 0)
-            {
-                throw new BassAudioServiceException(proxy.GetLastError());
-            }
-
-            return mixerStream;
         }
 
         private void ReleaseStream(int stream)

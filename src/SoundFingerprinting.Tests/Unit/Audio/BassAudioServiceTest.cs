@@ -6,6 +6,7 @@
 
     using Moq;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Infrastructure;
 
@@ -179,83 +180,6 @@
             bassAudioService.ReadMonoFromFile("path-to-audio-file", 5512, 10, 10);
         }
 
-        [TestMethod]
-        public void ReadMonoFromFileMoreDataThanRequiredIsReceivedTest()
-        {
-            const int StreamId = 123;
-            const int MixerStreamId = 124;
-
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStream(
-                    "path-to-audio-file",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(StreamId);
-            const int DefaultSampleRate = 5512;
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateMixerStream(
-                    DefaultSampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT))
-                    .Returns(MixerStreamId);
-            bassServiceProxy.Setup(proxy => proxy.CombineMixerStreams(MixerStreamId, StreamId, BASSFlag.BASS_MIXER_FILTER))
-                    .Returns(true);
-            const int StartAtSecond = 10;
-            bassServiceProxy.Setup(proxy => proxy.ChannelSetPosition(StreamId, StartAtSecond)).Returns(true);
-
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(StreamId)).Returns(true);
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(MixerStreamId)).Returns(true);
-
-            // 20 20 10 seconds
-            var queueBytesRead = new Queue<int>(new[] { DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4 / 2 });
-
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.ChannelGetData(
-                    MixerStreamId, It.IsAny<float[]>(), DefaultSampleRate * DefaultBufferLengthInSeconds * 4))
-                    .Returns(queueBytesRead.Dequeue);
-            const int SecondsToRead = 45;
-            
-            float[] samples = bassAudioService.ReadMonoFromFile("path-to-audio-file", DefaultSampleRate, SecondsToRead, StartAtSecond);
-
-            Assert.AreEqual(45 * DefaultSampleRate, samples.Length);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(AudioServiceException))]
-        public void ReadMonoFromFileLessDataThanRequiredIsReceivedTest()
-        {
-            const int StreamId = 123;
-            const int MixerStreamId = 124;
-
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateStream(
-                    "path-to-audio-file",
-                    BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT)).Returns(StreamId);
-            const int DefaultSampleRate = 5512;
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.CreateMixerStream(
-                    DefaultSampleRate, 1, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_MONO | BASSFlag.BASS_SAMPLE_FLOAT))
-                    .Returns(MixerStreamId);
-            bassServiceProxy.Setup(proxy => proxy.CombineMixerStreams(MixerStreamId, StreamId, BASSFlag.BASS_MIXER_FILTER))
-                    .Returns(true);
-            const int StartAtSecond = 10;
-            bassServiceProxy.Setup(proxy => proxy.ChannelSetPosition(StreamId, StartAtSecond)).Returns(true);
-
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(StreamId)).Returns(true);
-            bassServiceProxy.Setup(proxy => proxy.FreeStream(MixerStreamId)).Returns(true);
-
-            // 20 20 10 seconds
-            var queueBytesRead = new Queue<int>(new[] { DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4, DefaultSampleRate * DefaultBufferLengthInSeconds * 4 / 2, 0 });
-
-            bassServiceProxy.Setup(
-                proxy =>
-                proxy.ChannelGetData(
-                    MixerStreamId, It.IsAny<float[]>(), DefaultSampleRate * DefaultBufferLengthInSeconds * 4))
-                    .Returns(queueBytesRead.Dequeue);
-            const int SecondsToRead = 55;
-
-            bassAudioService.ReadMonoFromFile("path-to-audio-file", DefaultSampleRate, SecondsToRead, StartAtSecond);
-        }
+       
     }
 }

@@ -78,6 +78,10 @@
     <Compile Include="Integration\SQL\TrackDaoTest.cs" />
     <Compile Include="Unit\Audio\BassAudioServiceTest.cs" />
     <Compile Include="Unit\Audio\BassLifetimeManagerTest.cs" />
+    <Compile Include="Unit\Audio\BassResamplerTest.cs" />
+    <Compile Include="Unit\Audio\BassStreamFactoryTest.cs" />
+    <Compile Include="Unit\Audio\QueueSamplesProvider.cs" />
+    <Compile Include="Unit\Audio\SamplesAggregatorTest.cs" />
     <Compile Include="Unit\Audio\StrideTest.cs" />
     <Compile Include="Integration\Audio\TagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />

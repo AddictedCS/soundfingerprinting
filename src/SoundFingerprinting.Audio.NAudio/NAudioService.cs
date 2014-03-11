@@ -44,10 +44,10 @@
             return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt, sp => new NAudioSamplesProvider(sp));
         }
 
-        public float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload)
+        public float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload)
         {
             float[] samples = ReadMonoFromSource(
-                streamUrl,
+                streamingUrl,
                 sampleRate,
                 secondsToDownload,
                 0,

@@ -55,21 +55,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\AudioSamplesNormalizer.cs" />
-    <Compile Include="Audio\Bass\AudioServiceException.cs" />
+    <Compile Include="Audio\AudioServiceException.cs" />
     <Compile Include="Audio\Bass\BassAudioService.cs" />
     <Compile Include="Audio\Bass\BassAudioServiceException.cs" />
     <Compile Include="Audio\Bass\BassConfigurationSection.cs" />
+    <Compile Include="Audio\Bass\BassConstants.cs" />
     <Compile Include="Audio\Bass\BassPlayAudioFileService.cs" />
     <Compile Include="Audio\Bass\BassPlayAudioFileServiceException.cs" />
     <Compile Include="Audio\Bass\BassResampler.cs" />
     <Compile Include="Audio\Bass\BassSamplesProvider.cs" />
     <Compile Include="Audio\Bass\BassServiceProxy.cs" />
+    <Compile Include="Audio\Bass\BassStreamFactory.cs" />
     <Compile Include="Audio\Bass\BassTagService.cs" />
+    <Compile Include="Audio\Bass\IBassResampler.cs" />
     <Compile Include="Audio\Bass\IBassServiceProxy.cs" />
+    <Compile Include="Audio\Bass\IBassStreamFactory.cs" />
     <Compile Include="Audio\ContinuousStreamSamplesProvider.cs" />
     <Compile Include="Audio\IAudioSamplesNormalizer.cs" />
     <Compile Include="Audio\IAudioService.cs" />
     <Compile Include="Audio\IPlayAudioFileService.cs" />
+    <Compile Include="Audio\ISamplesAggregator.cs" />
     <Compile Include="Audio\ISamplesProvider.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\SamplesAggregator.cs" />

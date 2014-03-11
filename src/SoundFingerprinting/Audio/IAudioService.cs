@@ -12,7 +12,7 @@
 
         float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate);
 
-        float[] ReadMonoSamplesFromStreamingUrl(string streamUrl, int sampleRate, int secondsToDownload);
+        float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload);
 
         float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord);
 
