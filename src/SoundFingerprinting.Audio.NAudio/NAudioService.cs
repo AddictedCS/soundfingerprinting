@@ -98,6 +98,20 @@
         {
         }
 
+        private float[] ReadMonoFromSource(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, ISamplesProvider> getSamplesProvider)
+        {
+            using (var reader = new MediaFoundationReader(pathToFile))
+            {
+                SeekToSecondInCaseIfRequired(startAtSecond, reader);
+                var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+                using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
+                {
+                    var waveToSampleProvider = new WaveToSampleProvider(resampler);
+                    return samplesAggregator.ReadSamplesFromSource(getSamplesProvider(waveToSampleProvider), secondsToRead, sampleRate);
+                }
+            }
+        }
+
         private void SeekToSecondInCaseIfRequired(int startAtSecond, MediaFoundationReader reader)
         {
             if (startAtSecond > 0)
@@ -128,20 +142,6 @@
             }
 
             return chunk;
-        }
-
-        private float[] ReadMonoFromSource(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, ISamplesProvider> getSamplesProvider)
-        {
-            using (var reader = new MediaFoundationReader(pathToFile))
-            {
-                SeekToSecondInCaseIfRequired(startAtSecond, reader);
-                var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
-                using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
-                {
-                    var waveToSampleProvider = new WaveToSampleProvider(resampler);
-                    return samplesAggregator.ReadSamplesFromSource(getSamplesProvider(waveToSampleProvider), secondsToRead, sampleRate);
-                }
-            }
         }
     }
 }

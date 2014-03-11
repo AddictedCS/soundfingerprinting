@@ -5,6 +5,7 @@ namespace SoundFingerprinting.SoundTools
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Audio.NAudio.Play;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.SoundTools.BassResampler;
     using SoundFingerprinting.SoundTools.DbFiller;

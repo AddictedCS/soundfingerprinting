@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace SoundFingerprinting.Infrastructure
+﻿namespace SoundFingerprinting.Infrastructure
 {
+    using System;
+
     using Ninject;
 
     using SoundFingerprinting.Audio;
