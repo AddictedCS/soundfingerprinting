@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
 
     public class BlockingQueueSamplesProvider : ISamplesProvider
     {
@@ -14,9 +15,19 @@
 
         public int GetNextSamples(float[] buffer)
         {
-            float[] samples = producer.Take();
-            Array.Copy(samples, buffer, samples.Length);
-            return samples.Length * 4;
+            try
+            {
+                float[] samples = producer.Take();
+                Array.Copy(samples, buffer, samples.Length);
+                return samples.Length * 4;
+            }
+            catch (InvalidOperationException e) 
+            {
+                // thrown when collection is marked as not allowing more additions
+                Trace.WriteLine(e.Message);
+            }
+
+            return 0;
         }
     }
 }
