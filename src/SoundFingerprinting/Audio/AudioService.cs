@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Audio
 {
-    using System;
     using System.Collections.Generic;
 
     public abstract class AudioService : IAudioService
@@ -27,13 +26,5 @@ namespace SoundFingerprinting.Audio
         public abstract float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord);
 
         public abstract void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate);
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected abstract void Dispose(bool isDisposing);
     }
 }

@@ -1,9 +1,8 @@
 ﻿namespace SoundFingerprinting.Audio
 {
-    using System;
     using System.Collections.Generic;
 
-    public interface IAudioService : IDisposable
+    public interface IAudioService
     {
         bool IsRecordingSupported { get; }
 

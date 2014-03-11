@@ -18,11 +18,6 @@
             samplesAggregator = new SamplesAggregator();
         }
 
-        ~NAudioService()
-        {
-            Dispose(false);
-        }
-
         public override bool IsRecordingSupported
         {
             get
@@ -98,10 +93,6 @@
                     WaveFileWriter.CreateWaveFile(pathToRecodedFile, resampler);
                 }
             }
-        }
-
-        protected override void Dispose(bool isDisposing)
-        {
         }
 
         private float[] ReadMonoFromSource(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, ISamplesProvider> getSamplesProvider)

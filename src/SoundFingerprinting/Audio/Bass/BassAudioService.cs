@@ -25,8 +25,6 @@
 
         private readonly BassResampler bassResampler;
 
-        private bool alreadyDisposed;
-  
         public BassAudioService() : this(DependencyResolver.Current.Get<IBassServiceProxy>())
         {
         }
@@ -35,11 +33,6 @@
         {
             this.proxy = proxy;
             bassResampler = new BassResampler(proxy);
-        }
-
-        ~BassAudioService()
-        {
-            Dispose(false);
         }
 
         public override bool IsRecordingSupported
@@ -88,15 +81,6 @@
             var waveWriter = new WaveWriter(pathToFile, NumberOfChannels, sampleRate, BitsPerSample, true);
             waveWriter.Write(samples, samples.Length * 4);
             waveWriter.Close();
-        }
-
-        protected override void Dispose(bool isDisposing)
-        {
-            if (!alreadyDisposed)
-            {
-                alreadyDisposed = true;
-                proxy.Dispose();
-            }
         }
 
         private int CreateStream(string pathToFile, BASSFlag flags)

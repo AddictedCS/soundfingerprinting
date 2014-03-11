@@ -109,26 +109,25 @@
         {
             const int SecondsToProcess = 20;
             const int StartAtSecond = 15;
-            using (var audioService = new BassAudioService())
-            {
-                float[] samples = audioService.ReadMonoFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
+            var audioService = new BassAudioService();
 
-                var hashDatasFromFile = fingerprintCommandBuilderWithBass
-                                            .BuildFingerprintCommand()
-                                            .From(PathToMp3, SecondsToProcess, StartAtSecond)
-                                            .WithDefaultFingerprintConfig()
-                                            .Hash()
-                                            .Result;
+            float[] samples = audioService.ReadMonoFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
 
-                var hashDatasFromSamples = fingerprintCommandBuilderWithBass
-                                            .BuildFingerprintCommand()
-                                            .From(samples)
-                                            .WithDefaultFingerprintConfig()
-                                            .Hash()
-                                            .Result;
+            var hashDatasFromFile = fingerprintCommandBuilderWithBass
+                                        .BuildFingerprintCommand()
+                                        .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                                        .WithDefaultFingerprintConfig()
+                                        .Hash()
+                                        .Result;
 
-                AssertHashDatasAreTheSame(hashDatasFromFile, hashDatasFromSamples);
-            }
+            var hashDatasFromSamples = fingerprintCommandBuilderWithBass
+                                        .BuildFingerprintCommand()
+                                        .From(samples)
+                                        .WithDefaultFingerprintConfig()
+                                        .Hash()
+                                        .Result;
+
+            AssertHashDatasAreTheSame(hashDatasFromFile, hashDatasFromSamples);
         }
 
         [TestMethod]
@@ -175,22 +174,20 @@
         [TestMethod]
         public void CheckFingerprintCreationAlgorithmTest()
         {
-            using (BassAudioService bassAudioService = new BassAudioService())
-            {
-                string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
-                bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
-                long fileSize = new FileInfo(tempFile).Length;
-                
-                var list = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
-                                          .From(PathToMp3)
-                                          .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
-                                          .Fingerprint()
-                                          .Result;
+            var bassAudioService = new BassAudioService();
+            string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
+            bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
+            long fileSize = new FileInfo(tempFile).Length;
 
-                long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
-                Assert.AreEqual(expected, list.Count);
-                File.Delete(tempFile);
-            }
+            var list = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+                                      .From(PathToMp3)
+                                      .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
+                                      .Fingerprint()
+                                      .Result;
+
+            long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
+            Assert.AreEqual(expected, list.Count);
+            File.Delete(tempFile);
         }
 
         [TestMethod]
