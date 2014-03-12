@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class BassAudioServiceException : Exception
+    internal class BassAudioServiceException : Exception
     {
         public BassAudioServiceException(string message)
             : base(message)

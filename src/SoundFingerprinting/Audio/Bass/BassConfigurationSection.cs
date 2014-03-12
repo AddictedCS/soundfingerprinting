@@ -2,7 +2,7 @@
 {
     using System.Configuration;
 
-    public class BassConfigurationSection : ConfigurationSection
+    internal class BassConfigurationSection : ConfigurationSection
     {
         [ConfigurationProperty("email")]
         public string Email

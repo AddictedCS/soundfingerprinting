@@ -80,11 +80,12 @@
     <Compile Include="Unit\Audio\BassLifetimeManagerTest.cs" />
     <Compile Include="Unit\Audio\BassPlayAudioFileServiceTest.cs" />
     <Compile Include="Unit\Audio\BassResamplerTest.cs" />
+    <Compile Include="Unit\Audio\BassSamplesProviderTest.cs" />
     <Compile Include="Unit\Audio\BassStreamFactoryTest.cs" />
     <Compile Include="Unit\Audio\QueueSamplesProvider.cs" />
     <Compile Include="Unit\Audio\SamplesAggregatorTest.cs" />
     <Compile Include="Unit\Audio\StrideTest.cs" />
-    <Compile Include="Integration\Audio\TagServiceTest.cs" />
+    <Compile Include="Integration\Audio\BassTagServiceTest.cs" />
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\ModelServiceTest.cs" />
     <Compile Include="Integration\InMemory\FingerprintDaoTest.cs" />

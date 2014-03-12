@@ -9,7 +9,7 @@
     using SoundFingerprinting.Tests.Integration;
 
     [TestClass]
-    public class TagServiceTest : AbstractIntegrationTest
+    public class BassTagServiceTest : AbstractIntegrationTest
     {
         private readonly ITagService tagService = new BassTagService();
 
