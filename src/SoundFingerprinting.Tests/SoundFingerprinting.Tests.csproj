@@ -82,6 +82,7 @@
     <Compile Include="Unit\Audio\BassResamplerTest.cs" />
     <Compile Include="Unit\Audio\BassSamplesProviderTest.cs" />
     <Compile Include="Unit\Audio\BassStreamFactoryTest.cs" />
+    <Compile Include="Unit\Audio\ContinuousStreamSamplesProviderTest.cs" />
     <Compile Include="Unit\Audio\QueueSamplesProvider.cs" />
     <Compile Include="Unit\Audio\SamplesAggregatorTest.cs" />
     <Compile Include="Unit\Audio\StrideTest.cs" />
