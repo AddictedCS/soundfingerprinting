@@ -8,9 +8,9 @@
 
         IReadOnlyCollection<string> SupportedFormats { get; }
 
-        float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt);
+        float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt);
 
-        float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate);
+        float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate);
 
         float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload);
 

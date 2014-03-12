@@ -58,7 +58,7 @@
             resampler.Setup(r => r.Resample(StreamId, SampleRate, 0, 0, It.IsAny<Func<int, ISamplesProvider>>()))
                 .Returns(samplesToReturn);
 
-            var samples = audioService.ReadMonoFromFile("path-to-file", SampleRate);
+            var samples = audioService.ReadMonoSamplesFromFile("path-to-file", SampleRate);
 
             Assert.AreEqual(samplesToReturn, samples);
         }
@@ -71,7 +71,7 @@
             streamFactory.Setup(f => f.CreateStream("path-to-file")).Returns(StreamId);
             resampler.Setup(r => r.Resample(StreamId, SampleRate, 10, 20, It.IsAny<Func<int, ISamplesProvider>>())).Returns(samplesToReturn);
 
-            var samples = audioService.ReadMonoFromFile("path-to-file", SampleRate, 10, 20);
+            var samples = audioService.ReadMonoSamplesFromFile("path-to-file", SampleRate, 10, 20);
 
             Assert.AreEqual(samplesToReturn, samples);
         }

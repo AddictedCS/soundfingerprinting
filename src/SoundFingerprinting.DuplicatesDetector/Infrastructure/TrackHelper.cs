@@ -24,7 +24,7 @@ namespace SoundFingerprinting.DuplicatesDetector.Infrastructure
                 return null;
             }
 
-            return audioService.ReadMonoFromFile(track.Album, sampleRate, secondsToRead, startAtSecond);
+            return audioService.ReadMonoSamplesFromFile(track.Album, sampleRate, secondsToRead, startAtSecond);
         }
 
         public TrackData GetTrack(int mintracklen, int maxtracklen, string filename)

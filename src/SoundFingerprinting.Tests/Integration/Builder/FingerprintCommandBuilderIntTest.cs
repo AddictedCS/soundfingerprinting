@@ -111,7 +111,7 @@
             const int StartAtSecond = 15;
             var audioService = new BassAudioService();
 
-            float[] samples = audioService.ReadMonoFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
+            float[] samples = audioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
 
             var hashDatasFromFile = fingerprintCommandBuilderWithBass
                                         .BuildFingerprintCommand()

@@ -4,6 +4,8 @@ namespace SoundFingerprinting.Audio
 
     public class ContinuousStreamSamplesProvider : ISamplesProvider
     {
+        private const int MillisecondsTimeout = 500;
+
         private readonly ISamplesProvider provider;
 
         public ContinuousStreamSamplesProvider(ISamplesProvider provider)
@@ -17,7 +19,7 @@ namespace SoundFingerprinting.Audio
 
             while (bytesRead == 0)
             {
-                Thread.Sleep(500); // lame but required to fill the buffer from continuous stream, either microphone or url
+                Thread.Sleep(MillisecondsTimeout); // lame but required to fill the buffer from continuous stream, either microphone or url
                 bytesRead = provider.GetNextSamples(buffer);
             }
 

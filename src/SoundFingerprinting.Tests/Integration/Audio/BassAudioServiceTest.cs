@@ -28,7 +28,7 @@
             using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
             {
                 float[] samples = (float[])serializer.Deserialize(stream);
-                float[] readSamples = bassAudioService.ReadMonoFromFile(PathToMp3, SampleRate);
+                float[] readSamples = bassAudioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate);
                 Assert.AreEqual(samples.Length, readSamples.Length);
                 for (int i = 0; i < samples.Length; i++)
                 {
@@ -50,7 +50,7 @@
             {
                 float[] samples = (float[])serializer.Deserialize(stream);
                 float[] subsetOfSamples = GetSubsetOfSamplesFromFullSong(samples, SecondsToRead, StartAtSecond);
-                float[] readSamples = bassAudioService.ReadMonoFromFile(PathToMp3, SampleRate, SecondsToRead, StartAtSecond);
+                float[] readSamples = bassAudioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate, SecondsToRead, StartAtSecond);
                 Assert.AreEqual(subsetOfSamples.Length, readSamples.Length);
                 Assert.IsTrue(
                     Math.Abs(subsetOfSamples.Sum(s => Math.Abs(s)) - readSamples.Sum(s => Math.Abs(s))) < AcceptedError,
@@ -63,7 +63,7 @@
         {
             string tempFile = string.Format(@"{0}{1}", Path.GetTempPath(), "0.wav");
             bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, SampleRate);
-            float[] samples = bassAudioService.ReadMonoFromFile(PathToMp3, SampleRate);
+            float[] samples = bassAudioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate);
             FileInfo info = new FileInfo(tempFile);
             long expectedSize = info.Length - WaveHeader;
             long actualSize = samples.Length * (BitsPerSample / 8);

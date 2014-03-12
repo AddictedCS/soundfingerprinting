@@ -52,12 +52,12 @@
             }
         }
 
-        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate)
+        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate)
         {
-            return ReadMonoFromFile(pathToSourceFile, sampleRate, 0, 0);
+            return ReadMonoSamplesFromFile(pathToSourceFile, sampleRate, 0, 0);
         }
 
-        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
+        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
             int stream = streamFactory.CreateStream(pathToSourceFile);
             return bassResampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));
@@ -77,7 +77,7 @@
 
         public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
-            float[] samples = ReadMonoFromFile(pathToFile, sampleRate);
+            float[] samples = ReadMonoSamplesFromFile(pathToFile, sampleRate);
             WriteSamplesToWaveFile(pathToRecodedFile, samples, sampleRate);
         }
 

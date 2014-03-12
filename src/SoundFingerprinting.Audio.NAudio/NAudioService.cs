@@ -34,12 +34,12 @@
             }
         }
         
-        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate)
+        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate)
         {
-            return ReadMonoFromFile(pathToSourceFile, sampleRate, 0, 0);
+            return ReadMonoSamplesFromFile(pathToSourceFile, sampleRate, 0, 0);
         }
 
-        public float[] ReadMonoFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
+        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
             return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt, sp => new NAudioSamplesProvider(sp));
         }

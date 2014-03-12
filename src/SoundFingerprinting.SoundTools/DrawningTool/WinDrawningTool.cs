@@ -194,7 +194,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] data = audioService.ReadMonoFromFile(fullpath, new DefaultFingerprintConfiguration().SampleRate);
+                        float[] data = audioService.ReadMonoSamplesFromFile(fullpath, new DefaultFingerprintConfiguration().SampleRate);
                         using (Image image = imageService.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value))
                         {
                             image.Save(sfd.FileName, ImageFormat.Jpeg);
@@ -237,7 +237,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] samples = audioService.ReadMonoFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
+                        float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         float[][] data = spectrumService.CreateSpectrogram(samples, fingerprintConfiguration.Overlap, fingerprintConfiguration.WdftSize);
                         Image image = imageService.GetSpectrogramImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                         image.Save(sfd.FileName, ImageFormat.Jpeg);
@@ -300,7 +300,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] samples = audioService.ReadMonoFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
+                        float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         Image image = imageService.GetLogSpectralImages(
                             spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration),
                             new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
@@ -345,7 +345,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] samples = audioService.ReadMonoFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
+                        float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         Image image = imageService.GetWaveletsImages(
                             spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration),
                             new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
