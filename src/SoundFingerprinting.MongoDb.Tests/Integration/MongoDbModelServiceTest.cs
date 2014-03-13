@@ -11,9 +11,11 @@
         private readonly DaoTestHelper daoTestHelper = new DaoTestHelper();
 
         public MongoDbModelServiceTest()
-            : base(new MongoDbModelService())
         {
+            ModelService = new MongoDbModelService();
         }
+
+        public override sealed IModelService ModelService { get; set; }
 
         [TestInitialize]
         public override void SetUp()

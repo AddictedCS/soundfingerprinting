@@ -3,7 +3,6 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
 
     [DeploymentItem(@"x86", @"x86")]
     [DeploymentItem(@"x64", @"x64")]
@@ -48,11 +47,6 @@
                                                          };
 
         protected readonly long[] GenericHashBuckets = new[] { 1L, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
-
-        protected AbstractTest()
-        {
-            DependencyResolver.Current = null;
-        }
 
         protected void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
         {

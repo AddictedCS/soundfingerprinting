@@ -11,7 +11,6 @@
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
 
     [TestClass]
@@ -37,12 +36,7 @@
             fingerprintCommand = new Mock<IFingerprintCommand>(MockBehavior.Strict);
             queryFingerprintService = new Mock<IQueryFingerprintService>(MockBehavior.Strict);
 
-            DependencyResolver.Current.Bind<IFingerprintCommandBuilder, IFingerprintCommandBuilder>(
-                fingerprintCommandBuilder.Object);
-            DependencyResolver.Current.Bind<IQueryFingerprintService, IQueryFingerprintService>(
-                queryFingerprintService.Object);
-
-            queryCommandBuilder = new QueryCommandBuilder();
+            queryCommandBuilder = new QueryCommandBuilder(fingerprintCommandBuilder.Object, queryFingerprintService.Object);
         }
 
         [TestCleanup]

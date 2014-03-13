@@ -10,7 +10,7 @@
             // no op
         }
 
-        protected InMemoryModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao)
+        internal InMemoryModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao)
             : base(trackDao, hashBinDao, subFingerprintDao, fingerprintDao)
         {
             // no op

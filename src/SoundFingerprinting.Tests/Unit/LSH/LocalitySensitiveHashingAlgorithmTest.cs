@@ -6,7 +6,6 @@
 
     using Moq;
 
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.MinHash;
 
@@ -21,8 +20,7 @@
         public void SetUp()
         {
             minHashService = new Mock<IMinHashService>(MockBehavior.Strict);
-            DependencyResolver.Current.Bind<IMinHashService, IMinHashService>(minHashService.Object);
-            lshAlgorithm = new LocalitySensitiveHashingAlgorithm();
+            lshAlgorithm = new LocalitySensitiveHashingAlgorithm(minHashService.Object);
         }
 
         [TestCleanup]

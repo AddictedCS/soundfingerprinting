@@ -11,7 +11,7 @@
         {
         }
 
-        private BassTagService(IBassServiceProxy bassServiceProxy)
+        internal BassTagService(IBassServiceProxy bassServiceProxy)
         {
             this.bassServiceProxy = bassServiceProxy;
         }

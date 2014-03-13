@@ -11,7 +11,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.LSH;
     using SoundFingerprinting.SQL;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
@@ -33,10 +33,8 @@
             base.SetUp();
 
             modelService = new SqlModelService();
-            DependencyResolver.Current.Bind<IAudioService, BassAudioService>();
-            fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder();
-            DependencyResolver.Current.Bind<IAudioService, NAudioService>();
-            fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder();
+            fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(new FingerprintService(), new BassAudioService(), new LocalitySensitiveHashingAlgorithm());
+            fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(new FingerprintService(), new NAudioService(), new LocalitySensitiveHashingAlgorithm());
             queryFingerprintService = new QueryFingerprintService(modelService);
         }
 

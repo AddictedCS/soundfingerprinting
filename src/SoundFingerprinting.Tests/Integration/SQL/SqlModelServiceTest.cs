@@ -8,13 +8,10 @@
     public class SqlModelServiceTest : ModelServiceTest
     {
         public SqlModelServiceTest()
-            : base(new SqlModelService())
         {
+            ModelService = new SqlModelService();
         }
 
-        protected SqlModelServiceTest(IModelService modelService)
-            : base(modelService)
-        {
-        }
+        public override sealed IModelService ModelService { get; set; }
     }
 }

@@ -9,17 +9,22 @@
     [TestClass]
     public class TrackDaoTest : AbstractTrackDaoTest
     {
-        public TrackDaoTest()
-        {
-            TrackDao = new TrackDao();
-            SubFingerprintDao = new SubFingerprintDao();
-            HashBinDao = new HashBinDao();
-        }
-        
+        private const int NumberOfHashTables = 25;
+
         public override sealed ITrackDao TrackDao { get; set; }
 
         public override sealed ISubFingerprintDao SubFingerprintDao { get; set; }
 
         public override sealed IHashBinDao HashBinDao { get; set; }
+
+        [TestInitialize]
+        public override void SetUp()
+        {
+            base.SetUp();
+            var ramStorage = new RAMStorage(NumberOfHashTables);
+            HashBinDao = new HashBinDao(ramStorage);
+            TrackDao = new TrackDao(ramStorage);
+            SubFingerprintDao = new SubFingerprintDao(ramStorage);
+        }
     }
 }

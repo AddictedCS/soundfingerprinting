@@ -9,14 +9,19 @@
     [TestClass]
     public class FingerprintDaoTest : AbstractFingerprintDaoTest
     {
-        public FingerprintDaoTest()
-        {
-            FingerprintDao = new FingerprintDao();
-            TrackDao = new TrackDao();
-        }
+        private const int NumberOfHashTables = 25;
 
         public override sealed IFingerprintDao FingerprintDao { get; set; }
 
         public override sealed ITrackDao TrackDao { get; set; }
+
+        [TestInitialize]
+        public override void SetUp()
+        {
+            base.SetUp();
+            var ramStorage = new RAMStorage(NumberOfHashTables);
+            FingerprintDao = new FingerprintDao(ramStorage);
+            TrackDao = new TrackDao(ramStorage);
+        }
     }
 }

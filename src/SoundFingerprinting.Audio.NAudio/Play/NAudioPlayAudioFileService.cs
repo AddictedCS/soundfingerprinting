@@ -11,7 +11,7 @@
         {
         }
 
-        private NAudioPlayAudioFileService(INAudioPlayAudioFactory audioFactory)
+        internal NAudioPlayAudioFileService(INAudioPlayAudioFactory audioFactory)
         {
             this.audioFactory = audioFactory;
         }

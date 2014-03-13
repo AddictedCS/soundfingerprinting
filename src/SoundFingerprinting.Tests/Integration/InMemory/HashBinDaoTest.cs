@@ -9,17 +9,22 @@
     [TestClass]
     public class HashBinDaoTest : AbstractHashBinDaoTest
     {
-        public HashBinDaoTest()
-        {
-            HashBinDao = new HashBinDao();
-            TrackDao = new TrackDao();
-            SubFingerprintDao = new SubFingerprintDao();
-        }
+        private const int NumberOfHashTables = 25;
 
         public override sealed IHashBinDao HashBinDao { get; set; }
 
         public override sealed ITrackDao TrackDao { get; set; }
 
         public override sealed ISubFingerprintDao SubFingerprintDao { get; set; }
+
+        [TestInitialize]
+        public override void SetUp()
+        {
+            base.SetUp();
+            var ramStorage = new RAMStorage(NumberOfHashTables);
+            HashBinDao = new HashBinDao(ramStorage);
+            TrackDao = new TrackDao(ramStorage);
+            SubFingerprintDao = new SubFingerprintDao(ramStorage);
+        }
     }
 }

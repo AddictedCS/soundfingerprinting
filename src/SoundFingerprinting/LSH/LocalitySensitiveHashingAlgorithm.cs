@@ -17,7 +17,7 @@
         {
         }
 
-        private LocalitySensitiveHashingAlgorithm(IMinHashService minHashService)
+        internal LocalitySensitiveHashingAlgorithm(IMinHashService minHashService)
         {
             this.minHashService = minHashService;
         }

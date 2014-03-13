@@ -6,11 +6,8 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.InMemory;
 
     [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
     [DeploymentItem(@"TestEnvironment\Kryptonite.mp3")]
@@ -29,7 +26,6 @@
         public virtual void TearDown()
         {
             transactionPerTestScope.Dispose();
-            DependencyResolver.Current.Get<IRAMStorage>().Reset(new DefaultFingerprintConfiguration().NumberOfLSHTables);
         }
 
         protected void AssertHashDatasAreTheSame(IList<HashData> firstHashDatas, IList<HashData> secondHashDatas)

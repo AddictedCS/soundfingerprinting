@@ -7,14 +7,17 @@
     [TestClass]
     public class InMemoryModelServiceTest : ModelServiceTest
     {
-        public InMemoryModelServiceTest()
-            : base(new InMemoryModelService())
-        {
-        }
+        private const int NumberOfHashTables = 25;
 
-        protected InMemoryModelServiceTest(IModelService modelService)
-            : base(modelService)
+        public override IModelService ModelService { get; set; }
+
+        [TestInitialize]
+        public override void SetUp()
         {
+            base.SetUp();
+            var ramStorage = new RAMStorage(NumberOfHashTables);
+            ModelService = new InMemoryModelService(
+                new TrackDao(ramStorage), new HashBinDao(ramStorage), new SubFingerprintDao(ramStorage), new FingerprintDao(ramStorage));
         }
     }
 }

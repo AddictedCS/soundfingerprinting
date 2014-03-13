@@ -7,7 +7,6 @@
     using global::NAudio.Wave;
 
     using SoundFingerprinting.Audio.NAudio.Play;
-    using SoundFingerprinting.Infrastructure;
 
     [TestClass]
     public class NAudioPlayAudioFileServiceTest
@@ -20,10 +19,7 @@
         public void SetUp()
         {
             factory = new Mock<INAudioPlayAudioFactory>(MockBehavior.Strict);
-
-            DependencyResolver.Current.Bind<INAudioPlayAudioFactory, INAudioPlayAudioFactory>(factory.Object);
-
-            service = new NAudioPlayAudioFileService();
+            service = new NAudioPlayAudioFileService(factory.Object);
         }
 
         [TestMethod]

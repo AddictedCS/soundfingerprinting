@@ -31,12 +31,7 @@
             audioService = new Mock<IAudioService>(MockBehavior.Strict);
             lshAlgorithm = new Mock<ILocalitySensitiveHashingAlgorithm>(MockBehavior.Strict);
 
-            DependencyResolver.Current.Bind<IFingerprintService, IFingerprintService>(fingerprintService.Object);
-            DependencyResolver.Current.Bind<IAudioService, IAudioService>(audioService.Object);
-            DependencyResolver.Current.Bind<ILocalitySensitiveHashingAlgorithm, ILocalitySensitiveHashingAlgorithm>(
-                lshAlgorithm.Object);
-
-            fingerprintCommandBuilder = new FingerprintCommandBuilder();
+            fingerprintCommandBuilder = new FingerprintCommandBuilder(fingerprintService.Object, audioService.Object, lshAlgorithm.Object);
         }
 
         [TestCleanup]

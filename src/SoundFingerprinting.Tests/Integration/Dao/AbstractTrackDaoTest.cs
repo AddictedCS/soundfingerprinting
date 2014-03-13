@@ -8,10 +8,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     [TestClass]
@@ -33,7 +33,7 @@
             base.SetUp();
 
             fingerprintCommandBuilder = new FingerprintCommandBuilder();
-            tagService = DependencyResolver.Current.Get<ITagService>();
+            tagService = new BassTagService();
         }
 
         [TestMethod]

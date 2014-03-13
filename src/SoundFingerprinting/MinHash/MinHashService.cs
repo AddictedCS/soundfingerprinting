@@ -11,7 +11,7 @@
         {
         }
 
-        private MinHashService(IPermutations permutations)
+        internal MinHashService(IPermutations permutations)
         {
             this.permutations = permutations;
         }
