@@ -26,7 +26,7 @@
         {
         }
 
-        private SpectrumService(IFFTService fftService, ILogUtility logUtility, IAudioSamplesNormalizer audioSamplesNormalizer)
+        internal SpectrumService(IFFTService fftService, ILogUtility logUtility, IAudioSamplesNormalizer audioSamplesNormalizer)
         {
             this.fftService = fftService;
             this.logUtility = logUtility;

@@ -220,6 +220,7 @@
                 .ContinueWith(task =>
                     { 
                         float[] samples = task.Result;
+                       
                         audioService.WriteSamplesToWaveFile(pathToFile, samples, sampleRate);    
                     });
         }

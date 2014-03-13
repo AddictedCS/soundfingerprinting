@@ -7,7 +7,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     [TestClass]
@@ -25,16 +24,9 @@
         public void SetUp()
         {
             fftService = new Mock<IFFTService>(MockBehavior.Strict);
-            DependencyResolver.Current.Bind<IFFTService, IFFTService>(fftService.Object);
-
             audioSamplesNormalizer = new Mock<IAudioSamplesNormalizer>(MockBehavior.Strict);
-            DependencyResolver.Current.Bind<IAudioSamplesNormalizer, IAudioSamplesNormalizer>(
-                audioSamplesNormalizer.Object);
-
             logUtility = new Mock<ILogUtility>(MockBehavior.Strict);
-            DependencyResolver.Current.Bind<ILogUtility, ILogUtility>(logUtility.Object);
-
-            spectrumService = new SpectrumService();
+            spectrumService = new SpectrumService(fftService.Object, logUtility.Object, audioSamplesNormalizer.Object);
         }
 
         [TestCleanup]

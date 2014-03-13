@@ -21,7 +21,7 @@
                 Array.Copy(samples, buffer, samples.Length);
                 return samples.Length * 4;
             }
-            catch (InvalidOperationException e) 
+            catch (InvalidOperationException e)
             {
                 // thrown when collection is marked as not allowing more additions
                 Trace.WriteLine(e.Message);

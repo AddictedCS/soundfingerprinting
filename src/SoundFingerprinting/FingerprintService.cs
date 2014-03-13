@@ -34,7 +34,7 @@ namespace SoundFingerprinting
         {
         }
 
-        private FingerprintService(
+        internal FingerprintService(
             ISpectrumService spectrumService,
             IWaveletDecomposition waveletDecomposition,
             IFingerprintDescriptor fingerprintDescriptor)

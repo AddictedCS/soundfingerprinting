@@ -7,7 +7,6 @@
     using Moq;
 
     using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Infrastructure;
 
     using Un4seen.Bass;
 
@@ -17,12 +16,6 @@
         private BassServiceProxy.BassLifetimeManager bassLifetimeManager;
 
         private Mock<IBassServiceProxy> bassServiceProxy;
-
-        [ClassInitialize]
-        public static void Init(TestContext context)
-        {
-            DependencyResolver.Current.Get<IBassServiceProxy>().Dispose();
-        }
 
         [TestInitialize]
         public void SetUp()
@@ -105,7 +98,7 @@
                 new Dictionary<int, string> { { 1, "bassflac.dll" } });
             bassServiceProxy.Setup(
                 proxy =>
-                proxy.Init(-1, SampleRate, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
+                proxy.Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
                 .Returns(true);
             bassServiceProxy.Setup(proxy => proxy.SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50)).Returns(true);
             bassServiceProxy.Setup(proxy => proxy.SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true)).Returns(true);

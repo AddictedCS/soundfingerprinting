@@ -90,7 +90,7 @@
 
         public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
-            using (var reader = new Mp3FileReader(pathToFile))
+            using (var reader = new MediaFoundationReader(pathToFile))
             {
                 var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
                 using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
@@ -100,9 +100,9 @@
             }
         }
 
-        private float[] ReadMonoFromSource(string pathToFile, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, ISamplesProvider> getSamplesProvider)
+        private float[] ReadMonoFromSource(string pathToSource, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, ISamplesProvider> getSamplesProvider)
         {
-            using (var reader = new MediaFoundationReader(pathToFile))
+            using (var reader = new MediaFoundationReader(pathToSource))
             {
                 SeekToSecondInCaseIfRequired(startAtSecond, reader);
                 var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
@@ -114,13 +114,13 @@
             }
         }
 
-        private void SeekToSecondInCaseIfRequired(int startAtSecond, MediaFoundationReader reader)
+        private void SeekToSecondInCaseIfRequired(int startAtSecond, WaveStream stream)
         {
             if (startAtSecond > 0)
             {
-                int actualSampleRate = reader.WaveFormat.SampleRate;
-                int bitsPerSample = reader.WaveFormat.BitsPerSample;
-                reader.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond, System.IO.SeekOrigin.Begin);
+                int actualSampleRate = stream.WaveFormat.SampleRate;
+                int bitsPerSample = stream.WaveFormat.BitsPerSample;
+                stream.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond, System.IO.SeekOrigin.Begin);
             }
         }
 

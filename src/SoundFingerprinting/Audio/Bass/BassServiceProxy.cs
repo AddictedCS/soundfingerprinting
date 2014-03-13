@@ -183,7 +183,7 @@ namespace SoundFingerprinting.Audio.Bass
             }
         }
 
-        internal class BassLifetimeManager : IDisposable
+        internal sealed class BassLifetimeManager : IDisposable
         {
             private const string FlacDllName = "bassflac.dll";
 
@@ -196,7 +196,7 @@ namespace SoundFingerprinting.Audio.Bass
             public BassLifetimeManager(IBassServiceProxy proxy)
             {
                 this.proxy = proxy;
-                if (BassLibraryHasToBeInitialized)
+                if (IsBassLibraryHasToBeInitialized(Interlocked.Increment(ref initializedInstances)))
                 {
                     RegisterBassKey();
                     string targetPath = GetTargetPathToLoadLibrariesFrom();
@@ -213,22 +213,6 @@ namespace SoundFingerprinting.Audio.Bass
                 Dispose(false);
             }
 
-            public static bool IsNativeBassLibraryInitialized
-            {
-                get
-                {
-                    return initializedInstances > 0;
-                }
-            }
-
-            private bool BassLibraryHasToBeInitialized
-            {
-                get
-                {
-                    return Interlocked.Increment(ref initializedInstances) == 1;
-                }
-            }
-
             public void Dispose()
             {
                 Dispose(true);
@@ -236,7 +220,7 @@ namespace SoundFingerprinting.Audio.Bass
                 alreadyDisposed = true;
             }
 
-            protected void Dispose(bool isDisposing)
+            private void Dispose(bool isDisposing)
             {
                 if (!alreadyDisposed)
                 {
@@ -254,6 +238,11 @@ namespace SoundFingerprinting.Audio.Bass
                         }
                     }
                 }
+            }
+
+            private bool IsBassLibraryHasToBeInitialized(int numberOfInstances)
+            {
+                return numberOfInstances == 1;
             }
 
             private void RegisterBassKey()

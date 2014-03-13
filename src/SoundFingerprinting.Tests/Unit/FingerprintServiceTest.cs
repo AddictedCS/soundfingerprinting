@@ -8,7 +8,6 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
@@ -29,13 +28,7 @@
             fingerprintDescriptor = new Mock<IFingerprintDescriptor>(MockBehavior.Strict);
             spectrumService = new Mock<ISpectrumService>(MockBehavior.Strict);
             waveletDecomposition = new Mock<IWaveletDecomposition>(MockBehavior.Strict);
-
-            DependencyResolver.Current.Bind<IFingerprintDescriptor, IFingerprintDescriptor>(
-                fingerprintDescriptor.Object);
-            DependencyResolver.Current.Bind<ISpectrumService, ISpectrumService>(spectrumService.Object);
-            DependencyResolver.Current.Bind<IWaveletDecomposition, IWaveletDecomposition>(waveletDecomposition.Object);
-
-            fingerprintService = new FingerprintService();
+            fingerprintService = new FingerprintService(spectrumService.Object, waveletDecomposition.Object, fingerprintDescriptor.Object);
         }
 
         [TestCleanup]
