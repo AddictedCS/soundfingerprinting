@@ -12,7 +12,6 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
@@ -38,6 +37,7 @@
         private readonly IStride queryStride;
         private readonly ITagService tagService;
         private readonly IModelService modelService;
+        private readonly IAudioService audioService;
         private readonly IQueryCommandBuilder queryCommandBuilder;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -52,6 +52,7 @@
             IStride queryStride,
             ITagService tagService,
             IModelService modelService,
+            IAudioService audioService,
             IQueryCommandBuilder queryCommandBuilder)
         {
             InitializeComponent();
@@ -64,6 +65,7 @@
             this.threshold = threshold;
             this.tagService = tagService;
             this.modelService = modelService;
+            this.audioService = audioService;
             this.queryCommandBuilder = queryCommandBuilder;
 
             // ReSharper disable PossibleNullReferenceException
@@ -159,6 +161,11 @@
                                                         {
                                                             queryConfig.ThresholdVotes = threshold;
                                                         })
+                                                    .UsingServices(services =>
+                                                        {
+                                                            services.AudioService = audioService;
+                                                            services.ModelService = modelService;
+                                                        })
                                                     .Query()
                                                     .Result;
 
@@ -233,6 +240,11 @@
                                         {
                                             queryConfig.ThresholdVotes = threshold;
                                         })
+                                   .UsingServices(services =>
+                                    {
+                                        services.AudioService = audioService;
+                                        services.ModelService = modelService;
+                                    })
                                   .Query()
                                   .ContinueWith(
                                         t =>

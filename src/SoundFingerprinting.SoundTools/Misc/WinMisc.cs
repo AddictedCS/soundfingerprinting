@@ -8,6 +8,7 @@
     using System.Windows.Forms;
     using System.Xml.Serialization;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Math;
@@ -18,9 +19,12 @@
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
-        public WinMisc(IFingerprintCommandBuilder fingerprintCommandBuilder)
+        private readonly IAudioService audioService;
+
+        public WinMisc(IFingerprintCommandBuilder fingerprintCommandBuilder, IAudioService audioService)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
+            this.audioService = audioService;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -136,7 +140,8 @@
                                                                                 : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
                                                             config.NormalizeSignal = normalizeSignal;
                                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;
-                                                        });
+                                                        })
+                                                    .UsingServices(services => services.AudioService = audioService);
 
                         IFingerprintCommand querySong;
                         int comparisonStride = (int)_nudQueryStride.Value;
@@ -158,7 +163,8 @@
                                                                                                 comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
                                                                       config.NormalizeSignal = normalizeSignal;
                                                                       config.UseDynamicLogBase = _cbDynamicLog.Checked;
-                                                                  });
+                                                                  })
+                                                          .UsingServices(services => services.AudioService = audioService);
                         }
                         else
                         {
@@ -167,18 +173,19 @@
                                                           .From(_tbPathToFile.Text, secondsToProcess, startAtSecond)
                                                           .WithFingerprintConfig(
                                                               config =>
-                                                                  {
-                                                                      config.MinFrequency = (int)_nudMinFrequency.Value;
-                                                                      config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                                      config.Stride = _chbQueryStride.Checked
-                                                                                          ? (IStride)
-                                                                                            new IncrementalRandomStride(
-                                                                                                0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
-                                                                                          : new IncrementalStaticStride(
-                                                                                                comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
-                                                                      config.NormalizeSignal = normalizeSignal;
-                                                                      config.UseDynamicLogBase = _cbDynamicLog.Checked;
-                                                                  });
+                                                              {
+                                                                  config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                                  config.TopWavelets = (int)_nudTopWavelets.Value;
+                                                                  config.Stride = _chbQueryStride.Checked
+                                                                                      ? (IStride)
+                                                                                        new IncrementalRandomStride(
+                                                                                            0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
+                                                                                      : new IncrementalStaticStride(
+                                                                                            comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
+                                                                  config.NormalizeSignal = normalizeSignal;
+                                                                  config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                              })
+                                                         .UsingServices(services => services.AudioService = audioService);
                         }
 
                         SimilarityResult similarityResult = new SimilarityResult();

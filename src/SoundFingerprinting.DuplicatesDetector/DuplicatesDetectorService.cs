@@ -3,7 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    
+
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
@@ -19,13 +20,16 @@
 
         private readonly IModelService modelService;
 
+        private readonly IAudioService audioService;
+
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
         private readonly IQueryFingerprintService queryFingerprintService;
 
-        public DuplicatesDetectorService(IModelService modelService, IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
+        public DuplicatesDetectorService(IModelService modelService, IAudioService audioService, IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.modelService = modelService;
+            this.audioService = audioService;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
         }
@@ -48,6 +52,7 @@
             var hashes = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                        .From(samples)
                                                        .WithFingerprintConfig(config => config.Stride = createStride)
+                                                       .UsingServices(services => services.AudioService = audioService)
                                                        .Hash()
                                                        .Result;
            
@@ -70,7 +75,7 @@
                 var trackDuplicates = new HashSet<TrackData>();
 
                 var hashes = modelService.ReadHashDataByTrack(track.TrackReference);
-                var result = queryFingerprintService.Query(hashes, queryConfiguration);
+                var result = queryFingerprintService.Query(modelService, hashes, queryConfiguration);
 
                 if (result.IsSuccessful)
                 {

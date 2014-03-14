@@ -11,20 +11,19 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
 
-    internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
+    internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IUsingFingerprintServices, IFingerprintCommand
     {
-        private readonly IAudioService audioService;
-
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
         
         private readonly IFingerprintService fingerprintService;
 
         private Func<List<bool[]>> createFingerprintsMethod;
 
-        public FingerprintCommand(IFingerprintService fingerprintService, IAudioService audioService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
+        private IAudioService audioService;
+
+        public FingerprintCommand(IFingerprintService fingerprintService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
         {
             this.fingerprintService = fingerprintService;
-            this.audioService = audioService;
             this.lshAlgorithm = lshAlgorithm;
         }
 
@@ -76,19 +75,19 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IFingerprintCommand WithFingerprintConfig(IFingerprintConfiguration configuration)
+        public IUsingFingerprintServices WithFingerprintConfig(IFingerprintConfiguration configuration)
         {
             FingerprintConfiguration = configuration;
             return this;
         }
 
-        public IFingerprintCommand WithFingerprintConfig<T>() where T : IFingerprintConfiguration, new()
+        public IUsingFingerprintServices WithFingerprintConfig<T>() where T : IFingerprintConfiguration, new()
         {
             FingerprintConfiguration = new T();
             return this;
         }
 
-        public IFingerprintCommand WithFingerprintConfig(Action<CustomFingerprintConfiguration> functor)
+        public IUsingFingerprintServices WithFingerprintConfig(Action<CustomFingerprintConfiguration> functor)
         {
             CustomFingerprintConfiguration customFingerprintConfiguration = new CustomFingerprintConfiguration();
             FingerprintConfiguration = customFingerprintConfiguration;
@@ -96,9 +95,23 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IFingerprintCommand WithDefaultFingerprintConfig()
+        public IUsingFingerprintServices WithDefaultFingerprintConfig()
         {
             FingerprintConfiguration = new DefaultFingerprintConfiguration();
+            return this;
+        }
+
+        public IFingerprintCommand UsingServices(FingerprintServices services)
+        {
+            audioService = services.AudioService;
+            return this;
+        }
+
+        public IFingerprintCommand UsingServices(Action<FingerprintServices> services)
+        {
+            var fingerprintServices = new FingerprintServices();
+            services(fingerprintServices);
+            audioService = fingerprintServices.AudioService;
             return this;
         }
 

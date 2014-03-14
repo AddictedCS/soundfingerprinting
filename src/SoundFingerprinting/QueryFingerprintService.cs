@@ -6,30 +6,17 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     public class QueryFingerprintService : IQueryFingerprintService
     {
-        private readonly IModelService modelService;
-
-        public QueryFingerprintService()
-            : this(DependencyResolver.Current.Get<IModelService>())
-        {
-        }
-
-        public QueryFingerprintService(IModelService modelService)
-        {
-            this.modelService = modelService;
-        }
-
-        public QueryResult Query(IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
+        public QueryResult Query(IModelService modelService, IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
             foreach (var hash in hashes)
             {
-                var subFingerprints = GetSubFingerprints(hash, queryConfiguration);
+                var subFingerprints = GetSubFingerprints(modelService, hash, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     int similarity = SimilarityUtility.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Signature);
@@ -65,16 +52,14 @@
                 };
         }
 
-        private IEnumerable<SubFingerprintData> GetSubFingerprints(HashData hash, IQueryConfiguration queryConfiguration)
+        private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashData hash, IQueryConfiguration queryConfiguration)
         {
             if (!string.IsNullOrEmpty(queryConfiguration.TrackGroupId))
             {
-                return modelService.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(
-                    hash.HashBins, queryConfiguration.ThresholdVotes, queryConfiguration.TrackGroupId);
+                return modelService.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hash.HashBins, queryConfiguration.ThresholdVotes, queryConfiguration.TrackGroupId);
             }
 
-            return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(
-                hash.HashBins, queryConfiguration.ThresholdVotes);
+            return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
         }
     }
 }

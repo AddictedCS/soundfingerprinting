@@ -2,7 +2,6 @@
 {
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DuplicatesDetector.Services;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.InMemory;
@@ -20,12 +19,7 @@
 
             DependencyResolver.Current.BindAsSingleton<IModelService, InMemoryModelService>();
 
-            ServiceContainer.Kernel.Bind<DuplicatesDetectorService>().ToMethod(
-                context =>
-                new DuplicatesDetectorService(
-                    DependencyResolver.Current.Get<IModelService>(),
-                    DependencyResolver.Current.Get<IFingerprintCommandBuilder>(),
-                    DependencyResolver.Current.Get<IQueryFingerprintService>())).InSingletonScope();
+            ServiceContainer.Kernel.Bind<DuplicatesDetectorService>().ToMethod(context => DependencyResolver.Current.Get<DuplicatesDetectorService>());
 
             ServiceContainer.Kernel.Bind<DuplicatesDetectorFacade>().ToSelf().InSingletonScope();
             ServiceContainer.Kernel.Bind<TrackHelper>().ToSelf().InSingletonScope();

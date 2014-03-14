@@ -87,12 +87,15 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = fingerprintCommandBuilder.BuildFingerprintCommand().From(songFileName).WithFingerprintConfig(
-                                    config =>
-                                        {
-                                            config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
-                                            config.NormalizeSignal = normalize;
-                                        });
+                                var songToDraw = fingerprintCommandBuilder.BuildFingerprintCommand()
+                                                                          .From(songFileName)
+                                                                          .WithFingerprintConfig(
+                                                                            config =>
+                                                                            {
+                                                                                config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
+                                                                                config.NormalizeSignal = normalize;
+                                                                            })
+                                                                           .UsingServices(services => services.AudioService = audioService);
 
                                 List<bool[]> fingerprints = songToDraw.Fingerprint()
                                                                       .Result
@@ -122,8 +125,14 @@
                     Task.Factory.StartNew(
                         () =>
                             {
-                                var songToDraw = this.fingerprintCommandBuilder.BuildFingerprintCommand().From(songFileName).WithFingerprintConfig(
-                                    config => { config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint); });
+                                var songToDraw = fingerprintCommandBuilder.BuildFingerprintCommand()
+                                                                          .From(songFileName)
+                                                                          .WithFingerprintConfig(
+                                                                            config =>
+                                                                            {
+                                                                                config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
+                                                                            })
+                                                                          .UsingServices(services => services.AudioService = audioService);
                                 List<bool[]> result = songToDraw.Fingerprint()
                                                                 .Result
                                                                 .Select(fingerprint => fingerprint)
@@ -133,7 +142,7 @@
                                 int height = songToDraw.FingerprintConfiguration.LogBins;
                                 foreach (bool[] item in result)
                                 {
-                                    using (Image image = imageService.GetImageForFingerprint(item, width, height))
+                                    using (var image = imageService.GetImageForFingerprint(item, width, height))
                                     {
                                         image.Save(path + "\\" + songName + i++ + ".jpg", ImageFormat.Jpeg);
                                     }

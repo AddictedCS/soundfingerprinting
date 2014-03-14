@@ -10,28 +10,27 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     [TestClass]
     public abstract class AbstractHashBinDaoTest : AbstractIntegrationTest
     {
-        private IFingerprintCommandBuilder fingerprintCommandBuilder;
-        private ITagService tagService;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
+        private readonly ITagService tagService;
+        private readonly IAudioService audioService;
+
+        protected AbstractHashBinDaoTest()
+        {
+            fingerprintCommandBuilder = new FingerprintCommandBuilder();
+            tagService = new BassTagService();
+            audioService = new BassAudioService();
+        }
 
         public abstract IHashBinDao HashBinDao { get; set; }
 
         public abstract ITrackDao TrackDao { get; set; }
 
         public abstract ISubFingerprintDao SubFingerprintDao { get; set; }
-
-        [TestInitialize]
-        public override void SetUp()
-        {
-            base.SetUp();
-            fingerprintCommandBuilder = new FingerprintCommandBuilder();
-            tagService = new BassTagService();
-        }
 
         [TestMethod]
         public void InsertReadTest()
@@ -62,6 +61,7 @@
                 {
                     config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
+                .UsingServices(services => services.AudioService = audioService)
                 .Hash()
                 .Result;
 
@@ -97,6 +97,7 @@
                 {
                     config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
+                .UsingServices(services => services.AudioService = audioService)
                 .Hash()
                 .Result;
 
@@ -132,6 +133,7 @@
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 10, 0)
                 .WithDefaultFingerprintConfig()
+                .UsingServices(services => services.AudioService = audioService)
                 .Hash()
                 .Result;
 
@@ -145,6 +147,7 @@
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 20, 10)
                 .WithDefaultFingerprintConfig()
+                .UsingServices(services => services.AudioService = audioService)
                 .Hash()
                 .Result;
 

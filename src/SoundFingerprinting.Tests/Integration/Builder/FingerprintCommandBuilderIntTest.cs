@@ -11,7 +11,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.LSH;
     using SoundFingerprinting.SQL;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
@@ -19,34 +18,32 @@
     [TestClass]
     public class FingerprintCommandBuilderIntTest : AbstractIntegrationTest
     {
-        private ModelService modelService;
+        private readonly ModelService modelService;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
+        private readonly IQueryFingerprintService queryFingerprintService;
+        private readonly BassAudioService bassAudioService;
 
-        private IFingerprintCommandBuilder fingerprintCommandBuilderWithBass;
+        private readonly NAudioService naudioAudioService;
 
-        private IFingerprintCommandBuilder fingerprintCommandBuilderWithNAudio;
-
-        private IQueryFingerprintService queryFingerprintService;
-
-        [TestInitialize]
-        public override void SetUp()
+        public FingerprintCommandBuilderIntTest()
         {
-            base.SetUp();
-
+            bassAudioService = new BassAudioService();
+            naudioAudioService = new NAudioService();
             modelService = new SqlModelService();
-            fingerprintCommandBuilderWithBass = new FingerprintCommandBuilder(new FingerprintService(), new BassAudioService(), new LocalitySensitiveHashingAlgorithm());
-            fingerprintCommandBuilderWithNAudio = new FingerprintCommandBuilder(new FingerprintService(), new NAudioService(), new LocalitySensitiveHashingAlgorithm());
-            queryFingerprintService = new QueryFingerprintService(modelService);
+            fingerprintCommandBuilder = new FingerprintCommandBuilder();
+            queryFingerprintService = new QueryFingerprintService();
         }
 
         [TestMethod]
         public void CreateFingerprintsFromDefaultFileAndAssertNumberOfFingerprints()
         {
             const int StaticStride = 5115;
-            ITagService tagService = new BassTagService();
-            
-            var audioFingerprintingUnit = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+            var tagService = new BassTagService();
+
+            var audioFingerprintingUnit = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(PathToMp3)
-                                        .WithFingerprintConfig(config => { config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); });
+                                        .WithFingerprintConfig(config => { config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); })
+                                        .UsingServices(service => service.AudioService = bassAudioService);
                                     
             double seconds = tagService.GetTagInfo(PathToMp3).Duration;
             int samples = (int)(seconds * audioFingerprintingUnit.FingerprintConfiguration.SampleRate);
@@ -60,15 +57,17 @@
         [TestMethod]
         public void CreateFingerprintsFromDefaultFileAndAssertNumberOfFingerprintsAndSubFingerprints()
         {
-            var fingerprinter = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+            var fingerprinter = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(PathToMp3)
                                         .WithDefaultFingerprintConfig()
+                                        .UsingServices(services => services.AudioService = bassAudioService)
                                         .Fingerprint();
 
             var fingerprints = fingerprinter.Result;
-            var hashDatas = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+            var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(fingerprints)
                                         .WithDefaultFingerprintConfig()
+                                        .UsingServices(services => services.AudioService = bassAudioService)
                                         .Hash()
                                         .Result;
 
@@ -81,21 +80,21 @@
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
             var tagService = new BassTagService();
-            TagInfo info = tagService.GetTagInfo(PathToMp3);
-            TrackData track = new TrackData(
-                info.ISRC, info.Artist, info.Title, info.Album, info.Year, (int)info.Duration);
+            var info = tagService.GetTagInfo(PathToMp3);
+            var track = new TrackData(info.ISRC, info.Artist, info.Title, info.Album, info.Year, (int)info.Duration);
             var trackReference = modelService.InsertTrack(track);
 
-            var hashDatas = fingerprintCommandBuilderWithBass
+            var hashDatas = fingerprintCommandBuilder
                                             .BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
                                             .WithDefaultFingerprintConfig()
+                                            .UsingServices(services => services.AudioService = bassAudioService)
                                             .Hash()
                                             .Result;
 
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
 
-            var queryResult = queryFingerprintService.Query(hashDatas, new DefaultQueryConfiguration());
+            var queryResult = queryFingerprintService.Query(modelService, hashDatas, new DefaultQueryConfiguration());
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual(1, queryResult.ResultEntries.Count);
@@ -111,17 +110,19 @@
 
             float[] samples = audioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
 
-            var hashDatasFromFile = fingerprintCommandBuilderWithBass
+            var hashDatasFromFile = fingerprintCommandBuilder
                                         .BuildFingerprintCommand()
                                         .From(PathToMp3, SecondsToProcess, StartAtSecond)
                                         .WithDefaultFingerprintConfig()
+                                        .UsingServices(services => services.AudioService = bassAudioService)
                                         .Hash()
                                         .Result;
 
-            var hashDatasFromSamples = fingerprintCommandBuilderWithBass
+            var hashDatasFromSamples = fingerprintCommandBuilder
                                         .BuildFingerprintCommand()
                                         .From(samples)
                                         .WithDefaultFingerprintConfig()
+                                        .UsingServices(services => services.AudioService = bassAudioService)
                                         .Hash()
                                         .Result;
 
@@ -131,15 +132,17 @@
         [TestMethod]
         public void CompareFingerprintsCreatedByDifferentProxiesTest()
         {
-            var naudioFingerprints = fingerprintCommandBuilderWithNAudio.BuildFingerprintCommand()
+            var naudioFingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                         .From(PathToMp3)
                                                         .WithDefaultFingerprintConfig()
+                                                        .UsingServices(services => services.AudioService = naudioAudioService)
                                                         .Fingerprint()
                                                         .Result;
 
-            var bassFingerprints = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+            var bassFingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                  .From(PathToMp3)
                                                  .WithDefaultFingerprintConfig()
+                                                 .UsingServices(services => services.AudioService = bassAudioService)
                                                  .Fingerprint()
                                                  .Result;
             int unmatchedItems = 0;
@@ -172,14 +175,14 @@
         [TestMethod]
         public void CheckFingerprintCreationAlgorithmTest()
         {
-            var bassAudioService = new BassAudioService();
             string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
             bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
             long fileSize = new FileInfo(tempFile).Length;
 
-            var list = fingerprintCommandBuilderWithBass.BuildFingerprintCommand()
+            var list = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToMp3)
                                       .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
+                                      .UsingServices(services => services.AudioService = bassAudioService)
                                       .Fingerprint()
                                       .Result;
 
@@ -194,10 +197,11 @@
             const int SecondsToProcess = 20;
             const int StartAtSecond = 15;
 
-            var fingerprintCommand = fingerprintCommandBuilderWithBass
+            var fingerprintCommand = fingerprintCommandBuilder
                                             .BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
-                                            .WithDefaultFingerprintConfig();
+                                            .WithDefaultFingerprintConfig()
+                                            .UsingServices(services => services.AudioService = bassAudioService);
             
             var firstHashDatas = fingerprintCommand.Hash().Result;
             var secondHashDatas = fingerprintCommand.Hash().Result;
@@ -212,10 +216,11 @@
 
             float[] samples = TestUtilities.GenerateRandomFloatArray(config.SamplesPerFingerprint + config.WdftSize);
 
-            var hash = fingerprintCommandBuilderWithBass
+            var hash = fingerprintCommandBuilder
                                                 .BuildFingerprintCommand()
                                                 .From(samples)
                                                 .WithDefaultFingerprintConfig()
+                                                .UsingServices(services => services.AudioService = bassAudioService)
                                                 .Hash()
                                                 .Result;
             Assert.AreEqual(1, hash.Count);

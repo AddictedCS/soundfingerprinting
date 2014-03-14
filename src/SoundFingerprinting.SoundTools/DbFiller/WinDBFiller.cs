@@ -27,6 +27,7 @@
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" }); /*File filters*/
         private readonly IModelService modelService; /*Dal Signature service*/
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
+        private readonly IAudioService audioService;
         private readonly ITagService tagService;
         private volatile int badFiles; /*Number of Bad files*/
         private volatile int duplicates; /*Number of Duplicates*/
@@ -38,11 +39,13 @@
         
         public WinDbFiller(
             IFingerprintCommandBuilder fingerprintCommandBuilder,
+            IAudioService audioService,
             ITagService tagService,
             IModelService modelService)
         {
             this.modelService = modelService;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
+            this.audioService = audioService;
             this.tagService = tagService;
             InitializeComponent();
             Icon = Resources.Sound;
@@ -413,8 +416,9 @@
                                                     config.TopWavelets = topWavelets;
                                                     config.Stride = stride;
                                                 })
-                                         .Hash()
-                                         .Result; // Create SubFingerprints
+                                        .UsingServices(services => services.AudioService = audioService)
+                                        .Hash()
+                                        .Result; // Create SubFingerprints
 
                     modelService.InsertHashDataForTrack(hashDatas, trackReference);
                     count = hashDatas.Count;

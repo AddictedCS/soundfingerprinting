@@ -161,6 +161,7 @@
                         WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                         tagService,
                         modelService,
+                        audioService,
                         queryCommandBuilder);
                     winQueryResults.Show();
                     winQueryResults.Refresh();
@@ -196,6 +197,7 @@
                             WinUtils.GetStride((StrideType)_cmbStrideType.SelectedIndex, (int)_nudQueryStrideMax.Value, (int)_nudQueryStrideMin.Value, configuration.SamplesPerFingerprint),
                             tagService,
                             modelService,
+                            audioService,
                             queryCommandBuilder);
                         winQueryResults.Show();
                         winQueryResults.Refresh();

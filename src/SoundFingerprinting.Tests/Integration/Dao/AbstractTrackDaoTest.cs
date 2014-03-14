@@ -17,24 +17,22 @@
     [TestClass]
     public abstract class AbstractTrackDaoTest : AbstractIntegrationTest
     {
-        private IFingerprintCommandBuilder fingerprintCommandBuilder;
+        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
+        private readonly ITagService tagService;
+        private readonly IAudioService audioService;
 
-        private ITagService tagService;
+        protected AbstractTrackDaoTest()
+        {
+            fingerprintCommandBuilder = new FingerprintCommandBuilder();
+            tagService = new BassTagService();
+            audioService = new BassAudioService();
+        }
 
         public abstract ITrackDao TrackDao { get; set; }
 
         public abstract ISubFingerprintDao SubFingerprintDao { get; set; }
 
         public abstract IHashBinDao HashBinDao { get; set; }
-
-        [TestInitialize]
-        public override void SetUp()
-        {
-            base.SetUp();
-
-            fingerprintCommandBuilder = new FingerprintCommandBuilder();
-            tagService = new BassTagService();
-        }
 
         [TestMethod]
         public void InsertTrackTest()
@@ -184,6 +182,7 @@
                     {
                         config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                     })
+                .UsingServices(services => services.AudioService = audioService)
                 .Hash()
                 .Result;
 

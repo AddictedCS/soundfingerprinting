@@ -2,16 +2,29 @@ namespace SoundFingerprinting.Command
 {
     using System;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
 
     public interface IWithFingerprintConfiguration
     {
-        IFingerprintCommand WithFingerprintConfig(IFingerprintConfiguration configuration);
+        IUsingFingerprintServices WithFingerprintConfig(IFingerprintConfiguration configuration);
 
-        IFingerprintCommand WithFingerprintConfig<T>() where T : IFingerprintConfiguration, new();
+        IUsingFingerprintServices WithFingerprintConfig<T>() where T : IFingerprintConfiguration, new();
 
-        IFingerprintCommand WithFingerprintConfig(Action<CustomFingerprintConfiguration> functor);
+        IUsingFingerprintServices WithFingerprintConfig(Action<CustomFingerprintConfiguration> functor);
 
-        IFingerprintCommand WithDefaultFingerprintConfig();
+        IUsingFingerprintServices WithDefaultFingerprintConfig();
+    }
+
+    public interface IUsingFingerprintServices
+    {
+        IFingerprintCommand UsingServices(FingerprintServices services);
+
+        IFingerprintCommand UsingServices(Action<FingerprintServices> services);
+    }
+
+    public class FingerprintServices
+    {
+        public IAudioService AudioService { get; set; }
     }
 }

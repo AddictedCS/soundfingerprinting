@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -20,11 +21,11 @@
 
         private Mock<IFingerprintCommandBuilder> fingerprintCommandBuilder;
         private Mock<IQueryFingerprintService> queryFingerprintService;
-
         private Mock<ISourceFrom> fingerprintingSource;
         private Mock<IWithFingerprintConfiguration> withAlgorithConfiguration;
-
         private Mock<IFingerprintCommand> fingerprintCommand;
+        private Mock<IUsingFingerprintServices> usingFingerprintServices;
+        private Mock<IModelService> modelService;
 
         [TestInitialize]
         public void SetUp()
@@ -32,9 +33,10 @@
             fingerprintCommandBuilder = new Mock<IFingerprintCommandBuilder>(MockBehavior.Strict);
             fingerprintingSource = new Mock<ISourceFrom>(MockBehavior.Strict);
             withAlgorithConfiguration = new Mock<IWithFingerprintConfiguration>(MockBehavior.Strict);
-
             fingerprintCommand = new Mock<IFingerprintCommand>(MockBehavior.Strict);
             queryFingerprintService = new Mock<IQueryFingerprintService>(MockBehavior.Strict);
+            usingFingerprintServices = new Mock<IUsingFingerprintServices>(MockBehavior.Strict);
+            modelService = new Mock<IModelService>(MockBehavior.Strict);
 
             queryCommandBuilder = new QueryCommandBuilder(fingerprintCommandBuilder.Object, queryFingerprintService.Object);
         }
@@ -55,15 +57,21 @@
             const string PathToFile = "path-to-file";
             QueryResult dummyResult = new QueryResult { IsSuccessful = true, ResultEntries = It.IsAny<List<ResultEntry>>() };
             List<HashData> hashDatas = new List<HashData>(new[] { new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets) });
+           
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(fingerprintCommand.Object);
+            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
+            usingFingerprintServices.Setup(u => u.UsingServices(It.IsAny<Action<FingerprintServices>>())).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(command => command.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
-            queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);
+            queryFingerprintService.Setup(service => service.Query(modelService.Object, hashDatas, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);
 
             QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
                                    .From(PathToFile)
                                    .WithDefaultConfigs()
+                                   .UsingServices(new QueryServices 
+                                       {
+                                           ModelService = modelService.Object
+                                       })
                                    .Query()
                                    .Result;
 
@@ -80,9 +88,10 @@
             List<HashData> hashDatas = new List<HashData>(new[] { new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets), new HashData(GenericSignature, GenericHashBuckets) });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<CustomFingerprintConfiguration>())).Returns(fingerprintCommand.Object);
+            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
+            usingFingerprintServices.Setup(u => u.UsingServices(It.IsAny<Action<FingerprintServices>>())).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
-            queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);
+            queryFingerprintService.Setup(service => service.Query(modelService.Object, hashDatas, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);
 
             QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
                                    .From(PathToFile, SecondsToQuery, StartAtSecond)
@@ -94,6 +103,10 @@
                                     config =>
                                        {
                                            config.ThresholdVotes = 20;
+                                       })
+                                   .UsingServices(new QueryServices
+                                       {
+                                           ModelService = modelService.Object
                                        })
                                    .Query()
                                    .Result;
@@ -107,7 +120,8 @@
         {
             var command = queryCommandBuilder.BuildQueryCommand()
                                .From("path-to-file", 10, 0)
-                               .WithConfigs<DefaultFingerprintConfiguration, DefaultQueryConfiguration>();
+                               .WithConfigs<DefaultFingerprintConfiguration, DefaultQueryConfiguration>()
+                               .UsingServices(new QueryServices());
 
             Assert.IsTrue(command.FingerprintConfiguration is DefaultFingerprintConfiguration);
             Assert.IsTrue(command.QueryConfiguration is DefaultQueryConfiguration);
@@ -118,7 +132,8 @@
         {
             var command = queryCommandBuilder.BuildQueryCommand()
                                .From("path-to-file", 10, 0)
-                               .WithDefaultConfigs();
+                               .WithDefaultConfigs()
+                               .UsingServices(new QueryServices());
 
             Assert.IsTrue(command.FingerprintConfiguration is DefaultFingerprintConfiguration);
             Assert.IsTrue(command.QueryConfiguration is DefaultQueryConfiguration);
@@ -137,7 +152,8 @@
                                                  config =>
                                                  {
                                                      config.ThresholdVotes = 256;
-                                                 });
+                                                 })
+                                             .UsingServices(new QueryServices());
 
             Assert.IsTrue(command.FingerprintConfiguration.FingerprintLength == 1024);
             Assert.IsTrue(command.QueryConfiguration.ThresholdVotes == 256);
