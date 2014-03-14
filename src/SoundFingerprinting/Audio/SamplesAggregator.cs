@@ -8,6 +8,8 @@
     {
         public const int DefaultBufferLengthInSeconds = 20;
 
+        private const int BlockAlign = 4;
+
         public float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, int secondsToRead, int sampleRate)
         {
             var buffer = GetBuffer(secondsToRead, sampleRate);
@@ -34,19 +36,19 @@
 
                 if (totalBytesRead > totalBytesToRead)
                 {
-                    chunk = new float[(totalBytesToRead - (totalBytesRead - bytesRead)) / 4];
-                    Array.Copy(buffer, chunk, (totalBytesToRead - (totalBytesRead - bytesRead)) / 4);
+                    chunk = new float[(totalBytesToRead - (totalBytesRead - bytesRead)) / BlockAlign];
+                    Array.Copy(buffer, chunk, (totalBytesToRead - (totalBytesRead - bytesRead)) / BlockAlign);
                 }
                 else
                 {
-                    chunk = new float[bytesRead / 4]; // each float contains 4 bytes
-                    Array.Copy(buffer, chunk, bytesRead / 4);
+                    chunk = new float[bytesRead / BlockAlign];
+                    Array.Copy(buffer, chunk, bytesRead / BlockAlign);
                 }
 
                 chunks.Add(chunk);
             }
 
-            if (totalBytesRead < (secondsToRead * sampleRate * 4))
+            if (totalBytesRead < (secondsToRead * sampleRate * BlockAlign))
             {
                 throw new AudioServiceException("Could not read requested number of seconds " + secondsToRead + ", audio file is not that long");
             }
@@ -61,7 +63,7 @@
                 return int.MaxValue;
             }
 
-            return secondsToRead * sampleRate * 4;
+            return secondsToRead * sampleRate * BlockAlign;
         }
 
         private float[] GetBuffer(int secondsToRead, int sampleRate)
