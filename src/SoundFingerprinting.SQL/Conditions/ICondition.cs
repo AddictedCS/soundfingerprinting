@@ -4,7 +4,7 @@ namespace SoundFingerprinting.SQL.Conditions
     using System.Data;
     using System.Linq.Expressions;
 
-    public interface ICondition<TModel>
+    internal interface ICondition<TModel>
     {
         string GetFullParameterName();
 

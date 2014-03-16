@@ -1,8 +1,8 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.ORM
 {
     using System;
 
-    public interface IReader
+    internal interface IReader
     {
         string GetString(string name);
 

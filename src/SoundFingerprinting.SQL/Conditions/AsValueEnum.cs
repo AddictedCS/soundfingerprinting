@@ -6,7 +6,9 @@ namespace SoundFingerprinting.SQL.Conditions
     using System.Reflection;
     using System.Text.RegularExpressions;
 
-    public class AsValueEnum<TModel> : ICondition<TModel>
+    using SoundFingerprinting.SQL.ORM;
+
+    internal class AsValueEnum<TModel> : ICondition<TModel>
     {
         private readonly Expression<Func<TModel, object>> expression;
 

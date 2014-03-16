@@ -1,8 +1,8 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.ORM
 {
     using System;
 
-    public interface IModelBinder<TModel>
+    internal interface IModelBinder<TModel>
     {
         void BindWriter(TModel model, IParameterBinder storedProcedure);
 

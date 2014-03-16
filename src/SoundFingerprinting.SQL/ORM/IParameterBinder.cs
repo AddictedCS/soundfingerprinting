@@ -1,11 +1,11 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.ORM
 {
     using System;
     using System.Data;
 
     using SoundFingerprinting.SQL.Conditions;
 
-    public interface IParameterBinder
+    internal interface IParameterBinder
     {
         IParameterBinder WithParameter(string name, string value);
 

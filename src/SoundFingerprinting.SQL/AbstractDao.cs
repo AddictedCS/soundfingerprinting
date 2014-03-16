@@ -2,6 +2,9 @@ namespace SoundFingerprinting.SQL
 {
     using System.Data;
 
+    using SoundFingerprinting.SQL.Connection;
+    using SoundFingerprinting.SQL.ORM;
+
     internal class AbstractDao
     {
         private const int CommandTimeoutInSeconds = 600;

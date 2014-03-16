@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.Connection
 {
     using System.Data;
     using System.Data.Common;
@@ -6,7 +6,7 @@ namespace SoundFingerprinting.SQL
 
     using SoundFingerprinting.Infrastructure;
 
-    public class MsSqlDatabaseProviderFactory : IDatabaseProviderFactory
+    internal class MsSqlDatabaseProviderFactory : IDatabaseProviderFactory
     {
         private readonly IConnectionStringFactory connectionStringFactory;
 

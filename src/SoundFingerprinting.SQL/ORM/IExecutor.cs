@@ -1,11 +1,11 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.ORM
 {
     using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.SQL.Conditions;
 
-    public interface IExecutor
+    internal interface IExecutor
     {
         int AsNonQuery();
 

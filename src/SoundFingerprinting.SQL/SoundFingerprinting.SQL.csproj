@@ -54,35 +54,35 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AbstractDao.cs" />
-    <Compile Include="CachedModelBinderFactory.cs" />
+    <Compile Include="ORM\CachedModelBinderFactory.cs" />
     <Compile Include="Conditions\AsValueEnum.cs" />
     <Compile Include="Conditions\ICondition.cs" />
-    <Compile Include="DefaultConnectionStringFactory.cs" />
-    <Compile Include="Executor.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Connection\DefaultConnectionStringFactory.cs" />
+    <Compile Include="ORM\Executor.cs" />
+    <Compile Include="ORM\Extensions.cs" />
     <Compile Include="FingerprintDao.cs" />
     <Compile Include="HashBinDao.cs" />
-    <Compile Include="IConnectionStringFactory.cs" />
-    <Compile Include="IDatabaseProviderFactory.cs" />
-    <Compile Include="IExecutor.cs" />
-    <Compile Include="IgnoreBindingAttribute.cs" />
-    <Compile Include="IModelBinder.cs" />
-    <Compile Include="IModelBinderFactory.cs" />
+    <Compile Include="Connection\IConnectionStringFactory.cs" />
+    <Compile Include="Connection\IDatabaseProviderFactory.cs" />
+    <Compile Include="ORM\IExecutor.cs" />
+    <Compile Include="ORM\IgnoreBindingAttribute.cs" />
+    <Compile Include="ORM\IModelBinder.cs" />
+    <Compile Include="ORM\IModelBinderFactory.cs" />
     <Compile Include="Infrastructure\SQLModuleLoader.cs" />
-    <Compile Include="IParameterBinder.cs" />
-    <Compile Include="IReader.cs" />
-    <Compile Include="ModelBinder.cs" />
-    <Compile Include="ModelBinderFactory.cs" />
-    <Compile Include="ModelReaderBuilder.cs" />
-    <Compile Include="ModelWriterBuilder.cs" />
-    <Compile Include="MsSqlDatabaseProviderFactory.cs" />
-    <Compile Include="ParameterBinder.cs" />
+    <Compile Include="ORM\IParameterBinder.cs" />
+    <Compile Include="ORM\IReader.cs" />
+    <Compile Include="ORM\ModelBinder.cs" />
+    <Compile Include="ORM\ModelBinderFactory.cs" />
+    <Compile Include="ORM\ModelReaderBuilder.cs" />
+    <Compile Include="ORM\ModelWriterBuilder.cs" />
+    <Compile Include="Connection\MsSqlDatabaseProviderFactory.cs" />
+    <Compile Include="ORM\ParameterBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reader.cs" />
+    <Compile Include="ORM\Reader.cs" />
     <Compile Include="SqlModelService.cs" />
     <Compile Include="SubFingerprintDao.cs" />
     <Compile Include="TrackDao.cs" />
-    <Compile Include="TypeRegistry.cs" />
+    <Compile Include="ORM\TypeRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">

@@ -7,6 +7,8 @@ namespace SoundFingerprinting.SQL
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.SQL.Connection;
+    using SoundFingerprinting.SQL.ORM;
 
     internal class TrackDao : AbstractDao, ITrackDao
     {

@@ -1,8 +1,8 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.Connection
 {
     using System.Configuration;
 
-    public class DefaultConnectionStringFactory : IConnectionStringFactory
+    internal class DefaultConnectionStringFactory : IConnectionStringFactory
     {
         public string GetConnectionString()
         {

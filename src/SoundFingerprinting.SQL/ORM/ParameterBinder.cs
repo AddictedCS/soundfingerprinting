@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.ORM
 {
     using System;
     using System.Data;

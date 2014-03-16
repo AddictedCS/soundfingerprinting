@@ -1,4 +1,4 @@
-namespace SoundFingerprinting.SQL
+namespace SoundFingerprinting.SQL.ORM
 {
     using System.Collections.Generic;
     using System.Data;

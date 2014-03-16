@@ -3,8 +3,10 @@
     using Ninject;
 
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.SQL.Connection;
+    using SoundFingerprinting.SQL.ORM;
 
-    public class SQLModuleLoader : IModuleLoader
+    internal class SQLModuleLoader : IModuleLoader
     {
         public void LoadAssemblyBindings(IKernel kernel)
         {
