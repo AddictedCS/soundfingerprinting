@@ -108,7 +108,6 @@
     <Compile Include="FFT\LogUtility.cs" />
     <Compile Include="LSH\BoundedLocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="MinHash\DefaultPermutations.cs" />
-    <Compile Include="Infrastructure\ConstructorArgument.cs" />
     <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />

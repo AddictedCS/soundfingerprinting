@@ -6,7 +6,6 @@
     using System.Reflection;
 
     using Ninject;
-    using Ninject.Parameters;
 
     internal static class DependencyResolver
     {
@@ -17,11 +16,6 @@
             get
             {
                 return dependencyResolver ?? (dependencyResolver = new DefaultDependencyResolver());
-            }
-
-            set
-            {
-                dependencyResolver = value;
             }
         }
 
@@ -43,32 +37,6 @@
             public T Get<T>()
             {
                 return kernel.Get<T>();
-            }
-
-            public TInterface Get<TInterface>(IEnumerable<ConstructorArgument> constructorArguments)
-            {
-                var arguments = constructorArguments.Select(constructorArgument => (IParameter)new Ninject.Parameters.ConstructorArgument(constructorArgument.Name, constructorArgument.Instance)).ToList();
-                return kernel.Get<TInterface>(arguments.ToArray());
-            }
-
-            public void Bind<TInterface, TImplementation>() where TImplementation : TInterface
-            {
-                kernel.Rebind<TInterface>().To<TImplementation>();
-            }
-
-            public void BindAsSingleton<TInterface, TImplementation>() where TImplementation : TInterface
-            {
-                kernel.Rebind<TInterface>().To<TImplementation>().InSingletonScope();
-            }
-
-            public void Bind<TInterface, TImplementation>(TImplementation constant) where TImplementation : TInterface
-            {
-                kernel.Rebind<TInterface>().ToConstant(constant);
-            }
-
-            public void BindAsSingleton<TInterface, TImplementation>(TImplementation constant) where TImplementation : TInterface
-            {
-                kernel.Rebind<TInterface>().To<TImplementation>().InSingletonScope();
             }
 
             public void Dispose()
