@@ -2,7 +2,7 @@
 {
     using SoundFingerprinting.Data;
 
-    public interface ILocalitySensitiveHashingAlgorithm
+    internal interface ILocalitySensitiveHashingAlgorithm
     {
         HashData Hash(bool[] fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable);
     }

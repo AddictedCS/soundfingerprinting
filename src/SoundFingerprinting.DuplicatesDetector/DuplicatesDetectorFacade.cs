@@ -6,8 +6,6 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Ninject;
-
     using SoundFingerprinting.Data;
     using SoundFingerprinting.DuplicatesDetector.Infrastructure;
     using SoundFingerprinting.DuplicatesDetector.Model;
@@ -61,11 +59,11 @@
 
         private CancellationTokenSource cts;
 
-        public DuplicatesDetectorFacade()
+        public DuplicatesDetectorFacade(DuplicatesDetectorService duplicatesDetectorService, TrackHelper trackHelper)
         {
             cts = new CancellationTokenSource();
-            duplicatesDetectorService = ServiceContainer.Kernel.Get<DuplicatesDetectorService>();
-            trackHelper = ServiceContainer.Kernel.Get<TrackHelper>();
+            this.duplicatesDetectorService = duplicatesDetectorService;
+            this.trackHelper = trackHelper;
         }
 
         ~DuplicatesDetectorFacade()

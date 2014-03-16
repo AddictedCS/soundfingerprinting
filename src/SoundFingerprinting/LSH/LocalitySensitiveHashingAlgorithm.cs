@@ -7,7 +7,7 @@
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MinHash;
 
-    public class LocalitySensitiveHashingAlgorithm : ILocalitySensitiveHashingAlgorithm
+    internal class LocalitySensitiveHashingAlgorithm : ILocalitySensitiveHashingAlgorithm
     {
         private const int MaxNumberOfItemsPerKey = 8; /*Int64 biggest value for MinHash*/
 

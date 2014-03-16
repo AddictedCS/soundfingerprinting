@@ -4,8 +4,8 @@
 
     internal class BassAudioServiceException : Exception
     {
-        public BassAudioServiceException(string message)
-            : base(message)
+        public BassAudioServiceException(string errorMessage)
+            : base(errorMessage)
         {
         }
     }

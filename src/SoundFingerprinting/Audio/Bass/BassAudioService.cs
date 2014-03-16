@@ -16,7 +16,7 @@
     /// </remarks>
     public class BassAudioService : IAudioService
     {
-        private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", "mp3", ".ogg", ".flac" };
+        private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", ".mp3", ".ogg", ".flac" };
 
         private readonly IBassServiceProxy proxy;
 

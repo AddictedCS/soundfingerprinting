@@ -41,7 +41,7 @@
         /// <summary>
         ///   Repository gateway
         /// </summary>
-        private readonly DuplicatesDetectorFacade gate;
+        private readonly DuplicatesDetectorFacade duplicatesDetectorFacade;
 
         /// <summary>
         ///   Add single music file command
@@ -100,7 +100,7 @@
             TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
             try
             {
-                gate = new DuplicatesDetectorFacade();
+                duplicatesDetectorFacade = GetService<DuplicatesDetectorFacade>();
             }
             catch (Exception ex)
             {
@@ -308,7 +308,7 @@
                 }
             }
 
-            gate.ProcessTracksAsync(
+            duplicatesDetectorFacade.ProcessTracksAsync(
                 pathsToBeProcessed,
                 musicFileFilters,
                 (tracks, exception) => /*processing ends*/
@@ -373,7 +373,7 @@
             ProcessingStep = StepAborting;
             processedMusicItems = 0;
             processedPaths = null;
-            gate.AbortProcessing();
+            duplicatesDetectorFacade.AbortProcessing();
         }
 
         /// <summary>
@@ -462,7 +462,7 @@
             Task.Factory.StartNew(
                 () =>
                 {
-                    duplicates = gate.FindAllDuplicates(
+                    duplicates = duplicatesDetectorFacade.FindAllDuplicates(
                         (track, total, current) =>
                             {
                                 CurrentProgress = (int)Math.Ceiling((float)current / total * 100);

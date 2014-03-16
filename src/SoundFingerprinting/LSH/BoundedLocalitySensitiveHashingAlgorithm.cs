@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.LSH
 {
-    public class BoundedLocalitySensitiveHashingAlgorithm : LocalitySensitiveHashingAlgorithm
+    internal class BoundedLocalitySensitiveHashingAlgorithm : LocalitySensitiveHashingAlgorithm
     {
         /// <summary>
         ///   Maximum number of hash buckets in the database
