@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.MongoDb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio.NAudio.Test", "SoundFingerprinting.Audio.NAudio.Test\SoundFingerprinting.Audio.NAudio.Test.csproj", "{AE1865DB-C8D2-48E8-BB00-551D9D858C37}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.SQL", "SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj", "{6A632721-03E5-46C1-8457-66333F7271AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -164,6 +166,16 @@ Global
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Release|x86.ActiveCfg = Release|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6A632721-03E5-46C1-8457-66333F7271AA}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
