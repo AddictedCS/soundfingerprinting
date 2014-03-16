@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Transactions" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -61,6 +62,9 @@
     </Compile>
     <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractTrackDaoTest.cs">
       <Link>Integration\AbstractTrackDaoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\ModelServiceTest.cs">
+      <Link>Integration\ModelServiceTest.cs</Link>
     </Compile>
     <Compile Include="Integration\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
@@ -90,6 +94,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Unit\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

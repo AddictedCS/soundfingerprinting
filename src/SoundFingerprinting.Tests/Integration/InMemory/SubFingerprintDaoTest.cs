@@ -16,9 +16,8 @@
         public override sealed ITrackDao TrackDao { get; set; }
 
         [TestInitialize]
-        public override void SetUp()
+        public void SetUp()
         {
-            base.SetUp();
             var ramStorage = new RAMStorage(NumberOfFingerprints);
             SubFingerprintDao = new SubFingerprintDao(ramStorage);
             TrackDao = new TrackDao(ramStorage);

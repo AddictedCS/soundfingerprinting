@@ -18,9 +18,8 @@
         public override sealed ISubFingerprintDao SubFingerprintDao { get; set; }
 
         [TestInitialize]
-        public override void SetUp()
+        public void SetUp()
         {
-            base.SetUp();
             var ramStorage = new RAMStorage(NumberOfHashTables);
             HashBinDao = new HashBinDao(ramStorage);
             TrackDao = new TrackDao(ramStorage);

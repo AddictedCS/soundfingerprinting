@@ -22,9 +22,8 @@
         public override sealed ITrackDao TrackDao { get; set; }
 
         [TestInitialize]
-        public override void SetUp()
+        public void SetUp()
         {
-            base.SetUp();
             daoTestHelper.GetCollection<SubFingerprint>(MongoDb.SubFingerprintDao.SubFingerprints);
             daoTestHelper.GetCollection<Track>(MongoDb.TrackDao.Tracks);
         }

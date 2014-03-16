@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.SQL.Tests.Integration
 {
+    using System.Transactions;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.DAO;
@@ -9,6 +11,8 @@
     [TestClass]
     public class FingerprintDaoTest : AbstractFingerprintDaoTest
     {
+        private TransactionScope transactionPerTestScope;
+
         public FingerprintDaoTest()
         {
             FingerprintDao = new FingerprintDao();
@@ -18,5 +22,17 @@
         public override sealed IFingerprintDao FingerprintDao { get; set; }
 
         public override sealed ITrackDao TrackDao { get; set; }
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            transactionPerTestScope = new TransactionScope();
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            transactionPerTestScope.Dispose();
+        }
     }
 }

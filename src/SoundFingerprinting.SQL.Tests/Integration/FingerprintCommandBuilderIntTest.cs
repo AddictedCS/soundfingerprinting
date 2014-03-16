@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Transactions;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,8 +22,9 @@
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         private readonly BassAudioService bassAudioService;
-
         private readonly NAudioService naudioAudioService;
+
+        private TransactionScope transactionPerTestScope;
 
         public FingerprintCommandBuilderIntTest()
         {
@@ -31,6 +33,18 @@
             modelService = new SqlModelService();
             fingerprintCommandBuilder = new FingerprintCommandBuilder();
             queryFingerprintService = new QueryFingerprintService();
+        }
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            transactionPerTestScope = new TransactionScope();
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            transactionPerTestScope.Dispose();
         }
 
         [TestMethod]

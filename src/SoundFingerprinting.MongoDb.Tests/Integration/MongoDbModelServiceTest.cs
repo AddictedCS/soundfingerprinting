@@ -18,9 +18,8 @@
         public override sealed IModelService ModelService { get; set; }
 
         [TestInitialize]
-        public override void SetUp()
+        public void SetUp()
         {
-            base.SetUp();
             daoTestHelper.GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints).RemoveAll();
             daoTestHelper.GetCollection<Track>(TrackDao.Tracks).RemoveAll();
             daoTestHelper.GetCollection<Hash>(HashBinDao.HashBins).RemoveAll();

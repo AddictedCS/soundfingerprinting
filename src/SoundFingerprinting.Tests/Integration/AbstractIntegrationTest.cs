@@ -14,20 +14,6 @@
     [TestClass]
     public abstract class AbstractIntegrationTest : AbstractTest
     {
-        private TransactionScope transactionPerTestScope;
-
-        [TestInitialize]
-        public virtual void SetUp()
-        {
-            transactionPerTestScope = new TransactionScope();
-        }
-
-        [TestCleanup]
-        public virtual void TearDown()
-        {
-            transactionPerTestScope.Dispose();
-        }
-
         protected void AssertHashDatasAreTheSame(IList<HashData> firstHashDatas, IList<HashData> secondHashDatas)
         {
             Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);

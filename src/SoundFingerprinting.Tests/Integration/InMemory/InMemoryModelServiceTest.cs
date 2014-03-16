@@ -12,9 +12,8 @@
         public override IModelService ModelService { get; set; }
 
         [TestInitialize]
-        public override void SetUp()
+        public void SetUp()
         {
-            base.SetUp();
             var ramStorage = new RAMStorage(NumberOfHashTables);
             ModelService = new InMemoryModelService(
                 new TrackDao(ramStorage), new HashBinDao(ramStorage), new SubFingerprintDao(ramStorage), new FingerprintDao(ramStorage));
