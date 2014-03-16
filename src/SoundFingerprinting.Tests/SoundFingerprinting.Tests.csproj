@@ -72,7 +72,6 @@
     <Compile Include="Integration\DAO\AbstractSubFingerprintDaoTest.cs" />
     <Compile Include="Integration\DAO\AbstractTrackDaoTest.cs" />
     <Compile Include="Unit\Audio\BassAudioServiceTest.cs" />
-    <Compile Include="Unit\Audio\BassLifetimeManagerTest.cs" />
     <Compile Include="Unit\Audio\BassPlayAudioFileServiceTest.cs" />
     <Compile Include="Unit\Audio\BassResamplerTest.cs" />
     <Compile Include="Unit\Audio\BassSamplesProviderTest.cs" />

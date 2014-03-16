@@ -183,7 +183,7 @@ namespace SoundFingerprinting.Audio.Bass
             }
         }
 
-        internal sealed class BassLifetimeManager : IDisposable
+        private class BassLifetimeManager : IDisposable
         {
             private const string FlacDllName = "bassflac.dll";
 
@@ -210,18 +210,13 @@ namespace SoundFingerprinting.Audio.Bass
 
             ~BassLifetimeManager()
             {
-                Dispose(false);
+                Dispose();
             }
 
             public void Dispose()
             {
-                Dispose(true);
                 GC.SuppressFinalize(this);
-                alreadyDisposed = true;
-            }
 
-            private void Dispose(bool isDisposing)
-            {
                 if (!alreadyDisposed)
                 {
                     if (Interlocked.Decrement(ref initializedInstances) == 0)
@@ -238,6 +233,8 @@ namespace SoundFingerprinting.Audio.Bass
                         }
                     }
                 }
+
+                alreadyDisposed = true;
             }
 
             private bool IsBassLibraryHasToBeInitialized(int numberOfInstances)
