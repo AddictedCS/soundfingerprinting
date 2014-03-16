@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Integration.SQL
+﻿namespace SoundFingerprinting.SQL.Tests.Integration
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

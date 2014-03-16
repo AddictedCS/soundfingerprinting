@@ -234,6 +234,10 @@
       <Project>{e3f08f02-26a2-4731-941e-2ffd38c197b5}</Project>
       <Name>SoundFingerprinting.MinHash.Permutations</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj">
+      <Project>{6a632721-03e5-46c1-8457-66333f7271aa}</Project>
+      <Name>SoundFingerprinting.SQL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>

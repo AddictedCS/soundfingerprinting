@@ -1,18 +1,17 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Builder
+﻿namespace SoundFingerprinting.SQL.Tests.Integration
 {
     using System;
     using System.IO;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.SQL;
     using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Tests;
     using SoundFingerprinting.Tests.Integration;
 
     [TestClass]

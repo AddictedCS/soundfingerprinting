@@ -3,7 +3,6 @@
     using System;
 
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.SQL;
 
     [Serializable]
     public class FingerprintData

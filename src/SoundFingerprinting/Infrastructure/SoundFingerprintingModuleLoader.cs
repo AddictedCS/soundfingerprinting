@@ -13,7 +13,6 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.MinHash;
-    using SoundFingerprinting.SQL;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
@@ -46,14 +45,6 @@
             kernel.Bind<IBassStreamFactory>().To<BassStreamFactory>().InSingletonScope();
             kernel.Bind<IBassResampler>().To<BassResampler>().InSingletonScope();
            
-            kernel.Bind<IModelBinderFactory>().To<CachedModelBinderFactory>().InSingletonScope();
-            kernel.Bind<IModelBinderFactory>().To<ModelBinderFactory>()
-                                              .WhenInjectedInto<CachedModelBinderFactory>();
-
-            kernel.Bind<IDatabaseProviderFactory>().To<MsSqlDatabaseProviderFactory>();
-            kernel.Bind<IConnectionStringFactory>().To<DefaultConnectionStringFactory>().InSingletonScope();
-
-            kernel.Bind<IModelService>().To<SqlModelService>().InSingletonScope();
             kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
             kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
             kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();

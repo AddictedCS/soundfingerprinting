@@ -69,13 +69,8 @@
     <Compile Include="Integration\DAO\AbstractHashBinDaoTest.cs" />
     <Compile Include="Integration\InMemory\HashBinDaoTest.cs" />
     <Compile Include="Integration\InMemory\InMemoryModelServiceTest.cs" />
-    <Compile Include="Integration\SQL\FingerprintDaoTest.cs" />
-    <Compile Include="Integration\SQL\HashBinDaoTest.cs" />
     <Compile Include="Integration\DAO\AbstractSubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\SQL\SqlModelServiceTest.cs" />
-    <Compile Include="Integration\SQL\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\DAO\AbstractTrackDaoTest.cs" />
-    <Compile Include="Integration\SQL\TrackDaoTest.cs" />
     <Compile Include="Unit\Audio\BassAudioServiceTest.cs" />
     <Compile Include="Unit\Audio\BassLifetimeManagerTest.cs" />
     <Compile Include="Unit\Audio\BassPlayAudioFileServiceTest.cs" />
@@ -103,7 +98,6 @@
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
     <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
-    <Compile Include="Integration\Builder\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
     <Compile Include="Unit\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />

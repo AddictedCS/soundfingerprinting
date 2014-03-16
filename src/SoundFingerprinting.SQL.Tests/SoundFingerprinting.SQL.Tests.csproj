@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6A632721-03E5-46C1-8457-66333F7271AA}</ProjectGuid>
+    <ProjectGuid>{AE93CADF-1D48-4293-BE07-5EAFB3B4FD77}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SoundFingerprinting.SQL</RootNamespace>
-    <AssemblyName>SoundFingerprinting.SQL</AssemblyName>
+    <RootNamespace>SoundFingerprinting.SQL.Tests</RootNamespace>
+    <AssemblyName>SoundFingerprinting.SQL.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -16,8 +16,6 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,12 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ninject">
-      <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -50,48 +43,53 @@
         <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <Otherwise />
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="AbstractDao.cs" />
-    <Compile Include="CachedModelBinderFactory.cs" />
-    <Compile Include="Conditions\AsValueEnum.cs" />
-    <Compile Include="Conditions\ICondition.cs" />
-    <Compile Include="DefaultConnectionStringFactory.cs" />
-    <Compile Include="Executor.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="FingerprintDao.cs" />
-    <Compile Include="HashBinDao.cs" />
-    <Compile Include="IConnectionStringFactory.cs" />
-    <Compile Include="IDatabaseProviderFactory.cs" />
-    <Compile Include="IExecutor.cs" />
-    <Compile Include="IgnoreBindingAttribute.cs" />
-    <Compile Include="IModelBinder.cs" />
-    <Compile Include="IModelBinderFactory.cs" />
-    <Compile Include="Infrastructure\SQLModuleLoader.cs" />
-    <Compile Include="IParameterBinder.cs" />
-    <Compile Include="IReader.cs" />
-    <Compile Include="ModelBinder.cs" />
-    <Compile Include="ModelBinderFactory.cs" />
-    <Compile Include="ModelReaderBuilder.cs" />
-    <Compile Include="ModelWriterBuilder.cs" />
-    <Compile Include="MsSqlDatabaseProviderFactory.cs" />
-    <Compile Include="ParameterBinder.cs" />
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractFingerprintDaoTest.cs">
+      <Link>Integration\AbstractFingerprintDaoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractHashBinDaoTest.cs">
+      <Link>Integration\AbstractHashBinDaoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractSubFingerprintDaoTest.cs">
+      <Link>Integration\AbstractSubFingerprintDaoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractTrackDaoTest.cs">
+      <Link>Integration\AbstractTrackDaoTest.cs</Link>
+    </Compile>
+    <Compile Include="Integration\FingerprintCommandBuilderIntTest.cs" />
+    <Compile Include="Integration\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\HashBinDaoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reader.cs" />
-    <Compile Include="SqlModelService.cs" />
-    <Compile Include="SubFingerprintDao.cs" />
-    <Compile Include="TrackDao.cs" />
-    <Compile Include="TypeRegistry.cs" />
+    <Compile Include="Integration\SqlModelServiceTest.cs" />
+    <Compile Include="Integration\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\TrackDaoTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
+      <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
+      <Name>SoundFingerprinting.Audio.NAudio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj">
+      <Project>{6a632721-03e5-46c1-8457-66333f7271aa}</Project>
+      <Name>SoundFingerprinting.SQL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.Tests\SoundFingerprinting.Tests.csproj">
+      <Project>{987da38d-5157-4d83-9b1d-83a0a62d0e94}</Project>
+      <Name>SoundFingerprinting.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Folder Include="Unit\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
@@ -113,7 +111,6 @@
   </Choose>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
