@@ -8,7 +8,7 @@
     using Ninject;
     using Ninject.Parameters;
 
-    public static class DependencyResolver
+    internal static class DependencyResolver
     {
         private static IDependencyResolver dependencyResolver;
 

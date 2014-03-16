@@ -26,14 +26,6 @@ namespace SoundFingerprinting
         {
         }
 
-        public FingerprintService(ISpectrumService spectrumService, IWaveletDecomposition waveletDecomposition)
-            : this(
-                spectrumService,
-                waveletDecomposition,
-                DependencyResolver.Current.Get<IFingerprintDescriptor>())
-        {
-        }
-
         internal FingerprintService(
             ISpectrumService spectrumService,
             IWaveletDecomposition waveletDecomposition,

@@ -8,7 +8,7 @@
     internal class DaoTestHelper : AbstractDao
     {
         public DaoTestHelper()
-            : base(DependencyResolver.Current.Get<IMongoDatabaseProviderFactory>())
+            : base(DependencyResolver.Current.Get<MongoDatabaseProviderFactory>())
         {
             // no op
         }

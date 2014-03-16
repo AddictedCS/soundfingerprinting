@@ -14,4 +14,8 @@ using System.Runtime.InteropServices;
 [assembly: Guid("585f314e-cdad-4c85-a00f-cb4821d158ac")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Audio.NAudio")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.SoundTools")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb.Tests")]
 [assembly: AssemblyVersion("0.6.0.*")]
