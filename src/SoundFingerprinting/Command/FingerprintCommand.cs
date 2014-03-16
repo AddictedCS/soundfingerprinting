@@ -101,17 +101,9 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IFingerprintCommand UsingServices(FingerprintServices services)
+        public IFingerprintCommand UsingServices(IAudioService audioService)
         {
-            audioService = services.AudioService;
-            return this;
-        }
-
-        public IFingerprintCommand UsingServices(Action<FingerprintServices> services)
-        {
-            var fingerprintServices = new FingerprintServices();
-            services(fingerprintServices);
-            audioService = fingerprintServices.AudioService;
+            this.audioService = audioService;
             return this;
         }
 

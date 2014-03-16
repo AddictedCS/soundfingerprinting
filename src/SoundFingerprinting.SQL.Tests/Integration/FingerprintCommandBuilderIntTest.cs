@@ -56,7 +56,7 @@
             var audioFingerprintingUnit = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(PathToMp3)
                                         .WithFingerprintConfig(config => { config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); })
-                                        .UsingServices(service => service.AudioService = bassAudioService);
+                                        .UsingServices(bassAudioService);
                                     
             double seconds = tagService.GetTagInfo(PathToMp3).Duration;
             int samples = (int)(seconds * audioFingerprintingUnit.FingerprintConfiguration.SampleRate);
@@ -73,14 +73,14 @@
             var fingerprinter = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(PathToMp3)
                                         .WithDefaultFingerprintConfig()
-                                        .UsingServices(services => services.AudioService = bassAudioService)
+                                        .UsingServices(bassAudioService)
                                         .Fingerprint();
 
             var fingerprints = fingerprinter.Result;
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(fingerprints)
                                         .WithDefaultFingerprintConfig()
-                                        .UsingServices(services => services.AudioService = bassAudioService)
+                                        .UsingServices(bassAudioService)
                                         .Hash()
                                         .Result;
 
@@ -101,7 +101,7 @@
                                             .BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
                                             .WithDefaultFingerprintConfig()
-                                            .UsingServices(services => services.AudioService = bassAudioService)
+                                            .UsingServices(bassAudioService)
                                             .Hash()
                                             .Result;
 
@@ -127,7 +127,7 @@
                                         .BuildFingerprintCommand()
                                         .From(PathToMp3, SecondsToProcess, StartAtSecond)
                                         .WithDefaultFingerprintConfig()
-                                        .UsingServices(services => services.AudioService = bassAudioService)
+                                        .UsingServices(bassAudioService)
                                         .Hash()
                                         .Result;
 
@@ -135,7 +135,7 @@
                                         .BuildFingerprintCommand()
                                         .From(samples)
                                         .WithDefaultFingerprintConfig()
-                                        .UsingServices(services => services.AudioService = bassAudioService)
+                                        .UsingServices(bassAudioService)
                                         .Hash()
                                         .Result;
 
@@ -148,14 +148,14 @@
             var naudioFingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                         .From(PathToMp3)
                                                         .WithDefaultFingerprintConfig()
-                                                        .UsingServices(services => services.AudioService = naudioAudioService)
+                                                        .UsingServices(naudioAudioService)
                                                         .Fingerprint()
                                                         .Result;
 
             var bassFingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                  .From(PathToMp3)
                                                  .WithDefaultFingerprintConfig()
-                                                 .UsingServices(services => services.AudioService = bassAudioService)
+                                                 .UsingServices(bassAudioService)
                                                  .Fingerprint()
                                                  .Result;
             int unmatchedItems = 0;
@@ -195,7 +195,7 @@
             var list = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToMp3)
                                       .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
-                                      .UsingServices(services => services.AudioService = bassAudioService)
+                                      .UsingServices(bassAudioService)
                                       .Fingerprint()
                                       .Result;
 
@@ -214,7 +214,7 @@
                                             .BuildFingerprintCommand()
                                             .From(PathToMp3, SecondsToProcess, StartAtSecond)
                                             .WithDefaultFingerprintConfig()
-                                            .UsingServices(services => services.AudioService = bassAudioService);
+                                            .UsingServices(bassAudioService);
             
             var firstHashDatas = fingerprintCommand.Hash().Result;
             var secondHashDatas = fingerprintCommand.Hash().Result;
@@ -229,11 +229,10 @@
 
             float[] samples = TestUtilities.GenerateRandomFloatArray(config.SamplesPerFingerprint + config.WdftSize);
 
-            var hash = fingerprintCommandBuilder
-                                                .BuildFingerprintCommand()
+            var hash = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                 .From(samples)
                                                 .WithDefaultFingerprintConfig()
-                                                .UsingServices(services => services.AudioService = bassAudioService)
+                                                .UsingServices(bassAudioService)
                                                 .Hash()
                                                 .Result;
             Assert.AreEqual(1, hash.Count);

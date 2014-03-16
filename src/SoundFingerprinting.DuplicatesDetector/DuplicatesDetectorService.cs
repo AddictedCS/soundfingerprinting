@@ -52,7 +52,7 @@
             var hashes = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                        .From(samples)
                                                        .WithFingerprintConfig(config => config.Stride = createStride)
-                                                       .UsingServices(services => services.AudioService = audioService)
+                                                       .UsingServices(audioService)
                                                        .Hash()
                                                        .Result;
            

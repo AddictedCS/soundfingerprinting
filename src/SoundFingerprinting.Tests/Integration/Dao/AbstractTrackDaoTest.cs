@@ -182,7 +182,7 @@
                     {
                         config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                     })
-                .UsingServices(services => services.AudioService = audioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 

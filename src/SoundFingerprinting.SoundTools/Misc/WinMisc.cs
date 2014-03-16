@@ -141,7 +141,7 @@
                                                             config.NormalizeSignal = normalizeSignal;
                                                             config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                         })
-                                                    .UsingServices(services => services.AudioService = audioService);
+                                                    .UsingServices(audioService);
 
                         IFingerprintCommand querySong;
                         int comparisonStride = (int)_nudQueryStride.Value;
@@ -164,7 +164,7 @@
                                                                       config.NormalizeSignal = normalizeSignal;
                                                                       config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                                   })
-                                                          .UsingServices(services => services.AudioService = audioService);
+                                                          .UsingServices(audioService);
                         }
                         else
                         {
@@ -185,7 +185,7 @@
                                                                   config.NormalizeSignal = normalizeSignal;
                                                                   config.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                               })
-                                                         .UsingServices(services => services.AudioService = audioService);
+                                                         .UsingServices(audioService);
                         }
 
                         SimilarityResult similarityResult = new SimilarityResult();

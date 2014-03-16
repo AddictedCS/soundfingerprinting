@@ -416,7 +416,7 @@
                                                     config.TopWavelets = topWavelets;
                                                     config.Stride = stride;
                                                 })
-                                        .UsingServices(services => services.AudioService = audioService)
+                                        .UsingServices(audioService)
                                         .Hash()
                                         .Result; // Create SubFingerprints
 

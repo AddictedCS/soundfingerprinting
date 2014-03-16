@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
@@ -75,29 +76,12 @@
             return this;
         }
 
-        public IQueryCommand UsingServices(QueryServices services)
+        public IQueryCommand UsingServices(IModelService modelService, IAudioService audioService)
         {
-            modelService = services.ModelService;
+            this.modelService = modelService;
             createFingerprintMethod = () => fingerprintingMethodFromSelector()
                                                 .WithFingerprintConfig(FingerprintConfiguration)
-                                                .UsingServices(fingerprintServices =>
-                                                    {
-                                                        fingerprintServices.AudioService = services.AudioService;
-                                                    });
-            return this;
-        }
-
-        public IQueryCommand UsingServices(Action<QueryServices> services)
-        {
-            createFingerprintMethod = () => fingerprintingMethodFromSelector()
-                                               .WithFingerprintConfig(FingerprintConfiguration)
-                                               .UsingServices(fingerprintServices =>
-                                               {
-                                                   QueryServices queryServices = new QueryServices();
-                                                   services(queryServices);
-                                                   fingerprintServices.AudioService = queryServices.AudioService;
-                                                   modelService = queryServices.ModelService;
-                                               });
+                                                .UsingServices(audioService);
             return this;
         }
 

@@ -75,6 +75,8 @@
     <Compile Include="Audio\ISamplesProvider.cs" />
     <Compile Include="Audio\ITagService.cs" />
     <Compile Include="Audio\SamplesAggregator.cs" />
+    <Compile Include="Command\IUsingFingerprintServices.cs" />
+    <Compile Include="Command\IUsingQueryServices.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="Data\IgnoreBindingAttribute.cs" />
     <Compile Include="Infrastructure\IModuleLoader.cs" />

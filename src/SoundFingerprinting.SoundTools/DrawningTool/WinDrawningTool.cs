@@ -95,7 +95,7 @@
                                                                                 config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                                                                 config.NormalizeSignal = normalize;
                                                                             })
-                                                                           .UsingServices(services => services.AudioService = audioService);
+                                                                           .UsingServices(audioService);
 
                                 List<bool[]> fingerprints = songToDraw.Fingerprint()
                                                                       .Result
@@ -132,7 +132,7 @@
                                                                             {
                                                                                 config.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                                                             })
-                                                                          .UsingServices(services => services.AudioService = audioService);
+                                                                          .UsingServices(audioService);
                                 List<bool[]> result = songToDraw.Fingerprint()
                                                                 .Result
                                                                 .Select(fingerprint => fingerprint)

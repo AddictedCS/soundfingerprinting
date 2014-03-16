@@ -2,7 +2,6 @@
 {
     using System;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
 
     public interface IWithQueryAndFingerprintConfiguration
@@ -14,19 +13,5 @@
         IUsingQueryServices WithConfigs(Action<CustomFingerprintConfiguration> fingerprintConfiguration, Action<CustomQueryConfiguration> queryConfiguration);
 
         IUsingQueryServices WithDefaultConfigs();
-    }
-
-     public interface IUsingQueryServices
-     {
-         IQueryCommand UsingServices(QueryServices services);
-
-         IQueryCommand UsingServices(Action<QueryServices> services);
-     }
-
-    public class QueryServices
-    {
-        public IModelService ModelService { get; set; }
-
-        public IAudioService AudioService { get; set; }
     }
 }

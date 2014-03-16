@@ -61,7 +61,7 @@
                 {
                     config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
-                .UsingServices(services => services.AudioService = audioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -97,7 +97,7 @@
                 {
                     config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
-                .UsingServices(services => services.AudioService = audioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -133,7 +133,7 @@
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 10, 0)
                 .WithDefaultFingerprintConfig()
-                .UsingServices(services => services.AudioService = audioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -147,7 +147,7 @@
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 20, 10)
                 .WithDefaultFingerprintConfig()
-                .UsingServices(services => services.AudioService = audioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 

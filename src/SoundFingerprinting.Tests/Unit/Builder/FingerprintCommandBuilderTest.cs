@@ -54,7 +54,7 @@
             List<bool[]> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                   .From(PathToAudioFile)
                                   .WithDefaultFingerprintConfig()
-                                  .UsingServices(services => services.AudioService = audioService.Object)
+                                  .UsingServices(audioService.Object)
                                   .Fingerprint()
                                   .Result;
 
@@ -78,7 +78,7 @@
                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile)
                                       .WithDefaultFingerprintConfig()
-                                      .UsingServices(services => services.AudioService = audioService.Object)
+                                      .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
@@ -103,7 +103,7 @@
                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
                                       .WithDefaultFingerprintConfig()
-                                      .UsingServices(services => services.AudioService = audioService.Object)
+                                      .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
@@ -133,7 +133,7 @@
                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
                                       .WithDefaultFingerprintConfig()
-                                      .UsingServices(services => services.AudioService = audioService.Object)
+                                      .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
@@ -158,7 +158,7 @@
                 fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(rawFingerprints)
                                       .WithDefaultFingerprintConfig()
-                                      .UsingServices(services => services.AudioService = audioService.Object)
+                                      .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
@@ -179,7 +179,7 @@
             var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                               .From(PathToAudioFile)
                                                               .WithFingerprintConfig(configuration)
-                                                              .UsingServices(services => services.AudioService = audioService.Object);
+                                                              .UsingServices(audioService.Object);
 
             Assert.AreEqual(configuration, fingerprintCommand.FingerprintConfiguration);
             Assert.AreEqual(
@@ -192,7 +192,7 @@
             var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                               .From("path-to-mp3-file")
                                                               .WithFingerprintConfig<DefaultFingerprintConfiguration>()
-                                                              .UsingServices(services => services.AudioService = audioService.Object);
+                                                              .UsingServices(audioService.Object);
 
             Assert.IsTrue(fingerprintCommand.FingerprintConfiguration is DefaultFingerprintConfiguration);
         }

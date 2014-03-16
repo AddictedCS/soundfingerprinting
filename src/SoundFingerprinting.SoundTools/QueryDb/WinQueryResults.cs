@@ -161,11 +161,7 @@
                                                         {
                                                             queryConfig.ThresholdVotes = threshold;
                                                         })
-                                                    .UsingServices(services =>
-                                                        {
-                                                            services.AudioService = audioService;
-                                                            services.ModelService = modelService;
-                                                        })
+                                                    .UsingServices(modelService, audioService)
                                                     .Query()
                                                     .Result;
 
@@ -240,11 +236,7 @@
                                         {
                                             queryConfig.ThresholdVotes = threshold;
                                         })
-                                   .UsingServices(services =>
-                                    {
-                                        services.AudioService = audioService;
-                                        services.ModelService = modelService;
-                                    })
+                                  .UsingServices(modelService, audioService)
                                   .Query()
                                   .ContinueWith(
                                         t =>
