@@ -36,10 +36,6 @@
             }
 
             kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
-
-            kernel.Bind<IAudioService>().To<BassAudioService>().InSingletonScope();
-            kernel.Bind<IPlayAudioFileService>().To<BassPlayAudioFileService>().InSingletonScope();
-            kernel.Bind<ITagService>().To<BassTagService>().InSingletonScope();
             kernel.Bind<IBassServiceProxy>().To<BassServiceProxy>().InSingletonScope();
             kernel.Bind<ISamplesAggregator>().To<SamplesAggregator>().InSingletonScope();
             kernel.Bind<IBassStreamFactory>().To<BassStreamFactory>().InSingletonScope();
