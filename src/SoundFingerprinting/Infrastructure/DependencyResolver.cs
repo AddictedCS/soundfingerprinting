@@ -7,15 +7,20 @@
 
     using Ninject;
 
-    internal static class DependencyResolver
+    internal class DependencyResolver
     {
-        private static IDependencyResolver dependencyResolver;
+        private static readonly IDependencyResolver Resolver;
+
+        static DependencyResolver()
+        {
+            Resolver = new DefaultDependencyResolver();
+        }
 
         public static IDependencyResolver Current
         {
             get
             {
-                return dependencyResolver ?? (dependencyResolver = new DefaultDependencyResolver());
+                return Resolver;
             }
         }
 
