@@ -5,6 +5,9 @@
   <NugetExecutable>..\src\.nuget\NuGet.exe</NugetExecutable>
   <MSTestExecutable>..\tools\MSTest.exe</MSTestExecutable>
   <SoundFingerprintingLibProject>..\src\SoundFingerprinting\SoundFingerprinting.csproj</SoundFingerprintingLibProject>
+  <SoundFingerprintingSQLProject>..\src\SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj</SoundFingerprintingSQLProject>
+  <SoundFingerprintingNAudioProject>..\src\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj</SoundFingerprintingNAudioProject>
+  <SoundFingerprintingMongoProject>..\src\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj</SoundFingerprintingMongoProject>
   <SoundFingerprintingOutputDir>$(Configuration)\SoundFingerprinting</SoundFingerprintingOutputDir>
   <DuplicatesDetectorOutputDir>$(Configuration)\DuplicatesDetector</DuplicatesDetectorOutputDir>
   <SoundToolsOutputDir>$(Configuration)\SoundTools</SoundToolsOutputDir>
@@ -13,45 +16,51 @@
 
 <Target Name = "Compile">
     <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration)" />
-	<Message Text="Copying SoundFingerprinting files to output directories" />
-	<MakeDir Directories="$(SoundFingerprintingOutputDir)" Condition="!Exists('$(SoundFingerprintingOutputDir)')" />
-	<CreateItem Include="..\src\SoundFingerprinting\bin\$(Configuration)\**\*.*">
-    	<Output TaskParameter="Include" ItemName="SoundFingerprintingFiles" />
-    </CreateItem>
-	<Copy SourceFiles="@(SoundFingerprintingFiles)" DestinationFiles="@(SoundFingerprintingFiles->'$(SoundFingerprintingOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
-	<Message Text="Copying DuplicatesDetector files to output directories" />
-	<MakeDir Directories="$(DuplicatesDetectorOutputDir)" Condition="!Exists('$(DuplicatesDetectorOutputDir)')" />
-	<CreateItem Include="..\src\SoundFingerprinting.DuplicatesDetector\bin\$(Configuration)\**\*.*">
-    	<Output TaskParameter="Include" ItemName="DuplicateDetectorFiles" />
-    </CreateItem>
-	<Copy SourceFiles="@(DuplicateDetectorFiles)" DestinationFiles="@(DuplicateDetectorFiles->'$(DuplicatesDetectorOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
-	<Message Text="Copying SoundTools files to output directories" />
-	<MakeDir Directories="$(SoundToolsOutputDir)" Condition="!Exists('$(SoundToolsOutputDir)')" />
-	<CreateItem Include="..\src\SoundFingerprinting.SoundTools\bin\$(Configuration)\**\*.*">
-    	<Output TaskParameter="Include" ItemName="SoundToolsFiles" />
-    </CreateItem>
-	<Copy SourceFiles="@(SoundToolsFiles)" DestinationFiles="@(SoundToolsFiles->'$(SoundToolsOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
-	
-	<Message Text="Copying Tests files to output directories" />
-	<MakeDir Directories="$(UnitTestsOutputDir)" Condition="!Exists('$(UnitTestsOutputDir)')" />
-	<CreateItem Include="..\src\SoundFingerprinting.Tests\bin\$(Configuration)\**\*.*">
-    	<Output TaskParameter="Include" ItemName="UnitTestFiles" />
-    </CreateItem>
-	<Copy SourceFiles="@(UnitTestFiles)" DestinationFiles="@(UnitTestFiles->'$(UnitTestsOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
 </Target>
 
-<Target Name = "Package" DependsOnTargets="RunTests">
-	<!-- You could use the MSBuild Copy task here to move the compiled code into a structure that fits your desired package format -->
-  <Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingLibProject) -Build -Properties Configuration=$(Configuration)" />
-  <RemoveDir Directories="TestResults" />
-</Target>
-
-<Target Name="RunTests">
-    <!--Run MSTest.exe-->
-    <Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.Tests.dll" >
-      <Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
+<Target Name = "RunSoundFingerprintingLibTests">
+	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.Tests.dll" >
+		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
     </Exec>
- </Target>
+</Target>
+
+<Target Name = "PackageSoundFingerprintingLib" DependsOnTargets="RunSoundFingerprintingLibTests">
+	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingLibProject) -Build -Properties Configuration=$(Configuration)" />
+</Target>
+
+<Target Name = "RunSQLLibTests">
+	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.SQL.Tests.dll" >
+		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
+    </Exec>
+</Target>
+
+<Target Name = "PackageSoundFingerprintingSQLLib" DependsOnTargets="RunSQLLibTests">
+	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingSQLProject) -Build -Properties Configuration=$(Configuration)" />
+</Target>
+
+<Target Name = "RunNAudioTests">
+	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.Audio.NAudio.Test.dll" >
+		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
+    </Exec>
+</Target>
+
+<Target Name = "PackageNAudioLib" DependsOnTargets="RunNAudioTests">
+	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingNAudioProject) -Build -Properties Configuration=$(Configuration)" />
+</Target>
+
+<Target Name = "RunMongoDbTests">
+	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.MongoDb.Tests.dll" >
+		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
+    </Exec>
+</Target>
+
+<Target Name = "PackageMongoDBLib" DependsOnTargets="RunMongoDbTests">
+	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingMongoProject) -Build -Properties Configuration=$(Configuration)" />
+</Target>
+
+<Target Name = "Package" DependsOnTargets="PackageSoundFingerprintingLib;PackageSoundFingerprintingSQLLib;PackageNAudioLib;PackageMongoDBLib">
+	<RemoveDir Directories="TestResults" />
+</Target>
 
 <Target Name = "All" DependsOnTargets="Compile;Package" />
 
