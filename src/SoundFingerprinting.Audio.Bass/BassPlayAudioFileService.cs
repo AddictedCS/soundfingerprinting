@@ -37,7 +37,7 @@
 
         public void StopPlayingFile(object stream)
         {
-            if ((int)stream != 0)
+            if (stream != null && (int)stream != 0)
             {
                 proxy.FreeStream((int)stream);
             }
