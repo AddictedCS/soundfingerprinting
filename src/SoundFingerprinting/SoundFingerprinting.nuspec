@@ -14,12 +14,9 @@
     <copyright>Copyright 2010, Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
   </metadata>
-	<files>
-		<file src="..\Externals\Bass.Net.dll" target="lib\net35" />
-		<file src="..\Externals\Bass.Net.dll" target="lib\net40" />
-		<file src="..\Externals\Bass.Net.dll" target="lib\net45" />
-		<file src="..\Scripts\*.ps1" target="tools\net35" />
-		<file src="..\Scripts\*.ps1" target="tools\net40" />
-		<file src="..\Scripts\*.ps1" target="tools\net45" />
-	</files>
+  <files>
+	    <file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net35" />
+		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net40" />
+		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net45" />
+   </files>
 </package>

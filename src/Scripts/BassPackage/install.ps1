@@ -1,6 +1,6 @@
 param($installPath, $toolsPath, $package, $project)
 
-$dlls = @("bass.dll", "bass_fx.dll", "basscd.dll", "bassenc.dll", "bassflac.dll", "bassmidi.dll", "bassmix.dll", "basswma.dll", "libfftw3-3.dll", "libfftw3f-3.dll", "libfftw3l-3.dll", "tags.dll")
+$dlls = @("bass.dll", "bass_fx.dll", "basscd.dll", "bassenc.dll", "bassflac.dll", "bassmidi.dll", "bassmix.dll", "basswma.dll", "tags.dll")
 
 $dirs = @("x64", "x86")
 
