@@ -1,10 +1,11 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Audio
+﻿namespace SoundFingerprinting.Audio.Bass.Tests.Unit
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Moq;
 
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Tests;
 
     [TestClass]
     public class BassSamplesProviderTest : AbstractTest

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Audio
+﻿namespace SoundFingerprinting.Audio.Bass.Tests.Unit
 {
     using System;
 
@@ -8,6 +8,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Tests;
 
     [TestClass]
     public class BassAudioServiceTest : AbstractTest
