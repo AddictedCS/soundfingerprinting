@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.NAudio")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Audio.Bass")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL")]

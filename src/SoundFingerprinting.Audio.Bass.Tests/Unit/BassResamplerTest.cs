@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Audio
+﻿namespace SoundFingerprinting.Audio.Bass.Tests.Unit
 {
     using System.Collections.Generic;
 
@@ -8,6 +8,8 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Tests;
+    using SoundFingerprinting.Tests.Unit.Audio;
 
     using Un4seen.Bass;
 

@@ -5,7 +5,6 @@
     using Ninject;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
@@ -36,11 +35,8 @@
             }
 
             kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
-            kernel.Bind<IBassServiceProxy>().To<BassServiceProxy>().InSingletonScope();
             kernel.Bind<ISamplesAggregator>().To<SamplesAggregator>().InSingletonScope();
-            kernel.Bind<IBassStreamFactory>().To<BassStreamFactory>().InSingletonScope();
-            kernel.Bind<IBassResampler>().To<BassResampler>().InSingletonScope();
-           
+            
             kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
             kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
             kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();

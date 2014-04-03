@@ -224,6 +224,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.Audio.Bass\SoundFingerprinting.Audio.Bass.csproj">
+      <Project>{1f143503-3592-4a71-8ce3-026d7e8b2ad7}</Project>
+      <Name>SoundFingerprinting.Audio.Bass</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>

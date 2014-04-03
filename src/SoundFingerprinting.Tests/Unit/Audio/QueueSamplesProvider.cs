@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
 
     using SoundFingerprinting.Audio;
 
-    internal class QueueSamplesProvider : ISamplesProvider
+    public class QueueSamplesProvider : ISamplesProvider
     {
         private readonly Queue<int> queue;
 

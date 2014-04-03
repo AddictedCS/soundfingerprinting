@@ -38,35 +38,16 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net, Version=2.4.6.4, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Externals\Bass.Net.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\AudioSamplesNormalizer.cs" />
     <Compile Include="Audio\AudioServiceException.cs" />
-    <Compile Include="Audio\Bass\BassAudioService.cs" />
-    <Compile Include="Audio\Bass\BassAudioServiceException.cs" />
-    <Compile Include="Audio\Bass\BassConfigurationSection.cs" />
-    <Compile Include="Audio\Bass\BassConstants.cs" />
-    <Compile Include="Audio\Bass\BassPlayAudioFileService.cs" />
-    <Compile Include="Audio\Bass\BassPlayAudioFileServiceException.cs" />
-    <Compile Include="Audio\Bass\BassResampler.cs" />
-    <Compile Include="Audio\Bass\BassSamplesProvider.cs" />
-    <Compile Include="Audio\Bass\BassServiceProxy.cs" />
-    <Compile Include="Audio\Bass\BassStreamFactory.cs" />
-    <Compile Include="Audio\Bass\BassTagService.cs" />
-    <Compile Include="Audio\Bass\IBassResampler.cs" />
-    <Compile Include="Audio\Bass\IBassServiceProxy.cs" />
-    <Compile Include="Audio\Bass\IBassStreamFactory.cs" />
     <Compile Include="Audio\ContinuousStreamSamplesProvider.cs" />
     <Compile Include="Audio\IAudioSamplesNormalizer.cs" />
     <Compile Include="Audio\IAudioService.cs" />
@@ -175,33 +156,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="x64\bass.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\basscd.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\bassenc.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\bassflac.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\bassmidi.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\bassmix.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\basswma.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\bass_aac.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\bass_fx.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="x64\libfftw3-3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -211,36 +165,6 @@
     <Content Include="x64\libfftw3l-3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="x64\tags.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\bass.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\basscd.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\bassenc.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\bassflac.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\bassmidi.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\bassmix.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\basswma.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\bass_aac.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\bass_fx.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="x86\libfftw3-3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -248,9 +172,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="x86\libfftw3l-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\tags.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

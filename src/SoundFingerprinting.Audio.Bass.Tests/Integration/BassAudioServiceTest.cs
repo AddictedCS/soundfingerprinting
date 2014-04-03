@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Audio
+﻿namespace SoundFingerprinting.Audio.Bass.Tests
 {
     using System;
     using System.IO;
@@ -7,7 +7,6 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Tests.Integration;
 
     [TestClass]

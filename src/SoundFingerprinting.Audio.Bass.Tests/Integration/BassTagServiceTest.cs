@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Audio
+﻿namespace SoundFingerprinting.Audio.Bass.Tests
 {
     using System;
 

@@ -81,6 +81,10 @@
     <Compile Include="Unit\MongoDbConnectionStringFactoryTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.Audio.Bass\SoundFingerprinting.Audio.Bass.csproj">
+      <Project>{1f143503-3592-4a71-8ce3-026d7e8b2ad7}</Project>
+      <Name>SoundFingerprinting.Audio.Bass</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj">
       <Project>{c294f4cc-678d-4cc9-905a-041395931c58}</Project>
       <Name>SoundFingerprinting.MongoDb</Name>
