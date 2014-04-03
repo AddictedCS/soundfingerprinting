@@ -8,6 +8,7 @@
   <SoundFingerprintingSQLProject>..\src\SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj</SoundFingerprintingSQLProject>
   <SoundFingerprintingNAudioProject>..\src\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj</SoundFingerprintingNAudioProject>
   <SoundFingerprintingMongoProject>..\src\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj</SoundFingerprintingMongoProject>
+  <SoundFingerprintingBassProject>..\src\SoundFingerprinting.Audio.Bass\SoundFingerprinting.Audio.Bass.csproj</SoundFingerprintingBassProject>
   <SoundFingerprintingOutputDir>$(Configuration)\SoundFingerprinting</SoundFingerprintingOutputDir>
   <DuplicatesDetectorOutputDir>$(Configuration)\DuplicatesDetector</DuplicatesDetectorOutputDir>
   <SoundToolsOutputDir>$(Configuration)\SoundTools</SoundToolsOutputDir>
@@ -16,6 +17,16 @@
 
 <Target Name = "Compile">
     <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration)" />
+	<Message Text="Copying Tests files to output directories" />
+	<MakeDir Directories="$(UnitTestsOutputDir)" Condition="!Exists('$(UnitTestsOutputDir)')" />
+	
+	<CreateItem Include="..\src\SoundFingerprinting.Tests\bin\$(Configuration)\**\*.*;..\src\SoundFingerprinting.SQL.Tests\bin\$(Configuration)\**\*.*;
+	..\src\SoundFingerprinting.Audio.NAudio.Test\bin\$(Configuration)\**\*.*;..\src\SoundFingerprinting.MongoDb.Tests\bin\$(Configuration)\**\*.*;
+	..\src\SoundFingerprinting.Audio.Bass.Tests\bin\$(Configuration)\**\*.*">
+    	<Output TaskParameter="Include" ItemName="UnitTestFiles" />
+    </CreateItem>
+	
+	<Copy SourceFiles="@(UnitTestFiles)" DestinationFiles="@(UnitTestFiles->'$(UnitTestsOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
 </Target>
 
 <Target Name = "RunSoundFingerprintingLibTests">
@@ -58,7 +69,17 @@
 	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingMongoProject) -Build -Properties Configuration=$(Configuration)" />
 </Target>
 
-<Target Name = "Package" DependsOnTargets="PackageSoundFingerprintingLib;PackageSoundFingerprintingSQLLib;PackageNAudioLib;PackageMongoDBLib">
+<Target Name = "RunBassTests">
+	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.Audio.Bass.Tests.dll" >
+		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
+    </Exec>
+</Target>
+
+<Target Name = "PackageBassLib" DependsOnTargets="RunBassTests">
+	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingBassProject) -Build -Properties Configuration=$(Configuration)" />
+</Target>
+
+<Target Name = "Package" DependsOnTargets="PackageSoundFingerprintingLib;PackageSoundFingerprintingSQLLib;PackageNAudioLib;PackageMongoDBLib;PackageBassLib">
 	<RemoveDir Directories="TestResults" />
 </Target>
 

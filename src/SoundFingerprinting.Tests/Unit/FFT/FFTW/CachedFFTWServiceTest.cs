@@ -12,15 +12,12 @@
     [TestClass]
     public class CachedFFTWServiceTest : AbstractTest
     {
-        private CachedFFTWService cachedFFTWService;
-
         private Mock<FFTWService> fftwService;
 
         [TestInitialize]
         public void SetUp()
         {
             fftwService = new Mock<FFTWService>(MockBehavior.Strict);
-            cachedFFTWService = new CachedFFTWService(fftwService.Object);
         }
 
         [TestCleanup]
@@ -44,10 +41,16 @@
             fftwService.Setup(service => service.GetOutput(FFTLength)).Returns(output);
             fftwService.Setup(service => service.GetFFTPlan(FFTLength, input, output)).Returns(plan);
             fftwService.Setup(service => service.Execute(plan));
+            fftwService.Setup(service => service.FreeUnmanagedMemory(input));
+            fftwService.Setup(service => service.FreeUnmanagedMemory(output));
+            fftwService.Setup(service => service.FreePlan(plan));
 
-            for (int i = 0; i < NumberOfInvocations; i++)
+            using (var cachedFFTWService = new CachedFFTWService(fftwService.Object))
             {
-                cachedFFTWService.FFTForward(signal, FFTLength * i, FFTLength);
+                for (int i = 0; i < NumberOfInvocations; i++)
+                {
+                    cachedFFTWService.FFTForward(signal, FFTLength * i, FFTLength);
+                }
             }
 
             fftwService.Verify(service => service.GetInput(FFTLength), Times.Once());
