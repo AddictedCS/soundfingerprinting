@@ -26,11 +26,14 @@
 
         private sealed class DefaultDependencyResolver : IDependencyResolver, IDisposable
         {
+            public const string MainAssemblyName = "SoundFingerprinting";
+                
             private readonly IKernel kernel;
 
             public DefaultDependencyResolver()
             {
                 kernel = new StandardKernel();
+                SubscribeToAssemblyLoadingEvent();
                 LoadAllAssemblyBindings();
             }
 
@@ -58,19 +61,36 @@
                 }
             }
 
+            private void SubscribeToAssemblyLoadingEvent()
+            {
+                AppDomain.CurrentDomain.AssemblyLoad += CurrentDomainOnAssemblyLoad;
+            }
+
+            private void CurrentDomainOnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+            {
+                if (args.LoadedAssembly.FullName.Contains(MainAssemblyName))
+                {
+                    LoadAssemblyBindings(args.LoadedAssembly);
+                }
+            }
+
             private void LoadAllAssemblyBindings()
             {
-                const string MainAssemblyName = "SoundFingerprinting";
                 var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies() 
                                                 .Where(assembly => assembly.FullName.Contains(MainAssemblyName));
 
                 foreach (var loadedAssembly in loadedAssemblies)
                 {
-                    var moduleLoaders = GetModuleLoaders(loadedAssembly);
-                    foreach (var moduleLoader in moduleLoaders)
-                    {
-                        moduleLoader.LoadAssemblyBindings(kernel);
-                    }
+                    LoadAssemblyBindings(loadedAssembly);
+                }
+            }
+
+            private void LoadAssemblyBindings(Assembly loadedAssembly)
+            {
+                var moduleLoaders = GetModuleLoaders(loadedAssembly);
+                foreach (var moduleLoader in moduleLoaders)
+                {
+                    moduleLoader.LoadAssemblyBindings(kernel);
                 }
             }
 
