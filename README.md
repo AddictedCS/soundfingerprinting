@@ -6,8 +6,8 @@ Soundfingerprinting is a C# framework designed for developers, enthusiasts, rese
 
 Following is a code sample that shows you how to extract unique characteristics from an audio file and later use them as identifiers to recognize unknown snippets from a variaty of sources. These characteristics known as sub-fingerprints will be stored in the configurable backend. The interfaces for fingerprinting and querying audio files have been implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) with [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns in mind.
 ```csharp
-private readonly IModelService modelService = new SqlModelService(); // store in MSSQL database
-private readonly IAudioService audioService = new NAudioService();   // default audio library used by the framework
+private readonly IModelService modelService = new InMemoryModelService();
+private readonly IAudioService audioService = new NAudioService();
 private readonly IFingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
 
 public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToAudioFile)
@@ -30,7 +30,7 @@ public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToA
     modelService.InsertHashDataForTrack(hashDatas, trackReference);
 }
 ```
-The default storage, which comes bundled with SoundFingerprinting package, is a plain in memory storage, managed by <code>InMemoryModelService</code>. In case you would like to store fingerprints in a perstistent database (as shown in the above example) you can take advantage of MSSQL integration available in [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) package. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to add connection string <code>FingerprintConnectionString</code> in your app.config file.
+The default storage, which comes bundled with SoundFingerprinting package, is a plain in memory storage, managed by <code>InMemoryModelService</code>. In case you would like to store fingerprints in a perstistent database you can take advantage of MSSQL integration available in [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) package via <code>SqlModelService</code> class. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to add connection string <code>FingerprintConnectionString</code> in your app.config file.
 
 Once you've inserted the fingerprints into the database, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, url, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 ```csharp
