@@ -12,7 +12,12 @@
     <copyright>Copyright 2014 Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
 	<dependencies>
-		<dependency id="SoundFingerprinting" version="0.6.0" />
+		<dependency id="SoundFingerprinting" version="1.0.0" />
 	</dependencies>
   </metadata>
+  <files>
+      <file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net35" />
+	  <file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net40" />
+	  <file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net45" />
+   </files>
 </package>
