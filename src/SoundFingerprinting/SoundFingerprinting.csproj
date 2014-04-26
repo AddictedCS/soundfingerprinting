@@ -46,21 +46,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Audio\AudioSamplesNormalizer.cs" />
-    <Compile Include="Audio\AudioServiceException.cs" />
-    <Compile Include="Audio\ContinuousStreamSamplesProvider.cs" />
-    <Compile Include="Audio\IAudioSamplesNormalizer.cs" />
-    <Compile Include="Audio\IAudioService.cs" />
-    <Compile Include="Audio\IPlayAudioFileService.cs" />
-    <Compile Include="Audio\ISamplesAggregator.cs" />
-    <Compile Include="Audio\ISamplesProvider.cs" />
-    <Compile Include="Audio\ITagService.cs" />
-    <Compile Include="Audio\SamplesAggregator.cs" />
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="Data\IgnoreBindingAttribute.cs" />
-    <Compile Include="Infrastructure\IModuleLoader.cs" />
     <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
@@ -93,7 +82,6 @@
     <Compile Include="Strides\RandomStride.cs" />
     <Compile Include="Strides\StaticStride.cs" />
     <Compile Include="Strides\StrideType.cs" />
-    <Compile Include="Audio\TagInfo.cs" />
     <Compile Include="IModelService.cs" />
     <Compile Include="ModelService.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
@@ -131,8 +119,6 @@
     <Compile Include="MinHash\CachedPermutations.cs" />
     <Compile Include="MinHash\IMinHashService.cs" />
     <Compile Include="Math\SimilarityUtility.cs" />
-    <Compile Include="Infrastructure\DependencyResolver.cs" />
-    <Compile Include="Infrastructure\IDependencyResolver.cs" />
     <Compile Include="MinHash\IPermutations.cs" />
     <Compile Include="MinHash\LocalFilePermutations.cs" />
     <Compile Include="MinHash\MinHashService.cs" />
@@ -169,6 +155,16 @@
     <Content Include="x86\libfftw3l-3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
+      <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
+      <Name>SoundFingerprinting.Audio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
+      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
+      <Name>SoundFingerprinting.Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

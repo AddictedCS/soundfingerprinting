@@ -85,6 +85,14 @@
       <Project>{1f143503-3592-4a71-8ce3-026d7e8b2ad7}</Project>
       <Name>SoundFingerprinting.Audio.Bass</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
+      <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
+      <Name>SoundFingerprinting.Audio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
+      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
+      <Name>SoundFingerprinting.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj">
       <Project>{c294f4cc-678d-4cc9-905a-041395931c58}</Project>
       <Name>SoundFingerprinting.MongoDb</Name>

@@ -66,6 +66,10 @@
     <Compile Include="TrackDao.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
+      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
+      <Name>SoundFingerprinting.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>

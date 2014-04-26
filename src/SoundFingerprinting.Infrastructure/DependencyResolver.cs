@@ -26,7 +26,7 @@
 
         private sealed class DefaultDependencyResolver : IDependencyResolver, IDisposable
         {
-            public const string MainAssemblyName = "SoundFingerprinting";
+            private const string MainAssemblyName = "SoundFingerprinting";
                 
             private readonly IKernel kernel;
 

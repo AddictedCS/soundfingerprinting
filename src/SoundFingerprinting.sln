@@ -42,6 +42,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio.B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio.Bass.Tests", "SoundFingerprinting.Audio.Bass.Tests\SoundFingerprinting.Audio.Bass.Tests.csproj", "{459FCF27-8307-4FDA-ABC4-FDC58F0E9B91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio", "SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj", "{0F94F031-1D0B-429A-A41D-956C1EAE435B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Infrastructure", "SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj", "{A265E08A-870F-406D-8751-4F6F6D69E91A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -212,6 +216,26 @@ Global
 		{459FCF27-8307-4FDA-ABC4-FDC58F0E9B91}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{459FCF27-8307-4FDA-ABC4-FDC58F0E9B91}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{459FCF27-8307-4FDA-ABC4-FDC58F0E9B91}.Release|x86.ActiveCfg = Release|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Release|x86.ActiveCfg = Release|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

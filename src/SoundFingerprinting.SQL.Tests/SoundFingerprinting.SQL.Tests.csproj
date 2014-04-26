@@ -83,6 +83,10 @@
       <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
       <Name>SoundFingerprinting.Audio.NAudio</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
+      <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
+      <Name>SoundFingerprinting.Audio</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj">
       <Project>{6a632721-03e5-46c1-8457-66333f7271aa}</Project>
       <Name>SoundFingerprinting.SQL</Name>

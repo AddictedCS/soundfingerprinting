@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{73A3FEE8-13EE-4EEB-9DB2-E52A30C8467A}</ProjectGuid>
+    <ProjectGuid>{A265E08A-870F-406D-8751-4F6F6D69E91A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SoundFingerprinting.Audio.NAudio</RootNamespace>
-    <AssemblyName>SoundFingerprinting.Audio.NAudio</AssemblyName>
+    <RootNamespace>SoundFingerprinting.Infrastructure</RootNamespace>
+    <AssemblyName>SoundFingerprinting.Infrastructure</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NAudio">
-      <HintPath>..\packages\NAudio.1.7\lib\net35\NAudio.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject">
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
     </Reference>
@@ -42,29 +39,13 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlockingQueueSamplesProvider.cs" />
-    <Compile Include="Infrastructure\NAudioModuleLoader.cs" />
-    <Compile Include="Play\INAudioPlayAudioFactory.cs" />
-    <Compile Include="Play\NAudioPlayAudioFactory.cs" />
-    <Compile Include="Play\NAudioPlayAudioFileService.cs" />
-    <Compile Include="NAudioSamplesProvider.cs" />
-    <Compile Include="NAudioService.cs" />
-    <Compile Include="NAudioServiceException.cs" />
-    <Compile Include="PlayFileAttributes.cs" />
+    <Compile Include="DependencyResolver.cs" />
+    <Compile Include="IDependencyResolver.cs" />
+    <Compile Include="IModuleLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
-      <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
-      <Name>SoundFingerprinting.Audio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
-      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
-      <Name>SoundFingerprinting.Infrastructure</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
