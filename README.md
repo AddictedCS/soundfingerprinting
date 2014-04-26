@@ -1,12 +1,13 @@
 ## Sound Fingerprinting
 
-Soundfingerprinting is a C# framework designed for developers and researchers in the fields of audio processing, data mining, digital signal processing.  It implements an efficient algorithm of signal processing which will allow one to have a competent system of audio fingerprinting and signal recognition.
+Soundfingerprinting is a C# framework designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.  It implements an efficient algorithm of signal processing which allows having a competent system of audio fingerprinting and signal recognition.
 
 ## Documentation
 
-Following is a code sample that shows how to generate sub-fingerprints from an audio file. The sub-fingerprints will be stored in the backend and used later by the algorithm to recognize unknown snippets of audio. The interfaces for fingerprinting and querying the stream have been implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) with [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns in mind.
+Following is a code sample that shows you how to extract unique characteristics from an audio file and later use them as identifiers to recognize unknown snippets from a variaty of sources. These characteristics known as sub-fingerprints will be stored in the configurable backend. The interfaces for fingerprinting and querying audio files have been implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) with [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns in mind.
 ```csharp
-private readonly IModelService modelService = new ModelService();
+private readonly IModelService modelService = new SqlModelService(); // store in MSSQL database
+private readonly IAudioService audioService = new NAudioService();   // default audio library used by the framework
 private readonly IFingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
 
 public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToAudioFile)
@@ -21,6 +22,7 @@ public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToA
                                 .BuildFingerprintCommand()
                                 .From(pathToAudioFile)
                                 .WithDefaultFingerprintConfig()
+                                .UsingServices(audioService)
                                 .Hash()
                                 .Result;
 								
@@ -28,7 +30,7 @@ public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToA
     modelService.InsertHashDataForTrack(hashDatas, trackReference);
 }
 ```
-The default underlying database is MSSQL, those connection management is handled by <code>ModelService</code> class. NoSQL data storage will be implemented in the upcomming releases. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to change connection string <code>FingerprintConnectionString</code> in your app.config file.
+The default storage, which comes bundled with SoundFingerprinting package, is a plain in memory storage, managed by <code>InMemoryModelService</code>. In case you would like to store fingerprints in a perstistent database (as shown in the above example) you can take advantage of MSSQL integration available in [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) package. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to add connection string <code>FingerprintConnectionString</code> in your app.config file.
 
 Once you've inserted the fingerprints into the database, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, url, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 ```csharp
@@ -43,11 +45,12 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     var queryResult = queryCommandBuilder.BuildQueryCommand()
                                          .From(queryAudioFile, secondsToAnalyze, startAtSecond)
                                          .WithDefaultConfigs()
+                                         .UsingServices(modelService, audioService)
                                          .Query()
                                          .Result;
     if(queryResult.IsSuccessful)
     {
-        return queryResult.BestMatch; // successful match has been found
+        return queryResult.BestMatch.Track; // successful match has been found
     }
 	
     return null; // no match has been found
@@ -57,11 +60,13 @@ The code is still in active development phase, thus the signatures of the above 
 See the [Wiki Page](https://github.com/AddictedCS/soundfingerprinting/wiki) for the operational details and information. 
 
 ### Extension capabilities
-The framework was built with loose coupling in mind thus all components involved in fingerprinting can be easily substituted. If you would like to switch from Bass.Net library to NAudio because of licencing concerns, you can do it by simply binding the interfaces <code>IAudioService</code>, <code>IExtendedAudioService</code> to <code>NAudioService</code> implementation.
-```csharp
-DependencyResolver.Current.Bind<IAudioService, NAudioService>();
-DependencyResolver.Current.Bind<IExtendedAudioService, NAudioService>();
-```
+Some of the interfaces which are used by the framework can be easily subsituted according to your needs. In case you dont want to use NAudio as your audio library in order to be independent of running OS version, you can take advantage of Bass.Net integration available through [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) package.
+####Available integrations:
+* [SoundFingerprinting.Audio.NAudio](https://www.nuget.org/packages/SoundFingerprinting.Audio.NAudio) - NAudio library used for audio processing. Comes bundled as the default audio library.
+* [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) - Bass.Net audio library integration. Works faster, more accurate resampling, completely independent upon target OS.
+* [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) - implements integration with MSSQL storage.
+* [SoundFingerprinting.MongoDb](https://www.nuget.org/packages/SoundFingerprinting.MongoDb) - implements integration with MongoDb, still in pre-release phase.
+
 ### Algorithm configuration
 Fingerprinting and Querying algorithms can be easily parametrized with corresponding configuration objects passed as parameters on command creation.
 
@@ -75,17 +80,18 @@ Fingerprinting and Querying algorithms can be easily parametrized with correspon
 	                                config.TopWavelets = 250; // increase number of top wavelets
 	                                config.Stride = new RandomStride(512, 256); // stride between sub-fingerprints
 	                            })
+	                   .UsingServices(audioService)
                            .Hash()
                            .Result;
 ```
 Each and every configuration parameter can influence the recognition rate, required storage, computational cost, etc. Stick with the defaults, unless you would like to experiment. 
 
 ### Third party libraries involved
-Following is the list of third party libraries used by SoundFingerprinting project.
-* [Bass.Net](http://www.un4seen.com/) - used as a default framework for audio processing tasks.
-* [NAudio](http://naudio.codeplex.com/) - can be used as a substitution for Bass.Net. 
+Links to the third party libraries used by SoundFingerprinting project.
+* [Bass.Net](http://www.un4seen.com/)
+* [NAudio](http://naudio.codeplex.com/)
 * [FFTW](http://www.fftw.org/) - used as a default framework for FFT algorithm.
-* [Exocortex](http://www.exocortex.org/dsp/) - can be used as a substitution for FFTW.
+* [Exocortex](http://www.exocortex.org/dsp/) - can be used as a substitution for FFTW (deprecated)
 * [Encog](http://www.heatonresearch.com/encog) - used by Neural Hasher (which is still under development, and will be released as a separate component). SoundFingerprinting library does not include it in its release.
 * [Ninject](http://www.ninject.org/) - used to take advantage of dependency inversion principle.
 
