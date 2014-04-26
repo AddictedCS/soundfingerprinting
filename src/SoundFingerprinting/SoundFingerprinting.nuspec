@@ -13,9 +13,18 @@
     <releaseNotes>Major changes in published classes definition. DepedencyResolver will no more be accessible for client caller. SQL and NAudio will be now accessible only from separate modules.All public services that can be substituted will be asked on Fingerprint and Query command creation in Using closure.</releaseNotes>
     <copyright>Copyright 2010, Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
+	<dependencies>
+		<dependency id="SoundFingerprinting.Audio.NAudio" version="1.0.0" />
+	</dependencies>
   </metadata>
   <files>
-	    <file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net35" />
+		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net35" />
+		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net40" />
+		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net45" />
+		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net35" />
+		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net40" />
+		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net45" />
+		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net35" />
 		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net40" />
 		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net45" />
    </files>
