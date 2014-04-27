@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("SoundFingerprinting")]
-[assembly: AssemblyDescription("SoundFingerprinting is a C# framework that implements an efficient algorithm of audio identification. Designed for developers and researchers in the fields of audio processing, data mining, digital signal processing.")]
+[assembly: AssemblyDescription("SoundFingerprinting is a C# framework that implements an efficient algorithm of audio identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ciumac Sergiu")]
 [assembly: AssemblyProduct("SoundFingerprinting Library")]
