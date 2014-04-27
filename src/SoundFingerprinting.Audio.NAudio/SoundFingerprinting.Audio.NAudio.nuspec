@@ -6,9 +6,10 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
+	<licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
     <description>$description$</description>
-    <releaseNotes>NAudio library released as a separte library</releaseNotes>
+    <releaseNotes>NAudio library released as a separte package.</releaseNotes>
     <copyright>Copyright 2014 Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
   </metadata>

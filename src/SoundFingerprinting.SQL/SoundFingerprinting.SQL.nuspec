@@ -6,6 +6,7 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
+	<licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
     <description>$description$</description>
     <releaseNotes>SQL backend for SoundFingerprinting framework is released separately from main SoundFingerprinting library</releaseNotes>
