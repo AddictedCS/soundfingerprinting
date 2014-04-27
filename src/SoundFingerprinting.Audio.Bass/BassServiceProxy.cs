@@ -8,6 +8,8 @@ namespace SoundFingerprinting.Audio.Bass
     using System.Linq;
     using System.Reflection;
     using System.Threading;
+    using System.Web;
+    using System.Web.Configuration;
 
     using Un4seen.Bass;
     using Un4seen.Bass.AddOn.Fx;
@@ -244,7 +246,7 @@ namespace SoundFingerprinting.Audio.Bass
 
             private void RegisterBassKey()
             {
-                var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                var config = GetConfiguration();
 
                 var bassConfigurationSection = config.GetSection("BassConfigurationSection") as BassConfigurationSection;
 
@@ -340,6 +342,16 @@ namespace SoundFingerprinting.Audio.Bass
                         + proxy.GetLastError(),
                         "Warning");
                 }
+            }
+
+            private Configuration GetConfiguration()
+            {
+                if (HttpContext.Current != null)
+                {
+                    return WebConfigurationManager.OpenWebConfiguration("~");
+                }
+
+                return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             }
         }
     }
