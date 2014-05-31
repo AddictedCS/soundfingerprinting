@@ -15,6 +15,10 @@
     [TestClass]
     public class FingerprintCommandBuilderTest : AbstractTest
     {
+        private const int NumberOfHashTables = 25;
+        
+        private const int NumberOfHashKeysPerTable = 4;
+        
         private FingerprintCommandBuilder fingerprintCommandBuilder;
 
         private Mock<IFingerprintService> fingerprintService;
@@ -45,9 +49,10 @@
         public void FingerprintsAreBuiltCorrectlyFromFile()
         {
             const string PathToAudioFile = "path-to-audio-file";
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10);
-            List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
-
+            const int TenSeconds = 10;
+            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            const int ThreeFingerprints = 3;
+            var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
 
@@ -58,60 +63,59 @@
                                   .Fingerprint()
                                   .Result;
 
-            Assert.AreEqual(3, fingerprints.Count);
-            Assert.AreEqual(rawFingerprints, fingerprints);
+            Assert.AreEqual(ThreeFingerprints, fingerprints.Count);
+            Assert.AreSame(rawFingerprints, fingerprints);
         }
 
         [TestMethod]
         public void SubFingerprintsAreBuiltCorrectlyFromFileForTrack()
         {
+            const int TenSeconds = 10;
+            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            const int ThreeFingerprints = 3;
+            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             const string PathToAudioFile = "path-to-audio-file";
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10);
-            List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
-            
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, 25, 4)).Returns(
+            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
                 new HashData(GenericSignature, GenericHashBuckets));
 
-            var hashDatas =
-                fingerprintCommandBuilder.BuildFingerprintCommand()
+            var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile)
                                       .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
-            Assert.AreEqual(3, hashDatas.Count);
+            Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreEqual(GenericSignature, hashData.SubFingerprint);
+                Assert.AreSame(GenericSignature, hashData.SubFingerprint);
             }
         }
 
         [TestMethod]
         public void SubFingerprintsAreBuiltCorrectlyFromAudioSamplesForTrack()
         {
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10);
-            List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
-
+            const int TenSeconds = 10;
+            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            const int ThreeFingerprints = 3;
+            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, 25, 4)).Returns(
-                new HashData(GenericSignature, GenericHashBuckets));
+            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(new HashData(GenericSignature, GenericHashBuckets));
 
-            var hashDatas =
-                fingerprintCommandBuilder.BuildFingerprintCommand()
+            var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
                                       .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
-            Assert.AreEqual(3, hashDatas.Count);
+            Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreEqual(GenericSignature, hashData.SubFingerprint);
-                Assert.AreEqual(GenericHashBuckets, hashData.HashBins);
+                Assert.AreSame(GenericSignature, hashData.SubFingerprint);
+                Assert.AreSame(GenericHashBuckets, hashData.HashBins);
             }
         }
 
@@ -122,25 +126,25 @@
             const int StartSecond = 10;
             const int SecondsToProcess = 20;
             float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10);
-            List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
+            const int ThreeFingerprints = 3;
+            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
 
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, 25, 4)).Returns(
+            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
                 new HashData(GenericSignature, GenericHashBuckets));
 
-            var hashDatas =
-                fingerprintCommandBuilder.BuildFingerprintCommand()
+            var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
                                       .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
-            Assert.AreEqual(3, hashDatas.Count);
+            Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreEqual(GenericSignature, hashData.SubFingerprint);
+                Assert.AreSame(GenericSignature, hashData.SubFingerprint);
             }
 
             audioService.Verify(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond));
@@ -149,23 +153,23 @@
         [TestMethod]
         public void SubFingerprintsAreBuiltCorrectlyFromFingerprintsTest()
         {
-            List<bool[]> rawFingerprints = new List<bool[]>(new[] { GenericFingerprint, GenericFingerprint, GenericFingerprint });
+            const int ThreeFingerprints = 3;
+            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
 
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, 25, 4)).Returns(
+            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
                 new HashData(GenericSignature, GenericHashBuckets));
 
-            var hashDatas =
-                fingerprintCommandBuilder.BuildFingerprintCommand()
+            var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(rawFingerprints)
                                       .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
 
-            Assert.AreEqual(3, hashDatas.Count);
+            Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreEqual(GenericSignature, hashData.SubFingerprint);
+                Assert.AreSame(GenericSignature, hashData.SubFingerprint);
             }
         }
 
@@ -181,9 +185,8 @@
                                                               .WithFingerprintConfig(configuration)
                                                               .UsingServices(audioService.Object);
 
-            Assert.AreEqual(configuration, fingerprintCommand.FingerprintConfiguration);
-            Assert.AreEqual(
-                configuration.FingerprintLength, fingerprintCommand.FingerprintConfiguration.FingerprintLength);
+            Assert.AreSame(configuration, fingerprintCommand.FingerprintConfiguration);
+            Assert.AreEqual(configuration.FingerprintLength, fingerprintCommand.FingerprintConfiguration.FingerprintLength);
         }
 
         [TestMethod]
@@ -194,7 +197,18 @@
                                                               .WithFingerprintConfig<DefaultFingerprintConfiguration>()
                                                               .UsingServices(audioService.Object);
 
-            Assert.IsTrue(fingerprintCommand.FingerprintConfiguration is DefaultFingerprintConfiguration);
+            Assert.IsInstanceOfType(fingerprintCommand.FingerprintConfiguration, typeof(DefaultFingerprintConfiguration));
+        }
+
+        private List<bool[]> GetGenericFingerprints(int count)
+        {
+            var list = new List<bool[]>();
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(GenericFingerprint);
+            }
+
+            return list;
         }
     }
 }
