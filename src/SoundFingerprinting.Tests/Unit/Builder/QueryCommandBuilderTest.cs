@@ -75,7 +75,7 @@
                                    .Query()
                                    .Result;
 
-            Assert.AreEqual(dummyResult, queryResult);
+            Assert.AreSame(dummyResult, queryResult);
         }
 
         [TestMethod]
@@ -108,7 +108,7 @@
                                    .Query()
                                    .Result;
 
-            Assert.AreEqual(dummyResult, queryResult);
+            Assert.AreSame(dummyResult, queryResult);
             fingerprintingSource.Verify(source => source.From(PathToFile, SecondsToQuery, StartAtSecond), Times.Once());
         }
 
