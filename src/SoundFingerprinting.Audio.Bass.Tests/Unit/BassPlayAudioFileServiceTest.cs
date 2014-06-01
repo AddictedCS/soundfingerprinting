@@ -51,5 +51,26 @@
 
             playAudioFileService.StopPlayingFile(StreamId);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(BassPlayAudioFileServiceException))]
+        public void TestPlayFileFailsWithExceptionNoStreamCreated()
+        {
+            proxy.Setup(p => p.CreateStream(It.IsAny<string>(), It.IsAny<BASSFlag>())).Returns(0);
+            proxy.Setup(p => p.GetLastError()).Returns("error-description");
+
+            playAudioFileService.PlayFile("path-to-audio-file");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BassPlayAudioFileServiceException))]
+        public void TestCouldNotStartPlayingTheFile()
+        {
+            proxy.Setup(p => p.CreateStream(It.IsAny<string>(), It.IsAny<BASSFlag>())).Returns(1);
+            proxy.Setup(p => p.GetLastError()).Returns("error-description");
+            proxy.Setup(p => p.StartPlaying(It.IsAny<int>())).Returns(false);
+
+            playAudioFileService.PlayFile("path-to-audio-file");
+        }
     }
 }

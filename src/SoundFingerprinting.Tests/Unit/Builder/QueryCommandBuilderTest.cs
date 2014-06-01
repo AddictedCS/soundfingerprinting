@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -120,8 +119,8 @@
                                .WithConfigs<DefaultFingerprintConfiguration, DefaultQueryConfiguration>()
                                .UsingServices(modelService.Object, audioService.Object);
 
-            Assert.IsTrue(command.FingerprintConfiguration is DefaultFingerprintConfiguration);
-            Assert.IsTrue(command.QueryConfiguration is DefaultQueryConfiguration);
+            Assert.IsInstanceOfType(command.FingerprintConfiguration, typeof(DefaultFingerprintConfiguration));
+            Assert.IsInstanceOfType(command.QueryConfiguration, typeof(DefaultQueryConfiguration));
         }
 
         [TestMethod]
@@ -132,8 +131,8 @@
                                .WithDefaultConfigs()
                                .UsingServices(modelService.Object, audioService.Object);
 
-            Assert.IsTrue(command.FingerprintConfiguration is DefaultFingerprintConfiguration);
-            Assert.IsTrue(command.QueryConfiguration is DefaultQueryConfiguration);
+            Assert.IsInstanceOfType(command.FingerprintConfiguration, typeof(DefaultFingerprintConfiguration));
+            Assert.IsInstanceOfType(command.QueryConfiguration, typeof(DefaultQueryConfiguration));
         }
 
         [TestMethod]
@@ -152,8 +151,8 @@
                                                  })
                                              .UsingServices(modelService.Object, audioService.Object);
 
-            Assert.IsTrue(command.FingerprintConfiguration.FingerprintLength == 1024);
-            Assert.IsTrue(command.QueryConfiguration.ThresholdVotes == 256);
+            Assert.AreEqual(1024, command.FingerprintConfiguration.FingerprintLength);
+            Assert.AreEqual(256, command.QueryConfiguration.ThresholdVotes);
         }
     }
 }
