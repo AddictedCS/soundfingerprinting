@@ -80,7 +80,7 @@ Fingerprinting and Querying algorithms can be easily parametrized with correspon
 	                                config.TopWavelets = 250; // increase number of top wavelets
 	                                config.Stride = new RandomStride(512, 256); // stride between sub-fingerprints
 	                            })
-	                   .UsingServices(audioService)
+                           .UsingServices(audioService)
                            .Hash()
                            .Result;
 ```
@@ -94,6 +94,16 @@ Links to the third party libraries used by SoundFingerprinting project.
 * [Exocortex](http://www.exocortex.org/dsp/) - can be used as a substitution for FFTW (deprecated)
 * [Encog](http://www.heatonresearch.com/encog) - used by Neural Hasher (which is still under development, and will be released as a separate component). SoundFingerprinting library does not include it in its release.
 * [Ninject](http://www.ninject.org/) - used to take advantage of dependency inversion principle.
+
+### Unit testing
+Even though a couple of controversial topics are discussed recently in software community ([here](http://david.heinemeierhansson.com/2014/tdd-is-dead-long-live-testing.html), and [here](https://www.youtube.com/watch?v=z9quxZsLcfo)) I'm still strongly committed to TDD practices. In case you'd like to contribute, your code has to come with well written unit or integration tests (when appropriate). Below are some coverage percentages for the released modules:
+* SoundFingerprinting - 83%
+* SoundFingerprinting.Audio.Bass - 82%
+* SoundFingerprinting.Audio.NAudio - 78%
+* SoundFingerprinting.SQL - 76%
+* SoundFingerprinting.MongoDb - 98%
+
+These coverage percentages are given only for the reference, they do not neceserally mean the code is without bugs (which is obvisouly not true).
 
 ### FAQ
 - Can I apply this algorithm for speech recognition purposes?
