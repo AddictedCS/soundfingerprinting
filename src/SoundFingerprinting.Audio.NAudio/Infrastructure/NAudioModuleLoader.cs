@@ -10,6 +10,7 @@
         public void LoadAssemblyBindings(IKernel kernel)
         {
             kernel.Bind<INAudioPlayAudioFactory>().To<NAudioPlayAudioFactory>().InSingletonScope();
+            kernel.Bind<INAudioFactory>().To<NAudioFactory>().InSingletonScope();
         }
     }
 }

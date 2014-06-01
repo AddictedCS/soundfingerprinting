@@ -1,0 +1,48 @@
+﻿namespace SoundFingerprinting.Audio.NAudio
+{
+    using global::NAudio.MediaFoundation;
+    using global::NAudio.Wave;
+
+    internal interface INAudioFactory
+    {
+        WaveStream GetStream(string pathToAudioFile);
+
+        WaveFileWriter GetWriter(string pathToFile, int sampleRate, int numberOfChannels);
+
+        WaveFormat GetWaveFormat(int sampleRate, int numberOfChannels);
+
+        MediaFoundationTransform GetResampler(WaveStream streamToResample, int sampleRate, int numberOfChannels);
+
+        void CreateWaveFile(string pathToWaveFile, IWaveProvider waveProvider);
+    }
+
+    internal class NAudioFactory : INAudioFactory
+    {
+        public WaveStream GetStream(string pathToAudioFile)
+        {
+            // This class assumess media foundation libraries are installed on target machine
+            // In case you are running on Azure (Windows Server 2012) install Server Media Foundation feature
+            return new MediaFoundationReader(pathToAudioFile);
+        }
+
+        public WaveFileWriter GetWriter(string pathToFile, int sampleRate, int numberOfChannels)
+        {
+            return new WaveFileWriter(pathToFile, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, numberOfChannels));
+        }
+
+        public WaveFormat GetWaveFormat(int sampleRate, int numberOfChannels)
+        {
+            return WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, numberOfChannels);
+        }
+
+        public MediaFoundationTransform GetResampler(WaveStream streamToResample, int sampleRate, int numberOfChannels)
+        {
+            return new MediaFoundationResampler(streamToResample, GetWaveFormat(sampleRate, numberOfChannels));
+        }
+
+        public void CreateWaveFile(string pathToWaveFile, IWaveProvider waveProvider)
+        {
+            WaveFileWriter.CreateWaveFile(pathToWaveFile, waveProvider);
+        }
+    }
+}

@@ -1,21 +1,34 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using global::NAudio.Wave;
+
     using global::NAudio.Wave.SampleProviders;
+
+    using SoundFingerprinting.Infrastructure;
 
     public class NAudioService : IAudioService
     {
+        private const int Mono = 1;
+
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
 
-        private readonly SamplesAggregator samplesAggregator;
+        private readonly ISamplesAggregator samplesAggregator;
+
+        private readonly INAudioFactory naudioFactory;
 
         public NAudioService()
+            : this(
+                DependencyResolver.Current.Get<ISamplesAggregator>(), DependencyResolver.Current.Get<INAudioFactory>())
         {
-            samplesAggregator = new SamplesAggregator();
+        }
+
+        internal NAudioService(ISamplesAggregator samplesAggregator, INAudioFactory naudioFactory)
+        {
+            this.samplesAggregator = samplesAggregator;
+            this.naudioFactory = naudioFactory;
         }
 
         public bool IsRecordingSupported
@@ -33,7 +46,7 @@
                 return NAudioSupportedFormats;
             }
         }
-        
+
         public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate)
         {
             return ReadMonoSamplesFromFile(pathToSourceFile, sampleRate, 0, 0);
@@ -41,30 +54,24 @@
 
         public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
-            return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt, sp => new NAudioSamplesProvider(sp));
+            return ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt);
         }
 
         public float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload)
         {
-            float[] samples = ReadMonoFromSource(
-                streamingUrl,
-                sampleRate,
-                secondsToDownload,
-                0,
-                sp => new ContinuousStreamSamplesProvider(new NAudioSamplesProvider(sp)));
-            return samples;
+            return ReadMonoFromSource(streamingUrl, sampleRate, secondsToDownload, 0);
         }
 
         public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
         {
             var producer = new BlockingCollection<float[]>();
-            var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+            var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, Mono);
             float[] samples;
             using (var waveIn = new WaveInEvent { WaveFormat = waveFormat })
             {
                 waveIn.DataAvailable += (sender, e) =>
                     {
-                        var chunk = GetFloatSamplesFromByte(e.BytesRecorded, e.Buffer);
+                        var chunk = SamplesConverter.GetFloatSamplesFromByte(e.BytesRecorded, e.Buffer);
                         producer.Add(chunk);
                     };
 
@@ -72,7 +79,8 @@
 
                 waveIn.StartRecording();
 
-                samples = samplesAggregator.ReadSamplesFromSource(new BlockingQueueSamplesProvider(producer), secondsToRecord, sampleRate);
+                samples = samplesAggregator.ReadSamplesFromSource(
+                    new BlockingQueueSamplesProvider(producer), secondsToRecord, sampleRate);
 
                 waveIn.StopRecording();
             }
@@ -82,7 +90,7 @@
 
         public void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
         {
-            using (var writer = new WaveFileWriter(pathToFile, WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1)))
+            using (var writer = naudioFactory.GetWriter(pathToFile, sampleRate, Mono))
             {
                 writer.WriteSamples(samples, 0, samples.Length);
             }
@@ -90,26 +98,26 @@
 
         public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
-            using (var reader = new MediaFoundationReader(pathToFile))
+            using (var stream = naudioFactory.GetStream(pathToFile))
             {
-                var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
-                using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
+                using (var resampler = naudioFactory.GetResampler(stream, sampleRate, Mono))
                 {
-                    WaveFileWriter.CreateWaveFile(pathToRecodedFile, resampler);
+                    naudioFactory.CreateWaveFile(pathToRecodedFile, resampler);
                 }
             }
         }
 
-        private float[] ReadMonoFromSource(string pathToSource, int sampleRate, int secondsToRead, int startAtSecond, Func<SampleProviderConverterBase, ISamplesProvider> getSamplesProvider)
+        private float[] ReadMonoFromSource(string pathToSource, int sampleRate, int secondsToRead, int startAtSecond)
         {
-            using (var reader = new MediaFoundationReader(pathToSource))
+            using (var stream = naudioFactory.GetStream(pathToSource))
             {
-                SeekToSecondInCaseIfRequired(startAtSecond, reader);
-                var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
-                using (var resampler = new MediaFoundationResampler(reader, ieeeFloatWaveFormat))
+                SeekToSecondInCaseIfRequired(startAtSecond, stream);
+                using (var resampler = naudioFactory.GetResampler(stream, sampleRate, Mono))
                 {
                     var waveToSampleProvider = new WaveToSampleProvider(resampler);
-                    return samplesAggregator.ReadSamplesFromSource(getSamplesProvider(waveToSampleProvider), secondsToRead, sampleRate);
+                    return
+                        samplesAggregator.ReadSamplesFromSource(
+                            new NAudioSamplesProviderAdapter(waveToSampleProvider), secondsToRead, sampleRate);
                 }
             }
         }
@@ -122,20 +130,6 @@
                 int bitsPerSample = stream.WaveFormat.BitsPerSample;
                 stream.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond, System.IO.SeekOrigin.Begin);
             }
-        }
-
-        private float[] GetFloatSamplesFromByte(int bytesRecorded, byte[] buffer)
-        {
-            int startIndex = 0;
-            float[] chunk = new float[bytesRecorded / 4];
-            int floatSampleIndex = 0;
-            while (startIndex < bytesRecorded)
-            {
-                chunk[floatSampleIndex++] = BitConverter.ToSingle(buffer, startIndex);
-                startIndex += 4;
-            }
-
-            return chunk;
         }
     }
 }
