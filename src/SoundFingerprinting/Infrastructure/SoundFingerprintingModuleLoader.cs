@@ -35,7 +35,6 @@
             }
 
             kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
-            kernel.Bind<ISamplesAggregator>().To<SamplesAggregator>().InSingletonScope();
             
             kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
             kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
