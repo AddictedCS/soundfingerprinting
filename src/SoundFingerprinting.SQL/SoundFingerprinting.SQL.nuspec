@@ -13,7 +13,7 @@
     <copyright>Copyright 2014 Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
 	<dependencies>
-		<dependency id="SoundFingerprinting" version="1.0.0" />
+		<dependency id="SoundFingerprinting" />
 	</dependencies>
   </metadata>
   <files>

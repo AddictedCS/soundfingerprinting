@@ -14,7 +14,7 @@
     <copyright>Copyright 2010, Ciumac Sergiu</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
 	<dependencies>
-		<dependency id="SoundFingerprinting.Audio.NAudio" version="1.0.0" />
+		<dependency id="SoundFingerprinting.Audio.NAudio" />
 	</dependencies>
   </metadata>
   <files>
