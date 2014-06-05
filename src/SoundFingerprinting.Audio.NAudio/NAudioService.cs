@@ -20,9 +20,9 @@
         private readonly INAudioFactory naudioFactory;
 
         public NAudioService()
-            : this(
-                DependencyResolver.Current.Get<ISamplesAggregator>(), DependencyResolver.Current.Get<INAudioFactory>())
+            : this(DependencyResolver.Current.Get<ISamplesAggregator>(), DependencyResolver.Current.Get<INAudioFactory>())
         {
+            // no op
         }
 
         internal NAudioService(ISamplesAggregator samplesAggregator, INAudioFactory naudioFactory)
@@ -49,7 +49,7 @@
 
         public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate)
         {
-            return ReadMonoSamplesFromFile(pathToSourceFile, sampleRate, 0, 0);
+            return ReadMonoSamplesFromFile(pathToSourceFile, sampleRate, seconds: 0, startAt: 0);
         }
 
         public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
@@ -59,7 +59,7 @@
 
         public float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload)
         {
-            return ReadMonoFromSource(streamingUrl, sampleRate, secondsToDownload, 0);
+            return ReadMonoFromSource(streamingUrl, sampleRate, secondsToDownload, startAtSecond: 0);
         }
 
         public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)

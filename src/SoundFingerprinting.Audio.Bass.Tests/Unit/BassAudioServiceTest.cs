@@ -61,7 +61,7 @@
 
             var samples = audioService.ReadMonoSamplesFromFile("path-to-file", SampleRate);
 
-            Assert.AreEqual(samplesToReturn, samples);
+            Assert.AreSame(samplesToReturn, samples);
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@
 
             var samples = audioService.ReadMonoSamplesFromFile("path-to-file", SampleRate, 10, 20);
 
-            Assert.AreEqual(samplesToReturn, samples);
+            Assert.AreSame(samplesToReturn, samples);
         }
 
         [TestMethod]

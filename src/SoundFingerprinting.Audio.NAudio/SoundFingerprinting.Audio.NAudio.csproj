@@ -45,12 +45,12 @@
     <Compile Include="BlockingQueueSamplesProvider.cs" />
     <Compile Include="INAudioFactory.cs" />
     <Compile Include="Infrastructure\NAudioModuleLoader.cs" />
+    <Compile Include="NAudioFactory.cs" />
     <Compile Include="Play\INAudioPlayAudioFactory.cs" />
     <Compile Include="Play\NAudioPlayAudioFactory.cs" />
     <Compile Include="Play\NAudioPlayAudioFileService.cs" />
     <Compile Include="NAudioSamplesProviderAdapter.cs" />
     <Compile Include="NAudioService.cs" />
-    <Compile Include="NAudioServiceException.cs" />
     <Compile Include="PlayFileAttributes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

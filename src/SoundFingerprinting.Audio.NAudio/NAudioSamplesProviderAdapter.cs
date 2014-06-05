@@ -13,7 +13,8 @@
 
         public int GetNextSamples(float[] buffer)
         {
-            return samplesProvider.Read(buffer, 0, buffer.Length) * 4;
+            const int BytesInFloat = 4;
+            return samplesProvider.Read(buffer, 0, buffer.Length) * BytesInFloat;
         }
     }
 }
