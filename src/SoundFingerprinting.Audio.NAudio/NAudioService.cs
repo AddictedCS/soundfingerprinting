@@ -59,9 +59,13 @@
 
         public float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload)
         {
-            return ReadMonoFromSource(streamingUrl, sampleRate, secondsToDownload, startAtSecond: 0);
+            // When reading directly from URL NAudio 1.7.1 disregards Mono resampler parameter, thus reading stereo samples
+            // End result has to be converted to Mono in order to comply to interface requirements
+            // The issue has been addressed here: http://stackoverflow.com/questions/22385783/aac-stream-resampled-incorrectly though not yet resolved
+            float[] stereoSamples = ReadMonoFromSource(streamingUrl, sampleRate, secondsToDownload * 2 /*for stereo request twice as much data as for mono*/, startAtSecond: 0);
+            return ConvertStereoSamplesToMono(stereoSamples);
         }
-
+      
         public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
         {
             var producer = new BlockingCollection<float[]>();
@@ -130,6 +134,23 @@
                 int bitsPerSample = stream.WaveFormat.BitsPerSample;
                 stream.Seek(actualSampleRate * bitsPerSample / 8 * startAtSecond, System.IO.SeekOrigin.Begin);
             }
+        }
+
+        private float[] ConvertStereoSamplesToMono(IList<float> stereoSamples)
+        {
+            float[] monoSamples = new float[stereoSamples.Count / 2];
+            for (int i = 0; i < stereoSamples.Count; i += 2)
+            {
+                float sum = stereoSamples[i] + stereoSamples[i + 1];
+                if (sum > short.MaxValue)
+                {
+                    sum = short.MaxValue;
+                }
+
+                monoSamples[i / 2] = sum / 2;
+            }
+
+            return monoSamples;
         }
     }
 }
