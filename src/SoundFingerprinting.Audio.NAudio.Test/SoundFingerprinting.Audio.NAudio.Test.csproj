@@ -64,6 +64,7 @@
     <Compile Include="Play\NAudioPlayAudioFileServiceTest.cs" />
     <Compile Include="Play\TestWaveStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DependencyResolverTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
