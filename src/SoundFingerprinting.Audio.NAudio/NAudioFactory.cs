@@ -27,6 +27,14 @@
             return new MediaFoundationResampler(streamToResample, GetWaveFormat(sampleRate, numberOfChannels));
         }
 
+        public WaveInEvent GetWaveInEvent(int sampleRate, int numberOfChannels)
+        {
+            return new WaveInEvent
+                {
+                    WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, numberOfChannels)
+                };
+        }
+
         public void CreateWaveFile(string pathToWaveFile, IWaveProvider waveProvider)
         {
             WaveFileWriter.CreateWaveFile(pathToWaveFile, waveProvider);

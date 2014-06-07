@@ -69,9 +69,8 @@
         public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
         {
             var producer = new BlockingCollection<float[]>();
-            var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, Mono);
             float[] samples;
-            using (var waveIn = new WaveInEvent { WaveFormat = waveFormat })
+            using (var waveIn = naudioFactory.GetWaveInEvent(sampleRate, Mono))
             {
                 waveIn.DataAvailable += (sender, e) =>
                     {

@@ -119,6 +119,22 @@
             }
         }
 
+        [TestMethod]
+        public void TestReadFromMicrophone()
+        {
+            var waveInEvent = new Mock<WaveInEvent>(MockBehavior.Strict);
+            naudioFactory.Setup(factory => factory.GetWaveInEvent(SampleRate, 1)).Returns(waveInEvent.Object);
+            float[] samples = TestUtilities.GenerateRandomFloatArray(1024);
+            const int SecondsToRecord = 10;
+            samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), SecondsToRecord, SampleRate))
+                .Returns(samples);
+            waveInEvent.Protected().Setup("Dispose", new object[] { true });
+
+            float[] resultSamples = naudioService.ReadMonoSamplesFromMicrophone(SampleRate, SecondsToRecord);
+
+            Assert.AreSame(samples, resultSamples);
+        }
+
         private float[] GetWrittenSamplesInStream(MemoryStream memoryStream, int length)
         {
             const int WaveHeaderLength = 58;

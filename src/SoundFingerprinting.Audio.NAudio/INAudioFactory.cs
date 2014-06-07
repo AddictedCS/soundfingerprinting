@@ -13,6 +13,8 @@
 
         MediaFoundationTransform GetResampler(WaveStream streamToResample, int sampleRate, int numberOfChannels);
 
+        WaveInEvent GetWaveInEvent(int sampleRate, int numberOfChannels);
+
         void CreateWaveFile(string pathToWaveFile, IWaveProvider waveProvider);
     }
 }
