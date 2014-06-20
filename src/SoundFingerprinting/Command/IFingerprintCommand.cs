@@ -10,6 +10,8 @@ namespace SoundFingerprinting.Command
     {
         IFingerprintConfiguration FingerprintConfiguration { get; }
 
+        Task<List<float[][]>> CreateSpectralImages(); 
+
         Task<List<bool[]>> Fingerprint();
 
         Task<List<HashData>> Hash();
