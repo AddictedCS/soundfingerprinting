@@ -118,5 +118,10 @@ namespace SoundFingerprinting.SoundTools
             WinHaarWavelet win = new WinHaarWavelet(imageService);
             win.Show();
         }
+
+        private void BtnInsertSpectralImagesClick(object sender, EventArgs e)
+        {
+
+        }
     }
 }

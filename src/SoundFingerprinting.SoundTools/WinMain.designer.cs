@@ -47,6 +47,7 @@
             this._gbMain = new System.Windows.Forms.GroupBox();
             this._btnQueryDb = new System.Windows.Forms.Button();
             this._btnFillDatabase = new System.Windows.Forms.Button();
+            this.btnInsertSpectralImages = new System.Windows.Forms.Button();
             this._msMain.SuspendLayout();
             this._gbMain.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +60,7 @@
             this.toolsToolStripMenuItem});
             this._msMain.Location = new System.Drawing.Point(0, 0);
             this._msMain.Name = "_msMain";
-            this._msMain.Size = new System.Drawing.Size(246, 24);
+            this._msMain.Size = new System.Drawing.Size(253, 24);
             this._msMain.TabIndex = 0;
             this._msMain.Text = "menuStrip1";
             // 
@@ -181,11 +182,12 @@
             this._gbMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._gbMain.Controls.Add(this.btnInsertSpectralImages);
             this._gbMain.Controls.Add(this._btnQueryDb);
             this._gbMain.Controls.Add(this._btnFillDatabase);
             this._gbMain.Location = new System.Drawing.Point(12, 27);
             this._gbMain.Name = "_gbMain";
-            this._gbMain.Size = new System.Drawing.Size(222, 177);
+            this._gbMain.Size = new System.Drawing.Size(229, 192);
             this._gbMain.TabIndex = 1;
             this._gbMain.TabStop = false;
             this._gbMain.Text = "Main";
@@ -206,15 +208,25 @@
             this._btnFillDatabase.Name = "_btnFillDatabase";
             this._btnFillDatabase.Size = new System.Drawing.Size(146, 23);
             this._btnFillDatabase.TabIndex = 0;
-            this._btnFillDatabase.Text = "Fill Database";
+            this._btnFillDatabase.Text = "Fill Database (LSH)";
             this._btnFillDatabase.UseVisualStyleBackColor = true;
             this._btnFillDatabase.Click += new System.EventHandler(this.BtnFillDatabaseClick);
+            // 
+            // btnInsertSpectralImages
+            // 
+            this.btnInsertSpectralImages.Location = new System.Drawing.Point(39, 137);
+            this.btnInsertSpectralImages.Name = "btnInsertSpectralImages";
+            this.btnInsertSpectralImages.Size = new System.Drawing.Size(145, 23);
+            this.btnInsertSpectralImages.TabIndex = 4;
+            this.btnInsertSpectralImages.Text = "Create Spectral Images";
+            this.btnInsertSpectralImages.UseVisualStyleBackColor = true;
+            this.btnInsertSpectralImages.Click += new System.EventHandler(this.BtnInsertSpectralImagesClick);
             // 
             // WinMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(246, 216);
+            this.ClientSize = new System.Drawing.Size(253, 231);
             this.Controls.Add(this._gbMain);
             this.Controls.Add(this._msMain);
             this.MainMenuStrip = this._msMain;
@@ -250,6 +262,7 @@
         private System.Windows.Forms.ToolStripMenuItem bassResamplerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem similarityCalculationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem waveletDecompositionToolStripMenuItem;
+        private System.Windows.Forms.Button btnInsertSpectralImages;
     }
 }
 
