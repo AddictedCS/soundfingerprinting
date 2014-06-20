@@ -139,6 +139,12 @@
     <Compile Include="QueryDb\WinQueryResults.designer.cs">
       <DependentUpon>WinQueryResults.cs</DependentUpon>
     </Compile>
+    <Compile Include="SpectralImagesCreator\WinSpectralImagesCreator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SpectralImagesCreator\WinSpectralImagesCreator.Designer.cs">
+      <DependentUpon>WinSpectralImagesCreator.cs</DependentUpon>
+    </Compile>
     <Compile Include="WaveletDecomposition\WinHaarWavelet.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -186,6 +192,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="QueryDb\WinQueryResults.resx">
       <DependentUpon>WinQueryResults.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SpectralImagesCreator\WinSpectralImagesCreator.resx">
+      <DependentUpon>WinSpectralImagesCreator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WaveletDecomposition\WinHaarWavelet.resx">
       <DependentUpon>WinHaarWavelet.cs</DependentUpon>

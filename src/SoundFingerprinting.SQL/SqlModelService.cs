@@ -5,7 +5,7 @@
     public class SqlModelService : ModelService
     {
         public SqlModelService()
-            : base(new TrackDao(), new HashBinDao(), new SubFingerprintDao(), new FingerprintDao())
+            : base(new TrackDao(), new HashBinDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao())
         {
             // no op
         }
@@ -14,8 +14,9 @@
             ITrackDao trackDao,
             IHashBinDao hashBinDao,
             ISubFingerprintDao subFingerprintDao,
-            IFingerprintDao fingerprintDao)
-            : base(trackDao, hashBinDao, subFingerprintDao, fingerprintDao)
+            IFingerprintDao fingerprintDao,
+            ISpectralImageDao spectralImageDao)
+            : base(trackDao, hashBinDao, subFingerprintDao, fingerprintDao, spectralImageDao)
         {
             // no op
         }

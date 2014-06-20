@@ -61,6 +61,9 @@
     <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractHashBinDaoTest.cs">
       <Link>Integration\AbstractHashBinDaoTest.cs</Link>
     </Compile>
+    <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractSpectralImageDaoTest.cs">
+      <Link>Integration\AbstractSpectralImageDaoTest.cs</Link>
+    </Compile>
     <Compile Include="..\SoundFingerprinting.Tests\Integration\DAO\AbstractSubFingerprintDaoTest.cs">
       <Link>Integration\AbstractSubFingerprintDaoTest.cs</Link>
     </Compile>
@@ -74,6 +77,7 @@
     <Compile Include="Integration\FingerprintDaoTest.cs" />
     <Compile Include="Integration\HashBinDaoTest.cs" />
     <Compile Include="Integration\MongoDbModelServiceTest.cs" />
+    <Compile Include="Integration\SpectralImageDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TrackDaoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
