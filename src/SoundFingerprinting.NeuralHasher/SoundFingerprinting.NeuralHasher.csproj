@@ -52,11 +52,13 @@
     <Compile Include="ActivationFunctions\StepFunction.cs" />
     <Compile Include="Ensemble\NeuralNetworkEnsemble.cs" />
     <Compile Include="Ensemble\NeuralNetworkHashingException.cs" />
+    <Compile Include="INetworkFactory.cs" />
     <Compile Include="MMI\MinimalMutualInfoGroup.cs" />
     <Compile Include="MMI\MinimalMutualInfoPair.cs" />
     <Compile Include="MMI\MinimalMutualInfoPattern.cs" />
     <Compile Include="MMI\MutualInformation.cs" />
     <Compile Include="Network.cs" />
+    <Compile Include="NetworkFactory.cs" />
     <Compile Include="NeuralTrainer\NetTrainer.cs" />
     <Compile Include="NeuralTrainer\NetTrainerException.cs" />
     <Compile Include="NeuralTrainer\NetworkPerformanceMeter.cs" />

@@ -7,6 +7,7 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Utils;
 
     public partial class WinSpectralImagesCreator : Form
     {
@@ -35,7 +36,7 @@
             label2.Text = "Count: " + filesToConsume.Count;
         }
 
-        private void BtnInsertSpectralImagesClick(object sender, System.EventArgs e)
+        private void BtnInsertSpectralImagesClick(object sender, EventArgs e)
         {
             foreach (var file in filesToConsume)
             {
@@ -63,15 +64,7 @@
 
         private float[] ConcatenateImage(float[][] image)
         {
-            int rows = image.GetLength(0); /*128*/
-            int cols = image[0].Length; /*32*/
-            float[] concatenated = new float[rows * cols]; /* 128 * 32 */
-            for (int row = 0; row < rows; row++)
-            {
-                Buffer.BlockCopy(image[row], 0, concatenated, row * image[row].Length * 4, image[row].Length * 4);
-            }
-
-            return concatenated;
+            return ArrayUtils.ConcatenateDoubleDimensionalArray(image);
         }
     }
 }

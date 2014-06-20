@@ -10,49 +10,26 @@
 
     using SoundFingerprinting.Math;
 
-    /// <summary>
-    ///   Network - represent a collection of connected layers
-    /// </summary>
-    /// <remarks>
-    ///   The network can be saved or loaded, thus serializable
-    /// </remarks>
     [Serializable]
     public class Network : BasicNetwork
     {
         public double[] MedianResponces { get; protected set; }
 
-        /// <summary>
-        ///   Load network from specified file.
-        /// </summary>
-        /// <param name = "fileName">File name to load network from.</param>
-        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
-        /// <remarks>
-        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
-        /// </remarks>
         public static Network Load(string fileName)
         {
-            FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            Network network = Load(stream);
-            stream.Close();
-
-            return network;
+            using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                return Load(stream);
+            }
         }
 
-        /// <summary>
-        ///   Load network from specified file.
-        /// </summary>
-        /// <param name = "stream">Stream to load network from.</param>
-        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
-        /// <remarks>
-        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
-        /// </remarks>
         public static Network Load(Stream stream)
         {
             IFormatter formatter = new BinaryFormatter();
             Network network = (Network)formatter.Deserialize(stream);
             return network;
         }
-        
+
         /// <summary>
         ///   Compute median responses of the network
         /// </summary>
@@ -89,28 +66,18 @@
             }
         }
 
-        #region I/O Operations
-
-        /// <summary>
-        ///   Save network to specified file.
-        /// </summary>
-        /// <param name = "stream">Stream to save network into.</param>
-        /// <remarks>
-        ///   <para>The neural network is saved using .NET serialization (binary formatter is used).</para>
-        /// </remarks>
-        public virtual void Save(Stream stream)
+        public void Save(Stream stream)
         {
             IFormatter formatter = new BinaryFormatter();
             formatter.Serialize(stream, this);
         }
 
-        public virtual void Save(string fileName)
+        public void Save(string fileName)
         {
-            FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
-            Save(stream);
-            stream.Close();
+            using (FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                Save(stream);
+            }
         }
-        
-        #endregion
     }
 }

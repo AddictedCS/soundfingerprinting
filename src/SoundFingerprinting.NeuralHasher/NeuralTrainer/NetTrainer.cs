@@ -13,7 +13,6 @@
     using Encog.Neural.Networks.Training;
     using Encog.Neural.Networks.Training.Propagation.Resilient;
 
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.NeuralHasher.Utils;
 
     /// <summary>
