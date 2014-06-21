@@ -40,6 +40,10 @@
     <Reference Include="encog-core-cs">
       <HintPath>..\packages\encog-dotnet-core.3.0.0\lib\net40\encog-core-cs.dll</HintPath>
     </Reference>
+    <Reference Include="Moq, Version=4.2.1402.2112, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Moq.4.2.1402.2112\lib\net40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -57,6 +61,7 @@
   <ItemGroup>
     <Compile Include="NetworkFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TrainingDataProviderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.NeuralHasher\SoundFingerprinting.NeuralHasher.csproj">
@@ -66,6 +71,10 @@
     <ProjectReference Include="..\SoundFingerprinting.Tests\SoundFingerprinting.Tests.csproj">
       <Project>{987da38d-5157-4d83-9b1d-83a0a62d0e94}</Project>
       <Name>SoundFingerprinting.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
+      <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
+      <Name>SoundFingerprinting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
