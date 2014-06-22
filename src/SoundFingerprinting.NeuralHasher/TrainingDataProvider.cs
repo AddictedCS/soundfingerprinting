@@ -19,9 +19,9 @@
             this.binaryOutputHelper = binaryOutputHelper;
         }
 
-        public TrainingSet GetTrainingSet(int[] spectralImageIndexsToConsider, int numberOfTracks)
+        public TrainingSet GetTrainingSet(int[] spectralImageIndexesToConsider, int numberOfTracks)
         {
-            var spectralImages = GetSpectralImagesToTrain(spectralImageIndexsToConsider, numberOfTracks);
+            var spectralImages = GetSpectralImagesToTrain(spectralImageIndexesToConsider, numberOfTracks);
             return MapSpectralImagesToBinaryOutputs(spectralImages, numberOfTracks);
         }
 

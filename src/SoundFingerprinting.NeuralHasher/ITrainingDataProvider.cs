@@ -8,6 +8,6 @@ namespace SoundFingerprinting.NeuralHasher
 
         TrainingSet MapSpectralImagesToBinaryOutputs(List<double[][]> spectralImagesToTrain, int binaryOutputsCount);
 
-        TrainingSet GetTrainingSet(int[] spectralImageIndexsToConsider, int numberOfTracks);
+        TrainingSet GetTrainingSet(int[] spectralImageIndexesToConsider, int numberOfTracks);
     }
 }

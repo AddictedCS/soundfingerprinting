@@ -38,6 +38,10 @@
     <Reference Include="encog-core-cs">
       <HintPath>..\packages\encog-dotnet-core.3.0.0\lib\net40\encog-core-cs.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -45,14 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActivationFunctions\BipolarSigmoidFunction.cs" />
-    <Compile Include="ActivationFunctions\HyperbolicTangensFunction.cs" />
-    <Compile Include="ActivationFunctions\IActivationFunction.cs" />
-    <Compile Include="ActivationFunctions\SigmoidFunction.cs" />
-    <Compile Include="ActivationFunctions\StepFunction.cs" />
     <Compile Include="Ensemble\NeuralNetworkEnsemble.cs" />
     <Compile Include="Ensemble\NeuralNetworkHashingException.cs" />
     <Compile Include="INetworkFactory.cs" />
+    <Compile Include="Infrastructure\NeuralHasherModuleLoader.cs" />
     <Compile Include="ITrainingDataProvider.cs" />
     <Compile Include="MMI\MinimalMutualInfoGroup.cs" />
     <Compile Include="MMI\MinimalMutualInfoPair.cs" />
@@ -71,12 +71,16 @@
     <Compile Include="Utils\BinaryOutputHelper.cs" />
     <Compile Include="Utils\FloatRange.cs" />
     <Compile Include="Utils\IBinaryOutputHelper.cs" />
-    <Compile Include="Utils\NormalizeUtils.cs" />
+    <Compile Include="Utils\NormalizeStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
+      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
+      <Name>SoundFingerprinting.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.Math\SoundFingerprinting.Math.csproj">
       <Project>{7cbcbe23-0f9f-49d7-b9ea-abfbaa1a4a14}</Project>
       <Name>SoundFingerprinting.Math</Name>

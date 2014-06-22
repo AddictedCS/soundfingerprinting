@@ -12,13 +12,13 @@
     {
         private readonly Random random = new Random((int)DateTime.Now.Ticks);
 
-        public Network Create<T>(params int[] hiddenNeurons) where T : IActivationFunction, new()
+        public Network Create<T>(T activationFunction, params int[] hiddenNeurons) where T : IActivationFunction
         {
             Network network = new Network();
             for (int i = 0; i < hiddenNeurons.Length; i++)
             {
                 bool isLast = i == hiddenNeurons.Length - 1;
-                network.AddLayer(new BasicLayer(new T(), !isLast, hiddenNeurons[i]));
+                network.AddLayer(new BasicLayer(activationFunction, !isLast, hiddenNeurons[i]));
             }
  
             network.Structure.FinalizeStructure();
@@ -26,15 +26,15 @@
             return network;
         }
 
-        public Network Create(string pathToFilename)
+        public Network LoadNetworkFromFile(string pathToFilename)
         {
             using (FileStream stream = new FileStream(pathToFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                return Create(stream);
+                return LoadNetworkFromStream(stream);
             }
         }
 
-        public Network Create(Stream stream)
+        public Network LoadNetworkFromStream(Stream stream)
         {
             IFormatter formatter = new BinaryFormatter();
             return (Network)formatter.Deserialize(stream);
