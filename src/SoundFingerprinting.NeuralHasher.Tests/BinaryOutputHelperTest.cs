@@ -22,19 +22,12 @@
                 Assert.AreEqual(BinaryOutputLength, binaryCodes[i].Length);
             }
 
-            AssertBytesAreEqual(new[] { 0, 0 }, binaryCodes[0]);
-            AssertBytesAreEqual(new[] { 1, 0 }, binaryCodes[1]);
-            AssertBytesAreEqual(new[] { 0, 1 }, binaryCodes[2]);
-            AssertBytesAreEqual(new[] { 1, 1 }, binaryCodes[3]);
-        }
+            AssertArraysAreEqual(new byte[] { 0, 0 }, binaryCodes[0]);
 
-        private static void AssertBytesAreEqual(int[] expected, byte[] actual)
-        {
-            Assert.AreEqual(expected.Length, actual.Length);
-            for (int i = 0; i < expected.Length; i++)
-            {
-                Assert.AreEqual(expected[i], actual[i]);
-            }
+            AssertArraysAreEqual(new byte[] { 0, 0 }, binaryCodes[0]);
+            AssertArraysAreEqual(new byte[] { 1, 0 }, binaryCodes[1]);
+            AssertArraysAreEqual(new byte[] { 0, 1 }, binaryCodes[2]);
+            AssertArraysAreEqual(new byte[] { 1, 1 }, binaryCodes[3]);
         }
     }
 }
