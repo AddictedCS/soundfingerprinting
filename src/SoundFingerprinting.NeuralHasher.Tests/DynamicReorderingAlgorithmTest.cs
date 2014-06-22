@@ -54,6 +54,30 @@
             AssertL2PairIsEqual(1, 1, 1, normPairs[3]);
         }
 
+        [TestMethod]
+        public void TestFindBestReorderingPairsInEntireDataSet()
+        {
+            var normPairs = new List<L2NormPair>()
+                {
+                    new L2NormPair { L2Norm = 1, BinaryOutputIndex = 0, SnippetIndex = 0 }, 
+                    new L2NormPair { L2Norm = 2, BinaryOutputIndex = 0, SnippetIndex = 1 }, 
+                    new L2NormPair { L2Norm = 3, BinaryOutputIndex = 1, SnippetIndex = 0 }, 
+                    new L2NormPair { L2Norm = 4, BinaryOutputIndex = 1, SnippetIndex = 1 }
+                };
+
+            var bestPairs = dynamicReorderingAlgorithm.FindBestReorderingPairs(normPairs);
+
+            Assert.AreEqual(2, bestPairs.Count);
+            AssertBestReorderingPair(0, 0, bestPairs[0]);
+            AssertBestReorderingPair(1, 1, bestPairs[1]);
+        }
+
+        private static void AssertBestReorderingPair(int binaryOutputIndex, int snippetIndex, BestReorderingPair bestPair)
+        {
+            Assert.AreEqual(binaryOutputIndex, bestPair.BinaryOutputIndex);
+            Assert.AreEqual(snippetIndex, bestPair.SnippetIndex);
+        }
+
         private void AssertL2PairIsEqual(double norm, int binaryIndex, int snippetIndex, L2NormPair pair)
         {
             Assert.AreEqual(norm, pair.L2Norm);

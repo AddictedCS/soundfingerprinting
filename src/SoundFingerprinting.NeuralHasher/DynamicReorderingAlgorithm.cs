@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using Encog.ML;
     using Encog.ML.Data.Basic;
@@ -49,6 +50,30 @@
             }
 
             return normPairs;
+        }
+
+        public List<BestReorderingPair> FindBestReorderingPairs(List<L2NormPair> normPairs)
+        {
+            var orderedPairs = normPairs.OrderBy(pair => pair.L2Norm);
+
+            var snippets = new HashSet<int>();
+            var binaryCodes = new HashSet<int>();
+            var bestPairs = new List<BestReorderingPair>();
+            foreach (var orderedPair in orderedPairs)
+            {
+                if (!snippets.Contains(orderedPair.SnippetIndex) && !binaryCodes.Contains(orderedPair.BinaryOutputIndex))
+                {
+                    bestPairs.Add(new BestReorderingPair
+                        {
+                            BinaryOutputIndex = orderedPair.BinaryOutputIndex,
+                            SnippetIndex = orderedPair.SnippetIndex
+                        });
+                    binaryCodes.Add(orderedPair.BinaryOutputIndex);
+                    snippets.Add(orderedPair.SnippetIndex);
+                }
+            }
+
+            return bestPairs;
         }
 
         private double L2Norm(double[] a, double[] b)

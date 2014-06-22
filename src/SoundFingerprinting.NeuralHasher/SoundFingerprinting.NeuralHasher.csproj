@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BestReorderingPair.cs" />
     <Compile Include="DynamicReorderingAlgorithm.cs" />
     <Compile Include="Ensemble\NeuralNetworkEnsemble.cs" />
     <Compile Include="Ensemble\NeuralNetworkHashingException.cs" />
