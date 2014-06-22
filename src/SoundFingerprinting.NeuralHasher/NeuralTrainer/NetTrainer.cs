@@ -13,324 +13,91 @@
     using Encog.Neural.Networks.Training;
     using Encog.Neural.Networks.Training.Propagation.Resilient;
 
+    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.NeuralHasher.Utils;
 
-    /// <summary>
-    ///   Training callback
-    /// </summary>
-    /// <param name = "status">Training status</param>
-    /// <param name = "correctOutputs">Number of correct outputs</param>
-    /// <param name = "currError">Current error [RMS]</param>
-    /// <param name = "currIteration">Current iteration</param>
-    public delegate void TrainingCallback(TrainingStatus status, double correctOutputs, double currError, int currIteration);
+    public delegate void TrainingCallback(TrainingStatus status, double correctOutputs, double errorRate, int iteration);
 
-    /// <summary>
-    ///   Network trainer. The network is trained according to the algorithm described in 
-    ///   'Learning forgiving hash functions: Algorithms and large scale tests', S. Baluja, M. Covell
-    /// </summary>
-    public class NetTrainer : IDisposable
+    public class NetTrainer
     {
-        /// <summary>
-        ///   Input layer dimensionality
-        /// </summary>
-        private const int DefaultFingerprintSize = 4096;
+        private const int DefaultFingerprintSize = 128 * 32;
 
-        /// <summary>
-        ///   Hidden layer dimensionality
-        /// </summary>
         private const int DefaultHiddenNeuronsCount = 41;
 
-        /// <summary>
-        ///   Output layer dimensionality
-        /// </summary>
-        private const int OutPutNeurons = 10;
+        private const int OutputNeurons = 10;
 
-        /// <summary>
-        ///   Number of dynamic output reordering cycles
-        /// </summary>
         private const int Idyn = 50;
 
-        /// <summary>
-        ///   Number of epochs between each output reordering
-        /// </summary>
         private const int Edyn = 10;
 
-        /// <summary>
-        ///   Number of epochs after reordering cycles
-        /// </summary>
         private const int Efixed = 500;
 
-        private readonly IModelService modelService;
+        private readonly ITrainingDataProvider trainingDataProvider;
 
-        private readonly Semaphore pauseSem;
+        private readonly INetworkFactory networkFactory;
 
-        private bool alreadyDisposed;
-
-        private bool paused;
-
-        private int trainingSongSnippets = 10; /*Number of training song snippets [10 by default]*/
-    
-        private Thread workingThread;
+        private readonly INormalizeStrategy normalizeStrategy;
 
         public NetTrainer(IModelService modelService)
+            : this(new TrainingDataProvider(modelService, DependencyResolver.Current.Get<IBinaryOutputHelper>()), DependencyResolver.Current.Get<INetworkFactory>(), DependencyResolver.Current.Get<INormalizeStrategy>())
         {
-            Network net = new Network();
-            net.AddLayer(new BasicLayer(new ActivationTANH(), true, DefaultFingerprintSize));
-            net.AddLayer(new BasicLayer(new ActivationTANH(), true, DefaultHiddenNeuronsCount));
-            net.AddLayer(new BasicLayer(new ActivationTANH(), false, OutPutNeurons));
-            net.Structure.FinalizeStructure();
-            net.Reset();
-            this.modelService = modelService;
-            pauseSem = new Semaphore(0, 1, "PauseSemaphore");
+            TrainingSongSnippets = 10;
         }
 
-        ~NetTrainer()
+        internal NetTrainer(ITrainingDataProvider trainingDataProvider, INetworkFactory networkFactory, INormalizeStrategy normalizeStrategy)
         {
-            Dispose(false);
+            this.trainingDataProvider = trainingDataProvider;
+            this.networkFactory = networkFactory;
+            this.normalizeStrategy = normalizeStrategy;
         }
 
-        public int TrainingSongSnippets
+        public int TrainingSongSnippets { get; set; }
+
+        public Network Train(int numberOfTracks, int[] spectralImagesIndexesToConsider, IActivationFunction activationFunction, TrainingCallback callback)
         {
-            get { return trainingSongSnippets; }
-            set { trainingSongSnippets = value; }
-        }
-
-        public void StartTrainingAsync(Network network, TrainingCallback callback)
-        {
-            if (alreadyDisposed)
-            {
-                throw new ObjectDisposedException("Object already disposed");
-            }
-
-            Action<Network, TrainingCallback> action = Train;
-            action.BeginInvoke(network, callback, action.EndInvoke, action);
-        }
-
-        public void Train(Network network, TrainingCallback callback)
-        {
-            IActivationFunction activationFunctionInput = network.GetActivation(0);
-            int outputNeurons = network.GetLayerNeuronCount(network.LayerCount - 1);
-            double error = 0;
-            callback.Invoke(TrainingStatus.FillingStandardInputs, 0, 0, 0); /*First operation is filling standard input/outputs*/
-            Dictionary<int, List<BasicMLData>> trackIdFingerprints = GetNormalizedTrackFingerprints(activationFunctionInput, trainingSongSnippets, outputNeurons);
-            workingThread = Thread.CurrentThread;
-            IActivationFunction activationFunctionOutput = network.GetActivation(network.LayerCount - 1);
-            double[][] normalizedBinaryCodes = GetNormalizedBinaryCodes(activationFunctionOutput, outputNeurons);
-            Tuple<double[][], double[][]> tuple = FillStandardInputsOutputs(trackIdFingerprints, normalizedBinaryCodes); /*Fill standard input output*/
-            double[][] inputs = tuple.Item1;
-            double[][] outputs = tuple.Item2;
-
-            if (inputs == null || outputs == null)
-            {
-                callback.Invoke(TrainingStatus.Exception, 0, 0, 0);
-                return;
-            }
-
+            var network = networkFactory.Create(activationFunction, DefaultFingerprintSize, DefaultHiddenNeuronsCount, OutputNeurons);
+            var trainingSet = trainingDataProvider.GetTrainingSet(spectralImagesIndexesToConsider, numberOfTracks);
+            normalizeStrategy.NormalizeInputInPlace(activationFunction, trainingSet.Inputs);
+            normalizeStrategy.NormalizeOutputInPlace(activationFunction, trainingSet.Outputs);
+            var dataset = new BasicNeuralDataSet(trainingSet.Inputs, trainingSet.Outputs);
+            var learner = new ResilientPropagation(network, dataset);
             int currentIterration = 0;
             double correctOutputs = 0.0;
-            BasicNeuralDataSet dataset = new BasicNeuralDataSet(inputs, outputs);
-            ITrain learner = new ResilientPropagation(network, dataset);
-            try
+         
+            // Dynamic output reordering cycle
+            // Idyn = 50
+            /*
+            for (int i = 0; i < Idyn; i++)
             {
-                // Dynamic output reordering cycle
-                /*Idyn = 50*/
-                for (int i = 0; i < Idyn; i++) 
+                correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
+                callback.Invoke(TrainingStatus.OutputReordering, correctOutputs, error, currentIterration);
+                ReorderOutput(network, dataset, trackIdFingerprints, normalizedBinaryCodes);
+                // Edyn = 10
+                for (int j = 0; j < Edyn; j++)
                 {
-                    if (paused)
-                    {
-                        pauseSem.WaitOne();
-                    }
-
                     correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
-                    callback.Invoke(TrainingStatus.OutputReordering, correctOutputs, error, currentIterration);
-                    ReorderOutput(network, dataset, trackIdFingerprints, normalizedBinaryCodes);
-                    /*Edyn = 10*/
-                    for (int j = 0; j < Edyn; j++)
-                    {
-                        if (paused)
-                        {
-                            pauseSem.WaitOne();
-                        }
-
-                        correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
-                        callback.Invoke(TrainingStatus.RunningDynamicEpoch, correctOutputs, error, currentIterration);
-                        learner.Iteration();
-                        error = learner.Error;
-                        currentIterration++;
-                    }
-                }
-
-                for (int i = 0; i < Efixed; i++)
-                {
-                    if (paused)
-                    {
-                        pauseSem.WaitOne();
-                    }
-
-                    correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
-                    callback.Invoke(TrainingStatus.FixedTraining, correctOutputs, error, currentIterration);
+                    callback.Invoke(TrainingStatus.RunningDynamicEpoch, correctOutputs, error, currentIterration);
                     learner.Iteration();
                     error = learner.Error;
                     currentIterration++;
                 }
+            }
 
-                network.ComputeMedianResponses(inputs, trainingSongSnippets);
-                callback.Invoke(TrainingStatus.Finished, correctOutputs, error, currentIterration);
-            }
-            catch (ThreadAbortException)
+            for (int i = 0; i < Efixed; i++)
             {
-                callback.Invoke(TrainingStatus.Aborted, correctOutputs, error, currentIterration);
-                paused = false;
+                correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
+                callback.Invoke(TrainingStatus.FixedTraining, correctOutputs, error, currentIterration);
+                learner.Iteration();
+                error = learner.Error;
+                currentIterration++;
             }
+
+            network.ComputeMedianResponses(inputs, TrainingSongSnippets);
+            callback.Invoke(TrainingStatus.Finished, correctOutputs, error, currentIterration);
+            
+             */ return network;
         }
 
-        public Dictionary<int, List<BasicMLData>> GetNormalizedTrackFingerprints(IActivationFunction function, int fingerprintsPerTrack, int outputs)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///   Get normalized floating point binary codes
-        /// </summary>
-        /// <param name = "function">Activation function to normalize</param>
-        /// <param name = "binaryLength">Length of the binary length</param>
-        /// <returns>Normalized floating point binary codes</returns>
-        /// <remarks>
-        ///   2^binaryLength normalized binary codes will be returned by the method
-        /// </remarks>
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
-        public double[][] GetNormalizedBinaryCodes(IActivationFunction function, int binaryLength)
-        {
-            byte[][] codes = BinaryOutputUtil.GetAllBinaryCodes(binaryLength);
-            int length = codes.GetLength(0);
-            double[][] fCodes = new double[length][];
-            for (int i = 0; i < length; i++)
-            {
-                fCodes[i] = Array.ConvertAll(codes[i], s => (double)s);
-                NormalizeUtils.NormalizeOneDesiredOutputInPlace(function, fCodes[i]);
-            }
-
-            return fCodes;
-        }
-
-        /// <summary>
-        ///   Fills inputs, outputs with the corresponding data that will be trained.
-        /// </summary>
-        /// <param name = "trackIdFingerprints">Track id fingerprints data structure</param>
-        /// <param name = "binaryCodes">Normalized binary codes</param>
-        /// <returns>A tuple representing inputs/outputs</returns>
-        /// <exception cref = "NetTrainerException">Throws when there is not enough snippets for a given song</exception>
-        /// <remarks>
-        ///   All fingerprints for a specific track will point to the same binary signature
-        /// </remarks>
-        public Tuple<double[][], double[][]> FillStandardInputsOutputs(Dictionary<int, List<BasicMLData>> trackIdFingerprints, double[][] binaryCodes)
-        {
-            int trackCount = trackIdFingerprints.Count;
-
-            // Check availability of binary outputs with respect to tracks
-            if (binaryCodes.GetLength(0) > trackCount)
-            {
-                throw new NetTrainerException("Not enough songs in the database for training purpose");
-            }
-
-            int inOutIndex = 0;
-            double[][] inputs = new double[trackCount * trainingSongSnippets][];
-            double[][] outputs = new double[trackCount * trainingSongSnippets][];
-            int count = 0;
-
-            // Assign all fingerprints of a single song with one binary code.
-            foreach (KeyValuePair<int, List<BasicMLData>> pair in trackIdFingerprints)
-            {
-                List<BasicMLData> fingerprints = pair.Value;
-                if (fingerprints.Count < trainingSongSnippets)
-                {
-                    throw new NetTrainerException("Not enough fingerprints for a specific song. Song Int32:" + pair.Key);
-                }
-
-                foreach (BasicMLData fingerprint in fingerprints)
-                {
-                    inputs[inOutIndex] = fingerprint.Data;
-                    if (inputs[inOutIndex] == null)
-                    {
-                        throw new NetTrainerException("Inputs to be trained cannon be null");
-                    }
-
-                    outputs[inOutIndex] = binaryCodes[count]; /*All snippets from the same song must have the same output*/
-                    inOutIndex++;
-                }
-
-                count++;
-            }
-
-            return new Tuple<double[][], double[][]>(inputs, outputs);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        
-        public void PauseTraining()
-        {
-            if (alreadyDisposed)
-            {
-                throw new ObjectDisposedException("Object already disposed");
-            }
-
-            if (!paused)
-            {
-                paused = true;
-            }
-        }
-
-        public void ResumeTraining()
-        {
-            if (alreadyDisposed)
-            {
-                throw new ObjectDisposedException("Object already disposed");
-            }
-
-            if (paused)
-            {
-                paused = false;
-                pauseSem.Release();
-            }
-        }
-
-        public void AbortTraining()
-        {
-            if (alreadyDisposed)
-            {
-                throw new ObjectDisposedException("Object already disposed");
-            }
-
-            workingThread.Abort();
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!alreadyDisposed)
-            {
-                if (disposing)
-                {
-                    // dispose managed resources
-                    pauseSem.Close();
-                }
-
-                // dispose unmanaged resources
-                alreadyDisposed = true;
-            }
-        }
-
-        /// <summary>
-        ///   Reorders the outputs of the network training process according to network response on the current stage of learning
-        /// </summary>
-        /// <param name = "network">Network that is trained</param>
-        /// <param name = "dataset"> Dataset with the data [input/ideal]</param>
-        /// <param name = "trackIdFingerprints">Tracks and their associated fingerprints</param>
-        /// <param name = "binaryCodes">Normalized binary codes</param>
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Reviewed. Suppression is OK here.")]
         protected void ReorderOutput(Network network, BasicNeuralDataSet dataset, Dictionary<int, List<BasicMLData>> trackIdFingerprints, double[][] binaryCodes)
         {
             int outputNeurons = network.GetLayerNeuronCount(network.LayerCount - 1);
@@ -342,9 +109,9 @@
             foreach (KeyValuePair<int, List<BasicMLData>> pair in trackIdFingerprints)
             {
                 List<BasicMLData> sxSnippet = pair.Value;
-                if (sxSnippet.Count < trainingSongSnippets)
+                if (sxSnippet.Count < TrainingSongSnippets)
                 {
-                    throw new NetTrainerException("Not enough snippets for a song");
+                    throw new Exception("Not enough snippets for a song");
                 }
 
                 am[counter] = new double[outputNeurons];
@@ -372,7 +139,7 @@
             int currItteration = 0;
 
             // Find binary code - track pair that has min l2 norm across all binary codes
-            List<Tuple<int, int>> binCodeTrackPair = BinaryOutputUtil.FindMinL2Norm(binaryCodes, am);
+            List<Tuple<int, int>> binCodeTrackPair = new List<Tuple<int, int>>(); // = bin .FindMinL2Norm(binaryCodes, am);
             foreach (Tuple<int, int> pair in binCodeTrackPair)
             {
                 // Set the input-output for all fingerprints of that song

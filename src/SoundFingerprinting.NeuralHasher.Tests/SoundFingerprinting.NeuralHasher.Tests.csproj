@@ -60,6 +60,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BinaryOutputHelperTest.cs" />
+    <Compile Include="DynamicReorderingAlgorithmTest.cs" />
     <Compile Include="NetworkFactoryTest.cs" />
     <Compile Include="NormalizeStrategyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

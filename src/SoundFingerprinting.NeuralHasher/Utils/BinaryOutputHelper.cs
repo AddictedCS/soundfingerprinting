@@ -27,10 +27,11 @@
             return binaryCodes;
         }
 
-        public  List<Tuple<int, int>> FindMinL2Norm(double[][] binaryCodesPool, double[][] trackCodes)
+        public List<Tuple<int, int>> FindMinL2Norm(double[][] binaryCodesPool, double[][] trackCodes)
         {
-            List<Tuple<float, ushort, ushort>> mainTupple = new List<Tuple<float, ushort, ushort>>(); /*Norm Value, Binary Code, Track Code*/
-            for (int i = 0;i<binaryCodesPool.GetLength(0); i++)
+            /*Norm Value, Binary Code, Track Code*/
+            List<Tuple<float, ushort, ushort>> mainTupple = new List<Tuple<float, ushort, ushort>>();
+            for (int i = 0; i < binaryCodesPool.GetLength(0); i++)
             {
                 for (int j = 0; j < trackCodes.GetLength(0); j++)
                 {
