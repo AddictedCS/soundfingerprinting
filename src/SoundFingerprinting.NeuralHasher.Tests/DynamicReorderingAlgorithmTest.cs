@@ -38,5 +38,27 @@
             AssertArraysAreEqual(new[] { 0, 1d }, am[0]);
             AssertArraysAreEqual(new[] { 0.5, 0 }, am[1]);
         }
+
+        [TestMethod]
+        public void TestL2NormPairCalculation()
+        {
+            double[][] binaryOutputs = new[] { new[] { 0d }, new[] { 1d } };
+            double[][] am = new[] { new[] { 1d }, new[] { 0d } };
+
+            var normPairs = dynamicReorderingAlgorithm.CalculateL2NormPairs(binaryOutputs, am);
+
+            Assert.AreEqual(4, normPairs.Count);
+            AssertL2PairIsEqual(1, 0, 0, normPairs[0]);
+            AssertL2PairIsEqual(0, 0, 1, normPairs[1]);
+            AssertL2PairIsEqual(0, 1, 0, normPairs[2]);
+            AssertL2PairIsEqual(1, 1, 1, normPairs[3]);
+        }
+
+        private void AssertL2PairIsEqual(double norm, int binaryIndex, int snippetIndex, L2NormPair pair)
+        {
+            Assert.AreEqual(norm, pair.L2Norm);
+            Assert.AreEqual(binaryIndex, pair.BinaryOutputIndex);
+            Assert.AreEqual(snippetIndex, pair.SnippetIndex);
+        }
     }
 }

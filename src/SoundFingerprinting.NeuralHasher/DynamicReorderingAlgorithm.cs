@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.NeuralHasher
 {
+    using System;
     using System.Collections.Generic;
 
     using Encog.ML;
@@ -28,6 +29,38 @@
             }
 
             return am;
+        }
+
+        public List<L2NormPair> CalculateL2NormPairs(double[][] binaryOutputs, double[][] am)
+        {
+            var normPairs = new List<L2NormPair>();
+
+            for (int binaryOutputIndex = 0; binaryOutputIndex < binaryOutputs.Length; binaryOutputIndex++)
+            {
+                for (int snippetIndex = 0; snippetIndex < am.Length; snippetIndex++)
+                {
+                    double norm = L2Norm(binaryOutputs[binaryOutputIndex], am[snippetIndex]);
+                    normPairs.Add(
+                        new L2NormPair
+                            {
+                                L2Norm = norm, BinaryOutputIndex = binaryOutputIndex, SnippetIndex = snippetIndex 
+                            });
+                }
+            }
+
+            return normPairs;
+        }
+
+        private double L2Norm(double[] a, double[] b)
+        {
+            double sum = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                double subtracted = a[i] - b[i];
+                sum += subtracted * subtracted;
+            }
+
+            return Math.Sqrt(sum);
         }
     }
 }

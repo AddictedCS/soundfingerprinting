@@ -27,32 +27,24 @@
             return binaryCodes;
         }
 
-        public List<Tuple<int, int>> FindMinL2Norm(double[][] binaryCodesPool, double[][] trackCodes)
+        public List<Tuple<int, int>> FindMinL2Norm(double[][] binaryOutputs, double[][] am)
         {
             /*Norm Value, Binary Code, Track Code*/
-            List<Tuple<float, ushort, ushort>> mainTupple = new List<Tuple<float, ushort, ushort>>();
-            for (int i = 0; i < binaryCodesPool.GetLength(0); i++)
+            List<Tuple<double, int, int>> mainTupple = new List<Tuple<double, int, int>>();
+            for (int i = 0; i < binaryOutputs.Length; i++)
             {
-                for (int j = 0; j < trackCodes.GetLength(0); j++)
+                for (int j = 0; j < am.Length; j++)
                 {
-                    /*Calculating L2 Norm from vectors' subtraction. Skipping the usage of methods in order to increase performance*/
-                    double sum = 0;
-                    for (int k = 0, n = binaryCodesPool[i].Length; k < n; k++)
-                    {
-                        double subtraction = binaryCodesPool[i][k] - trackCodes[j][k];
-                        sum += subtraction * subtraction;
-                    }
-
-                    float normValue = (float)Math.Sqrt(sum);
-                    mainTupple.Add(new Tuple<float, ushort, ushort>(normValue, (ushort)i, (ushort)j));
+                    double norm = L2Norm(binaryOutputs[i], am[j]);
+                    mainTupple.Add(new Tuple<double, int, int>(norm, i, j));
                 }
             }
 
-            IOrderedEnumerable<Tuple<float, ushort, ushort>> ordered = mainTupple.OrderBy(tupple => tupple.Item1); /*Sort the tupple descending by the L2Norm*/
+            IOrderedEnumerable<Tuple<double, int, int>> ordered = mainTupple.OrderBy(tupple => tupple.Item1); /*Sort the tupple descending by the L2Norm*/
             List<int> selectedBinaryCodes = new List<int>();
             List<int> selectedTracks = new List<int>();
             List<Tuple<int, int>> endResult = new List<Tuple<int, int>>();
-            foreach (Tuple<float, ushort, ushort> item in ordered)
+            foreach (Tuple<double, int, int> item in ordered)
             {
                 if (!selectedBinaryCodes.Contains(item.Item2))
                 {
@@ -66,6 +58,18 @@
             }
 
             return endResult;
+        }
+
+        public double L2Norm(double[] a, double[] b)
+        {
+            double sum = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                double subtracted = a[i] - b[i];
+                sum += subtracted * subtracted;
+            }
+
+            return Math.Sqrt(sum);
         }
     }
 }

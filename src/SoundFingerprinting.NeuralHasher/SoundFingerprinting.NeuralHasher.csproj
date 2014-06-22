@@ -56,6 +56,7 @@
     <Compile Include="INetworkFactory.cs" />
     <Compile Include="Infrastructure\NeuralHasherModuleLoader.cs" />
     <Compile Include="ITrainingDataProvider.cs" />
+    <Compile Include="L2NormPair.cs" />
     <Compile Include="MMI\MinimalMutualInfoGroup.cs" />
     <Compile Include="MMI\MinimalMutualInfoPair.cs" />
     <Compile Include="MMI\MinimalMutualInfoPattern.cs" />
