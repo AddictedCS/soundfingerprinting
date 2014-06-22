@@ -6,58 +6,46 @@
 
     internal class NormalizeStrategy : INormalizeStrategy
     {
-        private const double Epsilon = 0.001;
-        
+        public void NormalizeOutputInPlace(IActivationFunction function, double[][] output)
+        {
+            foreach (var array in output)
+            {
+                NormalizeOutputInPlace(function, array);
+            }
+        }
+
         public void NormalizeOutputInPlace(IActivationFunction function, double[] output)
         {
-            if (function is ActivationTANH)
+            if (!(function is ActivationTANH))
             {
-                for (int i = 0, n = output.Length; i < n; i++)
-                {
-                    output[i] = output[i] > 0.5 ? 1 : -1;
-                }
+                throw new ArgumentException("Only TANH function is supported");
             }
-            else if (function is ActivationSigmoid)
+            
+            for (int i = 0, n = output.Length; i < n; i++)
             {
-                /*do nothing*/
+                output[i] = output[i] > 0.5 ? 1 : -1;
             }
-            else
+        }
+
+        public void NormalizeInputInPlace(IActivationFunction function, double[][] input)
+        {
+            foreach (var array in input)
             {
-                throw new ArgumentException("Unknown activation function");
+                NormalizeInputInPlace(function, array);
             }
         }
 
         public void NormalizeInputInPlace(IActivationFunction function, double[] input)
         {
-            if (function is ActivationTANH)
+            if (!(function is ActivationTANH))
             {
-                for (int i = 0, n = input.Length; i < n; i++)
-                {
-                    input[i] = Math.Abs(input[i] - 0) < Epsilon ? 0.0f : (input[i] < 0 ? -0.8f : 0.8f);
-                }
+                throw new ArgumentException("Only TANH function is supported");
             }
-            else if (function is ActivationSigmoid)
+            
+            for (int i = 0, n = input.Length; i < n; i++)
             {
-                for (int i = 0, n = input.Length; i < n; i++)
-                {
-                    input[i] = Math.Abs(input[i] - 0) < Epsilon ? 0.0f : (input[i] < 0 ? 0.2f : 0.8f);
-                }
-            }
-            else if (function is ActivationLinear)
-            {
-                /*do nothing*/
-            }
-            else
-            {
-                throw new ArgumentException("Unknown activation function");
+                input[i] = input[i] < -1 ? -1 : input[i] > 1 ? 1 : input[i];
             }
         }
-    }
-
-    internal interface INormalizeStrategy
-    {
-        void NormalizeOutputInPlace(IActivationFunction function, double[] output);
-
-        void NormalizeInputInPlace(IActivationFunction function, double[] input);
     }
 }

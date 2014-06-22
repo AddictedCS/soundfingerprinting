@@ -24,14 +24,14 @@
         }
 
         [TestMethod]
-        public void TestOutputIsNormalizedAccordingToSigmoidFunction()
+        public void TestInputIsNormalizedAccordingToTANHFunction()
         {
-            var activationFunction = new ActivationSigmoid();
-            double[] output = new double[] { 1, 0, 1, 0 };
+            var activationFunction = new ActivationTANH();
+            double[] input = new[] { -1.3, -0.7, 0.1, 0.3, 1.1, 0.5 };
 
-            normalizeStrategy.NormalizeOutputInPlace(activationFunction, output);
+            normalizeStrategy.NormalizeInputInPlace(activationFunction, input);
 
-            AssertArraysAreEqual(new double[] { 1, 0, 1, 0 }, output);
+            AssertArraysAreEqual(new[] { -1, -0.7, 0.1, 0.3, 1, 0.5 }, input);
         }
     }
 }
