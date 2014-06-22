@@ -6,36 +6,78 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.NeuralHasher.Utils;
 
     public class TrainingDataProvider : ITrainingDataProvider
     {
         private readonly IModelService modelService;
 
-        public TrainingDataProvider(IModelService modelService)
+        private readonly IBinaryOutputHelper binaryOutputHelper;
+
+        public TrainingDataProvider(IModelService modelService, IBinaryOutputHelper binaryOutputHelper)
         {
             this.modelService = modelService;
+            this.binaryOutputHelper = binaryOutputHelper;
         }
 
-        public Dictionary<IModelReference, double[][]> GetSpectralImagesToTrain(int[] spectralImageIndexsToConsider, int numberOfTracks)
+        public List<double[][]> GetSpectralImagesToTrain(int[] spectralImageIndexsToConsider, int numberOfTracks)
         {
             var tracks = GetTrackFromDataSource(numberOfTracks);
-
             int maxIndex = spectralImageIndexsToConsider.Max();
-            var tracksWithSpectralImages = new Dictionary<IModelReference, double[][]>();
-            foreach (var track in tracks)
+            var spectralImagesToTrain = new List<double[][]>();
+            var trackDatas = tracks as List<TrackData> ?? tracks.ToList();
+            for (int trackIndex = 0; trackIndex < trackDatas.Count; trackIndex++)
             {
-                var spectralImages = GetSpectralImagesForTrack(track, maxIndex);
+                var spectralImages = GetSpectralImagesForTrack(trackDatas[trackIndex], maxIndex);
                 var spectralImagesToConsider = spectralImages.Where(image => spectralImageIndexsToConsider.Contains(image.OrderNumber))
                                                              .OrderBy(image => image.OrderNumber);
-                int index = 0;
-                tracksWithSpectralImages.Add(track.TrackReference, new double[spectralImageIndexsToConsider.Length][]);
+                int spectralImageIndex = 0;
+                spectralImagesToTrain.Add(new double[spectralImageIndexsToConsider.Length][]);
+
                 foreach (var spectralImageToConsider in spectralImagesToConsider)
                 {
-                    tracksWithSpectralImages[track.TrackReference][index++] = ConvertFloatToDouble(spectralImageToConsider.Image);
+                    spectralImagesToTrain[trackIndex][spectralImageIndex++] = ConvertFloatToDouble(spectralImageToConsider.Image);
                 }
             }
 
-            return tracksWithSpectralImages;
+            return spectralImagesToTrain;
+        }
+        
+        public TrainingSet FillStandardInputsOutputs(List<double[][]> spectralImagesToTrain, int binaryOutputsCount)
+        {
+            int trainingSongSnippets = spectralImagesToTrain[0].Length;
+            double[][] inputs = new double[spectralImagesToTrain.Count * trainingSongSnippets][];
+            double[][] outputs = new double[spectralImagesToTrain.Count * trainingSongSnippets][];
+            
+            int trackIndex = 0;
+            int trainingDataIndex = 0;
+            var binaryCodes = GetBinaryOutputs(binaryOutputsCount);
+            foreach (var spectralImages in spectralImagesToTrain)
+            {
+                foreach (var spectralImage in spectralImages)
+                {
+                    inputs[trainingDataIndex] = spectralImage;
+                    outputs[trainingDataIndex] = binaryCodes[trackIndex]; 
+                    trainingDataIndex++;
+                }
+
+                trackIndex++;
+            }
+
+            return new TrainingSet { Inputs = inputs, Outputs = outputs };
+        }
+
+        private double[][] GetBinaryOutputs(int binaryLength)
+        {
+            byte[][] codes = binaryOutputHelper.GetBinaryCodes(binaryLength);
+            int length = codes.GetLength(0);
+            double[][] binaryOutputs = new double[length][];
+            for (int i = 0; i < length; i++)
+            {
+                binaryOutputs[i] = Array.ConvertAll(codes[i], s => (double)s);
+            }
+
+            return binaryOutputs;
         }
 
         private IEnumerable<SpectralImageData> GetSpectralImagesForTrack(TrackData track, int maxIndex)
@@ -65,13 +107,7 @@
 
         private double[] ConvertFloatToDouble(float[] spectralImageToConsider)
         {
-            double[] converted = new double[spectralImageToConsider.Length];
-            for (int i = 0; i < converted.Length; i++)
-            {
-                converted[i] = spectralImageToConsider[i];
-            }
-
-            return converted;
+            return Array.ConvertAll(spectralImageToConsider, f => (double)f);
         }
     }
 }

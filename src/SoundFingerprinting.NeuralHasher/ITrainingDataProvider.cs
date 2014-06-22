@@ -2,10 +2,10 @@ namespace SoundFingerprinting.NeuralHasher
 {
     using System.Collections.Generic;
 
-    using SoundFingerprinting.DAO;
-
     public interface ITrainingDataProvider
     {
-        Dictionary<IModelReference, double[][]> GetSpectralImagesToTrain(int[] spectralImageIndexsToConsider, int numberOfTracks);
+        List<double[][]> GetSpectralImagesToTrain(int[] spectralImageIndexsToConsider, int numberOfTracks);
+
+        TrainingSet FillStandardInputsOutputs(List<double[][]> spectralImagesToTrain, int binaryOutputsCount);
     }
 }

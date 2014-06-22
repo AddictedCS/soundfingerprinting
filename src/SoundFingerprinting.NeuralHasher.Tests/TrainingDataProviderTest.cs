@@ -9,12 +9,14 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.NeuralHasher.Utils;
     using SoundFingerprinting.Tests;
 
     [TestClass]
     public class TrainingDataProviderTest : AbstractTest
     {
         private Mock<IModelService> modelService;
+        private Mock<IBinaryOutputHelper> binaryOutputHelper;
 
         private TrainingDataProvider trainingDataProvider;
 
@@ -22,7 +24,8 @@
         public void SetUp()
         {
             modelService = new Mock<IModelService>(MockBehavior.Strict);
-            trainingDataProvider = new TrainingDataProvider(modelService.Object);
+            binaryOutputHelper = new Mock<IBinaryOutputHelper>(MockBehavior.Strict);
+            trainingDataProvider = new TrainingDataProvider(modelService.Object, binaryOutputHelper.Object);
         }
 
         [TestCleanup]
@@ -52,13 +55,13 @@
                 new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, NumberOfTracks);
 
             Assert.AreEqual(NumberOfTracks, trainingData.Count);
-            Assert.AreEqual(NumberOfSpectralImages, trainingData[tracks[0].TrackReference].Length);
-            Assert.AreEqual(NumberOfSpectralImages, trainingData[tracks[1].TrackReference].Length);
+            Assert.AreEqual(NumberOfSpectralImages, trainingData[0].Length);
+            Assert.AreEqual(NumberOfSpectralImages, trainingData[1].Length);
             for (int trackIndex = 0; trackIndex < NumberOfTracks; trackIndex++)
             {
-                for (int i = 0; i < NumberOfSpectralImages; i++)
+                for (int spectralImageIndex = 0; spectralImageIndex < NumberOfSpectralImages; spectralImageIndex++)
                 {
-                    Assert.AreEqual(i, trainingData[tracks[trackIndex].TrackReference][i][0]);
+                    Assert.AreEqual(spectralImageIndex, trainingData[trackIndex][spectralImageIndex][0]);
                 }
             }
         }
