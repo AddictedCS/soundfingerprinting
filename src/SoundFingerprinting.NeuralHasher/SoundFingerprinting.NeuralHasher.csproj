@@ -67,8 +67,10 @@
     <Compile Include="NeuralTrainer\TrainingStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrainingDataProvider.cs" />
-    <Compile Include="Utils\BinaryOutputUtil.cs" />
+    <Compile Include="TrainingSet.cs" />
+    <Compile Include="Utils\BinaryOutputHelper.cs" />
     <Compile Include="Utils\FloatRange.cs" />
+    <Compile Include="Utils\IBinaryOutputHelper.cs" />
     <Compile Include="Utils\NormalizeUtils.cs" />
   </ItemGroup>
   <ItemGroup>

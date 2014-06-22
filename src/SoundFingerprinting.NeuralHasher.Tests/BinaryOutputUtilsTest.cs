@@ -8,11 +8,13 @@
     [TestClass]
     public class BinaryOutputUtilsTest : AbstractTest
     {
+        private readonly IBinaryOutputHelper binaryOutputHelper = new BinaryOutputHelper();
+
         [TestMethod]
         public void TestBinaryOutputAreGeneratedAsExpected()
         {
             const int BinaryOutputLength = 2;
-            var binaryCodes = BinaryOutputUtil.GetAllBinaryCodes(BinaryOutputLength);
+            var binaryCodes = binaryOutputHelper.GetBinaryCodes(BinaryOutputLength);
 
             Assert.AreEqual(4, binaryCodes.Length);
             for (int i = 0; i < 4; i++)

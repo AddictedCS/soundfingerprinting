@@ -59,6 +59,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="BinaryOutputUtilsTest.cs" />
     <Compile Include="NetworkFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrainingDataProviderTest.cs" />
