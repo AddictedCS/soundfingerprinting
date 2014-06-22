@@ -6,7 +6,7 @@
     using SoundFingerprinting.Tests;
 
     [TestClass]
-    public class BinaryOutputUtilsTest : AbstractTest
+    public class BinaryOutputHelperTest : AbstractTest
     {
         private readonly IBinaryOutputHelper binaryOutputHelper = new BinaryOutputHelper();
 
@@ -22,14 +22,19 @@
                 Assert.AreEqual(BinaryOutputLength, binaryCodes[i].Length);
             }
 
-            Assert.AreEqual(0, binaryCodes[0][0]);
-            Assert.AreEqual(0, binaryCodes[0][1]);
-            Assert.AreEqual(1, binaryCodes[1][0]);
-            Assert.AreEqual(0, binaryCodes[1][1]);
-            Assert.AreEqual(0, binaryCodes[2][0]);
-            Assert.AreEqual(1, binaryCodes[2][1]);
-            Assert.AreEqual(1, binaryCodes[3][0]);
-            Assert.AreEqual(1, binaryCodes[3][1]);
+            AssertBytesAreEqual(new[] { 0, 0 }, binaryCodes[0]);
+            AssertBytesAreEqual(new[] { 1, 0 }, binaryCodes[1]);
+            AssertBytesAreEqual(new[] { 0, 1 }, binaryCodes[2]);
+            AssertBytesAreEqual(new[] { 1, 1 }, binaryCodes[3]);
+        }
+
+        private static void AssertBytesAreEqual(int[] expected, byte[] actual)
+        {
+            Assert.AreEqual(expected.Length, actual.Length);
+            for (int i = 0; i < expected.Length; i++)
+            {
+                Assert.AreEqual(expected[i], actual[i]);
+            }
         }
     }
 }

@@ -32,6 +32,7 @@
         public void TearDown()
         {
             modelService.VerifyAll();
+            binaryOutputHelper.VerifyAll();
         }
 
         [TestMethod]
@@ -42,13 +43,9 @@
             const int NumberOfSpectralImages = 10;
             var images = GetSpectralImagesForTracks(tracks, NumberOfSpectralImages);
             modelService.Setup(service => service.ReadAllTracks()).Returns(tracks);
-            modelService.Setup(
-                service =>
-                service.GetSpectralImagesByTrackId(It.Is<ModelReference<int>>(reference => reference.Id == 0))).Returns(
+            modelService.Setup(s => s.GetSpectralImagesByTrackId(It.Is<ModelReference<int>>(r => r.Id == 0))).Returns(
                 images[0]);
-            modelService.Setup(
-                service =>
-                service.GetSpectralImagesByTrackId(It.Is<ModelReference<int>>(reference => reference.Id == 1))).Returns(
+            modelService.Setup(s => s.GetSpectralImagesByTrackId(It.Is<ModelReference<int>>(r => r.Id == 1))).Returns(
                 images[1]);
 
             var trainingData = trainingDataProvider.GetSpectralImagesToTrain(
@@ -67,10 +64,32 @@
         }
 
         [TestMethod]
+        public void TestSpectralImagesAreMappedCorrectlyToBinaryCodes()
+        {
+            var firstTrack = new[] { new double[] { 1, 1 }, new double[] { 2, 2 } };
+            var secondTrack = new[] { new double[] { 3, 3 }, new double[] { 4, 4 } };
+            binaryOutputHelper.Setup(helper => helper.GetBinaryCodes(1)).Returns(new[] { new byte[] { 0 }, new byte[] { 1 } });
+
+            TrainingSet set = trainingDataProvider.MapSpectralImagesToBinaryOutputs(new List<double[][]> { firstTrack, secondTrack }, 1);
+
+            Assert.AreEqual(4, set.Inputs.Length);
+            Assert.AreEqual(4, set.Outputs.Length);
+            AssertArraysAreEqual(new double[] { 1, 1 }, set.Inputs[0]);
+            AssertArraysAreEqual(new double[] { 2, 2 }, set.Inputs[1]);
+            AssertArraysAreEqual(new double[] { 3, 3 }, set.Inputs[2]);
+            AssertArraysAreEqual(new double[] { 4, 4 }, set.Inputs[3]);
+            AssertArraysAreEqual(new double[] { 0 }, set.Outputs[0]);
+            AssertArraysAreEqual(new double[] { 0 }, set.Outputs[1]);
+            AssertArraysAreEqual(new double[] { 1 }, set.Outputs[2]);
+            AssertArraysAreEqual(new double[] { 1 }, set.Outputs[3]);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(Exception))]
         public void TestNotEnoughTracksInTheTrainingDataSource()
         {
-            var tracks = new List<TrackData> { new TrackData(), new TrackData() };
+            var tracks = GetSampleTracks(2);
+
             modelService.Setup(service => service.ReadAllTracks()).Returns(tracks);
 
             trainingDataProvider.GetSpectralImagesToTrain(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 10);

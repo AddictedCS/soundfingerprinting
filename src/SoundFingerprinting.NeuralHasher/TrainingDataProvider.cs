@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.NeuralHasher.Utils;
 
@@ -18,6 +17,12 @@
         {
             this.modelService = modelService;
             this.binaryOutputHelper = binaryOutputHelper;
+        }
+
+        public TrainingSet GetTrainingSet(int[] spectralImageIndexsToConsider, int numberOfTracks)
+        {
+            var spectralImages = GetSpectralImagesToTrain(spectralImageIndexsToConsider, numberOfTracks);
+            return MapSpectralImagesToBinaryOutputs(spectralImages, numberOfTracks);
         }
 
         public List<double[][]> GetSpectralImagesToTrain(int[] spectralImageIndexsToConsider, int numberOfTracks)
@@ -36,14 +41,14 @@
 
                 foreach (var spectralImageToConsider in spectralImagesToConsider)
                 {
-                    spectralImagesToTrain[trackIndex][spectralImageIndex++] = ConvertFloatToDouble(spectralImageToConsider.Image);
+                    spectralImagesToTrain[trackIndex][spectralImageIndex++] = Array.ConvertAll(spectralImageToConsider.Image, f => (double)f); 
                 }
             }
 
             return spectralImagesToTrain;
         }
         
-        public TrainingSet FillStandardInputsOutputs(List<double[][]> spectralImagesToTrain, int binaryOutputsCount)
+        public TrainingSet MapSpectralImagesToBinaryOutputs(List<double[][]> spectralImagesToTrain, int binaryOutputsCount)
         {
             int trainingSongSnippets = spectralImagesToTrain[0].Length;
             double[][] inputs = new double[spectralImagesToTrain.Count * trainingSongSnippets][];
@@ -103,11 +108,6 @@
             }
 
             return tracks;
-        }
-
-        private double[] ConvertFloatToDouble(float[] spectralImageToConsider)
-        {
-            return Array.ConvertAll(spectralImageToConsider, f => (double)f);
         }
     }
 }
