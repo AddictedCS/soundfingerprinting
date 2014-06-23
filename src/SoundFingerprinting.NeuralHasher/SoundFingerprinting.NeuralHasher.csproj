@@ -73,7 +73,6 @@
     <Compile Include="TrainingDataProvider.cs" />
     <Compile Include="TrainingSet.cs" />
     <Compile Include="Utils\BinaryOutputHelper.cs" />
-    <Compile Include="Utils\FloatRange.cs" />
     <Compile Include="Utils\IBinaryOutputHelper.cs" />
     <Compile Include="Utils\INormalizeStrategy.cs" />
     <Compile Include="Utils\NormalizeStrategy.cs" />
