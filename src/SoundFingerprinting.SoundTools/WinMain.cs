@@ -10,6 +10,7 @@ namespace SoundFingerprinting.SoundTools
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.MinHash.Permutations;
+    using SoundFingerprinting.MongoDb;
     using SoundFingerprinting.SoundTools.BassResampler;
     using SoundFingerprinting.SoundTools.DbFiller;
     using SoundFingerprinting.SoundTools.DrawningTool;
@@ -19,6 +20,7 @@ namespace SoundFingerprinting.SoundTools
     using SoundFingerprinting.SoundTools.PermutationGenerator;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.SoundTools.QueryDb;
+    using SoundFingerprinting.SoundTools.SpectralImagesCreator;
     using SoundFingerprinting.SoundTools.WaveletDecomposition;
     using SoundFingerprinting.SQL;
 
@@ -121,7 +123,9 @@ namespace SoundFingerprinting.SoundTools
 
         private void BtnInsertSpectralImagesClick(object sender, EventArgs e)
         {
-
+            var mongoModelService = new MongoDbModelService();
+            WinSpectralImagesCreator win = new WinSpectralImagesCreator(mongoModelService, fingerprintCommandBuilder, audioService, tagService);
+            win.Show();
         }
     }
 }
