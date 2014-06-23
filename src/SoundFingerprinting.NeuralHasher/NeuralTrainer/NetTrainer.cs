@@ -1,8 +1,10 @@
 ﻿namespace SoundFingerprinting.NeuralHasher.NeuralTrainer
 {
+    using System.Collections.Generic;
+
     using Encog.Engine.Network.Activation;
     using Encog.Neural.Data.Basic;
-    using Encog.Neural.Networks.Training.Propagation.Resilient;
+    using Encog.Neural.Networks.Training.Propagation.Back;
 
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.NeuralHasher.Utils;
@@ -31,6 +33,8 @@
 
         private readonly IDynamicReorderingAlgorithm dynamicReorderingAlgorithm;
 
+        private readonly NetworkPerformanceMeter networkPerformanceMeter;
+
         public NetTrainer(IModelService modelService)
             : this(new TrainingDataProvider(modelService, DependencyResolver.Current.Get<IBinaryOutputHelper>()), DependencyResolver.Current.Get<INetworkFactory>(), DependencyResolver.Current.Get<INormalizeStrategy>(), DependencyResolver.Current.Get<IDynamicReorderingAlgorithm>())
         {
@@ -43,6 +47,7 @@
             this.networkFactory = networkFactory;
             this.normalizeStrategy = normalizeStrategy;
             this.dynamicReorderingAlgorithm = dynamicReorderingAlgorithm;
+            networkPerformanceMeter = new NetworkPerformanceMeter();
         }
 
         public int TrainingSongSnippets { get; set; }
@@ -57,56 +62,62 @@
             normalizeStrategy.NormalizeInputInPlace(activationFunction, trainingSet.Inputs);
             normalizeStrategy.NormalizeOutputInPlace(activationFunction, trainingSet.Outputs);
             var dataset = new BasicNeuralDataSet(trainingSet.Inputs, trainingSet.Outputs);
-            var learner = new ResilientPropagation(network, dataset);
-            int iteration = 0;
+            var learner = new Backpropagation(network, dataset);
             double correctOutputs = 0.0;
-            double error = 0;        
-            for (int i = 0; i < Idyn; i++)
+            for (int idynIndex = 0; idynIndex < Idyn; idynIndex++)
             {
-                correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
-                callback.Invoke(TrainingStatus.OutputReordering, correctOutputs, error, iteration);
-                var am = dynamicReorderingAlgorithm.ComputeAm(network, spectralImagesToTrain, numberOfTracks);
-                var normPairs = dynamicReorderingAlgorithm.CalculateL2NormPairs(trainingSet.Outputs, am);
-                var bestPairs = dynamicReorderingAlgorithm.FindBestReorderingPairs(normPairs);
-                int inputIndex = 0;
-                foreach (var bestPair in bestPairs)
-                {
-                    for (int j = 0, n = trainingSet.Inputs[bestPair.SnippetIndex].Length; j < n; j++)
-                    {
-                        dataset.Data[inputIndex].Input[j] = trainingSet.Inputs[bestPair.SnippetIndex][j];
-                    }
-
-                    for (int j = 0, n = trainingSet.Outputs[bestPair.BinaryOutputIndex].Length; j < n; j++)
-                    {
-                        dataset.Data[inputIndex].Ideal[j] = trainingSet.Outputs[bestPair.BinaryOutputIndex][j];
-                    }
-
-                    inputIndex++;
-                }
+                correctOutputs = networkPerformanceMeter.MeasurePerformance(network, dataset, activationFunction);
+                callback(TrainingStatus.OutputReordering, correctOutputs, learner.Error, idynIndex * Edyn);
+                var bestPairs = GetBestPairsForReordering(numberOfTracks, network, spectralImagesToTrain, trainingSet);
+                ReorderOutputsAccordingToBestPairs(bestPairs, trainingSet, dataset);
 
                 // Edyn = 10
-                for (int j = 0; j < Edyn; j++)
+                for (int edynIndex = 0; edynIndex < Edyn; edynIndex++)
                 {
-                    correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
-                    callback.Invoke(TrainingStatus.RunningDynamicEpoch, correctOutputs, error, iteration);
+                    correctOutputs = networkPerformanceMeter.MeasurePerformance(network, dataset, activationFunction);
+                    callback(TrainingStatus.RunningDynamicEpoch, correctOutputs, learner.Error, (idynIndex * Edyn) + edynIndex);
                     learner.Iteration();
-                    error = learner.Error;
-                    iteration++;
                 }
             }
 
-            for (int i = 0; i < Efixed; i++)
+            for (int efixedIndex = 0; efixedIndex < Efixed; efixedIndex++)
             {
-                correctOutputs = NetworkPerformanceMeter.MeasurePerformance(network, dataset);
-                callback.Invoke(TrainingStatus.FixedTraining, correctOutputs, error, iteration);
+                correctOutputs = networkPerformanceMeter.MeasurePerformance(network, dataset, activationFunction);
+                callback(TrainingStatus.FixedTraining, correctOutputs, learner.Error, (Idyn * Edyn) + efixedIndex);
                 learner.Iteration();
-                error = learner.Error;
-                iteration++;
             }
 
             network.ComputeMedianResponses(trainingSet.Inputs, TrainingSongSnippets);
-            callback.Invoke(TrainingStatus.Finished, correctOutputs, error, iteration);
+            callback(TrainingStatus.Finished, correctOutputs, learner.Error, (Idyn * Edyn) + Efixed);
             return network;
+        }
+
+        private IEnumerable<BestReorderingPair> GetBestPairsForReordering(
+            int numberOfTracks, Network network, List<double[][]> spectralImagesToTrain, TrainingSet trainingSet)
+        {
+            var am = dynamicReorderingAlgorithm.ComputeAm(network, spectralImagesToTrain, numberOfTracks);
+            var normPairs = dynamicReorderingAlgorithm.CalculateL2NormPairs(trainingSet.Outputs, am);
+            var bestPairs = dynamicReorderingAlgorithm.FindBestReorderingPairs(normPairs);
+            return bestPairs;
+        }
+
+        private void ReorderOutputsAccordingToBestPairs(IEnumerable<BestReorderingPair> bestPairs, TrainingSet trainingSet, BasicNeuralDataSet dataset)
+        {
+            int inputIndex = 0;
+            foreach (var bestPair in bestPairs)
+            {
+                for (int j = 0, n = trainingSet.Inputs[bestPair.SnippetIndex].Length; j < n; j++)
+                {
+                    dataset.Data[inputIndex].Input[j] = trainingSet.Inputs[bestPair.SnippetIndex][j];
+                }
+
+                for (int j = 0, n = trainingSet.Outputs[bestPair.BinaryOutputIndex].Length; j < n; j++)
+                {
+                    dataset.Data[inputIndex].Ideal[j] = trainingSet.Outputs[bestPair.BinaryOutputIndex][j];
+                }
+
+                inputIndex++;
+            }
         }
     }
 }
