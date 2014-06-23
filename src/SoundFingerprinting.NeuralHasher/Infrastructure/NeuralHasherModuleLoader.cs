@@ -12,6 +12,7 @@
             kernel.Bind<IBinaryOutputHelper>().To<BinaryOutputHelper>().InSingletonScope();
             kernel.Bind<INetworkFactory>().To<NetworkFactory>().InSingletonScope();
             kernel.Bind<IDynamicReorderingAlgorithm>().To<DynamicReorderingAlgorithm>().InSingletonScope();
+            kernel.Bind<INormalizeStrategy>().To<NormalizeStrategy>().InSingletonScope();
         }
     }
 }

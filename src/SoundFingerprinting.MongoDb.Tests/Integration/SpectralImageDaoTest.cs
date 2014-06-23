@@ -24,9 +24,8 @@
         [TestInitialize]
         public void SetUp()
         {
-            daoTestHelper.GetCollection<SubFingerprint>(SubFingerprintDao.SubFingerprints).RemoveAll();
             daoTestHelper.GetCollection<Track>(MongoDb.TrackDao.Tracks).RemoveAll();
-            daoTestHelper.GetCollection<Hash>(HashBinDao.HashBins).RemoveAll();
+            daoTestHelper.GetCollection<SpectralImage>(MongoDb.SpectralImageDao.SpectralImage).RemoveAll();
         }
     }
 }

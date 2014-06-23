@@ -54,6 +54,7 @@
     <Compile Include="Ensemble\NeuralNetworkEnsemble.cs" />
     <Compile Include="Ensemble\NeuralNetworkHashingException.cs" />
     <Compile Include="IDynamicReorderingAlgorithm.cs" />
+    <Compile Include="INetworkTrainer.cs" />
     <Compile Include="INetworkFactory.cs" />
     <Compile Include="Infrastructure\NeuralHasherModuleLoader.cs" />
     <Compile Include="ITrainingDataProvider.cs" />
@@ -63,8 +64,9 @@
     <Compile Include="MMI\MinimalMutualInfoPattern.cs" />
     <Compile Include="MMI\MutualInformation.cs" />
     <Compile Include="Network.cs" />
+    <Compile Include="NetworkConfiguration.cs" />
     <Compile Include="NetworkFactory.cs" />
-    <Compile Include="NeuralTrainer\NetTrainer.cs" />
+    <Compile Include="NetworkTrainer.cs" />
     <Compile Include="NeuralTrainer\NetworkPerformanceMeter.cs" />
     <Compile Include="NeuralTrainer\TrainingStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

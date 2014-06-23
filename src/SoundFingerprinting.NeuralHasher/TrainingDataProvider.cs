@@ -19,10 +19,10 @@
             this.binaryOutputHelper = binaryOutputHelper;
         }
 
-        public TrainingSet GetTrainingSet(int[] spectralImageIndexesToConsider, int numberOfTracks)
+        public TrainingSet GetTrainingSet(int[] spectralImageIndexesToConsider, int binaryOutputCount)
         {
-            var spectralImages = GetSpectralImagesToTrain(spectralImageIndexesToConsider, numberOfTracks);
-            return MapSpectralImagesToBinaryOutputs(spectralImages, numberOfTracks);
+            var spectralImages = GetSpectralImagesToTrain(spectralImageIndexesToConsider, binaryOutputCount);
+            return MapSpectralImagesToBinaryOutputs(spectralImages, (int)Math.Pow(2, binaryOutputCount));
         }
 
         public List<double[][]> GetSpectralImagesToTrain(int[] spectralImageIndexsToConsider, int numberOfTracks)

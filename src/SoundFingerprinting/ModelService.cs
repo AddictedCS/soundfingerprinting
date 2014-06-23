@@ -41,12 +41,12 @@
 
         public void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
         {
-            
+           spectralImageDao.InsertSpectralImages(spectralImages, trackReference); 
         }
 
         public List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference)
         {
-            throw new System.NotImplementedException();
+            return spectralImageDao.GetSpectralImagesByTrackId(trackReference);
         }
 
         public IModelReference InsertFingerprint(FingerprintData fingerprint)

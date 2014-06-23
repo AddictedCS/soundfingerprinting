@@ -1,6 +1,8 @@
 ﻿namespace SoundFingerprinting.NeuralHasher
 {
     using System;
+    using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
@@ -11,6 +13,13 @@
     [Serializable]
     public class Network : BasicNetwork
     {
+        public Network()
+        {
+            Info = new Dictionary<string, string> { { "Date Created", DateTime.Now.ToString(CultureInfo.InvariantCulture) } };
+        }
+
+        public Dictionary<string, string> Info { get; set; }
+        
         public double[] MedianResponces { get; protected set; }
 
         public void ComputeMedianResponses(double[][] inputs, int granularity)

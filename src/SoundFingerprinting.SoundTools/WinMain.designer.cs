@@ -232,6 +232,7 @@
             this.btnTrainNeuralNetwork.TabIndex = 5;
             this.btnTrainNeuralNetwork.Text = "Train Neural Nework";
             this.btnTrainNeuralNetwork.UseVisualStyleBackColor = true;
+            this.btnTrainNeuralNetwork.Click += new System.EventHandler(this.BtnTrainNeuralNetworkClick);
             // 
             // WinMain
             // 

@@ -56,6 +56,10 @@
     <ApplicationIcon>Resources\2-Music.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="encog-core-cs, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\encog-dotnet-core.3.0.0\lib\net40\encog-core-cs.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -108,6 +112,12 @@
     </Compile>
     <Compile Include="Misc\WinMisc.designer.cs">
       <DependentUpon>WinMisc.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NeuralHasher\WinNeuralHasher.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NeuralHasher\WinNeuralHasher.Designer.cs">
+      <DependentUpon>WinNeuralHasher.cs</DependentUpon>
     </Compile>
     <Compile Include="PermutationGenerator\WinPermGenerator.cs">
       <SubType>Form</SubType>
@@ -178,6 +188,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Misc\WinMisc.resx">
       <DependentUpon>WinMisc.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NeuralHasher\WinNeuralHasher.resx">
+      <DependentUpon>WinNeuralHasher.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PermutationGenerator\WinPermGenerator.resx">
       <DependentUpon>WinPermGenerator.cs</DependentUpon>
@@ -258,6 +271,10 @@
     <ProjectReference Include="..\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj">
       <Project>{c294f4cc-678d-4cc9-905a-041395931c58}</Project>
       <Name>SoundFingerprinting.MongoDb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundFingerprinting.NeuralHasher\SoundFingerprinting.NeuralHasher.csproj">
+      <Project>{87cc569e-7d2a-4159-8cc1-dd1b563553f5}</Project>
+      <Name>SoundFingerprinting.NeuralHasher</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj">
       <Project>{6a632721-03e5-46c1-8457-66333f7271aa}</Project>
