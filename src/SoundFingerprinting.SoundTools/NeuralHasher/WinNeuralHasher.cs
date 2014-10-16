@@ -32,7 +32,6 @@
 
             trainer.Train(
                 networkConfiguration,
-                (int)Math.Pow(2, outputCount),
                 new[] { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 },
                 (status, outputs, rate, iteration) => { }).ContinueWith(
                     task =>

@@ -4,6 +4,6 @@ namespace SoundFingerprinting.NeuralHasher
 
     public interface INetworkTrainer
     {
-        Task<Network> Train(NetworkConfiguration networkConfiguration, int numberOfTracks, int[] spectralImagesIndexesToConsider, TrainingCallback callback);
+        Task<Network> Train(NetworkConfiguration networkConfiguration, int[] spectralImagesIndexesToConsider, TrainingCallback callback);
     }
 }

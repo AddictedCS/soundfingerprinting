@@ -49,7 +49,7 @@
 
         public int TrainingSongSnippets { get; set; }
 
-        public Task<Network> Train(NetworkConfiguration networkConfiguration, int numberOfTracks, int[] spectralImagesIndexesToConsider, TrainingCallback callback)
+        public Task<Network> Train(NetworkConfiguration networkConfiguration, int[] spectralImagesIndexesToConsider, TrainingCallback callback)
         {
             var network = networkFactory.Create(
                 networkConfiguration.ActivationFunction, 
@@ -58,7 +58,7 @@
                 networkConfiguration.OutputCount);
 
             var spectralImagesToTrain = trainingDataProvider.GetSpectralImagesToTrain(
-                spectralImagesIndexesToConsider, numberOfTracks);
+                spectralImagesIndexesToConsider, (int)System.Math.Pow(2, networkConfiguration.OutputCount));
             var trainingSet = trainingDataProvider.MapSpectralImagesToBinaryOutputs(
                 spectralImagesToTrain, networkConfiguration.OutputCount);
 
@@ -76,10 +76,9 @@
                                 network, dataset, networkConfiguration.ActivationFunction);
                             callback(TrainingStatus.OutputReordering, correctOutputs, learner.Error, idynIndex * Edyn);
                             var bestPairs = GetBestPairsForReordering(
-                                numberOfTracks, network, spectralImagesToTrain, trainingSet);
+                                (int)System.Math.Pow(2, networkConfiguration.OutputCount), network, spectralImagesToTrain, trainingSet);
                             ReorderOutputsAccordingToBestPairs(bestPairs, trainingSet, dataset);
 
-                            // Edyn = 10
                             for (int edynIndex = 0; edynIndex < Edyn; edynIndex++)
                             {
                                 correctOutputs = networkPerformanceMeter.MeasurePerformance(
