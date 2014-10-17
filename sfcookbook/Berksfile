@@ -1,0 +1,6 @@
+source "https://supermarket.getchef.com"
+
+metadata
+
+cookbook 'cassandra', github: 'michaelklishin/cassandra-chef-cookbook.git', tag: '2.8.0'
+cookbook 'ntp'
