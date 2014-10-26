@@ -15,9 +15,5 @@
         float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload);
 
         float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord);
-
-        void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate);
-
-        void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate);
     }
 }
