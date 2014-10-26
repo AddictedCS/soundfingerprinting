@@ -2,8 +2,6 @@
 {
     using MongoDB.Bson;
 
-    using SoundFingerprinting.Data;
-
     public class Track
     {
         public ObjectId Id { get; set; }

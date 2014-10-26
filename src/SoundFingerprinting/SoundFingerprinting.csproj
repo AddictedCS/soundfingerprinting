@@ -49,13 +49,16 @@
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />
+    <Compile Include="DAO\ISpectralImageDao.cs" />
     <Compile Include="Data\IgnoreBindingAttribute.cs" />
+    <Compile Include="Data\SpectralImageData.cs" />
     <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
     <Compile Include="InMemory\FingerprintDao.cs" />
     <Compile Include="InMemory\HashBinDao.cs" />
     <Compile Include="InMemory\RAMStorage.cs" />
+    <Compile Include="InMemory\SpectralImageDao.cs" />
     <Compile Include="InMemory\SubFingerprintDao.cs" />
     <Compile Include="InMemory\TrackDao.cs" />
     <Compile Include="DAO\IHashBinDao.cs" />
@@ -96,6 +99,7 @@
     <Compile Include="FFT\FFTW\InteropFFTWFlags.cs" />
     <Compile Include="FFT\FFTW\InteropFFTWKind.cs" />
     <Compile Include="FFT\IFFTService.cs" />
+    <Compile Include="Utils\ArrayUtils.cs" />
     <Compile Include="Utils\FingerprintDescriptor.cs" />
     <Compile Include="IFingerprintService.cs" />
     <Compile Include="Configuration\IFingerprintConfiguration.cs" />
@@ -169,6 +173,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

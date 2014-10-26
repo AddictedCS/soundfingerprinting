@@ -66,6 +66,7 @@
     <Compile Include="Integration\AbstractIntegrationTest.cs" />
     <Compile Include="Integration\DAO\AbstractFingerprintDaoTest.cs" />
     <Compile Include="Integration\DAO\AbstractHashBinDaoTest.cs" />
+    <Compile Include="Integration\DAO\AbstractSpectralImageDaoTest.cs" />
     <Compile Include="Integration\InMemory\HashBinDaoTest.cs" />
     <Compile Include="Integration\InMemory\InMemoryModelServiceTest.cs" />
     <Compile Include="Integration\DAO\AbstractSubFingerprintDaoTest.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
     <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
+    <Compile Include="Unit\Utils\ArrayUtilsTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
     <Compile Include="Unit\FingerprintServiceTest.cs" />

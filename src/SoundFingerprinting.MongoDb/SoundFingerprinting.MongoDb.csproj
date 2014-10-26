@@ -51,6 +51,7 @@
     <Compile Include="DAO\MongoModelReference.cs" />
     <Compile Include="Entity\Fingerprint.cs" />
     <Compile Include="Entity\Hash.cs" />
+    <Compile Include="Entity\SpectralImage.cs" />
     <Compile Include="Entity\SubFingerprint.cs" />
     <Compile Include="Entity\Track.cs" />
     <Compile Include="FingerprintDao.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Infrastructure\MongoDbModuleLoader.cs" />
     <Compile Include="MongoDbModelService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpectralImageDao.cs" />
     <Compile Include="SubFingerprintDao.cs" />
     <Compile Include="TrackDao.cs" />
   </ItemGroup>

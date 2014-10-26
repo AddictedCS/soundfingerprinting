@@ -36,7 +36,12 @@
                     TrackLengthSec = trackData.TrackLengthSec
                 };
 
-            GetCollection<Track>(Tracks).Insert(track);
+            var result = GetCollection<Track>(Tracks).Insert(track);
+            if (!result.Ok)
+            {
+                return null;
+            }
+
             return trackData.TrackReference = new MongoModelReference(track.Id);
         }
 

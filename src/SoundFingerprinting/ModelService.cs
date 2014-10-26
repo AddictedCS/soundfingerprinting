@@ -16,12 +16,15 @@
 
         private readonly IFingerprintDao fingerprintDao;
 
-        protected ModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao)
+        private readonly ISpectralImageDao spectralImageDao;
+
+        protected ModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao, ISpectralImageDao spectralImageDao)
         {
             this.trackDao = trackDao;
             this.hashBinDao = hashBinDao;
             this.subFingerprintDao = subFingerprintDao;
             this.fingerprintDao = fingerprintDao;
+            this.spectralImageDao = spectralImageDao;
         }
 
         public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
@@ -34,6 +37,16 @@
         {
             return hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, threshold, trackGroupId)
                              .ToList();
+        }
+
+        public void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
+        {
+           spectralImageDao.InsertSpectralImages(spectralImages, trackReference); 
+        }
+
+        public List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference)
+        {
+            return spectralImageDao.GetSpectralImagesByTrackId(trackReference);
         }
 
         public IModelReference InsertFingerprint(FingerprintData fingerprint)

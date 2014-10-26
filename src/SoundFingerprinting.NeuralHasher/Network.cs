@@ -1,6 +1,8 @@
 ﻿namespace SoundFingerprinting.NeuralHasher
 {
     using System;
+    using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
@@ -8,63 +10,21 @@
     using Encog.Neural.Data.Basic;
     using Encog.Neural.Networks;
 
-    using SoundFingerprinting.Math;
-
-    /// <summary>
-    ///   Network - represent a collection of connected layers
-    /// </summary>
-    /// <remarks>
-    ///   The network can be saved or loaded, thus serializable
-    /// </remarks>
     [Serializable]
     public class Network : BasicNetwork
     {
+        public Network()
+        {
+            Info = new Dictionary<string, string> { { "Date Created", DateTime.Now.ToString(CultureInfo.InvariantCulture) } };
+        }
+
+        public Dictionary<string, string> Info { get; set; }
+        
         public double[] MedianResponces { get; protected set; }
 
-        /// <summary>
-        ///   Load network from specified file.
-        /// </summary>
-        /// <param name = "fileName">File name to load network from.</param>
-        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
-        /// <remarks>
-        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
-        /// </remarks>
-        public static Network Load(string fileName)
+        public void ComputeMedianResponses(double[][] inputs, int granularity)
         {
-            FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            Network network = Load(stream);
-            stream.Close();
-
-            return network;
-        }
-
-        /// <summary>
-        ///   Load network from specified file.
-        /// </summary>
-        /// <param name = "stream">Stream to load network from.</param>
-        /// <returns>Returns instance of <see cref = "Network" /> class with all properties initialized from file.</returns>
-        /// <remarks>
-        ///   <para>Neural network is loaded from file using .NET serialization (binary formater is used).</para>
-        /// </remarks>
-        public static Network Load(Stream stream)
-        {
-            IFormatter formatter = new BinaryFormatter();
-            Network network = (Network)formatter.Deserialize(stream);
-            return network;
-        }
-        
-        /// <summary>
-        ///   Compute median responses of the network
-        /// </summary>
-        /// <param name = "inputs">Inputs</param>
-        /// <param name = "granularity">Number of fingerprints per input</param>
-        /// <remarks>
-        ///   After propagation for each of the 10 network outputs, if the output was greater than the
-        ///   median response of that output (as ascertained from the training set) it was assigned +1, otherwise 0
-        /// </remarks>
-        public virtual void ComputeMedianResponses(double[][] inputs, int granularity)
-        {
-            int outputsCount = GetLayerNeuronCount(LayerCount - 1); /*10 - Output length*/
+            int outputsCount = GetLayerNeuronCount(LayerCount - 1); // 10 - Output length
             double[][] responses = new double[outputsCount][];
             int inputsLength = inputs.Length;
             for (int i = 0; i < granularity /*10 Fingerprints*/; i++)
@@ -85,32 +45,40 @@
 
             for (int i = 0; i < outputsCount /*10*/; i++)
             {
-                MedianResponces[i] = MathUtility.Median(responses[i]);
+                MedianResponces[i] = Median(responses[i]);
             }
         }
 
-        #region I/O Operations
-
-        /// <summary>
-        ///   Save network to specified file.
-        /// </summary>
-        /// <param name = "stream">Stream to save network into.</param>
-        /// <remarks>
-        ///   <para>The neural network is saved using .NET serialization (binary formatter is used).</para>
-        /// </remarks>
-        public virtual void Save(Stream stream)
+        public void Save(Stream stream)
         {
             IFormatter formatter = new BinaryFormatter();
             formatter.Serialize(stream, this);
         }
 
-        public virtual void Save(string fileName)
+        public void Save(string fileName)
         {
-            FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
-            Save(stream);
-            stream.Close();
+            using (FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                Save(stream);
+            }
         }
-        
-        #endregion
+
+        private double Median(double[] input)
+        {
+            Array.Sort(input);
+            double result;
+            int length = input.Length;
+            if (length % 2 == 0)
+            {
+                int middle = length / 2;
+                result = (input[middle] + input[middle - 1]) / 2;
+            }
+            else
+            {
+                result = input[length / 2];
+            }
+
+            return result;
+        }
     }
 }

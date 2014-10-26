@@ -30,5 +30,9 @@ namespace SoundFingerprinting
         IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold);
 
         IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId);
+
+        void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
+
+        List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference);
     }
 }

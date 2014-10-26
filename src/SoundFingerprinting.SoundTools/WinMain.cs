@@ -10,15 +10,19 @@ namespace SoundFingerprinting.SoundTools
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.MinHash.Permutations;
+    using SoundFingerprinting.MongoDb;
+    using SoundFingerprinting.NeuralHasher;
     using SoundFingerprinting.SoundTools.BassResampler;
     using SoundFingerprinting.SoundTools.DbFiller;
     using SoundFingerprinting.SoundTools.DrawningTool;
     using SoundFingerprinting.SoundTools.FFMpegResampler;
     using SoundFingerprinting.SoundTools.FilePermutations;
     using SoundFingerprinting.SoundTools.Misc;
+    using SoundFingerprinting.SoundTools.NeuralHasher;
     using SoundFingerprinting.SoundTools.PermutationGenerator;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.SoundTools.QueryDb;
+    using SoundFingerprinting.SoundTools.SpectralImagesCreator;
     using SoundFingerprinting.SoundTools.WaveletDecomposition;
     using SoundFingerprinting.SQL;
 
@@ -33,6 +37,8 @@ namespace SoundFingerprinting.SoundTools
         private readonly IPermutationGeneratorService permutationGeneratorService;
         private readonly ISpectrumService spectrumService;
         private readonly IImageService imageService;
+        private readonly INetworkTrainer networkTrainer;
+        private readonly IModelService mongoModelService; 
 
         public WinMain()
         {
@@ -47,6 +53,8 @@ namespace SoundFingerprinting.SoundTools
             permutationGeneratorService = new PermutationGeneratorService();
             spectrumService = new SpectrumService();
             imageService = new ImageService();
+            mongoModelService = new MongoDbModelService();
+            networkTrainer = new NetworkTrainer(mongoModelService);
         }
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
@@ -116,6 +124,18 @@ namespace SoundFingerprinting.SoundTools
         private void WaveletDecompositionToolStripMenuItemClick(object sender, EventArgs e)
         {
             WinHaarWavelet win = new WinHaarWavelet(imageService);
+            win.Show();
+        }
+
+        private void BtnInsertSpectralImagesClick(object sender, EventArgs e)
+        {
+            WinSpectralImagesCreator win = new WinSpectralImagesCreator(mongoModelService, fingerprintCommandBuilder, audioService, tagService);
+            win.Show();
+        }
+
+        private void BtnTrainNeuralNetworkClick(object sender, EventArgs e)
+        {
+            WinNeuralHasher win = new WinNeuralHasher(networkTrainer);
             win.Show();
         }
     }

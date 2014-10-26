@@ -79,6 +79,7 @@
     <Compile Include="ORM\ParameterBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ORM\Reader.cs" />
+    <Compile Include="SpectralImageDao.cs" />
     <Compile Include="SqlModelService.cs" />
     <Compile Include="SubFingerprintDao.cs" />
     <Compile Include="TrackDao.cs" />

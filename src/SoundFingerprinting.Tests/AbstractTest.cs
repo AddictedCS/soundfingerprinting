@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests
 {
+    using System;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Data;
@@ -57,6 +59,18 @@
             Assert.AreEqual(expectedTrack.TrackLengthSec, actualTrack.TrackLengthSec);
             Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
             Assert.AreEqual(expectedTrack.GroupId, actualTrack.GroupId);
+        }
+
+        protected void AssertArraysAreEqual<T1, T2>(T1[] expected, T2[] actual)
+            where T1 : IComparable
+            where T2 : IComparable
+        {
+            Assert.AreEqual(expected.Length, actual.Length);
+
+            for (int i = 0; i < expected.Length; i++)
+            {
+                Assert.IsTrue(expected[i].CompareTo(actual[i]) == 0);
+            }
         }
     }
 }

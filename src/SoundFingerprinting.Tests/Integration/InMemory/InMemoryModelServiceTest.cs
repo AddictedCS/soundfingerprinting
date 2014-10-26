@@ -16,7 +16,7 @@
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
             ModelService = new InMemoryModelService(
-                new TrackDao(ramStorage), new HashBinDao(ramStorage), new SubFingerprintDao(ramStorage), new FingerprintDao(ramStorage));
+                new TrackDao(ramStorage), new HashBinDao(ramStorage), new SubFingerprintDao(ramStorage), new FingerprintDao(ramStorage), new SpectralImageDao());
         }
     }
 }

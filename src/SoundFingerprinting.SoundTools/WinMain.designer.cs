@@ -45,8 +45,10 @@
             this.similarityCalculationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.waveletDecompositionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._gbMain = new System.Windows.Forms.GroupBox();
+            this.btnInsertSpectralImages = new System.Windows.Forms.Button();
             this._btnQueryDb = new System.Windows.Forms.Button();
             this._btnFillDatabase = new System.Windows.Forms.Button();
+            this.btnTrainNeuralNetwork = new System.Windows.Forms.Button();
             this._msMain.SuspendLayout();
             this._gbMain.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +61,7 @@
             this.toolsToolStripMenuItem});
             this._msMain.Location = new System.Drawing.Point(0, 0);
             this._msMain.Name = "_msMain";
-            this._msMain.Size = new System.Drawing.Size(246, 24);
+            this._msMain.Size = new System.Drawing.Size(253, 24);
             this._msMain.TabIndex = 0;
             this._msMain.Text = "menuStrip1";
             // 
@@ -181,18 +183,30 @@
             this._gbMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this._gbMain.Controls.Add(this.btnTrainNeuralNetwork);
+            this._gbMain.Controls.Add(this.btnInsertSpectralImages);
             this._gbMain.Controls.Add(this._btnQueryDb);
             this._gbMain.Controls.Add(this._btnFillDatabase);
             this._gbMain.Location = new System.Drawing.Point(12, 27);
             this._gbMain.Name = "_gbMain";
-            this._gbMain.Size = new System.Drawing.Size(222, 177);
+            this._gbMain.Size = new System.Drawing.Size(229, 192);
             this._gbMain.TabIndex = 1;
             this._gbMain.TabStop = false;
             this._gbMain.Text = "Main";
             // 
+            // btnInsertSpectralImages
+            // 
+            this.btnInsertSpectralImages.Location = new System.Drawing.Point(40, 77);
+            this.btnInsertSpectralImages.Name = "btnInsertSpectralImages";
+            this.btnInsertSpectralImages.Size = new System.Drawing.Size(145, 23);
+            this.btnInsertSpectralImages.TabIndex = 4;
+            this.btnInsertSpectralImages.Text = "Create Training Set";
+            this.btnInsertSpectralImages.UseVisualStyleBackColor = true;
+            this.btnInsertSpectralImages.Click += new System.EventHandler(this.BtnInsertSpectralImagesClick);
+            // 
             // _btnQueryDb
             // 
-            this._btnQueryDb.Location = new System.Drawing.Point(39, 87);
+            this._btnQueryDb.Location = new System.Drawing.Point(40, 48);
             this._btnQueryDb.Name = "_btnQueryDb";
             this._btnQueryDb.Size = new System.Drawing.Size(145, 23);
             this._btnQueryDb.TabIndex = 3;
@@ -202,19 +216,29 @@
             // 
             // _btnFillDatabase
             // 
-            this._btnFillDatabase.Location = new System.Drawing.Point(39, 58);
+            this._btnFillDatabase.Location = new System.Drawing.Point(39, 19);
             this._btnFillDatabase.Name = "_btnFillDatabase";
             this._btnFillDatabase.Size = new System.Drawing.Size(146, 23);
             this._btnFillDatabase.TabIndex = 0;
-            this._btnFillDatabase.Text = "Fill Database";
+            this._btnFillDatabase.Text = "Fill Database (LSH)";
             this._btnFillDatabase.UseVisualStyleBackColor = true;
             this._btnFillDatabase.Click += new System.EventHandler(this.BtnFillDatabaseClick);
+            // 
+            // btnTrainNeuralNetwork
+            // 
+            this.btnTrainNeuralNetwork.Location = new System.Drawing.Point(40, 107);
+            this.btnTrainNeuralNetwork.Name = "btnTrainNeuralNetwork";
+            this.btnTrainNeuralNetwork.Size = new System.Drawing.Size(145, 23);
+            this.btnTrainNeuralNetwork.TabIndex = 5;
+            this.btnTrainNeuralNetwork.Text = "Train Neural Nework";
+            this.btnTrainNeuralNetwork.UseVisualStyleBackColor = true;
+            this.btnTrainNeuralNetwork.Click += new System.EventHandler(this.BtnTrainNeuralNetworkClick);
             // 
             // WinMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(246, 216);
+            this.ClientSize = new System.Drawing.Size(253, 231);
             this.Controls.Add(this._gbMain);
             this.Controls.Add(this._msMain);
             this.MainMenuStrip = this._msMain;
@@ -250,6 +274,8 @@
         private System.Windows.Forms.ToolStripMenuItem bassResamplerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem similarityCalculationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem waveletDecompositionToolStripMenuItem;
+        private System.Windows.Forms.Button btnInsertSpectralImages;
+        private System.Windows.Forms.Button btnTrainNeuralNetwork;
     }
 }
 
