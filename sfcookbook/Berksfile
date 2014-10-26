@@ -2,5 +2,5 @@ source "https://supermarket.getchef.com"
 
 metadata
 
-cookbook 'cassandra', github: 'michaelklishin/cassandra-chef-cookbook.git', tag: '2.8.0'
-cookbook 'ntp'
+cookbook 'cassandra', github: 'AddictedCS/cassandra-chef-cookbook'
+cookbook 'chef-solo-search', github: 'edelight/chef-solo-search', tag: '0.5.1'
