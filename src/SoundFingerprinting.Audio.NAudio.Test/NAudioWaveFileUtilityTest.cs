@@ -5,7 +5,9 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Moq;
+    using Moq.Protected;
 
+    using global::NAudio.MediaFoundation;
     using global::NAudio.Wave;
 
     using SoundFingerprinting.Tests;
@@ -42,6 +44,24 @@
                 var readSamples = GetWrittenSamplesInStream(memoryStream, SongLengthInFloats);
                 AssertArraysAreEqual(samples, readSamples);
             }
+        }
+
+        [TestMethod]
+        public void TestRecodeFileToMonoWave()
+        {
+            Mock<WaveStream> waveStream = new Mock<WaveStream>(MockBehavior.Strict);
+            naudioFactory.Setup(factory => factory.GetStream("path-to-audio-file")).Returns(waveStream.Object);
+            const int Mono = 1;
+            WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Mono);
+            waveStream.Setup(stream => stream.WaveFormat).Returns(waveFormat);
+            waveStream.Setup(stream => stream.Close());
+            Mock<MediaFoundationTransform> resampler = new Mock<MediaFoundationTransform>(
+                MockBehavior.Strict, new object[] { waveStream.Object, waveFormat });
+            resampler.Protected().Setup("Dispose", new object[] { true });
+            naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, SampleRate, Mono)).Returns(resampler.Object);
+            naudioFactory.Setup(factory => factory.CreateWaveFile("path-to-recoded-file", resampler.Object));
+
+            waveFileUtility.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", SampleRate);
         }
 
         private float[] GetWrittenSamplesInStream(MemoryStream memoryStream, int length)

@@ -5,23 +5,34 @@ namespace SoundFingerprinting.Audio.NAudio
     public class NAudioWaveFileUtility : IWaveFileUtility
     {
         private const int Mono = 1;
-        private readonly INAudioFactory naudioFactory;
+        private readonly INAudioFactory factory;
 
         public NAudioWaveFileUtility() : this(DependencyResolver.Current.Get<INAudioFactory>())
         {
             // no op
         }
 
-        internal NAudioWaveFileUtility(INAudioFactory naudioFactory)
+        internal NAudioWaveFileUtility(INAudioFactory factory)
         {
-            this.naudioFactory = naudioFactory;
+            this.factory = factory;
         }
 
         public void WriteSamplesToFile(float[] samples, int sampleRate, string destination)
         {
-            using (var writer = naudioFactory.GetWriter(destination, sampleRate, Mono))
+            using (var writer = factory.GetWriter(destination, sampleRate, Mono))
             {
                 writer.WriteSamples(samples, 0, samples.Length);
+            }
+        }
+
+        public void RecodeFileToMonoWave(string source, string destination, int sampleRate)
+        {
+            using (var stream = factory.GetStream(source))
+            {
+                using (var resampler = factory.GetResampler(stream, sampleRate, Mono))
+                {
+                    factory.CreateWaveFile(destination, resampler);
+                }
             }
         }
     }
