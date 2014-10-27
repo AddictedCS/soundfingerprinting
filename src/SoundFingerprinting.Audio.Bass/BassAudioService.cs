@@ -12,7 +12,7 @@
     ///   Its purpose is to provide developers with powerful and efficient sample, stream (MP3, MP2, MP1, OGG, WAV, AIFF, custom generated, and more via add-ons), 
     ///   MOD music (XM, IT, S3M, MOD, MTM, UMX), MO3 music (MP3/OGG compressed MODs), and recording functions. 
     /// </remarks>
-    public class BassAudioService : IAudioService
+    public class BassAudioService : AudioService
     {
         private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", ".mp3", ".ogg", ".flac" };
 
@@ -32,7 +32,7 @@
             this.bassResampler = bassResampler;
         }
 
-        public IReadOnlyCollection<string> SupportedFormats
+        public override IReadOnlyCollection<string> SupportedFormats
         {
             get
             {
@@ -40,12 +40,7 @@
             }
         }
 
-        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate)
-        {
-            return ReadMonoSamplesFromFile(pathToSourceFile, sampleRate, 0, 0);
-        }
-
-        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
+        public override float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
             int stream = streamFactory.CreateStream(pathToSourceFile);
             return bassResampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));

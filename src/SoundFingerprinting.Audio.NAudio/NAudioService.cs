@@ -4,11 +4,11 @@
 
     using SoundFingerprinting.Infrastructure;
 
-    public class NAudioService : IAudioService
+    public class NAudioService : AudioService
     {
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
 
-        private readonly INAudioSourceReader reader;
+        private readonly INAudioSourceReader sourceReader;
 
         public NAudioService()
             : this(DependencyResolver.Current.Get<INAudioSourceReader>())
@@ -16,12 +16,12 @@
             // no op
         }
 
-        internal NAudioService(INAudioSourceReader reader)
+        internal NAudioService(INAudioSourceReader sourceReader)
         {
-            this.reader = reader;
+            this.sourceReader = sourceReader;
         }
 
-        public IReadOnlyCollection<string> SupportedFormats
+        public override IReadOnlyCollection<string> SupportedFormats
         {
             get
             {
@@ -29,14 +29,9 @@
             }
         }
 
-        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate)
+        public override float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
-            return ReadMonoSamplesFromFile(pathToSourceFile, sampleRate, seconds: 0, startAt: 0);
-        }
-
-        public float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
-        {
-            return reader.ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt);
+            return sourceReader.ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt);
         }
     }
 }

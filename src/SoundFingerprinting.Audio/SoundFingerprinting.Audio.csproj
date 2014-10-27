@@ -55,6 +55,7 @@
     <Compile Include="IPlayAudioFileService.cs" />
     <Compile Include="ISamplesAggregator.cs" />
     <Compile Include="ISamplesProvider.cs" />
+    <Compile Include="IStreamingUrlReader.cs" />
     <Compile Include="ITagService.cs" />
     <Compile Include="IWaveFileUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
