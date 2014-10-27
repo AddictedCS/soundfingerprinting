@@ -53,7 +53,7 @@
         {
             if (!IsStreamValid(stream))
             {
-                throw new BassAudioServiceException(proxy.GetLastError());
+                throw new BassException(proxy.GetLastError());
             }
         }
     }

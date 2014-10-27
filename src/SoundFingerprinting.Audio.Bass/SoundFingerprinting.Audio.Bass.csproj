@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BassAudioService.cs" />
-    <Compile Include="BassAudioServiceException.cs" />
     <Compile Include="BassConfigurationSection.cs" />
     <Compile Include="BassConstants.cs" />
     <Compile Include="BassMicrophoneRecordingService.cs" />

@@ -65,7 +65,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestCombineStreamsFailsDuringResample()
         {
             const int SourceStream = 100;
@@ -83,7 +83,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestSeekToSecondFailedBeforeResample()
         {
             const int SourceStream = 100;

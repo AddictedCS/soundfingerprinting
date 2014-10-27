@@ -42,7 +42,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestCreateStreamFailed()
         {
             proxy.Setup(p => p.CreateStream("path-to-audio-file", It.IsAny<BASSFlag>())).Returns(0);
@@ -64,7 +64,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestCreateMixerStreamFailed()
         {
             proxy.Setup(p => p.CreateMixerStream(5512, BassConstants.NumberOfChannels, It.IsAny<BASSFlag>())).Returns(0);
@@ -86,7 +86,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestCreateStreamFromUrlFailed()
         {
             proxy.Setup(p => p.CreateStreamFromUrl("url-to-streaming-resource", It.IsAny<BASSFlag>())).Returns(0);
@@ -109,7 +109,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassAudioServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestCreateStreamToMicrophoneFailed()
         {
             proxy.Setup(p => p.StartRecording(5512, BassConstants.NumberOfChannels, It.IsAny<BASSFlag>())).Returns(0);

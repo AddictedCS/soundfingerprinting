@@ -42,7 +42,7 @@
             {
                 if (!proxy.ChannelSetPosition(stream, startAtSecond))
                 {
-                    throw new BassAudioServiceException(proxy.GetLastError());
+                    throw new BassException(proxy.GetLastError());
                 }
             }
         }
@@ -51,7 +51,7 @@
         {
             if (!proxy.CombineMixerStreams(mixerStream, stream, BASSFlag.BASS_MIXER_FILTER))
             {
-                throw new BassAudioServiceException(proxy.GetLastError());
+                throw new BassException(proxy.GetLastError());
             }
         }
 

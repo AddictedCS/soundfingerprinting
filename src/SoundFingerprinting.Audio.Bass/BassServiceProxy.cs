@@ -261,8 +261,8 @@ namespace SoundFingerprinting.Audio.Bass
                 string executingPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
                 if (string.IsNullOrEmpty(executingPath))
                 {
-                    throw new BassAudioServiceException(
-                        "Executing path of the application is null or empty. Could not find folders with native dll libraries.");
+                    throw new BassException(
+                        "Executing path of the application is null or empty. Could not find folders with native DLL libraries.");
                 }
 
                 Uri uri = new Uri(executingPath);
@@ -273,17 +273,17 @@ namespace SoundFingerprinting.Audio.Bass
             {
                 if (!proxy.BassLoadMe(targetPath))
                 {
-                    throw new BassAudioServiceException("Could not load bass native libraries from the following path: " + targetPath);
+                    throw new BassException("Could not load bass native libraries from the following path: " + targetPath);
                 }
 
                 if (!proxy.BassMixLoadMe(targetPath))
                 {
-                    throw new BassAudioServiceException("Could not load bassmix library from the following path: " + targetPath);
+                    throw new BassException("Could not load bassmix library from the following path: " + targetPath);
                 }
 
                 if (!proxy.BassFxLoadMe(targetPath))
                 {
-                    throw new BassAudioServiceException("Could not load bassfx library from the following path: " + targetPath);
+                    throw new BassException("Could not load bassfx library from the following path: " + targetPath);
                 }
 
                 DummyCallToLoadBassLibraries();
@@ -303,7 +303,7 @@ namespace SoundFingerprinting.Audio.Bass
                     Trace.WriteLine("Failed to find a sound device on running machine. Playing audio files will not be supported. " + proxy.GetLastError(), "Warning");
                     if (!proxy.Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT | BASSInit.BASS_DEVICE_MONO))
                     {
-                        throw new BassAudioServiceException(proxy.GetLastError());
+                        throw new BassException(proxy.GetLastError());
                     }
                 }
             }
@@ -322,13 +322,13 @@ namespace SoundFingerprinting.Audio.Bass
                 /*Set filter for anti aliasing*/
                 if (!proxy.SetConfig(BASSConfig.BASS_CONFIG_MIXER_FILTER, 50))
                 {
-                    throw new BassAudioServiceException(proxy.GetLastError());
+                    throw new BassException(proxy.GetLastError());
                 }
 
                 /*Set floating parameters to be passed*/
                 if (!proxy.SetConfig(BASSConfig.BASS_CONFIG_FLOATDSP, true))
                 {
-                    throw new BassAudioServiceException(proxy.GetLastError());
+                    throw new BassException(proxy.GetLastError());
                 }
             }
 
