@@ -23,12 +23,13 @@
         private readonly IAudioService audioService;
         private readonly IWaveFileUtility waveFileUtility;
         private readonly ISoundCaptureService soundCaptureService;
+        private readonly IStreamingUrlReader streamingUrlReader;
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
         private List<string> fileList = new List<string>();
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
-        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IAudioService audioService, IWaveFileUtility waveFileUtility, ISoundCaptureService soundCaptureService)
+        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IAudioService audioService, IWaveFileUtility waveFileUtility, ISoundCaptureService soundCaptureService, IStreamingUrlReader streamingUrlReader)
         {
             this.queryCommandBuilder = queryCommandBuilder;
             this.tagService = tagService;
@@ -36,6 +37,7 @@
             this.audioService = audioService;
             this.waveFileUtility = waveFileUtility;
             this.soundCaptureService = soundCaptureService;
+            this.streamingUrlReader = streamingUrlReader;
 
             InitializeComponent();
 
@@ -223,7 +225,7 @@
             int seconds = (int)nudSecondsUrl.Value;
             string pathToFile = "url_" + DateTime.Now.Ticks + ".wav";
 
-            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoSamplesFromStreamingUrl(url, sampleRate, seconds))
+            Task<float[]>.Factory.StartNew(() => streamingUrlReader.ReadMonoSamples(url, sampleRate, seconds))
                 .ContinueWith(task =>
                     { 
                         float[] samples = task.Result;

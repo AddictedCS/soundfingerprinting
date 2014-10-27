@@ -17,9 +17,7 @@
         private static readonly IReadOnlyCollection<string> BaasSupportedFormats = new[] { ".wav", ".mp3", ".ogg", ".flac" };
 
         private readonly IBassServiceProxy proxy;
-
         private readonly IBassStreamFactory streamFactory;
-
         private readonly IBassResampler bassResampler;
 
         public BassAudioService()
@@ -51,12 +49,6 @@
         {
             int stream = streamFactory.CreateStream(pathToSourceFile);
             return bassResampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));
-        }
-
-        public float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload)
-        {
-            int stream = streamFactory.CreateStreamFromStreamingUrl(streamingUrl);
-            return bassResampler.Resample(stream, sampleRate, secondsToDownload, 0, mixerStream => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixerStream)));
         }
     }
 }

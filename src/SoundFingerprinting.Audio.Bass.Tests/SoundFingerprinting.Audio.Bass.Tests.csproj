@@ -67,6 +67,7 @@
     <Compile Include="Unit\BassResamplerTest.cs" />
     <Compile Include="Unit\BassSamplesProviderTest.cs" />
     <Compile Include="Unit\BassStreamFactoryTest.cs" />
+    <Compile Include="Unit\BassStreamingUrlReaderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.Audio.Bass\SoundFingerprinting.Audio.Bass.csproj">
