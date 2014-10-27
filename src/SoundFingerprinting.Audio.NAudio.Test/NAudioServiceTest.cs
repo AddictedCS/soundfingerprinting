@@ -36,14 +36,6 @@
         }
 
         [TestMethod]
-        public void TestIsRecordingSupported()
-        {
-            bool isSupported = naudioService.IsRecordingSupported;
-
-            Assert.IsTrue(isSupported);
-        }
-
-        [TestMethod]
         public void TestSupportedNAudioFormats()
         {
             var supportedFormats = naudioService.SupportedFormats.ToList();

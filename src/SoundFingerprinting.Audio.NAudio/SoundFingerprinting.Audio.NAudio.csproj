@@ -47,6 +47,7 @@
     <Compile Include="INAudioFactory.cs" />
     <Compile Include="Infrastructure\NAudioModuleLoader.cs" />
     <Compile Include="NAudioFactory.cs" />
+    <Compile Include="NAudioSoundCaptureService.cs" />
     <Compile Include="NAudioWaveFileUtility.cs" />
     <Compile Include="Play\INAudioPlayAudioFactory.cs" />
     <Compile Include="Play\NAudioPlayAudioFactory.cs" />
