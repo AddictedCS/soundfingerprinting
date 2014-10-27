@@ -2,25 +2,25 @@ namespace SoundFingerprinting.Audio.Bass
 {
     using SoundFingerprinting.Infrastructure;
 
-    public class BassMicrophoneRecordingService : IMicrophoneRecordingService
+    public class BassSoundCaptureService : ISoundCaptureService
     {
         private readonly IBassServiceProxy proxy;
         private readonly IBassStreamFactory streamFactory;
         private readonly IBassResampler bassResampler;
 
-        public BassMicrophoneRecordingService() : this(DependencyResolver.Current.Get<IBassServiceProxy>(), DependencyResolver.Current.Get<IBassStreamFactory>(), DependencyResolver.Current.Get<IBassResampler>())
+        public BassSoundCaptureService() : this(DependencyResolver.Current.Get<IBassServiceProxy>(), DependencyResolver.Current.Get<IBassStreamFactory>(), DependencyResolver.Current.Get<IBassResampler>())
         {
             // no op
         }
 
-        internal BassMicrophoneRecordingService(IBassServiceProxy proxy, IBassStreamFactory streamFactory, IBassResampler bassResampler)
+        internal BassSoundCaptureService(IBassServiceProxy proxy, IBassStreamFactory streamFactory, IBassResampler bassResampler)
         {
             this.proxy = proxy;
             this.streamFactory = streamFactory;
             this.bassResampler = bassResampler;
         }
 
-        public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
+        public float[] ReadMonoSamples(int sampleRate, int secondsToRecord)
         {
             if (!IsRecordingSupported())
             {

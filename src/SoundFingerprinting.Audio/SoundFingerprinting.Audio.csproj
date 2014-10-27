@@ -50,6 +50,7 @@
     <Compile Include="ContinuousStreamSamplesProvider.cs" />
     <Compile Include="IAudioSamplesNormalizer.cs" />
     <Compile Include="IAudioService.cs" />
+    <Compile Include="ISoundCaptureService.cs" />
     <Compile Include="Infrastructure\AudioModuleLoader.cs" />
     <Compile Include="IPlayAudioFileService.cs" />
     <Compile Include="ISamplesAggregator.cs" />

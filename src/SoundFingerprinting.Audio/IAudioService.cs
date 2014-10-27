@@ -12,9 +12,4 @@
 
         float[] ReadMonoSamplesFromStreamingUrl(string streamingUrl, int sampleRate, int secondsToDownload);
     }
-
-    public interface IMicrophoneRecordingService
-    {
-        float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord);
-    }
 }

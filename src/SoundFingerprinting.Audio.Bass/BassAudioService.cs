@@ -34,7 +34,6 @@
             this.bassResampler = bassResampler;
         }
 
-      
         public IReadOnlyCollection<string> SupportedFormats
         {
             get

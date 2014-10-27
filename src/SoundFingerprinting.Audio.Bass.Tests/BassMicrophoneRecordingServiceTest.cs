@@ -11,7 +11,7 @@
     [TestClass]
     public class BassMicrophoneRecordingServiceTest : AbstractTest
     {
-        private BassMicrophoneRecordingService microphoneRecordingService;
+        private BassSoundCaptureService soundCaptureService;
 
         private Mock<IBassServiceProxy> proxy;
         private Mock<IBassStreamFactory> streamFactory;
@@ -24,7 +24,7 @@
             streamFactory = new Mock<IBassStreamFactory>(MockBehavior.Strict);
             resampler = new Mock<IBassResampler>(MockBehavior.Strict);
 
-            microphoneRecordingService = new BassMicrophoneRecordingService(proxy.Object, streamFactory.Object, resampler.Object);
+            soundCaptureService = new BassSoundCaptureService(proxy.Object, streamFactory.Object, resampler.Object);
         }
 
         [TestCleanup]
@@ -42,7 +42,7 @@
             const int NoRecordingDevice = -1;
             proxy.Setup(p => p.GetRecordingDevice()).Returns(NoRecordingDevice);
 
-            microphoneRecordingService.ReadMonoSamplesFromMicrophone(SampleRate, 10);
+            soundCaptureService.ReadMonoSamples(SampleRate, 10);
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@
             streamFactory.Setup(f => f.CreateStreamFromMicrophone(SampleRate)).Returns(StreamId);
             resampler.Setup(r => r.Resample(StreamId, SampleRate, 30, 0, It.IsAny<Func<int, ISamplesProvider>>())).Returns(samplesToReturn);
 
-            var samples = microphoneRecordingService.ReadMonoSamplesFromMicrophone(SampleRate, 30);
+            var samples = soundCaptureService.ReadMonoSamples(SampleRate, 30);
 
             Assert.AreEqual(samplesToReturn, samples);
         }
