@@ -18,7 +18,6 @@
     public class NAudioServiceTest : AbstractTest
     {
         private readonly Mock<INAudioFactory> naudioFactory = new Mock<INAudioFactory>(MockBehavior.Strict);
-
         private readonly Mock<ISamplesAggregator> samplesAggregator = new Mock<ISamplesAggregator>(MockBehavior.Strict);
 
         private NAudioService naudioService;
@@ -96,22 +95,6 @@
             naudioFactory.Setup(factory => factory.CreateWaveFile("path-to-recoded-file", resampler.Object));
 
             naudioService.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", SampleRate);
-        }
-
-        [TestMethod]
-        public void TestReadFromMicrophone()
-        {
-            var waveInEvent = new Mock<WaveInEvent>(MockBehavior.Strict);
-            naudioFactory.Setup(factory => factory.GetWaveInEvent(SampleRate, 1)).Returns(waveInEvent.Object);
-            float[] samples = TestUtilities.GenerateRandomFloatArray(1024);
-            const int SecondsToRecord = 10;
-            samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), SecondsToRecord, SampleRate))
-                .Returns(samples);
-            waveInEvent.Protected().Setup("Dispose", new object[] { true });
-
-            float[] resultSamples = naudioService.ReadMonoSamplesFromMicrophone(SampleRate, SecondsToRecord);
-
-            Assert.AreSame(samples, resultSamples);
-        }
+        }       
     }
 }
