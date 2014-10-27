@@ -32,6 +32,7 @@
             bassAudioService = new BassAudioService();
             naudioAudioService = new NAudioService();
             modelService = new SqlModelService();
+            bassWaveFileUtility = new BassWaveFileUtility();
             fingerprintCommandBuilder = new FingerprintCommandBuilder();
             queryFingerprintService = new QueryFingerprintService();
         }
