@@ -48,6 +48,8 @@
         [TestMethod]
         public void TestReadMonoFromMicrophone()
         {
+            const int NoRecordingDevice = 10;
+            proxy.Setup(p => p.GetRecordingDevice()).Returns(NoRecordingDevice);
             const int StreamId = 100;
             float[] samplesToReturn = new float[1024];
             streamFactory.Setup(f => f.CreateStreamFromMicrophone(SampleRate)).Returns(StreamId);
