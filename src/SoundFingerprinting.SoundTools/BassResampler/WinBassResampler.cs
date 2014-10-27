@@ -9,10 +9,12 @@
 
     public partial class WinBassResampler : Form
     {
+        private readonly IWaveFileUtility waveFileUtility;
         private readonly IAudioService audioService;
 
-        public WinBassResampler(IAudioService audioService)
+        public WinBassResampler(IWaveFileUtility waveFileUtility, IAudioService audioService)
         {
+            this.waveFileUtility = waveFileUtility;
             this.audioService = audioService;
             InitializeComponent();
             Icon = Resources.Sound;
@@ -56,8 +58,10 @@
             {
                 Action action = () =>
                     {
-                        string pathToRecoded = Path.GetFullPath(sfd.FileName);
-                        audioService.RecodeFileToMonoWave(_tbPathToFile.Text, pathToRecoded, (int)_nudSampleRate.Value);
+                        string destination = Path.GetFullPath(sfd.FileName);
+                        float[] samples = audioService.ReadMonoSamplesFromFile(
+                            _tbPathToFile.Text, (int)_nudSampleRate.Value);
+                        waveFileUtility.WriteSamplesToFile(samples, (int)_nudSampleRate.Value, destination);
                     };
 
                 FadeControls(false);

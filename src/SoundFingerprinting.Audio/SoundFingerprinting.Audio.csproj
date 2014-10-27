@@ -55,6 +55,7 @@
     <Compile Include="ISamplesAggregator.cs" />
     <Compile Include="ISamplesProvider.cs" />
     <Compile Include="ITagService.cs" />
+    <Compile Include="IWaveFileUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SamplesAggregator.cs" />
     <Compile Include="SamplesConverter.cs" />

@@ -13,10 +13,12 @@
     public class BassAudioServiceTest : AbstractIntegrationTest
     {
         private readonly BassAudioService bassAudioService;
+        private readonly BassWaveFileUtility bassWaveFileUtility;
 
         public BassAudioServiceTest()
         {
             bassAudioService = new BassAudioService();
+            bassWaveFileUtility = new BassWaveFileUtility();
         }
 
         [TestMethod]
@@ -61,8 +63,8 @@
         public void ReadMonoFromFileTest()
         {
             string tempFile = string.Format(@"{0}{1}", Path.GetTempPath(), "0.wav");
-            bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, SampleRate);
             float[] samples = bassAudioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate);
+            bassWaveFileUtility.WriteSamplesToFile(samples, SampleRate, tempFile);
             FileInfo info = new FileInfo(tempFile);
             long expectedSize = info.Length - WaveHeader;
             long actualSize = samples.Length * (BitsPerSample / 8);

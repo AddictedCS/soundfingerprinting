@@ -61,6 +61,7 @@
     <Compile Include="BassServiceProxy.cs" />
     <Compile Include="BassStreamFactory.cs" />
     <Compile Include="BassTagService.cs" />
+    <Compile Include="BassWaveFileUtility.cs" />
     <Compile Include="IBassResampler.cs" />
     <Compile Include="IBassServiceProxy.cs" />
     <Compile Include="IBassStreamFactory.cs" />

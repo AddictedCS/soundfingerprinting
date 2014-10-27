@@ -4,8 +4,6 @@
 
     using SoundFingerprinting.Infrastructure;
 
-    using Un4seen.Bass.Misc;
-
     /// <summary>
     ///   Bass Audio Service
     /// </summary>
@@ -73,20 +71,6 @@
         {
             int stream = streamFactory.CreateStreamFromMicrophone(sampleRate);
             return bassResampler.Resample(stream, sampleRate, secondsToRecord, 0, mixerStream => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixerStream)));
-        }
-
-        public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
-        {
-            float[] samples = ReadMonoSamplesFromFile(pathToFile, sampleRate);
-            WriteSamplesToWaveFile(pathToRecodedFile, samples, sampleRate);
-        }
-
-        public void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
-        {
-            const int BitsPerSample = 4 * 8;
-            var waveWriter = new WaveWriter(pathToFile, BassConstants.NumberOfChannels, sampleRate, BitsPerSample, true);
-            waveWriter.Write(samples, samples.Length * 4);
-            waveWriter.Close();
         }
     }
 }

@@ -21,16 +21,19 @@
         private readonly ITagService tagService;
         private readonly IModelService modelService;
         private readonly IAudioService audioService;
+        private readonly IWaveFileUtility waveFileUtility;
+
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
         private List<string> fileList = new List<string>();
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
-        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IAudioService audioService)
+        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IAudioService audioService, IWaveFileUtility waveFileUtility)
         {
             this.queryCommandBuilder = queryCommandBuilder;
             this.tagService = tagService;
             this.modelService = modelService;
             this.audioService = audioService;
+            this.waveFileUtility = waveFileUtility;
 
             InitializeComponent();
 
@@ -185,7 +188,7 @@
                 task =>
                     {
                         var samples = task.Result;
-                        audioService.WriteSamplesToWaveFile(pathToFile, samples, sampleRate);
+                        waveFileUtility.WriteSamplesToFile(samples, sampleRate, pathToFile);
 
                         _gbQueryMicrophoneBox.Enabled = true;
                         WinQueryResults winQueryResults = new WinQueryResults(
@@ -222,8 +225,7 @@
                 .ContinueWith(task =>
                     { 
                         float[] samples = task.Result;
-                       
-                        audioService.WriteSamplesToWaveFile(pathToFile, samples, sampleRate);    
+                        waveFileUtility.WriteSamplesToFile(samples, sampleRate, pathToFile);
                     });
         }
     }

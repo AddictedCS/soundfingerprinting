@@ -22,6 +22,7 @@
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         private readonly BassAudioService bassAudioService;
+        private readonly BassWaveFileUtility bassWaveFileUtility;
         private readonly NAudioService naudioAudioService;
 
         private TransactionScope transactionPerTestScope;
@@ -189,7 +190,7 @@
         public void CheckFingerprintCreationAlgorithmTest()
         {
             string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
-            bassAudioService.RecodeFileToMonoWave(PathToMp3, tempFile, 5512);
+            RecodeFileToWaveFile(tempFile);
             long fileSize = new FileInfo(tempFile).Length;
 
             var list = fingerprintCommandBuilder.BuildFingerprintCommand()
@@ -203,7 +204,7 @@
             Assert.AreEqual(expected, list.Count);
             File.Delete(tempFile);
         }
-
+        
         [TestMethod]
         public void CreateFingerprintsWithTheSameFingerprintCommandTest()
         {
@@ -236,6 +237,12 @@
                                                 .Hash()
                                                 .Result;
             Assert.AreEqual(1, hash.Count);
+        }
+
+        private void RecodeFileToWaveFile(string tempFile)
+        {
+            float[] samples = bassAudioService.ReadMonoSamplesFromFile(PathToMp3, 5512);
+            bassWaveFileUtility.WriteSamplesToFile(samples, 5512, tempFile);
         }
     }
 }

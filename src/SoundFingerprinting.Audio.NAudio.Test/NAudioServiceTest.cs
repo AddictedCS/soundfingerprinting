@@ -99,27 +99,6 @@
         }
 
         [TestMethod]
-        public void TestWriteSamplesToWaveFile()
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                const int Mono = 1;
-                Mock<WaveFileWriter> writer = new Mock<WaveFileWriter>(
-                    MockBehavior.Strict, memoryStream, WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Mono));
-                naudioFactory.Setup(factory => factory.GetWriter("path-to-audio-file", SampleRate, Mono)).Returns(
-                    writer.Object);
-                const int SongLengthInFloats = 16;
-                float[] samples = TestUtilities.GenerateRandomFloatArray(SongLengthInFloats);
-                writer.Setup(w => w.Close());
-
-                naudioService.WriteSamplesToWaveFile("path-to-audio-file", samples, SampleRate);
-
-                var readSamples = GetWrittenSamplesInStream(memoryStream, SongLengthInFloats);
-                AssertArraysAreEqual(samples, readSamples);
-            }
-        }
-
-        [TestMethod]
         public void TestReadFromMicrophone()
         {
             var waveInEvent = new Mock<WaveInEvent>(MockBehavior.Strict);
@@ -133,24 +112,6 @@
             float[] resultSamples = naudioService.ReadMonoSamplesFromMicrophone(SampleRate, SecondsToRecord);
 
             Assert.AreSame(samples, resultSamples);
-        }
-
-        private float[] GetWrittenSamplesInStream(MemoryStream memoryStream, int length)
-        {
-            const int WaveHeaderLength = 58;
-            memoryStream.Seek(WaveHeaderLength, SeekOrigin.Begin);
-            const int BytesInFloat = 4;
-            byte[] buffer = new byte[length * BytesInFloat];
-            memoryStream.Read(buffer, 0, length * BytesInFloat);
-            return SamplesConverter.GetFloatSamplesFromByte(length * BytesInFloat, buffer);
-        }
-
-        private void AssertArraysAreEqual(float[] samples, float[] readSamples)
-        {
-            for (int i = 0; i < samples.Length; i++)
-            {
-                Assert.AreEqual(samples[i], readSamples[i]);
-            }
         }
     }
 }

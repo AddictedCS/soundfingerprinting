@@ -90,15 +90,7 @@
 
             return samples;
         }
-
-        public void WriteSamplesToWaveFile(string pathToFile, float[] samples, int sampleRate)
-        {
-            using (var writer = naudioFactory.GetWriter(pathToFile, sampleRate, Mono))
-            {
-                writer.WriteSamples(samples, 0, samples.Length);
-            }
-        }
-
+      
         public void RecodeFileToMonoWave(string pathToFile, string pathToRecodedFile, int sampleRate)
         {
             using (var stream = naudioFactory.GetStream(pathToFile))

@@ -61,6 +61,7 @@
     <Compile Include="BlockingQueueSamplesProviderTest.cs" />
     <Compile Include="NAudioSamplesProviderAdapterTest.cs" />
     <Compile Include="NAudioServiceTest.cs" />
+    <Compile Include="NAudioWaveFileUtilityTest.cs" />
     <Compile Include="Play\NAudioPlayAudioFileServiceTest.cs" />
     <Compile Include="Play\TestWaveStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

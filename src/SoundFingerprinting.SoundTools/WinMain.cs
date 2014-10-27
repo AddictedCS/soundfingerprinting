@@ -38,7 +38,8 @@ namespace SoundFingerprinting.SoundTools
         private readonly ISpectrumService spectrumService;
         private readonly IImageService imageService;
         private readonly INetworkTrainer networkTrainer;
-        private readonly IModelService mongoModelService; 
+        private readonly IModelService mongoModelService;
+        private readonly IWaveFileUtility waveFileUtility;
 
         public WinMain()
         {
@@ -55,6 +56,7 @@ namespace SoundFingerprinting.SoundTools
             imageService = new ImageService();
             mongoModelService = new MongoDbModelService();
             networkTrainer = new NetworkTrainer(mongoModelService);
+            waveFileUtility = new BassWaveFileUtility();
         }
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
@@ -76,7 +78,7 @@ namespace SoundFingerprinting.SoundTools
         private void QueryDatabaseToolStripClick(object sender, EventArgs e)
         {
             WinCheckHashBins queryDatabase = new WinCheckHashBins(
-                queryCommandBuilder, tagService, modelService, audioService);
+                queryCommandBuilder, tagService, modelService, audioService, waveFileUtility);
             queryDatabase.Show();
         }
 
@@ -111,7 +113,7 @@ namespace SoundFingerprinting.SoundTools
 
         private void BassResamplerToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinBassResampler win = new WinBassResampler(audioService);
+            WinBassResampler win = new WinBassResampler(waveFileUtility, audioService);
             win.Show();
         }
 
