@@ -22,18 +22,20 @@
         private readonly IModelService modelService;
         private readonly IAudioService audioService;
         private readonly IWaveFileUtility waveFileUtility;
+        private readonly IMicrophoneRecordingService microphoneRecordingService;
 
         private readonly List<string> filters = new List<string>(new[] { "*.mp3", "*.wav", "*.ogg", "*.flac" });
         private List<string> fileList = new List<string>();
         private HashAlgorithm hashAlgorithm = HashAlgorithm.LSH;
 
-        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IAudioService audioService, IWaveFileUtility waveFileUtility)
+        public WinCheckHashBins(IQueryCommandBuilder queryCommandBuilder, ITagService tagService, IModelService modelService, IAudioService audioService, IWaveFileUtility waveFileUtility, IMicrophoneRecordingService microphoneRecordingService)
         {
             this.queryCommandBuilder = queryCommandBuilder;
             this.tagService = tagService;
             this.modelService = modelService;
             this.audioService = audioService;
             this.waveFileUtility = waveFileUtility;
+            this.microphoneRecordingService = microphoneRecordingService;
 
             InitializeComponent();
 
@@ -63,7 +65,7 @@
                     break;
             }
 
-            _gbQueryMicrophoneBox.Enabled = audioService.IsRecordingSupported;
+            _gbQueryMicrophoneBox.Enabled = true;
         }
 
         private void AddConnectionStringsToComboBox()
@@ -184,7 +186,7 @@
             int sampleRate = (int)_nudSampleRate.Value;
             string pathToFile = "mic_" + DateTime.Now.Ticks + ".wav";
             _gbQueryMicrophoneBox.Enabled = false;
-            Task<float[]>.Factory.StartNew(() => audioService.ReadMonoSamplesFromMicrophone(sampleRate, secondsToRecord)).ContinueWith(
+            Task<float[]>.Factory.StartNew(() => microphoneRecordingService.ReadMonoSamplesFromMicrophone(sampleRate, secondsToRecord)).ContinueWith(
                 task =>
                     {
                         var samples = task.Result;

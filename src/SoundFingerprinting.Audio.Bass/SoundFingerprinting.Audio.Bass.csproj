@@ -54,8 +54,9 @@
     <Compile Include="BassAudioServiceException.cs" />
     <Compile Include="BassConfigurationSection.cs" />
     <Compile Include="BassConstants.cs" />
+    <Compile Include="BassMicrophoneRecordingService.cs" />
     <Compile Include="BassPlayAudioFileService.cs" />
-    <Compile Include="BassPlayAudioFileServiceException.cs" />
+    <Compile Include="BassException.cs" />
     <Compile Include="BassResampler.cs" />
     <Compile Include="BassSamplesProvider.cs" />
     <Compile Include="BassServiceProxy.cs" />

@@ -34,14 +34,7 @@
             this.bassResampler = bassResampler;
         }
 
-        public bool IsRecordingSupported
-        {
-            get
-            {
-                return proxy.GetRecordingDevice() != -1;
-            }
-        }
-
+      
         public IReadOnlyCollection<string> SupportedFormats
         {
             get
@@ -65,12 +58,6 @@
         {
             int stream = streamFactory.CreateStreamFromStreamingUrl(streamingUrl);
             return bassResampler.Resample(stream, sampleRate, secondsToDownload, 0, mixerStream => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixerStream)));
-        }
-
-        public float[] ReadMonoSamplesFromMicrophone(int sampleRate, int secondsToRecord)
-        {
-            int stream = streamFactory.CreateStreamFromMicrophone(sampleRate);
-            return bassResampler.Resample(stream, sampleRate, secondsToRecord, 0, mixerStream => new ContinuousStreamSamplesProvider(new BassSamplesProvider(proxy, mixerStream)));
         }
     }
 }

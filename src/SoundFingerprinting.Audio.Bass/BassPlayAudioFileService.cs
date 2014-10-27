@@ -24,12 +24,12 @@
 
             if (stream == 0)
             {
-                throw new BassPlayAudioFileServiceException(proxy.GetLastError());
+                throw new BassException(proxy.GetLastError());
             }
 
             if (!proxy.StartPlaying(stream))
             {
-                throw new BassPlayAudioFileServiceException(proxy.GetLastError());
+                throw new BassException(proxy.GetLastError());
             }
 
             return stream;

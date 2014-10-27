@@ -40,6 +40,7 @@ namespace SoundFingerprinting.SoundTools
         private readonly INetworkTrainer networkTrainer;
         private readonly IModelService mongoModelService;
         private readonly IWaveFileUtility waveFileUtility;
+        private readonly IMicrophoneRecordingService microphoneRecordingService;
 
         public WinMain()
         {
@@ -57,6 +58,7 @@ namespace SoundFingerprinting.SoundTools
             mongoModelService = new MongoDbModelService();
             networkTrainer = new NetworkTrainer(mongoModelService);
             waveFileUtility = new BassWaveFileUtility();
+            microphoneRecordingService = new BassMicrophoneRecordingService();
         }
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
@@ -78,7 +80,7 @@ namespace SoundFingerprinting.SoundTools
         private void QueryDatabaseToolStripClick(object sender, EventArgs e)
         {
             WinCheckHashBins queryDatabase = new WinCheckHashBins(
-                queryCommandBuilder, tagService, modelService, audioService, waveFileUtility);
+                queryCommandBuilder, tagService, modelService, audioService, waveFileUtility, microphoneRecordingService);
             queryDatabase.Show();
         }
 

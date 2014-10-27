@@ -58,6 +58,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="BassMicrophoneRecordingServiceTest.cs" />
     <Compile Include="Integration\BassAudioServiceTest.cs" />
     <Compile Include="Integration\BassTagServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -53,7 +53,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassPlayAudioFileServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestPlayFileFailsWithExceptionNoStreamCreated()
         {
             proxy.Setup(p => p.CreateStream(It.IsAny<string>(), It.IsAny<BASSFlag>())).Returns(0);
@@ -63,7 +63,7 @@
         }
 
         [TestMethod]
-        [ExpectedException(typeof(BassPlayAudioFileServiceException))]
+        [ExpectedException(typeof(BassException))]
         public void TestCouldNotStartPlayingTheFile()
         {
             proxy.Setup(p => p.CreateStream(It.IsAny<string>(), It.IsAny<BASSFlag>())).Returns(1);

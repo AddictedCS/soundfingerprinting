@@ -14,11 +14,9 @@
     public class BassAudioServiceTest : AbstractTest
     {
         private IAudioService audioService;
-
+       
         private Mock<IBassServiceProxy> proxy;
-
         private Mock<IBassStreamFactory> streamFactory;
-
         private Mock<IBassResampler> resampler;
 
         [TestInitialize]
@@ -37,17 +35,6 @@
             proxy.VerifyAll();
             streamFactory.VerifyAll();
             resampler.VerifyAll();
-        }
-
-        [TestMethod]
-        public void TestGetRecordingDevice()
-        {
-            const int RecordingDevice = 123;
-            proxy.Setup(p => p.GetRecordingDevice()).Returns(RecordingDevice);
-
-            bool isSupported = audioService.IsRecordingSupported;
-
-            Assert.IsTrue(isSupported);
         }
 
         [TestMethod]
@@ -86,19 +73,6 @@
             resampler.Setup(r => r.Resample(StreamId, SampleRate, 30, 0, It.IsAny<Func<int, ISamplesProvider>>())).Returns(samplesToReturn);
 
             var samples = audioService.ReadMonoSamplesFromStreamingUrl("url-to-streaming-resource", SampleRate, 30);
-
-            Assert.AreEqual(samplesToReturn, samples);
-        }
-
-        [TestMethod]
-        public void TestReadMonoFromMicrophone()
-        {
-            const int StreamId = 100;
-            float[] samplesToReturn = new float[1024];
-            streamFactory.Setup(f => f.CreateStreamFromMicrophone(SampleRate)).Returns(StreamId);
-            resampler.Setup(r => r.Resample(StreamId, SampleRate, 30, 0, It.IsAny<Func<int, ISamplesProvider>>())).Returns(samplesToReturn);
-
-            var samples = audioService.ReadMonoSamplesFromMicrophone(SampleRate, 30);
 
             Assert.AreEqual(samplesToReturn, samples);
         }
