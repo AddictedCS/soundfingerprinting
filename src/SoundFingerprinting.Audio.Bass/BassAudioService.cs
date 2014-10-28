@@ -18,18 +18,18 @@
 
         private readonly IBassServiceProxy proxy;
         private readonly IBassStreamFactory streamFactory;
-        private readonly IBassResampler bassResampler;
+        private readonly IBassResampler resampler;
 
         public BassAudioService()
             : this(DependencyResolver.Current.Get<IBassServiceProxy>(), DependencyResolver.Current.Get<IBassStreamFactory>(), DependencyResolver.Current.Get<IBassResampler>())
         {
         }
 
-        internal BassAudioService(IBassServiceProxy proxy, IBassStreamFactory streamFactory, IBassResampler bassResampler)
+        internal BassAudioService(IBassServiceProxy proxy, IBassStreamFactory streamFactory, IBassResampler resampler)
         {
             this.proxy = proxy;
             this.streamFactory = streamFactory;
-            this.bassResampler = bassResampler;
+            this.resampler = resampler;
         }
 
         public override IReadOnlyCollection<string> SupportedFormats
@@ -43,7 +43,7 @@
         public override float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
             int stream = streamFactory.CreateStream(pathToSourceFile);
-            return bassResampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));
+            return resampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));
         }
     }
 }

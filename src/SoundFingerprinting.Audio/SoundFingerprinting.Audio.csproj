@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioSamplesNormalizer.cs" />
+    <Compile Include="AudioService.cs" />
     <Compile Include="AudioServiceException.cs" />
     <Compile Include="ContinuousStreamSamplesProvider.cs" />
     <Compile Include="IAudioSamplesNormalizer.cs" />
