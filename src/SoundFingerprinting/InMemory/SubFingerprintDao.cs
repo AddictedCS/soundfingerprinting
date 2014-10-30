@@ -34,10 +34,10 @@
             return null;
         }
 
-        public IModelReference InsertSubFingerprint(byte[] signature, IModelReference trackReference)
+        public IModelReference InsertSubFingerprint(byte[] signature, int sequenceNumber, IModelReference trackReference)
         {
             var subFingerprintReference = new ModelReference<long>(Interlocked.Increment(ref counter));
-            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(signature, subFingerprintReference, trackReference);
+            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(signature, sequenceNumber, subFingerprintReference, trackReference);
             if (!storage.TracksHashes.ContainsKey(trackReference))
             {
                 storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashData>();

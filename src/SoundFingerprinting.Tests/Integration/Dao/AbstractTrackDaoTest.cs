@@ -187,9 +187,10 @@
                 .Result;
 
             var subFingerprintReferences = new List<IModelReference>();
+            int counter = 1;
             foreach (var hash in hashData)
             {
-                var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, trackReference);
+                var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, counter++, trackReference);
                 HashBinDao.InsertHashBins(hash.HashBins, subFingerprintReference, trackReference);
                 subFingerprintReferences.Add(subFingerprintReference);
             }

@@ -25,15 +25,15 @@
         {
             return GetCollection<SubFingerprint>(SubFingerprints).AsQueryable()
                              .Where(s => s.Id.Equals(subFingerprintReference.Id))
-                             .Select(s => new SubFingerprintData(s.Signature, new MongoModelReference(s.Id), new MongoModelReference(s.TrackId)))
+                             .Select(s => new SubFingerprintData(s.Signature, s.SequenceNumber, new MongoModelReference(s.Id), new MongoModelReference(s.TrackId)))
                              .FirstOrDefault();
         }
 
-        public IModelReference InsertSubFingerprint(byte[] signature, IModelReference trackReference)
+        public IModelReference InsertSubFingerprint(byte[] signature, int sequenceNumber, IModelReference trackReference)
         {
             var subFingerprint = new SubFingerprint
                 { 
-                    Signature = signature, TrackId = (ObjectId)trackReference.Id 
+                    Signature = signature, TrackId = (ObjectId)trackReference.Id, SequenceNumber = sequenceNumber
                 };
             GetCollection<SubFingerprint>(SubFingerprints).Insert(subFingerprint);
             return new MongoModelReference(subFingerprint.Id);

@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Transactions;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -87,6 +88,7 @@
                                         .Result;
 
             Assert.AreEqual(fingerprints.Count, hashDatas.Count);
+            Assert.AreEqual(hashDatas.Count, hashDatas.Select(h => h.SequenceNumber).Distinct().Count());
         }
 
         [TestMethod]

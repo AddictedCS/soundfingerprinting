@@ -85,6 +85,7 @@
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
+    <Compile Include="Unit\LCS\AudioSequencesAnalyzerTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\MinHash\CachedPermutationsTest.cs" />
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />

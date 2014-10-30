@@ -39,7 +39,7 @@
         protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
         {
             Assert.IsNotNull(modelReference);
-            Assert.IsFalse(modelReference.GetHashCode() == 0);
+            Assert.IsTrue(modelReference.GetHashCode() != 0);
         }
 
         private List<HashData> SortHashesByFirstValueOfHashBin(IEnumerable<HashData> hashDatasFromFile)

@@ -18,7 +18,7 @@
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = TrackDao.InsertTrack(track);
             
-            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, trackReference);
+            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, 123, trackReference);
 
             AssertModelReferenceIsInitialized(subFingerprintReference);
         }
@@ -28,11 +28,11 @@
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = TrackDao.InsertTrack(track);
-            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, trackReference);
+            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, 123, trackReference);
 
             SubFingerprintData actual = SubFingerprintDao.ReadSubFingerprint(subFingerprintReference);
 
-            AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericSignature, subFingerprintReference, trackReference), actual);
+            AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericSignature, 123, subFingerprintReference, trackReference), actual);
         }
 
         private void AsserSubFingerprintsAreEqual(SubFingerprintData expected, SubFingerprintData actual)
@@ -43,6 +43,8 @@
             {
                 Assert.AreEqual(expected.Signature[i], actual.Signature[i]);
             }
+
+            Assert.AreEqual(expected.SequenceNumber, actual.SequenceNumber);
         }
     }
 }

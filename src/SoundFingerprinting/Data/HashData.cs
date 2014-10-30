@@ -16,8 +16,16 @@
             HashBins = hashBins;
         }
 
+        public HashData(byte[] subFingerprint, long[] hashBins, int sequenceNumber)
+            : this(subFingerprint, hashBins)
+        {
+            SequenceNumber = sequenceNumber;
+        }
+
         public byte[] SubFingerprint { get; set; }
 
         public long[] HashBins { get; set; }
+
+        public int SequenceNumber { get; set; }
     }
 }

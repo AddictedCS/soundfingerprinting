@@ -39,6 +39,7 @@ CREATE TABLE SubFingerprints
 	Id BIGINT IDENTITY(1, 1) NOT NULL,
 	Signature VARBINARY(100) NOT NULL,
 	TrackId INT NOT NULL,
+	SequenceNumber INT NOT NULL,
 	CONSTRAINT PK_SubFingerprintsId PRIMARY KEY(Id),
 	CONSTRAINT FK_SubFingerprints_Tracks FOREIGN KEY (TrackId) REFERENCES dbo.Tracks(Id)
 )
@@ -291,16 +292,18 @@ IF OBJECT_ID('sp_InsertSubFingerprint','P') IS NOT NULL
 GO
 CREATE PROCEDURE sp_InsertSubFingerprint
 	@Signature VARBINARY(100),
-	@TrackId INT
+	@TrackId INT,
+	@SequenceNumber INT
 AS
 BEGIN
 INSERT INTO SubFingerprints (
 	Signature,
-	TrackId
+	TrackId,
+	SequenceNumber
 	) OUTPUT inserted.Id
 VALUES
 (
-	@Signature, @TrackId
+	@Signature, @TrackId, @SequenceNumber
 );
 END
 GO
@@ -378,7 +381,7 @@ CREATE PROCEDURE sp_ReadFingerprintsByHashBinHashTableAndThreshold
 	@HashBin_21 BIGINT, @HashBin_22 BIGINT, @HashBin_23 BIGINT, @HashBin_24 BIGINT, @HashBin_25 BIGINT,
 	@Threshold INT
 AS
-SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature
+SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature, SubFingerprints.SequenceNumber
 FROM SubFingerprints, 
 	( SELECT Hashes.SubFingerprintId as SubFingerprintId FROM 
 	   (
@@ -448,7 +451,7 @@ CREATE PROCEDURE sp_ReadSubFingerprintsByHashBinHashTableAndThresholdWithGroupId
 	@HashBin_21 BIGINT, @HashBin_22 BIGINT, @HashBin_23 BIGINT, @HashBin_24 BIGINT, @HashBin_25 BIGINT,
 	@Threshold INT, @GroupId VARCHAR(20)
 AS
-SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature
+SELECT SubFingerprints.Id, SubFingerprints.TrackId, SubFingerprints.Signature, SubFingerprints.SequenceNumber
 FROM SubFingerprints INNER JOIN
 	( SELECT Hashes.SubFingerprintId as SubFingerprintId FROM 
 	   (
@@ -514,7 +517,7 @@ CREATE PROCEDURE sp_ReadHashDataByTrackId
 	@TrackId INT
 AS
 BEGIN
-SELECT SubFingerprints.Signature as Signature, HashTable_1.SubFingerprintId as SubFingerprintId, HashTable_1.HashBin as HashBin_1, HashTable_2.HashBin as HashBin_2, HashTable_3.HashBin as HashBin_3, HashTable_4.HashBin as HashBin_4, HashTable_5.HashBin as HashBin_5,
+SELECT SubFingerprints.Signature as Signature, SubFingerprints.SequenceNumber as SequenceNumber, HashTable_1.SubFingerprintId as SubFingerprintId, HashTable_1.HashBin as HashBin_1, HashTable_2.HashBin as HashBin_2, HashTable_3.HashBin as HashBin_3, HashTable_4.HashBin as HashBin_4, HashTable_5.HashBin as HashBin_5,
        HashTable_6.HashBin as HashBin_6, HashTable_7.HashBin as HashBin_7, HashTable_8.HashBin as HashBin_8, HashTable_9.HashBin as HashBin_9, HashTable_10.HashBin as HashBin_10,
        HashTable_11.HashBin as HashBin_11, HashTable_12.HashBin as HashBin_12, HashTable_13.HashBin as HashBin_13, HashTable_14.HashBin as HashBin_14, HashTable_15.HashBin as HashBin_15,
        HashTable_16.HashBin as HashBin_16, HashTable_17.HashBin as HashBin_17, HashTable_18.HashBin as HashBin_18, HashTable_19.HashBin as HashBin_19, HashTable_20.HashBin as HashBin_20,

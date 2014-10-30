@@ -162,9 +162,10 @@
 
         private void InsertHashDataForTrack(IEnumerable<HashData> hashData, IModelReference trackReference)
         {
+            int counter = 1;
             foreach (var hash in hashData)
             {
-                var subFingerprintId = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, trackReference);
+                var subFingerprintId = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, counter++, trackReference);
                 HashBinDao.InsertHashBins(hash.HashBins, subFingerprintId, trackReference);
             }
         }

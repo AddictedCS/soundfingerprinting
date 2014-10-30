@@ -100,7 +100,8 @@ namespace SoundFingerprinting.SQL
             long id = reader.GetInt64("Id");
             byte[] signature = (byte[])reader.GetRaw("Signature");
             int trackId = reader.GetInt32("TrackId");
-            return new SubFingerprintData(signature, new ModelReference<long>(id), new ModelReference<int>(trackId));
+            int sequenceNumber = reader.GetInt32("SequenceNumber");
+            return new SubFingerprintData(signature, sequenceNumber, new ModelReference<long>(id), new ModelReference<int>(trackId));
         }
     }
 }

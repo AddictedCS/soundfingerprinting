@@ -135,12 +135,13 @@ namespace SoundFingerprinting.Command
             var hashDatas = new ConcurrentBag<HashData>();
             Parallel.ForEach(
                 fingerprints,
-                fingerprint =>
+                (fingerprint, state, index) =>
                     {
                         var hashData = lshAlgorithm.Hash(
                             fingerprint,
                             FingerprintConfiguration.NumberOfLSHTables,
                             FingerprintConfiguration.NumberOfMinHashesPerTable);
+                        hashData.SequenceNumber = (int)index + 1;
                         hashDatas.Add(hashData);
                     });
 
