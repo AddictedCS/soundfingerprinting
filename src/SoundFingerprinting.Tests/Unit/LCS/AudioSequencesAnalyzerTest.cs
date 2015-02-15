@@ -18,6 +18,7 @@
         [TestMethod]
         public void TestStriclyIncreasingSequenceIsAnalyzedCorrectly()
         {
+            int[] expected = new[] { 1, 2, 3, 4, 5, 6 };
             var sequence = GetSequence(1, 2, 3, 4, 5, 6);
 
             var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence);
@@ -34,23 +35,30 @@
 
             var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
 
-            Assert.AreEqual(sequence.Count, 4);
+            Assert.AreEqual(subSequence.Count, 4);
+            AssertSequenceAreEqual(expected, subSequence);
+        }
+
+        [TestMethod]
+        public void TestNotStriclyDecreasingSequenceIsAnalyzedCorrectly()
+        {
+            int[] expected = new[] { 5 };
+            var sequence = GetSequence(5, 4, 3, 2, 1);
+
+            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
+
+            AssertSequenceAreEqual(expected, subSequence);
+        }
+        
+        private static void AssertSequenceAreEqual(int[] expected, List<SubFingerprintData> subSequence)
+        {
+            Assert.AreEqual(expected.Length, subSequence.Count);
             for (int i = 0; i < expected.Length; i++)
             {
                 Assert.AreEqual(expected[i], subSequence[i].SequenceNumber);
             }
         }
 
-        [TestMethod]
-        public void TestNotStriclyDecreasingSequenceIsAnalyzedCorrectly()
-        {
-            int[] expected = new[] { 1, 2 };
-            var sequence = GetSequence(5, 4, 3, 2, 1);
-
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
-
-            Assert.AreEqual(1, subSequence.Count);
-        }
 
         private static List<SubFingerprintData> GetSequence(params int[] orderNumbers)
         {
