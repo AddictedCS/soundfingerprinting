@@ -78,14 +78,16 @@
             return frames;
         }
 
-        public List<float[][]> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, IStride strideBetweenConsecutiveImages, int fingerprintImageLength, int overlap)
+        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, IFingerprintConfiguration configuration)
         {
+            var strideBetweenConsecutiveImages = configuration.Stride;
+            int overlap = configuration.Overlap;
             int index = (int)((float)strideBetweenConsecutiveImages.FirstStride / overlap);
             int numberOfLogBins = logarithmizedSpectrum[0].Length;
-            var spectralImages = new List<float[][]>();
+            var spectralImages = new List<SpectralImage>();
 
             int width = logarithmizedSpectrum.GetLength(0);
-            
+            int fingerprintImageLength = configuration.FingerprintLength;
             while (index + fingerprintImageLength <= width)
             {
                 float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
@@ -94,8 +96,8 @@
                     Array.Copy(logarithmizedSpectrum[index + i], spectralImage[i], numberOfLogBins);
                 }
 
+                spectralImages.Add(new SpectralImage { Image = spectralImage, Timestamp = index * ((double)overlap / configuration.SampleRate) });
                 index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.GetNextStride() / overlap);
-                spectralImages.Add(spectralImage);
             }
 
             return spectralImages;

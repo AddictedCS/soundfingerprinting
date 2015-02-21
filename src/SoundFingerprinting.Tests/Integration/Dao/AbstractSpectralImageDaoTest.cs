@@ -41,7 +41,7 @@
             var concatenatedSpectralImages = new List<float[]>();
             foreach (var spectralImage in spectralImages)
             {
-                var concatenatedSpectralImage = ArrayUtils.ConcatenateDoubleDimensionalArray(spectralImage);
+                var concatenatedSpectralImage = ArrayUtils.ConcatenateDoubleDimensionalArray(spectralImage.Image);
                 concatenatedSpectralImages.Add(concatenatedSpectralImage);
             }
             

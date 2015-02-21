@@ -11,6 +11,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
 
     [TestClass]
@@ -206,7 +207,7 @@
         {
             var samples = TestUtilities.GenerateRandomFloatArray(10 * 5512);
             audioService.Setup(service => service.ReadMonoSamplesFromFile("path-to-audio-file", SampleRate, 0, 0)).Returns(samples);
-            List<float[][]> spectralImages = new List<float[][]>();
+            var spectralImages = new List<SpectralImage>();
             fingerprintService.Setup(service => service.CreateSpectralImages(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(spectralImages);
 
             var resultedSpectralImages = fingerprintCommandBuilder.BuildFingerprintCommand()

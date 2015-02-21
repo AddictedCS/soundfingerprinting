@@ -9,6 +9,7 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
 
     internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IUsingFingerprintServices, IFingerprintCommand
@@ -17,7 +18,7 @@ namespace SoundFingerprinting.Command
         
         private readonly IFingerprintService fingerprintService;
 
-        private Func<List<float[][]>> createSpectralImages; 
+        private Func<List<SpectralImage>> createSpectralImages; 
 
         private Func<List<bool[]>> createFingerprintsMethod;
 
@@ -31,7 +32,7 @@ namespace SoundFingerprinting.Command
 
         public IFingerprintConfiguration FingerprintConfiguration { get; private set; }
 
-        public Task<List<float[][]>> CreateSpectralImages()
+        public Task<List<SpectralImage>> CreateSpectralImages()
         {
             return Task.Factory.StartNew(createSpectralImages);
         }

@@ -71,7 +71,7 @@
                             var concatenatedImages = new List<float[]>();
                             foreach (var image in images)
                             {
-                                var concatenatedImage = ConcatenateImage(image);
+                                var concatenatedImage = ConcatenateImage(image.Image);
                                 concatenatedImages.Add(concatenatedImage);
                             }
 

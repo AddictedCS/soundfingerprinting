@@ -5,12 +5,13 @@ namespace SoundFingerprinting.Command
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.FFT;
 
     public interface IFingerprintCommand
     {
         IFingerprintConfiguration FingerprintConfiguration { get; }
 
-        Task<List<float[][]>> CreateSpectralImages(); 
+        Task<List<SpectralImage>> CreateSpectralImages(); 
 
         Task<List<bool[]>> Fingerprint();
 

@@ -3,11 +3,12 @@
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.FFT;
 
     public interface IFingerprintService
     {
-        List<float[][]> CreateSpectralImages(float[] samples, IFingerprintConfiguration fingerprintConfiguration);
+        List<SpectralImage> CreateSpectralImages(float[] samples, IFingerprintConfiguration configuration);
 
-        List<bool[]> CreateFingerprints(float[] samples, IFingerprintConfiguration fingerprintConfiguration);
+        List<bool[]> CreateFingerprints(float[] samples, IFingerprintConfiguration configuration);
     }
 }
