@@ -6,14 +6,11 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Strides;
 
     public class SpectrumService : ISpectrumService
     {
         private readonly IFFTService fftService;
-
         private readonly ILogUtility logUtility;
-
         private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
 
         public SpectrumService()

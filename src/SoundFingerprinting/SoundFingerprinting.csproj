@@ -52,6 +52,7 @@
     <Compile Include="DAO\ISpectralImageDao.cs" />
     <Compile Include="Data\IgnoreBindingAttribute.cs" />
     <Compile Include="Data\SpectralImageData.cs" />
+    <Compile Include="FFT\SpectralImage.cs" />
     <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
