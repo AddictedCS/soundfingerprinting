@@ -2,6 +2,8 @@
 {
     using System.Collections.Generic;
 
+    using SoundFingerprinting.FFT;
+
     /// <summary>
     ///   Wavelet decomposition algorithm
     /// </summary>
@@ -18,5 +20,29 @@
         /// </summary>
         /// <param name = "image">Frame to be decomposed</param>
         void DecomposeImageInPlace(float[][] image);
+
+        void DecomposeImagesInPlace(IEnumerable<SpectralImage> images);
+
+        void DecomposeImageInPlace(SpectralImage image);
+    }
+
+    public abstract class WaveletDecomposition : IWaveletDecomposition
+    {
+        public abstract void DecomposeImagesInPlace(IEnumerable<float[][]> images);
+
+        public abstract void DecomposeImageInPlace(float[][] image);
+
+        public void DecomposeImagesInPlace(IEnumerable<SpectralImage> images)
+        {
+            foreach (SpectralImage image in images)
+            {
+                DecomposeImageInPlace(image.Image);
+            }
+        }
+
+        public void DecomposeImageInPlace(SpectralImage image)
+        {
+            DecomposeImageInPlace(image.Image);
+        }
     }
 }

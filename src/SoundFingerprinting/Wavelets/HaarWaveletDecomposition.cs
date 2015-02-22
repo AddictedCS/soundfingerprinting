@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public abstract class HaarWaveletDecomposition : IWaveletDecomposition
+    public abstract class HaarWaveletDecomposition : WaveletDecomposition
     {
-        public abstract void DecomposeImageInPlace(float[][] image);
-
-        public void DecomposeImagesInPlace(IEnumerable<float[][]> logarithmizedSpectrum)
+        public override void DecomposeImagesInPlace(IEnumerable<float[][]> logarithmizedSpectrum)
         {
             Parallel.ForEach(logarithmizedSpectrum, DecomposeImageInPlace);
         }

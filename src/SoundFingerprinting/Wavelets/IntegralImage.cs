@@ -3,14 +3,14 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class IntegralImage : IWaveletDecomposition
+    public class IntegralImage : WaveletDecomposition
     {
-        public void DecomposeImagesInPlace(IEnumerable<float[][]> images)
+        public override void DecomposeImagesInPlace(IEnumerable<float[][]> images)
         {
             Parallel.ForEach(images, DecomposeImageInPlace);
         }
 
-        public void DecomposeImageInPlace(float[][] image)
+        public override void DecomposeImageInPlace(float[][] image)
         {
             int nframes = image.Length;
             for (int y = 1; y < nframes; y++)
