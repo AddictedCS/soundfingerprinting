@@ -56,7 +56,7 @@
             return frames;
         }
 
-        public float[][] CreateLogSpectrogram(float[] samples, IFingerprintConfiguration configuration)
+        public float[][] CreateLogSpectrogram(float[] samples, int sampleRate,  SpectrogramConfig configuration)
         {
             if (configuration.NormalizeSignal)
             {
@@ -65,7 +65,7 @@
 
             int width = (samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
             float[][] frames = new float[width][];
-            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(configuration);
+            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(sampleRate, configuration);
             for (int i = 0; i < width; i++)
             {
                 float[] complexSignal = fftService.FFTForward(samples, i * configuration.Overlap, configuration.WdftSize);
@@ -75,7 +75,7 @@
             return frames;
         }
 
-        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, IFingerprintConfiguration configuration)
+        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, FingerprintConfiguration configuration)
         {
             var strideBetweenConsecutiveImages = configuration.Stride;
             int overlap = configuration.Overlap;
