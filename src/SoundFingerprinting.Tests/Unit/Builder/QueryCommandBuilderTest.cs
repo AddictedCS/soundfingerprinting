@@ -97,7 +97,7 @@
                                    .WithConfigs(
                                     config =>
                                        {
-                                           config.LogBase = 64;
+                                           config.SpectrogramConfig.LogBase = 64;
                                        },
                                     config =>
                                        {
@@ -142,16 +142,16 @@
                                              .From("path-to-file", 10, 0)
                                              .WithConfigs(
                                                  config =>
-                                                 {
-                                                     config.FingerprintLength = 1024;
-                                                 }, 
-                                                 config =>
-                                                 {
-                                                     config.ThresholdVotes = 256;
-                                                 })
+                                                     {
+                                                         config.SpectrogramConfig.ImageLength = 1024;
+                                                     },
+                                                 config => 
+                                                     {
+                                                         config.ThresholdVotes = 256;
+                                                     })
                                              .UsingServices(modelService.Object, audioService.Object);
 
-            Assert.AreEqual(1024, command.FingerprintConfiguration.FingerprintLength);
+            Assert.AreEqual(1024, command.FingerprintConfiguration.SpectrogramConfig.ImageLength);
             Assert.AreEqual(256, command.QueryConfiguration.ThresholdVotes);
         }
     }

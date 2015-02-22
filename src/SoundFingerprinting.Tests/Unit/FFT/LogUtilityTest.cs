@@ -21,7 +21,7 @@
         [TestMethod]
         public void GenerateLogFrequenciesRangesTest()
         {
-            var defaultConfig = new CustomFingerprintConfiguration { UseDynamicLogBase = false, LogBase = 10 };
+            var defaultConfig = new CustomSpectrogramConfig { UseDynamicLogBase = false, LogBase = 10 };
             float[] logSpacedFrequencies = new[] // generated in matlab with logspace(2.50242712, 3.3010299957, 33)
                 {
                     318.00f, 336.81f, 356.73f, 377.83f, 400.18f, 423.85f, 448.92f, 475.47f, 503.59f, 533.38f, 564.92f,
@@ -30,12 +30,12 @@
                     2000f
                 };
 
-            int[] indexes = logUtility.GenerateLogFrequenciesRanges(defaultConfig);
+            int[] indexes = logUtility.GenerateLogFrequenciesRanges(FingerprintConfiguration.Default.SampleRate, defaultConfig);
 
             for (int i = 0; i < logSpacedFrequencies.Length; i++)
             {
                 var logSpacedFrequency = logSpacedFrequencies[i];
-                int index = logUtility.FrequencyToSpectrumIndex(logSpacedFrequency, defaultConfig.SampleRate, defaultConfig.WdftSize);
+                int index = logUtility.FrequencyToSpectrumIndex(logSpacedFrequency, FingerprintConfiguration.Default.SampleRate, defaultConfig.WdftSize);
                 Assert.AreEqual(index, indexes[i]);
             }
         }

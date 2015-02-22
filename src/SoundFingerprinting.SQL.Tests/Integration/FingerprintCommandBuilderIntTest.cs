@@ -231,7 +231,7 @@
         {
             DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
 
-            float[] samples = TestUtilities.GenerateRandomFloatArray(config.SamplesPerFingerprint + config.WdftSize);
+            float[] samples = TestUtilities.GenerateRandomFloatArray(config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize);
 
             var hash = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                 .From(samples)

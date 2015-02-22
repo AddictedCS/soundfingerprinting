@@ -77,7 +77,7 @@ namespace SoundFingerprinting.Configuration
                     throw new ArgumentException("Max frequency can't be negative", "value");
                 }
 
-                if (value.Min < value.Max)
+                if (value.Min > value.Max)
                 {
                     throw new ArgumentException("Min boundary cannot be bigger than Max boundary", "value");
                 }
@@ -157,6 +157,6 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         /// Gets or sets a valut indicating whether audio signal has to be normalized before its spectrum is built
         /// </summary>
-        public bool NormalizeSignal { get; set; }
+        public bool NormalizeSignal { get; set; } 
     }
 }
