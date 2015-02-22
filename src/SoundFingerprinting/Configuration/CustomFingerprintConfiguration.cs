@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Configuration
     
     public class CustomFingerprintConfiguration : DefaultFingerprintConfiguration
     {
-        public new int Overlap
+        public int Overlap
         {
             get
             {

@@ -48,6 +48,13 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="Configuration\CustomHashingConfig.cs" />
+    <Compile Include="Configuration\CustomSpectrogramConfig.cs" />
+    <Compile Include="Configuration\DefaultHashingConfig.cs" />
+    <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
+    <Compile Include="Configuration\FrequencyRange.cs" />
+    <Compile Include="Configuration\HashingConfig.cs" />
+    <Compile Include="Configuration\SpectrogramConfig.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="DAO\ISpectralImageDao.cs" />
     <Compile Include="Data\IgnoreBindingAttribute.cs" />
@@ -105,7 +112,7 @@
     <Compile Include="Utils\ArrayUtils.cs" />
     <Compile Include="Utils\FingerprintDescriptor.cs" />
     <Compile Include="IFingerprintService.cs" />
-    <Compile Include="Configuration\IFingerprintConfiguration.cs" />
+    <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
     <Compile Include="Wavelets\NonStandardHaarWaveletDecomposition.cs" />
