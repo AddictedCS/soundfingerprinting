@@ -2,8 +2,6 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
 
-    using SoundFingerprinting.Strides;
-
     public abstract class SpectrogramConfig
     {
         public static readonly SpectrogramConfig Default = new DefaultSpectrogramConfig();
@@ -155,5 +153,10 @@ namespace SoundFingerprinting.Configuration
         /// Gets or sets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
         /// </summary>
         public bool UseDynamicLogBase { get; set; }
+
+        /// <summary>
+        /// Gets or sets a valut indicating whether audio signal has to be normalized before its spectrum is built
+        /// </summary>
+        public bool NormalizeSignal { get; set; }
     }
 }

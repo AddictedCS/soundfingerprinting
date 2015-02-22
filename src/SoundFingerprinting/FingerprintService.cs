@@ -37,19 +37,19 @@ namespace SoundFingerprinting
 
         public List<SpectralImage> CreateSpectralImages(float[] samples, FingerprintConfiguration configuration)
         {
-            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            return spectrumService.CutLogarithmizedSpectrum(spectrum, configuration.Stride, configuration.SpectrogramConfig);
+            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SampleRate, configuration.SpectrogramConfig);
+            return spectrumService.CutLogarithmizedSpectrum(spectrum, configuration.SampleRate, configuration.Stride, configuration.SpectrogramConfig);
         }
 
         public List<bool[]> CreateFingerprints(float[] samples, FingerprintConfiguration configuration)
         {
-            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
+            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SampleRate, configuration.SpectrogramConfig);
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);
         }
 
         private List<bool[]> CreateFingerprintsFromLogSpectrum(float[][] logarithmizedSpectrum, FingerprintConfiguration configuration)
         {
-            List<SpectralImage> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, configuration.Stride, configuration.SpectrogramConfig);
+            List<SpectralImage> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, configuration.SampleRate, configuration.Stride, configuration.SpectrogramConfig);
             waveletDecomposition.DecomposeImagesInPlace(spectralImages.Select(image => image.Image));
             var fingerprints = new List<bool[]>();
             foreach (var spectralImage in spectralImages)

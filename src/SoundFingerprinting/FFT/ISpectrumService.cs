@@ -14,10 +14,10 @@
         /// <param name="stride">Stride between 2 consecutive spectral image</param>
         /// <param name="configuration">Spectrum configuration</param>
         /// <returns>List of logarithmic images</returns>
-        List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, IStride stride, SpectrogramConfig configuration);
+        List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, IStride stride, SpectrogramConfig configuration);
         
         float[][] CreateSpectrogram(float[] samples, int overlap, int wdftSize);
 
-        float[][] CreateLogSpectrogram(float[] samples, SpectrogramConfig configuration);
+        float[][] CreateLogSpectrogram(float[] samples, int sampleRate, SpectrogramConfig configuration);
     }
 }

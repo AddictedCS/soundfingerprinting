@@ -6,6 +6,7 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Strides;
 
     public class SpectrumService : ISpectrumService
     {
@@ -58,7 +59,7 @@
 
         public float[][] CreateLogSpectrogram(float[] samples, int sampleRate,  SpectrogramConfig configuration)
         {
-            if (configuration.NormalizeSignal)
+            if (configuration.NormalizeSignal) //TODO SF-44
             {
                 audioSamplesNormalizer.NormalizeInPlace(samples);
             }
@@ -75,16 +76,16 @@
             return frames;
         }
 
-        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, FingerprintConfiguration configuration)
+        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, IStride stride, SpectrogramConfig configuration)
         {
-            var strideBetweenConsecutiveImages = configuration.Stride;
+            var strideBetweenConsecutiveImages = stride;
             int overlap = configuration.Overlap;
             int index = (int)((float)strideBetweenConsecutiveImages.FirstStride / overlap);
             int numberOfLogBins = logarithmizedSpectrum[0].Length;
             var spectralImages = new List<SpectralImage>();
 
             int width = logarithmizedSpectrum.GetLength(0);
-            int fingerprintImageLength = configuration.FingerprintLength;
+            int fingerprintImageLength = configuration.ImageLength;
             while (index + fingerprintImageLength <= width)
             {
                 float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
@@ -93,7 +94,7 @@
                     Array.Copy(logarithmizedSpectrum[index + i], spectralImage[i], numberOfLogBins);
                 }
 
-                spectralImages.Add(new SpectralImage { Image = spectralImage, Timestamp = index * ((double)overlap / configuration.SampleRate) });
+                spectralImages.Add(new SpectralImage { Image = spectralImage, Timestamp = index * ((double)overlap / sampleRate) });
                 index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.GetNextStride() / overlap);
             }
 

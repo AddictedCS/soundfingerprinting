@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -180,15 +179,16 @@
         {
             const string PathToAudioFile = "path-to-audio-file";
 
-            var configuration = new CustomFingerprintConfiguration { FingerprintLength = 1234 };
-
+            var configuration = new CustomFingerprintConfiguration
+                { SpectrogramConfig = new CustomSpectrogramConfig { ImageLength = 1234 } };
+             
             var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                               .From(PathToAudioFile)
                                                               .WithFingerprintConfig(configuration)
                                                               .UsingServices(audioService.Object);
 
             Assert.AreSame(configuration, fingerprintCommand.FingerprintConfiguration);
-            Assert.AreEqual(configuration.FingerprintLength, fingerprintCommand.FingerprintConfiguration.FingerprintLength);
+            Assert.AreEqual(configuration.SpectrogramConfig.ImageLength, fingerprintCommand.FingerprintConfiguration.SpectrogramConfig.ImageLength);
         }
 
         [TestMethod]

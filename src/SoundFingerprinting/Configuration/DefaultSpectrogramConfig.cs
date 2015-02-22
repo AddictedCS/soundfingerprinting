@@ -11,6 +11,7 @@ namespace SoundFingerprinting.Configuration
             LogBins = 32;
             ImageLength = 128;
             UseDynamicLogBase = false;
+            NormalizeSignal = false;
         }
     }
 }
