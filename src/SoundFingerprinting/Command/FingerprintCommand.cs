@@ -30,7 +30,7 @@ namespace SoundFingerprinting.Command
             this.lshAlgorithm = lshAlgorithm;
         }
 
-        public IFingerprintConfiguration FingerprintConfiguration { get; private set; }
+        public FingerprintConfiguration FingerprintConfiguration { get; private set; }
 
         public Task<List<SpectralImage>> CreateSpectralImages()
         {
@@ -99,13 +99,13 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig(IFingerprintConfiguration configuration)
+        public IUsingFingerprintServices WithFingerprintConfig(FingerprintConfiguration configuration)
         {
             FingerprintConfiguration = configuration;
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig<T>() where T : IFingerprintConfiguration, new()
+        public IUsingFingerprintServices WithFingerprintConfig<T>() where T : FingerprintConfiguration, new()
         {
             FingerprintConfiguration = new T();
             return this;
@@ -140,8 +140,8 @@ namespace SoundFingerprinting.Command
                     {
                         var hashData = lshAlgorithm.Hash(
                             fingerprint,
-                            FingerprintConfiguration.NumberOfLSHTables,
-                            FingerprintConfiguration.NumberOfMinHashesPerTable);
+                            FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
+                            FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
                         hashData.SequenceNumber = (int)index + 1;
                         hashDatas.Add(hashData);
                     });

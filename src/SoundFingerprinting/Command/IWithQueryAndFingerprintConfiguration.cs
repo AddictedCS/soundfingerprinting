@@ -6,9 +6,9 @@
 
     public interface IWithQueryAndFingerprintConfiguration
     {
-        IUsingQueryServices WithConfigs(IFingerprintConfiguration fingerprintConfiguration, IQueryConfiguration queryConfiguration);
+        IUsingQueryServices WithConfigs(FingerprintConfiguration fingerprintConfiguration, IQueryConfiguration queryConfiguration);
 
-        IUsingQueryServices WithConfigs<T1, T2>() where T1 : IFingerprintConfiguration, new() where T2 : IQueryConfiguration, new();
+        IUsingQueryServices WithConfigs<T1, T2>() where T1 : FingerprintConfiguration, new() where T2 : IQueryConfiguration, new();
 
         IUsingQueryServices WithConfigs(Action<CustomFingerprintConfiguration> fingerprintConfiguration, Action<CustomQueryConfiguration> queryConfiguration);
 

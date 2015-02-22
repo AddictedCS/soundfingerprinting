@@ -35,21 +35,21 @@ namespace SoundFingerprinting
             this.fingerprintDescriptor = fingerprintDescriptor;
         }
 
-        public List<SpectralImage> CreateSpectralImages(float[] samples, IFingerprintConfiguration configuration)
+        public List<SpectralImage> CreateSpectralImages(float[] samples, FingerprintConfiguration configuration)
         {
-            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration);
-            return spectrumService.CutLogarithmizedSpectrum(spectrum, configuration);
+            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
+            return spectrumService.CutLogarithmizedSpectrum(spectrum, configuration.Stride, configuration.SpectrogramConfig);
         }
 
-        public List<bool[]> CreateFingerprints(float[] samples, IFingerprintConfiguration configuration)
+        public List<bool[]> CreateFingerprints(float[] samples, FingerprintConfiguration configuration)
         {
-            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration);
+            float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);
         }
 
-        private List<bool[]> CreateFingerprintsFromLogSpectrum(float[][] logarithmizedSpectrum, IFingerprintConfiguration configuration)
+        private List<bool[]> CreateFingerprintsFromLogSpectrum(float[][] logarithmizedSpectrum, FingerprintConfiguration configuration)
         {
-            List<SpectralImage> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, configuration);
+            List<SpectralImage> spectralImages = spectrumService.CutLogarithmizedSpectrum(logarithmizedSpectrum, configuration.Stride, configuration.SpectrogramConfig);
             waveletDecomposition.DecomposeImagesInPlace(spectralImages.Select(image => image.Image));
             var fingerprints = new List<bool[]>();
             foreach (var spectralImage in spectralImages)

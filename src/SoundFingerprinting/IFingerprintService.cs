@@ -7,8 +7,8 @@
 
     public interface IFingerprintService
     {
-        List<SpectralImage> CreateSpectralImages(float[] samples, IFingerprintConfiguration configuration);
+        List<SpectralImage> CreateSpectralImages(float[] samples, FingerprintConfiguration configuration);
 
-        List<bool[]> CreateFingerprints(float[] samples, IFingerprintConfiguration configuration);
+        List<bool[]> CreateFingerprints(float[] samples, FingerprintConfiguration configuration);
     }
 }

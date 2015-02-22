@@ -24,7 +24,7 @@
             this.queryFingerprintService = queryFingerprintService;
         }
 
-        public IFingerprintConfiguration FingerprintConfiguration { get; private set; }
+        public FingerprintConfiguration FingerprintConfiguration { get; private set; }
 
         public IQueryConfiguration QueryConfiguration { get; private set; }
 
@@ -46,14 +46,14 @@
             return this;
         }
 
-        public IUsingQueryServices WithConfigs(IFingerprintConfiguration fingerprintConfiguration, IQueryConfiguration configuration)
+        public IUsingQueryServices WithConfigs(FingerprintConfiguration fingerprintConfiguration, IQueryConfiguration configuration)
         {
             QueryConfiguration = configuration;
             FingerprintConfiguration = fingerprintConfiguration;
             return this;
         }
 
-        public IUsingQueryServices WithConfigs<T1, T2>() where T1 : IFingerprintConfiguration, new() where T2 : IQueryConfiguration, new()
+        public IUsingQueryServices WithConfigs<T1, T2>() where T1 : FingerprintConfiguration, new() where T2 : IQueryConfiguration, new()
         {
             QueryConfiguration = new T2();
             FingerprintConfiguration = new T1();

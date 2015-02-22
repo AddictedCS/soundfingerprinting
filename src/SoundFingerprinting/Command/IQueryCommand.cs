@@ -7,7 +7,7 @@
 
     public interface IQueryCommand
     {
-        IFingerprintConfiguration FingerprintConfiguration { get; }
+        FingerprintConfiguration FingerprintConfiguration { get; }
 
         IQueryConfiguration QueryConfiguration { get; }
 

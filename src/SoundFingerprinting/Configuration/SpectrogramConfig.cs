@@ -2,6 +2,8 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
 
+    using SoundFingerprinting.Strides;
+
     public abstract class SpectrogramConfig
     {
         public static readonly SpectrogramConfig Default = new DefaultSpectrogramConfig();
