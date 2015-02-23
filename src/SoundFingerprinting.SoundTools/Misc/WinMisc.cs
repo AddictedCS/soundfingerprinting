@@ -132,14 +132,14 @@
                                                   .WithFingerprintConfig(
                                                     config =>
                                                         {
-                                                            config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                            config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                             config.TopWavelets = (int)_nudTopWavelets.Value;
                                                             config.Stride = _chbDatabaseStride.Checked
                                                                                 ? (IStride)
                                                                                   new IncrementalRandomStride(0, (int)_nudDatabaseStride.Value, config.SamplesPerFingerprint)
                                                                                 : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
                                                             config.NormalizeSignal = normalizeSignal;
-                                                            config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                            config.SpectrogramConfig.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                         })
                                                     .UsingServices(audioService);
 
@@ -153,7 +153,7 @@
                                                           .WithFingerprintConfig(
                                                               config =>
                                                                   {
-                                                                      config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                                      config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                                       config.TopWavelets = (int)_nudTopWavelets.Value;
                                                                       config.Stride = _chbQueryStride.Checked
                                                                                           ? (IStride)
@@ -162,7 +162,7 @@
                                                                                           : new IncrementalStaticStride(
                                                                                                 comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
                                                                       config.NormalizeSignal = normalizeSignal;
-                                                                      config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                                      config.SpectrogramConfig.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                                   })
                                                           .UsingServices(audioService);
                         }
@@ -174,7 +174,7 @@
                                                           .WithFingerprintConfig(
                                                               config =>
                                                               {
-                                                                  config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                                  config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                                   config.TopWavelets = (int)_nudTopWavelets.Value;
                                                                   config.Stride = _chbQueryStride.Checked
                                                                                       ? (IStride)
@@ -183,7 +183,7 @@
                                                                                       : new IncrementalStaticStride(
                                                                                             comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
                                                                   config.NormalizeSignal = normalizeSignal;
-                                                                  config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                                  config.SpectrogramConfig.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                               })
                                                          .UsingServices(audioService);
                         }

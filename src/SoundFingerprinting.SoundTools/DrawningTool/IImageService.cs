@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Drawing;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Wavelets;
 
@@ -18,16 +19,16 @@
 
         Image GetLogSpectralImages(
             float[][] spectrum,
+            int sampleRate,
             IStride strideBetweenConsecutiveImages,
-            int fingerprintLength,
-            int overlap,
+            SpectrogramConfig config,
             int imagesPerRow);
 
         Image GetWaveletsImages(
             float[][] spectrum,
+            int sampleRate,
             IStride strideBetweenConsecutiveImages,
-            int fingerprintLength,
-            int overlap,
+            SpectrogramConfig config, 
             int imagesPerRow);
 
         Image GetWaveletTransformedImage(float[][] image, IWaveletDecomposition wavelet);

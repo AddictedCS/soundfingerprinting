@@ -23,7 +23,7 @@
 
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
-        private readonly IFingerprintConfiguration fingerprintConfiguration;
+        private readonly FingerprintConfiguration fingerprintConfiguration;
 
         private readonly IImageService imageService;
 
@@ -101,8 +101,8 @@
                                                                       .Result
                                                                       .Select(fingerprint => fingerprint)
                                                                       .ToList();
-                                int width = songToDraw.FingerprintConfiguration.FingerprintLength;
-                                int height = songToDraw.FingerprintConfiguration.LogBins;
+                                int width = songToDraw.FingerprintConfiguration.SpectrogramConfig.ImageLength;
+                                int height = songToDraw.FingerprintConfiguration.SpectrogramConfig.LogBins;
                                 using (Image image = imageService.GetImageForFingerprints(fingerprints, width, height, 5))
                                 {
                                     image.Save(imageFilename);
@@ -138,8 +138,8 @@
                                                                 .Select(fingerprint => fingerprint)
                                                                 .ToList();
                                 int i = -1;
-                                int width = songToDraw.FingerprintConfiguration.FingerprintLength;
-                                int height = songToDraw.FingerprintConfiguration.LogBins;
+                                int width = songToDraw.FingerprintConfiguration.SpectrogramConfig.ImageLength;
+                                int height = songToDraw.FingerprintConfiguration.SpectrogramConfig.LogBins;
                                 foreach (bool[] item in result)
                                 {
                                     using (var image = imageService.GetImageForFingerprint(item, width, height))
@@ -247,7 +247,7 @@
                 Action action = () =>
                     {
                         float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
-                        float[][] data = spectrumService.CreateSpectrogram(samples, fingerprintConfiguration.Overlap, fingerprintConfiguration.WdftSize);
+                        float[][] data = spectrumService.CreateSpectrogram(samples, fingerprintConfiguration.SpectrogramConfig.Overlap, fingerprintConfiguration.SpectrogramConfig.WdftSize);
                         Image image = imageService.GetSpectrogramImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                         image.Save(sfd.FileName, ImageFormat.Jpeg);
                         image.Dispose();
@@ -311,10 +311,10 @@
                     {
                         float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         Image image = imageService.GetLogSpectralImages(
-                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration),
+                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SampleRate, fingerprintConfiguration.SpectrogramConfig),
+                            fingerprintConfiguration.SampleRate,
                             new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
-                            fingerprintConfiguration.FingerprintLength,
-                            fingerprintConfiguration.Overlap,
+                            fingerprintConfiguration.SpectrogramConfig,
                             5);
 
                         image.Save(path);
@@ -356,10 +356,10 @@
                     {
                         float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         Image image = imageService.GetWaveletsImages(
-                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration),
+                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SampleRate, fingerprintConfiguration.SpectrogramConfig),
+                            fingerprintConfiguration.SampleRate,
                             new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
-                            fingerprintConfiguration.FingerprintLength,
-                            fingerprintConfiguration.Overlap,
+                            fingerprintConfiguration.SpectrogramConfig,
                             5);
 
                         image.Save(path);

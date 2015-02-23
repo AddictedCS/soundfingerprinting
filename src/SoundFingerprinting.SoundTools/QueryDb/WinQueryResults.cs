@@ -154,8 +154,8 @@
                                                         fingerprintConfig =>
                                                         {
                                                             fingerprintConfig.Stride = samplesToSkip;
-                                                            fingerprintConfig.NumberOfLSHTables = hashTables;
-                                                            fingerprintConfig.NumberOfMinHashesPerTable = hashKeys;
+                                                            fingerprintConfig.HashingConfig.NumberOfLSHTables = hashTables;
+                                                            fingerprintConfig.HashingConfig.NumberOfMinHashesPerTable = hashKeys;
                                                         },
                                                         queryConfig =>
                                                         {
@@ -229,8 +229,8 @@
                                         fingerprintConfig =>
                                         {
                                             fingerprintConfig.Stride = samplesToSkip;
-                                            fingerprintConfig.NumberOfLSHTables = hashTables;
-                                            fingerprintConfig.NumberOfMinHashesPerTable = hashKeys;
+                                            fingerprintConfig.HashingConfig.NumberOfLSHTables = hashTables;
+                                            fingerprintConfig.HashingConfig.NumberOfMinHashesPerTable = hashKeys;
                                         },
                                         queryConfig =>
                                         {

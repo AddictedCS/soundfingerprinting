@@ -7,6 +7,7 @@
     using System.Drawing.Imaging;
     using System.Linq;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
@@ -140,16 +141,16 @@
 
         public Image GetLogSpectralImages(
             float[][] spectrum,
+            int sampleRate,
             IStride strideBetweenConsecutiveImages,
-            int fingerprintLength,
-            int overlap,
+            SpectrogramConfig config,
             int imagesPerRow)
         {
-            List<float[][]> spetralImages = spectrumService.CutLogarithmizedSpectrum(
-                spectrum, strideBetweenConsecutiveImages, fingerprintLength, overlap);
+            List<SpectralImage> spetralImages = spectrumService.CutLogarithmizedSpectrum(
+                spectrum, sampleRate, strideBetweenConsecutiveImages, config);
 
-            int width = spetralImages[0].GetLength(0);
-            int height = spetralImages[0][0].Length;
+            int width = spetralImages[0].Image.GetLength(0);
+            int height = spetralImages[0].Image[0].Length;
             int fingersCount = spetralImages.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
             int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
@@ -161,7 +162,7 @@
             int verticalOffset = SpaceBetweenImages;
             int horizontalOffset = SpaceBetweenImages;
             int count = 0;
-            foreach (float[][] spectralImage in spetralImages)
+            foreach (float[][] spectralImage in spetralImages.Select(im => im.Image))
             {
                 double average = spectralImage.Average(col => col.Average(v => Math.Abs(v)));
                 for (int i = 0; i < width /*128*/; i++)
@@ -190,17 +191,17 @@
 
         public Image GetWaveletsImages(
             float[][] spectrum,
+            int sampleRate,
             IStride strideBetweenConsecutiveImages,
-            int fingerprintLength,
-            int overlap,
+            SpectrogramConfig config,
             int imagesPerRow)
         {
-            List<float[][]> spetralImages = spectrumService.CutLogarithmizedSpectrum(
-                spectrum, strideBetweenConsecutiveImages, fingerprintLength, overlap);
+            List<SpectralImage> spetralImages = spectrumService.CutLogarithmizedSpectrum(
+                spectrum, sampleRate, strideBetweenConsecutiveImages, config);
             waveletDecomposition.DecomposeImagesInPlace(spetralImages);
 
-            int width = spetralImages[0].GetLength(0);
-            int height = spetralImages[0][0].Length;
+            int width = spetralImages[0].Image.GetLength(0);
+            int height = spetralImages[0].Image[0].Length;
             int fingersCount = spetralImages.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
             int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
@@ -212,7 +213,7 @@
             int verticalOffset = SpaceBetweenImages;
             int horizontalOffset = SpaceBetweenImages;
             int count = 0;
-            foreach (float[][] spectralImage in spetralImages)
+            foreach (float[][] spectralImage in spetralImages.Select(im => im.Image))
             {
                 double average = spectralImage.Average(col => col.Average(v => Math.Abs(v)));
                 for (int i = 0; i < width /*128*/; i++)
