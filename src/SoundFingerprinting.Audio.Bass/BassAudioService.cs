@@ -40,10 +40,17 @@
             }
         }
 
-        public override float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
+        public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
             int stream = streamFactory.CreateStream(pathToSourceFile);
-            return resampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));
+            float[] samples = resampler.Resample(stream, sampleRate, seconds, startAt, mixerStream => new BassSamplesProvider(proxy, mixerStream));
+            return new AudioSamples
+                {
+                    Samples = samples,
+                    Origin = pathToSourceFile,
+                    SampleRate = sampleRate,
+                    Length = (double)samples.Length / sampleRate
+                };
         }
     }
 }

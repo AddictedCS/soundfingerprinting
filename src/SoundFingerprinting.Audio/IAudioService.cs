@@ -6,8 +6,8 @@
     {
         IReadOnlyCollection<string> SupportedFormats { get; }
 
-        float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt);
+        AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt);
 
-        float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate);
+        AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate);
     }
 }

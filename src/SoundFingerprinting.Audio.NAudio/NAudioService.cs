@@ -29,9 +29,16 @@
             }
         }
 
-        public override float[] ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
+        public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, int seconds, int startAt)
         {
-            return sourceReader.ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt);
+            float[] samples = sourceReader.ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt);
+            return new AudioSamples()
+                {
+                    Samples = samples,
+                    Origin = pathToSourceFile,
+                    SampleRate = sampleRate,
+                    Length = (double)samples.Length / sampleRate
+                };
         }
     }
 }
