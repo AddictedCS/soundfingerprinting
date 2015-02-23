@@ -59,7 +59,7 @@
 
         public float[][] CreateLogSpectrogram(float[] samples, int sampleRate,  SpectrogramConfig configuration)
         {
-            if (configuration.NormalizeSignal) //TODO SF-44
+            if (configuration.NormalizeSignal) // TODO SF-44
             {
                 audioSamplesNormalizer.NormalizeInPlace(samples);
             }

@@ -2,6 +2,8 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
 
+    using SoundFingerprinting.Strides;
+
     public abstract class SpectrogramConfig
     {
         public static readonly SpectrogramConfig Default = new DefaultSpectrogramConfig();
@@ -155,8 +157,13 @@ namespace SoundFingerprinting.Configuration
         public bool UseDynamicLogBase { get; set; }
 
         /// <summary>
-        /// Gets or sets a valut indicating whether audio signal has to be normalized before its spectrum is built
+        /// Gets or sets a value indicating whether audio signal has to be normalized before its spectrum is built
         /// </summary>
-        public bool NormalizeSignal { get; set; } 
+        public bool NormalizeSignal { get; set; }
+
+        /// <summary>
+        /// Gets or sets stride between 2 consecutive spectrogram images
+        /// </summary>
+        public IStride Stride { get; set; }
     }
 }

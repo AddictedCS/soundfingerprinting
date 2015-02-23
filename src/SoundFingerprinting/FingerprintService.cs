@@ -3,6 +3,7 @@ namespace SoundFingerprinting
     using System.Collections.Generic;
     using System.Linq;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Infrastructure;
@@ -35,13 +36,13 @@ namespace SoundFingerprinting
             this.fingerprintDescriptor = fingerprintDescriptor;
         }
 
-        public List<SpectralImage> CreateSpectralImages(float[] samples, FingerprintConfiguration configuration)
+        public List<SpectralImage> CreateSpectralImages(AudioSamples samples, FingerprintConfiguration configuration)
         {
             float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SampleRate, configuration.SpectrogramConfig);
             return spectrumService.CutLogarithmizedSpectrum(spectrum, configuration.SampleRate, configuration.Stride, configuration.SpectrogramConfig);
         }
 
-        public List<bool[]> CreateFingerprints(float[] samples, FingerprintConfiguration configuration)
+        public List<bool[]> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
         {
             float[][] spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SampleRate, configuration.SpectrogramConfig);
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);

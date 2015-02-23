@@ -51,7 +51,7 @@
         {
             const string PathToAudioFile = "path-to-audio-file";
             const int TenSeconds = 10;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            AudioSamples samples = new AudioSamples { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
             const int ThreeFingerprints = 3;
             var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
@@ -72,7 +72,8 @@
         public void SubFingerprintsAreBuiltCorrectlyFromFileForTrack()
         {
             const int TenSeconds = 10;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            AudioSamples samples = new AudioSamples
+                { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
             const int ThreeFingerprints = 3;
             List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             const string PathToAudioFile = "path-to-audio-file";
@@ -99,7 +100,8 @@
         public void SubFingerprintsAreBuiltCorrectlyFromAudioSamplesForTrack()
         {
             const int TenSeconds = 10;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            AudioSamples samples = new AudioSamples
+                { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
             const int ThreeFingerprints = 3;
             List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
@@ -126,7 +128,8 @@
             const string PathToAudioFile = "path-to-audio-file";
             const int StartSecond = 10;
             const int SecondsToProcess = 20;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10);
+            AudioSamples samples = new AudioSamples
+                { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10) };
             const int ThreeFingerprints = 3;
             List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
 
