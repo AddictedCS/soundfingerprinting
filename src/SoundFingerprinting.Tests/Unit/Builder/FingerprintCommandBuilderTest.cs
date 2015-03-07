@@ -208,7 +208,7 @@
         [TestMethod]
         public void TestSpectralImagesAreCreatedByFingerprintCommand()
         {
-            var samples = TestUtilities.GenerateRandomFloatArray(10 * 5512);
+            var samples = GetAudioSamples(TestUtilities.GenerateRandomFloatArray(10 * 5512));
             audioService.Setup(service => service.ReadMonoSamplesFromFile("path-to-audio-file", SampleRate, 0, 0)).Returns(samples);
             var spectralImages = new List<SpectralImage>();
             fingerprintService.Setup(service => service.CreateSpectralImages(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(spectralImages);
@@ -221,6 +221,11 @@
                                      .Result;
 
             Assert.AreSame(spectralImages, resultedSpectralImages);
+        }
+
+        private AudioSamples GetAudioSamples(float[] samples)
+        {
+            return new AudioSamples { Samples = samples, Length = 0, Origin = string.Empty, SampleRate = 0 }; // TODO Fix this
         }
 
         private List<bool[]> GetGenericFingerprints(int count)

@@ -2,9 +2,22 @@ namespace SoundFingerprinting.Tests
 {
     using System;
 
+    using SoundFingerprinting.Audio;
+
     public static class TestUtilities
     {
         private static readonly Random Rand = new Random();
+
+        public static AudioSamples GenerateRandomAudioSamples(int length)
+        {
+            return new AudioSamples
+                {
+                    Length = length,
+                    Origin = string.Empty,
+                    SampleRate = 5512,
+                    Samples = GenerateRandomFloatArray(length)
+                };
+        }
 
         public static float[] GenerateRandomFloatArray(int length)
         {

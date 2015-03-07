@@ -53,21 +53,21 @@ namespace SoundFingerprinting.Command
         {
             createSpectralImages = () =>
                 {
-                    float[] audioSamples = audioService.ReadMonoSamplesFromFile(
+                   AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(
                         pathToAudioFile, FingerprintConfiguration.SampleRate, 0, 0);
                     return fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
                 };
 
             createFingerprintsMethod = () =>
                 {
-                    float[] audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, 0, 0);
+                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, 0, 0);
                     return fingerprintService.CreateFingerprints(audioSamples, FingerprintConfiguration);
                 };
 
             return this;
         }
 
-        public IWithFingerprintConfiguration From(float[] audioSamples)
+        public IWithFingerprintConfiguration From(AudioSamples audioSamples)
         {
             createSpectralImages = () => fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
             createFingerprintsMethod = () => fingerprintService.CreateFingerprints(audioSamples, FingerprintConfiguration);
@@ -85,14 +85,14 @@ namespace SoundFingerprinting.Command
         {
             createSpectralImages = () =>
                 {
-                    float[] audioSamples = audioService.ReadMonoSamplesFromFile(
+                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(
                         pathToAudioFile, FingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);
                     return fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
                 };
 
             createFingerprintsMethod = () =>
                 {
-                    float[] audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);
+                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);
                     return fingerprintService.CreateFingerprints(audioSamples, FingerprintConfiguration);
                 };
 

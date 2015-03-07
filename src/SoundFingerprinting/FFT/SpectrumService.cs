@@ -31,8 +31,9 @@
             this.audioSamplesNormalizer = audioSamplesNormalizer;
         }
 
-        public float[][] CreateSpectrogram(float[] samples, int overlap, int wdftSize)
+        public float[][] CreateSpectrogram(AudioSamples audioSamples, int overlap, int wdftSize)
         {
+            float[] samples = audioSamples.Samples;
             audioSamplesNormalizer.NormalizeInPlace(samples);
             int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
             float[][] frames = new float[width][];
@@ -57,28 +58,28 @@
             return frames;
         }
 
-        public float[][] CreateLogSpectrogram(float[] samples, int sampleRate,  SpectrogramConfig configuration)
+        public List<SpectralImage> CreateLogSpectrogram(AudioSamples samples,  SpectrogramConfig configuration)
         {
             if (configuration.NormalizeSignal) // TODO SF-44
             {
-                audioSamplesNormalizer.NormalizeInPlace(samples);
+                audioSamplesNormalizer.NormalizeInPlace(samples.Samples);
             }
 
-            int width = (samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
+            int width = (samples.Samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
             float[][] frames = new float[width][];
-            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(sampleRate, configuration);
+            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(samples.SampleRate, configuration);
             for (int i = 0; i < width; i++)
             {
-                float[] complexSignal = fftService.FFTForward(samples, i * configuration.Overlap, configuration.WdftSize);
+                float[] complexSignal = fftService.FFTForward(samples.Samples, i * configuration.Overlap, configuration.WdftSize);
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
             }
 
-            return frames;
+            return CutLogarithmizedSpectrum(frames, samples.SampleRate, configuration);
         }
 
-        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, IStride stride, SpectrogramConfig configuration)
+        protected List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
         {
-            var strideBetweenConsecutiveImages = stride;
+            var strideBetweenConsecutiveImages = configuration.Stride;
             int overlap = configuration.Overlap;
             int index = (int)((float)strideBetweenConsecutiveImages.FirstStride / overlap);
             int numberOfLogBins = logarithmizedSpectrum[0].Length;

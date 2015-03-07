@@ -40,7 +40,7 @@
             return this;
         }
 
-        public IWithQueryAndFingerprintConfiguration From(float[] audioSamples)
+        public IWithQueryAndFingerprintConfiguration From(AudioSamples audioSamples)
         {
             fingerprintingMethodFromSelector = () => fingerprintCommandBuilder.BuildFingerprintCommand().From(audioSamples);
             return this;
