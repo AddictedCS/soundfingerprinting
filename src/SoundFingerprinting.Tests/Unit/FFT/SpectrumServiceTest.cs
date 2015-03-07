@@ -16,44 +16,36 @@
     public class SpectrumServiceTest : AbstractTest
     {
         private DerivedSpectrumService spectrumService;
-
         private Mock<IFFTService> fftService;
-
-        private Mock<IAudioSamplesNormalizer> audioSamplesNormalizer;
-
         private Mock<ILogUtility> logUtility;
 
         [TestInitialize]
         public void SetUp()
         {
             fftService = new Mock<IFFTService>(MockBehavior.Strict);
-            audioSamplesNormalizer = new Mock<IAudioSamplesNormalizer>(MockBehavior.Strict);
             logUtility = new Mock<ILogUtility>(MockBehavior.Strict);
-            spectrumService = new DerivedSpectrumService(fftService.Object, logUtility.Object, audioSamplesNormalizer.Object);
+            spectrumService = new DerivedSpectrumService(fftService.Object, logUtility.Object);
         }
 
         [TestCleanup]
         public void TearDown()
         {
             fftService.VerifyAll();
-            audioSamplesNormalizer.VerifyAll();
             logUtility.VerifyAll();
         }
         
         [TestMethod]
         public void CreateLogSpectrogramTest()
         {
-            var configuration = new CustomSpectrogramConfig { NormalizeSignal = true, ImageLength = 2048 };
+            var configuration = new CustomSpectrogramConfig { ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
             
-            audioSamplesNormalizer.Setup(service => service.NormalizeInPlace(samples.Samples));
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(5512, configuration)).Returns(new int[33]);
             fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize))
                       .Returns(TestUtilities.GenerateRandomFloatArray(2048));
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            audioSamplesNormalizer.Verify(service => service.NormalizeInPlace(samples.Samples), Times.Once());
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(5512, configuration), Times.Once());
 
             Assert.AreEqual(1, result.Count);
@@ -73,7 +65,6 @@
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            audioSamplesNormalizer.Verify(service => service.NormalizeInPlace(samples.Samples), Times.Never());
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(5512, configuration), Times.Once());
 
             Assert.AreEqual(1, result.Count);
@@ -163,8 +154,8 @@
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed. Suppression is OK here.")]
     internal class DerivedSpectrumService : SpectrumService
     {
-        public DerivedSpectrumService(IFFTService fftService, ILogUtility logUtility, IAudioSamplesNormalizer audioSamplesNormalizer)
-            : base(fftService, logUtility, audioSamplesNormalizer)
+        public DerivedSpectrumService(IFFTService fftService, ILogUtility logUtility)
+            : base(fftService, logUtility)
         {
         }
 

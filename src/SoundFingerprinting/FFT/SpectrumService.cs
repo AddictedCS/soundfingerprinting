@@ -12,7 +12,6 @@
     {
         private readonly IFFTService fftService;
         private readonly ILogUtility logUtility;
-        private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
 
         public SpectrumService()
             : this(DependencyResolver.Current.Get<IFFTService>())
@@ -20,22 +19,20 @@
         }
 
         public SpectrumService(IFFTService fftService)
-            : this(fftService, DependencyResolver.Current.Get<ILogUtility>(), DependencyResolver.Current.Get<IAudioSamplesNormalizer>())
+            : this(fftService, DependencyResolver.Current.Get<ILogUtility>())
         {
         }
 
-        internal SpectrumService(IFFTService fftService, ILogUtility logUtility, IAudioSamplesNormalizer audioSamplesNormalizer)
+        internal SpectrumService(IFFTService fftService, ILogUtility logUtility)
         {
             this.fftService = fftService;
             this.logUtility = logUtility;
-            this.audioSamplesNormalizer = audioSamplesNormalizer;
         }
 
         public float[][] CreateSpectrogram(AudioSamples audioSamples, int overlap, int wdftSize)
         {
             float[] samples = audioSamples.Samples;
-            audioSamplesNormalizer.NormalizeInPlace(samples);
-            int width = (samples.Length - wdftSize) / overlap; /*width of the image*/
+            int width = (samples.Length - wdftSize) / overlap;
             float[][] frames = new float[width][];
             for (int i = 0; i < width; i++)
             {
