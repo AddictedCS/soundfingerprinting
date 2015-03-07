@@ -60,12 +60,18 @@
 
         public List<SpectralImage> CreateLogSpectrogram(AudioSamples samples,  SpectrogramConfig configuration)
         {
-            if (configuration.NormalizeSignal) // TODO SF-44
+            // TODO SF-44
+            if (configuration.NormalizeSignal) 
             {
                 audioSamplesNormalizer.NormalizeInPlace(samples.Samples);
             }
 
-            int width = (samples.Samples.Length - configuration.WdftSize) / configuration.Overlap; /*width of the image*/
+            int width = (samples.Samples.Length - configuration.WdftSize) / configuration.Overlap;
+            if (width < 1)
+            {
+                return new List<SpectralImage>();
+            }
+
             float[][] frames = new float[width][];
             int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(samples.SampleRate, configuration);
             for (int i = 0; i < width; i++)

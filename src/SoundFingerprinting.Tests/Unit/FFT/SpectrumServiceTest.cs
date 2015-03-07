@@ -43,7 +43,7 @@
         [TestMethod]
         public void CreateLogSpectrogramTest()
         {
-            var configuration = new CustomSpectrogramConfig { NormalizeSignal = true };
+            var configuration = new CustomSpectrogramConfig { NormalizeSignal = true, ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
             
             audioSamplesNormalizer.Setup(service => service.NormalizeInPlace(samples.Samples));
@@ -56,8 +56,9 @@
             audioSamplesNormalizer.Verify(service => service.NormalizeInPlace(samples.Samples), Times.Once());
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(5512, configuration), Times.Once());
 
-            Assert.AreEqual(configuration.WdftSize, result.Count);
-            Assert.AreEqual(32, result[0].Image.Length);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(configuration.WdftSize, result[0].Image.Length);
+            Assert.AreEqual(32, result[0].Image[0].Length);
         }
 
         [TestMethod]
@@ -75,8 +76,8 @@
             audioSamplesNormalizer.Verify(service => service.NormalizeInPlace(samples.Samples), Times.Never());
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(5512, configuration), Times.Once());
 
-            Assert.AreEqual(configuration.ImageLength, result.Count); // 128
-            Assert.AreEqual(32, result[0].Image.Length);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(configuration.ImageLength, result[0].Image.Length); // 128
         }
 
         [TestMethod]
@@ -85,13 +86,9 @@
             var configuration = SpectrogramConfig.Default;
             var samples = TestUtilities.GenerateRandomAudioSamples(configuration.WdftSize - 1);
 
-            logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(5512, configuration)).Returns(new int[33]);
-            
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(5512, configuration), Times.Once());
-
-            Assert.AreEqual(0, result.Count); // 128
+            Assert.AreEqual(0, result.Count); 
         }
 
         [TestMethod]

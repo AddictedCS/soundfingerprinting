@@ -1,5 +1,7 @@
 namespace SoundFingerprinting.Configuration
 {
+    using SoundFingerprinting.Strides;
+
     public class DefaultSpectrogramConfig : SpectrogramConfig
     {
         public DefaultSpectrogramConfig()
@@ -12,6 +14,7 @@ namespace SoundFingerprinting.Configuration
             ImageLength = 128;
             UseDynamicLogBase = false;
             NormalizeSignal = false;
+            Stride = new IncrementalStaticStride(5115, ImageLength * Overlap);
         }
     }
 }
