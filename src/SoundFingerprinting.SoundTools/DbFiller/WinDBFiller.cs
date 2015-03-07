@@ -414,7 +414,7 @@
                                             config =>
                                                 {
                                                     config.TopWavelets = topWavelets;
-                                                    config.Stride = stride;
+                                                    config.SpectrogramConfig.Stride = stride;
                                                 })
                                         .UsingServices(audioService)
                                         .Hash()

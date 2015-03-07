@@ -65,11 +65,6 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        /// Gets or sets stride size between 2 consecutive audio fingerprints
-        /// </summary>
-        public IStride Stride { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the algorithm has to normalize the audio signal
         /// </summary>
         public bool NormalizeSignal { get; set; }

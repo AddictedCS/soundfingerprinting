@@ -59,7 +59,7 @@
                 .From(PathToMp3)
                 .WithFingerprintConfig(config =>
                 {
-                    config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
+                    config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
                 .UsingServices(audioService)
                 .Hash()
@@ -95,7 +95,7 @@
                 .From(PathToMp3, 20, 0)
                 .WithFingerprintConfig(config =>
                 {
-                    config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
+                    config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
                 .UsingServices(audioService)
                 .Hash()

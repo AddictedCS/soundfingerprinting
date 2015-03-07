@@ -68,7 +68,7 @@
             modelService.Setup(service => service.ReadTrackByReference(thirdTrackReference)).Returns(
                 new TrackData { ISRC = "isrc_2", TrackReference = thirdTrackReference });
 
-            var queryResult = queryFingerprintService.Query(
+            var queryResult = queryFingerprintService.Query2(
                 modelService.Object,
                 new List<HashData> { queryHash },
                 new CustomQueryConfiguration
@@ -92,7 +92,7 @@
             var queryHash = new HashData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
             modelService.Setup(service => service.ReadSubFingerprintDataByHashBucketsWithThreshold(It.IsAny<long[]>(), 10)).Returns(new List<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(
+            var queryResult = queryFingerprintService.Query2(
                 modelService.Object,
                 new List<HashData> { queryHash },
                 new CustomQueryConfiguration { MaximumNumberOfTracksToReturnAsResult = 1, ThresholdVotes = 10 });
@@ -121,7 +121,7 @@
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference))
                         .Returns(new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
 
-            var queryResult = queryFingerprintService.Query(modelService.Object, new List<HashData> { queryHash }, new DefaultQueryConfiguration());
+            var queryResult = queryFingerprintService.Query2(modelService.Object, new List<HashData> { queryHash }, new DefaultQueryConfiguration());
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
@@ -153,7 +153,7 @@
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference)).Returns(
                 new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
 
-            var queryResult = queryFingerprintService.Query(
+            var queryResult = queryFingerprintService.Query2(
                 modelService.Object,
                 new List<HashData> { queryHash },
                 new CustomQueryConfiguration { TrackGroupId = "group-id" });

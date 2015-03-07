@@ -52,7 +52,7 @@
                     new SpectralImage { Image = new[] { TestUtilities.GenerateRandomFloatArray(2048) } }
                 };
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, configuration)).Returns(dividedLogSpectrum);
-            waveletDecomposition.Setup(service => service.DecomposeImagesInPlace(dividedLogSpectrum));
+            waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets)).Returns(GenericFingerprint);
 
             List<bool[]> rawFingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig);
@@ -78,7 +78,8 @@
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, spectrogramConfig)).Returns(
                 dividedLogSpectrum);
 
-            waveletDecomposition.Setup(service => service.DecomposeImagesInPlace(dividedLogSpectrum));
+            waveletDecomposition.Setup(
+                decomposition => decomposition.DecomposeImageInPlace(It.IsAny<float[][]>()));
             fingerprintDescriptor.Setup(
                 descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), configuration.TopWavelets)).Returns(
                     new[] { false, false, false, false, false, false, false, false });

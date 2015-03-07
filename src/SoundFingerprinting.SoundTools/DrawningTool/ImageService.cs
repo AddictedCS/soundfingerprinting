@@ -193,7 +193,7 @@
             SpectrogramConfig config,
             int imagesPerRow)
         {
-            waveletDecomposition.DecomposeImagesInPlace(spetralImages);
+            waveletDecomposition.DecomposeImagesInPlace(spetralImages.Select(im => im.Image));
 
             int width = spetralImages[0].Image.GetLength(0);
             int height = spetralImages[0].Image[0].Length;

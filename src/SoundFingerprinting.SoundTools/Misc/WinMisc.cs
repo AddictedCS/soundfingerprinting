@@ -134,7 +134,7 @@
                                                         {
                                                             config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                             config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                            config.Stride = _chbDatabaseStride.Checked
+                                                            config.SpectrogramConfig.Stride = _chbDatabaseStride.Checked
                                                                                 ? (IStride)
                                                                                   new IncrementalRandomStride(0, (int)_nudDatabaseStride.Value, config.SamplesPerFingerprint)
                                                                                 : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
@@ -155,7 +155,7 @@
                                                                   {
                                                                       config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                                       config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                                      config.Stride = _chbQueryStride.Checked
+                                                                      config.SpectrogramConfig.Stride = _chbQueryStride.Checked
                                                                                           ? (IStride)
                                                                                             new IncrementalRandomStride(
                                                                                                 0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
@@ -176,7 +176,7 @@
                                                               {
                                                                   config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                                   config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                                  config.Stride = _chbQueryStride.Checked
+                                                                  config.SpectrogramConfig.Stride = _chbQueryStride.Checked
                                                                                       ? (IStride)
                                                                                         new IncrementalRandomStride(
                                                                                             0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)

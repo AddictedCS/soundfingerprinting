@@ -49,7 +49,11 @@ namespace SoundFingerprinting
 
         private List<bool[]> CreateFingerprintsFromLogSpectrum(List<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
-            waveletDecomposition.DecomposeImagesInPlace(spectralImages.Select(image => image.Image));
+            foreach (var spectralImage in spectralImages)
+            {
+                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image); // TODO Can this be moved to below for loop?
+            }
+
             var fingerprints = new List<bool[]>();
             foreach (var spectralImage in spectralImages)
             {

@@ -22,7 +22,7 @@
     {
         private readonly ModelService modelService;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
-        private readonly IQueryFingerprintService queryFingerprintService;
+        private readonly QueryFingerprintService queryFingerprintService;
         private readonly BassAudioService bassAudioService;
         private readonly BassWaveFileUtility bassWaveFileUtility;
         private readonly NAudioService naudioAudioService;
@@ -59,7 +59,7 @@
 
             var audioFingerprintingUnit = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(PathToMp3)
-                                        .WithFingerprintConfig(config => { config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); })
+                                        .WithFingerprintConfig(config => { config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint); })
                                         .UsingServices(bassAudioService);
                                     
             double seconds = tagService.GetTagInfo(PathToMp3).Duration;
@@ -112,7 +112,7 @@
 
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
 
-            var queryResult = queryFingerprintService.Query(modelService, hashDatas, new DefaultQueryConfiguration());
+            var queryResult = queryFingerprintService.Query2(modelService, hashDatas, new DefaultQueryConfiguration());
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual(1, queryResult.ResultEntries.Count);
@@ -199,7 +199,7 @@
 
             var list = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToMp3)
-                                      .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0, 0))
+                                      .WithFingerprintConfig(customConfiguration => customConfiguration.SpectrogramConfig.Stride = new StaticStride(0, 0))
                                       .UsingServices(bassAudioService)
                                       .Fingerprint()
                                       .Result;

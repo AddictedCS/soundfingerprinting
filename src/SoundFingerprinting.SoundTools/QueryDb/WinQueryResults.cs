@@ -153,7 +153,7 @@
                                                    .WithConfigs(
                                                         fingerprintConfig =>
                                                         {
-                                                            fingerprintConfig.Stride = samplesToSkip;
+                                                            fingerprintConfig.SpectrogramConfig.Stride = samplesToSkip;
                                                             fingerprintConfig.HashingConfig.NumberOfLSHTables = hashTables;
                                                             fingerprintConfig.HashingConfig.NumberOfMinHashesPerTable = hashKeys;
                                                         },
@@ -228,7 +228,7 @@
                                    .WithConfigs(
                                         fingerprintConfig =>
                                         {
-                                            fingerprintConfig.Stride = samplesToSkip;
+                                            fingerprintConfig.SpectrogramConfig.Stride = samplesToSkip;
                                             fingerprintConfig.HashingConfig.NumberOfLSHTables = hashTables;
                                             fingerprintConfig.HashingConfig.NumberOfMinHashesPerTable = hashKeys;
                                         },

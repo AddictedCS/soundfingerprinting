@@ -19,20 +19,17 @@
             Assert.AreEqual(defaultConfiguration.NormalizeSignal, customConfiguration.NormalizeSignal);
             Assert.AreEqual(defaultConfiguration.SampleRate, customConfiguration.SampleRate);
             Assert.AreEqual(defaultConfiguration.SamplesPerFingerprint, customConfiguration.SamplesPerFingerprint);
-            Assert.IsTrue(defaultConfiguration.Stride.GetType() == customConfiguration.Stride.GetType());
             Assert.AreEqual(defaultConfiguration.TopWavelets, customConfiguration.TopWavelets);
         }
 
         [TestMethod]
         public void CustomValuesAreSetOnFingerprintConfiguration()
         {
-            var staticStride = new StaticStride(2048);
             var customConfiguration = new CustomFingerprintConfiguration
-                { NormalizeSignal = true, SampleRate = 10024, Stride = staticStride, TopWavelets = 250, };
+                { NormalizeSignal = true, SampleRate = 10024, TopWavelets = 250, };
 
             Assert.IsTrue(customConfiguration.NormalizeSignal);
             Assert.AreEqual(10024, customConfiguration.SampleRate);
-            Assert.AreEqual(staticStride, customConfiguration.Stride);
             Assert.AreEqual(250, customConfiguration.TopWavelets);
         }
 
