@@ -4,6 +4,7 @@
     using System.Drawing;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Wavelets;
 
@@ -18,14 +19,14 @@
         Image GetSpectrogramImage(float[][] spectrum, int width, int height);
 
         Image GetLogSpectralImages(
-            float[][] spectrum,
+            SpectralImage spectrum,
             int sampleRate,
             IStride strideBetweenConsecutiveImages,
             SpectrogramConfig config,
             int imagesPerRow);
 
         Image GetWaveletsImages(
-            float[][] spectrum,
+            SpectralImage spectrum,
             int sampleRate,
             IStride strideBetweenConsecutiveImages,
             SpectrogramConfig config, 

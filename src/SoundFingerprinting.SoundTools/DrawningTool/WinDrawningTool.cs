@@ -309,9 +309,9 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
+                        AudioSamples samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         Image image = imageService.GetLogSpectralImages(
-                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SampleRate, fingerprintConfiguration.SpectrogramConfig),
+                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SpectrogramConfig),
                             fingerprintConfiguration.SampleRate,
                             new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
                             fingerprintConfiguration.SpectrogramConfig,
