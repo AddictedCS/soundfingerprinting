@@ -10,7 +10,6 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
 
     internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IUsingFingerprintServices, IFingerprintCommand
@@ -21,7 +20,7 @@ namespace SoundFingerprinting.Command
 
         private Func<List<SpectralImage>> createSpectralImages; 
 
-        private Func<List<bool[]>> createFingerprintsMethod;
+        private Func<List<Fingerprint>> createFingerprintsMethod;
 
         private IAudioService audioService;
 
@@ -38,7 +37,7 @@ namespace SoundFingerprinting.Command
             return Task.Factory.StartNew(createSpectralImages);
         }
 
-        public Task<List<bool[]>> Fingerprint()
+        public Task<List<Fingerprint>> Fingerprint()
         {
             return Task.Factory.StartNew(createFingerprintsMethod);
         }
@@ -74,7 +73,7 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IWithFingerprintConfiguration From(IEnumerable<bool[]> fingerprints)
+        public IWithFingerprintConfiguration From(IEnumerable<Fingerprint> fingerprints)
         {
             createSpectralImages = () => { throw new Exception("Could not create spectral images from fingerprinted content"); };
             createFingerprintsMethod = fingerprints.ToList;
@@ -130,7 +129,7 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        private List<HashData> HashFingerprints(IEnumerable<bool[]> fingerprints)
+        private List<HashData> HashFingerprints(IEnumerable<Fingerprint> fingerprints)
         {
             var hashDatas = new ConcurrentBag<HashData>();
             Parallel.ForEach(
@@ -138,7 +137,7 @@ namespace SoundFingerprinting.Command
                 (fingerprint, state, index) =>
                     {
                         var hashData = lshAlgorithm.Hash(
-                            fingerprint,
+                            fingerprint.Signature,
                             FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
                             FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
                         hashData.SequenceNumber = (int)index + 1;

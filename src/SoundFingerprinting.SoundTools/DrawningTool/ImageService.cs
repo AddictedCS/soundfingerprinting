@@ -8,7 +8,6 @@
     using System.Linq;
 
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.FFT;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Wavelets;
 
@@ -27,14 +26,14 @@
             this.waveletDecomposition = waveletDecomposition;
         }
 
-        public Image GetImageForFingerprint(bool[] data, int width, int height)
+        public Image GetImageForFingerprint(Fingerprint data, int width, int height)
         {
             Bitmap image = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
-            DrawFingerprintInImage(image, data, width, height, 0, 0);
+            DrawFingerprintInImage(image, data.Signature, width, height, 0, 0);
             return image;
         }
 
-        public Image GetImageForFingerprints(List<bool[]> fingerprints, int width, int height, int imagesPerRow)
+        public Image GetImageForFingerprints(List<Fingerprint> fingerprints, int width, int height, int imagesPerRow)
         {
             int fingersCount = fingerprints.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
@@ -47,9 +46,9 @@
             int verticalOffset = PixelsBetweenImages;
             int horizontalOffset = PixelsBetweenImages;
             int count = 0;
-            foreach (bool[] fingerprint in fingerprints)
+            foreach (var fingerprint in fingerprints)
             {
-                DrawFingerprintInImage(image, fingerprint, width, height, horizontalOffset, verticalOffset);
+                DrawFingerprintInImage(image, fingerprint.Signature, width, height, horizontalOffset, verticalOffset);
                 count++;
                 if (count % imagesPerRow == 0)
                 {

@@ -13,7 +13,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests;
     using SoundFingerprinting.Tests.Integration;
@@ -178,7 +177,7 @@
             {
                 for (int j = 0; j < naudioFingerprints[i].Length; j++)
                 {
-                    if (naudioFingerprints[i][j] != bassFingerprints[i][j])
+                    if (naudioFingerprints[i].Signature[j] != bassFingerprints[i].Signature[j])
                     {
                         unmatchedItems++;
                     }

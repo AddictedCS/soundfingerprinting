@@ -45,23 +45,23 @@ namespace SoundFingerprinting
             return spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
         }
 
-        public List<bool[]> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
+        public List<Fingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
         { 
             NormalizeAudioIfNecessary(samples, configuration);
             var spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);
         }
 
-        private List<bool[]> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
-            var fingerprints = new List<bool[]>();
+            var fingerprints = new List<Fingerprint>();
             foreach (var spectralImage in spectralImages)
             {
                 waveletDecomposition.DecomposeImageInPlace(spectralImage.Image); 
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
                 if (!IsSilence(image))
                 {
-                    fingerprints.Add(image);
+                    fingerprints.Add(new Fingerprint { Signature = image, Timestamp = spectralImage.Timestamp });
                 }
             }
 

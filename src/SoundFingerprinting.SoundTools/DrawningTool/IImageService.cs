@@ -4,14 +4,13 @@
     using System.Drawing;
 
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.FFT;
     using SoundFingerprinting.Wavelets;
 
     public interface IImageService
     {
-        Image GetImageForFingerprint(bool[] data, int width, int height);
+        Image GetImageForFingerprint(Fingerprint data, int width, int height);
 
-        Image GetImageForFingerprints(List<bool[]> fingerprints, int width, int height, int fingerprintsPerRow);
+        Image GetImageForFingerprints(List<Fingerprint> fingerprints, int width, int height, int fingerprintsPerRow);
 
         Image GetSignalImage(float[] data, int width, int height);
 

@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Command
     using System.Collections.Generic;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Data;
 
     public interface ISourceFrom
     {
@@ -10,7 +11,7 @@ namespace SoundFingerprinting.Command
 
         IWithFingerprintConfiguration From(AudioSamples audioSamples);
 
-        IWithFingerprintConfiguration From(IEnumerable<bool[]> fingerprints);
+        IWithFingerprintConfiguration From(IEnumerable<Fingerprint> fingerprints);
 
         IWithFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond);
     }

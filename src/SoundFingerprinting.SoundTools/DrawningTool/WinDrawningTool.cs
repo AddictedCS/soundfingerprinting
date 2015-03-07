@@ -93,7 +93,7 @@
                                                                             })
                                                                            .UsingServices(audioService);
 
-                                List<bool[]> fingerprints = songToDraw.Fingerprint()
+                                var fingerprints = songToDraw.Fingerprint()
                                                                       .Result
                                                                       .Select(fingerprint => fingerprint)
                                                                       .ToList();
@@ -129,14 +129,14 @@
                                                                                 config.SpectrogramConfig.Stride = new IncrementalStaticStride(strideSize, config.SamplesPerFingerprint);
                                                                             })
                                                                           .UsingServices(audioService);
-                                List<bool[]> result = songToDraw.Fingerprint()
+                                var result = songToDraw.Fingerprint()
                                                                 .Result
                                                                 .Select(fingerprint => fingerprint)
                                                                 .ToList();
                                 int i = -1;
                                 int width = songToDraw.FingerprintConfiguration.SpectrogramConfig.ImageLength;
                                 int height = songToDraw.FingerprintConfiguration.SpectrogramConfig.LogBins;
-                                foreach (bool[] item in result)
+                                foreach (var item in result)
                                 {
                                     using (var image = imageService.GetImageForFingerprint(item, width, height))
                                     {

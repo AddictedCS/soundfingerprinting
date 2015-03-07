@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.SoundTools.Misc
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -237,11 +236,11 @@
         {
             double sum = 0;
 
-            List<bool[]> fingerprintsDatabaseSong = databaseSong.Fingerprint()
+            var fingerprintsDatabaseSong = databaseSong.Fingerprint()
                                                                 .Result
                                                                 .Select(fingerprint => fingerprint)
                                                                 .ToList();
-            List<bool[]> fingerprintsQuerySong = querySong.Fingerprint()
+            var fingerprintsQuerySong = querySong.Fingerprint()
                                                                 .Result
                                                                 .Select(fingerprint => fingerprint)
                                                                 .ToList();
@@ -253,7 +252,7 @@
             {
                 for (int j = 0; j < fingerprintsQuerySong.Count; j++)
                 {
-                    double value = SimilarityUtility.CalculateJaccardSimilarity(fingerprintsDatabaseSong[i], fingerprintsQuerySong[j]);
+                    double value = SimilarityUtility.CalculateJaccardSimilarity(fingerprintsDatabaseSong[i].Signature, fingerprintsQuerySong[j].Signature);
                     if (value > max)
                     {
                         max = value;

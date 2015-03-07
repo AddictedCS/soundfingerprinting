@@ -55,12 +55,12 @@
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets)).Returns(GenericFingerprint);
 
-            List<bool[]> rawFingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig);
+            var rawFingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig);
 
             Assert.AreEqual(dividedLogSpectrum.Count, rawFingerprints.Count);
-            foreach (bool[] fingerprint in rawFingerprints)
+            foreach (var fingerprint in rawFingerprints)
             {
-                Assert.AreEqual(GenericFingerprint, fingerprint);
+                Assert.AreEqual(GenericFingerprint, fingerprint.Signature);
             }
         }
 
@@ -98,7 +98,7 @@
                 descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), configuration.TopWavelets)).Returns(
                     new[] { false, false, false, false, false, false, false, false });
 
-            List<bool[]> rawFingerprints = fingerprintService.CreateFingerprints(samples, configuration);
+            var rawFingerprints = fingerprintService.CreateFingerprints(samples, configuration);
 
             Assert.IsTrue(rawFingerprints.Count == 0);
         }
