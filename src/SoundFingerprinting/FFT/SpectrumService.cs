@@ -60,12 +60,6 @@
 
         public List<SpectralImage> CreateLogSpectrogram(AudioSamples samples,  SpectrogramConfig configuration)
         {
-            // TODO SF-44
-            if (configuration.NormalizeSignal) 
-            {
-                audioSamplesNormalizer.NormalizeInPlace(samples.Samples);
-            }
-
             int width = (samples.Samples.Length - configuration.WdftSize) / configuration.Overlap;
             if (width < 1)
             {

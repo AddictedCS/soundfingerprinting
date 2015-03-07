@@ -13,36 +13,40 @@ namespace SoundFingerprinting
     public class FingerprintService : IFingerprintService
     {
         private readonly ISpectrumService spectrumService;
-
         private readonly IWaveletDecomposition waveletDecomposition;
-
         private readonly IFingerprintDescriptor fingerprintDescriptor;
+        private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
 
         public FingerprintService()
             : this(
                 DependencyResolver.Current.Get<ISpectrumService>(),
                 DependencyResolver.Current.Get<IWaveletDecomposition>(),
-                DependencyResolver.Current.Get<IFingerprintDescriptor>())
+                DependencyResolver.Current.Get<IFingerprintDescriptor>(),
+                DependencyResolver.Current.Get<IAudioSamplesNormalizer>())
         {
         }
 
         internal FingerprintService(
             ISpectrumService spectrumService,
             IWaveletDecomposition waveletDecomposition,
-            IFingerprintDescriptor fingerprintDescriptor)
+            IFingerprintDescriptor fingerprintDescriptor,
+            IAudioSamplesNormalizer audioSamplesNormalizer)
         {
             this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
+            this.audioSamplesNormalizer = audioSamplesNormalizer;
         }
 
         public List<SpectralImage> CreateSpectralImages(AudioSamples samples, FingerprintConfiguration configuration)
         {
+            NormalizeAudioIfNecessary(samples, configuration);
             return spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
         }
 
         public List<bool[]> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
-        {
+        { 
+            NormalizeAudioIfNecessary(samples, configuration);
             var spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);
         }
@@ -70,6 +74,14 @@ namespace SoundFingerprinting
         private bool IsSilence(IEnumerable<bool> image)
         {
             return image.All(b => b == false);
+        }
+ 
+        private void NormalizeAudioIfNecessary(AudioSamples samples, FingerprintConfiguration configuration)
+        {
+            if (configuration.NormalizeSignal)
+            {
+                audioSamplesNormalizer.NormalizeInPlace(samples.Samples);
+            }
         }
     }
 }
