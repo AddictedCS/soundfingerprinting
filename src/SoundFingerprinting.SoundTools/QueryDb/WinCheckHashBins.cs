@@ -210,7 +210,7 @@
                         winQueryResults.Refresh();
                         AudioSamples audioSamples = new AudioSamples //TODO review this
                             {
-                                Length = secondsToRecord,
+                                Duration = secondsToRecord,
                                 Origin = "Microphone",
                                 SampleRate = sampleRate,
                                 Samples = task.Result

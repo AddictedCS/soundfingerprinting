@@ -8,6 +8,6 @@
 
         public int SampleRate { get; set; }
 
-        public double Length { get; set; }
+        public double Duration { get; set; }
     }
 }

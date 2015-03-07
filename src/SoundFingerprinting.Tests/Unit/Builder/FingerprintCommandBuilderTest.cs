@@ -225,7 +225,7 @@
 
         private AudioSamples GetAudioSamples(float[] samples)
         {
-            return new AudioSamples { Samples = samples, Length = 0, Origin = string.Empty, SampleRate = 0 }; // TODO Fix this
+            return new AudioSamples { Samples = samples, Duration = 0, Origin = string.Empty, SampleRate = 0 }; // TODO Fix this
         }
 
         private List<bool[]> GetGenericFingerprints(int count)

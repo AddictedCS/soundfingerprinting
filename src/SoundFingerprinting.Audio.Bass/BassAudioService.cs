@@ -49,7 +49,7 @@
                     Samples = samples,
                     Origin = pathToSourceFile,
                     SampleRate = sampleRate,
-                    Length = (double)samples.Length / sampleRate
+                    Duration = (double)samples.Length / sampleRate
                 };
         }
     }

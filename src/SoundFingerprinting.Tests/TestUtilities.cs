@@ -12,7 +12,7 @@ namespace SoundFingerprinting.Tests
         {
             return new AudioSamples
                 {
-                    Length = length,
+                    Duration = length,
                     Origin = string.Empty,
                     SampleRate = 5512,
                     Samples = GenerateRandomFloatArray(length)
