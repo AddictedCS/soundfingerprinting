@@ -13,7 +13,7 @@
 
     public class ImageService : IImageService
     {
-        private const int SpaceBetweenImages = 10; /*10 pixel space between fingerprint images*/
+        private const int PixelsBetweenImages = 10; 
 
         private readonly IWaveletDecomposition waveletDecomposition;
 
@@ -33,19 +33,18 @@
             return image;
         }
 
-        public Image GetImageForFingerprints(List<bool[]> fingerprints, int width, int height, int fingerprintsPerRow)
+        public Image GetImageForFingerprints(List<bool[]> fingerprints, int width, int height, int imagesPerRow)
         {
-            int imagesPerRow = fingerprintsPerRow; /*5 bitmap images per line*/
             int fingersCount = fingerprints.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
-            int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
-            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageWidth = (imagesPerRow * (width + PixelsBetweenImages)) + PixelsBetweenImages;
+            int imageHeight = (rowCount * (height + PixelsBetweenImages)) + PixelsBetweenImages;
 
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
             SetBackground(image, Color.White);
 
-            int verticalOffset = SpaceBetweenImages;
-            int horizontalOffset = SpaceBetweenImages;
+            int verticalOffset = PixelsBetweenImages;
+            int horizontalOffset = PixelsBetweenImages;
             int count = 0;
             foreach (bool[] fingerprint in fingerprints)
             {
@@ -53,12 +52,12 @@
                 count++;
                 if (count % imagesPerRow == 0)
                 {
-                    verticalOffset += height + SpaceBetweenImages;
-                    horizontalOffset = SpaceBetweenImages;
+                    verticalOffset += height + PixelsBetweenImages;
+                    horizontalOffset = PixelsBetweenImages;
                 }
                 else
                 {
-                    horizontalOffset += width + SpaceBetweenImages;
+                    horizontalOffset += width + PixelsBetweenImages;
                 }
             }
 
@@ -139,14 +138,14 @@
             int height = spectralImages[0].Image[0].Length;
             int fingersCount = spectralImages.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
-            int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
-            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageWidth = (imagesPerRow * (width + PixelsBetweenImages)) + PixelsBetweenImages;
+            int imageHeight = (rowCount * (height + PixelsBetweenImages)) + PixelsBetweenImages;
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
 
             SetBackground(image, Color.White);
 
-            int verticalOffset = SpaceBetweenImages;
-            int horizontalOffset = SpaceBetweenImages;
+            int verticalOffset = PixelsBetweenImages;
+            int horizontalOffset = PixelsBetweenImages;
             int count = 0;
             foreach (float[][] spectralImage in spectralImages.Select(im => im.Image))
             {
@@ -163,12 +162,12 @@
                 count++;
                 if (count % imagesPerRow == 0)
                 {
-                    verticalOffset += height + SpaceBetweenImages;
-                    horizontalOffset = SpaceBetweenImages;
+                    verticalOffset += height + PixelsBetweenImages;
+                    horizontalOffset = PixelsBetweenImages;
                 }
                 else
                 {
-                    horizontalOffset += width + SpaceBetweenImages;
+                    horizontalOffset += width + PixelsBetweenImages;
                 }
             }
 
@@ -183,14 +182,14 @@
             int height = spetralImages[0].Image[0].Length;
             int fingersCount = spetralImages.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
-            int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
-            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageWidth = (imagesPerRow * (width + PixelsBetweenImages)) + PixelsBetweenImages;
+            int imageHeight = (rowCount * (height + PixelsBetweenImages)) + PixelsBetweenImages;
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
 
             SetBackground(image, Color.White);
 
-            int verticalOffset = SpaceBetweenImages;
-            int horizontalOffset = SpaceBetweenImages;
+            int verticalOffset = PixelsBetweenImages;
+            int horizontalOffset = PixelsBetweenImages;
             int count = 0;
             foreach (float[][] spectralImage in spetralImages.Select(im => im.Image))
             {
@@ -207,12 +206,12 @@
                 count++;
                 if (count % imagesPerRow == 0)
                 {
-                    verticalOffset += height + SpaceBetweenImages;
-                    horizontalOffset = SpaceBetweenImages;
+                    verticalOffset += height + PixelsBetweenImages;
+                    horizontalOffset = PixelsBetweenImages;
                 }
                 else
                 {
-                    horizontalOffset += width + SpaceBetweenImages;
+                    horizontalOffset += width + PixelsBetweenImages;
                 }
             }
 
