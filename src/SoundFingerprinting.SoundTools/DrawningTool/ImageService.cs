@@ -7,28 +7,22 @@
     using System.Drawing.Imaging;
     using System.Linq;
 
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Strides;
     using SoundFingerprinting.Wavelets;
 
     public class ImageService : IImageService
     {
         private const int SpaceBetweenImages = 10; /*10 pixel space between fingerprint images*/
 
-        private readonly ISpectrumService spectrumService;
-
         private readonly IWaveletDecomposition waveletDecomposition;
 
-        public ImageService()
-            : this(DependencyResolver.Current.Get<ISpectrumService>(), DependencyResolver.Current.Get<IWaveletDecomposition>())
+        public ImageService() : this(DependencyResolver.Current.Get<IWaveletDecomposition>())
         {
         }
 
-        public ImageService(ISpectrumService spectrumService, IWaveletDecomposition waveletDecomposition)
+        public ImageService(IWaveletDecomposition waveletDecomposition)
         {
-            this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
         }
 
@@ -139,12 +133,7 @@
             return image;
         }
 
-        public Image GetLogSpectralImages(
-            List<SpectralImage> spectralImages,
-            int sampleRate,
-            IStride strideBetweenConsecutiveImages,
-            SpectrogramConfig config,
-            int imagesPerRow)
+        public Image GetLogSpectralImages(List<SpectralImage> spectralImages, int imagesPerRow)
         {
             int width = spectralImages[0].Image.GetLength(0);
             int height = spectralImages[0].Image[0].Length;
@@ -186,12 +175,7 @@
             return image;
         }
 
-        public Image GetWaveletsImages(
-            List<SpectralImage> spetralImages,
-            int sampleRate,
-            IStride strideBetweenConsecutiveImages,
-            SpectrogramConfig config,
-            int imagesPerRow)
+        public Image GetWaveletsImages(List<SpectralImage> spetralImages, int imagesPerRow)
         {
             waveletDecomposition.DecomposeImagesInPlace(spetralImages.Select(im => im.Image));
 

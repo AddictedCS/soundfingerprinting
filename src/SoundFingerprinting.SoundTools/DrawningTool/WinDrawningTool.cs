@@ -20,13 +20,9 @@
     public partial class WinDrawningTool : Form
     {
         private readonly IAudioService audioService;
-
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
-
         private readonly FingerprintConfiguration fingerprintConfiguration;
-
         private readonly IImageService imageService;
-
         private readonly ISpectrumService spectrumService;
 
         public WinDrawningTool(
@@ -37,7 +33,7 @@
             this.audioService = audioService;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             fingerprintConfiguration = new DefaultFingerprintConfiguration();
-            imageService = new ImageService(spectrumService, new StandardHaarWaveletDecomposition());
+            imageService = new ImageService(new StandardHaarWaveletDecomposition());
             this.spectrumService = spectrumService;
 
             InitializeComponent();
@@ -310,12 +306,11 @@
                 Action action = () =>
                     {
                         AudioSamples samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
-                        Image image = imageService.GetLogSpectralImages(
-                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SpectrogramConfig),
-                            fingerprintConfiguration.SampleRate,
-                            new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
-                            fingerprintConfiguration.SpectrogramConfig,
-                            5);
+                        Image image =
+                            imageService.GetLogSpectralImages(
+                                spectrumService.CreateLogSpectrogram(
+                                    samples, fingerprintConfiguration.SpectrogramConfig),
+                                5);
 
                         image.Save(path);
                         image.Dispose();
@@ -355,12 +350,11 @@
                 Action action = () =>
                     {
                         AudioSamples samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
-                        Image image = imageService.GetWaveletsImages(
-                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SpectrogramConfig),
-                            fingerprintConfiguration.SampleRate,
-                            new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
-                            fingerprintConfiguration.SpectrogramConfig,
-                            5);
+                        Image image =
+                            imageService.GetWaveletsImages(
+                                spectrumService.CreateLogSpectrogram(
+                                    samples, fingerprintConfiguration.SpectrogramConfig),
+                                5);
 
                         image.Save(path);
                         image.Dispose();
