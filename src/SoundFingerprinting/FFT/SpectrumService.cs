@@ -5,6 +5,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
     public class SpectrumService : ISpectrumService

@@ -7,6 +7,7 @@
     using System.Drawing.Imaging;
     using System.Linq;
 
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Wavelets;

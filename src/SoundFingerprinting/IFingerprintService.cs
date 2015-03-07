@@ -4,6 +4,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
 
     public interface IFingerprintService

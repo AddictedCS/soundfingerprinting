@@ -8,7 +8,6 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
     using SoundFingerprinting.MongoDb.DAO;

@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Drawing;
 
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Wavelets;
 

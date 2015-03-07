@@ -5,6 +5,7 @@ namespace SoundFingerprinting
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Utils;

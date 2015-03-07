@@ -8,6 +8,7 @@
     using Moq;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
 

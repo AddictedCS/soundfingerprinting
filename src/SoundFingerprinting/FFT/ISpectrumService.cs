@@ -4,6 +4,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
 
     public interface ISpectrumService
     {

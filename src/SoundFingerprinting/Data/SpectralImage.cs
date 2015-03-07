@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.FFT
+﻿namespace SoundFingerprinting.Data
 {
     public class SpectralImage
     {
