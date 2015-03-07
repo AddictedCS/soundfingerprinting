@@ -7,7 +7,7 @@
 
     public interface ISpectrumService
     {
-        List<SpectralImage> CreateLogSpectrogram(AudioSamples samples, SpectrogramConfig configuration);
+        List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration);
 
         float[][] CreateSpectrogram(AudioSamples samples, int overlap, int wdftSize);
     }

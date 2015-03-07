@@ -6,7 +6,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Strides;
 
     public class SpectrumService : ISpectrumService
     {
@@ -55,23 +54,23 @@
             return frames;
         }
 
-        public List<SpectralImage> CreateLogSpectrogram(AudioSamples samples,  SpectrogramConfig configuration)
+        public List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples,  SpectrogramConfig configuration)
         {
-            int width = (samples.Samples.Length - configuration.WdftSize) / configuration.Overlap;
+            int width = (audioSamples.Samples.Length - configuration.WdftSize) / configuration.Overlap;
             if (width < 1)
             {
                 return new List<SpectralImage>();
             }
 
             float[][] frames = new float[width][];
-            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(samples.SampleRate, configuration);
+            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
             for (int i = 0; i < width; i++)
             {
-                float[] complexSignal = fftService.FFTForward(samples.Samples, i * configuration.Overlap, configuration.WdftSize);
+                float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize);
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
             }
 
-            return CutLogarithmizedSpectrum(frames, samples.SampleRate, configuration);
+            return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
         }
 
         protected List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
