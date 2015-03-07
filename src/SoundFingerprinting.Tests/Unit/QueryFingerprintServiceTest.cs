@@ -8,6 +8,7 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     [TestClass]

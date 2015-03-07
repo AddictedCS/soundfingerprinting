@@ -8,6 +8,7 @@
     using Moq;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.NeuralHasher.Utils;
     using SoundFingerprinting.Tests;

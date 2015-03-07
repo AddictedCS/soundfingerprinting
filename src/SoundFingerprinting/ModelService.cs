@@ -4,6 +4,7 @@
     using System.Linq;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     public abstract class ModelService : IModelService

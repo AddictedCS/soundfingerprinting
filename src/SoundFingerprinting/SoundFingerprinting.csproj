@@ -57,8 +57,8 @@
     <Compile Include="Configuration\SpectrogramConfig.cs" />
     <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="DAO\ISpectralImageDao.cs" />
-    <Compile Include="Data\IgnoreBindingAttribute.cs" />
-    <Compile Include="Data\SpectralImageData.cs" />
+    <Compile Include="DAO\Data\IgnoreBindingAttribute.cs" />
+    <Compile Include="DAO\Data\SpectralImageData.cs" />
     <Compile Include="FFT\SpectralImage.cs" />
     <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
@@ -72,12 +72,12 @@
     <Compile Include="DAO\IHashBinDao.cs" />
     <Compile Include="DAO\ISubFingerprintDao.cs" />
     <Compile Include="DAO\ITrackDao.cs" />
-    <Compile Include="Data\FingerprintData.cs" />
-    <Compile Include="Data\HashData.cs" />
+    <Compile Include="DAO\Data\FingerprintData.cs" />
+    <Compile Include="DAO\Data\HashData.cs" />
     <Compile Include="DAO\IModelReference.cs" />
     <Compile Include="DAO\ModelReference.cs" />
-    <Compile Include="Data\SubFingerprintData.cs" />
-    <Compile Include="Data\TrackData.cs" />
+    <Compile Include="DAO\Data\SubFingerprintData.cs" />
+    <Compile Include="DAO\Data\TrackData.cs" />
     <Compile Include="FFT\FFTW\FFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWService64.cs" />
     <Compile Include="FFT\FFTW\X64\FFTWNativeMethods.cs" />

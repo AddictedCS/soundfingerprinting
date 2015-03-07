@@ -4,6 +4,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     [DeploymentItem(@"x86", @"x86")]

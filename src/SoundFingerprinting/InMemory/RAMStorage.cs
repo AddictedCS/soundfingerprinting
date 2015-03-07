@@ -4,6 +4,7 @@
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     internal class RAMStorage : IRAMStorage

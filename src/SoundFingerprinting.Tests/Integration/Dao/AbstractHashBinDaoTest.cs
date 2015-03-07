@@ -9,6 +9,7 @@
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
 

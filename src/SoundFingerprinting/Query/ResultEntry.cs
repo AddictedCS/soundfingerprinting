@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Query
 {
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     public class ResultEntry

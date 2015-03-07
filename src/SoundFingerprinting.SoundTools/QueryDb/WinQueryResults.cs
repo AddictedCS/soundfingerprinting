@@ -12,6 +12,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;

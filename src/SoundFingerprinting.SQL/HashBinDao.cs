@@ -5,6 +5,7 @@ namespace SoundFingerprinting.SQL
     using System.Text;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.SQL.Connection;

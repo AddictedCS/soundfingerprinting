@@ -3,6 +3,7 @@ namespace SoundFingerprinting
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     public interface IModelService

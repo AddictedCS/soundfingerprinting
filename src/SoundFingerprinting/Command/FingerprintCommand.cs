@@ -8,6 +8,7 @@ namespace SoundFingerprinting.Command
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
@@ -53,14 +54,13 @@ namespace SoundFingerprinting.Command
         {
             createSpectralImages = () =>
                 {
-                   AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(
-                        pathToAudioFile, FingerprintConfiguration.SampleRate, 0, 0);
+                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate);
                     return fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
                 };
 
             createFingerprintsMethod = () =>
                 {
-                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, 0, 0);
+                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate);
                     return fingerprintService.CreateFingerprints(audioSamples, FingerprintConfiguration);
                 };
 
@@ -85,8 +85,7 @@ namespace SoundFingerprinting.Command
         {
             createSpectralImages = () =>
                 {
-                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(
-                        pathToAudioFile, FingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);
+                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);
                     return fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
                 };
 

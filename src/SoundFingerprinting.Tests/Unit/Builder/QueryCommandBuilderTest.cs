@@ -11,6 +11,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 

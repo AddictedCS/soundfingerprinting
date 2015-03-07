@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 

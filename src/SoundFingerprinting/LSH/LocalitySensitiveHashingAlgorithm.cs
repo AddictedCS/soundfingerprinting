@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
 
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MinHash;
