@@ -63,7 +63,7 @@
         {
             foreach (var hashData in hashes)
             {
-                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hashData.SubFingerprint, hashData.SequenceNumber, trackReference);
+                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hashData.SubFingerprint, hashData.SequenceNumber, hashData.SequenceAt, trackReference);
                 hashBinDao.InsertHashBins(hashData.HashBins, subFingerprintReference, trackReference);
             }
         }

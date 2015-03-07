@@ -46,17 +46,17 @@
             var thirdTrackReference = new ModelReference<int>(ThirdTrackId);
             SubFingerprintData firstResult = new SubFingerprintData(
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
-                1,
+                1, 0,
                 new ModelReference<int>(FirstSubFingerprintId),
                 firstTrackReference);
             SubFingerprintData secondResult = new SubFingerprintData(
                 new byte[] { 11, 2, 13, 4, 15, 6, 7, 8, 10, 12 },
-                2,
+                2, 0.928,
                 new ModelReference<int>(SecondSubFingerprintId),
                 new ModelReference<int>(SecondTrackId));
             SubFingerprintData thirdResult = new SubFingerprintData(
                 new byte[] { 1, 2, 3, 4, 5, 15, 7, 8, 10, 12 },
-                3,
+                3, 0.928 * 2,
                 new ModelReference<int>(SecondSubFingerprintId),
                 new ModelReference<int>(ThirdTrackId));
 
@@ -113,8 +113,8 @@
             const int FirstSubFingerprintId = 10;
             const int SecondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            SubFingerprintData firstResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1, new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
-            SubFingerprintData secondResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 10, 12 }, 2, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
+            SubFingerprintData firstResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1, 0, new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
+            SubFingerprintData secondResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 10, 12 }, 2, 0.928, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
 
             modelService.Setup(service => service.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, DefaultThreshold))
                         .Returns(new List<SubFingerprintData> { firstResult, secondResult });
@@ -142,7 +142,7 @@
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
             SubFingerprintData firstResult = new SubFingerprintData(
                 new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
-                1,
+                1, 0.928,
                 new ModelReference<int>(FirstSubFingerprintId),
                 firstTrackReference);
       

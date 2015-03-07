@@ -59,10 +59,9 @@
             }
         }
 
-
         private static List<SubFingerprintData> GetSequence(params int[] orderNumbers)
         {
-            var subfingerprints = orderNumbers.Select(t => new SubFingerprintData(null, t, null, null)).ToList();
+            var subfingerprints = orderNumbers.Select(t => new SubFingerprintData(null, t, t * 0.928, null, null)).ToList();
             return subfingerprints;
         }
     }

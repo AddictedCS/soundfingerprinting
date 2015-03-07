@@ -37,12 +37,13 @@
                             });
         }
 
-        public IModelReference InsertSubFingerprint(byte[] signature, int sequenceNumber, IModelReference trackReference)
+        public IModelReference InsertSubFingerprint(byte[] signature, int sequenceNumber, double sequenceAt, IModelReference trackReference)
         {
             long subFingerprintId = PrepareStoredProcedure(SpInsertSubFingerprint)
                                 .WithParameter("Signature", signature)
                                 .WithParameter("TrackId", trackReference.Id, DbType.Int32)
                                 .WithParameter("SequenceNumber", sequenceNumber, DbType.Int32)
+                                .WithParameter("SequenceAt", sequenceAt, DbType.Double)
                                 .Execute()
                                 .AsScalar<long>();
 

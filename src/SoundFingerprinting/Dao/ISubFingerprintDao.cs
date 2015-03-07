@@ -6,6 +6,6 @@ namespace SoundFingerprinting.DAO
     {
         SubFingerprintData ReadSubFingerprint(IModelReference subFingerprintReference);
 
-        IModelReference InsertSubFingerprint(byte[] signature, int sequenceNumber, IModelReference trackReference);
+        IModelReference InsertSubFingerprint(byte[] signature, int sequenceNumber, double sequenceAt, IModelReference trackReference);
     }
 }

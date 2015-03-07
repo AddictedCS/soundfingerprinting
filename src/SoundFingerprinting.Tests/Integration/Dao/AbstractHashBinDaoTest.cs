@@ -165,7 +165,7 @@
             int counter = 1;
             foreach (var hash in hashData)
             {
-                var subFingerprintId = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, counter++, trackReference);
+                var subFingerprintId = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, counter++, hash.SequenceAt, trackReference);
                 HashBinDao.InsertHashBins(hash.HashBins, subFingerprintId, trackReference);
             }
         }

@@ -12,17 +12,20 @@
             // no op
         }
 
-        public SubFingerprintData(byte[] signature, int sequenceNumber, IModelReference subFingerprintReference, IModelReference trackReference)
+        public SubFingerprintData(byte[] signature, int sequenceNumber, double sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference)
         {
             Signature = signature;
             SubFingerprintReference = subFingerprintReference;
             TrackReference = trackReference;
             SequenceNumber = sequenceNumber;
+            SequenceAt = sequenceAt;
         }
 
         public byte[] Signature { get; set; }
 
         public int SequenceNumber { get; set; }
+
+        public double SequenceAt { get; set; }
 
         [IgnoreBinding]
         public IModelReference SubFingerprintReference { get; set; }
