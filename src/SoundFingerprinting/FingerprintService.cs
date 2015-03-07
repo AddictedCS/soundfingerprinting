@@ -51,16 +51,12 @@ namespace SoundFingerprinting
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);
         }
 
-        private List<bool[]> CreateFingerprintsFromLogSpectrum(List<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        private List<bool[]> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
-            foreach (var spectralImage in spectralImages)
-            {
-                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image); // TODO Can this be moved to below for loop?
-            }
-
             var fingerprints = new List<bool[]>();
             foreach (var spectralImage in spectralImages)
             {
+                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image); 
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
                 if (!IsSilence(image))
                 {
