@@ -46,7 +46,7 @@
 
             var result = naudioService.ReadMonoSamplesFromFile("path-to-audio-file", SampleRate, SecondsToRead, StartAt);
 
-            Assert.AreSame(samples, result);
+            Assert.AreSame(samples, result.Samples);
         }
     }
 }
