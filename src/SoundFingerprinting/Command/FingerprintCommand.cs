@@ -141,6 +141,7 @@ namespace SoundFingerprinting.Command
                             FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
                             FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
                         hashData.SequenceNumber = (int)index + 1;
+                        hashData.SequenceAt = fingerprint.Timestamp;
                         hashDatas.Add(hashData);
                     });
 
