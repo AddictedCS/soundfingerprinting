@@ -87,11 +87,7 @@
             var stride = new StaticStride(0, 0);
             var config = new CustomSpectrogramConfig { Stride = stride };
             const int LogSpectrumLength = 1024;
-            var logSpectrum = new float[LogSpectrumLength][];
-            for (int i = 0; i < LogSpectrumLength; i++)
-            {
-                logSpectrum[i] = new float[32];
-            }
+            var logSpectrum = GetLogSpectrum(LogSpectrumLength);
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
             
@@ -103,18 +99,14 @@
                     System.Math.Abs(cutLogarithmizedSpectrum[i].Timestamp - (i * lengthOfOneFingerprint)) < Epsilon);
             }
         }
-
+        
         [TestMethod]
         public void CutLogarithmizedSpectrumOfJustOneFingerprintTest()
         {
             var stride = new StaticStride(0, 0);
             var config = new CustomSpectrogramConfig { Stride = stride };
             int logSpectrumLength = config.ImageLength; // 128
-            var logSpectrum = new float[logSpectrumLength][];
-            for (int i = 0; i < logSpectrumLength; i++)
-            {
-                logSpectrum[i] = new float[32];
-            }
+            var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
             
@@ -127,18 +119,34 @@
             var stride = new IncrementalStaticStride(FingerprintConfiguration.Default.SamplesPerFingerprint / 2, FingerprintConfiguration.Default.SamplesPerFingerprint, 0);
             var config = new CustomSpectrogramConfig { Stride = stride };
             int logSpectrumLength = (config.ImageLength * 24) + config.Overlap;
-            var logSpectrum = new float[logSpectrumLength][];
-            for (int i = 0; i < logSpectrumLength; i++)
-            {
-                logSpectrum[i] = new float[32];
-            }
+            var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
+            
             Assert.AreEqual(48, cutLogarithmizedSpectrum.Count);
             double lengthOfOneFingerprint = (double)config.ImageLength * config.Overlap / SampleRate;
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
                 Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].Timestamp - (i * lengthOfOneFingerprint / 2)) < Epsilon);
+            }
+        }
+
+        [TestMethod]
+        public void CutLogarithmizedSpectrumWithDefaultStride()
+        {
+            var config = SpectrogramConfig.Default;
+            int logSpectrumlength = config.ImageLength * 10;
+            var logSpectrum = GetLogSpectrum(logSpectrumlength);
+
+            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
+            
+            // Default stride between 2 consecutive images is 5115, but because of rounding issues and the fact
+            // that minimal step is 11.6 ms, timestamp is roughly .928 sec
+            const double TimestampOfFingerprints = (double)5120 / SampleRate;
+            Assert.AreEqual(15, cutLogarithmizedSpectrum.Count);
+            for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
+            {
+                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].Timestamp - (i * TimestampOfFingerprints)) < Epsilon);
             }
         }
 
@@ -157,6 +165,17 @@
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
 
             Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
+        }
+       
+        private float[][] GetLogSpectrum(int logSpectrumLength)
+        {
+            var logSpectrum = new float[logSpectrumLength][];
+            for (int i = 0; i < logSpectrumLength; i++)
+            {
+                logSpectrum[i] = new float[32];
+            }
+
+            return logSpectrum;
         }
     }
 
