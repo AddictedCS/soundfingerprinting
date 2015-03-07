@@ -38,7 +38,6 @@
         {
             var configuration = new CustomSpectrogramConfig { ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
-            
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration)).Returns(new int[33]);
             fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize))
                       .Returns(TestUtilities.GenerateRandomFloatArray(2048));
@@ -46,7 +45,6 @@
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
-
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(configuration.WdftSize, result[0].Image.Length);
             Assert.AreEqual(32, result[0].Image[0].Length);
@@ -57,7 +55,6 @@
         {
             var configuration = new CustomSpectrogramConfig { NormalizeSignal = false };
             var samples = TestUtilities.GenerateRandomAudioSamples(FingerprintConfiguration.Default.SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
-
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration)).Returns(new int[33]);
             fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize))
                       .Returns(TestUtilities.GenerateRandomFloatArray(2048));
@@ -65,9 +62,8 @@
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
-
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.ImageLength, result[0].Image.Length); // 128
+            Assert.AreEqual(configuration.ImageLength, result[0].Image.Length);
         }
 
         [TestMethod]
@@ -156,15 +152,22 @@
             var stride = new StaticStride(0, 0);
             var config = new CustomSpectrogramConfig { Stride = stride };
             int logSpectrumLength = config.ImageLength - 1;
+            var logSpectrum = GetLogSpectrum(logSpectrumLength);
+
+            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
+
+            Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
+        }
+       
+        private float[][] GetLogSpectrum(int logSpectrumLength)
+        {
             var logSpectrum = new float[logSpectrumLength][];
             for (int i = 0; i < logSpectrumLength; i++)
             {
                 logSpectrum[i] = new float[32];
             }
 
-            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
-
-            Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
+            return logSpectrum;
         }
        
         private float[][] GetLogSpectrum(int logSpectrumLength)
