@@ -10,11 +10,9 @@ namespace SoundFingerprinting.Command
     public interface IFingerprintCommand
     {
         FingerprintConfiguration FingerprintConfiguration { get; }
-
-        Task<List<SpectralImage>> CreateSpectralImages(); 
-
+ 
         Task<List<Fingerprint>> Fingerprint();
-
+        
         Task<List<HashData>> Hash();
     }
 }

@@ -15,10 +15,7 @@ namespace SoundFingerprinting.Command
     internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IUsingFingerprintServices, IFingerprintCommand
     {
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
-        
         private readonly IFingerprintService fingerprintService;
-
-        private Func<List<SpectralImage>> createSpectralImages; 
 
         private Func<List<Fingerprint>> createFingerprintsMethod;
 
@@ -31,11 +28,6 @@ namespace SoundFingerprinting.Command
         }
 
         public FingerprintConfiguration FingerprintConfiguration { get; private set; }
-
-        public Task<List<SpectralImage>> CreateSpectralImages()
-        {
-            return Task.Factory.StartNew(createSpectralImages);
-        }
 
         public Task<List<Fingerprint>> Fingerprint()
         {
@@ -51,12 +43,6 @@ namespace SoundFingerprinting.Command
 
         public IWithFingerprintConfiguration From(string pathToAudioFile)
         {
-            createSpectralImages = () =>
-                {
-                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate);
-                    return fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
-                };
-
             createFingerprintsMethod = () =>
                 {
                     AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate);
@@ -68,26 +54,18 @@ namespace SoundFingerprinting.Command
 
         public IWithFingerprintConfiguration From(AudioSamples audioSamples)
         {
-            createSpectralImages = () => fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
             createFingerprintsMethod = () => fingerprintService.CreateFingerprints(audioSamples, FingerprintConfiguration);
             return this;
         }
 
         public IWithFingerprintConfiguration From(IEnumerable<Fingerprint> fingerprints)
         {
-            createSpectralImages = () => { throw new Exception("Could not create spectral images from fingerprinted content"); };
             createFingerprintsMethod = fingerprints.ToList;
             return this;
         }
 
         public IWithFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
         {
-            createSpectralImages = () =>
-                {
-                    AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);
-                    return fingerprintService.CreateSpectralImages(audioSamples, FingerprintConfiguration);
-                };
-
             createFingerprintsMethod = () =>
                 {
                     AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, FingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);

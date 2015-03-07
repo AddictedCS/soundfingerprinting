@@ -3,7 +3,7 @@
     using System;
 
     [Serializable]
-    public class HashData
+    public class HashData //TODO divide this class into 2 one for DAO other one for algorithm (similar to SpectralImage and Fingerprint classes)
     {
         public HashData()
         {

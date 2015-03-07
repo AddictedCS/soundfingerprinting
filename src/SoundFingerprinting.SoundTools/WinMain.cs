@@ -135,7 +135,7 @@ namespace SoundFingerprinting.SoundTools
 
         private void BtnInsertSpectralImagesClick(object sender, EventArgs e)
         {
-            WinSpectralImagesCreator win = new WinSpectralImagesCreator(mongoModelService, fingerprintCommandBuilder, audioService, tagService);
+            WinSpectralImagesCreator win = new WinSpectralImagesCreator(mongoModelService, spectrumService, audioService, tagService);
             win.Show();
         }
 

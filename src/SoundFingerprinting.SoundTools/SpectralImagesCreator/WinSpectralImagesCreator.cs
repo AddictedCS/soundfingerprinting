@@ -7,25 +7,24 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.FFT;
     using SoundFingerprinting.Utils;
 
     public partial class WinSpectralImagesCreator : Form
     {
         private readonly IModelService modelService;
-
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
-
+        private readonly ISpectrumService spectrumService;
         private readonly IAudioService audioService;
-
         private readonly ITagService tagService;
 
         private List<string> filesToConsume; 
 
-        public WinSpectralImagesCreator(IModelService modelService, IFingerprintCommandBuilder fingerprintCommandBuilder, IAudioService audioService, ITagService tagService)
+        public WinSpectralImagesCreator(IModelService modelService, ISpectrumService spectrumService, IAudioService audioService, ITagService tagService)
         {
             this.modelService = modelService;
-            this.fingerprintCommandBuilder = fingerprintCommandBuilder;
+            this.spectrumService = spectrumService;
             this.audioService = audioService;
             this.tagService = tagService;
             InitializeComponent();
@@ -63,11 +62,9 @@
                                 tagInfo.Year,
                                 (int)tagInfo.Duration);
                             var trackReference = modelService.InsertTrack(track);
-                            var images =
-                                fingerprintCommandBuilder.BuildFingerprintCommand().From(file).
-                                    WithDefaultFingerprintConfig().UsingServices(audioService).CreateSpectralImages().
-                                    Result;
-
+                            var audioSamples = audioService.ReadMonoSamplesFromFile(
+                                file, FingerprintConfiguration.Default.SampleRate);
+                            var images = spectrumService.CreateLogSpectrogram(audioSamples, SpectrogramConfig.Default);
                             var concatenatedImages = new List<float[]>();
                             foreach (var image in images)
                             {

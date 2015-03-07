@@ -205,29 +205,6 @@
             Assert.IsInstanceOfType(fingerprintCommand.FingerprintConfiguration, typeof(DefaultFingerprintConfiguration));
         }
 
-        [TestMethod]
-        public void TestSpectralImagesAreCreatedByFingerprintCommand()
-        {
-            var samples = GetAudioSamples(TestUtilities.GenerateRandomFloatArray(10 * 5512));
-            audioService.Setup(service => service.ReadMonoSamplesFromFile("path-to-audio-file", SampleRate)).Returns(samples);
-            var spectralImages = new List<SpectralImage>();
-            fingerprintService.Setup(service => service.CreateSpectralImages(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(spectralImages);
-
-            var resultedSpectralImages = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                     .From("path-to-audio-file")
-                                     .WithDefaultFingerprintConfig()
-                                     .UsingServices(audioService.Object)
-                                     .CreateSpectralImages()
-                                     .Result;
-
-            Assert.AreSame(spectralImages, resultedSpectralImages);
-        }
-
-        private AudioSamples GetAudioSamples(float[] samples)
-        {
-            return new AudioSamples { Samples = samples, Duration = 0, Origin = string.Empty, SampleRate = 0 }; // TODO Fix this
-        }
-
         private List<Fingerprint> GetGenericFingerprints(int count)
         {
             var list = new List<Fingerprint>();

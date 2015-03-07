@@ -39,12 +39,6 @@ namespace SoundFingerprinting
             this.audioSamplesNormalizer = audioSamplesNormalizer;
         }
 
-        public List<SpectralImage> CreateSpectralImages(AudioSamples samples, FingerprintConfiguration configuration)
-        {
-            NormalizeAudioIfNecessary(samples, configuration);
-            return spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-        }
-
         public List<Fingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
         { 
             NormalizeAudioIfNecessary(samples, configuration);
