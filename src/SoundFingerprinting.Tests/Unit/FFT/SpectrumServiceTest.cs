@@ -169,17 +169,6 @@
 
             return logSpectrum;
         }
-       
-        private float[][] GetLogSpectrum(int logSpectrumLength)
-        {
-            var logSpectrum = new float[logSpectrumLength][];
-            for (int i = 0; i < logSpectrumLength; i++)
-            {
-                logSpectrum[i] = new float[32];
-            }
-
-            return logSpectrum;
-        }
     }
 
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed. Suppression is OK here.")]
