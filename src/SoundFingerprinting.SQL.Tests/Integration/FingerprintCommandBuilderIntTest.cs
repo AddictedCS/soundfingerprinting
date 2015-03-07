@@ -7,6 +7,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
@@ -125,7 +126,7 @@
             const int StartAtSecond = 15;
             var audioService = new BassAudioService();
 
-            float[] samples = audioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
+            AudioSamples samples = audioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
 
             var hashDatasFromFile = fingerprintCommandBuilder
                                         .BuildFingerprintCommand()
@@ -231,7 +232,7 @@
         {
             DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
 
-            float[] samples = TestUtilities.GenerateRandomFloatArray(config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize);
+            AudioSamples samples = TestUtilities.GenerateRandomAudioSamples(config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize);
 
             var hash = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                 .From(samples)
@@ -244,8 +245,8 @@
 
         private void RecodeFileToWaveFile(string tempFile)
         {
-            float[] samples = bassAudioService.ReadMonoSamplesFromFile(PathToMp3, 5512);
-            bassWaveFileUtility.WriteSamplesToFile(samples, 5512, tempFile);
+            var samples = bassAudioService.ReadMonoSamplesFromFile(PathToMp3, 5512);
+            bassWaveFileUtility.WriteSamplesToFile(samples.Samples, 5512, tempFile);
         }
     }
 }

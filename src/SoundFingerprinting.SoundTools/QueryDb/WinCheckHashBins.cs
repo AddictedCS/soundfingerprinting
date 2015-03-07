@@ -208,7 +208,14 @@
                             queryCommandBuilder);
                         winQueryResults.Show();
                         winQueryResults.Refresh();
-                        winQueryResults.ExtractCandidatesUsingSamples(task.Result);
+                        AudioSamples audioSamples = new AudioSamples //TODO review this
+                            {
+                                Length = secondsToRecord,
+                                Origin = "Microphone",
+                                SampleRate = sampleRate,
+                                Samples = task.Result
+                            };
+                        winQueryResults.ExtractCandidatesUsingSamples(audioSamples);
                     },
                 TaskScheduler.FromCurrentSynchronizationContext());
         }

@@ -19,14 +19,14 @@
         Image GetSpectrogramImage(float[][] spectrum, int width, int height);
 
         Image GetLogSpectralImages(
-            SpectralImage spectrum,
+            List<SpectralImage> spectrum,
             int sampleRate,
             IStride strideBetweenConsecutiveImages,
             SpectrogramConfig config,
             int imagesPerRow);
 
         Image GetWaveletsImages(
-            SpectralImage spectrum,
+            List<SpectralImage> spectrum,
             int sampleRate,
             IStride strideBetweenConsecutiveImages,
             SpectrogramConfig config, 

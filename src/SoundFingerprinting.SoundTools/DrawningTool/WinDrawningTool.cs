@@ -203,8 +203,8 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] data = audioService.ReadMonoSamplesFromFile(fullpath, new DefaultFingerprintConfiguration().SampleRate);
-                        using (Image image = imageService.GetSignalImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value))
+                        AudioSamples data = audioService.ReadMonoSamplesFromFile(fullpath, new DefaultFingerprintConfiguration().SampleRate);
+                        using (Image image = imageService.GetSignalImage(data.Samples, (int)_nudWidth.Value, (int)_nudHeight.Value))
                         {
                             image.Save(sfd.FileName, ImageFormat.Jpeg);
                         }
@@ -246,7 +246,7 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
+                        AudioSamples samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         float[][] data = spectrumService.CreateSpectrogram(samples, fingerprintConfiguration.SpectrogramConfig.Overlap, fingerprintConfiguration.SpectrogramConfig.WdftSize);
                         Image image = imageService.GetSpectrogramImage(data, (int)_nudWidth.Value, (int)_nudHeight.Value);
                         image.Save(sfd.FileName, ImageFormat.Jpeg);
@@ -354,9 +354,9 @@
                 FadeControls(false);
                 Action action = () =>
                     {
-                        float[] samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
+                        AudioSamples samples = audioService.ReadMonoSamplesFromFile(Path.GetFullPath(_tbPathToFile.Text), fingerprintConfiguration.SampleRate);
                         Image image = imageService.GetWaveletsImages(
-                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SampleRate, fingerprintConfiguration.SpectrogramConfig),
+                            spectrumService.CreateLogSpectrogram(samples, fingerprintConfiguration.SpectrogramConfig),
                             fingerprintConfiguration.SampleRate,
                             new IncrementalStaticStride((int)_nudStride.Value, fingerprintConfiguration.SamplesPerFingerprint),
                             fingerprintConfiguration.SpectrogramConfig,

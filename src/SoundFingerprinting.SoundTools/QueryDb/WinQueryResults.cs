@@ -219,7 +219,7 @@
             });
         }
 
-        public void ExtractCandidatesUsingSamples(float[] samples)
+        public void ExtractCandidatesUsingSamples(AudioSamples samples)
         {
             int recognized = 0, verified = 0;
             IStride samplesToSkip = queryStride;

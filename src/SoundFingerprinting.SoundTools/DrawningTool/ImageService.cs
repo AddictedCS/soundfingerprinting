@@ -140,18 +140,15 @@
         }
 
         public Image GetLogSpectralImages(
-            float[][] spectrum,
+            List<SpectralImage> spectralImages,
             int sampleRate,
             IStride strideBetweenConsecutiveImages,
             SpectrogramConfig config,
             int imagesPerRow)
         {
-            List<SpectralImage> spetralImages = spectrumService.CutLogarithmizedSpectrum(
-                spectrum, sampleRate, strideBetweenConsecutiveImages, config);
-
-            int width = spetralImages[0].Image.GetLength(0);
-            int height = spetralImages[0].Image[0].Length;
-            int fingersCount = spetralImages.Count;
+            int width = spectralImages[0].Image.GetLength(0);
+            int height = spectralImages[0].Image[0].Length;
+            int fingersCount = spectralImages.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
             int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
             int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
@@ -162,7 +159,7 @@
             int verticalOffset = SpaceBetweenImages;
             int horizontalOffset = SpaceBetweenImages;
             int count = 0;
-            foreach (float[][] spectralImage in spetralImages.Select(im => im.Image))
+            foreach (float[][] spectralImage in spectralImages.Select(im => im.Image))
             {
                 double average = spectralImage.Average(col => col.Average(v => Math.Abs(v)));
                 for (int i = 0; i < width /*128*/; i++)
@@ -190,14 +187,12 @@
         }
 
         public Image GetWaveletsImages(
-            float[][] spectrum,
+            List<SpectralImage> spetralImages,
             int sampleRate,
             IStride strideBetweenConsecutiveImages,
             SpectrogramConfig config,
             int imagesPerRow)
         {
-            List<SpectralImage> spetralImages = spectrumService.CutLogarithmizedSpectrum(
-                spectrum, sampleRate, strideBetweenConsecutiveImages, config);
             waveletDecomposition.DecomposeImagesInPlace(spetralImages);
 
             int width = spetralImages[0].Image.GetLength(0);
