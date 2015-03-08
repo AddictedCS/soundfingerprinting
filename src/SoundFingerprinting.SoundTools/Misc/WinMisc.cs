@@ -19,11 +19,13 @@
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
         private readonly IAudioService audioService;
+        private readonly ISimilarityUtility similarityUtility;
 
-        public WinMisc(IFingerprintCommandBuilder fingerprintCommandBuilder, IAudioService audioService)
+        public WinMisc(IFingerprintCommandBuilder fingerprintCommandBuilder, IAudioService audioService, ISimilarityUtility similarityUtility)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.audioService = audioService;
+            this.similarityUtility = similarityUtility;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -252,7 +254,7 @@
             {
                 for (int j = 0; j < fingerprintsQuerySong.Count; j++)
                 {
-                    double value = SimilarityUtility.CalculateJaccardSimilarity(fingerprintsDatabaseSong[i].Signature, fingerprintsQuerySong[j].Signature);
+                    double value = similarityUtility.CalculateJaccardSimilarity(fingerprintsDatabaseSong[i].Signature, fingerprintsQuerySong[j].Signature);
                     if (value > max)
                     {
                         max = value;

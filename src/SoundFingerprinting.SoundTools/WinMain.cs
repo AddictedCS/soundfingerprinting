@@ -9,6 +9,7 @@ namespace SoundFingerprinting.SoundTools
     using SoundFingerprinting.Audio.NAudio.Play;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash.Permutations;
     using SoundFingerprinting.MongoDb;
     using SoundFingerprinting.NeuralHasher;
@@ -42,6 +43,7 @@ namespace SoundFingerprinting.SoundTools
         private readonly IWaveFileUtility waveFileUtility;
         private readonly ISoundCaptureService soundCaptureService;
         private readonly IStreamingUrlReader streamingUrlReader;
+        private readonly ISimilarityUtility similarityUtility;
 
         public WinMain()
         {
@@ -61,6 +63,7 @@ namespace SoundFingerprinting.SoundTools
             waveFileUtility = new BassWaveFileUtility();
             soundCaptureService = new BassSoundCaptureService();
             streamingUrlReader = new BassStreamingUrlReader();
+            similarityUtility = new SimilarityUtility();
         }
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
@@ -123,7 +126,7 @@ namespace SoundFingerprinting.SoundTools
 
         private void SimilarityCalculationToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinMisc win = new WinMisc(fingerprintCommandBuilder, audioService);
+            WinMisc win = new WinMisc(fingerprintCommandBuilder, audioService, similarityUtility);
             win.Show();
         }
 

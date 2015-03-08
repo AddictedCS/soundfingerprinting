@@ -1,8 +1,8 @@
 ﻿namespace SoundFingerprinting.Math
 {
-    public static class SimilarityUtility
+    public class SimilarityUtility : ISimilarityUtility
     {
-        public static int CalculateHammingDistance(byte[] a, byte[] b)
+        public int CalculateHammingDistance(byte[] a, byte[] b)
         {
             int distance = 0;
             for (int i = 0, n = a.Length; i < n; i++)
@@ -16,7 +16,7 @@
             return distance;
         }
 
-        public static int CalculateHammingSimilarity(byte[] a, byte[] b)
+        public int CalculateHammingSimilarity(byte[] a, byte[] b)
         {
             return a.Length - CalculateHammingDistance(a, b);
         }
@@ -35,7 +35,7 @@
         ///   -1 = 01
         ///   0 = 00
         /// </remarks>
-        public static double CalculateJaccardSimilarity(bool[] x, bool[] y)
+        public double CalculateJaccardSimilarity(bool[] x, bool[] y)
         {
             int a = 0, b = 0;
             for (int i = 0, n = x.Length; i < n; i++)

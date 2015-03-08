@@ -88,6 +88,7 @@
     <Compile Include="LCS\AudioSequencesAnalyzer.cs" />
     <Compile Include="LCS\IAudioSequencesAnalyzer.cs" />
     <Compile Include="LSH\BoundedLocalitySensitiveHashingAlgorithm.cs" />
+    <Compile Include="Math\ISimilarityUtility.cs" />
     <Compile Include="MinHash\DefaultPermutations.cs" />
     <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
