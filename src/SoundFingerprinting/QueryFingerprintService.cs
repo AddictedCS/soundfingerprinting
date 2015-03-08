@@ -27,16 +27,16 @@
             this.similarityCalculationUtility = similarityCalculationUtility;
         }
 
-        public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashes, QueryConfiguration queryConfiguration)
+        public QueryResult Query(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
-            foreach (var hash in hashes)
+            foreach (var hashedFingerprint in hashedFingerprints)
             {
-                var subFingerprints = GetSubFingerprints(modelService, hash, queryConfiguration);
+                var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     int hammingSimilarity = similarityCalculationUtility.CalculateHammingSimilarity(
-                        hash.SubFingerprint, subFingerprint.Signature);
+                        hashedFingerprint.SubFingerprint, subFingerprint.Signature);
                     if (!hammingSimilarities.ContainsKey(subFingerprint.TrackReference))
                     {
                         hammingSimilarities.Add(subFingerprint.TrackReference, 0);
@@ -56,28 +56,28 @@
                     };
             }
 
-            var resultSet = (from entry in hammingSimilarities
-                             orderby entry.Value descending
-                             select new ResultEntry
+            var resultSet = from entry in hammingSimilarities
+                            orderby entry.Value descending
+                            select new ResultEntry
                                     {
                                         Track = modelService.ReadTrackByReference(entry.Key),
                                         Similarity = entry.Value
-                                    })
-                            .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
-                            .ToList();
+                                    };
 
             return new QueryResult
                 {
-                    ResultEntries = resultSet, IsSuccessful = true, AnalyzedCandidatesCount = hammingSimilarities.Count 
+                    ResultEntries = resultSet.Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult).ToList(),
+                    IsSuccessful = true,
+                    AnalyzedCandidatesCount = hammingSimilarities.Count
                 };
         }
 
-        public QueryResult Query(IModelService modelService, IEnumerable<HashedFingerprint> hashes, QueryConfiguration queryConfiguration)
+        public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var allSubfingerprints = new Dictionary<IModelReference, ISet<SubFingerprintData>>();
-            foreach (var hash in hashes)
+            foreach (var hashedFingerprint in hashedFingerprints)
             {
-                var subFingerprints = GetSubFingerprints(modelService, hash, queryConfiguration);
+                var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     if (!allSubfingerprints.ContainsKey(subFingerprint.TrackReference))
