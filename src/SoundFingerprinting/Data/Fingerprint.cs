@@ -4,6 +4,8 @@
     {
         public bool[] Signature { get; set; }
 
+        public int SequenceNumber { get; set; }
+
         public double Timestamp { get; set; }
 
         public int Length

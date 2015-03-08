@@ -3,7 +3,6 @@
     using System;
     using System.Diagnostics;
 
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MinHash;
@@ -23,11 +22,14 @@
             this.minHashService = minHashService;
         }
 
-        public HashData Hash(bool[] fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable)
+        public HashedFingerprint Hash(Fingerprint fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable)
         {
-            byte[] subFingerprint = minHashService.Hash(fingerprint);
-            return new HashData(
-                subFingerprint, GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable));
+            byte[] subFingerprint = minHashService.Hash(fingerprint.Signature);
+            return new HashedFingerprint(
+                subFingerprint,
+                GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable),
+                fingerprint.SequenceNumber,
+                fingerprint.Timestamp);
         }
 
         /// <summary>
@@ -43,7 +45,7 @@
             if (numberOfHashesPerTable % 2 != 0)
             {
                 Trace.WriteLine(
-                    "Number of min hash values per table is not equal to power of 2. Expect performance penalty", "Warning");
+                    "Number of min hash values per table is not equal to power of 2. Expect performance penalty!", "Warning");
                 return NonPowerOfTwoGroupIntoHashBucket(minHashes, numberOfHashTables, numberOfHashesPerTable);
             }
 

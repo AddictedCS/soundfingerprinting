@@ -10,13 +10,9 @@
     public abstract class ModelService : IModelService
     {
         private readonly ITrackDao trackDao;
-
         private readonly IHashBinDao hashBinDao;
-
         private readonly ISubFingerprintDao subFingerprintDao;
-
         private readonly IFingerprintDao fingerprintDao;
-
         private readonly ISpectralImageDao spectralImageDao;
 
         protected ModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao, ISpectralImageDao spectralImageDao)
@@ -60,18 +56,18 @@
             return trackDao.InsertTrack(track);
         }
 
-        public void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference)
+        public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
             foreach (var hashData in hashes)
             {
-                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hashData.SubFingerprint, hashData.SequenceNumber, hashData.SequenceAt, trackReference);
+                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hashData.SubFingerprint, hashData.SequenceNumber, hashData.Timestamp, trackReference);
                 hashBinDao.InsertHashBins(hashData.HashBins, subFingerprintReference, trackReference);
             }
         }
 
-        public IList<HashData> ReadHashDataByTrack(IModelReference trackReference)
+        public IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
         {
-            return hashBinDao.ReadHashDataByTrackReference(trackReference);
+            return hashBinDao.ReadHashedFingerprintsByTrackReference(trackReference);
         }
 
         public IList<TrackData> ReadAllTracks()

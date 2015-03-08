@@ -9,7 +9,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
 
@@ -78,16 +77,17 @@
             var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             const string PathToAudioFile = "path-to-audio-file";
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate)).Returns(samples);
-            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
-                new HashData(GenericSignature, GenericHashBuckets));
+            fingerprintService.Setup(
+                service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(
+                    rawFingerprints);
+            lshAlgorithm.Setup(service => service.Hash(new Fingerprint { Signature = GenericFingerprint }, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0.928));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                      .From(PathToAudioFile)
-                                      .WithDefaultFingerprintConfig()
-                                      .UsingServices(audioService.Object)
-                                      .Hash()
-                                      .Result;
+                                                     .From(PathToAudioFile)
+                                                     .WithDefaultFingerprintConfig()
+                                                     .UsingServices(audioService.Object)
+                                                     .Hash()
+                                                     .Result;
 
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
@@ -105,7 +105,7 @@
             const int ThreeFingerprints = 3;
             var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(new HashData(GenericSignature, GenericHashBuckets));
+            lshAlgorithm.Setup(service => service.Hash(new Fingerprint { Signature = GenericFingerprint }, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
@@ -135,8 +135,8 @@
 
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
-                new HashData(GenericSignature, GenericHashBuckets));
+            lshAlgorithm.Setup(service => service.Hash(new Fingerprint { Signature = GenericFingerprint }, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
+                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
@@ -160,8 +160,8 @@
             const int ThreeFingerprints = 3;
             var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
 
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
-                new HashData(GenericSignature, GenericHashBuckets));
+            lshAlgorithm.Setup(service => service.Hash(new Fingerprint { Signature = GenericFingerprint }, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
+                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(rawFingerprints)

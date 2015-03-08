@@ -9,7 +9,7 @@ namespace SoundFingerprinting.DAO
     {
         void InsertHashBins(long[] hashBins, IModelReference subFingerprintReference, IModelReference trackReference);
 
-        IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference);
+        IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(
             long[] hashBins, int thresholdVotes);

@@ -84,6 +84,7 @@
 
             int width = logarithmizedSpectrum.GetLength(0);
             int fingerprintImageLength = configuration.ImageLength;
+            int sequenceNumber = 0;
             while (index + fingerprintImageLength <= width)
             {
                 float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
@@ -92,7 +93,7 @@
                     Array.Copy(logarithmizedSpectrum[index + i], spectralImage[i], numberOfLogBins);
                 }
 
-                spectralImages.Add(new SpectralImage { Image = spectralImage, Timestamp = index * ((double)overlap / sampleRate) });
+                spectralImages.Add(new SpectralImage { Image = spectralImage, Timestamp = index * ((double)overlap / sampleRate), SequenceNumber = ++sequenceNumber });
                 index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.GetNextStride() / overlap);
             }
 

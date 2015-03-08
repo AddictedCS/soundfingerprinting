@@ -6,6 +6,7 @@
 
     using Moq;
 
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.MinHash;
 
@@ -35,13 +36,13 @@
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(
                 new byte[] { 1, 0, 1, 0, 0, 6, 0, 1, 0, 9, 0, 2, 8, 7, 6, 3 });
 
-            var hash = lshAlgorithm.Hash(GenericFingerprint, 4, 4);
+            var hash = lshAlgorithm.Hash(new Fingerprint { Signature = GenericFingerprint, SequenceNumber = 5, Timestamp = 5 * 0.928 }, 4, 4);
 
             Assert.IsNotNull(hash);
-            Assert.AreEqual(hash.HashBins[0], BitConverter.ToInt32(new byte[] { 1, 0, 1, 0 }, 0));
-            Assert.AreEqual(hash.HashBins[1], BitConverter.ToInt32(new byte[] { 0, 6, 0, 1 }, 0));
-            Assert.AreEqual(hash.HashBins[2], BitConverter.ToInt32(new byte[] { 0, 9, 0, 2 }, 0));
-            Assert.AreEqual(hash.HashBins[3], BitConverter.ToInt32(new byte[] { 8, 7, 6, 3 }, 0));
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 1, 0, 1, 0 }, 0), hash.HashBins[0]);
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 0, 6, 0, 1 }, 0), hash.HashBins[1]);
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 0, 9, 0, 2 }, 0), hash.HashBins[2]);
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 8, 7, 6, 3 }, 0), hash.HashBins[3]);
         }
 
         [TestMethod]
@@ -50,14 +51,26 @@
             minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(
                 new byte[] { 1, 0, 1, 0, 0, 6, 0, 1, 0, 9, 0, 2, 8, 7, 6 });
 
-            var hash = lshAlgorithm.Hash(GenericFingerprint, 5, 3);
+            var hash = lshAlgorithm.Hash(new Fingerprint { Signature = GenericFingerprint, SequenceNumber = 0, Timestamp = 0.928 }, 5, 3);
 
             Assert.IsNotNull(hash);
-            Assert.AreEqual(hash.HashBins[0], BitConverter.ToInt32(new byte[] { 1, 0, 1, 0 }, 0));
-            Assert.AreEqual(hash.HashBins[1], BitConverter.ToInt32(new byte[] { 0, 0, 6, 0 }, 0));
-            Assert.AreEqual(hash.HashBins[2], BitConverter.ToInt32(new byte[] { 0, 1, 0, 0 }, 0));
-            Assert.AreEqual(hash.HashBins[3], BitConverter.ToInt32(new byte[] { 9, 0, 2, 0 }, 0));
-            Assert.AreEqual(hash.HashBins[4], BitConverter.ToInt32(new byte[] { 8, 7, 6, 0 }, 0));
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 1, 0, 1, 0 }, 0), hash.HashBins[0]);
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 0, 0, 6, 0 }, 0), hash.HashBins[1]);
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 0, 1, 0, 0 }, 0), hash.HashBins[2]);
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 9, 0, 2, 0 }, 0), hash.HashBins[3]);
+            Assert.AreEqual(BitConverter.ToInt32(new byte[] { 8, 7, 6, 0 }, 0), hash.HashBins[4]);
+        }
+ 
+        [TestMethod]
+        public void FingerprintParametersAreCopiedToHashedFingerprintObject()
+        {
+            minHashService.Setup(service => service.Hash(GenericFingerprint)).Returns(
+                new byte[] { 1, 0, 1, 0, 0, 6, 0, 1, 0, 9, 0, 2, 8, 7, 6, 3 });
+
+            var hash = lshAlgorithm.Hash(new Fingerprint { Signature = GenericFingerprint, SequenceNumber = 5, Timestamp = 5 * 0.928 }, 4, 4);
+
+            Assert.AreEqual(5, hash.SequenceNumber);
+            Assert.AreEqual(5 * 0.928, hash.Timestamp, Epsilon);
         }
     }
 }

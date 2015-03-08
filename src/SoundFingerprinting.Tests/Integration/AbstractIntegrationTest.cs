@@ -2,12 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Transactions;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
@@ -15,11 +13,11 @@
     [TestClass]
     public abstract class AbstractIntegrationTest : AbstractTest
     {
-        protected void AssertHashDatasAreTheSame(IList<HashData> firstHashDatas, IList<HashData> secondHashDatas)
+        protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
             Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);
          
-            // hashes are not ordered the same way as parallel computation is involved
+            // hashes are not ordered as parallel computation is involved
             firstHashDatas = SortHashesByFirstValueOfHashBin(firstHashDatas);
             secondHashDatas = SortHashesByFirstValueOfHashBin(secondHashDatas);
 
@@ -34,6 +32,9 @@
                 {
                     Assert.AreEqual(firstHashDatas[i].HashBins[j], secondHashDatas[i].HashBins[j]);
                 }
+
+                Assert.AreEqual(firstHashDatas[i].SequenceNumber, secondHashDatas[i].SequenceNumber);
+                Assert.AreEqual(firstHashDatas[i].Timestamp, secondHashDatas[i].Timestamp, Epsilon);
             }
         }
 
@@ -43,7 +44,7 @@
             Assert.IsTrue(modelReference.GetHashCode() != 0);
         }
 
-        private List<HashData> SortHashesByFirstValueOfHashBin(IEnumerable<HashData> hashDatasFromFile)
+        private List<HashedFingerprint> SortHashesByFirstValueOfHashBin(IEnumerable<HashedFingerprint> hashDatasFromFile)
         {
             return hashDatasFromFile.OrderBy(hashData => hashData.HashBins[0]).ToList();
         }

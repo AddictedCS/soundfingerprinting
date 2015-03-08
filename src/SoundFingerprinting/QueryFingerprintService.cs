@@ -14,7 +14,7 @@
 
     public class QueryFingerprintService : IQueryFingerprintService
     {
-        public QueryResult Query2(IModelService modelService, IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
+        public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashes, IQueryConfiguration queryConfiguration)
         {
             HashSet<SubFingerprintData> allSubfingerprints = new HashSet<SubFingerprintData>();
             var hammingSimilarities = new Dictionary<IModelReference, int>();
@@ -58,7 +58,7 @@
                 };
         }
 
-        public QueryResult Query(IModelService modelService, IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration)
+        public QueryResult Query(IModelService modelService, IEnumerable<HashedFingerprint> hashes, IQueryConfiguration queryConfiguration)
         {
             IAudioSequencesAnalyzer sequencesAnalyzer = new AudioSequencesAnalyzer();
             HashSet<SubFingerprintData> allSubfingerprints = new HashSet<SubFingerprintData>();
@@ -92,7 +92,7 @@
             return returnresult;
         }
 
-        private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashData hash, IQueryConfiguration queryConfiguration)
+        private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashedFingerprint hash, IQueryConfiguration queryConfiguration)
         {
             if (!string.IsNullOrEmpty(queryConfiguration.TrackGroupId))
             {

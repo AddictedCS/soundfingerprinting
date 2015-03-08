@@ -8,7 +8,6 @@ namespace SoundFingerprinting.Command
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
 
@@ -34,7 +33,7 @@ namespace SoundFingerprinting.Command
             return Task.Factory.StartNew(createFingerprintsMethod);
         }
 
-        public Task<List<HashData>> Hash()
+        public Task<List<HashedFingerprint>> Hash()
         {
             return Task.Factory
                 .StartNew(createFingerprintsMethod)
@@ -107,23 +106,21 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        private List<HashData> HashFingerprints(IEnumerable<Fingerprint> fingerprints)
+        private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints)
         {
-            var hashDatas = new ConcurrentBag<HashData>();
+            var hashedFingerprints = new ConcurrentBag<HashedFingerprint>();
             Parallel.ForEach(
                 fingerprints,
                 (fingerprint, state, index) =>
                     {
-                        var hashData = lshAlgorithm.Hash(
-                            fingerprint.Signature,
+                        var hashedFingerprint = lshAlgorithm.Hash(
+                            fingerprint,
                             FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
                             FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
-                        hashData.SequenceNumber = (int)index + 1;
-                        hashData.SequenceAt = fingerprint.Timestamp;
-                        hashDatas.Add(hashData);
+                        hashedFingerprints.Add(hashedFingerprint);
                     });
 
-            return hashDatas.ToList();
+            return hashedFingerprints.ToList();
         }
     }
 }

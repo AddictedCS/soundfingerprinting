@@ -13,6 +13,6 @@ namespace SoundFingerprinting.Command
  
         Task<List<Fingerprint>> Fingerprint();
         
-        Task<List<HashData>> Hash();
+        Task<List<HashedFingerprint>> Hash();
     }
 }

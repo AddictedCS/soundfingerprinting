@@ -74,7 +74,7 @@
     <Compile Include="DAO\ISubFingerprintDao.cs" />
     <Compile Include="DAO\ITrackDao.cs" />
     <Compile Include="DAO\Data\FingerprintData.cs" />
-    <Compile Include="DAO\Data\HashData.cs" />
+    <Compile Include="Data\HashedFingerprint.cs" />
     <Compile Include="DAO\IModelReference.cs" />
     <Compile Include="DAO\ModelReference.cs" />
     <Compile Include="DAO\Data\SubFingerprintData.cs" />

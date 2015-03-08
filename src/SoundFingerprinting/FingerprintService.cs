@@ -55,7 +55,7 @@ namespace SoundFingerprinting
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
                 if (!IsSilence(image))
                 {
-                    fingerprints.Add(new Fingerprint { Signature = image, Timestamp = spectralImage.Timestamp });
+                    fingerprints.Add(new Fingerprint { Signature = image, Timestamp = spectralImage.Timestamp, SequenceNumber = spectralImage.SequenceNumber });
                 }
             }
 

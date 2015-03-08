@@ -44,14 +44,14 @@
             }
         }
 
-        public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
+        public IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
         {
             if (storage.TracksHashes.ContainsKey(trackReference))
             {
                 return storage.TracksHashes[trackReference].Values.ToList();
             }
 
-            return Enumerable.Empty<HashData>().ToList();
+            return Enumerable.Empty<HashedFingerprint>().ToList();
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(

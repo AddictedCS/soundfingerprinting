@@ -51,7 +51,7 @@ namespace SoundFingerprinting.SQL
             PrepareSQLText(sqlToExecute.ToString()).AsNonQuery();
         }
 
-        public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
+        public IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
         {
             return PrepareStoredProcedure(SpReadHashDataByTrackId)
                 .WithParameter("TrackId", trackReference.Id, DbType.Int32)
@@ -59,13 +59,15 @@ namespace SoundFingerprinting.SQL
                 .AsList(reader =>
                     {
                         byte[] signature = (byte[])reader.GetRaw("Signature");
+                        int sequenceNumber = reader.GetInt32("SequenceNumber");
+                        double sequenceAt = (double)reader.GetRaw("SequenceAt");
                         long[] hashBins = new long[HashTablesCount];
                         for (int i = 1; i <= HashTablesCount; i++)
                         {
                             hashBins[i - 1] = reader.GetInt64("HashBin_" + i);
                         }
 
-                        return new HashData(signature, hashBins);
+                        return new HashedFingerprint(signature, hashBins, sequenceNumber, sequenceAt);
                     });
         }
 

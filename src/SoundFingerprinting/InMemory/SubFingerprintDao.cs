@@ -41,10 +41,10 @@
             storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(signature, sequenceNumber, sequenceAt, subFingerprintReference, trackReference);
             if (!storage.TracksHashes.ContainsKey(trackReference))
             {
-                storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashData>();
+                storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashedFingerprint>();
             }
 
-            storage.TracksHashes[trackReference][subFingerprintReference] = new HashData { SubFingerprint = signature };
+            storage.TracksHashes[trackReference][subFingerprintReference] = new HashedFingerprint(signature, null, sequenceNumber, sequenceAt);
             return subFingerprintReference;
         }
     }
