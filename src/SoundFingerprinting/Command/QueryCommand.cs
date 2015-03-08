@@ -92,5 +92,18 @@
                                             },
                                         TaskContinuationOptions.ExecuteSynchronously);
         }
+
+        public Task<QueryResult> Query2()
+        {
+            return createFingerprintMethod()
+                                    .Hash()
+                                    .ContinueWith(
+                                       task =>
+                                       {
+                                           var hashes = task.Result;
+                                           return queryFingerprintService.Query2(modelService, hashes, QueryConfiguration);
+                                       },
+                                       TaskContinuationOptions.ExecuteSynchronously);
+        }
     }
 }

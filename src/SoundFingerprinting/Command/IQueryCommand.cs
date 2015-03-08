@@ -12,5 +12,7 @@
         QueryConfiguration QueryConfiguration { get; }
 
         Task<QueryResult> Query();
+        
+        Task<QueryResult> Query2();
     }
 }

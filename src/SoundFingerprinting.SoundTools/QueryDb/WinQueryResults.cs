@@ -163,7 +163,7 @@
                                                             queryConfig.ThresholdVotes = threshold;
                                                         })
                                                     .UsingServices(modelService, audioService)
-                                                    .Query()
+                                                    .Query2()
                                                     .Result;
 
                         if (cancellationTokenSource.IsCancellationRequested)
