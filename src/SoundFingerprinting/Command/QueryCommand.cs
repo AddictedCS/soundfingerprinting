@@ -8,7 +8,7 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
 
-    internal sealed class QueryCommand : IQuerySource, IWithQueryAndFingerprintConfiguration, IUsingQueryServices, IQueryCommand
+    internal sealed class QueryCommand : IQuerySource, IWithQueryAndFingerprintConfiguration, IQueryCommand
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
@@ -22,11 +22,13 @@
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
+            FingerprintConfiguration = FingerprintConfiguration.Default;
+            QueryConfiguration = QueryConfiguration.Default;
         }
 
         public FingerprintConfiguration FingerprintConfiguration { get; private set; }
 
-        public IQueryConfiguration QueryConfiguration { get; private set; }
+        public QueryConfiguration QueryConfiguration { get; private set; }
 
         public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile)
         {
@@ -46,14 +48,14 @@
             return this;
         }
 
-        public IUsingQueryServices WithConfigs(FingerprintConfiguration fingerprintConfiguration, IQueryConfiguration configuration)
+        public IUsingQueryServices WithConfigs(FingerprintConfiguration fingerprintConfiguration, QueryConfiguration configuration)
         {
             QueryConfiguration = configuration;
             FingerprintConfiguration = fingerprintConfiguration;
             return this;
         }
 
-        public IUsingQueryServices WithConfigs<T1, T2>() where T1 : FingerprintConfiguration, new() where T2 : IQueryConfiguration, new()
+        public IUsingQueryServices WithConfigs<T1, T2>() where T1 : FingerprintConfiguration, new() where T2 : QueryConfiguration, new()
         {
             QueryConfiguration = new T2();
             FingerprintConfiguration = new T1();
@@ -66,13 +68,6 @@
             queryConfig((CustomQueryConfiguration)QueryConfiguration);
             FingerprintConfiguration = new CustomFingerprintConfiguration();
             fingerprintConfig((CustomFingerprintConfiguration)FingerprintConfiguration);
-            return this;
-        }
-
-        public IUsingQueryServices WithDefaultConfigs()
-        {
-            QueryConfiguration = new DefaultQueryConfiguration();
-            FingerprintConfiguration = new DefaultFingerprintConfiguration();
             return this;
         }
 
@@ -97,6 +92,5 @@
                                             },
                                         TaskContinuationOptions.ExecuteSynchronously);
         }
-
     }
 }

@@ -58,7 +58,6 @@
 
             var fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                   .From(PathToAudioFile)
-                                  .WithDefaultFingerprintConfig()
                                   .UsingServices(audioService.Object)
                                   .Fingerprint()
                                   .Result;
@@ -83,7 +82,6 @@
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                      .From(PathToAudioFile)
-                                                     .WithDefaultFingerprintConfig()
                                                      .UsingServices(audioService.Object)
                                                      .Hash()
                                                      .Result;
@@ -108,7 +106,6 @@
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
-                                      .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
@@ -139,7 +136,6 @@
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
-                                      .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
@@ -164,7 +160,6 @@
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(rawFingerprints)
-                                      .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;

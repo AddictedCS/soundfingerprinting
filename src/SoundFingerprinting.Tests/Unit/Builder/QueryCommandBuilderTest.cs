@@ -77,7 +77,6 @@
 
             QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
                                    .From(PathToFile)
-                                   .WithDefaultConfigs()
                                    .UsingServices(modelService.Object, audioService.Object)
                                    .Query()
                                    .Result;
@@ -136,7 +135,6 @@
         {
             var command = queryCommandBuilder.BuildQueryCommand()
                                .From("path-to-file", 10, 0)
-                               .WithDefaultConfigs()
                                .UsingServices(modelService.Object, audioService.Object);
 
             Assert.IsInstanceOfType(command.FingerprintConfiguration, typeof(DefaultFingerprintConfiguration));

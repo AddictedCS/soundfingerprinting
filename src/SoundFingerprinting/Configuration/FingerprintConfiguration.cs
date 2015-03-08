@@ -2,8 +2,6 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
 
-    using SoundFingerprinting.Strides;
-    
     public class FingerprintConfiguration
     {
         public static readonly FingerprintConfiguration Default = new DefaultFingerprintConfiguration();

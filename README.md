@@ -18,16 +18,15 @@ public void StoreAudioFileFingerprintsInDatabaseForLaterRetrieval(string pathToA
     var trackReference = modelService.InsertTrack(track);
 
     // create sub-fingerprints and its hash representation
-    var hashDatas = fingerprintCommandBuilder
+    var hashedFingerprints = fingerprintCommandBuilder
                                 .BuildFingerprintCommand()
                                 .From(pathToAudioFile)
-                                .WithDefaultFingerprintConfig()
                                 .UsingServices(audioService)
                                 .Hash()
                                 .Result;
 								
     // store sub-fingerprints and its hash representation in the database 
-    modelService.InsertHashDataForTrack(hashDatas, trackReference);
+    modelService.InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 }
 ```
 The default storage, which comes bundled with SoundFingerprinting package, is a plain in memory storage, managed by <code>InMemoryModelService</code>. In case you would like to store fingerprints in a perstistent database you can take advantage of MSSQL integration available in [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) package via <code>SqlModelService</code> class. The MSSQL database initialization script can be find [here](src/Scripts/DBScript.sql). Do not forget to add connection string <code>FingerprintConnectionString</code> in your app.config file.
@@ -44,7 +43,6 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     // query the underlying database for similar audio sub-fingerprints
     var queryResult = queryCommandBuilder.BuildQueryCommand()
                                          .From(queryAudioFile, secondsToAnalyze, startAtSecond)
-                                         .WithDefaultConfigs()
                                          .UsingServices(modelService, audioService)
                                          .Query()
                                          .Result;

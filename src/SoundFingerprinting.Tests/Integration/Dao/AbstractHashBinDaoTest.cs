@@ -133,7 +133,6 @@
             var firstHashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 10, 0)
-                .WithDefaultFingerprintConfig()
                 .UsingServices(audioService)
                 .Hash()
                 .Result;
@@ -147,7 +146,6 @@
             var secondHashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 20, 10)
-                .WithDefaultFingerprintConfig()
                 .UsingServices(audioService)
                 .Hash()
                 .Result;

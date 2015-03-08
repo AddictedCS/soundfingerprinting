@@ -9,7 +9,7 @@
     {
         FingerprintConfiguration FingerprintConfiguration { get; }
 
-        IQueryConfiguration QueryConfiguration { get; }
+        QueryConfiguration QueryConfiguration { get; }
 
         Task<QueryResult> Query();
     }
