@@ -4,12 +4,10 @@
     using System.Linq;
 
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
 
     public class AudioSequencesAnalyzer : IAudioSequencesAnalyzer
     {
-        public IEnumerable<SubFingerprintData> GetLongestIncreasingSubSequence(
-            List<SubFingerprintData> sequence)
+        public IEnumerable<SubFingerprintData> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence)
         {
             int len = sequence.Count;
             const int Delta = 2;

@@ -10,6 +10,7 @@
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
@@ -43,6 +44,7 @@
             kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
             kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
             kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
+            kernel.Bind<IAudioSequencesAnalyzer>().To<AudioSequencesAnalyzer>();
 
             kernel.Bind<IRAMStorage>().To<RAMStorage>()
                                       .InSingletonScope()

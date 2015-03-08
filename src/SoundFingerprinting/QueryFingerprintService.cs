@@ -7,12 +7,25 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     public class QueryFingerprintService : IQueryFingerprintService
     {
+        private readonly IAudioSequencesAnalyzer audioSequencesAnalyzer;
+
+        public QueryFingerprintService()
+            : this(DependencyResolver.Current.Get<IAudioSequencesAnalyzer>())
+        {
+        }
+
+        protected QueryFingerprintService(IAudioSequencesAnalyzer audioSequencesAnalyzer)
+        {
+            this.audioSequencesAnalyzer = audioSequencesAnalyzer;
+        }
+
         public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashes, QueryConfiguration queryConfiguration)
         {
             HashSet<SubFingerprintData> allSubfingerprints = new HashSet<SubFingerprintData>();
@@ -59,34 +72,36 @@
 
         public QueryResult Query(IModelService modelService, IEnumerable<HashedFingerprint> hashes, QueryConfiguration queryConfiguration)
         {
-            IAudioSequencesAnalyzer sequencesAnalyzer = new AudioSequencesAnalyzer();
-            HashSet<SubFingerprintData> allSubfingerprints = new HashSet<SubFingerprintData>();
+            var allSubfingerprints = new Dictionary<IModelReference, ISet<SubFingerprintData>>();
             foreach (var hash in hashes)
             {
                 var subFingerprints = GetSubFingerprints(modelService, hash, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    allSubfingerprints.Add(subFingerprint);
+                    if (!allSubfingerprints.ContainsKey(subFingerprint.TrackReference))
+                    {
+                        allSubfingerprints.Add(subFingerprint.TrackReference, new SortedSet<SubFingerprintData>(new SubFingerprintSequenceComparer()));
+                    }
+
+                    allSubfingerprints[subFingerprint.TrackReference].Add(subFingerprint);
                 }
             }
 
-            Dictionary<IModelReference, IEnumerable<SubFingerprintData>> groups = new Dictionary<IModelReference, IEnumerable<SubFingerprintData>>();
-            foreach (var group in allSubfingerprints.GroupBy(s => s.TrackReference))
+            var groups = new Dictionary<IModelReference, IEnumerable<SubFingerprintData>>();
+            foreach (var group in allSubfingerprints)
             {
-                var subs = group.ToList();
-                subs.Sort((s1, s2) => s1.SequenceNumber.CompareTo(s2.SequenceNumber));
-                var longest = sequencesAnalyzer.GetLongestIncreasingSubSequence(subs);
+                var longest = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(group.Value.ToList());
                 groups.Add(group.Key, longest);
             }
 
             var max = groups.Max(g => g.Value.Count());
             var result = groups.FirstOrDefault(g => g.Value.Count() == max);
-            var returnresult = new QueryResult2
-            {
-                Track = modelService.ReadTrackByReference(result.Key),
-                SequenceStart = (result.Value.First().SequenceNumber - 1) * 5115d / 5512,
-                SequenceLength = 5115d / 5512 * result.Value.Count()
-            };
+            var returnresult = new QueryResult
+                {
+                    ResultEntries = new List<ResultEntry> { new ResultEntry { Track = modelService.ReadTrackByReference(result.Key) } },
+                    SequenceStart = result.Value.First().SequenceAt,
+                    SequenceLength = result.Value.Last().SequenceAt - result.Value.First().SequenceAt
+                };
 
             return returnresult;
         }
@@ -101,4 +116,13 @@
             return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
         }
     }
+
+    class SubFingerprintSequenceComparer : IComparer<SubFingerprintData>
+    {
+        public int Compare(SubFingerprintData x, SubFingerprintData y)
+        {
+            return x.SequenceAt.CompareTo(y.SequenceAt);
+        }
+    }
 }
+

@@ -3,9 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
-
     public class QueryResult
     {
         public bool IsSuccessful { get; set; }
@@ -26,14 +23,9 @@
                 return null;
             }
         }
-    }
 
-    public class QueryResult2 : QueryResult
-    {
         public double SequenceLength { get; set; }
 
         public double SequenceStart { get; set; }
-
-        public TrackData Track { get; set; }
     }
 }
