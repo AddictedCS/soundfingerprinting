@@ -15,58 +15,60 @@
     public class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly IAudioSequencesAnalyzer audioSequencesAnalyzer;
+        private readonly ISimilarityUtility similarityCalculationUtility;
 
-        public QueryFingerprintService()
-            : this(DependencyResolver.Current.Get<IAudioSequencesAnalyzer>())
+        public QueryFingerprintService() : this(DependencyResolver.Current.Get<IAudioSequencesAnalyzer>(), DependencyResolver.Current.Get<ISimilarityUtility>())
         {
         }
 
-        protected QueryFingerprintService(IAudioSequencesAnalyzer audioSequencesAnalyzer)
+        internal QueryFingerprintService(IAudioSequencesAnalyzer audioSequencesAnalyzer, ISimilarityUtility similarityCalculationUtility)
         {
             this.audioSequencesAnalyzer = audioSequencesAnalyzer;
+            this.similarityCalculationUtility = similarityCalculationUtility;
         }
 
         public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashes, QueryConfiguration queryConfiguration)
         {
-            HashSet<SubFingerprintData> allSubfingerprints = new HashSet<SubFingerprintData>();
             var hammingSimilarities = new Dictionary<IModelReference, int>();
             foreach (var hash in hashes)
             {
                 var subFingerprints = GetSubFingerprints(modelService, hash, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int similarity = SimilarityUtility.CalculateHammingSimilarity(hash.SubFingerprint, subFingerprint.Signature);
-                    if (hammingSimilarities.ContainsKey(subFingerprint.TrackReference))
+                    int hammingSimilarity = similarityCalculationUtility.CalculateHammingSimilarity(
+                        hash.SubFingerprint, subFingerprint.Signature);
+                    if (!hammingSimilarities.ContainsKey(subFingerprint.TrackReference))
                     {
-                        hammingSimilarities[subFingerprint.TrackReference] += similarity;
-                    }
-                    else
-                    {
-                        hammingSimilarities.Add(subFingerprint.TrackReference, similarity);
+                        hammingSimilarities.Add(subFingerprint.TrackReference, 0);
                     }
 
-                    allSubfingerprints.Add(subFingerprint);
+                    hammingSimilarities[subFingerprint.TrackReference] += hammingSimilarity;
                 }
             }
 
-            if (hammingSimilarities.Any())
+            if (!hammingSimilarities.Any())
             {
-                var topMatches = hammingSimilarities.OrderByDescending(pair => pair.Value).Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult);
-                var resultSet = topMatches.Select(match => new ResultEntry { Track = modelService.ReadTrackByReference(match.Key), Similarity = match.Value }).ToList();
-
                 return new QueryResult
-                           {
-                               ResultEntries = resultSet,
-                               IsSuccessful = true,
-                               AnalyzedCandidatesCount = hammingSimilarities.Count
-                           };
+                    {
+                        ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
+                        IsSuccessful = false,
+                        AnalyzedCandidatesCount = 0
+                    };
             }
+
+            var resultSet = (from entry in hammingSimilarities
+                             orderby entry.Value descending
+                             select new ResultEntry
+                                    {
+                                        Track = modelService.ReadTrackByReference(entry.Key),
+                                        Similarity = entry.Value
+                                    })
+                            .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
+                            .ToList();
 
             return new QueryResult
                 {
-                    ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
-                    IsSuccessful = false,
-                    AnalyzedCandidatesCount = 0
+                    ResultEntries = resultSet, IsSuccessful = true, AnalyzedCandidatesCount = hammingSimilarities.Count 
                 };
         }
 
