@@ -16,7 +16,7 @@
 
         public int ReleaseYear { get; set; }
 
-        public double TrackLengthSec { get; set; }
+        public int TrackLengthSec { get; set; }
 
         public string GroupId { get; set; }
     }
