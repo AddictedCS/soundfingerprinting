@@ -47,12 +47,7 @@
 
             if (!hammingSimilarities.Any())
             {
-                return new QueryResult
-                    {
-                        ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
-                        IsSuccessful = false,
-                        AnalyzedCandidatesCount = 0
-                    };
+                return NoResult;
             }
 
             var resultSet = from entry in hammingSimilarities
@@ -74,12 +69,18 @@
         public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var allCandidates = GetAllCandidates(modelService, hashedFingerprints, queryConfiguration);
+            if (!allCandidates.Any())
+            {
+                return NoResult;
+            }
+
             var lcs = GetLongestSubSequenceAccrossAllCandidates(allCandidates);
             var returnresult = new QueryResult
                 {
+                    IsSuccessful = true,
                     ResultEntries = new List<ResultEntry> { new ResultEntry { Track = modelService.ReadTrackByReference(lcs[0].TrackReference) } },
                     SequenceStart = lcs.First().SequenceAt,
-                    SequenceLength = lcs.Last().SequenceAt - lcs.First().SequenceAt
+                    SequenceLength = lcs.Last().SequenceAt - lcs.First().SequenceAt + 1.48d // TODO 1.48 because of fingerprint config. For other configurations there is going to be equal to Overlap * ImageLength / SampleRate 
                 };
 
             return returnresult;
@@ -123,6 +124,21 @@
 
             return lcs;
         }
+        
+        private QueryResult NoResult
+        {
+            get
+            {
+                return new QueryResult
+                    {
+                        ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
+                        IsSuccessful = false,
+                        AnalyzedCandidatesCount = 0
+                    };
+            }
+        }
+
+
 
         private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashedFingerprint hash, QueryConfiguration queryConfiguration)
         {

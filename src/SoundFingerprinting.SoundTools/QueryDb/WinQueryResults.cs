@@ -13,7 +13,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.SoundTools.Properties;
     using SoundFingerprinting.Strides;
 
@@ -28,6 +27,8 @@
         private const string ColHammingAvg = "HammingAvg";
         private const string ColNumberOfCandidates = "TotalNumberOfAnalyzedCandidates";
         private const string ColISRC = "ISRC";
+        private const string ColSeqLength = "SeqLength";
+        private const string ColSeqStart = "SeqStart";
 
         private readonly int hashKeys;
         private readonly int hashTables;
@@ -82,6 +83,10 @@
             _dgvResults.Columns[ColNumberOfCandidates].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             _dgvResults.Columns.Add(ColISRC, "Result ISRC");
             _dgvResults.Columns[ColISRC].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColSeqLength, "Match Length");
+            _dgvResults.Columns[ColSeqLength].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            _dgvResults.Columns.Add(ColSeqStart, "Match Start");
+            _dgvResults.Columns[ColSeqStart].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             // ReSharper restore PossibleNullReferenceException
             _btnExport.Enabled = false;
@@ -177,7 +182,7 @@
                                 actionInterface,
                                 new object[]
                                     {
-                                        title + "-" + artist, "No match found!", false, -1, -1, "No match found!" 
+                                        title + "-" + artist, "No match found!", false, -1, -1, "No match found!", string.Empty, string.Empty
                                     },
                                 Color.Red);
 
@@ -203,7 +208,7 @@
                                 {
                                     title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist,
                                     isSuccessful, queryResult.BestMatch.Similarity, queryResult.AnalyzedCandidatesCount,
-                                    recognizedTrack.ISRC
+                                    recognizedTrack.ISRC, queryResult.SequenceLength, queryResult.SequenceStart
                                 },
                             Color.Empty);
 
