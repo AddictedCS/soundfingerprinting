@@ -208,7 +208,7 @@
                                 {
                                     title + "-" + artist, recognizedTrack.Title + "-" + recognizedTrack.Artist,
                                     isSuccessful, queryResult.BestMatch.Similarity, queryResult.AnalyzedCandidatesCount,
-                                    recognizedTrack.ISRC, queryResult.SequenceLength, queryResult.SequenceStart
+                                    recognizedTrack.ISRC, queryResult.BestMatch.SequenceLength, queryResult.BestMatch.SequenceStart
                                 },
                             Color.Empty);
 

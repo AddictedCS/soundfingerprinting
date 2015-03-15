@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -63,17 +64,18 @@
                 return NoResult;
             }
 
-            var resultSet = from entry in hammingSimilarities
-                            orderby entry.Value descending
-                            select new ResultEntry
-                                    {
-                                        Track = modelService.ReadTrackByReference(entry.Key),
-                                        Similarity = entry.Value
-                                    };
+            var resultEntries = hammingSimilarities.OrderByDescending(e => e.Value)
+                               .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
+                               .Select(e => new ResultEntry
+                                   {
+                                       Track = modelService.ReadTrackByReference(e.Key),
+                                       Similarity = e.Value
+                                   })
+                                .ToList();
 
             return new QueryResult
                 {
-                    ResultEntries = resultSet.Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult).ToList(),
+                    ResultEntries = resultEntries,
                     IsSuccessful = true,
                     AnalyzedCandidatesCount = hammingSimilarities.Count
                 };
@@ -87,13 +89,24 @@
                 return NoResult;
             }
 
-            var lcs = GetLongestSubSequenceAccrossAllCandidates(allCandidates);
+            var entries = this.GetCandidatesSortedByLCS(allCandidates);
+
+            var resultEntries = entries
+                   .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
+                   .Select(datas => new ResultEntry
+                    {
+                        Track = modelService.ReadTrackByReference(datas.First().TrackReference),
+                        Similarity = datas.Count(),
+                        SequenceStart = datas.First().SequenceAt,
+                        SequenceLength = datas.Last().SequenceAt - datas.First().SequenceAt + 1.48d // TODO 1.48 because of default fingerprint config. For other configurations there is going to be equal to Overlap * ImageLength / SampleRate 
+                    })
+                    .ToList();
+
             var returnresult = new QueryResult
                 {
                     IsSuccessful = true,
-                    ResultEntries = new List<ResultEntry> { new ResultEntry { Track = modelService.ReadTrackByReference(lcs[0].TrackReference) } },
-                    SequenceStart = lcs.First().SequenceAt,
-                    SequenceLength = lcs.Last().SequenceAt - lcs.First().SequenceAt + 1.48d // TODO 1.48 because of default fingerprint config. For other configurations there is going to be equal to Overlap * ImageLength / SampleRate 
+                    ResultEntries = resultEntries,
+                    AnalyzedCandidatesCount = allCandidates.Count
                 };
 
             return returnresult;
@@ -121,21 +134,19 @@
             return allCandidates;
         }
 
-        private List<SubFingerprintData> GetLongestSubSequenceAccrossAllCandidates(Dictionary<IModelReference, ISet<SubFingerprintData>> allCandidates)
+        private IEnumerable<IEnumerable<SubFingerprintData>> GetCandidatesSortedByLCS(Dictionary<IModelReference, ISet<SubFingerprintData>> allCandidates)
         {
-            var lcs = Enumerable.Empty<SubFingerprintData>().ToList();
-            int max = int.MinValue;
+            var resultSet = new SortedSet<IEnumerable<SubFingerprintData>>(
+                    Comparer<IEnumerable<SubFingerprintData>>.Create(
+                        (a, b) => a.Count().CompareTo(b.Count())));
+
             foreach (var candidate in allCandidates)
             {
-                var longest = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(candidate.Value.ToList()).ToList();
-                if (longest.Count > max)
-                {
-                    max = longest.Count;
-                    lcs = longest;
-                }
+                var lcs = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(candidate.Value.ToList()).ToList();
+                resultSet.Add(lcs);
             }
 
-            return lcs;
+            return resultSet;
         }
         
         private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashedFingerprint hash, QueryConfiguration queryConfiguration)
