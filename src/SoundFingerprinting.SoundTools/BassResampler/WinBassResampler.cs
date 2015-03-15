@@ -59,9 +59,9 @@
                 Action action = () =>
                     {
                         string destination = Path.GetFullPath(sfd.FileName);
-                        float[] samples = audioService.ReadMonoSamplesFromFile(
+                        var samples = audioService.ReadMonoSamplesFromFile(
                             _tbPathToFile.Text, (int)_nudSampleRate.Value);
-                        waveFileUtility.WriteSamplesToFile(samples, (int)_nudSampleRate.Value, destination);
+                        waveFileUtility.WriteSamplesToFile(samples.Samples, (int)_nudSampleRate.Value, destination);
                     };
 
                 FadeControls(false);

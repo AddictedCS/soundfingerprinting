@@ -6,14 +6,14 @@ namespace SoundFingerprinting.FFT
 
     internal class LogUtility : ILogUtility
     {
-        public int[] GenerateLogFrequenciesRanges(IFingerprintConfiguration configuration)
+        public int[] GenerateLogFrequenciesRanges(int sampleRate, SpectrogramConfig configuration)
         {
             if (configuration.UseDynamicLogBase)
             {
-                return GenerateLogFrequenciesDynamicBase(configuration);
+                return GenerateLogFrequenciesDynamicBase(sampleRate, configuration);
             }
 
-            return GenerateStaticLogFrequencies(configuration);
+            return GenerateStaticLogFrequencies(sampleRate, configuration);
         }
 
         /// <summary>
@@ -36,10 +36,10 @@ namespace SoundFingerprinting.FFT
             return index;
         }
 
-        private int[] GenerateLogFrequenciesDynamicBase(IFingerprintConfiguration configuration)
+        private int[] GenerateLogFrequenciesDynamicBase(int sampleRate, SpectrogramConfig configuration)
         {
-            double logBase = Math.Exp(Math.Log((float)configuration.MaxFrequency / configuration.MinFrequency) / configuration.LogBins);
-            double mincoef = (float)configuration.WdftSize / configuration.SampleRate * configuration.MinFrequency;
+            double logBase = Math.Exp(Math.Log((float)configuration.FrequencyRange.Max / configuration.FrequencyRange.Min) / configuration.LogBins);
+            double mincoef = (float)configuration.WdftSize / sampleRate * configuration.FrequencyRange.Min;
             int[] indexes = new int[configuration.LogBins + 1];
             for (int j = 0; j < configuration.LogBins + 1; j++)
             {
@@ -50,10 +50,10 @@ namespace SoundFingerprinting.FFT
             return indexes;
         }
 
-        private int[] GenerateStaticLogFrequencies(IFingerprintConfiguration configuration)
+        private int[] GenerateStaticLogFrequencies(int sampleRate, SpectrogramConfig configuration)
         {
-            double logMin = Math.Log(configuration.MinFrequency, configuration.LogBase);
-            double logMax = Math.Log(configuration.MaxFrequency, configuration.LogBase);
+            double logMin = Math.Log(configuration.FrequencyRange.Min, configuration.LogBase);
+            double logMax = Math.Log(configuration.FrequencyRange.Max, configuration.LogBase);
 
             double delta = (logMax - logMin) / configuration.LogBins;
 
@@ -64,7 +64,7 @@ namespace SoundFingerprinting.FFT
                 float freq = (float)Math.Pow(configuration.LogBase, logMin + accDelta);
                 accDelta += delta;
 
-                indexes[i] = FrequencyToSpectrumIndex(freq, configuration.SampleRate, configuration.WdftSize); // Find the start index in array from which to start the summation
+                indexes[i] = FrequencyToSpectrumIndex(freq, sampleRate, configuration.WdftSize); // Find the start index in array from which to start the summation
             }
 
             return indexes;

@@ -1,8 +1,9 @@
-﻿namespace SoundFingerprinting.Data
+﻿namespace SoundFingerprinting.DAO.Data
 {
     using System;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.Data;
 
     [Serializable]
     public class FingerprintData

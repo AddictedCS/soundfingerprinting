@@ -8,6 +8,14 @@
 
     public interface IQueryFingerprintService
     {
-        QueryResult Query(IModelService modelService, IEnumerable<HashData> hashes, IQueryConfiguration queryConfiguration);
+        QueryResult Query(
+            IModelService modelService,
+            IEnumerable<HashedFingerprint> hashedFingerprints,
+            QueryConfiguration queryConfiguration);
+
+        QueryResult Query2(
+            IModelService modelService,
+            IEnumerable<HashedFingerprint> hashedFingerprints,
+            QueryConfiguration queryConfiguration);
     }
 }

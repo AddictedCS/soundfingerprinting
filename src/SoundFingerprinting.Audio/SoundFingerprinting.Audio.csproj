@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioSamples.cs" />
     <Compile Include="AudioSamplesNormalizer.cs" />
     <Compile Include="AudioService.cs" />
     <Compile Include="AudioServiceException.cs" />

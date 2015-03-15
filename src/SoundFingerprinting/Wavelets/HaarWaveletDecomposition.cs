@@ -6,12 +6,12 @@
 
     public abstract class HaarWaveletDecomposition : IWaveletDecomposition
     {
-        public abstract void DecomposeImageInPlace(float[][] image);
-
         public void DecomposeImagesInPlace(IEnumerable<float[][]> logarithmizedSpectrum)
         {
             Parallel.ForEach(logarithmizedSpectrum, DecomposeImageInPlace);
         }
+
+        public abstract void DecomposeImageInPlace(float[][] image);
 
         protected void DecompositionStep(float[] array, int h)
         {

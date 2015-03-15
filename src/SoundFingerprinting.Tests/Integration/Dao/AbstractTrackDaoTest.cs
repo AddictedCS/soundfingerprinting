@@ -11,7 +11,7 @@
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.Data;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Strides;
 
     [TestClass]
@@ -180,7 +180,7 @@
                 .From(PathToMp3, SecondsToProcess, StartAtSecond)
                 .WithFingerprintConfig(config =>
                     {
-                        config.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
+                        config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                     })
                 .UsingServices(audioService)
                 .Hash()
@@ -189,7 +189,7 @@
             var subFingerprintReferences = new List<IModelReference>();
             foreach (var hash in hashData)
             {
-                var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, trackReference);
+                var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, hash.SequenceNumber, hash.Timestamp, trackReference);
                 HashBinDao.InsertHashBins(hash.HashBins, subFingerprintReference, trackReference);
                 subFingerprintReferences.Add(subFingerprintReference);
             }
@@ -208,7 +208,7 @@
                 Assert.IsNull(SubFingerprintDao.ReadSubFingerprint(id));
             }
  
-            Assert.IsTrue(HashBinDao.ReadHashDataByTrackReference(actualTrack.TrackReference).Count == 0);
+            Assert.IsTrue(HashBinDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Count == 0);
             Assert.AreEqual(1 + hashData.Count + (25 * hashData.Count), modifiedRows);
         }
 

@@ -4,6 +4,6 @@
 
     internal interface ILocalitySensitiveHashingAlgorithm
     {
-        HashData Hash(bool[] fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable);
+        HashedFingerprint Hash(Fingerprint fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable);
     }
 }

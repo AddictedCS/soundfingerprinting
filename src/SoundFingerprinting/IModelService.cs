@@ -3,6 +3,7 @@ namespace SoundFingerprinting
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     public interface IModelService
@@ -11,9 +12,9 @@ namespace SoundFingerprinting
 
         IModelReference InsertTrack(TrackData track);
 
-        void InsertHashDataForTrack(IEnumerable<HashData> hashes, IModelReference trackReference);
+        void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference);
 
-        IList<HashData> ReadHashDataByTrack(IModelReference trackReference);
+        IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference);
             
         IList<TrackData> ReadAllTracks();
 

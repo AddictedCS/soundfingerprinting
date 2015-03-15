@@ -9,6 +9,7 @@ namespace SoundFingerprinting.SoundTools
     using SoundFingerprinting.Audio.NAudio.Play;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash.Permutations;
     using SoundFingerprinting.MongoDb;
     using SoundFingerprinting.NeuralHasher;
@@ -42,14 +43,15 @@ namespace SoundFingerprinting.SoundTools
         private readonly IWaveFileUtility waveFileUtility;
         private readonly ISoundCaptureService soundCaptureService;
         private readonly IStreamingUrlReader streamingUrlReader;
+        private readonly ISimilarityUtility similarityUtility;
 
         public WinMain()
         {
             InitializeComponent();
             Icon = Resources.Sound;
-            audioService = new NAudioService();
+            audioService = new BassAudioService();
             modelService = new SqlModelService();
-            playAudioFileService = new NAudioPlayAudioFileService();
+            playAudioFileService = new BassPlayAudioFileService();
             fingerprintCommandBuilder = new FingerprintCommandBuilder();
             queryCommandBuilder = new QueryCommandBuilder();
             tagService = new BassTagService();
@@ -61,6 +63,7 @@ namespace SoundFingerprinting.SoundTools
             waveFileUtility = new BassWaveFileUtility();
             soundCaptureService = new BassSoundCaptureService();
             streamingUrlReader = new BassStreamingUrlReader();
+            similarityUtility = new SimilarityUtility();
         }
 
         private void FillDatabaseToolStripClick(object sender, EventArgs e)
@@ -123,7 +126,7 @@ namespace SoundFingerprinting.SoundTools
 
         private void SimilarityCalculationToolStripMenuItemClick(object sender, EventArgs e)
         {
-            WinMisc win = new WinMisc(fingerprintCommandBuilder, audioService);
+            WinMisc win = new WinMisc(fingerprintCommandBuilder, audioService, similarityUtility);
             win.Show();
         }
 
@@ -135,7 +138,7 @@ namespace SoundFingerprinting.SoundTools
 
         private void BtnInsertSpectralImagesClick(object sender, EventArgs e)
         {
-            WinSpectralImagesCreator win = new WinSpectralImagesCreator(mongoModelService, fingerprintCommandBuilder, audioService, tagService);
+            WinSpectralImagesCreator win = new WinSpectralImagesCreator(mongoModelService, spectrumService, audioService, tagService);
             win.Show();
         }
 

@@ -7,13 +7,15 @@
     [TestClass]
     public class SimilarityUtilityTest : AbstractTest
     {
+        private readonly ISimilarityUtility similarityUtility = new SimilarityUtility();
+
         [TestMethod]
         public void CalculateHammingDistanceCorrect()
         {
             byte[] first = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             byte[] second = new byte[] { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
 
-            var result = SimilarityUtility.CalculateHammingDistance(first, second);
+            var result = similarityUtility.CalculateHammingDistance(first, second);
 
             Assert.AreEqual(4, result);
         }
@@ -24,7 +26,7 @@
             byte[] first = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             byte[] second = new byte[] { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
 
-            var result = SimilarityUtility.CalculateHammingSimilarity(first, second);
+            var result = similarityUtility.CalculateHammingSimilarity(first, second);
 
             Assert.AreEqual(6, result);
         }
@@ -35,7 +37,7 @@
             bool[] first = new[] { true, true, false, true, false, true, false, false, true, true };
             bool[] second = new[] { false, true, false, true, false, true, false, false, true, true };
 
-            var result = SimilarityUtility.CalculateJaccardSimilarity(first, second);
+            var result = similarityUtility.CalculateJaccardSimilarity(first, second);
 
             Assert.AreEqual(5f / 6, result);
         }

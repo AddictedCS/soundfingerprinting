@@ -7,63 +7,57 @@
     using System.Drawing.Imaging;
     using System.Linq;
 
-    using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Strides;
     using SoundFingerprinting.Wavelets;
 
     public class ImageService : IImageService
     {
-        private const int SpaceBetweenImages = 10; /*10 pixel space between fingerprint images*/
-
-        private readonly ISpectrumService spectrumService;
+        private const int PixelsBetweenImages = 10; 
 
         private readonly IWaveletDecomposition waveletDecomposition;
 
-        public ImageService()
-            : this(DependencyResolver.Current.Get<ISpectrumService>(), DependencyResolver.Current.Get<IWaveletDecomposition>())
+        public ImageService() : this(DependencyResolver.Current.Get<IWaveletDecomposition>())
         {
         }
 
-        public ImageService(ISpectrumService spectrumService, IWaveletDecomposition waveletDecomposition)
+        public ImageService(IWaveletDecomposition waveletDecomposition)
         {
-            this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
         }
 
-        public Image GetImageForFingerprint(bool[] data, int width, int height)
+        public Image GetImageForFingerprint(Fingerprint data, int width, int height)
         {
             Bitmap image = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
-            DrawFingerprintInImage(image, data, width, height, 0, 0);
+            DrawFingerprintInImage(image, data.Signature, width, height, 0, 0);
             return image;
         }
 
-        public Image GetImageForFingerprints(List<bool[]> fingerprints, int width, int height, int fingerprintsPerRow)
+        public Image GetImageForFingerprints(List<Fingerprint> fingerprints, int width, int height, int imagesPerRow)
         {
-            int imagesPerRow = fingerprintsPerRow; /*5 bitmap images per line*/
             int fingersCount = fingerprints.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
-            int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
-            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageWidth = (imagesPerRow * (width + PixelsBetweenImages)) + PixelsBetweenImages;
+            int imageHeight = (rowCount * (height + PixelsBetweenImages)) + PixelsBetweenImages;
 
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
             SetBackground(image, Color.White);
 
-            int verticalOffset = SpaceBetweenImages;
-            int horizontalOffset = SpaceBetweenImages;
+            int verticalOffset = PixelsBetweenImages;
+            int horizontalOffset = PixelsBetweenImages;
             int count = 0;
-            foreach (bool[] fingerprint in fingerprints)
+            foreach (var fingerprint in fingerprints)
             {
-                DrawFingerprintInImage(image, fingerprint, width, height, horizontalOffset, verticalOffset);
+                DrawFingerprintInImage(image, fingerprint.Signature, width, height, horizontalOffset, verticalOffset);
                 count++;
                 if (count % imagesPerRow == 0)
                 {
-                    verticalOffset += height + SpaceBetweenImages;
-                    horizontalOffset = SpaceBetweenImages;
+                    verticalOffset += height + PixelsBetweenImages;
+                    horizontalOffset = PixelsBetweenImages;
                 }
                 else
                 {
-                    horizontalOffset += width + SpaceBetweenImages;
+                    horizontalOffset += width + PixelsBetweenImages;
                 }
             }
 
@@ -138,30 +132,22 @@
             return image;
         }
 
-        public Image GetLogSpectralImages(
-            float[][] spectrum,
-            IStride strideBetweenConsecutiveImages,
-            int fingerprintLength,
-            int overlap,
-            int imagesPerRow)
+        public Image GetLogSpectralImages(List<SpectralImage> spectralImages, int imagesPerRow)
         {
-            List<float[][]> spetralImages = spectrumService.CutLogarithmizedSpectrum(
-                spectrum, strideBetweenConsecutiveImages, fingerprintLength, overlap);
-
-            int width = spetralImages[0].GetLength(0);
-            int height = spetralImages[0][0].Length;
-            int fingersCount = spetralImages.Count;
+            int width = spectralImages[0].Image.GetLength(0);
+            int height = spectralImages[0].Image[0].Length;
+            int fingersCount = spectralImages.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
-            int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
-            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageWidth = (imagesPerRow * (width + PixelsBetweenImages)) + PixelsBetweenImages;
+            int imageHeight = (rowCount * (height + PixelsBetweenImages)) + PixelsBetweenImages;
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
 
             SetBackground(image, Color.White);
 
-            int verticalOffset = SpaceBetweenImages;
-            int horizontalOffset = SpaceBetweenImages;
+            int verticalOffset = PixelsBetweenImages;
+            int horizontalOffset = PixelsBetweenImages;
             int count = 0;
-            foreach (float[][] spectralImage in spetralImages)
+            foreach (float[][] spectralImage in spectralImages.Select(im => im.Image))
             {
                 double average = spectralImage.Average(col => col.Average(v => Math.Abs(v)));
                 for (int i = 0; i < width /*128*/; i++)
@@ -176,43 +162,36 @@
                 count++;
                 if (count % imagesPerRow == 0)
                 {
-                    verticalOffset += height + SpaceBetweenImages;
-                    horizontalOffset = SpaceBetweenImages;
+                    verticalOffset += height + PixelsBetweenImages;
+                    horizontalOffset = PixelsBetweenImages;
                 }
                 else
                 {
-                    horizontalOffset += width + SpaceBetweenImages;
+                    horizontalOffset += width + PixelsBetweenImages;
                 }
             }
 
             return image;
         }
 
-        public Image GetWaveletsImages(
-            float[][] spectrum,
-            IStride strideBetweenConsecutiveImages,
-            int fingerprintLength,
-            int overlap,
-            int imagesPerRow)
+        public Image GetWaveletsImages(List<SpectralImage> spetralImages, int imagesPerRow)
         {
-            List<float[][]> spetralImages = spectrumService.CutLogarithmizedSpectrum(
-                spectrum, strideBetweenConsecutiveImages, fingerprintLength, overlap);
-            waveletDecomposition.DecomposeImagesInPlace(spetralImages);
+            waveletDecomposition.DecomposeImagesInPlace(spetralImages.Select(im => im.Image));
 
-            int width = spetralImages[0].GetLength(0);
-            int height = spetralImages[0][0].Length;
+            int width = spetralImages[0].Image.GetLength(0);
+            int height = spetralImages[0].Image[0].Length;
             int fingersCount = spetralImages.Count;
             int rowCount = (int)Math.Ceiling((float)fingersCount / imagesPerRow);
-            int imageWidth = (imagesPerRow * (width + SpaceBetweenImages)) + SpaceBetweenImages;
-            int imageHeight = (rowCount * (height + SpaceBetweenImages)) + SpaceBetweenImages;
+            int imageWidth = (imagesPerRow * (width + PixelsBetweenImages)) + PixelsBetweenImages;
+            int imageHeight = (rowCount * (height + PixelsBetweenImages)) + PixelsBetweenImages;
             Bitmap image = new Bitmap(imageWidth, imageHeight, PixelFormat.Format16bppRgb565);
 
             SetBackground(image, Color.White);
 
-            int verticalOffset = SpaceBetweenImages;
-            int horizontalOffset = SpaceBetweenImages;
+            int verticalOffset = PixelsBetweenImages;
+            int horizontalOffset = PixelsBetweenImages;
             int count = 0;
-            foreach (float[][] spectralImage in spetralImages)
+            foreach (float[][] spectralImage in spetralImages.Select(im => im.Image))
             {
                 double average = spectralImage.Average(col => col.Average(v => Math.Abs(v)));
                 for (int i = 0; i < width /*128*/; i++)
@@ -227,12 +206,12 @@
                 count++;
                 if (count % imagesPerRow == 0)
                 {
-                    verticalOffset += height + SpaceBetweenImages;
-                    horizontalOffset = SpaceBetweenImages;
+                    verticalOffset += height + PixelsBetweenImages;
+                    horizontalOffset = PixelsBetweenImages;
                 }
                 else
                 {
-                    horizontalOffset += width + SpaceBetweenImages;
+                    horizontalOffset += width + PixelsBetweenImages;
                 }
             }
 

@@ -13,4 +13,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("134d1a0d-53d7-40a4-8a47-3353d2a08985")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL.Tests")]
-[assembly: AssemblyVersion("1.0.2.0")]
+[assembly: AssemblyVersion("2.0.0")]

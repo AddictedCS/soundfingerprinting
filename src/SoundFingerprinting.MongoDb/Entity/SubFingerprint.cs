@@ -8,6 +8,10 @@
 
         public byte[] Signature { get; set; }
 
+        public int SequenceNumber { get; set; }
+
+        public double SequenceAt { get; set; }
+
         public ObjectId TrackId { get; set; }
     }
 }

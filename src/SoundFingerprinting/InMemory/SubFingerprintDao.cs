@@ -4,6 +4,7 @@
     using System.Threading;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
@@ -34,16 +35,16 @@
             return null;
         }
 
-        public IModelReference InsertSubFingerprint(byte[] signature, IModelReference trackReference)
+        public IModelReference InsertSubFingerprint(byte[] signature, int sequenceNumber, double sequenceAt, IModelReference trackReference)
         {
             var subFingerprintReference = new ModelReference<long>(Interlocked.Increment(ref counter));
-            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(signature, subFingerprintReference, trackReference);
+            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(signature, sequenceNumber, sequenceAt, subFingerprintReference, trackReference);
             if (!storage.TracksHashes.ContainsKey(trackReference))
             {
-                storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashData>();
+                storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashedFingerprint>();
             }
 
-            storage.TracksHashes[trackReference][subFingerprintReference] = new HashData { SubFingerprint = signature };
+            storage.TracksHashes[trackReference][subFingerprintReference] = new HashedFingerprint(signature, null, sequenceNumber, sequenceAt);
             return subFingerprintReference;
         }
     }

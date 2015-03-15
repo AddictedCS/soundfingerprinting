@@ -10,7 +10,9 @@
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.LSH;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -39,6 +41,8 @@
             kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
             kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
             kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();
+            kernel.Bind<IAudioSequencesAnalyzer>().To<AudioSequencesAnalyzer>().InSingletonScope();
+            kernel.Bind<ISimilarityUtility>().To<SimilarityUtility>().InSingletonScope();
 
             kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
             kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
@@ -46,7 +50,7 @@
 
             kernel.Bind<IRAMStorage>().To<RAMStorage>()
                                       .InSingletonScope()
-                                      .WithConstructorArgument("numberOfHashTables", new DefaultFingerprintConfiguration().NumberOfLSHTables);
+                                      .WithConstructorArgument("numberOfHashTables", FingerprintConfiguration.Default.HashingConfig.NumberOfLSHTables);
         }
     }
 }

@@ -23,5 +23,9 @@
                 return null;
             }
         }
+
+        public double SequenceLength { get; set; }
+
+        public double SequenceStart { get; set; }
     }
 }

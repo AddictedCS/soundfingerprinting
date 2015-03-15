@@ -7,7 +7,7 @@
     using MongoDB.Driver.Linq;
 
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.Data;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
     using SoundFingerprinting.MongoDb.DAO;

@@ -50,15 +50,14 @@
         {
             const string PathToAudioFile = "path-to-audio-file";
             const int TenSeconds = 10;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            var samples = new AudioSamples { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
             const int ThreeFingerprints = 3;
             var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
-            audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
+            audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
 
-            List<bool[]> fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
+            var fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
                                   .From(PathToAudioFile)
-                                  .WithDefaultFingerprintConfig()
                                   .UsingServices(audioService.Object)
                                   .Fingerprint()
                                   .Result;
@@ -71,21 +70,21 @@
         public void SubFingerprintsAreBuiltCorrectlyFromFileForTrack()
         {
             const int TenSeconds = 10;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            var samples = new AudioSamples { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
             const int ThreeFingerprints = 3;
-            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
+            var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             const string PathToAudioFile = "path-to-audio-file";
-            audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, 0, 0)).Returns(samples);
-            fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
-                new HashData(GenericSignature, GenericHashBuckets));
+            audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate)).Returns(samples);
+            fingerprintService.Setup(
+                service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(
+                    rawFingerprints);
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0.928));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                      .From(PathToAudioFile)
-                                      .WithDefaultFingerprintConfig()
-                                      .UsingServices(audioService.Object)
-                                      .Hash()
-                                      .Result;
+                                                     .From(PathToAudioFile)
+                                                     .UsingServices(audioService.Object)
+                                                     .Hash()
+                                                     .Result;
 
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
@@ -98,15 +97,15 @@
         public void SubFingerprintsAreBuiltCorrectlyFromAudioSamplesForTrack()
         {
             const int TenSeconds = 10;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds);
+            AudioSamples samples = new AudioSamples
+                { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
             const int ThreeFingerprints = 3;
-            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
+            var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(new HashData(GenericSignature, GenericHashBuckets));
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
-                                      .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
@@ -125,18 +124,18 @@
             const string PathToAudioFile = "path-to-audio-file";
             const int StartSecond = 10;
             const int SecondsToProcess = 20;
-            float[] samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10);
+            AudioSamples samples = new AudioSamples
+                { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * 10) };
             const int ThreeFingerprints = 3;
-            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
+            var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
 
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
-                new HashData(GenericSignature, GenericHashBuckets));
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
+                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
-                                      .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
@@ -154,14 +153,13 @@
         public void SubFingerprintsAreBuiltCorrectlyFromFingerprintsTest()
         {
             const int ThreeFingerprints = 3;
-            List<bool[]> rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
+            var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
 
-            lshAlgorithm.Setup(service => service.Hash(GenericFingerprint, NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
-                new HashData(GenericSignature, GenericHashBuckets));
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable)).Returns(
+                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(rawFingerprints)
-                                      .WithDefaultFingerprintConfig()
                                       .UsingServices(audioService.Object)
                                       .Hash()
                                       .Result;
@@ -178,15 +176,16 @@
         {
             const string PathToAudioFile = "path-to-audio-file";
 
-            var configuration = new CustomFingerprintConfiguration { FingerprintLength = 1234 };
-
+            var configuration = new CustomFingerprintConfiguration
+                { SpectrogramConfig = new CustomSpectrogramConfig { ImageLength = 1234 } };
+             
             var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                               .From(PathToAudioFile)
                                                               .WithFingerprintConfig(configuration)
                                                               .UsingServices(audioService.Object);
 
             Assert.AreSame(configuration, fingerprintCommand.FingerprintConfiguration);
-            Assert.AreEqual(configuration.FingerprintLength, fingerprintCommand.FingerprintConfiguration.FingerprintLength);
+            Assert.AreEqual(configuration.SpectrogramConfig.ImageLength, fingerprintCommand.FingerprintConfiguration.SpectrogramConfig.ImageLength);
         }
 
         [TestMethod]
@@ -200,30 +199,12 @@
             Assert.IsInstanceOfType(fingerprintCommand.FingerprintConfiguration, typeof(DefaultFingerprintConfiguration));
         }
 
-        [TestMethod]
-        public void TestSpectralImagesAreCreatedByFingerprintCommand()
+        private List<Fingerprint> GetGenericFingerprints(int count)
         {
-            var samples = TestUtilities.GenerateRandomFloatArray(10 * 5512);
-            audioService.Setup(service => service.ReadMonoSamplesFromFile("path-to-audio-file", SampleRate, 0, 0)).Returns(samples);
-            List<float[][]> spectralImages = new List<float[][]>();
-            fingerprintService.Setup(service => service.CreateSpectralImages(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(spectralImages);
-
-            var resultedSpectralImages = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                     .From("path-to-audio-file")
-                                     .WithDefaultFingerprintConfig()
-                                     .UsingServices(audioService.Object)
-                                     .CreateSpectralImages()
-                                     .Result;
-
-            Assert.AreSame(spectralImages, resultedSpectralImages);
-        }
-
-        private List<bool[]> GetGenericFingerprints(int count)
-        {
-            var list = new List<bool[]>();
+            var list = new List<Fingerprint>();
             for (int i = 0; i < count; i++)
             {
-                list.Add(GenericFingerprint);
+                list.Add(new Fingerprint { Signature = GenericFingerprint, Timestamp = i * 0.928 });
             }
 
             return list;

@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.SoundTools.Misc
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -20,11 +19,13 @@
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
 
         private readonly IAudioService audioService;
+        private readonly ISimilarityUtility similarityUtility;
 
-        public WinMisc(IFingerprintCommandBuilder fingerprintCommandBuilder, IAudioService audioService)
+        public WinMisc(IFingerprintCommandBuilder fingerprintCommandBuilder, IAudioService audioService, ISimilarityUtility similarityUtility)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.audioService = audioService;
+            this.similarityUtility = similarityUtility;
 
             InitializeComponent();
             Icon = Resources.Sound;
@@ -132,14 +133,14 @@
                                                   .WithFingerprintConfig(
                                                     config =>
                                                         {
-                                                            config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                            config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                             config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                            config.Stride = _chbDatabaseStride.Checked
+                                                            config.SpectrogramConfig.Stride = _chbDatabaseStride.Checked
                                                                                 ? (IStride)
                                                                                   new IncrementalRandomStride(0, (int)_nudDatabaseStride.Value, config.SamplesPerFingerprint)
                                                                                 : new IncrementalStaticStride((int)_nudDatabaseStride.Value, config.SamplesPerFingerprint);
                                                             config.NormalizeSignal = normalizeSignal;
-                                                            config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                            config.SpectrogramConfig.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                         })
                                                     .UsingServices(audioService);
 
@@ -153,16 +154,16 @@
                                                           .WithFingerprintConfig(
                                                               config =>
                                                                   {
-                                                                      config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                                      config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                                       config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                                      config.Stride = _chbQueryStride.Checked
+                                                                      config.SpectrogramConfig.Stride = _chbQueryStride.Checked
                                                                                           ? (IStride)
                                                                                             new IncrementalRandomStride(
                                                                                                 0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
                                                                                           : new IncrementalStaticStride(
                                                                                                 comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
                                                                       config.NormalizeSignal = normalizeSignal;
-                                                                      config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                                      config.SpectrogramConfig.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                                   })
                                                           .UsingServices(audioService);
                         }
@@ -174,16 +175,16 @@
                                                           .WithFingerprintConfig(
                                                               config =>
                                                               {
-                                                                  config.MinFrequency = (int)_nudMinFrequency.Value;
+                                                                  config.SpectrogramConfig.FrequencyRange.Min = (int)_nudMinFrequency.Value;
                                                                   config.TopWavelets = (int)_nudTopWavelets.Value;
-                                                                  config.Stride = _chbQueryStride.Checked
+                                                                  config.SpectrogramConfig.Stride = _chbQueryStride.Checked
                                                                                       ? (IStride)
                                                                                         new IncrementalRandomStride(
                                                                                             0, comparisonStride, config.SamplesPerFingerprint, firstQueryStride)
                                                                                       : new IncrementalStaticStride(
                                                                                             comparisonStride, config.SamplesPerFingerprint, firstQueryStride);
                                                                   config.NormalizeSignal = normalizeSignal;
-                                                                  config.UseDynamicLogBase = _cbDynamicLog.Checked;
+                                                                  config.SpectrogramConfig.UseDynamicLogBase = _cbDynamicLog.Checked;
                                                               })
                                                          .UsingServices(audioService);
                         }
@@ -237,11 +238,11 @@
         {
             double sum = 0;
 
-            List<bool[]> fingerprintsDatabaseSong = databaseSong.Fingerprint()
+            var fingerprintsDatabaseSong = databaseSong.Fingerprint()
                                                                 .Result
                                                                 .Select(fingerprint => fingerprint)
                                                                 .ToList();
-            List<bool[]> fingerprintsQuerySong = querySong.Fingerprint()
+            var fingerprintsQuerySong = querySong.Fingerprint()
                                                                 .Result
                                                                 .Select(fingerprint => fingerprint)
                                                                 .ToList();
@@ -253,7 +254,7 @@
             {
                 for (int j = 0; j < fingerprintsQuerySong.Count; j++)
                 {
-                    double value = SimilarityUtility.CalculateJaccardSimilarity(fingerprintsDatabaseSong[i], fingerprintsQuerySong[j]);
+                    double value = similarityUtility.CalculateJaccardSimilarity(fingerprintsDatabaseSong[i].Signature, fingerprintsQuerySong[j].Signature);
                     if (value > max)
                     {
                         max = value;

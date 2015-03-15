@@ -5,6 +5,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     [TestClass]
@@ -84,8 +85,8 @@
             const int Threshold = 5;
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = ModelService.InsertTrack(track);
-            var hashData = new HashData(GenericSignature, GenericHashBuckets);
-            ModelService.InsertHashDataForTrack(new[] { hashData }, trackReference);
+            var hashedFingerprints = new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928);
+            ModelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
 
             ModelService.DeleteTrack(trackReference);
 
@@ -101,8 +102,8 @@
             const int Threshold = 5;
             TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = ModelService.InsertTrack(expectedTrack);
-            var hashData = new HashData(GenericSignature, GenericHashBuckets);
-            ModelService.InsertHashDataForTrack(new[] { hashData }, trackReference);
+            var hashedFingerprints = new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928);
+            ModelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
 
             var subFingerprints = ModelService.ReadSubFingerprintDataByHashBucketsWithThreshold(GenericHashBuckets, Threshold);
 
@@ -126,8 +127,8 @@
             Assert.IsFalse(firstTrackReference.Equals(secondTrackReference));
             long[] firstTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             long[] secondTrackBuckets = new long[] { 2, 2, 4, 5, 6, 7, 7, 9, 10, 11, 12, 13, 14, 14, 16, 17, 18, 19, 20, 20, 22, 23, 24, 25, 26 };
-            var firstHashData = new HashData(GenericSignature, firstTrackBuckets);
-            var secondHashData = new HashData(GenericSignature, secondTrackBuckets);
+            var firstHashData = new HashedFingerprint(GenericSignature, firstTrackBuckets, 1, 0.928);
+            var secondHashData = new HashedFingerprint(GenericSignature, secondTrackBuckets, 1, 0.928);
 
             ModelService.InsertHashDataForTrack(new[] { firstHashData }, firstTrackReference);
             ModelService.InsertHashDataForTrack(new[] { secondHashData }, secondTrackReference);
@@ -154,8 +155,8 @@
             Assert.IsFalse(firstTrackReference.Equals(secondTrackReference));
             long[] firstTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             long[] secondTrackBuckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
-            var firstHashData = new HashData(GenericSignature, firstTrackBuckets);
-            var secondHashData = new HashData(GenericSignature, secondTrackBuckets);
+            var firstHashData = new HashedFingerprint(GenericSignature, firstTrackBuckets, 1, 0.928);
+            var secondHashData = new HashedFingerprint(GenericSignature, secondTrackBuckets, 1, 0.928);
 
             ModelService.InsertHashDataForTrack(new[] { firstHashData }, firstTrackReference);
             ModelService.InsertHashDataForTrack(new[] { secondHashData }, secondTrackReference);

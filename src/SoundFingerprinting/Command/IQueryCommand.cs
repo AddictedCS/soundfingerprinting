@@ -7,10 +7,12 @@
 
     public interface IQueryCommand
     {
-        IFingerprintConfiguration FingerprintConfiguration { get; }
+        FingerprintConfiguration FingerprintConfiguration { get; }
 
-        IQueryConfiguration QueryConfiguration { get; }
+        QueryConfiguration QueryConfiguration { get; }
 
         Task<QueryResult> Query();
+        
+        Task<QueryResult> Query2();
     }
 }

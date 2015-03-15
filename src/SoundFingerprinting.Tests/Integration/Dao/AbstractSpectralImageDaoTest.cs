@@ -7,20 +7,23 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.FFT;
     using SoundFingerprinting.Utils;
 
     [TestClass]
     public abstract class AbstractSpectralImageDaoTest : AbstractIntegrationTest
     {
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IAudioService audioService;
+        private readonly ISpectrumService spectrumService;
 
         protected AbstractSpectralImageDaoTest()
         {
-            fingerprintCommandBuilder = new FingerprintCommandBuilder();
             audioService = new BassAudioService();
+            spectrumService = new SpectrumService();
         }
 
         public abstract ISpectralImageDao SpectralImageDao { get; set; }
@@ -32,16 +35,13 @@
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = TrackDao.InsertTrack(track);
-            var spectralImages = fingerprintCommandBuilder.BuildFingerprintCommand()
-                .From(PathToMp3)
-                .WithDefaultFingerprintConfig()
-                .UsingServices(audioService)
-                .CreateSpectralImages()
-                .Result;
+            var audioSamples = audioService.ReadMonoSamplesFromFile(
+                PathToMp3, FingerprintConfiguration.Default.SampleRate);
+            var spectralImages = spectrumService.CreateLogSpectrogram(audioSamples, SpectrogramConfig.Default);
             var concatenatedSpectralImages = new List<float[]>();
             foreach (var spectralImage in spectralImages)
             {
-                var concatenatedSpectralImage = ArrayUtils.ConcatenateDoubleDimensionalArray(spectralImage);
+                var concatenatedSpectralImage = ArrayUtils.ConcatenateDoubleDimensionalArray(spectralImage.Image);
                 concatenatedSpectralImages.Add(concatenatedSpectralImage);
             }
             

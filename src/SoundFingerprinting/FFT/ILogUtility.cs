@@ -4,7 +4,7 @@
 
     internal interface ILogUtility
     {
-        int[] GenerateLogFrequenciesRanges(IFingerprintConfiguration configuration);
+        int[] GenerateLogFrequenciesRanges(int sampleRate, SpectrogramConfig config);
 
         int FrequencyToSpectrumIndex(float frequency, int sampleRate, int spectrumLength);
     }

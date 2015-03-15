@@ -4,6 +4,7 @@
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     internal class RAMStorage : IRAMStorage
@@ -12,7 +13,7 @@
 
         private IDictionary<IModelReference, TrackData> tracks;
 
-        private IDictionary<IModelReference, IDictionary<IModelReference, HashData>> tracksHashes;
+        private IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> tracksHashes;
 
         private IDictionary<long, List<IModelReference>>[] hashTables;
 
@@ -39,7 +40,7 @@
             }
         }
 
-        public IDictionary<IModelReference, IDictionary<IModelReference, HashData>> TracksHashes
+        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes
         {
             get
             {
@@ -75,7 +76,7 @@
             NumberOfHashTables = numberOfHashTables;
             subFingerprints = new Dictionary<IModelReference, SubFingerprintData>();
             tracks = new Dictionary<IModelReference, TrackData>();
-            tracksHashes = new Dictionary<IModelReference, IDictionary<IModelReference, HashData>>();
+            tracksHashes = new Dictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
             hashTables = new Dictionary<long, List<IModelReference>>[NumberOfHashTables];
             fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
 

@@ -9,6 +9,7 @@
     using MongoDB.Driver.Linq;
 
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.MongoDb.Connection;
@@ -42,7 +43,7 @@
             GetCollection<Hash>(HashBins).InsertBatch(hashes);
         }
 
-        public IList<HashData> ReadHashDataByTrackReference(IModelReference trackReference)
+        public IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
         {
             var hashes = GetCollection<Hash>(HashBins)
                                 .AsQueryable()
@@ -51,7 +52,7 @@
 
             var subFingerprintIds = hashes.GroupBy(hash => hash.SubFingerprintId).Select(g => g.Key);
 
-            var hashDatas = new List<HashData>();
+            var hashDatas = new List<HashedFingerprint>();
             foreach (var subfingerprintId in subFingerprintIds)
             {
                 var hashBins = hashes.Where(hash => hash.SubFingerprintId.Equals(subfingerprintId))
@@ -63,7 +64,7 @@
                                                         .AsQueryable()
                                                         .First(s => s.Id.Equals(subfingerprintId));
 
-                hashDatas.Add(new HashData(subFingerprint.Signature, hashBins));
+                hashDatas.Add(new HashedFingerprint(subFingerprint.Signature, hashBins, subFingerprint.SequenceNumber, subFingerprint.SequenceAt));
             }
 
             return hashDatas;
