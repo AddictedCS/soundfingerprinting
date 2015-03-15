@@ -49,9 +49,9 @@ namespace SoundFingerprinting.SoundTools
         {
             InitializeComponent();
             Icon = Resources.Sound;
-            audioService = new NAudioService();
+            audioService = new BassAudioService();
             modelService = new SqlModelService();
-            playAudioFileService = new NAudioPlayAudioFileService();
+            playAudioFileService = new BassPlayAudioFileService();
             fingerprintCommandBuilder = new FingerprintCommandBuilder();
             queryCommandBuilder = new QueryCommandBuilder();
             tagService = new BassTagService();
