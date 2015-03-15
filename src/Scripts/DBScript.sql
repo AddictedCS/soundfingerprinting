@@ -25,7 +25,7 @@ CREATE TABLE Tracks
 	Title VARCHAR(255),
 	Album VARCHAR(255),
 	ReleaseYear INT DEFAULT 0,
-	TrackLengthSec INT DEFAULT 0,
+	TrackLengthSec FLOAT DEFAULT 0,
 	GroupId VARCHAR(20),
 	CONSTRAINT CK_TracksTrackLength CHECK(TrackLengthSec > -1),
 	CONSTRAINT CK_ReleaseYear CHECK(ReleaseYear > -1),
@@ -270,7 +270,7 @@ CREATE PROCEDURE sp_InsertTrack
 	@Title VARCHAR(255),
 	@Album VARCHAR(255),
 	@ReleaseYear INT,
-	@TrackLengthSec INT,
+	@TrackLengthSec FLOAT,
 	@GroupId VARCHAR(20)
 AS
 INSERT INTO Tracks (

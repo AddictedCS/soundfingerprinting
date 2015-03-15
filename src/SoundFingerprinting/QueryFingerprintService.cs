@@ -35,8 +35,7 @@
                 var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int hammingSimilarity = similarityCalculationUtility.CalculateHammingSimilarity(
-                        hashedFingerprint.SubFingerprint, subFingerprint.Signature);
+                    int hammingSimilarity = similarityCalculationUtility.CalculateHammingSimilarity(hashedFingerprint.SubFingerprint, subFingerprint.Signature);
                     if (!hammingSimilarities.ContainsKey(subFingerprint.TrackReference))
                     {
                         hammingSimilarities.Add(subFingerprint.TrackReference, 0);
@@ -74,38 +73,55 @@
 
         public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
-            var allSubfingerprints = new Dictionary<IModelReference, ISet<SubFingerprintData>>();
+            var allCandidates = GetAllCandidates(modelService, hashedFingerprints, queryConfiguration);
+            var lcs = GetLongestSubSequenceAccrossAllCandidates(allCandidates);
+            var returnresult = new QueryResult
+                {
+                    ResultEntries = new List<ResultEntry> { new ResultEntry { Track = modelService.ReadTrackByReference(lcs[0].TrackReference) } },
+                    SequenceStart = lcs.First().SequenceAt,
+                    SequenceLength = lcs.Last().SequenceAt - lcs.First().SequenceAt
+                };
+
+            return returnresult;
+        }
+
+        private Dictionary<IModelReference, ISet<SubFingerprintData>> GetAllCandidates(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
+        {
+            var allCandidates = new Dictionary<IModelReference, ISet<SubFingerprintData>>();
             foreach (var hashedFingerprint in hashedFingerprints)
             {
                 var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    if (!allSubfingerprints.ContainsKey(subFingerprint.TrackReference))
+                    if (!allCandidates.ContainsKey(subFingerprint.TrackReference))
                     {
-                        allSubfingerprints.Add(subFingerprint.TrackReference, new SortedSet<SubFingerprintData>(new SubFingerprintSequenceComparer()));
+                        allCandidates.Add(
+                            subFingerprint.TrackReference,
+                            new SortedSet<SubFingerprintData>(new SubFingerprintSequenceComparer()));
                     }
 
-                    allSubfingerprints[subFingerprint.TrackReference].Add(subFingerprint);
+                    allCandidates[subFingerprint.TrackReference].Add(subFingerprint);
                 }
             }
 
-            var groups = new Dictionary<IModelReference, IEnumerable<SubFingerprintData>>();
-            foreach (var group in allSubfingerprints)
+            return allCandidates;
+        }
+
+        private List<SubFingerprintData> GetLongestSubSequenceAccrossAllCandidates(Dictionary<IModelReference, ISet<SubFingerprintData>> allCandidates)
+        {
+            var lcs = Enumerable.Empty<SubFingerprintData>().ToList();
+            int max = int.MinValue;
+            foreach (var candidate in allCandidates)
             {
-                var longest = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(group.Value.ToList());
-                groups.Add(group.Key, longest);
+                var longest = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(candidate.Value.ToList()).ToList();
+                if (longest.Count > max)
+                {
+                    max = longest.Count;
+                    lcs = longest;
+                }
             }
 
-            var max = groups.Max(g => g.Value.Count());
-            var result = groups.FirstOrDefault(g => g.Value.Count() == max);
-            var returnresult = new QueryResult
-                {
-                    ResultEntries = new List<ResultEntry> { new ResultEntry { Track = modelService.ReadTrackByReference(result.Key) } },
-                    SequenceStart = result.Value.First().SequenceAt,
-                    SequenceLength = result.Value.Last().SequenceAt - result.Value.First().SequenceAt
-                };
-
-            return returnresult;
+            return lcs;
         }
 
         private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashedFingerprint hash, QueryConfiguration queryConfiguration)
@@ -116,14 +132,6 @@
             }
 
             return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
-        }
-    }
-
-    class SubFingerprintSequenceComparer : IComparer<SubFingerprintData>
-    {
-        public int Compare(SubFingerprintData x, SubFingerprintData y)
-        {
-            return x.SequenceAt.CompareTo(y.SequenceAt);
         }
     }
 }

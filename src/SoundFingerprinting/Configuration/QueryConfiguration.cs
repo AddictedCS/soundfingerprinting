@@ -41,7 +41,6 @@
                     throw new ArgumentException("MaximumNumberOfTracksToReturnAsResult cannot be less or equal to 0", "value");
                 }
 
-
                 maximumNumberOfTracksToReturnAsResult = value;
             }
         }

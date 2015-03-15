@@ -99,6 +99,7 @@
     <Compile Include="Strides\StrideType.cs" />
     <Compile Include="IModelService.cs" />
     <Compile Include="ModelService.cs" />
+    <Compile Include="LCS\SubFingerprintSequenceComparer.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\CustomFingerprintConfiguration.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
