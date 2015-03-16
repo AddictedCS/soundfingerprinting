@@ -136,9 +136,9 @@
 
         private IEnumerable<IEnumerable<SubFingerprintData>> GetCandidatesSortedByLCS(Dictionary<IModelReference, ISet<SubFingerprintData>> allCandidates)
         {
-            var resultSet = new SortedSet<IEnumerable<SubFingerprintData>>(
-                    Comparer<IEnumerable<SubFingerprintData>>.Create(
-                        (a, b) => a.Count().CompareTo(b.Count())));
+            var resultSet =
+                new SortedSet<IEnumerable<SubFingerprintData>>(
+                    Comparer<IEnumerable<SubFingerprintData>>.Create((a, b) => b.Count().CompareTo(a.Count()))); // TODO Loose comparison, if 2 sequences are equal last added will be selected as the winner
 
             foreach (var candidate in allCandidates)
             {

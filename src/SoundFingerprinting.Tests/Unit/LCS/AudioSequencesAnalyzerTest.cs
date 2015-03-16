@@ -25,6 +25,7 @@
             var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence);
 
             Assert.AreEqual(sequence.Count, subSequence.Count());
+            AssertSequenceAreEqual(expected, sequence);
         }
 
         [TestMethod]
