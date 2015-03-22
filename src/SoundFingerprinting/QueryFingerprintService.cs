@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -89,7 +88,7 @@
                 return NoResult;
             }
 
-            var entries = this.GetCandidatesSortedByLCS(allCandidates);
+            var entries = GetCandidatesSortedByLCS(allCandidates);
 
             var resultEntries = entries
                    .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
@@ -108,6 +107,38 @@
                     ResultEntries = resultEntries,
                     AnalyzedCandidatesCount = allCandidates.Count
                 };
+
+            return returnresult;
+        }
+
+        public QueryResult Query3(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
+        {
+            var fingerprints = hashedFingerprints.ToList();
+            var allCandidates = GetAllCandidates(modelService, fingerprints, queryConfiguration);
+            if (!allCandidates.Any())
+            {
+                return NoResult;
+            }
+
+            var entries = GetCandidatesSortedByDTW(fingerprints, allCandidates);
+
+            var resultEntries = entries
+                   .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
+                   .Select(datas => new ResultEntry
+                   {
+                       Track = modelService.ReadTrackByReference(datas.First().TrackReference),
+                       Similarity = datas.Count(),
+                       SequenceStart = datas.First().SequenceAt,
+                       SequenceLength = datas.Last().SequenceAt - datas.First().SequenceAt + 1.48d // TODO 1.48 because of default fingerprint config. For other configurations there is going to be equal to Overlap * ImageLength / SampleRate 
+                   })
+                    .ToList();
+
+            var returnresult = new QueryResult
+            {
+                IsSuccessful = true,
+                ResultEntries = resultEntries,
+                AnalyzedCandidatesCount = allCandidates.Count
+            };
 
             return returnresult;
         }
@@ -148,6 +179,22 @@
 
             return resultSet;
         }
+
+        private IEnumerable<IEnumerable<SubFingerprintData>> GetCandidatesSortedByDTW(List<HashedFingerprint> hashedFingerprints, Dictionary<IModelReference, ISet<SubFingerprintData>> allCandidates)
+        {
+            SortedDictionary<double, IEnumerable<SubFingerprintData>> dtws = new SortedDictionary<double, IEnumerable<SubFingerprintData>>();
+            foreach(var candidate in allCandidates)
+            {
+                var dtw = audioSequencesAnalyzer.ComputeDynamicTimeWarpingSimilarity(
+                    hashedFingerprints, candidate.Value.ToList());
+                if (!dtws.ContainsKey(dtw)) //TODO Very loose comparison this has to be refactored
+                {
+                    dtws.Add(dtw, candidate.Value);
+                }
+            }
+
+            return dtws.Values;
+        }
         
         private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashedFingerprint hash, QueryConfiguration queryConfiguration)
         {
@@ -160,4 +207,3 @@
         }
     }
 }
-
