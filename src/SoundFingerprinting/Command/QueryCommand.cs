@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Command
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -103,19 +102,6 @@
                                        {
                                            var hashes = task.Result;
                                            return queryFingerprintService.Query2(modelService, hashes, QueryConfiguration);
-                                       },
-                                       TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        public Task<QueryResult> Query3()
-        {
-            return createFingerprintMethod()
-                                    .Hash()
-                                    .ContinueWith(
-                                       task =>
-                                       {
-                                           var hashes = task.Result;
-                                           return queryFingerprintService.Query3(modelService, hashes.OrderBy(h => h.SequenceNumber), QueryConfiguration);
                                        },
                                        TaskContinuationOptions.ExecuteSynchronously);
         }

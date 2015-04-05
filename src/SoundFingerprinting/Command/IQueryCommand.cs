@@ -14,7 +14,5 @@
         Task<QueryResult> Query();
         
         Task<QueryResult> Query2();
-
-        Task<QueryResult> Query3();
     }
 }

@@ -8,7 +8,5 @@ namespace SoundFingerprinting.LCS
     public interface IAudioSequencesAnalyzer
     {
         IEnumerable<SubFingerprintData> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence);
-
-        double ComputeDynamicTimeWarpingSimilarity(List<HashedFingerprint> hashedFingerprints, List<SubFingerprintData> subFingerprints);
     }
 }
