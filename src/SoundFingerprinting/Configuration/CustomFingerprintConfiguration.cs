@@ -2,6 +2,10 @@ namespace SoundFingerprinting.Configuration
 {
     public class CustomFingerprintConfiguration : DefaultFingerprintConfiguration
     {
-        // marker class
+        public CustomFingerprintConfiguration()
+        {
+            SpectrogramConfig = new CustomSpectrogramConfig();
+            HashingConfig = new CustomHashingConfig();
+        }
     }
 }

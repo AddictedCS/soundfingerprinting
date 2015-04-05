@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.FFT
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -82,14 +83,14 @@
         public void CutLogarithmizedSpectrumTest()
         {
             var stride = new StaticStride(0, 0);
-            var config = new CustomSpectrogramConfig { Stride = stride };
+            var configuration = new CustomSpectrogramConfig { Stride = stride };
             const int LogSpectrumLength = 1024;
             var logSpectrum = GetLogSpectrum(LogSpectrumLength);
 
-            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
+            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, configuration);
             
             Assert.AreEqual(8, cutLogarithmizedSpectrum.Count);
-            double lengthOfOneFingerprint = (double)config.ImageLength * config.Overlap / SampleRate;
+            double lengthOfOneFingerprint = (double)configuration.ImageLength * configuration.Overlap / SampleRate;
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
                 Assert.IsTrue(
@@ -101,11 +102,11 @@
         public void CutLogarithmizedSpectrumOfJustOneFingerprintTest()
         {
             var stride = new StaticStride(0, 0);
-            var config = new CustomSpectrogramConfig { Stride = stride };
-            int logSpectrumLength = config.ImageLength; // 128
+            var configuration = new CustomSpectrogramConfig { Stride = stride };
+            int logSpectrumLength = configuration.ImageLength; // 128
             var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
-            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
+            var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, configuration);
             
             Assert.AreEqual(1, cutLogarithmizedSpectrum.Count);
         }
@@ -180,8 +181,7 @@
         {
         }
 
-        public new List<SpectralImage> CutLogarithmizedSpectrum(
-            float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
+        public new List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
         {
             return base.CutLogarithmizedSpectrum(logarithmizedSpectrum, sampleRate, configuration);
         }
