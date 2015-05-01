@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -117,7 +116,7 @@
             var allCandidates = new Dictionary<IModelReference, ISet<SubFingerprintData>>();
             foreach (var hashedFingerprint in hashedFingerprints)
             {
-                var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration);
+                var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration); // TODO No need to extract full subfingerprint from the DB. We use only TrackReference and Sequence # to build the result
                 foreach (var subFingerprint in subFingerprints)
                 {
                     if (!allCandidates.ContainsKey(subFingerprint.TrackReference))
@@ -160,4 +159,3 @@
         }
     }
 }
-

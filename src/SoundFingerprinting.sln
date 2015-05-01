@@ -28,10 +28,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.FFT.Exo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio.NAudio", "SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj", "{73A3FEE8-13EE-4EEB-9DB2-E52A30C8467A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.MongoDb", "SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj", "{C294F4CC-678D-4CC9-905A-041395931C58}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.MongoDb.Tests", "SoundFingerprinting.MongoDb.Tests\SoundFingerprinting.MongoDb.Tests.csproj", "{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio.NAudio.Test", "SoundFingerprinting.Audio.NAudio.Test\SoundFingerprinting.Audio.NAudio.Test.csproj", "{AE1865DB-C8D2-48E8-BB00-551D9D858C37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.SQL", "SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj", "{6A632721-03E5-46C1-8457-66333F7271AA}"
@@ -148,26 +144,6 @@ Global
 		{73A3FEE8-13EE-4EEB-9DB2-E52A30C8467A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{73A3FEE8-13EE-4EEB-9DB2-E52A30C8467A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{73A3FEE8-13EE-4EEB-9DB2-E52A30C8467A}.Release|x86.ActiveCfg = Release|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{C294F4CC-678D-4CC9-905A-041395931C58}.Release|x86.ActiveCfg = Release|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{8FAF1C3F-ACE7-4629-BABB-FBAFB54099C3}.Release|x86.ActiveCfg = Release|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

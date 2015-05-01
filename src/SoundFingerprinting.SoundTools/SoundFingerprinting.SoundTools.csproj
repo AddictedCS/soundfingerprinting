@@ -268,10 +268,6 @@
       <Project>{e3f08f02-26a2-4731-941e-2ffd38c197b5}</Project>
       <Name>SoundFingerprinting.MinHash.Permutations</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj">
-      <Project>{c294f4cc-678d-4cc9-905a-041395931c58}</Project>
-      <Name>SoundFingerprinting.MongoDb</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.NeuralHasher\SoundFingerprinting.NeuralHasher.csproj">
       <Project>{87cc569e-7d2a-4159-8cc1-dd1b563553f5}</Project>
       <Name>SoundFingerprinting.NeuralHasher</Name>

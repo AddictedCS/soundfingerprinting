@@ -5,13 +5,10 @@ namespace SoundFingerprinting.SoundTools
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Audio.NAudio;
-    using SoundFingerprinting.Audio.NAudio.Play;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash.Permutations;
-    using SoundFingerprinting.MongoDb;
     using SoundFingerprinting.NeuralHasher;
     using SoundFingerprinting.SoundTools.BassResampler;
     using SoundFingerprinting.SoundTools.DbFiller;
@@ -39,7 +36,6 @@ namespace SoundFingerprinting.SoundTools
         private readonly ISpectrumService spectrumService;
         private readonly IImageService imageService;
         private readonly INetworkTrainer networkTrainer;
-        private readonly IModelService mongoModelService;
         private readonly IWaveFileUtility waveFileUtility;
         private readonly ISoundCaptureService soundCaptureService;
         private readonly IStreamingUrlReader streamingUrlReader;
@@ -58,8 +54,7 @@ namespace SoundFingerprinting.SoundTools
             permutationGeneratorService = new PermutationGeneratorService();
             spectrumService = new SpectrumService();
             imageService = new ImageService();
-            mongoModelService = new MongoDbModelService();
-            networkTrainer = new NetworkTrainer(mongoModelService);
+            networkTrainer = new NetworkTrainer(modelService);
             waveFileUtility = new BassWaveFileUtility();
             soundCaptureService = new BassSoundCaptureService();
             streamingUrlReader = new BassStreamingUrlReader();
@@ -138,7 +133,7 @@ namespace SoundFingerprinting.SoundTools
 
         private void BtnInsertSpectralImagesClick(object sender, EventArgs e)
         {
-            WinSpectralImagesCreator win = new WinSpectralImagesCreator(mongoModelService, spectrumService, audioService, tagService);
+            WinSpectralImagesCreator win = new WinSpectralImagesCreator(modelService, spectrumService, audioService, tagService);
             win.Show();
         }
 
