@@ -7,7 +7,6 @@
   <SoundFingerprintingLibProject>..\src\SoundFingerprinting\SoundFingerprinting.csproj</SoundFingerprintingLibProject>
   <SoundFingerprintingSQLProject>..\src\SoundFingerprinting.SQL\SoundFingerprinting.SQL.csproj</SoundFingerprintingSQLProject>
   <SoundFingerprintingNAudioProject>..\src\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj</SoundFingerprintingNAudioProject>
-  <SoundFingerprintingMongoProject>..\src\SoundFingerprinting.MongoDb\SoundFingerprinting.MongoDb.csproj</SoundFingerprintingMongoProject>
   <SoundFingerprintingBassProject>..\src\SoundFingerprinting.Audio.Bass\SoundFingerprinting.Audio.Bass.csproj</SoundFingerprintingBassProject>
   <SoundFingerprintingOutputDir>$(Configuration)\SoundFingerprinting</SoundFingerprintingOutputDir>
   <DuplicatesDetectorOutputDir>$(Configuration)\DuplicatesDetector</DuplicatesDetectorOutputDir>
@@ -61,16 +60,6 @@
 	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingNAudioProject) -Build -Properties Configuration=$(Configuration)" />
 </Target>
 
-<Target Name = "RunMongoDbTests">
-	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.MongoDb.Tests.dll" >
-		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
-    </Exec>
-</Target>
-
-<Target Name = "PackageMongoDBLib" DependsOnTargets="RunMongoDbTests">
-	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingMongoProject) -Build -Properties Configuration=$(Configuration)" />
-</Target>
-
 <Target Name = "RunBassTests">
 	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.Audio.Bass.Tests.dll" >
 		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
@@ -81,7 +70,7 @@
 	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingBassProject) -Build -Properties Configuration=$(Configuration)" />
 </Target>
 
-<Target Name = "Package" DependsOnTargets="PackageSoundFingerprintingLib;PackageSoundFingerprintingSQLLib;PackageNAudioLib;PackageMongoDBLib;PackageBassLib">
+<Target Name = "Package" DependsOnTargets="PackageSoundFingerprintingLib;PackageSoundFingerprintingSQLLib;PackageNAudioLib;PackageBassLib">
 	<RemoveDir Directories="TestResults" />
 </Target>
 
