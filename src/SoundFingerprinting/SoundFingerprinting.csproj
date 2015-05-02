@@ -38,12 +38,20 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MathNet.Numerics, Version=2.6.1.30, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MathNet.Numerics.2.6.1\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics.IO">
+      <HintPath>..\packages\MathNet.Numerics.2.6.1\lib\net40\MathNet.Numerics.IO.dll</HintPath>
+    </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
@@ -89,7 +97,16 @@
     <Compile Include="LCS\IAudioSequencesAnalyzer.cs" />
     <Compile Include="LSH\BoundedLocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="Math\ISimilarityUtility.cs" />
+    <Compile Include="Math\MathUtility.cs" />
+    <Compile Include="MinHash\AgressiveSelector.cs" />
+    <Compile Include="MinHash\ConservativeSelector.cs" />
     <Compile Include="MinHash\DefaultPermutations.cs" />
+    <Compile Include="MinHash\Hash.cs" />
+    <Compile Include="MinHash\IMinMutualSelector.cs" />
+    <Compile Include="MinHash\IPermutationGeneratorService.cs" />
+    <Compile Include="MinHash\MinMutualSelector.cs" />
+    <Compile Include="MinHash\PermutationGeneratorService.cs" />
+    <Compile Include="MinHash\SummedAcrossSelector.cs" />
     <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
