@@ -8,7 +8,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.Bass;
+    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -18,14 +18,12 @@
     public abstract class AbstractTrackDaoTest : AbstractIntegrationTest
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
-        private readonly ITagService tagService;
         private readonly IAudioService audioService;
 
         protected AbstractTrackDaoTest()
         {
             fingerprintCommandBuilder = new FingerprintCommandBuilder();
-            tagService = new BassTagService();
-            audioService = new BassAudioService();
+            audioService = new NAudioService();
         }
 
         public abstract ITrackDao TrackDao { get; set; }
@@ -171,7 +169,7 @@
             const int StaticStride = 5115;
             const int SecondsToProcess = 20;
             const int StartAtSecond = 30;
-            TagInfo tagInfo = tagService.GetTagInfo(PathToMp3);
+            TagInfo tagInfo = this.GetTagInfo();
             int releaseYear = tagInfo.Year;
             TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = TrackDao.InsertTrack(track);

@@ -5,8 +5,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.Bass;
-    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -22,7 +21,7 @@
 
         protected AbstractSpectralImageDaoTest()
         {
-            audioService = new BassAudioService();
+            audioService = new NAudioService();
             spectrumService = new SpectrumService();
         }
 

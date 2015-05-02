@@ -114,10 +114,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Audio.Bass\SoundFingerprinting.Audio.Bass.csproj">
-      <Project>{1f143503-3592-4a71-8ce3-026d7e8b2ad7}</Project>
-      <Name>SoundFingerprinting.Audio.Bass</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
       <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
       <Name>SoundFingerprinting.Audio.NAudio</Name>

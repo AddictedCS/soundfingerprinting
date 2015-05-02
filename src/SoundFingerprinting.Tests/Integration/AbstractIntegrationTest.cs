@@ -5,6 +5,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
 
@@ -43,6 +44,24 @@
             Assert.IsNotNull(modelReference);
             Assert.IsTrue(modelReference.GetHashCode() != 0);
         }
+
+        protected TagInfo GetTagInfo()
+        {
+            return new TagInfo
+            {
+                Album = "Album",
+                AlbumArtist = "AlbumArtist",
+                Artist = "Artist",
+                Composer = "Composer",
+                Duration = 100.2,
+                Genre = "Genre",
+                IsEmpty = false,
+                ISRC = "ISRC",
+                Title = "Title",
+                Year = 1986
+            };
+        }
+
 
         private List<HashedFingerprint> SortHashesByFirstValueOfHashBin(IEnumerable<HashedFingerprint> hashDatasFromFile)
         {
