@@ -1,4 +1,0 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="clr-namespace:SoundFingerprinting.DuplicatesDetector.ViewModel" x:Class="SoundFingerprinting.DuplicatesDetector.Themes.i__ahtung_sound_fingerprinting_soundfingerprintinggit_src_soundfingerprinting_duplicatesdetector_themes_converters_xaml">
-	<!--Boolean to ProgressBar visibility converter used in PathListViewModel-->
-	<vm:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"></vm:BooleanToVisibilityConverter>
-</ResourceDictionary>
