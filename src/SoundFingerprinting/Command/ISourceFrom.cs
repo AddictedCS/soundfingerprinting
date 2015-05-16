@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Data;
 
     /// <summary>
-    /// Source from object which allows you to select the source to build the fingerprints from
+    /// Source object which allows you to select the source to build the fingerprints from
     /// </summary>
     public interface ISourceFrom
     {
