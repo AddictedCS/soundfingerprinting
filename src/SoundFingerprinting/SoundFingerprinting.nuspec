@@ -21,6 +21,9 @@
 		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net35" />
 		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net40" />
 		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net45" />
+		<file src="bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net35" />
+		<file src="bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net40" />
+		<file src="bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net45" />
 		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net35" />
 		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net40" />
 		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net45" />
