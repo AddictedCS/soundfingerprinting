@@ -27,7 +27,7 @@
             this.similarityCalculationUtility = similarityCalculationUtility;
         }
     
-        private QueryResult NoResult
+        private static QueryResult NoResult
         {
             get
             {
@@ -80,7 +80,7 @@
                 };
         }
 
-        public QueryResult Query2(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
+        public QueryResult QueryWithTimeSequenceInformation(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var allCandidates = GetAllCandidates(modelService, hashedFingerprints, queryConfiguration);
             if (!allCandidates.Any())

@@ -93,7 +93,7 @@
                                         TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        public Task<QueryResult> Query2()
+        public Task<QueryResult> QueryWithTimeSequenceInformation()
         {
             return createFingerprintMethod()
                                     .Hash()
@@ -101,7 +101,7 @@
                                        task =>
                                        {
                                            var hashes = task.Result;
-                                           return queryFingerprintService.Query2(modelService, hashes, QueryConfiguration);
+                                           return queryFingerprintService.QueryWithTimeSequenceInformation(modelService, hashes, QueryConfiguration);
                                        },
                                        TaskContinuationOptions.ExecuteSynchronously);
         }
