@@ -62,7 +62,6 @@
             };
         }
 
-
         private List<HashedFingerprint> SortHashesByFirstValueOfHashBin(IEnumerable<HashedFingerprint> hashDatasFromFile)
         {
             return hashDatasFromFile.OrderBy(hashData => hashData.HashBins[0]).ToList();

@@ -4,6 +4,10 @@ namespace SoundFingerprinting.Builder
 
     public interface IFingerprintCommandBuilder
     {
+        /// <summary>
+        /// Start building the fingerprinting command
+        /// </summary>
+        /// <returns>Source selector</returns>
         ISourceFrom BuildFingerprintCommand();
     }
 }

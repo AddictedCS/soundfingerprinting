@@ -23,5 +23,23 @@
                 return null;
             }
         }
+
+        public SequenceInfo TimeInfo
+        {
+            get
+            {
+                if (BestMatch != null && ContainsSequenceInfo(BestMatch))
+                {
+                    return new SequenceInfo { Start = BestMatch.SequenceStart, Length = BestMatch.SequenceLength };
+                }
+
+                return null;
+            }
+        }
+
+        private bool ContainsSequenceInfo(ResultEntry bestMatch)
+        {
+            return !bestMatch.SequenceStart.Equals(0) && !bestMatch.SequenceLength.Equals(0);
+        }
     }
 }

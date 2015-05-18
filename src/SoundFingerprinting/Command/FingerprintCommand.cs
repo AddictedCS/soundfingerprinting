@@ -95,9 +95,9 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IFingerprintCommand UsingServices(IAudioService audioService)
+        public IFingerprintCommand UsingServices(IAudioService audioServiceToUse)
         {
-            this.audioService = audioService;
+            this.audioService = audioServiceToUse;
             return this;
         }
 
