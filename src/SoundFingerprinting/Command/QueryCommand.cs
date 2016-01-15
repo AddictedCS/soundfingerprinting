@@ -7,6 +7,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.Strides;
 
     internal sealed class QueryCommand : IQuerySource, IWithQueryAndFingerprintConfiguration, IQueryCommand
     {
@@ -22,7 +23,7 @@
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
-            FingerprintConfiguration = FingerprintConfiguration.Default;
+            FingerprintConfiguration = FingerprintConfiguration.QueryDefault;
             QueryConfiguration = QueryConfiguration.Default;
         }
 

@@ -5,6 +5,7 @@ namespace SoundFingerprinting.Configuration
     public class FingerprintConfiguration
     {
         public static readonly FingerprintConfiguration Default = new DefaultFingerprintConfiguration();
+        public static readonly FingerprintConfiguration QueryDefault = new EfficientFingerprintConfigurationForQuerying();
 
         private int topWavelets;
         private int sampleRate;
