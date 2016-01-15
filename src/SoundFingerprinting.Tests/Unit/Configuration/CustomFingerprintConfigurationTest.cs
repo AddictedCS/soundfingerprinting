@@ -10,11 +10,12 @@
     [TestClass]
     public class CustomFingerprintConfigurationTest
     {
+        private readonly FingerprintConfiguration defaultConfiguration = new DefaultFingerprintConfiguration();
+
         [TestMethod]
         public void FingerprintConfigurationInheritsDefaultValues()
         {
             var customConfiguration = new CustomFingerprintConfiguration();
-            var defaultConfiguration = FingerprintConfiguration.Default;
 
             Assert.AreEqual(defaultConfiguration.NormalizeSignal, customConfiguration.NormalizeSignal);
             Assert.AreEqual(defaultConfiguration.SampleRate, customConfiguration.SampleRate);
