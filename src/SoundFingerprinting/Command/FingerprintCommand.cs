@@ -24,7 +24,7 @@ namespace SoundFingerprinting.Command
         {
             this.fingerprintService = fingerprintService;
             this.lshAlgorithm = lshAlgorithm;
-            FingerprintConfiguration = FingerprintConfiguration.Default;
+            FingerprintConfiguration = new DefaultFingerprintConfiguration();
         }
 
         public FingerprintConfiguration FingerprintConfiguration { get; private set; }

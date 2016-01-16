@@ -60,6 +60,7 @@
     <Compile Include="Configuration\CustomSpectrogramConfig.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
     <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
+    <Compile Include="Configuration\EfficientFingerprintConfigurationForQuerying.cs" />
     <Compile Include="Configuration\FrequencyRange.cs" />
     <Compile Include="Configuration\HashingConfig.cs" />
     <Compile Include="Configuration\SpectrogramConfig.cs" />

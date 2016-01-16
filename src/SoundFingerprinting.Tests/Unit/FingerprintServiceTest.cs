@@ -55,7 +55,7 @@
             const int TenSeconds = 5512 * 10;
             var samples = TestUtilities.GenerateRandomAudioSamples(TenSeconds);
             var configuration = SpectrogramConfig.Default;
-            var fingerprintConfig = FingerprintConfiguration.Default;
+            var fingerprintConfig = new DefaultFingerprintConfiguration();
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, configuration)).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>()));
@@ -92,7 +92,7 @@
         public void SilenceIsNotFingerprinted()
         {
             var samples = TestUtilities.GenerateRandomAudioSamples(5512 * 10);
-            var configuration = FingerprintConfiguration.Default;
+            var configuration = new DefaultFingerprintConfiguration();
             var spectrogramConfig = SpectrogramConfig.Default;
             var dividedLogSpectrum = GetDividedLogSpectrum();
 

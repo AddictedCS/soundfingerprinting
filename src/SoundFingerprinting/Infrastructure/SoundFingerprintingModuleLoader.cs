@@ -50,7 +50,7 @@
 
             kernel.Bind<IRAMStorage>().To<RAMStorage>()
                                       .InSingletonScope()
-                                      .WithConstructorArgument("numberOfHashTables", FingerprintConfiguration.Default.HashingConfig.NumberOfLSHTables);
+                                      .WithConstructorArgument("numberOfHashTables", new DefaultFingerprintConfiguration().HashingConfig.NumberOfLSHTables);
         }
     }
 }
