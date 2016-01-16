@@ -35,7 +35,7 @@
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = TrackDao.InsertTrack(track);
             var audioSamples = audioService.ReadMonoSamplesFromFile(
-                PathToMp3, FingerprintConfiguration.Default.SampleRate);
+                PathToMp3, new DefaultFingerprintConfiguration().SampleRate);
             var spectralImages = spectrumService.CreateLogSpectrogram(audioSamples, SpectrogramConfig.Default);
             var concatenatedSpectralImages = new List<float[]>();
             foreach (var spectralImage in spectralImages)

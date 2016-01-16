@@ -9,6 +9,7 @@
     public class LogUtilityTest : AbstractTest
     {
         private readonly ILogUtility logUtility = new LogUtility();
+        private readonly FingerprintConfiguration defaultFingerprintConfiguration = new DefaultFingerprintConfiguration();
 
         [TestMethod]
         public void FrequencyToIndexTest()
@@ -30,12 +31,12 @@
                     2000f
                 };
 
-            int[] indexes = logUtility.GenerateLogFrequenciesRanges(FingerprintConfiguration.Default.SampleRate, defaultConfig);
+            int[] indexes = logUtility.GenerateLogFrequenciesRanges(defaultFingerprintConfiguration.SampleRate, defaultConfig);
 
             for (int i = 0; i < logSpacedFrequencies.Length; i++)
             {
                 var logSpacedFrequency = logSpacedFrequencies[i];
-                int index = logUtility.FrequencyToSpectrumIndex(logSpacedFrequency, FingerprintConfiguration.Default.SampleRate, defaultConfig.WdftSize);
+                int index = logUtility.FrequencyToSpectrumIndex(logSpacedFrequency, defaultFingerprintConfiguration.SampleRate, defaultConfig.WdftSize);
                 Assert.AreEqual(index, indexes[i]);
             }
         }
