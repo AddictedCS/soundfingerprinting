@@ -4,8 +4,6 @@
 
     public class QueryConfiguration
     {
-        public static readonly QueryConfiguration Default = new DefaultQueryConfiguration();
-     
         private int thresholdVotes;
         private int maximumNumberOfTracksToReturnAsResult;
 
