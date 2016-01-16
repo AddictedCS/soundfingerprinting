@@ -71,7 +71,7 @@
         [TestMethod]
         public void CreateLogSpectrogramFromSamplesLessThanFourierTransformWindowLength()
         {
-            var configuration = SpectrogramConfig.Default;
+            var configuration = new DefaultSpectrogramConfig();
             var samples = TestUtilities.GenerateRandomAudioSamples(configuration.WdftSize - 1);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
@@ -132,7 +132,7 @@
         [TestMethod]
         public void CutLogarithmizedSpectrumWithDefaultStride()
         {
-            var config = SpectrogramConfig.Default;
+            var config = new DefaultSpectrogramConfig();
             int logSpectrumlength = config.ImageLength * 10;
             var logSpectrum = GetLogSpectrum(logSpectrumlength);
 

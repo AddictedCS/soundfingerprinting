@@ -6,7 +6,6 @@ namespace SoundFingerprinting.Configuration
 
     public abstract class SpectrogramConfig
     {
-        public static readonly SpectrogramConfig Default = new DefaultSpectrogramConfig();
         private int overlap;
         private int wdftSize;
         private FrequencyRange frequencyRange;
