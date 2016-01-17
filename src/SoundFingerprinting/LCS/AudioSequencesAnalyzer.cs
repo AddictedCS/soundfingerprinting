@@ -12,6 +12,16 @@
 
         public IEnumerable<IEnumerable<SubFingerprintData>> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence)
         {
+            if (sequence == null || sequence.Count == 0)
+            {
+                return new List<IEnumerable<SubFingerprintData>>();
+            }
+
+            if (sequence.Count == 1)
+            {
+                return new List<List<SubFingerprintData>> { sequence };
+            }
+
             int[] maxs = new int[sequence.Count];
             int[] ind = new int[sequence.Count];
             for (int i = 0; i < sequence.Count; i++)
@@ -43,29 +53,30 @@
             }
 
             List<List<SubFingerprintData>> allCandidates = new List<List<SubFingerprintData>>();
-
             for (int diff = 0; diff <= AllowedMissalignment; diff++)
             {
                 for (int i = 0; i < maxs.Length; i++)
                 {
-                    if (maxLen != maxs[i])
+                    if (maxLen == maxs[i])
                     {
-                        continue;
-                    }
+                        Stack<SubFingerprintData> candidate = new Stack<SubFingerprintData>();
+                        int last = i;
+                        for (int k = 0; k < maxLen; k++)
+                        {
+                            candidate.Push(sequence[last]);
+                            maxs[last] = 0;
+                            last = ind[last];
+                        }
 
-                    Stack<SubFingerprintData> candidate = new Stack<SubFingerprintData>();
-                    int last = i;
-                    for (int k = 0; k < maxLen; k++)
-                    {
-                        candidate.Push(sequence[last]);
-                        maxs[last] = 0;
-                        last = ind[last];
+                        allCandidates.Add(candidate.ToList());
                     }
-
-                    allCandidates.Add(candidate.ToList());
                 }
 
                 maxLen = maxLen - 1;
+                if (maxLen == 0)
+                {
+                    break;
+                }
             }
 
             return allCandidates;

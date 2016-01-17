@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -46,9 +45,10 @@
             int[] expected = new[] { 5 };
             var sequence = GetSequence(5, 4, 3, 2, 1);
 
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
+            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
 
-            AssertSequenceAreEqual(expected, subSequence);
+            Assert.AreEqual(5, subSequence.Count);
+            AssertSequenceAreEqual(expected, subSequence.First().ToList());
         }
 
         [TestMethod]
@@ -63,6 +63,25 @@
             AssertSequenceAreEqual(expected, subSequences);
         }
         
+        [TestMethod]
+        public void ShouldReturEmptyCollectionInCaseEmptyListIsReceivedAsInput()
+        {
+            var list = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(new List<SubFingerprintData>());
+
+            Assert.AreEqual(0, list.Count());
+        }
+
+        [TestMethod]
+        public void ShouldReturnSingleElementInCaseIfSingleElementIsPassedInCollection()
+        {
+            int[] expected = new[] { 1 };
+            var sequence = GetSequence(1);
+
+            var subSequences = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
+
+            AssertSequenceAreEqual(expected, subSequences);
+        }
+
         private static void AssertSequenceAreEqual(int[] expected, List<SubFingerprintData> subSequence)
         {
             Assert.AreEqual(expected.Length, subSequence.Count);
