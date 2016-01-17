@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -19,10 +20,11 @@
             int[] expected = new[] { 1, 2, 3, 4, 5, 6 };
             var sequence = GetSequence(1, 2, 3, 4, 5, 6);
 
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence);
+            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
 
-            Assert.AreEqual(sequence.Count, subSequence.Count());
-            AssertSequenceAreEqual(expected, sequence);
+            Assert.AreEqual(1, subSequence.Count);
+            Assert.AreEqual(sequence.Count, subSequence.First().Count());
+            AssertSequenceAreEqual(expected, subSequence.First().ToList());
         }
 
         [TestMethod]
@@ -32,7 +34,7 @@
             int[] order = new[] { 1, 3, 0, 7, 8, 4, 5 };
             var sequence = GetSequence(order);
 
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
+            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
 
             Assert.AreEqual(subSequence.Count, 4);
             AssertSequenceAreEqual(expected, subSequence);
@@ -44,7 +46,7 @@
             int[] expected = new[] { 5 };
             var sequence = GetSequence(5, 4, 3, 2, 1);
 
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
+            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
 
             AssertSequenceAreEqual(expected, subSequence);
         }
@@ -56,7 +58,7 @@
             var sequence = GetSequence(
                 1, 2, 3, 4, 5, 20, 21, 22, 23, 24, 30, 31, 32, 40, 41, 42, 43, 44, 50, 51, 52, 53);
 
-            var subSequences = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
+            var subSequences = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
 
             AssertSequenceAreEqual(expected, subSequences);
         }

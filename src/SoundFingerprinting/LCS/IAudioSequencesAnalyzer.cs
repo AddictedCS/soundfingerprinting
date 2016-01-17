@@ -6,6 +6,6 @@ namespace SoundFingerprinting.LCS
 
     public interface IAudioSequencesAnalyzer
     {
-        IEnumerable<SubFingerprintData> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence);
+        IEnumerable<IEnumerable<SubFingerprintData>> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence);
     }
 }

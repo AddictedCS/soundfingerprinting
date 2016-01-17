@@ -135,14 +135,15 @@
 
         private IEnumerable<IEnumerable<SubFingerprintData>> GetCandidatesSortedByLCS(Dictionary<IModelReference, ISet<SubFingerprintData>> allCandidates)
         {
-            var resultSet =
-                new SortedSet<IEnumerable<SubFingerprintData>>(
-                    Comparer<IEnumerable<SubFingerprintData>>.Create((a, b) => b.Count().CompareTo(a.Count()))); // TODO Loose comparison, if 2 sequences are equal last added will be selected as the winner
+            var resultSet = new SortedSet<IEnumerable<SubFingerprintData>>(lengthComparer);
 
             foreach (var candidate in allCandidates)
             {
                 var lcs = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(candidate.Value.ToList()).ToList();
-                resultSet.Add(lcs);
+                foreach (var lc in lcs)
+                {
+                    resultSet.Add(lc);
+                }
             }
 
             return resultSet;
@@ -157,5 +158,9 @@
 
             return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
         }
+    
+        // TODO Loose comparison, if 2 sequences are equal last added will be selected as the winner
+        private Comparer<IEnumerable<SubFingerprintData>> lengthComparer = 
+            Comparer<IEnumerable<SubFingerprintData>>.Create((a, b) => b.Count().CompareTo(a.Count())); 
     }
 }

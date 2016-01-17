@@ -21,5 +21,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SoundTools")]
-[assembly: AssemblyVersion("2.1.0")]
-[assembly: AssemblyInformationalVersion("2.1.0")]
+[assembly: AssemblyVersion("2.1.1")]
+[assembly: AssemblyInformationalVersion("2.1.1")]

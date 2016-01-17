@@ -7,9 +7,10 @@
 
     public class AudioSequencesAnalyzer : IAudioSequencesAnalyzer
     {
-        private const double Delta = 2 * 1.48;
+        private const int AllowedMissalignment = 2;
+        private const double Delta = AllowedMissalignment * 1.48;
 
-        public IEnumerable<SubFingerprintData> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence)
+        public IEnumerable<IEnumerable<SubFingerprintData>> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence)
         {
             int[] maxs = new int[sequence.Count];
             int[] ind = new int[sequence.Count];
@@ -42,25 +43,32 @@
             }
 
             List<List<SubFingerprintData>> allCandidates = new List<List<SubFingerprintData>>();
-            for (int i = 0; i < maxs.Length; i++)
+
+            for (int diff = 0; diff <= AllowedMissalignment; diff++)
             {
-                if (maxs[i] != maxLen)
+                for (int i = 0; i < maxs.Length; i++)
                 {
-                    continue;
+                    if (maxLen != maxs[i])
+                    {
+                        continue;
+                    }
+
+                    Stack<SubFingerprintData> candidate = new Stack<SubFingerprintData>();
+                    int last = i;
+                    for (int k = 0; k < maxLen; k++)
+                    {
+                        candidate.Push(sequence[last]);
+                        maxs[last] = 0;
+                        last = ind[last];
+                    }
+
+                    allCandidates.Add(candidate.ToList());
                 }
 
-                Stack<SubFingerprintData> candidate = new Stack<SubFingerprintData>();
-                int last = i;
-                for (int k = 0; k < maxLen; k++)
-                {
-                    candidate.Push(sequence[last]);
-                    last = ind[last];
-                }
-
-                allCandidates.Add(candidate.ToList());
+                maxLen = maxLen - 1;
             }
-            
-            return allCandidates.First();
+
+            return allCandidates;
         }
     }
 }
