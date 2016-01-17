@@ -1,14 +1,11 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
-    using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
     [TestClass]
@@ -50,6 +47,18 @@
             var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
 
             AssertSequenceAreEqual(expected, subSequence);
+        }
+
+        [TestMethod]
+        public void ShouldReturnMultipleSequencesIfStrongEvidenceOfPresenceOfReccuringSequenceAreFound()
+        {
+            int[] expected = new[] { 1, 2, 3, 4, 5 };
+            var sequence = GetSequence(
+                1, 2, 3, 4, 5, 20, 21, 22, 23, 24, 30, 31, 32, 40, 41, 42, 43, 44, 50, 51, 52, 53);
+
+            var subSequences = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
+
+            AssertSequenceAreEqual(expected, subSequences);
         }
         
         private static void AssertSequenceAreEqual(int[] expected, List<SubFingerprintData> subSequence)
