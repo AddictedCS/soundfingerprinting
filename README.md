@@ -94,6 +94,13 @@ Fingerprinting and Querying algorithms can be easily parametrized with correspon
 ```
 Each and every configuration parameter can influence the recognition rate, required storage, computational cost, etc. Stick with the defaults, unless you would like to experiment. 
 
+#### Changes in default algorithm configuration in release 2.1.x
+Since the startup of the project until release 2.1.x both fingerprinting and querying operations had used the same configuration defaults. The most sensitive parameter (which directly affects precision/recall rate) is the <code>Stride</code> parameter. Empirically it was determined that using a smaller stride during querying gives both better precision and recall rate, at the expense of execution time and CPU load. 
+
+Starting from release 2.1.x new class has been introduced <code>EfficientFingerprintConfigurationForQuerying</code> which overrides default <i>query</i> stride (previously set to <code>IncrementalStaticStride</code> with <code>0.928ms</code>). Fingerprint stride remains the same as in previous versions <code>DefaultFingerprintConfiguration</code>. This change slows down querying but increases both precision and recall rate.
+
+In case you need directions for fine-tunning the algorithm for your particular use case do not hesitate to contact me.
+
 ### Third party libraries involved
 Links to the third party libraries used by _soundfingerprinting_ project.
 * [NAudio](http://naudio.codeplex.com/)
