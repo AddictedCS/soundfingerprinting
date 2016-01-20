@@ -1,6 +1,6 @@
-## Sound Fingerprinting
+## Audio fingerprinting and recognition in .NET
 
-_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/32685.pdf) of digital signal processing which allows developing a system of audio fingerprinting and recognition.
+_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/32685.pdf) of digital signal processing which allows developing a system of audio fingerprinting and recognition in .NET environment.
 
 ## Documentation
 
