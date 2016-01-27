@@ -4,12 +4,29 @@ namespace SoundFingerprinting.Query
 
     public class ResultEntry
     {
-        public TrackData Track { get; set; }
+        /// <summary>
+        /// Gets the resulting track
+        /// </summary>
+        public TrackData Track { get; internal set; }
 
-        public int Similarity { get; set; }
+        /// <summary>
+        /// Gets starting position of the matched sequence (available only with query with time sequence information method)
+        /// </summary>
+        public double SequenceStart { get; internal set; }
 
-        public double SequenceStart { get; set; }
+        /// <summary>
+        /// Gets the length of the matched sequence (available only with query with time sequence information method)
+        /// </summary>
+        public double SequenceLength { get; internal set; }
 
-        public double SequenceLength { get; set; }
+        /// <summary>
+        ///  Gets confidence marker [0, 1) (available only with query with time sequence information method)
+        /// </summary>
+        public double Confidence { get; internal set; }
+
+        /// <summary>
+        /// Gets number of matched fingerprints
+        /// </summary>
+        public int MatchedFingerprints { get; internal set; }
     }
 }
