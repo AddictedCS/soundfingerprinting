@@ -5,6 +5,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.LCS;
 
@@ -19,46 +20,34 @@
             int[] expected = new[] { 1, 2, 3, 4, 5, 6 };
             var sequence = GetSequence(1, 2, 3, 4, 5, 6);
 
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
+            var subSequence = audioSequencesAnalyzer.SortCandiatesByLongestIncresingAudioSequence(sequence, 0.928 * 6).ToList();
 
             Assert.AreEqual(1, subSequence.Count);
-            Assert.AreEqual(sequence.Count, subSequence.First().Count());
+            Assert.AreEqual(sequence.Values.First().Count, subSequence.First().Count());
             AssertSequenceAreEqual(expected, subSequence.First().ToList());
         }
 
         [TestMethod]
         public void TestNotStriclyIncreasingSequenceIsAnalyzedCorrectly()
         {
-            int[] expected = new[] { 1, 3, 4, 5 };
-            int[] order = new[] { 1, 3, 0, 7, 8, 4, 5 };
+            int[] expected = new[] { 3, 4, 5 };
+            int[] order = new[] { 1, 3, 7, 8, 4, 5 };
             var sequence = GetSequence(order);
 
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
+            var subSequence = audioSequencesAnalyzer.SortCandiatesByLongestIncresingAudioSequence(sequence, 1.48).First().ToList();
 
-            Assert.AreEqual(subSequence.Count, 4);
+            Assert.AreEqual(3, subSequence.Count);
             AssertSequenceAreEqual(expected, subSequence);
-        }
-
-        [TestMethod]
-        public void TestNotStriclyDecreasingSequenceIsAnalyzedCorrectly()
-        {
-            int[] expected = new[] { 5 };
-            var sequence = GetSequence(5, 4, 3, 2, 1);
-
-            var subSequence = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).ToList();
-
-            Assert.AreEqual(5, subSequence.Count);
-            AssertSequenceAreEqual(expected, subSequence.First().ToList());
         }
 
         [TestMethod]
         public void ShouldReturnMultipleSequencesIfStrongEvidenceOfPresenceOfReccuringSequenceAreFound()
         {
-            int[] expected = new[] { 1, 2, 3, 4, 5 };
+            int[] expected = new[] { 40, 41, 42, 43, 44, 50, 51, 52, 53 };
             var sequence = GetSequence(
                 1, 2, 3, 4, 5, 20, 21, 22, 23, 24, 30, 31, 32, 40, 41, 42, 43, 44, 50, 51, 52, 53);
 
-            var subSequences = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
+            var subSequences = audioSequencesAnalyzer.SortCandiatesByLongestIncresingAudioSequence(sequence, 5 * 1.48).First().ToList();
 
             AssertSequenceAreEqual(expected, subSequences);
         }
@@ -66,7 +55,7 @@
         [TestMethod]
         public void ShouldReturEmptyCollectionInCaseEmptyListIsReceivedAsInput()
         {
-            var list = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(new List<SubFingerprintData>());
+            var list = audioSequencesAnalyzer.SortCandiatesByLongestIncresingAudioSequence(new Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>(), 0);
 
             Assert.AreEqual(0, list.Count());
         }
@@ -77,7 +66,7 @@
             int[] expected = new[] { 1 };
             var sequence = GetSequence(1);
 
-            var subSequences = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(sequence).First().ToList();
+            var subSequences = audioSequencesAnalyzer.SortCandiatesByLongestIncresingAudioSequence(sequence, 1.48).First().ToList();
 
             AssertSequenceAreEqual(expected, subSequences);
         }
@@ -91,10 +80,21 @@
             }
         }
 
-        private static List<SubFingerprintData> GetSequence(params int[] orderNumbers)
+        private static Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition> GetSequence(params int[] orderNumbers)
         {
             var subfingerprints = orderNumbers.Select(t => new SubFingerprintData(null, t, t * 0.928, null, null)).ToList();
-            return subfingerprints;
+            var candidate = new SubfingerprintSetSortedByTimePosition();
+            foreach (var subFingerprintData in subfingerprints)
+            {
+                candidate.Add(subFingerprintData);
+            }
+
+            var track = new ModelReference<int>(123);
+            var allCandidates = new Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>
+                {
+                    { track, candidate } 
+                };
+            return allCandidates;
         }
     }
 }

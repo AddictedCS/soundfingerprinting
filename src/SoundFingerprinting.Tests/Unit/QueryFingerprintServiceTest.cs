@@ -83,8 +83,8 @@
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(9, queryResult.BestMatch.Similarity);
-            Assert.AreEqual(3, queryResult.AnalyzedCandidatesCount);
+            Assert.AreEqual(9, queryResult.BestMatch.MatchedFingerprints);
+            Assert.AreEqual(3, queryResult.AnalyzedTracksCount);
             Assert.AreEqual(2, queryResult.ResultEntries.Count);
             Assert.AreEqual(firstTrackReference, queryResult.ResultEntries[0].Track.TrackReference);
             Assert.AreEqual(thirdTrackReference, queryResult.ResultEntries[1].Track.TrackReference);
@@ -103,7 +103,7 @@
 
             Assert.IsFalse(queryResult.IsSuccessful);
             Assert.IsNull(queryResult.BestMatch);
-            Assert.AreEqual(0, queryResult.AnalyzedCandidatesCount);
+            Assert.AreEqual(0, queryResult.AnalyzedTracksCount);
             Assert.AreEqual(0, queryResult.ResultEntries.Count);
         }
 
@@ -130,8 +130,8 @@
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(9 + 8, queryResult.BestMatch.Similarity);
-            Assert.AreEqual(1, queryResult.AnalyzedCandidatesCount);
+            Assert.AreEqual(9 + 8, queryResult.BestMatch.MatchedFingerprints);
+            Assert.AreEqual(1, queryResult.AnalyzedTracksCount);
             Assert.AreEqual(1, queryResult.ResultEntries.Count);
         }
 

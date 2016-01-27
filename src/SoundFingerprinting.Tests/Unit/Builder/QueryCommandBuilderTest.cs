@@ -57,8 +57,7 @@
         public void QueryIsBuiltFromFileCorrectly()
         {
             const string PathToFile = "path-to-file";
-            QueryResult dummyResult = new QueryResult
-                { IsSuccessful = true, ResultEntries = It.IsAny<List<ResultEntry>>() };
+            QueryResult dummyResult = new QueryResult { ResultEntries = new List<ResultEntry> { new ResultEntry() } };
             List<HashedFingerprint> hashedFingerprints =
                 new List<HashedFingerprint>(
                     new[]
@@ -90,8 +89,15 @@
             const string PathToFile = "path-to-file";
             const int StartAtSecond = 120;
             const int SecondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult { IsSuccessful = true, ResultEntries = It.IsAny<List<ResultEntry>>() };
-            List<HashedFingerprint> hashDatas = new List<HashedFingerprint>(new[] { new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0), new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928), new HashedFingerprint(GenericSignature, GenericHashBuckets, 2, 0.928 * 2) });
+            QueryResult dummyResult = new QueryResult { ResultEntries = new List<ResultEntry> { new ResultEntry() } };
+            List<HashedFingerprint> hashDatas =
+                new List<HashedFingerprint>(
+                    new[]
+                        {
+                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0),
+                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928),
+                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 2, 0.928 * 2)
+                        });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);
             withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<CustomFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
