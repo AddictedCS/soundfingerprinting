@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -27,22 +28,10 @@
             this.similarityCalculationUtility = similarityCalculationUtility;
         }
     
-        private static QueryResult NoResult
-        {
-            get
-            {
-                return new QueryResult
-                    {
-                        ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
-                        IsSuccessful = false,
-                        AnalyzedCandidatesCount = 0
-                    };
-            }
-        }
-
         public QueryResult Query(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
+            double snipetLength = 0;
             foreach (var hashedFingerprint in hashedFingerprints)
             {
                 var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration);
@@ -56,11 +45,18 @@
 
                     hammingSimilarities[subFingerprint.TrackReference] += hammingSimilarity;
                 }
+
+                snipetLength = System.Math.Max(snipetLength, hashedFingerprint.Timestamp);
             }
 
             if (!hammingSimilarities.Any())
             {
-                return NoResult;
+                return new QueryResult()
+                    {
+                        ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
+                        AnalyzedTracksCount = 0,
+                        Info = new QueryInfo { SnipetLength = snipetLength }
+                    };
             }
 
             var resultEntries = hammingSimilarities.OrderByDescending(e => e.Value)
@@ -68,52 +64,58 @@
                                .Select(e => new ResultEntry
                                    {
                                        Track = modelService.ReadTrackByReference(e.Key),
-                                       Similarity = e.Value
+                                       MatchedFingerprints = e.Value
                                    })
                                 .ToList();
 
             return new QueryResult
                 {
                     ResultEntries = resultEntries,
-                    IsSuccessful = true,
-                    AnalyzedCandidatesCount = hammingSimilarities.Count
+                    AnalyzedTracksCount = hammingSimilarities.Count,
+                    Info = new QueryInfo { SnipetLength = snipetLength }
                 };
         }
 
         public QueryResult QueryWithTimeSequenceInformation(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var allCandidates = GetAllCandidates(modelService, hashedFingerprints, queryConfiguration);
-            if (!allCandidates.Any())
+            if (!allCandidates.Item1.Any())
             {
-                return NoResult;
+                return new QueryResult()
+                {
+                    ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
+                    AnalyzedTracksCount = 0,
+                    Info = new QueryInfo { SnipetLength = allCandidates.Item2 }
+                };
             }
 
-            var entries = this.GetCandidatesSortedByLCS(allCandidates);
+            var entries = this.GetCandidatesSortedByLCS(allCandidates.Item1, allCandidates.Item2);
 
             var resultEntries = entries
                    .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
                    .Select(datas => new ResultEntry
                     {
                         Track = modelService.ReadTrackByReference(datas.First().TrackReference),
-                        Similarity = datas.Count(),
+                        MatchedFingerprints = datas.Count(),
                         SequenceStart = datas.First().SequenceAt,
-                        SequenceLength = datas.Last().SequenceAt - datas.First().SequenceAt + 1.48d // TODO 1.48 because of default fingerprint config. For other configurations there is going to be equal to Overlap * ImageLength / SampleRate 
+                        SequenceLength = datas.Last().SequenceAt - datas.First().SequenceAt,
+                        Confidence = (datas.Last().SequenceAt - datas.First().SequenceAt) / allCandidates.Item2
                     })
                     .ToList();
 
             var returnresult = new QueryResult
                 {
-                    IsSuccessful = true,
                     ResultEntries = resultEntries,
-                    AnalyzedCandidatesCount = allCandidates.Count
+                    AnalyzedTracksCount = allCandidates.Item1.Count
                 };
 
             return returnresult;
         }
 
-        private Dictionary<IModelReference, ISet<SubFingerprintData>> GetAllCandidates(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
+        private Tuple<Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>, double> GetAllCandidates(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
-            var allCandidates = new Dictionary<IModelReference, ISet<SubFingerprintData>>();
+            var allCandidates = new Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>();
+            double snipetLength = 0;
             foreach (var hashedFingerprint in hashedFingerprints)
             {
                 var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration); // TODO No need to extract full subfingerprint from the DB. We use only TrackReference and Sequence # to build the result
@@ -121,32 +123,21 @@
                 {
                     if (!allCandidates.ContainsKey(subFingerprint.TrackReference))
                     {
-                        allCandidates.Add(
-                            subFingerprint.TrackReference,
-                            new SortedSet<SubFingerprintData>(new SubFingerprintSequenceComparer()));
+                        allCandidates.Add(subFingerprint.TrackReference, new SubfingerprintSetSortedByTimePosition());
                     }
 
                     allCandidates[subFingerprint.TrackReference].Add(subFingerprint);
                 }
+
+                snipetLength = System.Math.Max(snipetLength, hashedFingerprint.Timestamp);
             }
 
-            return allCandidates;
+            return new Tuple<Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>, double>(allCandidates, snipetLength);
         }
 
-        private IEnumerable<IEnumerable<SubFingerprintData>> GetCandidatesSortedByLCS(Dictionary<IModelReference, ISet<SubFingerprintData>> allCandidates)
+        private IEnumerable<IEnumerable<SubFingerprintData>> GetCandidatesSortedByLCS(Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition> allCandidates, double snipetLength)
         {
-            var resultSet = new SortedSet<IEnumerable<SubFingerprintData>>(lengthComparer);
-
-            foreach (var candidate in allCandidates)
-            {
-                var lcs = audioSequencesAnalyzer.GetLongestIncreasingSubSequence(candidate.Value.ToList()).ToList();
-                foreach (var lc in lcs)
-                {
-                    resultSet.Add(lc);
-                }
-            }
-
-            return resultSet;
+             return audioSequencesAnalyzer.SortCandiatesByLongestIncresingAudioSequence(allCandidates, snipetLength).ToList();
         }
         
         private IEnumerable<SubFingerprintData> GetSubFingerprints(IModelService modelService, HashedFingerprint hash, QueryConfiguration queryConfiguration)
@@ -159,8 +150,5 @@
             return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
         }
     
-        // TODO Loose comparison, if 2 sequences are equal last added will be selected as the winner
-        private Comparer<IEnumerable<SubFingerprintData>> lengthComparer = 
-            Comparer<IEnumerable<SubFingerprintData>>.Create((a, b) => b.Count().CompareTo(a.Count())); 
     }
 }
