@@ -6,7 +6,7 @@
     public class QueryResult
     {
         /// <summary>
-        /// Gets a value indicating that query result contains successful matches
+        /// Gets a value indicating whether query result contains successful matches
         /// </summary>
         public bool IsSuccessful
         {

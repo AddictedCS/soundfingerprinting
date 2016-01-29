@@ -2,6 +2,6 @@
 {
     public class QueryInfo
     {
-        public double SnipetLength { get; set; }
+        public double SnippetLength { get; set; }
     }
 }

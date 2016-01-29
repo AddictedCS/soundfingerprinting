@@ -51,11 +51,11 @@
 
             if (!hammingSimilarities.Any())
             {
-                return new QueryResult()
+                return new QueryResult
                     {
                         ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
                         AnalyzedTracksCount = 0,
-                        Info = new QueryInfo { SnipetLength = snipetLength }
+                        Info = new QueryInfo { SnippetLength = snipetLength }
                     };
             }
 
@@ -72,7 +72,7 @@
                 {
                     ResultEntries = resultEntries,
                     AnalyzedTracksCount = hammingSimilarities.Count,
-                    Info = new QueryInfo { SnipetLength = snipetLength }
+                    Info = new QueryInfo { SnippetLength = snipetLength }
                 };
         }
 
@@ -81,35 +81,29 @@
             var allCandidates = GetAllCandidates(modelService, hashedFingerprints, queryConfiguration);
             if (!allCandidates.Item1.Any())
             {
-                return new QueryResult()
-                {
-                    ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
-                    AnalyzedTracksCount = 0,
-                    Info = new QueryInfo { SnipetLength = allCandidates.Item2 }
-                };
+                return new QueryResult
+                    {
+                        ResultEntries = Enumerable.Empty<ResultEntry>().ToList(),
+                        AnalyzedTracksCount = 0,
+                        Info = new QueryInfo { SnippetLength = allCandidates.Item2 }
+                    };
             }
 
             var entries = this.GetCandidatesSortedByLCS(allCandidates.Item1, allCandidates.Item2);
 
-            var resultEntries = entries
-                   .Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult)
-                   .Select(datas => new ResultEntry
-                    {
-                        Track = modelService.ReadTrackByReference(datas.First().TrackReference),
-                        MatchedFingerprints = datas.Count(),
-                        SequenceStart = datas.First().SequenceAt,
-                        SequenceLength = datas.Last().SequenceAt - datas.First().SequenceAt,
-                        Confidence = (datas.Last().SequenceAt - datas.First().SequenceAt) / allCandidates.Item2
-                    })
-                    .ToList();
+            var resultEntries =
+                entries.Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult).Select(
+                    datas =>
+                    new ResultEntry
+                        {
+                            Track = modelService.ReadTrackByReference(datas.First().TrackReference),
+                            MatchedFingerprints = datas.Count(),
+                            SequenceStart = datas.First().SequenceAt,
+                            SequenceLength = datas.Last().SequenceAt - datas.First().SequenceAt,
+                            Confidence = (datas.Last().SequenceAt - datas.First().SequenceAt) / allCandidates.Item2
+                        }).ToList();
 
-            var returnresult = new QueryResult
-                {
-                    ResultEntries = resultEntries,
-                    AnalyzedTracksCount = allCandidates.Item1.Count
-                };
-
-            return returnresult;
+            return new QueryResult { ResultEntries = resultEntries, AnalyzedTracksCount = allCandidates.Item1.Count };
         }
 
         private Tuple<Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>, double> GetAllCandidates(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
@@ -149,6 +143,5 @@
 
             return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
         }
-    
     }
 }
