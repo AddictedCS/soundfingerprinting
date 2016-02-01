@@ -111,7 +111,6 @@
     <Compile Include="MinHash\PermutationGeneratorService.cs" />
     <Compile Include="MinHash\SummedAcrossSelector.cs" />
     <Compile Include="Query\ResultEntry.cs" />
-    <Compile Include="Query\SequenceInfo.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
     <Compile Include="Strides\IStride.cs" />

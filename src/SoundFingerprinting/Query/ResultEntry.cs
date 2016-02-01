@@ -10,17 +10,17 @@ namespace SoundFingerprinting.Query
         public TrackData Track { get; internal set; }
 
         /// <summary>
-        /// Gets starting position of the matched sequence (available only with query with time sequence information method)
+        /// Gets starting position of the matched sequence (available only with query with the time sequence information)
         /// </summary>
         public double SequenceStart { get; internal set; }
 
         /// <summary>
-        /// Gets the length of the matched sequence (available only with query with time sequence information method)
+        /// Gets the length of the matched sequence (available only with query with the time sequence information)
         /// </summary>
         public double SequenceLength { get; internal set; }
 
         /// <summary>
-        ///  Gets confidence marker [0, 1) (available only with query with time sequence information method)
+        ///  Gets confidence value [0, 1) (available only with query with the time sequence information). The closer to 1 the bigger confidence on search response.
         /// </summary>
         public double Confidence { get; internal set; }
 
