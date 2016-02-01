@@ -71,7 +71,7 @@
                 }
             }
 
-            List<List<SubFingerprintData>> allCandidates = new List<List<SubFingerprintData>>();
+            var allCandidates = new List<List<SubFingerprintData>>();
             for (int diff = 0; diff <= AllowedMissalignment; diff++)
             {
                 for (int i = 0; i < maxs.Length; i++)
