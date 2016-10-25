@@ -21,4 +21,6 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb.Tests")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Solr")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Solr.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.NeuralHasher")]
