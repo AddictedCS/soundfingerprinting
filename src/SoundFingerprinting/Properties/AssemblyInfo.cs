@@ -20,6 +20,9 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL.Tests")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Solr")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Solr.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SoundTools")]
-[assembly: AssemblyVersion("2.2.0")]
-[assembly: AssemblyInformationalVersion("2.2.0")]
+
+[assembly: AssemblyVersion("2.2.1")]
+[assembly: AssemblyInformationalVersion("2.2.1")]
