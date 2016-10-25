@@ -26,7 +26,7 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
                                 .Result;
 								
     // store sub-fingerprints and its hash representation in the database 
-    modelService.InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
+    modelService.InsertHashDataForTrack(hashedFingerprints, trackReference);
 }
 ```
 The default storage, which comes bundled with _soundfingerprinting_ package, is a plain in memory storage, managed by <code>InMemoryModelService</code>. In case you would like to store fingerprints in a perstistent database you can take advantage of MSSQL integration available in [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) package via <code>SqlModelService</code> class. The MSSQL database initialization script as well as source files can be found [here](https://github.com/AddictedCS/soundfingerprinting.sql). Do not forget to add connection string <code>FingerprintConnectionString</code> in your app.config file, as described on the wiki.
