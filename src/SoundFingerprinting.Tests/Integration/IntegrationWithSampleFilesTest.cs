@@ -14,7 +14,7 @@
     [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
     [DeploymentItem(@"TestEnvironment\Kryptonite.mp3")]
     [TestClass]
-    public abstract class AbstractIntegrationTest : AbstractTest
+    public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
         protected const int NumberOfHashTables = 25;
 

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.MinHash.Permutations
+﻿namespace SoundFingerprinting.MinHash
 {
     using System;
     using System.Security.Cryptography;
@@ -25,7 +25,7 @@
 
         ~Hash()
         {
-            Dispose(false);
+            this.Dispose(false);
         }
 
         /// <summary>
@@ -38,17 +38,17 @@
         /// <returns>Random matrix</returns>
         public int[][] GetRandomMatrix(int cols, int rows, int min, int max)
         {
-            if (randomMatrix == null)
+            if (this.randomMatrix == null)
             {
-                GenerateRandomMatrixOfComponents(cols, rows, min, max);
+                this.GenerateRandomMatrixOfComponents(cols, rows, min, max);
             }
 
-            return randomMatrix;
+            return this.randomMatrix;
         }
 
         public void SetRandomMatrix(int[][] randomVector)
         {
-            randomMatrix = randomVector;
+            this.randomMatrix = randomVector;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@
             {
                 for (int j = 0; j < hashKeys /*r min hash signatures*/; j++)
                 {
-                    hashes[i] += (signature[(i * hashKeys) + j] * randomMatrix[i][j]) + b;
+                    hashes[i] += (signature[(i * hashKeys) + j] * this.randomMatrix[i][j]) + b;
                 }
 
                 hashes[i] /= w;
@@ -81,7 +81,7 @@
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -89,7 +89,7 @@
         {
             if (isDisposing)
             {
-                rng.Dispose();
+                this.rng.Dispose();
             }
         }
 
@@ -102,12 +102,12 @@
         /// <param name = "max">Max value in the matrix</param>
         private void GenerateRandomMatrixOfComponents(int cols, int rows, int min, int max)
         {
-            lock (lockObject)
+            lock (this.lockObject)
             {
-                if (randomMatrix == null)
+                if (this.randomMatrix == null)
                 {
                     byte[] seed = new byte[32];
-                    rng.GetBytes(seed);
+                    this.rng.GetBytes(seed);
                     Random random = new Random(BitConverter.ToInt32(seed, 0));
                     int[][] randomArray = new int[rows][];
 
@@ -120,7 +120,7 @@
                         }
                     }
 
-                    randomMatrix = randomArray;
+                    this.randomMatrix = randomArray;
                 }
             }
         }

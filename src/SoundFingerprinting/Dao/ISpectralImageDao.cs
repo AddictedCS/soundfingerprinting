@@ -3,7 +3,6 @@
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
 
     public interface ISpectralImageDao
     {

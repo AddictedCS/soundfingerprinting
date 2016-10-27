@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.MinHash.Permutations
+﻿namespace SoundFingerprinting.MinHash
 {
     using System;
     using System.Collections.Generic;
@@ -26,7 +26,7 @@
         /// <returns>Dictionary with index of permutation and the list itself</returns>
         public Dictionary<int, int[]> GenerateRandomPermutationsUsingUniqueIndexes(int tables, int keysPerTable, int startIndex, int endIndex)
         {
-            return GetAgressiveUniqueRandomPermutations(
+            return this.GetAgressiveUniqueRandomPermutations(
                 tables * keysPerTable, ElementsPerPermutation, startIndex, endIndex);
         }
 
@@ -53,7 +53,7 @@
         /// </returns>
         public Dictionary<int, int[]> GeneratePermutationsUsingMinMutualInformation(int tables, int keysPerTable, int startIndex, int endIndex, IMinMutualSelector selector)
         {
-            Dictionary<int, int[]> randomperms = GetRandomPermutations(PermutationPool, ElementsPerPermutation, startIndex, endIndex);
+            Dictionary<int, int[]> randomperms = this.GetRandomPermutations(PermutationPool, ElementsPerPermutation, startIndex, endIndex);
             var groups = selector.GetPermutations(randomperms, tables, keysPerTable);
             Dictionary<int, int[]> result = new Dictionary<int, int[]>();
             /*Combine the L Groups between them, in order to get the final set of permutations*/
@@ -102,7 +102,7 @@
                 int[] possiblePermutation = new int[elementsPerPermutation];
                 for (int j = 0; j < InitialRandomShuffling; j++)
                 {
-                    RandomShuffleInPlace(possibleIndixes);
+                    this.RandomShuffleInPlace(possibleIndixes);
                 }
 
                 for (int j = 0; j < elementsPerPermutation /*255*/; j++)
@@ -169,7 +169,7 @@
                 int[] possiblePermutation = new int[elementsPerPermutation];
                 for (int j = 0; j < InitialRandomShuffling; j++)
                 {
-                    RandomShuffleInPlace(possibleIndixes); /*Shuffle the indixes for 100 times*/
+                    this.RandomShuffleInPlace(possibleIndixes); /*Shuffle the indixes for 100 times*/
                 }
 
                 for (int j = 0; j < elementsPerPermutation /*255*/; j++)

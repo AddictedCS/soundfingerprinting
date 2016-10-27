@@ -5,7 +5,7 @@
     public class InMemoryModelService : ModelService
     {
         public InMemoryModelService()
-            : base(new TrackDao(), new HashBinDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao())
+            : this(new TrackDao(), new HashBinDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao())
         {
             // no op
         }
