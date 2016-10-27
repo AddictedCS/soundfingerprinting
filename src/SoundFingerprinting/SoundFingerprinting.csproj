@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="Query\QueryInfo.cs" />
     <Compile Include="Configuration\CustomHashingConfig.cs" />
     <Compile Include="Configuration\CustomSpectrogramConfig.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="FFT\LogUtility.cs" />
     <Compile Include="LCS\AudioSequencesAnalyzer.cs" />
     <Compile Include="LCS\IAudioSequencesAnalyzer.cs" />
+    <Compile Include="LCS\SubfingerprintSetSortedByTimePosition.cs" />
     <Compile Include="LSH\BoundedLocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="Math\ISimilarityUtility.cs" />
     <Compile Include="Math\MathUtility.cs" />
@@ -109,7 +111,6 @@
     <Compile Include="MinHash\PermutationGeneratorService.cs" />
     <Compile Include="MinHash\SummedAcrossSelector.cs" />
     <Compile Include="Query\ResultEntry.cs" />
-    <Compile Include="Query\SequenceInfo.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
     <Compile Include="Strides\IStride.cs" />

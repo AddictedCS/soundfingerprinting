@@ -3,35 +3,102 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
 
-    public class AudioSequencesAnalyzer : IAudioSequencesAnalyzer
+    internal class AudioSequencesAnalyzer : IAudioSequencesAnalyzer
     {
-        private const double Delta = 2 * 1.48;
+        private const int AllowedMissalignment = 2;
 
-        public IEnumerable<SubFingerprintData> GetLongestIncreasingSubSequence(List<SubFingerprintData> sequence)
+        // TODO Loose comparison, if 2 sequences are equal last added will be selected as the winner
+        private readonly Comparer<IEnumerable<SubFingerprintData>> candiateLengthComparer = Comparer<IEnumerable<SubFingerprintData>>.Create((a, b) => b.Count().CompareTo(a.Count()));
+
+        public IEnumerable<IEnumerable<SubFingerprintData>> SortCandiatesByLongestIncresingAudioSequence(Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition> candidates, double queryLength)
         {
-            int[] maxs = new int[sequence.Count];
-            maxs[0] = 1;
-            int maxLen = 0;
-            var longestSubSequence = new List<SubFingerprintData> { sequence.First() };
-            for (int i = 1; i < sequence.Count; i++)
+            var resultSet = new SortedSet<IEnumerable<SubFingerprintData>>(this.candiateLengthComparer);
+
+            foreach (var candidate in candidates)
+            {
+                var lcs = SortCandiatesByLongestIncresingAudioSequence(candidate.Value, queryLength);
+                foreach (var lc in lcs)
+                {
+                    resultSet.Add(lc);
+                }
+            }
+
+            return resultSet;
+        }
+
+        private IEnumerable<IEnumerable<SubFingerprintData>> SortCandiatesByLongestIncresingAudioSequence(SortedSet<SubFingerprintData> set, double queryLength)
+        {
+            if (set == null || set.Count == 0)
+            {
+                return new List<IEnumerable<SubFingerprintData>>();
+            }
+
+            if (set.Count == 1)
+            {
+                return new List<List<SubFingerprintData>> { set.ToList() };
+            }
+
+            int[] maxs = new int[set.Count];
+            int[] ind = new int[set.Count];
+            for (int i = 0; i < set.Count; i++)
+            {
+                maxs[i] = 1;
+            }
+
+            int maxLen = 1;
+            var sortedSequence = set.ToList();
+            for (int i = 1; i < sortedSequence.Count; i++)
             {
                 for (int j = 0; j < i; j++)
                 {
-                    if (sequence[i].SequenceAt > sequence[j].SequenceAt && sequence[i].SequenceAt - sequence[j].SequenceAt <= Delta)
+                    if (sortedSequence[i].SequenceAt > sortedSequence[j].SequenceAt
+                        && sortedSequence[i].SequenceAt - sortedSequence[j].SequenceAt <= queryLength)
                     {
-                        maxs[i] = System.Math.Max(maxs[j] + 1, maxs[i]);
+                        if (maxs[j] + 1 > maxs[i])
+                        {
+                            maxs[i] = maxs[j] + 1;
+                            ind[i] = j;
+                        }
+
                         if (maxLen < maxs[i])
                         {
-                            longestSubSequence.Add(sequence[i]);
                             maxLen = maxs[i];
                         }
                     }
                 }
             }
 
-            return longestSubSequence;
+            var allCandidates = new List<List<SubFingerprintData>>();
+            for (int diff = 0; diff <= AllowedMissalignment; diff++)
+            {
+                for (int i = 0; i < maxs.Length; i++)
+                {
+                    if (maxLen == maxs[i])
+                    {
+                        Stack<SubFingerprintData> candidate = new Stack<SubFingerprintData>();
+                        int last = i;
+                        for (int k = 0; k < maxLen; k++)
+                        {
+                            candidate.Push(sortedSequence[last]);
+                            maxs[last] = 0;
+                            last = ind[last];
+                        }
+
+                        allCandidates.Add(candidate.ToList());
+                    }
+                }
+
+                maxLen = maxLen - 1;
+                if (maxLen == 0)
+                {
+                    break;
+                }
+            }
+
+            return allCandidates;
         }
     }
 }

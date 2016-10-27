@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Configuration
     {
         public DefaultFingerprintConfiguration()
         {
-            SpectrogramConfig = SpectrogramConfig.Default;
+            SpectrogramConfig = new DefaultSpectrogramConfig();
             HashingConfig = HashingConfig.Default;
             TopWavelets = 200;
             SampleRate = 5512;

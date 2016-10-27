@@ -1,6 +1,6 @@
-## Sound Fingerprinting
+## Audio fingerprinting and recognition in .NET
 
-_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/32685.pdf) of digital signal processing which allows developing a system of audio fingerprinting and recognition.
+_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/32685.pdf) of digital signal processing which allows developing a system of audio fingerprinting and recognition in .NET environment.
 
 ## Documentation
 
@@ -26,7 +26,7 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
                                 .Result;
 								
     // store sub-fingerprints and its hash representation in the database 
-    modelService.InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
+    modelService.InsertHashDataForTrack(hashedFingerprints, trackReference);
 }
 ```
 The default storage, which comes bundled with _soundfingerprinting_ package, is a plain in memory storage, managed by <code>InMemoryModelService</code>. In case you would like to store fingerprints in a perstistent database you can take advantage of MSSQL integration available in [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) package via <code>SqlModelService</code> class. The MSSQL database initialization script as well as source files can be found [here](https://github.com/AddictedCS/soundfingerprinting.sql). Do not forget to add connection string <code>FingerprintConnectionString</code> in your app.config file, as described on the wiki.
@@ -94,6 +94,13 @@ Fingerprinting and Querying algorithms can be easily parametrized with correspon
 ```
 Each and every configuration parameter can influence the recognition rate, required storage, computational cost, etc. Stick with the defaults, unless you would like to experiment. 
 
+#### Changes in default algorithm configuration in release 2.1.x
+Since the startup of the project until release 2.1.x both fingerprinting and querying operations had used the same configuration defaults. The most sensitive parameter (which directly affects precision/recall rate) is the <code>Stride</code> parameter. Empirically it was determined that using a smaller stride during querying gives both better precision and recall rate, at the expense of execution time and CPU load. 
+
+Starting from release 2.1.x new class has been introduced <code>EfficientFingerprintConfigurationForQuerying</code> which overrides default <i>query</i> stride (previously set to <code>IncrementalStaticStride</code> with <code>0.928ms</code>). Fingerprint stride remains the same as in previous versions <code>DefaultFingerprintConfiguration</code>. This change slows down querying but increases both precision and recall rate.
+
+In case you need directions for fine-tunning the algorithm for your particular use case do not hesitate to contact me.
+
 ### Third party libraries involved
 Links to the third party libraries used by _soundfingerprinting_ project.
 * [NAudio](http://naudio.codeplex.com/)
@@ -134,7 +141,7 @@ The demo project is a Audio File Duplicates Detector. Its latest source code can
 If you want to contribute you are welcome to open issues or discuss on [issues](https://github.com/AddictedCS/soundfingerprinting/issues) page. Feel free to contact me for any remarks, ideas, bug reports etc. 
 
 ## Licence
-The framework is provided under [GPLv3](http://www.gnu.org/licenses/gpl.html) licence agreement.
+The framework is provided under [MIT](https://opensource.org/licenses/MIT) licence agreement.
 
 The framework implements the algorithm from [Content Fingerprinting Using Wavelets](http://www.nhchau.com/files/cvmp_BalujaCovell.A4color.pdf) paper.
 

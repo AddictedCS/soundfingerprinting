@@ -1,6 +1,0 @@
-source "https://supermarket.getchef.com"
-
-metadata
-
-cookbook 'cassandra', github: 'AddictedCS/cassandra-chef-cookbook'
-cookbook 'chef-solo-search', github: 'edelight/chef-solo-search', tag: '0.5.1'
