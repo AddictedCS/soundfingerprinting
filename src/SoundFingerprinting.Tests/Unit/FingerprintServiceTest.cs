@@ -54,10 +54,9 @@
         {
             const int TenSeconds = 5512 * 10;
             var samples = TestUtilities.GenerateRandomAudioSamples(TenSeconds);
-            var configuration = SpectrogramConfig.Default;
             var fingerprintConfig = new DefaultFingerprintConfiguration();
             var dividedLogSpectrum = GetDividedLogSpectrum();
-            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, configuration)).Returns(dividedLogSpectrum);
+            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets))
                 .Returns(GenericFingerprint);
@@ -93,10 +92,9 @@
         {
             var samples = TestUtilities.GenerateRandomAudioSamples(5512 * 10);
             var configuration = new DefaultFingerprintConfiguration();
-            var spectrogramConfig = SpectrogramConfig.Default;
             var dividedLogSpectrum = GetDividedLogSpectrum();
 
-            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, spectrogramConfig)).Returns(dividedLogSpectrum);
+            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
 
             waveletDecomposition.Setup(decomposition => decomposition.DecomposeImageInPlace(It.IsAny<float[][]>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), configuration.TopWavelets)).Returns(

@@ -11,7 +11,7 @@
     {
         public void CustomSpectrumValuesInheritFromDefault()
         {
-            SpectrogramConfig defaultConfiguration = SpectrogramConfig.Default;
+            SpectrogramConfig defaultConfiguration = new DefaultSpectrogramConfig();
             SpectrogramConfig customConfiguration = new CustomSpectrogramConfig();
 
             Assert.AreEqual(defaultConfiguration.ImageLength, customConfiguration.ImageLength);

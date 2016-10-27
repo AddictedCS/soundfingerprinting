@@ -23,7 +23,7 @@
                 return Resolver;
             }
         }
-
+            
         private sealed class DefaultDependencyResolver : IDependencyResolver, IDisposable
         {
             private const string MainAssemblyName = "SoundFingerprinting";
