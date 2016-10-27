@@ -64,22 +64,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration\AbstractIntegrationTest.cs" />
-    <Compile Include="Integration\DAO\AbstractFingerprintDaoTest.cs" />
-    <Compile Include="Integration\DAO\AbstractHashBinDaoTest.cs" />
-    <Compile Include="Integration\DAO\AbstractSpectralImageDaoTest.cs" />
-    <Compile Include="Integration\InMemory\HashBinDaoTest.cs" />
-    <Compile Include="Integration\InMemory\InMemoryModelServiceTest.cs" />
-    <Compile Include="Integration\DAO\AbstractSubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\DAO\AbstractTrackDaoTest.cs" />
+    <Compile Include="Integration\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\HashBinDaoTest.cs" />
+    <Compile Include="Integration\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\TrackDaoTest.cs" />
     <Compile Include="Unit\Audio\ContinuousStreamSamplesProviderTest.cs" />
     <Compile Include="Unit\Audio\QueueSamplesProvider.cs" />
     <Compile Include="Unit\Audio\SamplesAggregatorTest.cs" />
     <Compile Include="Unit\Audio\StrideTest.cs" />
     <Compile Include="AbstractTest.cs" />
-    <Compile Include="Integration\ModelServiceTest.cs" />
-    <Compile Include="Integration\InMemory\FingerprintDaoTest.cs" />
-    <Compile Include="Integration\InMemory\SubFingerprintDaoTest.cs" />
-    <Compile Include="Integration\InMemory\TrackDaoTest.cs" />
+    <Compile Include="Integration\InMemoryModelServiceTest.cs" />
     <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\HashingConfigTest.cs" />

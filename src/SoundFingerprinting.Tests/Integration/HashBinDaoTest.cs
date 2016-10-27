@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Dao
+﻿namespace SoundFingerprinting.Tests.Integration
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -6,42 +6,39 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
-    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Strides;
 
     [TestClass]
-    public abstract class AbstractHashBinDaoTest : AbstractIntegrationTest
+    public class HashBinDaoTest : AbstractIntegrationTest
     {
-        private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
-        private readonly IAudioService audioService;
+        private IHashBinDao hashBinDao;
+        private ITrackDao trackDao;
+        private ISubFingerprintDao subFingerprintDao;
 
-        protected AbstractHashBinDaoTest()
+        [TestInitialize]
+        public void SetUp()
         {
-            fingerprintCommandBuilder = new FingerprintCommandBuilder();
-            audioService = new NAudioService();
+            var ramStorage = new RAMStorage(NumberOfHashTables);
+            this.hashBinDao = new HashBinDao(ramStorage);
+            this.trackDao = new TrackDao(ramStorage);
+            this.subFingerprintDao = new SubFingerprintDao(ramStorage);
         }
-
-        public abstract IHashBinDao HashBinDao { get; set; }
-
-        public abstract ITrackDao TrackDao { get; set; }
-
-        public abstract ISubFingerprintDao SubFingerprintDao { get; set; }
 
         [TestMethod]
         public void InsertReadTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = TrackDao.InsertTrack(track);
+            var trackReference = this.trackDao.InsertTrack(track);
             const int NumberOfHashBins = 100;
-            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins).Select(i => new HashedFingerprint(GenericSignature, GenericHashBuckets, i, i * 0.928));
+            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins).Select(i => new HashedFingerprint(this.GenericSignature, this.GenericHashBuckets, i, i * 0.928));
 
-            InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
+            this.InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
-            var hashedFingerprintss = HashBinDao.ReadHashedFingerprintsByTrackReference(track.TrackReference);
+            var hashedFingerprintss = this.hashBinDao.ReadHashedFingerprintsByTrackReference(track.TrackReference);
             Assert.AreEqual(NumberOfHashBins, hashedFingerprintss.Count);
         }
 
@@ -52,21 +49,21 @@
             TagInfo tagInfo = this.GetTagInfo();
             int releaseYear = tagInfo.Year;
             TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
-            var trackReference = TrackDao.InsertTrack(track);
-            var hashedFingerprints = fingerprintCommandBuilder
+            var trackReference = this.trackDao.InsertTrack(track);
+            var hashedFingerprints = this.FingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3)
                 .WithFingerprintConfig(config =>
                 {
                     config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
-                .UsingServices(audioService)
+                .UsingServices(this.AudioService)
                 .Hash()
                 .Result;
 
-            InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
+            this.InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
             
-            var hashes = HashBinDao.ReadHashedFingerprintsByTrackReference(track.TrackReference);
+            var hashes = this.hashBinDao.ReadHashedFingerprintsByTrackReference(track.TrackReference);
             Assert.AreEqual(hashedFingerprints.Count, hashes.Count);
             foreach (var data in hashes)
             {
@@ -86,37 +83,37 @@
             TrackData secondTrack = new TrackData(
                 tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration) { GroupId = "second-group-id" };
 
-            var firstTrackReference = TrackDao.InsertTrack(firstTrack);
-            var secondTrackReference = TrackDao.InsertTrack(secondTrack);
+            var firstTrackReference = this.trackDao.InsertTrack(firstTrack);
+            var secondTrackReference = this.trackDao.InsertTrack(secondTrack);
 
-            var hashedFingerprints = fingerprintCommandBuilder
+            var hashedFingerprints = this.FingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 20, 0)
                 .WithFingerprintConfig(config =>
                 {
                     config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
-                .UsingServices(audioService)
+                .UsingServices(this.AudioService)
                 .Hash()
                 .Result;
 
-            InsertHashedFingerprintsForTrack(hashedFingerprints, firstTrackReference);
-            InsertHashedFingerprintsForTrack(hashedFingerprints, secondTrackReference);
+            this.InsertHashedFingerprintsForTrack(hashedFingerprints, firstTrackReference);
+            this.InsertHashedFingerprintsForTrack(hashedFingerprints, secondTrackReference);
 
             const int ThresholdVotes = 25;
             foreach (var hashedFingerprint in hashedFingerprints)
             {
-                var subFingerprintData = HashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashedFingerprint.HashBins, ThresholdVotes, "first-group-id").ToList();
+                var subFingerprintData = this.hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashedFingerprint.HashBins, ThresholdVotes, "first-group-id").ToList();
 
                 Assert.IsTrue(subFingerprintData.Count == 1);
                 Assert.AreEqual(firstTrackReference, subFingerprintData[0].TrackReference);
 
-                subFingerprintData = HashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashedFingerprint.HashBins, ThresholdVotes, "second-group-id").ToList();
+                subFingerprintData = this.hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashedFingerprint.HashBins, ThresholdVotes, "second-group-id").ToList();
 
                 Assert.IsTrue(subFingerprintData.Count == 1);
                 Assert.AreEqual(secondTrackReference, subFingerprintData[0].TrackReference);
 
-                subFingerprintData = HashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(hashedFingerprint.HashBins, ThresholdVotes).ToList();
+                subFingerprintData = this.hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(hashedFingerprint.HashBins, ThresholdVotes).ToList();
                 Assert.AreEqual(2, subFingerprintData.Count);
             }
         }
@@ -126,43 +123,43 @@
         {
             TrackData firstTrack = new TrackData("isrc", "artist", "title", "album", 2012, 200);
 
-            var firstTrackReference = TrackDao.InsertTrack(firstTrack);
+            var firstTrackReference = this.trackDao.InsertTrack(firstTrack);
 
-            var firstHashData = fingerprintCommandBuilder
+            var firstHashData = this.FingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 10, 0)
-                .UsingServices(audioService)
+                .UsingServices(this.AudioService)
                 .Hash()
                 .Result;
 
-            InsertHashedFingerprintsForTrack(firstHashData, firstTrackReference);
+            this.InsertHashedFingerprintsForTrack(firstHashData, firstTrackReference);
 
             TrackData secondTrack = new TrackData("isrc", "artist", "title", "album", 2012, 200);
 
-            var secondTrackReference = TrackDao.InsertTrack(secondTrack);
+            var secondTrackReference = this.trackDao.InsertTrack(secondTrack);
 
-            var secondHashData = fingerprintCommandBuilder
+            var secondHashData = this.FingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 20, 10)
-                .UsingServices(audioService)
+                .UsingServices(this.AudioService)
                 .Hash()
                 .Result;
 
-            InsertHashedFingerprintsForTrack(secondHashData, secondTrackReference);
+            this.InsertHashedFingerprintsForTrack(secondHashData, secondTrackReference);
 
-            var resultFirstHashData = HashBinDao.ReadHashedFingerprintsByTrackReference(firstTrackReference);
-            AssertHashDatasAreTheSame(firstHashData, resultFirstHashData);
+            var resultFirstHashData = this.hashBinDao.ReadHashedFingerprintsByTrackReference(firstTrackReference);
+            this.AssertHashDatasAreTheSame(firstHashData, resultFirstHashData);
 
-            IList<HashedFingerprint> resultSecondHashData = HashBinDao.ReadHashedFingerprintsByTrackReference(secondTrackReference);
-            AssertHashDatasAreTheSame(secondHashData, resultSecondHashData);
+            IList<HashedFingerprint> resultSecondHashData = this.hashBinDao.ReadHashedFingerprintsByTrackReference(secondTrackReference);
+            this.AssertHashDatasAreTheSame(secondHashData, resultSecondHashData);
         }
 
         private void InsertHashedFingerprintsForTrack(IEnumerable<HashedFingerprint> hashedFingerprints, IModelReference trackReference)
         {
             foreach (var hashedFingerprint in hashedFingerprints)
             {
-                var subFingerprintId = SubFingerprintDao.InsertSubFingerprint(hashedFingerprint.SubFingerprint, hashedFingerprint.SequenceNumber, hashedFingerprint.Timestamp, trackReference);
-                HashBinDao.InsertHashBins(hashedFingerprint.HashBins, subFingerprintId, trackReference);
+                var subFingerprintId = this.subFingerprintDao.InsertSubFingerprint(hashedFingerprint.SubFingerprint, hashedFingerprint.SequenceNumber, hashedFingerprint.Timestamp, trackReference);
+                this.hashBinDao.InsertHashBins(hashedFingerprint.HashBins, subFingerprintId, trackReference);
             }
         }
     }
