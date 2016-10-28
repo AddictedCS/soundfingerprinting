@@ -13,6 +13,9 @@
     <releaseNotes>Updated license to MIT. Aligning SoundFingerprinting package versions. Preparing to upgrade SoundFingerprinting library to v3.0 which will include major updates/improvements specifically in storage mechanism. All older libraries should reference this version.</releaseNotes>
     <copyright>Copyright 2016, Sergiu Ciumac</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
+	<dependencies>
+	   <dependency id="NAudio" version="[1.7.1]" />
+	</dependencies>
   </metadata>
   <files>
 		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net35" />
