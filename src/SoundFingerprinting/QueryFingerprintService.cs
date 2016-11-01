@@ -17,15 +17,21 @@
     {
         private readonly IAudioSequencesAnalyzer audioSequencesAnalyzer;
         private readonly ISimilarityUtility similarityCalculationUtility;
+        private readonly IQueryMath queryMath;
 
-        public QueryFingerprintService() : this(DependencyResolver.Current.Get<IAudioSequencesAnalyzer>(), DependencyResolver.Current.Get<ISimilarityUtility>())
+        public QueryFingerprintService()
+            : this(
+                DependencyResolver.Current.Get<IAudioSequencesAnalyzer>(),
+                DependencyResolver.Current.Get<ISimilarityUtility>(),
+                DependencyResolver.Current.Get<IQueryMath>())
         {
         }
 
-        internal QueryFingerprintService(IAudioSequencesAnalyzer audioSequencesAnalyzer, ISimilarityUtility similarityCalculationUtility)
+        internal QueryFingerprintService(IAudioSequencesAnalyzer audioSequencesAnalyzer, ISimilarityUtility similarityCalculationUtility, IQueryMath queryMath)
         {
             this.audioSequencesAnalyzer = audioSequencesAnalyzer;
             this.similarityCalculationUtility = similarityCalculationUtility;
+            this.queryMath = queryMath;
         }
     
         public QueryResult Query(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
@@ -48,6 +54,8 @@
 
                 snipetLength = System.Math.Max(snipetLength, hashedFingerprint.Timestamp);
             }
+
+            snipetLength = AdjustSnippetLengthToConfigsUsedDuringFingerprinting(snipetLength, queryConfiguration.FingerprintConfiguration);
 
             if (!hammingSimilarities.Any())
             {
@@ -75,7 +83,7 @@
                     Info = new QueryInfo { SnippetLength = snipetLength }
                 };
         }
-
+        
         public QueryResult QueryWithTimeSequenceInformation(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var allCandidates = GetAllCandidates(modelService, hashedFingerprints, queryConfiguration);
@@ -126,6 +134,9 @@
                 snipetLength = System.Math.Max(snipetLength, hashedFingerprint.Timestamp);
             }
 
+            snipetLength = this.AdjustSnippetLengthToConfigsUsedDuringFingerprinting(
+                snipetLength, queryConfiguration.FingerprintConfiguration);
+
             return new Tuple<Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>, double>(allCandidates, snipetLength);
         }
 
@@ -142,6 +153,11 @@
             }
 
             return modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(hash.HashBins, queryConfiguration.ThresholdVotes);
+        }
+
+        private double AdjustSnippetLengthToConfigsUsedDuringFingerprinting(double snipetLength, FingerprintConfiguration fingerprintConfiguration)
+        {
+            return queryMath.AdjustSnippetLengthToConfigsUsedDuringFingerprinting(snipetLength, fingerprintConfiguration);
         }
     }
 }

@@ -82,6 +82,7 @@
 
         public Task<QueryResult> Query()
         {
+            QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
             return createFingerprintMethod()
                                      .Hash()
                                      .ContinueWith(
@@ -95,6 +96,7 @@
 
         public Task<QueryResult> QueryWithTimeSequenceInformation()
         {
+            QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
             return createFingerprintMethod()
                                     .Hash()
                                     .ContinueWith(
