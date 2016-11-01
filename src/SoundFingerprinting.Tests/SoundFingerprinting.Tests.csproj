@@ -83,6 +83,7 @@
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
     <Compile Include="Unit\LCS\AudioSequencesAnalyzerTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
+    <Compile Include="Unit\Math\FScoreTest.cs" />
     <Compile Include="Unit\MinHash\CachedPermutationsTest.cs" />
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
