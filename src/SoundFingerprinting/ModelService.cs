@@ -39,6 +39,16 @@
             return hashBinDao.ReadAllSubFingerprintCandidatesWithThreshold(hashes, threshold);
         }
 
+        public virtual bool ContainsTrack(string isrc, string artist, string title)
+        {
+            if (!string.IsNullOrEmpty(isrc))
+            {
+                return ReadTrackByISRC(isrc) != null;
+            }
+
+            return ReadTrackByArtistAndTitleName(artist, title).Any();
+        }
+
         // TODO Override as inneficient
         public virtual IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
         {

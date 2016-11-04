@@ -124,6 +124,7 @@
     <Compile Include="IModelService.cs" />
     <Compile Include="ModelService.cs" />
     <Compile Include="LCS\SubFingerprintSequenceComparer.cs" />
+    <Compile Include="Strides\StrideUtils.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\CustomFingerprintConfiguration.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
@@ -142,6 +143,8 @@
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
+    <Compile Include="Utils\TestRunner.cs" />
+    <Compile Include="Utils\TestRunnerEventArgs.cs" />
     <Compile Include="Wavelets\NonStandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />

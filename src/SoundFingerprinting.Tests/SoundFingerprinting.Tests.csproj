@@ -74,6 +74,7 @@
     <Compile Include="Unit\Audio\StrideTest.cs" />
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\InMemoryModelServiceTest.cs" />
+    <Compile Include="Unit\Audio\TagInfoTest.cs" />
     <Compile Include="Unit\Configuration\CustomFingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\CustomQueryConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\HashingConfigTest.cs" />

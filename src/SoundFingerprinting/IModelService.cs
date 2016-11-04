@@ -37,5 +37,7 @@ namespace SoundFingerprinting
         List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference);
 
         ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<HashedFingerprint> hashes, int threshold);
+
+        bool ContainsTrack(string isrc, string artist, string title);
     }
 }
