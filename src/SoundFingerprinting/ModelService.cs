@@ -24,12 +24,22 @@
             this.spectralImageDao = spectralImageDao;
         }
 
+        // TODO Override as inneficient
         public virtual IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
             return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold)
                              .ToList();
         }
 
+        // TODO
+        // This method should be left as the default method to query the datasource for 
+        // fingerprint data in one batch
+        public virtual ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<HashedFingerprint> hashes, int threshold)
+        {
+            return hashBinDao.ReadAllSubFingerprintCandidatesWithThreshold(hashes, threshold);
+        }
+
+        // TODO Override as inneficient
         public virtual IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
         {
             return hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, threshold, trackGroupId)

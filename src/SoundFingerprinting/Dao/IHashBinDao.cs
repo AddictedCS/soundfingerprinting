@@ -16,5 +16,7 @@ namespace SoundFingerprinting.DAO
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(
             long[] hashBuckets, int thresholdVotes, string trackGroupId);
+
+        ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<HashedFingerprint> hashes, int threshold);
     }
 }

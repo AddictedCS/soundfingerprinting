@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("58094676-8f2b-42b6-8db5-a7aaddc00c98")]
-[assembly: AssemblyVersion("2.3.2")]
+[assembly: AssemblyVersion("2.3.3")]
 [assembly: InternalsVisibleTo("SoundFingerprinting")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -94,6 +94,21 @@
                                         TaskContinuationOptions.ExecuteSynchronously);
         }
 
+        public Task<QueryResult> QueryExperimental()
+        {
+            QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
+            return createFingerprintMethod()
+                                     .Hash()
+                                     .ContinueWith(
+                                        task =>
+                                        {
+                                            var hashes = task.Result;
+                                            return queryFingerprintService.QueryExperimental(modelService, hashes, QueryConfiguration);
+                                        },
+                                        TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+
         public Task<QueryResult> QueryWithTimeSequenceInformation()
         {
             QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;

@@ -31,5 +31,7 @@
             IModelService modelService,
             IEnumerable<HashedFingerprint> hashedFingerprints,
             QueryConfiguration queryConfiguration);
+
+        QueryResult QueryExperimental(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration);
     }
 }
