@@ -17,14 +17,14 @@
         [TestMethod]
         public void ShouldCaptureAllAudioFilesFromFolder()
         {
-            string path = Path.GetFullPath("TestEnvironment");
+            string path = Path.GetFullPath(".");
 
-            var files = testRunnerUtils.ListFiles(path, new List<string> { "*.mp3", "*.bin" });
+            var files = testRunnerUtils.ListFiles(path, new List<string> { "*.mp3" });
 
-            Assert.AreEqual(2, files.Count);
             var filenames = files.Select(Path.GetFileNameWithoutExtension).ToList();
-            Assert.IsTrue(filenames.Contains("Kryptonite"));
-            Assert.IsTrue(filenames.Contains("floatsamples"));
+            var unique = new HashSet<string>(filenames);
+            Assert.AreEqual(1, unique.Count);
+            Assert.IsTrue(unique.Contains("Kryptonite"));
         }
 
         [TestMethod]
