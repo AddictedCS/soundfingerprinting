@@ -24,6 +24,8 @@
 
     public delegate void NegativeFoundEvent(object sender, EventArgs e);
 
+    public delegate void TestIterationFinishedEvent(object sender, EventArgs e);
+
     internal class TestRunner
     {
         private readonly ITestRunnerUtils utils;
@@ -37,6 +39,7 @@
         private readonly string pathToResultsFolder;
 
         private IStride lastInsertStride;
+        private StringBuilder suite;
 
         public TestRunner(
             string[] scenarious,
@@ -69,14 +72,19 @@
         public event NegativeNotFoundEvent NegativeNotFoundEvent;
 
         public event NegativeFoundEvent NegativeFoundEvent;
+
+        public event TestIterationFinishedEvent TestIterationFinishedEvent;
         
         public void Run()
         {
+            suite = TestRunnerWriter.StartSuite();
             foreach (var scenario in scenarious)
             {
                 string[] parameters = scenario.Split(',');
                 RunTest(parameters);
             }
+
+            TestRunnerWriter.SaveSuiteResultsToFolder(suite, pathToResultsFolder);
         }
 
         private void RunTest(string[] parameters)
@@ -112,71 +120,113 @@
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
                 var stopwatch = new Stopwatch();
+                stopwatch.Start();
                 int trueNegatives = 0, truePositives = 0, falseNegatives = 0, falsePositives = 0, verified = 0;
-                var sb = TestRunnerWriter.Start();
-                foreach (var positive in positives)
-                {
-                    verified++;
-                    var tags = GetTagsFromFile(positive);
-                    var actualTrack = GetActualTrack(tags);
-                    var queryResult = BuildQuery(queryStride, seconds, positive, startAts[iteration]).Result;
-                    if (!queryResult.IsSuccessful)
-                    {
-                        falseNegatives++;
-                        var notFoundLine = GetNotFoundLine(tags);
-                        AppendLine(sb, notFoundLine);
-                        this.OnPositiveNotFound(
-                            GetTestRunnerEventArgs(
-                                truePositives, trueNegatives, falsePositives, falseNegatives, notFoundLine, verified));
-                        continue;
-                    }
+                var sb = TestRunnerWriter.StartTestIteration();
+                Parallel.ForEach(
+                    positives,
+                    GetParallelOptions(),
+                    positive =>
+                        {
+                            verified++;
+                            var tags = GetTagsFromFile(positive);
+                            var actualTrack = GetActualTrack(tags);
+                            var queryResult = BuildQuery(queryStride, seconds, positive, startAts[iteration]).Result;
+                            if (!queryResult.IsSuccessful)
+                            {
+                                falseNegatives++;
+                                var notFoundLine = GetNotFoundLine(tags);
+                                AppendLine(sb, notFoundLine);
+                                this.OnPositiveNotFound(
+                                    GetTestRunnerEventArgs(
+                                        truePositives,
+                                        trueNegatives,
+                                        falsePositives,
+                                        falseNegatives,
+                                        notFoundLine,
+                                        verified));
+                                return;
+                            }
 
-                    var recognizedTrack = queryResult.BestMatch.Track;
-                    bool isSuccessful = recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
-                    if (isSuccessful)
-                    {
-                        truePositives++;
-                    }
+                            var recognizedTrack = queryResult.BestMatch.Track;
+                            bool isSuccessful = recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
+                            if (isSuccessful)
+                            {
+                                truePositives++;
+                            }
 
-                    var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
-                    AppendLine(sb, foundLine);
-                    this.OnPositiveFoundEvent(
-                        GetTestRunnerEventArgs(
-                            truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
-                }
+                            var foundLine = GetFoundLine(
+                                ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
+                            AppendLine(sb, foundLine);
+                            this.OnPositiveFoundEvent(
+                                GetTestRunnerEventArgs(
+                                    truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
+                        });
 
-                foreach (var negative in negatives)
-                {
-                    verified++;
-                    var tags = GetTagsFromFile(negative);
-                    var queryResult = BuildQuery(queryStride, seconds, negative, startAts[iteration]).Result;
-                    if (!queryResult.IsSuccessful)
-                    {
-                        trueNegatives++;
-                        var notFoundLine = GetNotFoundLine(tags);
-                        AppendLine(sb, notFoundLine);
-                        OnNegativeNotFoundEvent(
-                            GetTestRunnerEventArgs(
-                                truePositives, trueNegatives, falsePositives, falseNegatives, notFoundLine, verified));
-                        continue;
-                    }
+                Parallel.ForEach(
+                    negatives,
+                    GetParallelOptions(),
+                    negative =>
+                        {
+                            verified++;
+                            var tags = GetTagsFromFile(negative);
+                            var queryResult = BuildQuery(queryStride, seconds, negative, startAts[iteration]).Result;
+                            if (!queryResult.IsSuccessful)
+                            {
+                                trueNegatives++;
+                                var notFoundLine = GetNotFoundLine(tags);
+                                AppendLine(sb, notFoundLine);
+                                OnNegativeNotFoundEvent(
+                                    GetTestRunnerEventArgs(
+                                        truePositives,
+                                        trueNegatives,
+                                        falsePositives,
+                                        falseNegatives,
+                                        notFoundLine,
+                                        verified));
+                                return;
+                            }
 
-                    var recognizedTrack = queryResult.BestMatch.Track;
-                    falsePositives++;
-                    var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
-                    AppendLine(sb, foundLine);
-                    OnNegativeFoundEvent(
-                        GetTestRunnerEventArgs(
-                            truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
-                }
+                            var recognizedTrack = queryResult.BestMatch.Track;
+                            falsePositives++;
+                            var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
+                            AppendLine(sb, foundLine);
+                            OnNegativeFoundEvent(
+                                GetTestRunnerEventArgs(
+                                    truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
+                        });
 
-                TestRunnerWriter.Finish(
-                    sb,
-                    new FScore(truePositives, trueNegatives, falsePositives, falseNegatives),
-                    stopwatch.ElapsedMilliseconds);
-                TestRunnerWriter.SaveToFolder(
+                stopwatch.Stop();
+                var fscore = new FScore(truePositives, trueNegatives, falsePositives, falseNegatives);
+                TestRunnerWriter.FinishTestIteration(sb, fscore, stopwatch.ElapsedMilliseconds);
+                TestRunnerWriter.SaveTestIterationToFolder(
                     sb, pathToResultsFolder, queryStride, this.GetInsertMetadata(), seconds, startAts[iteration]);
+
+                var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(
+                    queryStride, seconds, startAts, fscore, iteration, stopwatch, verified);
+                OnTestIterationFinishedEvent(finishedTestIteration);
+                TestRunnerWriter.AppendLine(suite, finishedTestIteration.RowWithDetails);
             }
+        }
+
+        private ParallelOptions GetParallelOptions()
+        {
+            return new ParallelOptions { MaxDegreeOfParallelism = 4 };
+        }
+
+        private TestRunnerEventArgs GetTestRunnerEventArgsForFinishedTestIteration(IStride queryStride, int seconds, List<int> startAts, FScore fscore, int iteration, Stopwatch stopwatch, int verified)
+        {
+            return new TestRunnerEventArgs
+                {
+                    FScore = fscore,
+                    RowWithDetails =
+                        new object[]
+                            {
+                                this.GetInsertMetadata(), queryStride.ToString(), seconds, startAts[iteration],
+                                fscore.Precision, fscore.Recall, fscore.F1, (double)stopwatch.ElapsedMilliseconds / 1000
+                            },
+                    Verified = verified
+                };
         }
 
         private string ToTrackString(TrackData actualTrack)
@@ -348,6 +398,15 @@
         private void OnNegativeFoundEvent(EventArgs e)
         {
             NegativeFoundEvent handler = NegativeFoundEvent;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnTestIterationFinishedEvent(EventArgs e)
+        {
+            TestIterationFinishedEvent handler = this.TestIterationFinishedEvent;
             if (handler != null)
             {
                 handler(this, e);

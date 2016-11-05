@@ -27,6 +27,8 @@
         private readonly Mock<NegativeNotFoundEvent> nnfe = new Mock<NegativeNotFoundEvent>(MockBehavior.Strict);
         private readonly Mock<PositiveFoundEvent> pfe = new Mock<PositiveFoundEvent>(MockBehavior.Strict);
         private readonly Mock<PositiveNotFoundEvent> pnfe = new Mock<PositiveNotFoundEvent>(MockBehavior.Strict);
+        private readonly Mock<TestIterationFinishedEvent> tife = new Mock<TestIterationFinishedEvent>(MockBehavior.Strict);
+
         private readonly Mock<ITagService> tagService = new Mock<ITagService>(MockBehavior.Strict);
 
         [TestInitialize]
@@ -51,6 +53,7 @@
             nnfe.VerifyAll();
             pfe.VerifyAll();
             pnfe.VerifyAll();
+            tife.VerifyAll();
         }
 
         [TestMethod]
@@ -58,6 +61,7 @@
         {
             string results = Path.GetTempPath();
             Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList().ForEach(File.Delete);
+            Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList().ForEach(File.Delete);
             pfe.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Callback(
                 (object runner, EventArgs param) =>
                     {
@@ -77,6 +81,8 @@
                         Assert.AreEqual(1, fScore.Recall);
                         Assert.AreEqual(2, ((TestRunnerEventArgs)param).Verified);
                     });
+
+            tife.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Verifiable();
 
             string path = Path.GetFullPath(".");
             
@@ -100,9 +106,12 @@
 
             pfe.Verify(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>()), Times.Exactly(6));
             pfe.Verify(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>()), Times.Exactly(6));
+            tife.Verify(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>()), Times.Exactly(6));
 
             var testRuns = Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList();
             Assert.AreEqual(6, testRuns.Count);
+            var testSuite = Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList();
+            Assert.AreEqual(1, testSuite.Count);
         }
 
         private void AttachEventHandlers(TestRunner testRunner)
@@ -111,6 +120,7 @@
             testRunner.NegativeNotFoundEvent += this.nnfe.Object;
             testRunner.PositiveFoundEvent += this.pfe.Object;
             testRunner.PositiveNotFoundEvent += this.pnfe.Object;
+            testRunner.TestIterationFinishedEvent += this.tife.Object;
         }
     }
 }
