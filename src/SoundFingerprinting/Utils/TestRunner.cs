@@ -2,23 +2,23 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
     public delegate void PositiveNotFoundEvent(object sender, EventArgs e);
 
-    public delegate void PositiveTrackFoundEvent(object sender, EventArgs e);
+    public delegate void PositiveFoundEvent(object sender, EventArgs e);
 
     public delegate void NegativeNotFoundEvent(object sender, EventArgs e);
 
@@ -26,15 +26,15 @@
 
     internal class TestRunner
     {
-        private readonly List<string> audioFileFilters = new List<string> { "*.mp3" };
-
+        private readonly ITestRunnerUtils utils;
+        private readonly TestRunnerConfig testRunnerConfig = new TestRunnerConfig();
         private readonly string[] scenarious;
         private readonly IModelService modelService;
         private readonly IAudioService audioService;
         private readonly ITagService tagService;
         private readonly IFingerprintCommandBuilder fcb;
         private readonly IQueryCommandBuilder qcb;
-        private int samplesPerFingerprint = new DefaultFingerprintConfiguration().SamplesPerFingerprint;
+        private readonly string pathToResultsFolder;
 
         public TestRunner(
             string[] scenarious,
@@ -44,6 +44,7 @@
             IFingerprintCommandBuilder fcb,
             IQueryCommandBuilder qcb,
             string pathToResultsFolder)
+            : this(DependencyResolver.Current.Get<ITestRunnerUtils>())
         {
             this.scenarious = scenarious;
             this.modelService = modelService;
@@ -51,16 +52,22 @@
             this.tagService = tagService;
             this.fcb = fcb;
             this.qcb = qcb;
+            this.pathToResultsFolder = pathToResultsFolder;
+        }
+
+        internal TestRunner(ITestRunnerUtils utils)
+        {
+            this.utils = utils;
         }
 
         public event PositiveNotFoundEvent PositiveNotFoundEvent;
 
-        public event PositiveTrackFoundEvent PositiveFoundEvent;
+        public event PositiveFoundEvent PositiveFoundEvent;
 
         public event NegativeNotFoundEvent NegativeNotFoundEvent;
 
         public event NegativeFoundEvent NegativeFoundEvent;
-
+        
         public void Run()
         {
             foreach (var scenario in scenarious)
@@ -73,30 +80,22 @@
         private void RunTest(string[] parameters)
         {
             string action = parameters[0];
-            this.samplesPerFingerprint = new DefaultFingerprintConfiguration().SamplesPerFingerprint;
             switch (action)
             {
                 case "Insert":
                     string folderWithSongs = parameters[1];
-                    var stride = StrideUtils.ToStride(
-                        parameters[2],
-                        int.Parse(parameters[3]),
-                        int.Parse(parameters[4]),
-                        this.samplesPerFingerprint);
+                    var stride = utils.ToStride(
+                        parameters[2], parameters[3], parameters[4], testRunnerConfig.SamplesPerFingerprint);
                     DeleteAll();
                     Insert(folderWithSongs, stride);
                     break;
                 case "Run":
                     string folderWithPositives = parameters[1];
                     string folderWithNegatives = parameters[2];
-                    var queryStride = StrideUtils.ToStride(
-                        parameters[3],
-                        int.Parse(parameters[4]),
-                        int.Parse(parameters[5]),
-                        this.samplesPerFingerprint);
-
+                    var queryStride = utils.ToStride(
+                        parameters[3], parameters[4], parameters[5], testRunnerConfig.SamplesPerFingerprint);
                     int seconds = int.Parse(parameters[6]);
-                    List<int> startAts = ToStartAts(parameters[7]);
+                    var startAts = ToStartAts(parameters[7]);
                     RunTestScenario(folderWithPositives, folderWithNegatives,  queryStride, seconds, startAts);
                     break;
             }
@@ -109,8 +108,9 @@
             var negatives = AllFiles(folderWithNegatives);
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
+                var stopwatch = new Stopwatch();
                 int trueNegatives = 0, truePositives = 0, falseNegatives = 0, falsePositives = 0, verified = 0;
-                var sb = new StringBuilder();
+                var sb = TestRunnerWriter.Start();
                 foreach (var positive in positives)
                 {
                     verified++;
@@ -120,9 +120,9 @@
                     if (!queryResult.IsSuccessful)
                     {
                         falseNegatives++;
-                        var notFoundLine = this.GetNotFoundLine(tags);
+                        var notFoundLine = GetNotFoundLine(tags);
                         AppendLine(sb, notFoundLine);
-                        OnTruePositiveNotFound(
+                        this.OnPositiveNotFound(
                             GetTestRunnerEventArgs(
                                 truePositives, trueNegatives, falsePositives, falseNegatives, notFoundLine, verified));
                         continue;
@@ -137,7 +137,7 @@
 
                     var foundLine = GetFoundLine(recognizedTrack, isSuccessful, queryResult);
                     AppendLine(sb, foundLine);
-                    OnTrackFoundEvent(
+                    this.OnPositiveFoundEvent(
                         GetTestRunnerEventArgs(
                             truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                 }
@@ -166,7 +166,15 @@
                         GetTestRunnerEventArgs(
                             truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                 }
+
+                TestRunnerWriter.Finish(sb, new FScore(truePositives, trueNegatives, falsePositives, falseNegatives), stopwatch.ElapsedMilliseconds);
+                TestRunnerWriter.SaveToFolder(sb, pathToResultsFolder, queryStride, seconds, startAts[iteration]);
             }
+        }
+
+        private void AppendLine(StringBuilder sb, object[] objects)
+        {
+            TestRunnerWriter.AppendLine(sb, objects);
         }
 
         private TestRunnerEventArgs GetTestRunnerEventArgs(int truePositives, int trueNegatives, int falsePositives, int falseNegatives, object[] line, int verified)
@@ -211,13 +219,8 @@
             return this.qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
                 .WithConfigs(fingerprintConfig => { fingerprintConfig.SpectrogramConfig.Stride = queryStride; }, queryConfig => { })
-                .UsingServices(this.modelService, this.audioService)
+                .UsingServices(modelService, audioService)
                 .Query();
-        }
-
-        private void AppendLine(StringBuilder sb, object[] line)
-        {
-             // TODO AddLine here
         }
 
         private void Insert(string folderWithSongs, IStride stride)
@@ -240,17 +243,17 @@
 
         private IModelReference InsertTrack(string file)
         {
-            var tags = this.GetTagsFromFile(file);
+            var tags = GetTagsFromFile(file);
             IModelReference track;
             lock (this)
             {
-                if (this.IsDuplicateTrack(tags.ISRC, tags.Artist, tags.Title))
+                if (IsDuplicateTrack(tags.ISRC, tags.Artist, tags.Title))
                 {
                     throw new Exception(string.Format("Duplicate track found {0}. Currate your input data!", file));
                 }
 
                 var trackData = new TrackData(tags);
-                track = this.modelService.InsertTrack(trackData);
+                track = modelService.InsertTrack(trackData);
             }
 
             return track;
@@ -267,8 +270,7 @@
 
         private IEnumerable<string> AllFiles(string rootFolder)
         {
-            return audioFileFilters.SelectMany(filter => Directory.GetFiles(rootFolder, filter, SearchOption.AllDirectories))
-                                   .ToList();
+            return utils.ListFiles(rootFolder, testRunnerConfig.AudioFileFilters);
         }
 
         private bool IsDuplicateTrack(string isrc, string artist, string title)
@@ -276,15 +278,14 @@
             return modelService.ContainsTrack(isrc, artist, title);
         }
 
-        private List<int> ToStartAts(string repeatIntervals)
+        private List<int> ToStartAts(string startAtSeconds)
         {
-            var startAts = repeatIntervals.Split('|');
-            return startAts.Select(int.Parse).ToList();
+            return utils.ParseInts(startAtSeconds, testRunnerConfig.StartAtsSeparator);
         }
 
         private TagInfo GetTagsFromFile(string path)
         {
-            var tags = this.tagService.GetTagInfo(path);
+            var tags = tagService.GetTagInfo(path);
             if (tags == null || !tags.IsTrackUniquelyIdentifiable())
             {
                 throw new Exception(
@@ -296,18 +297,18 @@
             return tags;
         }
 
-        private void OnTruePositiveNotFound(EventArgs e)
+        private void OnPositiveNotFound(EventArgs e)
         {
-            PositiveNotFoundEvent handler = this.PositiveNotFoundEvent;
+            PositiveNotFoundEvent handler = PositiveNotFoundEvent;
             if (handler != null)
             {
                 handler(this, e);
             }
         }
 
-        private void OnTrackFoundEvent(EventArgs e)
+        private void OnPositiveFoundEvent(EventArgs e)
         {
-            PositiveTrackFoundEvent handler = this.PositiveFoundEvent;
+            PositiveFoundEvent handler = PositiveFoundEvent;
             if (handler != null)
             {
                 handler(this, e);
@@ -316,7 +317,7 @@
 
         private void OnNegativeNotFoundEvent(EventArgs e)
         {
-            NegativeNotFoundEvent handler = this.NegativeNotFoundEvent;
+            NegativeNotFoundEvent handler = NegativeNotFoundEvent;
             if (handler != null)
             {
                 handler(this, e);
@@ -325,7 +326,7 @@
 
         private void OnNegativeFoundEvent(EventArgs e)
         {
-            NegativeFoundEvent handler = this.NegativeFoundEvent;
+            NegativeFoundEvent handler = NegativeFoundEvent;
             if (handler != null)
             {
                 handler(this, e);

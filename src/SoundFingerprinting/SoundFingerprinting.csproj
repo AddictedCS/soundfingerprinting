@@ -143,8 +143,14 @@
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
+    <Compile Include="Utils\ITestRunnerUtils.cs" />
     <Compile Include="Utils\TestRunner.cs" />
+    <Compile Include="Utils\TestRunnerConfig.cs" />
     <Compile Include="Utils\TestRunnerEventArgs.cs" />
+    <Compile Include="Utils\TestRunnerScenarioValidator.cs" />
+    <Compile Include="Utils\TestRunnerUtils.cs" />
+    <Compile Include="Utils\TestRunnerWriter.cs" />
+    <Compile Include="Utils\TestScenariousValidationResult.cs" />
     <Compile Include="Wavelets\NonStandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />

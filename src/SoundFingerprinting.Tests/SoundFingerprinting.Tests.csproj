@@ -67,6 +67,7 @@
     <Compile Include="Integration\FingerprintDaoTest.cs" />
     <Compile Include="Integration\HashBinDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
+    <Compile Include="Integration\TestRunnerTest.cs" />
     <Compile Include="Integration\TrackDaoTest.cs" />
     <Compile Include="Unit\Audio\ContinuousStreamSamplesProviderTest.cs" />
     <Compile Include="Unit\Audio\QueueSamplesProvider.cs" />
@@ -96,6 +97,8 @@
     <Compile Include="Unit\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />
     <Compile Include="Unit\Utils\AbsComparatorTest.cs" />
+    <Compile Include="Unit\Utils\TestRunnerScenarioValidatorTest.cs" />
+    <Compile Include="Unit\Utils\TestRunnerUtilsTest.cs" />
     <Compile Include="Unit\Wavelets\StandardHaarWaveletDecompositionTest.cs" />
     <Compile Include="Unit\Infrastructure\DependencyResolverTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

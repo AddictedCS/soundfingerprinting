@@ -45,6 +45,7 @@
             kernel.Bind<IAudioSequencesAnalyzer>().To<AudioSequencesAnalyzer>().InSingletonScope();
             kernel.Bind<ISimilarityUtility>().To<SimilarityUtility>().InSingletonScope();
             kernel.Bind<IQueryMath>().To<QueryMath>().InSingletonScope();
+            kernel.Bind<ITestRunnerUtils>().To<TestRunnerUtils>().InSingletonScope();
 
             kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
             kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
