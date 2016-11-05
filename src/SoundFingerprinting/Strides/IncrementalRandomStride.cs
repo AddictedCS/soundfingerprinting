@@ -21,5 +21,10 @@
         {
             return -samplesPerFingerprint + Random.Next(Min, Max);
         }
+
+        public override string ToString()
+        {
+            return string.Format("IncrementalRandom-{0}-{1}", Min, Max);
+        }
     }
 }

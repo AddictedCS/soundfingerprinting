@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -17,17 +18,16 @@
     [TestClass]
     public class TestRunnerTest : IntegrationWithSampleFilesTest
     {
-        private IModelService modelService = new InMemoryModelService();
-        private IAudioService audioService = new NAudioService();
-        private IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
-        private IQueryCommandBuilder qcb = new QueryCommandBuilder();
+        private readonly IModelService modelService = new InMemoryModelService();
+        private readonly IAudioService audioService = new NAudioService();
+        private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
+        private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
 
-        private Mock<NegativeFoundEvent> nfe = new Mock<NegativeFoundEvent>(MockBehavior.Strict);
-        private Mock<NegativeNotFoundEvent> nnfe = new Mock<NegativeNotFoundEvent>(MockBehavior.Strict);
-        private Mock<PositiveFoundEvent> pfe = new Mock<PositiveFoundEvent>(MockBehavior.Strict);
-        private Mock<PositiveNotFoundEvent> pnfe = new Mock<PositiveNotFoundEvent>(MockBehavior.Strict);
-        private Mock<ITagService> tagService = new Mock<ITagService>(MockBehavior.Strict);
-
+        private readonly Mock<NegativeFoundEvent> nfe = new Mock<NegativeFoundEvent>(MockBehavior.Strict);
+        private readonly Mock<NegativeNotFoundEvent> nnfe = new Mock<NegativeNotFoundEvent>(MockBehavior.Strict);
+        private readonly Mock<PositiveFoundEvent> pfe = new Mock<PositiveFoundEvent>(MockBehavior.Strict);
+        private readonly Mock<PositiveNotFoundEvent> pnfe = new Mock<PositiveNotFoundEvent>(MockBehavior.Strict);
+        private readonly Mock<ITagService> tagService = new Mock<ITagService>(MockBehavior.Strict);
 
         [TestInitialize]
         public void SetUp()
@@ -56,6 +56,8 @@
         [TestMethod]
         public void ShouldSuccessfullyRunTest()
         {
+            string results = Path.GetTempPath();
+            Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList().ForEach(File.Delete);
             pfe.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Callback(
                 (object runner, EventArgs param) =>
                     {
@@ -79,11 +81,12 @@
             string path = Path.GetFullPath(".");
             
             string scenario1 = string.Format("Insert,{0},IncrementalStatic,0,5115", path);
-            string scenario2 = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10", path, path);
-            string results = Path.GetTempPath();
+            string scenario2 = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10|30|50", path, path);
+            string scenario3 = string.Format("Insert,{0},IncrementalStatic,0,2048", path);
+            string scenario4 = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10|30|50", path, path);
 
             var testRunner = new TestRunner(
-                new List<string> { scenario1, scenario2 }.ToArray(),
+                new List<string> { scenario1, scenario2, scenario3, scenario4 }.ToArray(),
                 modelService,
                 audioService,
                 tagService.Object,
@@ -94,6 +97,12 @@
             AttachEventHandlers(testRunner);
 
             testRunner.Run();
+
+            pfe.Verify(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>()), Times.Exactly(6));
+            pfe.Verify(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>()), Times.Exactly(6));
+
+            var testRuns = Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList();
+            Assert.AreEqual(6, testRuns.Count);
         }
 
         private void AttachEventHandlers(TestRunner testRunner)

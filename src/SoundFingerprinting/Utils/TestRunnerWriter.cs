@@ -40,13 +40,14 @@
             sb.AppendLine(string.Format("Results: {0}. Elapsed Seconds: {1}", score, (double)elapsedMiliseconds / 1000));
         }
 
-        public static void SaveToFolder(StringBuilder sb, string resultsFolder, IStride stride, int queryLength, int startAt)
+        public static void SaveToFolder(StringBuilder sb, string resultsFolder, IStride queryStride, string insertMetadata, int queryLength, int startAt)
         {
-            string filename = string.Format("results_{0}_q{1}s_at{2}s", stride.GetType().Name, queryLength, startAt);
+            string filename = string.Format("results_{0}_{1}_q{2}s_at{3}s.csv", insertMetadata, queryStride.ToString(), queryLength, startAt);
             string absolutePath = Path.Combine(resultsFolder, filename);
             using (var writer = new StreamWriter(absolutePath))
             {
                 writer.Write(sb.ToString());
+                writer.Close();
             }
         }
     }

@@ -36,6 +36,8 @@
         private readonly IQueryCommandBuilder qcb;
         private readonly string pathToResultsFolder;
 
+        private IStride lastInsertStride;
+
         public TestRunner(
             string[] scenarious,
             IModelService modelService,
@@ -88,6 +90,7 @@
                         parameters[2], parameters[3], parameters[4], testRunnerConfig.SamplesPerFingerprint);
                     DeleteAll();
                     Insert(folderWithSongs, stride);
+                    lastInsertStride = stride;
                     break;
                 case "Run":
                     string folderWithPositives = parameters[1];
@@ -135,7 +138,7 @@
                         truePositives++;
                     }
 
-                    var foundLine = GetFoundLine(recognizedTrack, isSuccessful, queryResult);
+                    var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
                     AppendLine(sb, foundLine);
                     this.OnPositiveFoundEvent(
                         GetTestRunnerEventArgs(
@@ -160,16 +163,35 @@
 
                     var recognizedTrack = queryResult.BestMatch.Track;
                     falsePositives++;
-                    var foundLine = GetFoundLine(recognizedTrack, false, queryResult);
+                    var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                     AppendLine(sb, foundLine);
                     OnNegativeFoundEvent(
                         GetTestRunnerEventArgs(
                             truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                 }
 
-                TestRunnerWriter.Finish(sb, new FScore(truePositives, trueNegatives, falsePositives, falseNegatives), stopwatch.ElapsedMilliseconds);
-                TestRunnerWriter.SaveToFolder(sb, pathToResultsFolder, queryStride, seconds, startAts[iteration]);
+                TestRunnerWriter.Finish(
+                    sb,
+                    new FScore(truePositives, trueNegatives, falsePositives, falseNegatives),
+                    stopwatch.ElapsedMilliseconds);
+                TestRunnerWriter.SaveToFolder(
+                    sb, pathToResultsFolder, queryStride, this.GetInsertMetadata(), seconds, startAts[iteration]);
             }
+        }
+
+        private string ToTrackString(TrackData actualTrack)
+        {
+            return string.Format("{0}-{1}", actualTrack.Artist, actualTrack.Title);
+        }
+
+        private string ToTrackString(TagInfo tag)
+        {
+            return string.Format("{0}-{1}", tag.Artist, tag.Title);
+        }
+
+        private string GetInsertMetadata()
+        {
+            return this.lastInsertStride != null ? this.lastInsertStride.ToString() : string.Empty;
         }
 
         private void AppendLine(StringBuilder sb, object[] objects)
@@ -198,16 +220,15 @@
         {
             return new object[]
                 {
-                    string.Format("{0}-{1}", tags.Title, tags.Artist), "No match found!", false, 0, 0, "No match found!",
-                    string.Empty, string.Empty
+                    ToTrackString(tags), "No match found!", false, 0, 0, "No match found!", string.Empty, string.Empty 
                 };
         }
 
-        private object[] GetFoundLine(TrackData recognizedTrack, bool isSuccessful, QueryResult queryResult)
+        private object[] GetFoundLine(string actualTrack, TrackData recognizedTrack, bool isSuccessful, QueryResult queryResult)
         {
             return new object[]
                 {
-                    string.Format("{0}-{1}", recognizedTrack.Title, recognizedTrack.Artist), isSuccessful,
+                    actualTrack, ToTrackString(recognizedTrack), isSuccessful,
                     queryResult.BestMatch.MatchedFingerprints, queryResult.AnalyzedTracksCount, recognizedTrack.ISRC,
                     queryResult.BestMatch.SequenceLength, queryResult.BestMatch.SequenceStart
                 };

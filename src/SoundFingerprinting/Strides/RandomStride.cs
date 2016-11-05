@@ -76,5 +76,10 @@
         {
             return Random.Next(minStride, maxStride);
         }
+
+        public override string ToString()
+        {
+            return string.Format("Random-{0}-{1}", Min, Max);
+        }
     }
 }
