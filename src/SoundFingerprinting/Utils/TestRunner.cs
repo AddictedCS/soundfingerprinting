@@ -26,6 +26,8 @@
 
     public delegate void TestIterationFinishedEvent(object sender, EventArgs e);
 
+    public delegate void OngoingTestRunnerActionEvent(object sender, EventArgs e);
+
     internal class TestRunner
     {
         private readonly ITestRunnerUtils utils;
@@ -74,6 +76,8 @@
         public event NegativeFoundEvent NegativeFoundEvent;
 
         public event TestIterationFinishedEvent TestIterationFinishedEvent;
+
+        public event OngoingTestRunnerActionEvent OngoingActionEvent;
         
         public void Run()
         {
@@ -85,6 +89,7 @@
             }
 
             TestRunnerWriter.SaveSuiteResultsToFolder(suite, pathToResultsFolder);
+            OnOngoingActionEvent(new TestRunnerOngoingEventArgs { Message = "All test scenarious finished!" });
         }
 
         private void RunTest(string[] parameters)
@@ -119,6 +124,18 @@
             var negatives = AllFiles(folderWithNegatives);
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
+                OnOngoingActionEvent(
+                    new TestRunnerOngoingEventArgs
+                        {
+                            Message =
+                                string.Format(
+                                    "Iteration {0} out of {1} with {2}, query seconds {3}",
+                                    iteration + 1,
+                                    iterations,
+                                    queryStride,
+                                    seconds)
+                        });
+
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 int trueNegatives = 0, truePositives = 0, falseNegatives = 0, falsePositives = 0, verified = 0;
@@ -296,20 +313,23 @@
 
         private void Insert(string folderWithSongs, IStride stride)
         {
-            var allFiles = AllFiles(folderWithSongs);
-            foreach (var file in allFiles)
-            {
-                var track = InsertTrack(file);
+            var allFiles = AllFiles(folderWithSongs).ToList();
+            int inserted = 0;
+            Parallel.ForEach(
+                allFiles,
+                this.GetParallelOptions(),
+                file =>
+                    {
+                        var track = InsertTrack(file);
 
-                var hashes = fcb.BuildFingerprintCommand()
-                                .From(file)
-                                .WithFingerprintConfig(config => { config.SpectrogramConfig.Stride = stride; })
-                                .UsingServices(audioService)
-                                .Hash()
-                                .Result;
+                        var hashes =
+                            fcb.BuildFingerprintCommand().From(file).WithFingerprintConfig(
+                                config => { config.SpectrogramConfig.Stride = stride; }).UsingServices(audioService).
+                                Hash().Result;
 
-                modelService.InsertHashDataForTrack(hashes, track);
-            }
+                        modelService.InsertHashDataForTrack(hashes, track);
+                        OnOngoingActionEvent(new TestRunnerOngoingEventArgs { Message = string.Format("Inserting tracks {0} out of {1}", inserted++, allFiles.Count) });
+                    });
         }
 
         private IModelReference InsertTrack(string file)
@@ -333,9 +353,15 @@
         private void DeleteAll()
         {
             var tracks = modelService.ReadAllTracks();
+            int deleted = 0;
             foreach (var track in tracks)
             {
                 modelService.DeleteTrack(track.TrackReference);
+                OnOngoingActionEvent(
+                    new TestRunnerOngoingEventArgs
+                        {
+                            Message = string.Format("Deleted {0} out of {1} tracks from storage", deleted++, tracks.Count)
+                        });
             }
         }
 
@@ -407,6 +433,15 @@
         private void OnTestIterationFinishedEvent(EventArgs e)
         {
             TestIterationFinishedEvent handler = this.TestIterationFinishedEvent;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        private void OnOngoingActionEvent(EventArgs e)
+        {
+            OngoingTestRunnerActionEvent handler = this.OngoingActionEvent;
             if (handler != null)
             {
                 handler(this, e);

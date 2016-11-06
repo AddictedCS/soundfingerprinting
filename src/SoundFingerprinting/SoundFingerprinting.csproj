@@ -147,6 +147,7 @@
     <Compile Include="Utils\TestRunner.cs" />
     <Compile Include="Utils\TestRunnerConfig.cs" />
     <Compile Include="Utils\TestRunnerEventArgs.cs" />
+    <Compile Include="Utils\TestRunnerOngoingEventArgs.cs" />
     <Compile Include="Utils\TestRunnerScenarioValidator.cs" />
     <Compile Include="Utils\TestRunnerUtils.cs" />
     <Compile Include="Utils\TestRunnerWriter.cs" />
