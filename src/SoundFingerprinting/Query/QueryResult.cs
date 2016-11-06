@@ -30,7 +30,7 @@
         /// Gets the number of analyzed tracks. This information is useful for debugging and analysis purposes
         /// </summary>
         public int AnalyzedTracksCount { get; internal set; }
-
+       
         /// <summary>
         /// Gets best match if any
         /// </summary>
@@ -46,5 +46,10 @@
                 return null;
             }
         }
+        
+        /// <summary>
+        /// Gets or sets the number of analyzed sub-fingerprints during querying
+        /// </summary>
+        internal int AnalyzedSubFingerprintsCount { get; set; }
     }
 }

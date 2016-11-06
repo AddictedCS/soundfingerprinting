@@ -39,9 +39,11 @@
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
             double snipetLength = 0;
+            int subFingerprintsCount = 0;
             foreach (var hashedFingerprint in hashedFingerprints)
             {
-                var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration);
+                var subFingerprints = GetSubFingerprints(modelService, hashedFingerprint, queryConfiguration).ToList();
+                subFingerprintsCount += subFingerprints.Count;
                 foreach (var subFingerprint in subFingerprints)
                 {
                     int hammingSimilarity = similarityCalculationUtility.CalculateHammingSimilarity(hashedFingerprint.SubFingerprint, subFingerprint.Signature);
@@ -81,6 +83,7 @@
                 {
                     ResultEntries = resultEntries,
                     AnalyzedTracksCount = hammingSimilarities.Count,
+                    AnalyzedSubFingerprintsCount = subFingerprintsCount,
                     Info = new QueryInfo { SnippetLength = snipetLength }
                 };
         }
@@ -121,19 +124,21 @@
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
             double snipetLength = 0;
-            var allCandidates = modelService.ReadAllSubFingerprintCandidatesWithThreshold(hashedFingerprints, queryConfiguration.ThresholdVotes);
+            var hashedFingerprintsList = hashedFingerprints as List<HashedFingerprint> ?? hashedFingerprints.ToList();
+            var allCandidates = modelService.ReadAllSubFingerprintCandidatesWithThreshold(hashedFingerprintsList, queryConfiguration.ThresholdVotes);
 
             Dictionary<SubFingerprintData, long[]> allSubFingerprintCandidates =
                 allCandidates.ToDictionary(
                     candidate => candidate,
                     candidate => hashConverter.ToLongs(candidate.Signature, 25));
 
-            foreach (var hashedFingerprint in hashedFingerprints)
+            foreach (var hashedFingerprint in hashedFingerprintsList)
             {
+                HashedFingerprint fingerprint = hashedFingerprint;
                 var subFingerprints = allSubFingerprintCandidates.Where(
                     candidate =>
                         {
-                            long[] actual = hashedFingerprint.HashBins;
+                            long[] actual = fingerprint.HashBins;
                             long[] result = candidate.Value;
                             int count = 0;
                             for (int i = 0; i < actual.Length; ++i)
