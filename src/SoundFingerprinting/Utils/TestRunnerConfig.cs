@@ -12,7 +12,15 @@
         {
             get
             {
-                return new List<string>() { "*.mp3" };
+                return new List<string> { "*.mp3" };
+            }
+        }
+
+        public double[] Percentiles
+        {
+            get
+            {
+                return new[] { 0.8, 0.9, 0.95, 0.98 };
             }
         }
 

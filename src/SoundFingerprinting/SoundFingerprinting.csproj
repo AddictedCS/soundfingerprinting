@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="Math\HammingDistanceResultStatistics.cs" />
     <Compile Include="Math\FScore.cs" />
     <Compile Include="Math\HashConverter.cs" />
     <Compile Include="Query\IQueryMath.cs" />

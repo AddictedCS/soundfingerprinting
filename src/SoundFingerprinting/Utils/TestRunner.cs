@@ -99,8 +99,7 @@
             {
                 case "Insert":
                     string folderWithSongs = parameters[1];
-                    var stride = utils.ToStride(
-                        parameters[2], parameters[3], parameters[4], testRunnerConfig.SamplesPerFingerprint);
+                    var stride = utils.ToStride(parameters[2], parameters[3], parameters[4], testRunnerConfig.SamplesPerFingerprint);
                     DeleteAll();
                     Insert(folderWithSongs, stride);
                     lastInsertStride = stride;
@@ -124,7 +123,7 @@
             var negatives = AllFiles(folderWithNegatives);
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
-                OnOngoingActionEvent(
+              OnOngoingActionEvent(
                     new TestRunnerOngoingEventArgs
                         {
                             Message =
@@ -139,6 +138,9 @@
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 int trueNegatives = 0, truePositives = 0, falseNegatives = 0, falsePositives = 0, verified = 0;
+                List<int> truePositiveHammingDistance = new List<int>();
+                List<int> falseNegativesHammingDistance = new List<int>();
+                List<int> falsePositivesHammingDistance = new List<int>();
                 var sb = TestRunnerWriter.StartTestIteration();
                 Parallel.ForEach(
                     positives,
@@ -170,14 +172,17 @@
                             if (isSuccessful)
                             {
                                 truePositives++;
+                                truePositiveHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
+                            }
+                            else
+                            {
+                                falseNegatives++;
+                                falseNegativesHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
                             }
 
-                            var foundLine = GetFoundLine(
-                                ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
+                            var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
                             AppendLine(sb, foundLine);
-                            this.OnPositiveFoundEvent(
-                                GetTestRunnerEventArgs(
-                                    truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
+                            OnPositiveFoundEvent(GetTestRunnerEventArgs(truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                         });
 
                 Parallel.ForEach(
@@ -205,6 +210,7 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
+                            falsePositivesHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
                             falsePositives++;
                             var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                             AppendLine(sb, foundLine);
@@ -215,12 +221,17 @@
 
                 stopwatch.Stop();
                 var fscore = new FScore(truePositives, trueNegatives, falsePositives, falseNegatives);
-                TestRunnerWriter.FinishTestIteration(sb, fscore, stopwatch.ElapsedMilliseconds);
+                var stats = HammingDistanceResultStatistics.From(
+                    truePositiveHammingDistance,
+                    falseNegativesHammingDistance,
+                    falsePositivesHammingDistance,
+                    testRunnerConfig.Percentiles);
+                TestRunnerWriter.FinishTestIteration(sb, fscore, stats, stopwatch.ElapsedMilliseconds);
                 TestRunnerWriter.SaveTestIterationToFolder(
                     sb, pathToResultsFolder, queryStride, this.GetInsertMetadata(), seconds, startAts[iteration]);
 
                 var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(
-                    queryStride, seconds, startAts, fscore, iteration, stopwatch, verified);
+                    queryStride, seconds, startAts, fscore, stats, iteration, stopwatch, verified);
                 OnTestIterationFinishedEvent(finishedTestIteration);
                 TestRunnerWriter.AppendLine(suite, finishedTestIteration.RowWithDetails);
             }
@@ -228,10 +239,10 @@
 
         private ParallelOptions GetParallelOptions()
         {
-            return new ParallelOptions { MaxDegreeOfParallelism = 4 };
+            return new ParallelOptions { MaxDegreeOfParallelism = 2 };
         }
 
-        private TestRunnerEventArgs GetTestRunnerEventArgsForFinishedTestIteration(IStride queryStride, int seconds, List<int> startAts, FScore fscore, int iteration, Stopwatch stopwatch, int verified)
+        private TestRunnerEventArgs GetTestRunnerEventArgsForFinishedTestIteration(IStride queryStride, int seconds, List<int> startAts, FScore fscore, HammingDistanceResultStatistics statistics, int iteration, Stopwatch stopwatch, int verified)
         {
             return new TestRunnerEventArgs
                 {
@@ -240,7 +251,14 @@
                         new object[]
                             {
                                 this.GetInsertMetadata(), queryStride.ToString(), seconds, startAts[iteration],
-                                fscore.Precision, fscore.Recall, fscore.F1, (double)stopwatch.ElapsedMilliseconds / 1000
+                                fscore.Precision, fscore.Recall, fscore.F1, 
+                                statistics.TruePositiveInfo,
+                                statistics.TruePositivePercentileInfo,
+                                statistics.FalseNegativesInfo,
+                                statistics.FalseNegativesPercentileInfo,
+                                statistics.FalsePositivesInfo,
+                                statistics.FalsePositivesPercentileInfo,
+                                (double)stopwatch.ElapsedMilliseconds / 1000
                             },
                     Verified = verified
                 };
@@ -287,7 +305,7 @@
         {
             return new object[]
                 {
-                    ToTrackString(tags), "No match found!", false, 0, 0, "No match found!", string.Empty, string.Empty 
+                    ToTrackString(tags), "No match found!", false, 0, 0, 0, string.Empty, string.Empty 
                 };
         }
 
@@ -296,7 +314,7 @@
             return new object[]
                 {
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
-                    queryResult.BestMatch.MatchedFingerprints, queryResult.AnalyzedTracksCount, recognizedTrack.ISRC,
+                    queryResult.BestMatch.MatchedFingerprints, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
                     queryResult.BestMatch.SequenceLength, queryResult.BestMatch.SequenceStart
                 };
         }
@@ -317,37 +335,27 @@
             int inserted = 0;
             Parallel.ForEach(
                 allFiles,
-                this.GetParallelOptions(),
+                GetParallelOptions(),
                 file =>
                     {
+                        OnOngoingActionEvent(new TestRunnerOngoingEventArgs { Message = string.Format("Inserting tracks {0} out of {1}. Track {2}", inserted++, allFiles.Count, System.IO.Path.GetFileNameWithoutExtension(file)) });
                         var track = InsertTrack(file);
-
-                        var hashes =
-                            fcb.BuildFingerprintCommand().From(file).WithFingerprintConfig(
-                                config => { config.SpectrogramConfig.Stride = stride; }).UsingServices(audioService).
-                                Hash().Result;
+                        var hashes = fcb.BuildFingerprintCommand()
+                                        .From(file)
+                                        .WithFingerprintConfig(config => { config.SpectrogramConfig.Stride = stride; })
+                                        .UsingServices(audioService)
+                                        .Hash()
+                                        .Result;
 
                         modelService.InsertHashDataForTrack(hashes, track);
-                        OnOngoingActionEvent(new TestRunnerOngoingEventArgs { Message = string.Format("Inserting tracks {0} out of {1}", inserted++, allFiles.Count) });
                     });
         }
 
         private IModelReference InsertTrack(string file)
         {
             var tags = GetTagsFromFile(file);
-            IModelReference track;
-            lock (this)
-            {
-                if (IsDuplicateTrack(tags.ISRC, tags.Artist, tags.Title))
-                {
-                    throw new Exception(string.Format("Duplicate track found {0}. Currate your input data!", file));
-                }
-
-                var trackData = new TrackData(tags);
-                track = modelService.InsertTrack(trackData);
-            }
-
-            return track;
+            var trackData = new TrackData(tags);
+            return modelService.InsertTrack(trackData);
         }
 
         private void DeleteAll()
