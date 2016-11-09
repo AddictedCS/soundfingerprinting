@@ -17,7 +17,7 @@
         /// <returns>Result with details</returns>
         QueryResult Query(
             IModelService modelService,
-            IEnumerable<HashedFingerprint> hashedFingerprints,
+            List<HashedFingerprint> hashedFingerprints,
             QueryConfiguration queryConfiguration);
 
         /// <summary>
@@ -29,7 +29,7 @@
         /// <returns>Result with details</returns>
         QueryResult QueryWithTimeSequenceInformation(
             IModelService modelService,
-            IEnumerable<HashedFingerprint> hashedFingerprints,
+            List<HashedFingerprint> hashedFingerprints,
             QueryConfiguration queryConfiguration);
 
         QueryResult QueryExperimental(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration);

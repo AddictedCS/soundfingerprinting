@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -22,6 +23,16 @@
             this.subFingerprintDao = subFingerprintDao;
             this.fingerprintDao = fingerprintDao;
             this.spectralImageDao = spectralImageDao;
+        }
+ 
+        public virtual IList<SubFingerprintData> ReadSubFingerprints(long[] hashBins, QueryConfiguration config)
+        {
+            if (!string.IsNullOrEmpty(config.TrackGroupId))
+            {
+                return ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashBins, config.ThresholdVotes, config.TrackGroupId);
+            }
+
+            return ReadSubFingerprintDataByHashBucketsWithThreshold(hashBins, config.ThresholdVotes);
         }
 
         // TODO Override as inneficient
