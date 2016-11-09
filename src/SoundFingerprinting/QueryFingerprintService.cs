@@ -83,44 +83,22 @@
 
         // TODO refactor drastically 
         // This method will be improved in 3x
-        public QueryResult QueryExperimental(IModelService modelService, IEnumerable<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
+        public QueryResult QueryExperimental(IModelService modelService, List<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
-            double snipetLength = queryMath.CalculateExactSnippetLength(
-                hashedFingerprints, queryConfiguration.FingerprintConfiguration);
-            var hashedFingerprintsList = hashedFingerprints as List<HashedFingerprint> ?? hashedFingerprints.ToList();
-            var allCandidates = modelService.ReadAllSubFingerprintCandidatesWithThreshold(hashedFingerprintsList, queryConfiguration.ThresholdVotes);
+            double snipetLength = queryMath.CalculateExactSnippetLength(hashedFingerprints, queryConfiguration.FingerprintConfiguration);
+            var allCandidates = modelService.ReadAllSubFingerprintCandidatesWithThreshold(hashedFingerprints, queryConfiguration.ThresholdVotes);
 
             Dictionary<SubFingerprintData, long[]> allSubFingerprintCandidates =
                 allCandidates.ToDictionary(
                     candidate => candidate,
-                    candidate => hashConverter.ToLongs(candidate.Signature, 25));
+                    candidate => hashConverter.ToLongs(candidate.Signature, queryConfiguration.FingerprintConfiguration.HashingConfig.NumberOfLSHTables));
 
-            foreach (var hashedFingerprint in hashedFingerprintsList)
+            foreach (var hashedFingerprint in hashedFingerprints)
             {
                 HashedFingerprint fingerprint = hashedFingerprint;
-                var subFingerprints = allSubFingerprintCandidates.Where(
-                    candidate =>
-                        {
-                            long[] actual = fingerprint.HashBins;
-                            long[] result = candidate.Value;
-                            int count = 0;
-                            for (int i = 0; i < actual.Length; ++i)
-                            {
-                                if (actual[i] == result[i])
-                                {
-                                    count++;
-                                }
-
-                                if (count >= queryConfiguration.ThresholdVotes)
-                                {
-                                    return true;
-                                }
-                            }
-
-                            return false;
-                        }).Select(key => key.Key);
-
+                var subFingerprints = allSubFingerprintCandidates.Where(candidate => DoesMatchThresholdVotes(queryConfiguration, fingerprint, candidate))
+                                                                 .Select(key => key.Key);
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint.SubFingerprint, hammingSimilarities);
             }
 
@@ -131,6 +109,27 @@
 
             var resultEntries = queryMath.GetBestCandidates(hammingSimilarities, queryConfiguration.MaximumNumberOfTracksToReturnAsResult, modelService);
             return QueryResult(resultEntries, hammingSimilarities.Count, allSubFingerprintCandidates.Count, snipetLength);
+        }
+
+        private bool DoesMatchThresholdVotes(QueryConfiguration queryConfiguration, HashedFingerprint fingerprint, KeyValuePair<SubFingerprintData, long[]> candidate)
+        {
+            long[] actual = fingerprint.HashBins;
+            long[] result = candidate.Value;
+            int count = 0;
+            for (int i = 0; i < actual.Length; ++i)
+            {
+                if (actual[i] == result[i])
+                {
+                    count++;
+                }
+
+                if (count >= queryConfiguration.ThresholdVotes)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private Tuple<Dictionary<IModelReference, SubfingerprintSetSortedByTimePosition>, double> GetAllCandidates(IModelService modelService, List<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
