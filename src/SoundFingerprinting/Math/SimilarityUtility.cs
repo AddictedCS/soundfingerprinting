@@ -65,7 +65,7 @@
             return (double)a / (a + b);
         }
 
-        public void SumUpHammingSimilarity(IEnumerable<SubFingerprintData> candidates, byte[] expected, Dictionary<IModelReference, int> accumulator)
+        public void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, byte[] expected, Dictionary<IModelReference, int> accumulator)
         {
             foreach (var subFingerprint in candidates)
             {
