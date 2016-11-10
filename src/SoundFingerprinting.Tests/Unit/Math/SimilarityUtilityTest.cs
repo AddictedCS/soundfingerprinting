@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Math
 {
+    using System;
     using System.Collections.Generic;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,34 +18,43 @@
         public void ShouldSumUpHammingDistanceAccrossTracks()
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
+            
+            long[] hashes1 = new long[GenericHashBuckets.Length];
+            Array.Copy(GenericHashBuckets, hashes1, hashes1.Length);
+            hashes1[0] = 0;
+            long[] hashes2 = new long[GenericHashBuckets.Length];
+            Array.Copy(GenericHashBuckets, hashes2, hashes2.Length);
+            long[] hashes3 = new long[GenericHashBuckets.Length];
+            Array.Copy(GenericHashBuckets, hashes3, hashes3.Length);
+
             similarityUtility.AccumulateHammingSimilarity(
                 new List<SubFingerprintData>
                     {
                         new SubFingerprintData(
-                            new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                            hashes1,
                             1,
                             0d,
                             new ModelReference<int>(1),
                             new ModelReference<int>(1)),
                         new SubFingerprintData(
-                            new long[] { 1, 2, 3, 4, 5, 4, 7, 8, 11, 10 },
+                            hashes2,
                             2,
                             1.48d,
                             new ModelReference<int>(1),
                             new ModelReference<int>(2)),
                         new SubFingerprintData(
-                            new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 10 },
+                            hashes3,
                             3,
                             2.92d,
                             new ModelReference<int>(2),
                             new ModelReference<int>(2))
                     },
-                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                GenericSignature,
                 hammingSimilarities);
 
             Assert.AreEqual(2, hammingSimilarities.Count);
-            Assert.AreEqual(10, hammingSimilarities[new ModelReference<int>(1)]);
-            Assert.AreEqual(17, hammingSimilarities[new ModelReference<int>(2)]);
+            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)]);
+            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)]);
         }
 
         [TestMethod]
