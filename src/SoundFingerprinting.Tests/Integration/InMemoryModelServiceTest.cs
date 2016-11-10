@@ -13,7 +13,7 @@
     [TestClass]
     public class InMemoryModelServiceTest : IntegrationWithSampleFilesTest
     {
-        private IModelService modelService;
+        private IAdvancedModelService modelService;
 
         [TestInitialize]
         public void SetUp()

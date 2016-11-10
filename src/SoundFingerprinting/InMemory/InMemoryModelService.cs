@@ -2,7 +2,7 @@
 {
     using SoundFingerprinting.DAO;
 
-    public class InMemoryModelService : ModelService
+    public class InMemoryModelService : AdvancedModelService
     {
         public InMemoryModelService()
             : this(new TrackDao(), new HashBinDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao())
