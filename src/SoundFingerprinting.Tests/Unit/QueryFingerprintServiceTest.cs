@@ -46,19 +46,19 @@
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
             var thirdTrackReference = new ModelReference<int>(ThirdTrackId);
             var firstResult = new SubFingerprintData(
-                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
                 1,
                 0,
                 new ModelReference<int>(FirstSubFingerprintId),
                 firstTrackReference);
             SubFingerprintData secondResult = new SubFingerprintData(
-                new byte[] { 11, 2, 13, 4, 15, 6, 7, 8, 10, 12 },
+                new long[] { 11, 2, 13, 4, 15, 6, 7, 8, 10, 12 },
                 2,
                 0.928,
                 new ModelReference<int>(SecondSubFingerprintId),
                 new ModelReference<int>(SecondTrackId));
             SubFingerprintData thirdResult = new SubFingerprintData(
-                new byte[] { 1, 2, 3, 4, 5, 15, 7, 8, 10, 12 },
+                new long[] { 1, 2, 3, 4, 5, 15, 7, 8, 10, 12 },
                 3,
                 0.928 * 2,
                 new ModelReference<int>(SecondSubFingerprintId),
@@ -108,14 +108,13 @@
         {
             long[] buckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, buckets, 0, 0);
-            const int DefaultThreshold = 5;
             const int FirstTrackId = 20;
             const int FirstSubFingerprintId = 10;
             const int SecondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            SubFingerprintData firstResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1, 0, new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
-            SubFingerprintData secondResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 10, 12 }, 2, 0.928, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
-            var defaultQueryConfiguration = new DefaultQueryConfiguration { FingerprintConfiguration = new DefaultFingerprintConfiguration() };
+            var firstResult = new SubFingerprintData(new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1, 0, new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
+            var secondResult = new SubFingerprintData(new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 10, 12 }, 2, 0.928, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
+            var defaultQueryConfiguration = new DefaultQueryConfiguration(); 
 
             modelService.Setup(service => service.ReadSubFingerprints(buckets, defaultQueryConfiguration))
                         .Returns(new List<SubFingerprintData> { firstResult, secondResult });

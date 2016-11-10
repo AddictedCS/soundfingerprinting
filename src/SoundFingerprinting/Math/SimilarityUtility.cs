@@ -4,9 +4,21 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Infrastructure;
 
-    public class SimilarityUtility : ISimilarityUtility
+    internal class SimilarityUtility : ISimilarityUtility
     {
+        private readonly IHashConverter hashConverter;
+
+        public SimilarityUtility() : this(DependencyResolver.Current.Get<IHashConverter>())
+        {
+        }
+
+        internal SimilarityUtility(IHashConverter hashConverter)
+        {
+            this.hashConverter = hashConverter;
+        }
+
         public int CalculateHammingDistance(byte[] a, byte[] b)
         {
             int distance = 0;
@@ -69,7 +81,8 @@
         {
             foreach (var subFingerprint in candidates)
             {
-                int hammingSimilarity = CalculateHammingSimilarity(expected, subFingerprint.Signature);
+                byte[] signature = hashConverter.ToBytes(subFingerprint.Hashes, expected.Length);
+                int hammingSimilarity = CalculateHammingSimilarity(expected, signature);
                 if (!accumulator.ContainsKey(subFingerprint.TrackReference))
                 {
                     accumulator.Add(subFingerprint.TrackReference, 0);

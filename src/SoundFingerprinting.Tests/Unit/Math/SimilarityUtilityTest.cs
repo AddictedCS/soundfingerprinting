@@ -21,19 +21,19 @@
                 new List<SubFingerprintData>
                     {
                         new SubFingerprintData(
-                            new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                            new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
                             1,
                             0d,
                             new ModelReference<int>(1),
                             new ModelReference<int>(1)),
                         new SubFingerprintData(
-                            new byte[] { 1, 2, 3, 4, 5, 4, 7, 8, 11, 10 },
+                            new long[] { 1, 2, 3, 4, 5, 4, 7, 8, 11, 10 },
                             2,
                             1.48d,
                             new ModelReference<int>(1),
                             new ModelReference<int>(2)),
                         new SubFingerprintData(
-                            new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 10 },
+                            new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 10 },
                             3,
                             2.92d,
                             new ModelReference<int>(2),

@@ -11,6 +11,7 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.Strides;
 
     [TestClass]
@@ -26,7 +27,7 @@
             var ramStorage = new RAMStorage(NumberOfHashTables);
             hashBinDao = new HashBinDao(ramStorage);
             trackDao = new TrackDao(ramStorage);
-            subFingerprintDao = new SubFingerprintDao(ramStorage);
+            subFingerprintDao = new SubFingerprintDao(ramStorage, new HashConverter());
         }
 
         [TestMethod]
@@ -64,7 +65,7 @@
             
             var tracks = trackDao.ReadAll();
 
-            Assert.IsTrue(tracks.Count == TrackCount);
+            Assert.AreEqual(TrackCount, tracks.Count);
             foreach (var expectedTrack in expectedTracks)
             {
                 Assert.IsTrue(tracks.Any(track => track.ISRC == expectedTrack.ISRC));

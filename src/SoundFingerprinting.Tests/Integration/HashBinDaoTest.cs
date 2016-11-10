@@ -10,6 +10,7 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.Strides;
 
     [TestClass]
@@ -25,7 +26,7 @@
             var ramStorage = new RAMStorage(NumberOfHashTables);
             hashBinDao = new HashBinDao(ramStorage);
             trackDao = new TrackDao(ramStorage);
-            subFingerprintDao = new SubFingerprintDao(ramStorage);
+            subFingerprintDao = new SubFingerprintDao(ramStorage, new HashConverter());
         }
 
         [TestMethod]

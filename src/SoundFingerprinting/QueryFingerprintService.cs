@@ -18,7 +18,6 @@
         private readonly IAudioSequencesAnalyzer audioSequencesAnalyzer;
         private readonly ISimilarityUtility similarityUtility;
         private readonly IQueryMath queryMath;
-        private readonly HashConverter hashConverter = new HashConverter();
 
         public QueryFingerprintService()
             : this(
@@ -89,16 +88,13 @@
             double snipetLength = queryMath.CalculateExactSnippetLength(hashedFingerprints, queryConfiguration.FingerprintConfiguration);
             var allCandidates = modelService.ReadAllSubFingerprintCandidatesWithThreshold(hashedFingerprints, queryConfiguration.ThresholdVotes);
 
-            Dictionary<SubFingerprintData, long[]> allSubFingerprintCandidates =
-                allCandidates.ToDictionary(
-                    candidate => candidate,
-                    candidate => hashConverter.ToLongs(candidate.Signature, queryConfiguration.FingerprintConfiguration.HashingConfig.NumberOfLSHTables));
-
             foreach (var hashedFingerprint in hashedFingerprints)
             {
                 HashedFingerprint fingerprint = hashedFingerprint;
-                var subFingerprints = allSubFingerprintCandidates.Where(candidate => DoesMatchThresholdVotes(queryConfiguration, fingerprint, candidate))
-                                                                 .Select(key => key.Key);
+                var subFingerprints =
+                    allCandidates.Where(
+                        candidate => DoesMatchThresholdVotes(queryConfiguration, fingerprint, candidate));
+
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint.SubFingerprint, hammingSimilarities);
             }
 
@@ -108,13 +104,13 @@
             }
 
             var resultEntries = queryMath.GetBestCandidates(hammingSimilarities, queryConfiguration.MaximumNumberOfTracksToReturnAsResult, modelService);
-            return QueryResult(resultEntries, hammingSimilarities.Count, allSubFingerprintCandidates.Count, snipetLength);
+            return QueryResult(resultEntries, hammingSimilarities.Count, allCandidates.Count, snipetLength);
         }
 
-        private bool DoesMatchThresholdVotes(QueryConfiguration queryConfiguration, HashedFingerprint fingerprint, KeyValuePair<SubFingerprintData, long[]> candidate)
+        private bool DoesMatchThresholdVotes(QueryConfiguration queryConfiguration, HashedFingerprint fingerprint, SubFingerprintData candidate)
         {
             long[] actual = fingerprint.HashBins;
-            long[] result = candidate.Value;
+            var result = candidate.Hashes;
             int count = 0;
             for (int i = 0; i < actual.Length; ++i)
             {

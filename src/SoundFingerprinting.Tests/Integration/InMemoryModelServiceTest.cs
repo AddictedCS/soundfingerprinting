@@ -8,6 +8,7 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
 
     [TestClass]
     public class InMemoryModelServiceTest : IntegrationWithSampleFilesTest
@@ -21,7 +22,7 @@
             modelService = new InMemoryModelService(
                 new TrackDao(ramStorage),
                 new HashBinDao(ramStorage),
-                new SubFingerprintDao(ramStorage),
+                new SubFingerprintDao(ramStorage, new HashConverter()),
                 new FingerprintDao(ramStorage),
                 new SpectralImageDao());
         }
@@ -86,7 +87,8 @@
             }
 
             var actualTracks = modelService.ReadAllTracks();
-            Assert.IsTrue(actualTracks.Count == NumberOfTracks);
+
+            Assert.AreEqual(NumberOfTracks, actualTracks.Count);
         }
 
         [TestMethod]
@@ -117,13 +119,10 @@
 
             var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(GenericHashBuckets, Threshold);
 
-            Assert.IsTrue(subFingerprints.Count == 1);
+            Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(trackReference, subFingerprints[0].TrackReference);
-            Assert.IsFalse(subFingerprints[0].SubFingerprintReference.GetHashCode() == 0);
-            for (int i = 0; i < GenericSignature.Length; i++)
-            {
-                Assert.AreEqual(GenericSignature[i], subFingerprints[0].Signature[i]);
-            }
+            Assert.AreNotEqual(0, subFingerprints[0].SubFingerprintReference.GetHashCode());
+            CollectionAssert.AreEqual(GenericHashBuckets, subFingerprints[0].Hashes);
         }
 
         [TestMethod]

@@ -5,6 +5,7 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
 
     [TestClass]
     public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
@@ -16,7 +17,7 @@
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
-            subFingerprintDao = new SubFingerprintDao(ramStorage);
+            subFingerprintDao = new SubFingerprintDao(ramStorage, new HashConverter());
             trackDao = new TrackDao(ramStorage);
         }
 
@@ -40,20 +41,16 @@
 
             SubFingerprintData actual = subFingerprintDao.ReadSubFingerprint(subFingerprintReference);
 
-            AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericSignature, 123, 0.928, subFingerprintReference, trackReference), actual);
+            AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericHashBuckets, 123, 0.928, subFingerprintReference, trackReference), actual);
         }
 
         private void AsserSubFingerprintsAreEqual(SubFingerprintData expected, SubFingerprintData actual)
         {
             Assert.AreEqual(expected.SubFingerprintReference, actual.SubFingerprintReference);
             Assert.AreEqual(expected.TrackReference, actual.TrackReference);
-            for (int i = 0; i < expected.Signature.Length; i++)
-            {
-                Assert.AreEqual(expected.Signature[i], actual.Signature[i]);
-            }
-
+            CollectionAssert.AreEqual(expected.Hashes, actual.Hashes);
             Assert.AreEqual(expected.SequenceNumber, actual.SequenceNumber);
-            Assert.IsTrue(System.Math.Abs(expected.SequenceAt - actual.SequenceAt) < Epsilon);
+            Assert.AreEqual(expected.SequenceAt, actual.SequenceAt, Epsilon);
         }
     }
 }
