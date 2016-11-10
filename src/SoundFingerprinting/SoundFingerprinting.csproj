@@ -59,6 +59,7 @@
     <Compile Include="Math\HammingDistanceResultStatistics.cs" />
     <Compile Include="Math\FScore.cs" />
     <Compile Include="Math\HashConverter.cs" />
+    <Compile Include="Math\IHashConverter.cs" />
     <Compile Include="Query\IQueryMath.cs" />
     <Compile Include="Query\QueryInfo.cs" />
     <Compile Include="Configuration\CustomHashingConfig.cs" />

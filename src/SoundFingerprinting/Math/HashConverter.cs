@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class HashConverter
+    internal class HashConverter : IHashConverter
     {
         public byte[] ToBytes(long[] array, int count)
         {
@@ -17,7 +17,7 @@
                 }
             }
 
-            return bytes;
+            return bytes; 
         }
 
         public long[] ToLongs(byte[] array, int count)
