@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -23,40 +24,70 @@
             this.fingerprintDao = fingerprintDao;
             this.spectralImageDao = spectralImageDao;
         }
+ 
+        public virtual IList<SubFingerprintData> ReadSubFingerprints(long[] hashBins, QueryConfiguration config)
+        {
+            if (!string.IsNullOrEmpty(config.TrackGroupId))
+            {
+                return ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashBins, config.ThresholdVotes, config.TrackGroupId);
+            }
 
-        public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
+            return ReadSubFingerprintDataByHashBucketsWithThreshold(hashBins, config.ThresholdVotes);
+        }
+
+        // TODO Override as inneficient
+        public virtual IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
         {
             return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold)
                              .ToList();
         }
 
-        public IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
+        // TODO
+        // This method should be left as the default method to query the datasource for 
+        // fingerprint data in one batch
+        public virtual ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<HashedFingerprint> hashes, int threshold)
+        {
+            return hashBinDao.ReadAllSubFingerprintCandidatesWithThreshold(hashes, threshold);
+        }
+
+        public virtual bool ContainsTrack(string isrc, string artist, string title)
+        {
+            if (!string.IsNullOrEmpty(isrc))
+            {
+                return ReadTrackByISRC(isrc) != null;
+            }
+
+            return ReadTrackByArtistAndTitleName(artist, title).Any();
+        }
+
+        // TODO Override as inneficient
+        public virtual IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
         {
             return hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, threshold, trackGroupId)
                              .ToList();
         }
 
-        public void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
+        public virtual void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
         {
            spectralImageDao.InsertSpectralImages(spectralImages, trackReference); 
         }
 
-        public List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference)
+        public virtual List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference)
         {
             return spectralImageDao.GetSpectralImagesByTrackId(trackReference);
         }
 
-        public IModelReference InsertFingerprint(FingerprintData fingerprint)
+        public virtual IModelReference InsertFingerprint(FingerprintData fingerprint)
         {
             return fingerprintDao.InsertFingerprint(fingerprint);
         }
 
-        public IModelReference InsertTrack(TrackData track)
+        public virtual IModelReference InsertTrack(TrackData track)
         {
             return trackDao.InsertTrack(track);
         }
 
-        public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
+        public virtual void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
             foreach (var hashData in hashes)
             {
@@ -65,37 +96,37 @@
             }
         }
 
-        public IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
+        public virtual IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
         {
             return hashBinDao.ReadHashedFingerprintsByTrackReference(trackReference);
         }
 
-        public IList<TrackData> ReadAllTracks()
+        public virtual IList<TrackData> ReadAllTracks()
         {
             return trackDao.ReadAll();
         }
 
-        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
+        public virtual IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return trackDao.ReadTrackByArtistAndTitleName(artist, title);
         }
 
-        public IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
+        public virtual IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
             return fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
         }
 
-        public TrackData ReadTrackByReference(IModelReference trackReference)
+        public virtual TrackData ReadTrackByReference(IModelReference trackReference)
         {
             return trackDao.ReadTrack(trackReference);
         }
 
-        public TrackData ReadTrackByISRC(string isrc)
+        public virtual TrackData ReadTrackByISRC(string isrc)
         {
             return trackDao.ReadTrackByISRC(isrc);
         }
 
-        public int DeleteTrack(IModelReference trackReference)
+        public virtual int DeleteTrack(IModelReference trackReference)
         {
             return trackDao.DeleteTrack(trackReference);
         }

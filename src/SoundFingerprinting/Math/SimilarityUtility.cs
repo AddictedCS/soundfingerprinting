@@ -1,5 +1,10 @@
 ﻿namespace SoundFingerprinting.Math
 {
+    using System.Collections.Generic;
+
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
+
     public class SimilarityUtility : ISimilarityUtility
     {
         public int CalculateHammingDistance(byte[] a, byte[] b)
@@ -58,6 +63,20 @@
             }
 
             return (double)a / (a + b);
+        }
+
+        public void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, byte[] expected, Dictionary<IModelReference, int> accumulator)
+        {
+            foreach (var subFingerprint in candidates)
+            {
+                int hammingSimilarity = CalculateHammingSimilarity(expected, subFingerprint.Signature);
+                if (!accumulator.ContainsKey(subFingerprint.TrackReference))
+                {
+                    accumulator.Add(subFingerprint.TrackReference, 0);
+                }
+
+                accumulator[subFingerprint.TrackReference] += hammingSimilarity;
+            }
         }
     }
 }

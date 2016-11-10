@@ -14,7 +14,6 @@
     public class LocalitySensitiveHashingAlgorithmTest : AbstractTest
     {
         private LocalitySensitiveHashingAlgorithm lshAlgorithm;
-
         private Mock<IMinHashService> minHashService;
 
         [TestInitialize]

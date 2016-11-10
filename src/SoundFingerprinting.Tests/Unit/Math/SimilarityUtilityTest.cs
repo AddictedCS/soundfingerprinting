@@ -1,13 +1,51 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Math
 {
+    using System.Collections.Generic;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Math;
 
     [TestClass]
     public class SimilarityUtilityTest : AbstractTest
     {
         private readonly ISimilarityUtility similarityUtility = new SimilarityUtility();
+
+        [TestMethod]
+        public void ShouldSumUpHammingDistanceAccrossTracks()
+        {
+            var hammingSimilarities = new Dictionary<IModelReference, int>();
+            similarityUtility.AccumulateHammingSimilarity(
+                new List<SubFingerprintData>
+                    {
+                        new SubFingerprintData(
+                            new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                            1,
+                            0d,
+                            new ModelReference<int>(1),
+                            new ModelReference<int>(1)),
+                        new SubFingerprintData(
+                            new byte[] { 1, 2, 3, 4, 5, 4, 7, 8, 11, 10 },
+                            2,
+                            1.48d,
+                            new ModelReference<int>(1),
+                            new ModelReference<int>(2)),
+                        new SubFingerprintData(
+                            new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 10 },
+                            3,
+                            2.92d,
+                            new ModelReference<int>(2),
+                            new ModelReference<int>(2))
+                    },
+                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                hammingSimilarities);
+
+            Assert.AreEqual(2, hammingSimilarities.Count);
+            Assert.AreEqual(10, hammingSimilarities[new ModelReference<int>(1)]);
+            Assert.AreEqual(17, hammingSimilarities[new ModelReference<int>(2)]);
+        }
 
         [TestMethod]
         public void CalculateHammingDistanceCorrect()

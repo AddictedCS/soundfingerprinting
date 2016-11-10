@@ -7,6 +7,7 @@
             ThresholdVotes = 5;
             MaximumNumberOfTracksToReturnAsResult = 25;
             TrackGroupId = string.Empty;
+            FingerprintConfiguration = new DefaultFingerprintConfiguration();
         }
     }
 }

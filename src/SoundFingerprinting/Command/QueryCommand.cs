@@ -7,7 +7,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
-    using SoundFingerprinting.Strides;
 
     internal sealed class QueryCommand : IQuerySource, IWithQueryAndFingerprintConfiguration, IQueryCommand
     {
@@ -83,6 +82,7 @@
 
         public Task<QueryResult> Query()
         {
+            QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
             return createFingerprintMethod()
                                      .Hash()
                                      .ContinueWith(
@@ -94,8 +94,24 @@
                                         TaskContinuationOptions.ExecuteSynchronously);
         }
 
+        public Task<QueryResult> QueryExperimental()
+        {
+            QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
+            return createFingerprintMethod()
+                                     .Hash()
+                                     .ContinueWith(
+                                        task =>
+                                        {
+                                            var hashes = task.Result;
+                                            return queryFingerprintService.QueryExperimental(modelService, hashes, QueryConfiguration);
+                                        },
+                                        TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+
         public Task<QueryResult> QueryWithTimeSequenceInformation()
         {
+            QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
             return createFingerprintMethod()
                                     .Hash()
                                     .ContinueWith(

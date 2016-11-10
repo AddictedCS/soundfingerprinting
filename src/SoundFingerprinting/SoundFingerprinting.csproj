@@ -56,6 +56,11 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="Math\HammingDistanceResultStatistics.cs" />
+    <Compile Include="Math\FScore.cs" />
+    <Compile Include="Math\HashConverter.cs" />
+    <Compile Include="Math\IHashConverter.cs" />
+    <Compile Include="Query\IQueryMath.cs" />
     <Compile Include="Query\QueryInfo.cs" />
     <Compile Include="Configuration\CustomHashingConfig.cs" />
     <Compile Include="Configuration\CustomSpectrogramConfig.cs" />
@@ -110,6 +115,7 @@
     <Compile Include="MinHash\MinMutualSelector.cs" />
     <Compile Include="MinHash\PermutationGeneratorService.cs" />
     <Compile Include="MinHash\SummedAcrossSelector.cs" />
+    <Compile Include="Query\QueryMath.cs" />
     <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
@@ -120,6 +126,7 @@
     <Compile Include="IModelService.cs" />
     <Compile Include="ModelService.cs" />
     <Compile Include="LCS\SubFingerprintSequenceComparer.cs" />
+    <Compile Include="Strides\StrideUtils.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\CustomFingerprintConfiguration.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
@@ -138,6 +145,15 @@
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
+    <Compile Include="Utils\ITestRunnerUtils.cs" />
+    <Compile Include="Utils\TestRunner.cs" />
+    <Compile Include="Utils\TestRunnerConfig.cs" />
+    <Compile Include="Utils\TestRunnerEventArgs.cs" />
+    <Compile Include="Utils\TestRunnerOngoingEventArgs.cs" />
+    <Compile Include="Utils\TestRunnerScenarioValidator.cs" />
+    <Compile Include="Utils\TestRunnerUtils.cs" />
+    <Compile Include="Utils\TestRunnerWriter.cs" />
+    <Compile Include="Utils\TestScenariousValidationResult.cs" />
     <Compile Include="Wavelets\NonStandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />
@@ -208,7 +224,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

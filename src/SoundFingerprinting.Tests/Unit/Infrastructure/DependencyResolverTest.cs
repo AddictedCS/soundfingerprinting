@@ -2,10 +2,7 @@
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Moq;
-
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.FFT;
 
     [TestClass]
     public class DependencyResolverTest

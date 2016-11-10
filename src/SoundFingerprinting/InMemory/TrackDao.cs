@@ -6,7 +6,6 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
     internal class TrackDao : ITrackDao

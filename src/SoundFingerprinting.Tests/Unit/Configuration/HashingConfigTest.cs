@@ -10,7 +10,7 @@
         [TestMethod]
         public void CustomHashValuesAreInheritedFromDefault()
         {
-            HashingConfig defaultConfig = HashingConfig.Default;
+            HashingConfig defaultConfig = new DefaultHashingConfig();
             HashingConfig customConfig = new CustomHashingConfig();
 
             Assert.AreEqual(defaultConfig.NumberOfLSHTables, customConfig.NumberOfLSHTables);

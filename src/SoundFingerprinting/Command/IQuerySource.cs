@@ -1,6 +1,9 @@
 ﻿namespace SoundFingerprinting.Command
 {
+    using System.Threading.Tasks;
+
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Query;
 
     public interface IQuerySource
     {

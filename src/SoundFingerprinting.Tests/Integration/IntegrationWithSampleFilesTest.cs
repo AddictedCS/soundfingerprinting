@@ -6,14 +6,21 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
 
     [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
     [DeploymentItem(@"TestEnvironment\Kryptonite.mp3")]
     [TestClass]
-    public abstract class AbstractIntegrationTest : AbstractTest
+    public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
+        protected const int NumberOfHashTables = 25;
+
+        protected readonly IFingerprintCommandBuilder FingerprintCommandBuilder = new FingerprintCommandBuilder();
+        protected readonly IAudioService AudioService = new NAudioService();
+
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
             Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);

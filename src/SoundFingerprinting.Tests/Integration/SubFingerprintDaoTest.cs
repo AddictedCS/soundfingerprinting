@@ -1,25 +1,32 @@
-﻿namespace SoundFingerprinting.Tests.Integration.Dao
+﻿namespace SoundFingerprinting.Tests.Integration
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
+    using SoundFingerprinting.InMemory;
 
     [TestClass]
-    public abstract class AbstractSubFingerprintDaoTest : AbstractIntegrationTest
+    public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
     {
-        public abstract ISubFingerprintDao SubFingerprintDao { get; set; }
+        private ISubFingerprintDao subFingerprintDao;
+        private ITrackDao trackDao;
 
-        public abstract ITrackDao TrackDao { get; set; }
+        [TestInitialize]
+        public void SetUp()
+        {
+            var ramStorage = new RAMStorage(NumberOfHashTables);
+            subFingerprintDao = new SubFingerprintDao(ramStorage);
+            trackDao = new TrackDao(ramStorage);
+        }
 
         [TestMethod]
         public void InsertTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = TrackDao.InsertTrack(track);
+            var trackReference = trackDao.InsertTrack(track);
             
-            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, 123, 0.928, trackReference);
+            var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(GenericSignature, 123, 0.928, trackReference);
 
             AssertModelReferenceIsInitialized(subFingerprintReference);
         }
@@ -28,10 +35,10 @@
         public void ReadTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = TrackDao.InsertTrack(track);
-            var subFingerprintReference = SubFingerprintDao.InsertSubFingerprint(GenericSignature, 123, 0.928, trackReference);
+            var trackReference = trackDao.InsertTrack(track);
+            var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(GenericSignature, 123, 0.928, trackReference);
 
-            SubFingerprintData actual = SubFingerprintDao.ReadSubFingerprint(subFingerprintReference);
+            SubFingerprintData actual = subFingerprintDao.ReadSubFingerprint(subFingerprintReference);
 
             AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericSignature, 123, 0.928, subFingerprintReference, trackReference), actual);
         }

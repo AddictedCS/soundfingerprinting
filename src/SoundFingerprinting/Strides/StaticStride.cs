@@ -42,5 +42,10 @@
         {
             return nextStride;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Static-{0}", nextStride);
+        }
     }
 }

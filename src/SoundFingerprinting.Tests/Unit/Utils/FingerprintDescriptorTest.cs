@@ -21,11 +21,6 @@
             fingerprintDescriptor = new FingerprintDescriptor();
         }
 
-        [TestCleanup]
-        public void TearDown()
-        {
-        }
-
         [TestMethod]
         public void ExtractTopWaveletesText()
         {

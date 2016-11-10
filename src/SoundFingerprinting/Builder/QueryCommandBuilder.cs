@@ -9,7 +9,9 @@
         private readonly IQueryFingerprintService queryFingerprintService;
 
         public QueryCommandBuilder()
-            : this(DependencyResolver.Current.Get<IFingerprintCommandBuilder>(), DependencyResolver.Current.Get<IQueryFingerprintService>())
+            : this(
+                DependencyResolver.Current.Get<IFingerprintCommandBuilder>(),
+                DependencyResolver.Current.Get<IQueryFingerprintService>())
         {
         }
 

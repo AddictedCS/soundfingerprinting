@@ -3,7 +3,6 @@
     using System;
 
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.Data;
 
     [Serializable]
     public class SubFingerprintData

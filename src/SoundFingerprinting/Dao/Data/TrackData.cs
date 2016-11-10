@@ -2,8 +2,8 @@
 {
     using System;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.Data;
 
     [Serializable]
     public class TrackData
@@ -23,7 +23,18 @@
             TrackLengthSec = trackLength;
         }
 
-        public TrackData(string isrc, string artist, string title, string album, int releaseYear, double trackLength, IModelReference trackReference)
+        public TrackData(TagInfo tags) : this(tags.ISRC, tags.Artist, tags.Title, tags.Album, tags.Year, (int)tags.Duration)
+        {
+        }
+
+        public TrackData(
+            string isrc,
+            string artist,
+            string title,
+            string album,
+            int releaseYear,
+            double trackLength,
+            IModelReference trackReference)
             : this(isrc, artist, title, album, releaseYear, trackLength)
         {
             TrackReference = trackReference;

@@ -2,6 +2,7 @@ namespace SoundFingerprinting
 {
     using System.Collections.Generic;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -28,6 +29,8 @@ namespace SoundFingerprinting
 
         int DeleteTrack(IModelReference trackReference);
 
+        IList<SubFingerprintData> ReadSubFingerprints(long[] hashBins, QueryConfiguration config);
+
         IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold);
 
         IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId);
@@ -35,5 +38,10 @@ namespace SoundFingerprinting
         void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 
         List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference);
+
+        ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<HashedFingerprint> hashes, int threshold);
+
+        bool ContainsTrack(string isrc, string artist, string title);
+
     }
 }
