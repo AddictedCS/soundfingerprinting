@@ -5,6 +5,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
@@ -94,7 +95,6 @@
         [TestMethod]
         public void DeleteTrackTest()
         {
-            const int Threshold = 5;
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(track);
             var hashedFingerprints = new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928);
@@ -102,7 +102,7 @@
 
             modelService.DeleteTrack(trackReference);
 
-            var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(GenericHashBuckets, Threshold);
+            var subFingerprints = modelService.ReadSubFingerprints(GenericHashBuckets, new DefaultQueryConfiguration());
             Assert.IsTrue(subFingerprints.Any() == false);
             TrackData actualTrack = modelService.ReadTrackByReference(trackReference);
             Assert.IsNull(actualTrack);
@@ -111,13 +111,12 @@
         [TestMethod]
         public void InsertHashDataTest()
         {
-            const int Threshold = 5;
             TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(expectedTrack);
             var hashedFingerprints = new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928);
             modelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
 
-            var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(GenericHashBuckets, Threshold);
+            var subFingerprints = modelService.ReadSubFingerprints(GenericHashBuckets, new DefaultQueryConfiguration());
 
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(trackReference, subFingerprints[0].TrackReference);
@@ -128,7 +127,6 @@
         [TestMethod]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdTest()
         {
-            const int Threshold = 5;
             TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200);
             var firstTrackReference = modelService.InsertTrack(firstTrack);
             TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200);
@@ -154,7 +152,7 @@
                     3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 
                 };
 
-            var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsWithThreshold(queryBuckets, Threshold);
+            var subFingerprints = modelService.ReadSubFingerprints(queryBuckets, new DefaultQueryConfiguration());
 
             Assert.IsTrue(subFingerprints.Count == 1);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
@@ -163,7 +161,6 @@
         [TestMethod]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdWithGroupIdTest()
         {
-            const int Threshold = 5;
             TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200)
                 {
                     GroupId = "first-group-id" 
@@ -195,8 +192,8 @@
                     3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 
                 };
 
-            var subFingerprints = modelService.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(
-                queryBuckets, Threshold, "first-group-id");
+            var subFingerprints = modelService.ReadSubFingerprints(
+                queryBuckets, new DefaultQueryConfiguration { TrackGroupId = "first-group-id" });
 
             Assert.IsTrue(subFingerprints.Count == 1);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);

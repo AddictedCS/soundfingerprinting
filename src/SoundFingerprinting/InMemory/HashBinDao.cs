@@ -96,12 +96,12 @@
             return Enumerable.Empty<SubFingerprintData>();
         }
 
-        public ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<HashedFingerprint> hashes, int threshold)
+        public ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<long[]> hashes, int threshold)
         {
             var allCandidates = new HashSet<SubFingerprintData>();
             foreach (var hashedFingerprint in hashes)
             {
-                var subFingerprints = ReadSubFingerprintDataByHashBucketsWithThreshold(hashedFingerprint.HashBins, threshold);
+                var subFingerprints = ReadSubFingerprintDataByHashBucketsWithThreshold(hashedFingerprint, threshold);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     allCandidates.Add(subFingerprint);

@@ -86,7 +86,7 @@
         {
             var hammingSimilarities = new Dictionary<IModelReference, int>();
             double snipetLength = queryMath.CalculateExactSnippetLength(hashedFingerprints, queryConfiguration.FingerprintConfiguration);
-            var allCandidates = modelService.ReadAllSubFingerprintCandidatesWithThreshold(hashedFingerprints, queryConfiguration.ThresholdVotes);
+            var allCandidates = modelService.ReadSubFingerprints(hashedFingerprints.Select(h => h.HashBins), queryConfiguration);
 
             foreach (var hashedFingerprint in hashedFingerprints)
             {

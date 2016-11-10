@@ -25,25 +25,15 @@
         {
             if (!string.IsNullOrEmpty(config.TrackGroupId))
             {
-                return ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashBins, config.ThresholdVotes, config.TrackGroupId);
+                return hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashBins, config.ThresholdVotes, config.TrackGroupId).ToList();
             }
 
-            return ReadSubFingerprintDataByHashBucketsWithThreshold(hashBins, config.ThresholdVotes);
+            return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(hashBins, config.ThresholdVotes).ToList();
         }
 
-        // TODO Override as inneficient
-        public virtual IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsWithThreshold(long[] buckets, int threshold)
+        public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, QueryConfiguration config)
         {
-            return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, threshold)
-                             .ToList();
-        }
-
-        // TODO
-        // This method should be left as the default method to query the datasource for 
-        // fingerprint data in one batch
-        public virtual ISet<SubFingerprintData> ReadAllSubFingerprintCandidatesWithThreshold(IEnumerable<HashedFingerprint> hashes, int threshold)
-        {
-            return hashBinDao.ReadAllSubFingerprintCandidatesWithThreshold(hashes, threshold);
+            return hashBinDao.ReadAllSubFingerprintCandidatesWithThreshold(hashes, config.ThresholdVotes);
         }
 
         public virtual bool ContainsTrack(string isrc, string artist, string title)
@@ -54,13 +44,6 @@
             }
 
             return ReadTrackByArtistAndTitleName(artist, title).Any();
-        }
-
-        // TODO Override as inneficient
-        public virtual IList<SubFingerprintData> ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(long[] buckets, int threshold, string trackGroupId)
-        {
-            return hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, threshold, trackGroupId)
-                             .ToList();
         }
 
         public virtual IModelReference InsertTrack(TrackData track)
