@@ -7,9 +7,7 @@ namespace SoundFingerprinting.DAO
 
     public interface ISubFingerprintDao
     {
-        SubFingerprintData ReadSubFingerprint(IModelReference subFingerprintReference);
-
-        IModelReference InsertSubFingerprint(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference trackReference);
+        void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference);
 
         IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference);
 

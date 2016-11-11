@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.InMemory
+﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
 
@@ -24,22 +24,22 @@
 
         public virtual void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
         {
-            spectralImageDao.InsertSpectralImages(spectralImages, trackReference);
+            this.spectralImageDao.InsertSpectralImages(spectralImages, trackReference);
         }
 
         public virtual List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference)
         {
-            return spectralImageDao.GetSpectralImagesByTrackId(trackReference);
+            return this.spectralImageDao.GetSpectralImagesByTrackId(trackReference);
         }
 
         public virtual IModelReference InsertFingerprint(FingerprintData fingerprint)
         {
-            return fingerprintDao.InsertFingerprint(fingerprint);
+            return this.fingerprintDao.InsertFingerprint(fingerprint);
         }
 
         public virtual IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
         {
-            return fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
+            return this.fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
         }
     }
 }

@@ -51,11 +51,7 @@
 
         public virtual void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
-            foreach (var hashData in hashes)
-            {
-                subFingerprintDao.InsertSubFingerprint(
-                    hashData.HashBins, hashData.SequenceNumber, hashData.Timestamp, trackReference);
-            }
+            subFingerprintDao.InsertHashDataForTrack(hashes, trackReference);
         }
 
         public virtual IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)

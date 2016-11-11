@@ -57,7 +57,7 @@
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
     <Compile Include="IAdvancedModelService.cs" />
-    <Compile Include="InMemory\AdvancedModelService.cs" />
+    <Compile Include="AdvancedModelService.cs" />
     <Compile Include="Math\HammingDistanceResultStatistics.cs" />
     <Compile Include="Math\FScore.cs" />
     <Compile Include="Math\HashConverter.cs" />

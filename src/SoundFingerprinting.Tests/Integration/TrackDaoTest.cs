@@ -167,7 +167,7 @@
             const int StartAtSecond = 30;
             TagInfo tagInfo = GetTagInfo();
             int releaseYear = tagInfo.Year;
-            TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
+            var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = trackDao.InsertTrack(track);
             var hashData = FingerprintCommandBuilder
                 .BuildFingerprintCommand()
@@ -180,13 +180,7 @@
                 .Hash()
                 .Result;
 
-            var subFingerprintReferences = new List<IModelReference>();
-            foreach (var hash in hashData)
-            {
-                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hash.HashBins, hash.SequenceNumber, hash.Timestamp, trackReference);
-                subFingerprintReferences.Add(subFingerprintReference);
-            }
-
+            subFingerprintDao.InsertHashDataForTrack(hashData, trackReference);
             var actualTrack = trackDao.ReadTrackByISRC(tagInfo.ISRC);
             Assert.IsNotNull(actualTrack);
             AssertTracksAreEqual(track, actualTrack);
@@ -195,13 +189,7 @@
             int modifiedRows = trackDao.DeleteTrack(trackReference);
 
             Assert.IsNull(trackDao.ReadTrackByISRC(tagInfo.ISRC));
-            foreach (var id in subFingerprintReferences)
-            {
-                Assert.IsTrue(id.GetHashCode() != 0);
-                Assert.IsNull(subFingerprintDao.ReadSubFingerprint(id));
-            }
- 
-            Assert.IsTrue(subFingerprintDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Count == 0);
+            Assert.AreEqual(0, subFingerprintDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Count);
             Assert.AreEqual(1 + hashData.Count + (25 * hashData.Count), modifiedRows);
         }
 

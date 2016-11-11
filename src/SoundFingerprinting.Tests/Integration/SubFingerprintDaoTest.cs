@@ -28,32 +28,9 @@
         }
 
         [TestMethod]
-        public void InsertTest()
+        public void ShouldInsertAndReadSubFingerprints()
         {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = trackDao.InsertTrack(track);
-            
-            var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(GenericHashBuckets, 123, 0.928, trackReference);
-
-            AssertModelReferenceIsInitialized(subFingerprintReference);
-        }
-
-        [TestMethod]
-        public void ReadTest()
-        {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = trackDao.InsertTrack(track);
-            var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(GenericHashBuckets, 123, 0.928, trackReference);
-
-            SubFingerprintData actual = subFingerprintDao.ReadSubFingerprint(subFingerprintReference);
-
-            AsserSubFingerprintsAreEqual(new SubFingerprintData(GenericHashBuckets, 123, 0.928, subFingerprintReference, trackReference), actual);
-        }
-
-        [TestMethod]
-        public void InsertReadTest()
-        {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = trackDao.InsertTrack(track);
             const int NumberOfHashBins = 100;
             var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins).Select(i => new HashedFingerprint(GenericSignature, GenericHashBuckets, i, i * 0.928));
@@ -62,6 +39,10 @@
 
             var hashedFingerprintss = subFingerprintDao.ReadHashedFingerprintsByTrackReference(track.TrackReference);
             Assert.AreEqual(NumberOfHashBins, hashedFingerprintss.Count);
+            foreach (var hashedFingerprint in hashedFingerprintss)
+            {
+                CollectionAssert.AreEqual(GenericHashBuckets, hashedFingerprint.HashBins);
+            }
         }
 
         [TestMethod]
@@ -177,19 +158,7 @@
 
         private void InsertHashedFingerprintsForTrack(IEnumerable<HashedFingerprint> hashedFingerprints, IModelReference trackReference)
         {
-            foreach (var hashedFingerprint in hashedFingerprints)
-            {
-                subFingerprintDao.InsertSubFingerprint(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber, hashedFingerprint.Timestamp, trackReference);
-            }
-        }
-
-        private void AsserSubFingerprintsAreEqual(SubFingerprintData expected, SubFingerprintData actual)
-        {
-            Assert.AreEqual(expected.SubFingerprintReference, actual.SubFingerprintReference);
-            Assert.AreEqual(expected.TrackReference, actual.TrackReference);
-            CollectionAssert.AreEqual(expected.Hashes, actual.Hashes);
-            Assert.AreEqual(expected.SequenceNumber, actual.SequenceNumber);
-            Assert.AreEqual(expected.SequenceAt, actual.SequenceAt, Epsilon);
+            subFingerprintDao.InsertHashDataForTrack(hashedFingerprints, trackReference);
         }
     }
 }

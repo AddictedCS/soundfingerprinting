@@ -38,20 +38,17 @@
 
             return null;
         }
-
-        public IModelReference InsertSubFingerprint(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference trackReference)
+        
+        public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
-            var subFingerprintReference = new ModelReference<long>(Interlocked.Increment(ref counter));
-            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(hashes, sequenceNumber, sequenceAt, subFingerprintReference, trackReference);
-            if (!storage.TracksHashes.ContainsKey(trackReference))
+            foreach (var hashedFingerprint in hashes)
             {
-                storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashedFingerprint>();
+                InsertSubFingerprint(
+                    hashedFingerprint.HashBins,
+                    hashedFingerprint.SequenceNumber,
+                    hashedFingerprint.Timestamp,
+                    trackReference);
             }
-
-            byte[] bytes = hashConverter.ToBytes(hashes, hashes.Length * 4);
-            storage.TracksHashes[trackReference][subFingerprintReference] = new HashedFingerprint(bytes, hashes, sequenceNumber, sequenceAt);
-            this.InsertHashes(hashes, subFingerprintReference, trackReference);
-            return subFingerprintReference;
         }
 
         public IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
@@ -138,6 +135,20 @@
 
                 storage.TracksHashes[trackReference][subFingerprintReference].HashBins = hashBins;
             }
+        }
+
+        private void InsertSubFingerprint(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference trackReference)
+        {
+            var subFingerprintReference = new ModelReference<long>(Interlocked.Increment(ref counter));
+            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(hashes, sequenceNumber, sequenceAt, subFingerprintReference, trackReference);
+            if (!storage.TracksHashes.ContainsKey(trackReference))
+            {
+                storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashedFingerprint>();
+            }
+
+            byte[] bytes = hashConverter.ToBytes(hashes, hashes.Length * 4);
+            storage.TracksHashes[trackReference][subFingerprintReference] = new HashedFingerprint(bytes, hashes, sequenceNumber, sequenceAt);
+            this.InsertHashes(hashes, subFingerprintReference, trackReference);
         }
     }
 }
