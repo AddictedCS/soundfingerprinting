@@ -65,7 +65,6 @@
   <ItemGroup>
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
-    <Compile Include="Integration\HashBinDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TestRunnerTest.cs" />
     <Compile Include="Integration\TrackDaoTest.cs" />

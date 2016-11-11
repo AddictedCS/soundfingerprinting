@@ -19,13 +19,11 @@
     {
         private ITrackDao trackDao;
         private ISubFingerprintDao subFingerprintDao;
-        private IHashBinDao hashBinDao;
 
         [TestInitialize]
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
-            hashBinDao = new HashBinDao(ramStorage);
             trackDao = new TrackDao(ramStorage);
             subFingerprintDao = new SubFingerprintDao(ramStorage, new HashConverter());
         }
@@ -185,8 +183,7 @@
             var subFingerprintReferences = new List<IModelReference>();
             foreach (var hash in hashData)
             {
-                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hash.SubFingerprint, hash.SequenceNumber, hash.Timestamp, trackReference);
-                hashBinDao.InsertHashBins(hash.HashBins, subFingerprintReference, trackReference);
+                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hash.HashBins, hash.SequenceNumber, hash.Timestamp, trackReference);
                 subFingerprintReferences.Add(subFingerprintReference);
             }
 
@@ -204,7 +201,7 @@
                 Assert.IsNull(subFingerprintDao.ReadSubFingerprint(id));
             }
  
-            Assert.IsTrue(hashBinDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Count == 0);
+            Assert.IsTrue(subFingerprintDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Count == 0);
             Assert.AreEqual(1 + hashData.Count + (25 * hashData.Count), modifiedRows);
         }
 

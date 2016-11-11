@@ -82,12 +82,10 @@
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
     <Compile Include="InMemory\FingerprintDao.cs" />
-    <Compile Include="InMemory\HashBinDao.cs" />
     <Compile Include="InMemory\RAMStorage.cs" />
     <Compile Include="InMemory\SpectralImageDao.cs" />
     <Compile Include="InMemory\SubFingerprintDao.cs" />
     <Compile Include="InMemory\TrackDao.cs" />
-    <Compile Include="DAO\IHashBinDao.cs" />
     <Compile Include="DAO\ISubFingerprintDao.cs" />
     <Compile Include="DAO\ITrackDao.cs" />
     <Compile Include="DAO\Data\FingerprintData.cs" />

@@ -11,13 +11,11 @@
     public abstract class ModelService : IModelService
     {
         private readonly ITrackDao trackDao;
-        private readonly IHashBinDao hashBinDao;
         private readonly ISubFingerprintDao subFingerprintDao;
 
-        protected ModelService(ITrackDao trackDao, IHashBinDao hashBinDao, ISubFingerprintDao subFingerprintDao)
+        protected ModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
         {
             this.trackDao = trackDao;
-            this.hashBinDao = hashBinDao;
             this.subFingerprintDao = subFingerprintDao;
         }
  
@@ -25,15 +23,15 @@
         {
             if (!string.IsNullOrEmpty(config.TrackGroupId))
             {
-                return hashBinDao.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(hashBins, config.ThresholdVotes, config.TrackGroupId).ToList();
+                return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes, config.TrackGroupId).ToList();
             }
 
-            return hashBinDao.ReadSubFingerprintDataByHashBucketsWithThreshold(hashBins, config.ThresholdVotes).ToList();
+            return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes).ToList();
         }
 
         public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, QueryConfiguration config)
         {
-            return hashBinDao.ReadAllSubFingerprintCandidatesWithThreshold(hashes, config.ThresholdVotes);
+            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes);
         }
 
         public virtual bool ContainsTrack(string isrc, string artist, string title)
@@ -55,14 +53,14 @@
         {
             foreach (var hashData in hashes)
             {
-                var subFingerprintReference = subFingerprintDao.InsertSubFingerprint(hashData.SubFingerprint, hashData.SequenceNumber, hashData.Timestamp, trackReference);
-                hashBinDao.InsertHashBins(hashData.HashBins, subFingerprintReference, trackReference);
+                subFingerprintDao.InsertSubFingerprint(
+                    hashData.HashBins, hashData.SequenceNumber, hashData.Timestamp, trackReference);
             }
         }
 
         public virtual IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
         {
-            return hashBinDao.ReadHashedFingerprintsByTrackReference(trackReference);
+            return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);
         }
 
         public virtual IList<TrackData> ReadAllTracks()

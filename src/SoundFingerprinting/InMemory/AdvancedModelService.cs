@@ -13,11 +13,10 @@
 
         protected AdvancedModelService(
             ITrackDao trackDao,
-            IHashBinDao hashBinDao,
             ISubFingerprintDao subFingerprintDao,
             IFingerprintDao fingerprintDao,
             ISpectralImageDao spectralImageDao)
-            : base(trackDao, hashBinDao, subFingerprintDao)
+            : base(trackDao, subFingerprintDao)
         {
             this.fingerprintDao = fingerprintDao;
             this.spectralImageDao = spectralImageDao;

@@ -22,7 +22,6 @@
             var ramStorage = new RAMStorage(NumberOfHashTables);
             modelService = new InMemoryModelService(
                 new TrackDao(ramStorage),
-                new HashBinDao(ramStorage),
                 new SubFingerprintDao(ramStorage, new HashConverter()),
                 new FingerprintDao(ramStorage),
                 new SpectralImageDao());
