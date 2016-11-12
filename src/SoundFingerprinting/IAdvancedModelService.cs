@@ -5,7 +5,7 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
 
-    internal interface IAdvancedModelService : IModelService
+    public interface IAdvancedModelService : IModelService
     {
         IModelReference InsertFingerprint(FingerprintData fingerprint);
 
