@@ -100,7 +100,7 @@
                         });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<CustomFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
+            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
             queryFingerprintService.Setup(service => service.Query(modelService.Object, hashDatas, It.IsAny<DefaultQueryConfiguration>())).Returns(dummyResult);

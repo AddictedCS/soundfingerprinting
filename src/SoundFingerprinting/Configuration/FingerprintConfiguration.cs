@@ -8,9 +8,19 @@ namespace SoundFingerprinting.Configuration
         private int sampleRate;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the algorithm has to normalize the audio signal
+        /// </summary>
+        public bool NormalizeSignal { get; set; }
+
+        /// <summary>
+        /// Gets or sets spectrogram creation configuration parameters
+        /// </summary>
+        internal SpectrogramConfig SpectrogramConfig { get; set; }
+
+        /// <summary>
         ///   Gets number of audio samples read for one fingerprint
         /// </summary>
-        public int SamplesPerFingerprint
+        internal int SamplesPerFingerprint
         {
             get
             {
@@ -21,7 +31,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets number of Top wavelets to consider
         /// </summary>
-        public int TopWavelets
+        internal int TopWavelets
         {
             get
             {
@@ -42,7 +52,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets sample rate
         /// </summary>
-        public int SampleRate
+        internal int SampleRate
         {
             get
             {
@@ -60,19 +70,9 @@ namespace SoundFingerprinting.Configuration
             }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the algorithm has to normalize the audio signal
-        /// </summary>
-        public bool NormalizeSignal { get; set; }
-
-        /// <summary>
-        /// Gets or sets spectrogram creation configuration parameters
-        /// </summary>
-        public SpectrogramConfig SpectrogramConfig { get; set; }
-
-        /// <summary>
+                /// <summary>
         /// Gets or sets hashing configuration parameters
         /// </summary>
-        public HashingConfig HashingConfig { get; set; }
+        internal HashingConfig HashingConfig { get; set; }
     }
 }

@@ -64,8 +64,6 @@
     <Compile Include="Math\IHashConverter.cs" />
     <Compile Include="Query\IQueryMath.cs" />
     <Compile Include="Query\QueryInfo.cs" />
-    <Compile Include="Configuration\CustomHashingConfig.cs" />
-    <Compile Include="Configuration\CustomSpectrogramConfig.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
     <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
     <Compile Include="Configuration\EfficientFingerprintConfigurationForQuerying.cs" />
@@ -128,7 +126,6 @@
     <Compile Include="LCS\SubFingerprintSequenceComparer.cs" />
     <Compile Include="Strides\StrideUtils.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
-    <Compile Include="Configuration\CustomFingerprintConfiguration.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
     <Compile Include="FFT\FFTW\CachedFFTWService.cs" />
     <Compile Include="FFT\FFTW\FFTWArray.cs" />
@@ -176,7 +173,6 @@
     <Compile Include="MinHash\LocalFilePermutations.cs" />
     <Compile Include="MinHash\MinHashService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Configuration\CustomQueryConfiguration.cs" />
     <Compile Include="Configuration\DefaultQueryConfiguration.cs" />
     <Compile Include="Builder\QueryCommandBuilder.cs" />
     <Compile Include="Command\QueryCommand.cs" />

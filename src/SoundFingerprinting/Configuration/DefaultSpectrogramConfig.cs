@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Configuration
 {
     using SoundFingerprinting.Strides;
 
-    public class DefaultSpectrogramConfig : SpectrogramConfig
+    internal class DefaultSpectrogramConfig : SpectrogramConfig
     {
         public DefaultSpectrogramConfig()
         {

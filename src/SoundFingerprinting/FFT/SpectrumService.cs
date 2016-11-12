@@ -8,7 +8,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
 
-    public class SpectrumService : ISpectrumService
+    internal class SpectrumService : ISpectrumService
     {
         private readonly IFFTService fftService;
         private readonly ILogUtility logUtility;

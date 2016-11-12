@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Configuration
 
     using SoundFingerprinting.Strides;
 
-    public abstract class SpectrogramConfig
+    internal abstract class SpectrogramConfig
     {
         private int overlap;
         private int wdftSize;

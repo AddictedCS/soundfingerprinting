@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.FFT
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,7 +37,7 @@
         [TestMethod]
         public void CreateLogSpectrogramTest()
         {
-            var configuration = new CustomSpectrogramConfig { ImageLength = 2048 };
+            var configuration = new DefaultSpectrogramConfig { ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration)).Returns(new int[33]);
             fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize))
@@ -55,7 +54,7 @@
         [TestMethod]
         public void CreateLogSpectrogramFromMinimalSamplesLengthTest()
         {
-            var configuration = new CustomSpectrogramConfig { NormalizeSignal = false };
+            var configuration = new DefaultSpectrogramConfig { NormalizeSignal = false };
             var samples = TestUtilities.GenerateRandomAudioSamples(new DefaultFingerprintConfiguration().SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration)).Returns(new int[33]);
             fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize))
@@ -83,7 +82,7 @@
         public void CutLogarithmizedSpectrumTest()
         {
             var stride = new StaticStride(0, 0);
-            var configuration = new CustomSpectrogramConfig { Stride = stride };
+            var configuration = new DefaultSpectrogramConfig { Stride = stride };
             const int LogSpectrumLength = 1024;
             var logSpectrum = GetLogSpectrum(LogSpectrumLength);
 
@@ -102,7 +101,7 @@
         public void CutLogarithmizedSpectrumOfJustOneFingerprintTest()
         {
             var stride = new StaticStride(0, 0);
-            var configuration = new CustomSpectrogramConfig { Stride = stride };
+            var configuration = new DefaultSpectrogramConfig { Stride = stride };
             int logSpectrumLength = configuration.ImageLength; // 128
             var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
@@ -114,8 +113,8 @@
         [TestMethod]
         public void CutLogarithmizedSpectrumWithAnIncrementalStaticStride()
         {
-            var stride = new IncrementalStaticStride(new DefaultFingerprintConfiguration().SamplesPerFingerprint / 2, new DefaultFingerprintConfiguration().SamplesPerFingerprint, 0);
-            var config = new CustomSpectrogramConfig { Stride = stride };
+            var stride = new IncrementalStaticStride(new DefaultFingerprintConfiguration().SamplesPerFingerprint / 2);
+            var config = new DefaultSpectrogramConfig { Stride = stride };
             int logSpectrumLength = (config.ImageLength * 24) + config.Overlap;
             var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
@@ -152,7 +151,7 @@
         public void CutLogarithmizedSpectrumWithSpectrumWhichIsLessThanMinimalLengthOfOneFingerprintTest()
         {
             var stride = new StaticStride(0, 0);
-            var config = new CustomSpectrogramConfig { Stride = stride };
+            var config = new DefaultSpectrogramConfig { Stride = stride };
             int logSpectrumLength = config.ImageLength - 1;
             var logSpectrum = GetLogSpectrum(logSpectrumLength);
 

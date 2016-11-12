@@ -65,7 +65,7 @@
                 new ModelReference<int>(SecondSubFingerprintId),
                 new ModelReference<int>(ThirdTrackId));
 
-            var customQueryConfiguration = new CustomQueryConfiguration { MaximumNumberOfTracksToReturnAsResult = 3, ThresholdVotes = DefaultThreshold };
+            var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 3, ThresholdVotes = DefaultThreshold };
             modelService.Setup(
                 service => service.ReadSubFingerprints(buckets, customQueryConfiguration)).Returns(
                     new List<SubFingerprintData> { firstResult, secondResult, thirdResult });
@@ -93,7 +93,7 @@
         public void NoResultsReturnedFromUnderlyingStorageTest()
         {
             var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0);
-            var customQueryConfiguration = new CustomQueryConfiguration { MaximumNumberOfTracksToReturnAsResult = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
+            var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
             modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<long[]>(), customQueryConfiguration)).Returns(new List<SubFingerprintData>());
 
             var queryResult = queryFingerprintService.Query(

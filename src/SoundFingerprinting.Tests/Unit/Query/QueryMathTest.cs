@@ -39,7 +39,7 @@
             var trackReference = new ModelReference<int>(3);
             modelService.Setup(s => s.ReadTrackByReference(trackReference)).Returns(new TrackData { ISRC = "isrc-1234-1234" });
 
-            var queryConfiguration = new QueryConfiguration { MaximumNumberOfTracksToReturnAsResult = 1 };
+            var queryConfiguration = new QueryConfiguration { MaxTracksToReturn = 1 };
 
             var hammingSimilarties = new Dictionary<IModelReference, int>
                 {
@@ -49,7 +49,7 @@
                 };
 
           var best = queryMath.GetBestCandidates(
-                hammingSimilarties, queryConfiguration.MaximumNumberOfTracksToReturnAsResult, modelService.Object);
+                hammingSimilarties, queryConfiguration.MaxTracksToReturn, modelService.Object);
 
           Assert.AreEqual(1, best.Count);
           Assert.AreEqual("isrc-1234-1234", best[0].Track.ISRC);

@@ -176,8 +176,7 @@
         {
             const string PathToAudioFile = "path-to-audio-file";
 
-            var configuration = new CustomFingerprintConfiguration
-                { SpectrogramConfig = new CustomSpectrogramConfig { ImageLength = 1234 } };
+            var configuration = new DefaultFingerprintConfiguration { SpectrogramConfig = new DefaultSpectrogramConfig { ImageLength = 1234 } };
              
             var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                               .From(PathToAudioFile)

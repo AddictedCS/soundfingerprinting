@@ -23,7 +23,7 @@
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
             FingerprintConfiguration = new EfficientFingerprintConfigurationForQuerying();
-            QueryConfiguration = new DefaultQueryConfiguration();
+            QueryConfiguration = new DefaultQueryConfiguration { FingerprintConfiguration = FingerprintConfiguration };
         }
 
         public FingerprintConfiguration FingerprintConfiguration { get; private set; }
@@ -48,6 +48,18 @@
             return this;
         }
 
+        public IUsingQueryServices WithFingerprintConfig(FingerprintConfiguration fingerprintConfiguration)
+        {
+            FingerprintConfiguration = fingerprintConfiguration;
+            return this;
+        }
+
+        public IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration)
+        {
+            QueryConfiguration = queryConfiguration;
+            return this;
+        }
+
         public IUsingQueryServices WithConfigs(FingerprintConfiguration fingerprintConfiguration, QueryConfiguration configuration)
         {
             QueryConfiguration = configuration;
@@ -62,12 +74,10 @@
             return this;
         }
 
-        public IUsingQueryServices WithConfigs(Action<CustomFingerprintConfiguration> fingerprintConfig, Action<CustomQueryConfiguration> queryConfig)
+        public IUsingQueryServices WithConfigs(Action<FingerprintConfiguration> fingerprintConfig, Action<QueryConfiguration> queryConfig)
         {
-            QueryConfiguration = new CustomQueryConfiguration();
-            queryConfig((CustomQueryConfiguration)QueryConfiguration);
-            FingerprintConfiguration = new CustomFingerprintConfiguration();
-            fingerprintConfig((CustomFingerprintConfiguration)FingerprintConfiguration);
+            queryConfig(QueryConfiguration);
+            fingerprintConfig(FingerprintConfiguration);
             return this;
         }
 

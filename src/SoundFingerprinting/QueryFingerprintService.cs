@@ -51,7 +51,7 @@
                 return EmptyResult(snipetLength);
             }
 
-            var resultEntries = queryMath.GetBestCandidates(hammingSimilarities, queryConfiguration.MaximumNumberOfTracksToReturnAsResult, modelService);
+            var resultEntries = queryMath.GetBestCandidates(hammingSimilarities, queryConfiguration.MaxTracksToReturn, modelService);
             return QueryResult(resultEntries, hammingSimilarities.Count, subFingerprintsCount, snipetLength);
         }
 
@@ -66,7 +66,7 @@
             var entries = GetCandidatesSortedByLCS(allCandidates.Item1, allCandidates.Item2);
 
             var resultEntries =
-                entries.Take(queryConfiguration.MaximumNumberOfTracksToReturnAsResult).Select(
+                entries.Take(queryConfiguration.MaxTracksToReturn).Select(
                     datas =>
                     new ResultEntry
                         {
@@ -103,7 +103,7 @@
                 return EmptyResult(snipetLength);
             }
 
-            var resultEntries = queryMath.GetBestCandidates(hammingSimilarities, queryConfiguration.MaximumNumberOfTracksToReturnAsResult, modelService);
+            var resultEntries = queryMath.GetBestCandidates(hammingSimilarities, queryConfiguration.MaxTracksToReturn, modelService);
             return QueryResult(resultEntries, hammingSimilarities.Count, allCandidates.Count, snipetLength);
         }
 
