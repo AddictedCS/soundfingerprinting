@@ -38,10 +38,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MathNet.Numerics, Version=3.13.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.13.1\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
@@ -53,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="FFT\LomontFFT.cs" />
     <Compile Include="IAdvancedModelService.cs" />
     <Compile Include="AdvancedModelService.cs" />
     <Compile Include="Math\HammingDistanceResultStatistics.cs" />
@@ -100,16 +97,7 @@
     <Compile Include="LCS\SubfingerprintSetSortedByTimePosition.cs" />
     <Compile Include="LSH\BoundedLocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="Math\ISimilarityUtility.cs" />
-    <Compile Include="Math\MathUtility.cs" />
-    <Compile Include="MinHash\AgressiveSelector.cs" />
-    <Compile Include="MinHash\ConservativeSelector.cs" />
     <Compile Include="MinHash\DefaultPermutations.cs" />
-    <Compile Include="MinHash\Hash.cs" />
-    <Compile Include="MinHash\IMinMutualSelector.cs" />
-    <Compile Include="MinHash\IPermutationGeneratorService.cs" />
-    <Compile Include="MinHash\MinMutualSelector.cs" />
-    <Compile Include="MinHash\PermutationGeneratorService.cs" />
-    <Compile Include="MinHash\SummedAcrossSelector.cs" />
     <Compile Include="Query\QueryMath.cs" />
     <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />

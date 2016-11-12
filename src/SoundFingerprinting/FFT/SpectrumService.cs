@@ -13,8 +13,7 @@
         private readonly IFFTService fftService;
         private readonly ILogUtility logUtility;
 
-        public SpectrumService()
-            : this(DependencyResolver.Current.Get<IFFTService>())
+        public SpectrumService() : this(DependencyResolver.Current.Get<IFFTService>())
         {
         }
 

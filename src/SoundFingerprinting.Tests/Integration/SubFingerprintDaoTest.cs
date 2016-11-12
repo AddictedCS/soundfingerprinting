@@ -48,7 +48,6 @@
         [TestMethod]
         public void SameNumberOfHashBinsIsInsertedInAllTablesWhenFingerprintingEntireSongTest()
         {
-            const int StaticStride = 5115;
             TagInfo tagInfo = GetTagInfo();
             int releaseYear = tagInfo.Year;
             TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
@@ -56,10 +55,6 @@
             var hashedFingerprints = FingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3)
-                .WithFingerprintConfig(config =>
-                {
-                    config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
-                })
                 .UsingServices(AudioService)
                 .Hash()
                 .Result;
