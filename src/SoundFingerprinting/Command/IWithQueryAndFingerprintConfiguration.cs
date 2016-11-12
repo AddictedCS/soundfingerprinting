@@ -8,12 +8,14 @@
     {
         IUsingQueryServices WithFingerprintConfig(FingerprintConfiguration fingerprintConfiguration);
 
+        IUsingQueryServices WithFingerprintConfig(Action<FingerprintConfiguration> amendFingerprintConfigFunctor);
+
         IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration);
+
+        IUsingQueryServices WithQueryConfig(Action<QueryConfiguration> amendQueryConfigFunctor);
 
         IUsingQueryServices WithConfigs(FingerprintConfiguration fingerprintConfiguration, QueryConfiguration queryConfiguration);
 
-        IUsingQueryServices WithConfigs<T1, T2>() where T1 : FingerprintConfiguration, new() where T2 : QueryConfiguration, new();
-
-        IUsingQueryServices WithConfigs(Action<FingerprintConfiguration> fingerprintConfiguration, Action<QueryConfiguration> queryConfiguration);
+        IUsingQueryServices WithConfigs(Action<FingerprintConfiguration> amendFingerprintFunctor, Action<QueryConfiguration> amendQueryConfigFunctor);
     }
 }

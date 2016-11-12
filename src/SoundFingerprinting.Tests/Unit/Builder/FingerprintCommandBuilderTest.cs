@@ -187,17 +187,6 @@
             Assert.AreEqual(configuration.SpectrogramConfig.ImageLength, fingerprintCommand.FingerprintConfiguration.SpectrogramConfig.ImageLength);
         }
 
-        [TestMethod]
-        public void CorrectFingerprintConfigurationIsUsedWithTemplateConfigTest()
-        {
-            var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                                              .From("path-to-mp3-file")
-                                                              .WithFingerprintConfig<DefaultFingerprintConfiguration>()
-                                                              .UsingServices(audioService.Object);
-
-            Assert.IsInstanceOfType(fingerprintCommand.FingerprintConfiguration, typeof(DefaultFingerprintConfiguration));
-        }
-
         private List<Fingerprint> GetGenericFingerprints(int count)
         {
             var list = new List<Fingerprint>();

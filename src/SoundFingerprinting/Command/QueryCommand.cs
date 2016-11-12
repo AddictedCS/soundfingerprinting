@@ -54,9 +54,21 @@
             return this;
         }
 
+        public IUsingQueryServices WithFingerprintConfig(Action<FingerprintConfiguration> amendFingerprintConfigFunctor)
+        {
+            amendFingerprintConfigFunctor(FingerprintConfiguration);
+            return this;
+        }
+
         public IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration)
         {
             QueryConfiguration = queryConfiguration;
+            return this;
+        }
+
+        public IUsingQueryServices WithQueryConfig(Action<QueryConfiguration> amendQueryConfigFunctor)
+        {
+            amendQueryConfigFunctor(QueryConfiguration);
             return this;
         }
 
@@ -67,17 +79,10 @@
             return this;
         }
 
-        public IUsingQueryServices WithConfigs<T1, T2>() where T1 : FingerprintConfiguration, new() where T2 : QueryConfiguration, new()
+        public IUsingQueryServices WithConfigs(Action<FingerprintConfiguration> amendFingerprintFunctor, Action<QueryConfiguration> amendQueryConfigFunctor)
         {
-            QueryConfiguration = new T2();
-            FingerprintConfiguration = new T1();
-            return this;
-        }
-
-        public IUsingQueryServices WithConfigs(Action<FingerprintConfiguration> fingerprintConfig, Action<QueryConfiguration> queryConfig)
-        {
-            queryConfig(QueryConfiguration);
-            fingerprintConfig(FingerprintConfiguration);
+            amendQueryConfigFunctor(QueryConfiguration);
+            amendFingerprintFunctor(FingerprintConfiguration);
             return this;
         }
 

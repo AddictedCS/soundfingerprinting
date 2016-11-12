@@ -125,18 +125,6 @@
         }
 
         [TestMethod]
-        public void QueryCommandIsBuiltWithCorrectTemplatedConfigs()
-        {
-            var command = queryCommandBuilder.BuildQueryCommand()
-                               .From("path-to-file", 10, 0)
-                               .WithConfigs<EfficientFingerprintConfigurationForQuerying, DefaultQueryConfiguration>()
-                               .UsingServices(modelService.Object, audioService.Object);
-
-            Assert.IsInstanceOfType(command.FingerprintConfiguration, typeof(EfficientFingerprintConfigurationForQuerying));
-            Assert.IsInstanceOfType(command.QueryConfiguration, typeof(DefaultQueryConfiguration));
-        }
-
-        [TestMethod]
         public void QueryCommandIsBuiltWithDefaultConfigsCorrectly()
         {
             var command = queryCommandBuilder.BuildQueryCommand()
