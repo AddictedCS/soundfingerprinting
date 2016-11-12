@@ -14,7 +14,7 @@
     <copyright>Copyright 2016, Sergiu Ciumac</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
 	<dependencies>
-	   <dependency id="NAudio" version="[1.7.1]" />
+	   <dependency id="NAudio" version="1.7.3" />
 	</dependencies>
   </metadata>
   <files>
