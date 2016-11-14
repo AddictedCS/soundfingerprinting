@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
 
-    public abstract class HashingConfig
+    internal abstract class HashingConfig
     {
         private int numberOfLSHTables;
 

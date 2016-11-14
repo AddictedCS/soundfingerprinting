@@ -2,15 +2,33 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
 
-    public class FingerprintConfiguration
+    using SoundFingerprinting.Strides;
+
+    public abstract class FingerprintConfiguration
     {
         private int topWavelets;
         private int sampleRate;
 
         /// <summary>
+        ///    Gets or sets stride between 2 consecutive fingerprints
+        /// </summary>
+        public IStride Stride
+        {
+            get
+            {
+                return SpectrogramConfig.Stride;
+            }
+
+            set
+            {
+                SpectrogramConfig.Stride = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the algorithm has to normalize the audio signal
         /// </summary>
-        public bool NormalizeSignal { get; set; }
+        internal bool NormalizeSignal { get; set; }
 
         /// <summary>
         /// Gets or sets spectrogram creation configuration parameters
@@ -70,7 +88,7 @@ namespace SoundFingerprinting.Configuration
             }
         }
 
-                /// <summary>
+        /// <summary>
         /// Gets or sets hashing configuration parameters
         /// </summary>
         internal HashingConfig HashingConfig { get; set; }

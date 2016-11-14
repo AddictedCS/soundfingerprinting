@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Configuration
 {
-    public class DefaultHashingConfig : HashingConfig
+    internal class DefaultHashingConfig : HashingConfig
     {
         public DefaultHashingConfig()
         {
