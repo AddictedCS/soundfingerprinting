@@ -5,7 +5,7 @@
         public DefaultQueryConfiguration()
         {
             ThresholdVotes = 5;
-            this.MaxTracksToReturn = 25;
+            MaxTracksToReturn = 25;
             TrackGroupId = string.Empty;
             FingerprintConfiguration = new DefaultFingerprintConfiguration();
         }

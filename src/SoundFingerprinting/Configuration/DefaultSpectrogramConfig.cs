@@ -14,7 +14,7 @@ namespace SoundFingerprinting.Configuration
             ImageLength = 128;
             UseDynamicLogBase = false;
             NormalizeSignal = false;
-            Stride = new IncrementalStaticStride(5115, ImageLength * Overlap);
+            Stride = new IncrementalStaticStride(2048, ImageLength * Overlap);
         }
     }
 }
