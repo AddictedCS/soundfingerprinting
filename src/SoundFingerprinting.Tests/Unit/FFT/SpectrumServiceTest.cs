@@ -137,10 +137,10 @@
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
             
-            // Default stride between 2 consecutive images is 5115, but because of rounding issues and the fact
-            // that minimal step is 11.6 ms, timestamp is roughly .928 sec
-            const double TimestampOfFingerprints = (double)5120 / SampleRate;
-            Assert.AreEqual(15, cutLogarithmizedSpectrum.Count);
+            // Default stride between 2 consecutive images is 2048, but because of rounding issues and the fact
+            // that minimal step is 11.6 ms, timestamp is roughly .37155 sec
+            const double TimestampOfFingerprints = (double)2048 / SampleRate;
+            Assert.AreEqual(37, cutLogarithmizedSpectrum.Count);
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
                 Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].Timestamp - (i * TimestampOfFingerprints)) < Epsilon);

@@ -8,6 +8,7 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Math;
+    using SoundFingerprinting.Query;
 
     [TestClass]
     public class SimilarityUtilityTest : AbstractTest
@@ -17,7 +18,7 @@
         [TestMethod]
         public void ShouldSumUpHammingDistanceAccrossTracks()
         {
-            var hammingSimilarities = new Dictionary<IModelReference, int>();
+            var hammingSimilarities = new Dictionary<IModelReference, ResultEntryAccumulator>();
             
             long[] hashes1 = new long[GenericHashBuckets.Length];
             Array.Copy(GenericHashBuckets, hashes1, hashes1.Length);
@@ -53,8 +54,8 @@
                 hammingSimilarities);
 
             Assert.AreEqual(2, hammingSimilarities.Count);
-            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)]);
-            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)]);
+            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)].HammingSimilarity);
+            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)].HammingSimilarity);
         }
 
         [TestMethod]

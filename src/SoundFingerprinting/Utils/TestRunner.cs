@@ -172,12 +172,12 @@
                             if (isSuccessful)
                             {
                                 truePositives++;
-                                truePositiveHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
+                                truePositiveHammingDistance.Add(queryResult.BestMatch.HammingSimilarity);
                             }
                             else
                             {
                                 falseNegatives++;
-                                falseNegativesHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
+                                falseNegativesHammingDistance.Add(queryResult.BestMatch.HammingSimilarity);
                             }
 
                             var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
@@ -210,7 +210,7 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
-                            falsePositivesHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
+                            falsePositivesHammingDistance.Add(queryResult.BestMatch.HammingSimilarity);
                             falsePositives++;
                             var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                             AppendLine(sb, foundLine);
@@ -314,8 +314,8 @@
             return new object[]
                 {
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
-                    queryResult.BestMatch.MatchedFingerprints, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
-                    queryResult.BestMatch.SequenceLength, queryResult.BestMatch.SequenceStart
+                    queryResult.BestMatch.HammingSimilarity, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
+                    queryResult.BestMatch.SequenceLength, queryResult.BestMatch.SequenceAt
                 };
         }
 

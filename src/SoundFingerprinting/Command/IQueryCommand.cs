@@ -28,11 +28,5 @@
         /// </summary>
         /// <returns>Query result</returns>
         Task<QueryResult> QueryExperimental();
-        
-        /// <summary>
-        ///  Query the underlying data source capturing best candidate as well as time location within the track
-        /// </summary>
-        /// <returns>Query result</returns>
-        Task<QueryResult> QueryWithTimeSequenceInformation();
     }
 }

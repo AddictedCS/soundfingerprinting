@@ -20,18 +20,6 @@
             List<HashedFingerprint> hashedFingerprints,
             QueryConfiguration queryConfiguration);
 
-        /// <summary>
-        /// Query the underlying data source capturing best candidate as well as time location within the track
-        /// </summary>
-        /// <param name="modelService">Model Service used to access the data source</param>
-        /// <param name="hashedFingerprints">Hashed fingerprints from query snippet</param>
-        /// <param name="queryConfiguration">Query configuration</param>
-        /// <returns>Result with details</returns>
-        QueryResult QueryWithTimeSequenceInformation(
-            IModelService modelService,
-            List<HashedFingerprint> hashedFingerprints,
-            QueryConfiguration queryConfiguration);
-
         QueryResult QueryExperimental(
             IModelService modelService,
             List<HashedFingerprint> hashedFingerprints,

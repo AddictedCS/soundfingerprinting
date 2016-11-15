@@ -5,7 +5,7 @@
     /// <summary>
     ///    Configuration options used during querying the data source
     /// </summary>
-    public class QueryConfiguration
+    public abstract class QueryConfiguration
     {
         private int thresholdVotes;
         private int maxTracksToReturn;

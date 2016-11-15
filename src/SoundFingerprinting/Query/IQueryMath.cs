@@ -8,8 +8,14 @@ namespace SoundFingerprinting.Query
 
     internal interface IQueryMath
     {
-        double CalculateExactSnippetLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration);
+        double CalculateExactSnippetLength(
+            IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration);
 
-        List<ResultEntry> GetBestCandidates(IDictionary<IModelReference, int> hammingSimilarites, int numberOfCandidatesToReturn, IModelService modelService);
+        List<ResultEntry> GetBestCandidates(
+            IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites,
+            int numberOfCandidatesToReturn,
+            IModelService modelService,
+            FingerprintConfiguration fingerprintConfiguration,
+            double queryLength);
     }
 }

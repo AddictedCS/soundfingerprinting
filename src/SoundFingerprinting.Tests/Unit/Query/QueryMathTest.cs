@@ -39,17 +39,22 @@
             var trackReference = new ModelReference<int>(3);
             modelService.Setup(s => s.ReadTrackByReference(trackReference)).Returns(new TrackData { ISRC = "isrc-1234-1234" });
 
-            var queryConfiguration = new QueryConfiguration { MaxTracksToReturn = 1 };
+            var queryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1 };
 
-            var hammingSimilarties = new Dictionary<IModelReference, int>
+            var first = new ResultEntryAccumulator { HammingSimilarity = 100 };
+            first.Add(new SubFingerprintData(null, 1, 0d, null, null));
+            var second = new ResultEntryAccumulator { HammingSimilarity = 99 };
+            second.Add(new SubFingerprintData(null, 1, 0d, null, null));
+            var third = new ResultEntryAccumulator { HammingSimilarity = 101 };
+            third.Add(new SubFingerprintData(null, 1, 0d, null, null));
+            var hammingSimilarties = new Dictionary<IModelReference, ResultEntryAccumulator>
                 {
-                    { new ModelReference<int>(1), 100 },
-                    { new ModelReference<int>(2), 99 },
-                    { new ModelReference<int>(3), 101 },
+                    { new ModelReference<int>(1), first },
+                    { new ModelReference<int>(2), second },
+                    { new ModelReference<int>(3), third },
                 };
 
-          var best = queryMath.GetBestCandidates(
-                hammingSimilarties, queryConfiguration.MaxTracksToReturn, modelService.Object);
+          var best = queryMath.GetBestCandidates(hammingSimilarties, queryConfiguration.MaxTracksToReturn, modelService.Object, queryConfiguration.FingerprintConfiguration, 10);
 
           Assert.AreEqual(1, best.Count);
           Assert.AreEqual("isrc-1234-1234", best[0].Track.ISRC);

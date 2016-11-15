@@ -122,20 +122,5 @@
                                         },
                                         TaskContinuationOptions.ExecuteSynchronously);
         }
-
-
-        public Task<QueryResult> QueryWithTimeSequenceInformation()
-        {
-            QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
-            return createFingerprintMethod()
-                                    .Hash()
-                                    .ContinueWith(
-                                       task =>
-                                       {
-                                           var hashes = task.Result;
-                                           return queryFingerprintService.QueryWithTimeSequenceInformation(modelService, hashes, QueryConfiguration);
-                                       },
-                                       TaskContinuationOptions.ExecuteSynchronously);
-        }
     }
 }
