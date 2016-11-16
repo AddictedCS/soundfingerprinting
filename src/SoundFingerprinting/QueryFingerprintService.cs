@@ -37,7 +37,7 @@
             {
                 var subFingerprints = modelService.ReadSubFingerprints(hashedFingerprint.HashBins, queryConfiguration);
                 subFingerprintsCount += subFingerprints.Count;
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint.SubFingerprint, hammingSimilarities);
+                similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint, hammingSimilarities);
             }
 
             double snipetLength = queryMath.CalculateExactSnippetLength(hashedFingerprints, queryConfiguration.FingerprintConfiguration);
@@ -65,7 +65,7 @@
                     allCandidates.Where(
                         candidate => DoesMatchThresholdVotes(queryConfiguration, fingerprint, candidate));
 
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint.SubFingerprint, hammingSimilarities);
+                similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint, hammingSimilarities);
             }
 
             if (!hammingSimilarities.Any())
