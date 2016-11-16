@@ -4,6 +4,7 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
 
@@ -78,19 +79,19 @@
             return (double)a / (a + b);
         }
 
-        public void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, byte[] expected, Dictionary<IModelReference, ResultEntryAccumulator> accumulator)
+        public void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, Dictionary<IModelReference, ResultEntryAccumulator> accumulator)
         {
             foreach (var subFingerprint in candidates)
             {
-                byte[] signature = hashConverter.ToBytes(subFingerprint.Hashes, expected.Length);
-                int hammingSimilarity = CalculateHammingSimilarity(expected, signature);
+                byte[] signature = hashConverter.ToBytes(subFingerprint.Hashes, expected.SubFingerprint.Length);
+                int hammingSimilarity = CalculateHammingSimilarity(expected.SubFingerprint, signature);
                 if (!accumulator.ContainsKey(subFingerprint.TrackReference))
                 {
                     accumulator.Add(subFingerprint.TrackReference, new ResultEntryAccumulator());
                 }
 
-                accumulator[subFingerprint.TrackReference].HammingSimilarity += hammingSimilarity;
-                accumulator[subFingerprint.TrackReference].Add(subFingerprint);
+                accumulator[subFingerprint.TrackReference].SummedHammingSimilarity += hammingSimilarity;
+                accumulator[subFingerprint.TrackReference].Add(expected, subFingerprint, hammingSimilarity);
             }
         }
     }

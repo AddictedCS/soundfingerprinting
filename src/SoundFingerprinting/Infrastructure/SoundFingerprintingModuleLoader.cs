@@ -10,6 +10,7 @@
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
@@ -43,6 +44,8 @@
             kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();
             kernel.Bind<ISimilarityUtility>().To<SimilarityUtility>().InSingletonScope();
             kernel.Bind<IQueryMath>().To<QueryMath>().InSingletonScope();
+            kernel.Bind<IQueryResultCoverageCalculator>().To<QueryResultCoverageCalculator>().InSingletonScope();
+            kernel.Bind<IConfidenceCalculator>().To<ConfidenceCalculator>().InSingletonScope();
             kernel.Bind<ITestRunnerUtils>().To<TestRunnerUtils>().InSingletonScope();
             kernel.Bind<IHashConverter>().To<HashConverter>().InSingletonScope();
 

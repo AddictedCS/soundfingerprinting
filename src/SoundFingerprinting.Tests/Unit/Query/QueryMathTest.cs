@@ -41,12 +41,12 @@
 
             var queryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1 };
 
-            var first = new ResultEntryAccumulator { HammingSimilarity = 100 };
-            first.Add(new SubFingerprintData(null, 1, 0d, null, null));
-            var second = new ResultEntryAccumulator { HammingSimilarity = 99 };
-            second.Add(new SubFingerprintData(null, 1, 0d, null, null));
-            var third = new ResultEntryAccumulator { HammingSimilarity = 101 };
-            third.Add(new SubFingerprintData(null, 1, 0d, null, null));
+            var first = new ResultEntryAccumulator { SummedHammingSimilarity = 100 };
+            first.Add(new HashedFingerprint(null, null, 1, 0d),  new SubFingerprintData(null, 1, 0d, null, null), 100);
+            var second = new ResultEntryAccumulator { SummedHammingSimilarity = 99 };
+            second.Add(new HashedFingerprint(null, null, 1, 0d), new SubFingerprintData(null, 1, 0d, null, null), 99);
+            var third = new ResultEntryAccumulator { SummedHammingSimilarity = 101 };
+            third.Add(new HashedFingerprint(null, null, 1, 0d), new SubFingerprintData(null, 1, 0d, null, null), 101);
             var hammingSimilarties = new Dictionary<IModelReference, ResultEntryAccumulator>
                 {
                     { new ModelReference<int>(1), first },

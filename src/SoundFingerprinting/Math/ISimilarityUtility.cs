@@ -4,6 +4,7 @@ namespace SoundFingerprinting.Math
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
     internal interface ISimilarityUtility
@@ -28,6 +29,9 @@ namespace SoundFingerprinting.Math
         /// </remarks>
         double CalculateJaccardSimilarity(bool[] x, bool[] y);
 
-        void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, byte[] expected, Dictionary<IModelReference, ResultEntryAccumulator> accumulator);
+        void AccumulateHammingSimilarity(
+            IEnumerable<SubFingerprintData> candidates,
+            HashedFingerprint expected,
+            Dictionary<IModelReference, ResultEntryAccumulator> accumulator);
     }
 }

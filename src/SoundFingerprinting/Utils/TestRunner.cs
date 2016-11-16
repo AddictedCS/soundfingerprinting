@@ -172,12 +172,12 @@
                             if (isSuccessful)
                             {
                                 truePositives++;
-                                truePositiveHammingDistance.Add(queryResult.BestMatch.HammingSimilarity);
+                                truePositiveHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             }
                             else
                             {
                                 falseNegatives++;
-                                falseNegativesHammingDistance.Add(queryResult.BestMatch.HammingSimilarity);
+                                falseNegativesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             }
 
                             var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
@@ -210,7 +210,7 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
-                            falsePositivesHammingDistance.Add(queryResult.BestMatch.HammingSimilarity);
+                            falsePositivesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             falsePositives++;
                             var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                             AppendLine(sb, foundLine);
@@ -314,8 +314,8 @@
             return new object[]
                 {
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
-                    queryResult.BestMatch.HammingSimilarity, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
-                    queryResult.BestMatch.SequenceLength, queryResult.BestMatch.SequenceAt
+                    queryResult.BestMatch.HammingSimilaritySum, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
+                    queryResult.BestMatch.Length, queryResult.BestMatch.StartsAt
                 };
         }
 

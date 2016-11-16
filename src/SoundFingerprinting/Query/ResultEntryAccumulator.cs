@@ -1,43 +1,44 @@
 ﻿namespace SoundFingerprinting.Query
 {
     using System.Collections.Generic;
-    using System.Linq;
 
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.LCS;
+    using SoundFingerprinting.Data;
 
     internal class ResultEntryAccumulator
     {
-        private readonly SortedSet<SubFingerprintData> matches = new SortedSet<SubFingerprintData>(new SubFingerprintSequenceComparer());
+        private readonly SortedSet<MatchedPair> matches = new SortedSet<MatchedPair>();
 
-        public int HammingSimilarity { get; set; }
+        public int SummedHammingSimilarity { get; set; }
 
-        public double StartAt
+        public SortedSet<MatchedPair> Matches
         {
             get
             {
-                return matches.First().SequenceAt;
+                return matches;
             }
         }
 
-        public double EndAt
+        public MatchedPair BestMatch { get; private set; }
+
+        public void Add(HashedFingerprint hashedFingerprint,  SubFingerprintData match, int hammingSimilarity)
         {
-            get
+            var matchedPair = new MatchedPair(hashedFingerprint, match, hammingSimilarity);
+            ResetBestMatchIfAppropriate(matchedPair);
+            matches.Add(matchedPair);
+        }
+
+        private void ResetBestMatchIfAppropriate(MatchedPair matchedPair)
+        {
+            if (BestMatch == null)
             {
-                return matches.Last().SequenceAt;
+                BestMatch = matchedPair;
+                return;
             }
-        }
 
-        public void Add(SubFingerprintData match)
-        {
-            matches.Add(match);
-        }
-
-        public List<SubFingerprintData> Matches
-        {
-            get
+            if (BestMatch.HammingSimilarity < matchedPair.HammingSimilarity)
             {
-                return matches.ToList();
+                BestMatch = matchedPair;
             }
         }
     }

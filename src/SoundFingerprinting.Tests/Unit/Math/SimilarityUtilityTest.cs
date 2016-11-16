@@ -7,6 +7,7 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
@@ -50,12 +51,12 @@
                             new ModelReference<int>(2),
                             new ModelReference<int>(2))
                     },
-                GenericSignature,
+                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0),
                 hammingSimilarities);
 
             Assert.AreEqual(2, hammingSimilarities.Count);
-            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)].HammingSimilarity);
-            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)].HammingSimilarity);
+            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)].SummedHammingSimilarity);
+            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)].SummedHammingSimilarity);
         }
 
         [TestMethod]

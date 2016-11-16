@@ -52,11 +52,16 @@
     <Compile Include="FFT\LomontFFT.cs" />
     <Compile Include="IAdvancedModelService.cs" />
     <Compile Include="AdvancedModelService.cs" />
+    <Compile Include="LCS\Coverage.cs" />
+    <Compile Include="LCS\IQueryResultCoverageCalculator.cs" />
     <Compile Include="Math\HammingDistanceResultStatistics.cs" />
     <Compile Include="Math\FScore.cs" />
     <Compile Include="Math\HashConverter.cs" />
     <Compile Include="Math\IHashConverter.cs" />
+    <Compile Include="Query\ConfidenceCalculator.cs" />
+    <Compile Include="Query\IConfidenceCalculator.cs" />
     <Compile Include="Query\IQueryMath.cs" />
+    <Compile Include="Query\MatchedPair.cs" />
     <Compile Include="Query\QueryInfo.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
     <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
@@ -96,6 +101,8 @@
     <Compile Include="Math\ISimilarityUtility.cs" />
     <Compile Include="MinHash\DefaultPermutations.cs" />
     <Compile Include="Query\QueryMath.cs" />
+    <Compile Include="LCS\QueryResultCoverageCalculator.cs" />
+    <Compile Include="Query\QueryResultValidatorService.cs" />
     <Compile Include="Query\ResultEntry.cs" />
     <Compile Include="Query\ResultEntryAccumulator.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
@@ -106,7 +113,6 @@
     <Compile Include="Strides\StrideType.cs" />
     <Compile Include="IModelService.cs" />
     <Compile Include="ModelService.cs" />
-    <Compile Include="LCS\SubFingerprintSequenceComparer.cs" />
     <Compile Include="Strides\StrideUtils.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />

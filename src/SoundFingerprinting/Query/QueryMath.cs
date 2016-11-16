@@ -5,11 +5,28 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.LCS;
 
     internal class QueryMath : IQueryMath
     {
+        private readonly IQueryResultCoverageCalculator queryResultCoverageCalculator;
+        private readonly IConfidenceCalculator confidenceCalculator;
+
+        public QueryMath()
+            : this(
+                DependencyResolver.Current.Get<IQueryResultCoverageCalculator>(),
+                DependencyResolver.Current.Get<IConfidenceCalculator>())
+        {
+        }
+
+        internal QueryMath(IQueryResultCoverageCalculator queryResultCoverageCalculator, IConfidenceCalculator confidenceCalculator)
+        {
+            this.queryResultCoverageCalculator = queryResultCoverageCalculator;
+            this.confidenceCalculator = confidenceCalculator;
+        }
+
         public double CalculateExactSnippetLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
         {
             double min = double.MaxValue, max = double.MinValue;
@@ -24,7 +41,7 @@
 
         public List<ResultEntry> GetBestCandidates(IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites, int numberOfCandidatesToReturn, IModelService modelService, FingerprintConfiguration fingerprintConfiguration, double queryLength)
         {
-            return hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilarity)
+            return hammingSimilarites.OrderByDescending(e => e.Value.SummedHammingSimilarity)
                                      .Take(numberOfCandidatesToReturn)
                                      .Select(e => GetResultEntry(modelService, fingerprintConfiguration, e, queryLength))
                                      .ToList();
@@ -33,41 +50,33 @@
         private ResultEntry GetResultEntry(IModelService modelService, FingerprintConfiguration fingerprintConfiguration, KeyValuePair<IModelReference, ResultEntryAccumulator> pair, double queryLength)
         {
             var track = modelService.ReadTrackByReference(pair.Key);
-            double longestMatch = GetLongestMatch(pair.Value.Matches, queryLength, (double)fingerprintConfiguration.SamplesPerFingerprint / fingerprintConfiguration.SampleRate);
-            double sequenceLength = AdjustSnippetLengthToConfigsUsedDuringFingerprinting(longestMatch, fingerprintConfiguration);
-            double confidence = sequenceLength / track.TrackLengthSec;
-            return new ResultEntry(track, pair.Value.StartAt, sequenceLength, confidence, pair.Value.HammingSimilarity);
-        }
+            var coverage = queryResultCoverageCalculator.GetLongestMatch(
+                pair.Value.Matches,
+                queryLength,
+                (double)fingerprintConfiguration.SamplesPerFingerprint / fingerprintConfiguration.SampleRate);
 
-        private double GetLongestMatch(List<SubFingerprintData> matches, double queryLength, double oneFingerprintLength)
-        {
-            int minI = 0, maxI = 0, curMinI = 0, maxLength = 0;
-            for (int i = 1; i < matches.Count; ++i)
-            {
-                if (matches[i].SequenceAt - matches[i - 1].SequenceAt >= queryLength)
-                {
-                    // potentialy a new start of best match sequence
-                    curMinI = i;
-                }
+            double adjustedSourceMatchLength =
+                AdjustSnippetLengthToConfigsUsedDuringFingerprinting(
+                    coverage.SourceMatchLength, fingerprintConfiguration);
 
-                if (i - curMinI > maxLength)
-                {
-                    maxLength = i - curMinI;
-                    maxI = i;
-                    minI = curMinI;
-                }
-            }
+            double confidence = confidenceCalculator.CalculateConfidence(
+                coverage.SourceMatchStartsAt,
+                adjustedSourceMatchLength,
+                pair.Value.BestMatch.HashedFingerprint.SourceDuration,
+                coverage.OriginMatchStartsAt,
+                track.TrackLengthSec);
 
-            double notCovered = 0d;
-            for (int i = minI + 1; i <= maxI; ++i)
-            {
-                if (matches[i].SequenceAt - matches[i - 1].SequenceAt > oneFingerprintLength)
-                {
-                    notCovered += matches[i].SequenceAt - (matches[i - 1].SequenceAt + oneFingerprintLength);
-                }
-            }
-
-            return matches[maxI].SequenceAt - matches[minI].SequenceAt - notCovered;
+            return new ResultEntry(
+                track,
+                coverage.SourceMatchStartsAt,
+                adjustedSourceMatchLength,
+                coverage.OriginMatchStartsAt,
+                GetTrackStartsAt(pair.Value.BestMatch),
+                confidence,
+                pair.Value.SummedHammingSimilarity)
+                    {
+                        BestMatch = pair.Value.BestMatch
+                    };
         }
 
         private double AdjustSnippetLengthToConfigsUsedDuringFingerprinting(double snipetLength, FingerprintConfiguration fingerprintConfiguration)
@@ -77,6 +86,16 @@
             int fingerprintSize = fingerprintConfiguration.SamplesPerFingerprint;
             double firstFingerprint = ((double)(fingerprintSize + wdftSize)) / sampleRate;
             return snipetLength + firstFingerprint;
+        }
+
+        private double GetTrackStartsAt(MatchedPair bestMatch)
+        {
+            if (bestMatch.SubFingerprint.SequenceAt > bestMatch.HashedFingerprint.Timestamp)
+            {
+                return 0;
+            }
+
+            return bestMatch.HashedFingerprint.Timestamp - bestMatch.SubFingerprint.SequenceAt;
         }
     }
 }
