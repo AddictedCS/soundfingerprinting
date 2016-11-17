@@ -36,9 +36,10 @@
             return this;
         }
 
-        public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
+        public IWithQueryAndFingerprintConfiguration From(string pathToAudioFile, double secondsToProcess, double startAtSecond)
         {
-            fingerprintingMethodFromSelector = () => fingerprintCommandBuilder.BuildFingerprintCommand().From(pathToAudioFile, secondsToProcess, startAtSecond);
+            fingerprintingMethodFromSelector = () => fingerprintCommandBuilder.BuildFingerprintCommand()
+                                                                              .From(pathToAudioFile, secondsToProcess, startAtSecond);
             return this;
         }
 

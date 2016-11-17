@@ -10,7 +10,7 @@
 
         private const int BlockAlign = 4;
 
-        public float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, int secondsToRead, int sampleRate)
+        public float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, double secondsToRead, int sampleRate)
         {
             var buffer = GetBuffer(secondsToRead, sampleRate);
             int totalBytesToRead = GetTotalBytesToRead(secondsToRead, sampleRate), totalBytesRead = 0;
@@ -56,17 +56,17 @@
             return ConcatenateChunksOfSamples(chunks);
         }
 
-        private int GetTotalBytesToRead(int secondsToRead, int sampleRate)
+        private int GetTotalBytesToRead(double secondsToRead, int sampleRate)
         {
-            if (secondsToRead == 0)
+            if (Math.Abs(secondsToRead) < 0.0001)
             {
                 return int.MaxValue;
             }
 
-            return secondsToRead * sampleRate * BlockAlign;
+            return (int)Math.Round(secondsToRead * sampleRate * BlockAlign);
         }
 
-        private float[] GetBuffer(int secondsToRead, int sampleRate)
+        private float[] GetBuffer(double secondsToRead, int sampleRate)
         {
             return new float[GetBufferLength(sampleRate, secondsToRead)];
         }
@@ -89,11 +89,11 @@
             return samples;
         }
 
-        private int GetBufferLength(int sampleRate, int secondsToRead)
+        private int GetBufferLength(int sampleRate, double secondsToRead)
         {
             if (secondsToRead > 0 && secondsToRead < DefaultBufferLengthInSeconds)
             {
-                return sampleRate * secondsToRead;
+                return (int)Math.Round(sampleRate * secondsToRead);
             }
 
             return sampleRate * DefaultBufferLengthInSeconds;

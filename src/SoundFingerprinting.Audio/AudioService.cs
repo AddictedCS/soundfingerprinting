@@ -6,8 +6,7 @@ namespace SoundFingerprinting.Audio
     {
         public abstract IReadOnlyCollection<string> SupportedFormats { get; }
 
-        public abstract AudioSamples ReadMonoSamplesFromFile(
-            string pathToSourceFile, int sampleRate, int seconds, int startAt);
+        public abstract AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt);
 
         public AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate)
         {

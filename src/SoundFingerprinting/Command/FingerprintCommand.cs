@@ -58,7 +58,7 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IWithFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
+        public IWithFingerprintConfiguration From(string pathToAudioFile, double secondsToProcess, double startAtSecond)
         {
             createFingerprintsMethod = () =>
                 {
