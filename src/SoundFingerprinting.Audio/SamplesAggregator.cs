@@ -6,7 +6,7 @@
 
     public class SamplesAggregator : ISamplesAggregator
     {
-        public const int DefaultBufferLengthInSeconds = 20;
+        internal const int DefaultBufferLengthInSeconds = 60;
 
         private const int BlockAlign = 4;
 
@@ -20,7 +20,7 @@
             {
                 int bytesRead = samplesProvider.GetNextSamples(buffer);
 
-                if (bytesRead  < 0)
+                if (bytesRead < 0)
                 {
                     throw new AudioServiceException("Number of read bytes is negative. Check your audio provider.");
                 }
