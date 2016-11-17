@@ -43,6 +43,7 @@ namespace SoundFingerprinting.Audio.NAudio.Test
             const int Mono = 1;
             WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Mono);
             waveStream.Setup(stream => stream.WaveFormat).Returns(waveFormat);
+            waveStream.Setup(stream => stream.TotalTime).Returns(TimeSpan.FromSeconds(120));
             waveStream.Setup(stream => stream.Close());
             const double StartAt = 20d;
             waveStream.Setup(stream => stream.CurrentTime).Returns(new TimeSpan());
