@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -61,7 +62,9 @@
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets))
                 .Returns(GenericFingerprint);
 
-            var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig);
+            var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
+                                                 .OrderBy(f => f.SequenceNumber)
+                                                 .ToList();
 
             Assert.AreEqual(dividedLogSpectrum.Count, fingerprints.Count);
             for (int index = 0; index < fingerprints.Count; index++)
@@ -110,11 +113,7 @@
             var dividedLogSpectrum = new List<SpectralImage>();
             for (int index = 0; index < 4; index++)
             {
-                dividedLogSpectrum.Add(
-                    new SpectralImage
-                        {
-                            Image = new[] { TestUtilities.GenerateRandomFloatArray(2048) }, Timestamp = 0.928 * index
-                        });
+                dividedLogSpectrum.Add(new SpectralImage(new[] { TestUtilities.GenerateRandomFloatArray(2048) }, 0.928 * index, index));
             }
 
             return dividedLogSpectrum;

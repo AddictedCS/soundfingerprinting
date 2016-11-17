@@ -32,11 +32,8 @@
 
             bool[] actual = fingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets);
             bool[] expected = ExtractTopWaveletsTested(frames, TopWavelets);
-            Assert.AreEqual(actual.Length, expected.Length);
-            for (int i = 0; i < actual.Length; i++)
-            {
-                Assert.AreEqual(actual[i], expected[i]);
-            }
+
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -54,10 +51,7 @@
 
             bool[] encodedFingerprint = fingerprintDescriptor.ExtractTopWavelets(frames, 5);
 
-            for (int i = 0; i < encodedFingerprint.Length; i++)
-            {
-                Assert.AreEqual(expected[i], encodedFingerprint[i]);
-            }
+            CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
         [TestMethod]
@@ -69,10 +63,7 @@
 
             bool[] encodedFingerprint = fingerprintDescriptor.EncodeFingerprint(concatenatedSpectrumPowers, indexes, 2);
 
-            for (int i = 0; i < encodedFingerprint.Length; i++)
-            {
-                Assert.AreEqual(expected[i], encodedFingerprint[i]);
-            }
+            CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
         [TestMethod]
@@ -82,10 +73,7 @@
 
             double[] decoded = fingerprintDescriptor.DecodeFingerprint(new[] { false, false, false, false, true, false, false, true, false, false, false, false, false, false });
 
-            for (int i = 0; i < decoded.Length; i++)
-            {
-                Assert.IsTrue(Math.Abs(expected[i] - decoded[i]) < Epsilon);
-            }
+            CollectionAssert.AreEqual(expected, decoded);
         }
 
         private bool[] ExtractTopWaveletsTested(float[][] frames, int topWavelets)
@@ -99,9 +87,8 @@
                 Array.Copy(frames[row], 0, concatenated, row * frames[row].Length, frames[row].Length);
             }
 
-            var query =
-                concatenated.Select((value, index) => new KeyValuePair<int, double>(index, value)).OrderByDescending(
-                    pair => Math.Abs(pair.Value));
+            var query = concatenated.Select((value, index) => new KeyValuePair<int, double>(index, value))
+                                    .OrderByDescending(pair => Math.Abs(pair.Value));
 
             if (topWavelets >= concatenated.Length)
             {

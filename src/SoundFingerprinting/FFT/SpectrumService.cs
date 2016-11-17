@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
@@ -64,11 +65,11 @@
 
             float[][] frames = new float[width][];
             int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
-            for (int i = 0; i < width; i++)
+            Parallel.For(0, width, i => 
             {
                 float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize);
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
-            }
+            });
 
             return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
         }
@@ -92,8 +93,9 @@
                     Array.Copy(logarithmizedSpectrum[index + i], spectralImage[i], numberOfLogBins);
                 }
 
-                spectralImages.Add(new SpectralImage { Image = spectralImage, Timestamp = index * ((double)overlap / sampleRate), SequenceNumber = ++sequenceNumber });
+                spectralImages.Add(new SpectralImage(spectralImage, index * ((double)overlap / sampleRate), sequenceNumber));
                 index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.GetNextStride() / overlap);
+                sequenceNumber++;
             }
 
             return spectralImages;
