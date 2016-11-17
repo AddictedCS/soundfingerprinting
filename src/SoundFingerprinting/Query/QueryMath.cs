@@ -32,8 +32,8 @@
             double min = double.MaxValue, max = double.MinValue;
             foreach (var hashedFingerprint in hashedFingerprints)
             {
-                min = System.Math.Min(min, hashedFingerprint.Timestamp);
-                max = System.Math.Max(max, hashedFingerprint.Timestamp);
+                min = System.Math.Min(min, hashedFingerprint.StartsAt);
+                max = System.Math.Max(max, hashedFingerprint.StartsAt);
             }
 
             return AdjustSnippetLengthToConfigsUsedDuringFingerprinting(max - min, fingerprintConfiguration);
@@ -90,12 +90,12 @@
 
         private double GetTrackStartsAt(MatchedPair bestMatch)
         {
-            if (bestMatch.SubFingerprint.SequenceAt > bestMatch.HashedFingerprint.Timestamp)
+            if (bestMatch.SubFingerprint.SequenceAt > bestMatch.HashedFingerprint.StartsAt)
             {
                 return 0;
             }
 
-            return bestMatch.HashedFingerprint.Timestamp - bestMatch.SubFingerprint.SequenceAt;
+            return bestMatch.HashedFingerprint.StartsAt - bestMatch.SubFingerprint.SequenceAt;
         }
     }
 }

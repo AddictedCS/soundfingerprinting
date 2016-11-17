@@ -29,8 +29,7 @@
         /// </summary>
         private const int B = 0;
 
-        protected override long[] GroupIntoHashTables(
-            byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable)
+        protected override long[] GroupIntoHashTables(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable)
         {
             var hashes = base.GroupIntoHashTables(minHashes, numberOfHashTables, numberOfHashesPerTable);
 

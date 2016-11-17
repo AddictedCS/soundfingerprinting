@@ -46,7 +46,7 @@
                 InsertSubFingerprint(
                     hashedFingerprint.HashBins,
                     hashedFingerprint.SequenceNumber,
-                    hashedFingerprint.Timestamp,
+                    hashedFingerprint.StartsAt,
                     trackReference);
             }
         }

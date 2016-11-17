@@ -37,7 +37,7 @@
             }
 
             double sourceMatchLength = sortedMatches[maxI].SubFingerprint.SequenceAt - sortedMatches[minI].SubFingerprint.SequenceAt - notCovered;
-            double sourceMatchStartsAt = sortedMatches[minI].HashedFingerprint.Timestamp;
+            double sourceMatchStartsAt = sortedMatches[minI].HashedFingerprint.StartsAt;
             double originMatchStartsAt = sortedMatches[minI].SubFingerprint.SequenceAt;
             return new Coverage(sourceMatchStartsAt, sourceMatchLength, originMatchStartsAt);
         }

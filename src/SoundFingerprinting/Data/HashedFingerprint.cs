@@ -2,12 +2,12 @@
 {
     public class HashedFingerprint 
     {
-        public HashedFingerprint(byte[] subFingerprint, long[] hashBins, int sequenceNumber, double sequenceAt)
+        public HashedFingerprint(byte[] subFingerprint, long[] hashBins, int sequenceNumber, double startsAt)
         {
             SubFingerprint = subFingerprint;
             HashBins = hashBins;
             SequenceNumber = sequenceNumber;
-            Timestamp = sequenceAt;
+            StartsAt = startsAt;
         }
 
         public byte[] SubFingerprint { get; set; }
@@ -16,7 +16,7 @@
 
         public int SequenceNumber { get; set; }
 
-        public double Timestamp { get; set; }
+        public double StartsAt { get; set; }
 
         public double SourceDuration { get; set; }
     }
