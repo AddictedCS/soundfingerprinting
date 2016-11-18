@@ -10,14 +10,14 @@
             StartsAt = startsAt;
         }
 
-        public byte[] SubFingerprint { get; set; }
+        public byte[] SubFingerprint { get; private set; }
 
-        public long[] HashBins { get; set; }
+        public long[] HashBins { get; private set; }
 
-        public int SequenceNumber { get; set; }
+        public int SequenceNumber { get; private set; }
 
-        public double StartsAt { get; set; }
+        public double StartsAt { get; private set; }
 
-        public double SourceDuration { get; set; }
+        public double QuerySourceDuration { get; internal set; }
     }
 }
