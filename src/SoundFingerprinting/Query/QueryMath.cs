@@ -27,22 +27,16 @@
             this.confidenceCalculator = confidenceCalculator;
         }
 
-        public double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
+        public List<ResultEntry> GetBestCandidates(
+            List<HashedFingerprint> hashedFingerprints,
+            IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites,
+            int maxNumberOfMatchesToReturn,
+            IModelService modelService,
+            FingerprintConfiguration fingerprintConfiguration)
         {
-            double startsAt = double.MaxValue, endsAt = double.MinValue;
-            foreach (var hashedFingerprint in hashedFingerprints)
-            {
-                startsAt = System.Math.Min(startsAt, hashedFingerprint.StartsAt);
-                endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
-            }
-
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
-        }
-
-        public List<ResultEntry> GetBestCandidates(IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites, int numberOfCandidatesToReturn, IModelService modelService, FingerprintConfiguration fingerprintConfiguration, double queryLength)
-        {
+            double queryLength = CalculateExactQueryLength(hashedFingerprints, fingerprintConfiguration);
             return hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
-                                     .Take(numberOfCandidatesToReturn)
+                                     .Take(maxNumberOfMatchesToReturn)
                                      .Select(e => GetResultEntry(modelService, fingerprintConfiguration, e, queryLength))
                                      .ToList();
         }
@@ -72,6 +66,18 @@
                 pair.Value.HammingSimilaritySum,
                 queryLength,
                 pair.Value.BestMatch);
+        }
+
+        public double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
+        {
+            double startsAt = double.MaxValue, endsAt = double.MinValue;
+            foreach (var hashedFingerprint in hashedFingerprints)
+            {
+                startsAt = System.Math.Min(startsAt, hashedFingerprint.StartsAt);
+                endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
+            }
+
+            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
         }
 
         private double GetTrackStartsAt(MatchedPair bestMatch)

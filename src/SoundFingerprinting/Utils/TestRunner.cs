@@ -314,7 +314,8 @@
             return new object[]
                 {
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
-                    queryResult.BestMatch.HammingSimilaritySum, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
+                    queryResult.BestMatch.HammingSimilaritySum, queryResult.AnalyzedSubFingerprintsCount,
+                    queryResult.BestMatch.Coverage,
                     queryResult.BestMatch.QueryMatchLength, queryResult.BestMatch.QueryMatchStartsAt
                 };
         }

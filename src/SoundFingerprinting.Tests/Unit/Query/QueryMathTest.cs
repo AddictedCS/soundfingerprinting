@@ -54,7 +54,7 @@
                     { new ModelReference<int>(3), third },
                 };
 
-          var best = queryMath.GetBestCandidates(hammingSimilarties, queryConfiguration.MaxTracksToReturn, modelService.Object, queryConfiguration.FingerprintConfiguration, 10);
+          var best = queryMath.GetBestCandidates(new List<HashedFingerprint>(), hammingSimilarties, queryConfiguration.MaxTracksToReturn, modelService.Object, queryConfiguration.FingerprintConfiguration);
 
           Assert.AreEqual(1, best.Count);
           Assert.AreEqual("isrc-1234-1234", best[0].Track.ISRC);

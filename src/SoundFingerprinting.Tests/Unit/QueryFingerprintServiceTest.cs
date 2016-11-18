@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -82,11 +83,11 @@
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
             Assert.AreEqual(50, queryResult.BestMatch.HammingSimilaritySum);
-            Assert.AreEqual(3, queryResult.AnalyzedTracksCount);
-            Assert.AreEqual(3, queryResult.ResultEntries.Count);
-            Assert.AreEqual(firstTrackReference, queryResult.ResultEntries[0].Track.TrackReference);
-            Assert.AreEqual(secondTrackReference, queryResult.ResultEntries[1].Track.TrackReference);
-            Assert.AreEqual(thirdTrackReference, queryResult.ResultEntries[2].Track.TrackReference);
+            Assert.AreEqual(3, queryResult.ResultEntries.Count());
+            var results = queryResult.ResultEntries.ToList();
+            Assert.AreEqual(firstTrackReference, results[0].Track.TrackReference);
+            Assert.AreEqual(secondTrackReference,  results[1].Track.TrackReference);
+            Assert.AreEqual(thirdTrackReference,  results[2].Track.TrackReference);
         }
 
         [TestMethod]
@@ -103,8 +104,7 @@
 
             Assert.IsFalse(queryResult.IsSuccessful);
             Assert.IsNull(queryResult.BestMatch);
-            Assert.AreEqual(0, queryResult.AnalyzedTracksCount);
-            Assert.AreEqual(0, queryResult.ResultEntries.Count);
+            Assert.AreEqual(0, queryResult.ResultEntries.Count());
         }
 
         [TestMethod]
@@ -134,8 +134,7 @@
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
             Assert.AreEqual(GenericSignature.Length * 2, queryResult.BestMatch.HammingSimilaritySum);
-            Assert.AreEqual(1, queryResult.AnalyzedTracksCount);
-            Assert.AreEqual(1, queryResult.ResultEntries.Count);
+            Assert.AreEqual(1, queryResult.ResultEntries.Count());
         }
     }
 }

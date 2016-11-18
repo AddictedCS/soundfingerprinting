@@ -57,7 +57,7 @@
         public void QueryIsBuiltFromFileCorrectly()
         {
             const string PathToFile = "path-to-file";
-            QueryResult dummyResult = new QueryResult { ResultEntries = new List<ResultEntry>() };
+            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), 0);
             List<HashedFingerprint> hashedFingerprints =
                 new List<HashedFingerprint>(
                     new[]
@@ -89,7 +89,7 @@
             const string PathToFile = "path-to-file";
             const int StartAtSecond = 120;
             const int SecondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult { ResultEntries = new List<ResultEntry>() };
+            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), 0);
             List<HashedFingerprint> hashDatas =
                 new List<HashedFingerprint>(
                     new[]
