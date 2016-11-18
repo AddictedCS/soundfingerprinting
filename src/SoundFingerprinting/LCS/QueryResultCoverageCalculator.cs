@@ -3,17 +3,18 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
 
     internal class QueryResultCoverageCalculator : IQueryResultCoverageCalculator
     {
-        public Coverage GetLongestMatch(SortedSet<MatchedPair> matches, double queryLength, double oneFingerprintCoverage)
+        public Coverage GetCoverage(SortedSet<MatchedPair> matches, double queryLength, FingerprintConfiguration configuration)
         {
             int minI = 0, maxI = 0, curMinI = 0, maxLength = 0;
             var sortedMatches = matches.ToList();
             for (int i = 1; i < sortedMatches.Count; ++i)
             {
-                if (ConsecutiveResponseMatchesAreLongerThanQuery(queryLength, sortedMatches, i))
+                if (ConsecutiveMatchesAreLongerThanTheQuery(queryLength, sortedMatches, i, configuration))
                 {
                     // potentialy a new start of best matched sequence
                     curMinI = i;
@@ -30,21 +31,28 @@
             double notCovered = 0d;
             for (int i = minI + 1; i <= maxI; ++i)
             {
-                if (sortedMatches[i].SubFingerprint.SequenceAt - sortedMatches[i - 1].SubFingerprint.SequenceAt > oneFingerprintCoverage)
+                if (sortedMatches[i].SubFingerprint.SequenceAt - sortedMatches[i - 1].SubFingerprint.SequenceAt > configuration.FingerprintLengthInSeconds)
                 {
-                    notCovered += sortedMatches[i].SubFingerprint.SequenceAt - (sortedMatches[i - 1].SubFingerprint.SequenceAt + oneFingerprintCoverage);
+                    notCovered += sortedMatches[i].SubFingerprint.SequenceAt - (sortedMatches[i - 1].SubFingerprint.SequenceAt + configuration.FingerprintLengthInSeconds);
                 }
             }
 
-            double sourceMatchLength = sortedMatches[maxI].SubFingerprint.SequenceAt - sortedMatches[minI].SubFingerprint.SequenceAt - notCovered;
+            double sourceMatchLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(
+                    sortedMatches[maxI].SubFingerprint.SequenceAt,
+                    sortedMatches[minI].SubFingerprint.SequenceAt,
+                    configuration) - notCovered;
+
             double sourceMatchStartsAt = sortedMatches[minI].HashedFingerprint.StartsAt;
             double originMatchStartsAt = sortedMatches[minI].SubFingerprint.SequenceAt;
             return new Coverage(sourceMatchStartsAt, sourceMatchLength, originMatchStartsAt);
         }
 
-        private bool ConsecutiveResponseMatchesAreLongerThanQuery(double queryLength, List<MatchedPair> sortedMatches, int i)
+        private bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, List<MatchedPair> sortedMatches, int index, FingerprintConfiguration config)
         {
-            return sortedMatches[i].SubFingerprint.SequenceAt - sortedMatches[i - 1].SubFingerprint.SequenceAt >= queryLength;
+            return SubFingerprintsToSeconds.AdjustLengthToSeconds(
+                sortedMatches[index].SubFingerprint.SequenceAt,
+                sortedMatches[index - 1].SubFingerprint.SequenceAt,
+                config) > queryLength;
         }
     }
 }
