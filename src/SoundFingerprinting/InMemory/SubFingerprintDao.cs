@@ -10,23 +10,20 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Math;
 
     internal class SubFingerprintDao : ISubFingerprintDao
     {
         private static long counter;
 
         private readonly IRAMStorage storage;
-        private readonly IHashConverter hashConverter;
 
-        public SubFingerprintDao() : this(DependencyResolver.Current.Get<IRAMStorage>(), DependencyResolver.Current.Get<IHashConverter>())
+        public SubFingerprintDao() : this(DependencyResolver.Current.Get<IRAMStorage>())
         {
         }
 
-        public SubFingerprintDao(IRAMStorage storage, IHashConverter hashConverter)
+        public SubFingerprintDao(IRAMStorage storage)
         {
             this.storage = storage;
-            this.hashConverter = hashConverter;
         }
 
         public SubFingerprintData ReadSubFingerprint(IModelReference subFingerprintReference)
@@ -43,11 +40,7 @@
         {
             foreach (var hashedFingerprint in hashes)
             {
-                InsertSubFingerprint(
-                    hashedFingerprint.HashBins,
-                    hashedFingerprint.SequenceNumber,
-                    hashedFingerprint.StartsAt,
-                    trackReference);
+                InsertSubFingerprint(hashedFingerprint, trackReference);
             }
         }
 
@@ -117,7 +110,7 @@
             return allCandidates;
         }
 
-        private void InsertHashes(long[] hashBins, IModelReference subFingerprintReference, IModelReference trackReference)
+        private void InsertHashes(long[] hashBins, IModelReference subFingerprintReference)
         {
             int table = 0;
             lock (((ICollection)storage.HashTables).SyncRoot)
@@ -132,23 +125,20 @@
                     hashTable[hashBins[table]].Add(subFingerprintReference);
                     table++;
                 }
-
-                storage.TracksHashes[trackReference][subFingerprintReference].HashBins = hashBins;
             }
         }
 
-        private void InsertSubFingerprint(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference trackReference)
+        private void InsertSubFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
         {
             var subFingerprintReference = new ModelReference<long>(Interlocked.Increment(ref counter));
-            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(hashes, sequenceNumber, sequenceAt, subFingerprintReference, trackReference);
+            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber, hashedFingerprint.StartsAt, subFingerprintReference, trackReference);
             if (!storage.TracksHashes.ContainsKey(trackReference))
             {
                 storage.TracksHashes[trackReference] = new ConcurrentDictionary<IModelReference, HashedFingerprint>();
             }
 
-            byte[] bytes = hashConverter.ToBytes(hashes, hashes.Length * 4);
-            storage.TracksHashes[trackReference][subFingerprintReference] = new HashedFingerprint(bytes, hashes, sequenceNumber, sequenceAt);
-            this.InsertHashes(hashes, subFingerprintReference, trackReference);
+            storage.TracksHashes[trackReference][subFingerprintReference] = hashedFingerprint;
+            this.InsertHashes(hashedFingerprint.HashBins, subFingerprintReference);
         }
     }
 }
