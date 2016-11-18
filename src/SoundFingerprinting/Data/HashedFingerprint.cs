@@ -17,7 +17,5 @@
         public int SequenceNumber { get; private set; }
 
         public double StartsAt { get; private set; }
-
-        public double QuerySourceDuration { get; internal set; }
     }
 }

@@ -27,8 +27,8 @@
         {
                 double startAt = result.TrackStartsAt;
 
-                double length = startAt + result.Track.TrackLengthSec < result.BestMatch.HashedFingerprint.QuerySourceDuration ? 
-                    result.Track.TrackLengthSec : result.BestMatch.HashedFingerprint.QuerySourceDuration - startAt;
+                double length = startAt + result.Track.TrackLengthSec < result.QueryLength ? 
+                    result.Track.TrackLengthSec : result.QueryLength - startAt;
 
                 var newResult = queryCommandBuilder.BuildQueryCommand()
                                                    .From(pathToAudioFile, (int)length, (int)startAt)
@@ -47,15 +47,14 @@
             {
                 return new ResultEntry(
                     newEntry.Track,
-                    newEntry.StartsAt,
-                    newEntry.Length,
+                    newEntry.QueryMatchStartsAt,
+                    newEntry.QueryMatchLength,
                     newEntry.OriginStartsAt,
                     newEntry.TrackStartsAt + result.TrackStartsAt,
                     newEntry.Confidence,
-                    newEntry.HammingSimilaritySum)
-                    {
-                        BestMatch = newEntry.BestMatch
-                    };
+                    newEntry.HammingSimilaritySum,
+                    newEntry.QueryLength,
+                    newEntry.BestMatch);
             }
 
             return result;

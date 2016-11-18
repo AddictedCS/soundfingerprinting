@@ -58,7 +58,7 @@
             double confidence = confidenceCalculator.CalculateConfidence(
                 coverage.SourceMatchStartsAt,
                 coverage.SourceMatchLength,
-                pair.Value.BestMatch.HashedFingerprint.QuerySourceDuration,
+                queryLength,
                 coverage.OriginMatchStartsAt,
                 track.TrackLengthSec);
 
@@ -69,10 +69,9 @@
                 coverage.OriginMatchStartsAt,
                 GetTrackStartsAt(pair.Value.BestMatch),
                 confidence,
-                pair.Value.HammingSimilaritySum)
-                    {
-                        BestMatch = pair.Value.BestMatch
-                    };
+                pair.Value.HammingSimilaritySum,
+                queryLength,
+                pair.Value.BestMatch);
         }
 
         private double GetTrackStartsAt(MatchedPair bestMatch)

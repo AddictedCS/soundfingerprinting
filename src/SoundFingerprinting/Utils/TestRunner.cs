@@ -315,7 +315,7 @@
                 {
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
                     queryResult.BestMatch.HammingSimilaritySum, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
-                    queryResult.BestMatch.Length, queryResult.BestMatch.StartsAt
+                    queryResult.BestMatch.QueryMatchLength, queryResult.BestMatch.QueryMatchStartsAt
                 };
         }
 

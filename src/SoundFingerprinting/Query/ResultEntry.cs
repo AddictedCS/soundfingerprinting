@@ -4,63 +4,73 @@ namespace SoundFingerprinting.Query
 
     public class ResultEntry
     {
-        public ResultEntry(TrackData track, double startsAt, double length, double originStartsAt, double trackStartsAt, double confidence, int hammingSimilaritySum)
+        internal ResultEntry(TrackData track, double queryMatchStartsAt, double queryMatchLength, double originStartsAt, double trackStartsAt, double confidence, int hammingSimilaritySum, double queryLength, MatchedPair bestMatch)
         {
             Track = track;
-            this.StartsAt = startsAt;
-            this.OriginStartsAt = originStartsAt;
-            this.Length = length;
+            QueryMatchStartsAt = queryMatchStartsAt;
+            QueryMatchLength = queryMatchLength;
+            OriginStartsAt = originStartsAt;
             Confidence = confidence;
             HammingSimilaritySum = hammingSimilaritySum;
             TrackStartsAt = trackStartsAt;
+            QueryLength = queryLength;
+            BestMatch = bestMatch;
         }
 
         /// <summary>
         ///  Gets the resulting track
         /// </summary>
         public TrackData Track { get; private set; }
-
+        
         /// <summary>
-        ///  Gets starting position of the query sequence
+        ///  Gets the best guess of how long did the resulting track matched in the query
         /// </summary>
-        public double StartsAt { get; private set; }
+        public double QueryMatchLength { get; private set; }
 
         /// <summary>
-        ///  Gets starting position in the origin track
-        /// </summary>
-        public double OriginStartsAt { get; private set; }
-
-        /// <summary>
-        ///  Gets starting point of the result track in the source query
+        ///  Gets best guess where does the result track starts in the query snippet.
         /// </summary>
         public double TrackStartsAt { get; private set; }
 
         /// <summary>
-        ///  Gets the exact length of the matched sequence
-        /// </summary>
-        public double Length { get; private set; }
-
-        /// <summary>
-        ///  Gets the exact percentange of how much the result entry covered comparing to the original song.
+        ///  Gets the percentange of how much the query match covered the original track
         /// </summary>
         public double Coverage
         {
             get
             {
-                return Length / Track.TrackLengthSec;
+                return QueryMatchLength / Track.TrackLengthSec;
             }
         }
 
         /// <summary>
-        ///  Gets confidence value [0, 1) 
+        ///  Gets the value [0, 1) of how confident is the framework that query match corresponds to result track
         /// </summary>
         public double Confidence { get; private set; }
 
         /// <summary>
-        ///  Gets number of matched fingerprints
+        ///  Gets best matched pair
         /// </summary>
-        public int HammingSimilaritySum { get; private set; }
+        internal MatchedPair BestMatch { get; private set; }
 
-        internal MatchedPair BestMatch { get; set; }
+        /// <summary>
+        ///  Gets the exact position where resulting track started to match 
+        /// </summary>
+        internal double QueryMatchStartsAt { get; private set; }
+
+        /// <summary>
+        ///   Gets starting position in the origin track that mached at QueryMatchStartPosition
+        /// </summary>
+        internal double OriginStartsAt { get; private set; }
+
+        /// <summary>
+        ///  Gets similarity count between query match and track
+        /// </summary>
+        internal int HammingSimilaritySum { get; private set; }
+
+        /// <summary>
+        ///  Gets the exact query length used to generate this entry
+        /// </summary>
+        internal double QueryLength { get; private set; }
     }
 }
