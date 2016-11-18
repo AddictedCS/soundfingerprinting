@@ -11,7 +11,7 @@
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
-    public class QueryFingerprintService : IQueryFingerprintService
+    internal class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly ISimilarityUtility similarityUtility;
         private readonly IQueryMath queryMath;
@@ -29,15 +29,15 @@
             this.queryMath = queryMath;
         }
     
-        public QueryResult Query(IModelService modelService, List<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
+        public QueryResult Query(List<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hammingSimilarities = new Dictionary<IModelReference, ResultEntryAccumulator>();
             int subFingerprintsCount = 0;
-            foreach (var hashedFingerprint in hashedFingerprints)
+            foreach (var queryFingerprint in queryFingerprints)
             {
-                var subFingerprints = modelService.ReadSubFingerprints(hashedFingerprint.HashBins, queryConfiguration);
+                var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
                 subFingerprintsCount += subFingerprints.Count;
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint, hammingSimilarities);
+                similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
             }
 
             if (!hammingSimilarities.Any())
@@ -45,58 +45,8 @@
                 return QueryResult.EmptyResult();
             }
 
-            var resultEntries = queryMath.GetBestCandidates(hashedFingerprints, hammingSimilarities, queryConfiguration.MaxTracksToReturn, modelService, queryConfiguration.FingerprintConfiguration);
+            var resultEntries = queryMath.GetBestCandidates(queryFingerprints, hammingSimilarities, configuration.MaxTracksToReturn, modelService, configuration.FingerprintConfiguration);
             return QueryResult.NonEmptyResult(resultEntries, subFingerprintsCount);
-        }
-
-        public QueryResult QueryExperimental(IModelService modelService, List<HashedFingerprint> hashedFingerprints, QueryConfiguration queryConfiguration)
-        {
-            var hammingSimilarities = new Dictionary<IModelReference, ResultEntryAccumulator>();
-            var allCandidates = modelService.ReadSubFingerprints(hashedFingerprints.Select(h => h.HashBins), queryConfiguration);
-
-            foreach (var hashedFingerprint in hashedFingerprints)
-            {
-                HashedFingerprint fingerprint = hashedFingerprint;
-                var subFingerprints =
-                    allCandidates.Where(
-                        candidate => DoesMatchThresholdVotes(queryConfiguration, fingerprint, candidate));
-
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint, hammingSimilarities);
-            }
-
-            if (!hammingSimilarities.Any())
-            {
-                return QueryResult.EmptyResult();
-            }
-
-            var resultEntries = queryMath.GetBestCandidates(
-                hashedFingerprints,
-                hammingSimilarities,
-                queryConfiguration.MaxTracksToReturn,
-                modelService,
-                queryConfiguration.FingerprintConfiguration);
-            return QueryResult.NonEmptyResult(resultEntries, allCandidates.Count);
-        }
-
-        private bool DoesMatchThresholdVotes(QueryConfiguration queryConfiguration, HashedFingerprint fingerprint, SubFingerprintData candidate)
-        {
-            long[] actual = fingerprint.HashBins;
-            var result = candidate.Hashes;
-            int count = 0;
-            for (int i = 0; i < actual.Length; ++i)
-            {
-                if (actual[i] == result[i])
-                {
-                    count++;
-                }
-
-                if (count >= queryConfiguration.ThresholdVotes)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

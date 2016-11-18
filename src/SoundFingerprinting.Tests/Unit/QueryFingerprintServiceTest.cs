@@ -77,7 +77,7 @@
             modelService.Setup(service => service.ReadTrackByReference(thirdTrackReference)).Returns(
                 new TrackData { ISRC = "isrc_2", TrackReference = thirdTrackReference });
 
-            var queryResult = queryFingerprintService.Query(modelService.Object, new List<HashedFingerprint> { queryHash }, customQueryConfiguration);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, this.modelService.Object);
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
@@ -97,10 +97,8 @@
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
             modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<long[]>(), customQueryConfiguration)).Returns(new List<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(
-                modelService.Object,
-                new List<HashedFingerprint> { queryHash },
-                customQueryConfiguration);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash },
+                customQueryConfiguration, this.modelService.Object);
 
             Assert.IsFalse(queryResult.IsSuccessful);
             Assert.IsNull(queryResult.BestMatch);
@@ -125,10 +123,8 @@
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference))
                         .Returns(new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
 
-            var queryResult = queryFingerprintService.Query(
-                modelService.Object,
-                new List<HashedFingerprint> { queryHash },
-                defaultQueryConfiguration);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash },
+                defaultQueryConfiguration, this.modelService.Object);
 
             Assert.IsTrue(queryResult.IsSuccessful);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);

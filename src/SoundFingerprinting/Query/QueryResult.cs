@@ -14,7 +14,7 @@
         /// <summary>
         ///   Gets a value indicating whether query result contains any matches
         /// </summary>
-        public bool IsSuccessful
+        public bool ContainsMatches
         {
             get
             {
@@ -28,13 +28,13 @@
         public IEnumerable<ResultEntry> ResultEntries { get; private set; }
 
         /// <summary>
-        /// Gets best match if any
+        ///  Gets best match if result entries are not empty
         /// </summary>
         public ResultEntry BestMatch
         {
             get
             {
-                if (IsSuccessful)
+                if (ContainsMatches)
                 {
                     return ResultEntries.First();
                 }

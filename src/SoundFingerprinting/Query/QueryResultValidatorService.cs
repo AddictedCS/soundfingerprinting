@@ -25,19 +25,21 @@
             IModelService modelService,
             IAudioService audioService)
         {
-                double startAt = result.TrackStartsAt;
+            double startAt = result.TrackStartsAt, length = result.QueryLength - result.TrackStartsAt;
 
-                double length = startAt + result.Track.TrackLengthSec < result.QueryLength ? 
-                    result.Track.TrackLengthSec : result.QueryLength - startAt;
+            if (startAt + result.Track.TrackLengthSec < result.QueryLength)
+            {
+                length = result.Track.TrackLengthSec;
+            }
 
-                var newResult = queryCommandBuilder.BuildQueryCommand()
-                                                   .From(pathToAudioFile, (int)length, (int)startAt)
-                                                   .WithFingerprintConfig(config => config.Stride = validationStride)
-                                                   .UsingServices(modelService, audioService)
-                                                   .Query()
-                                                   .Result;
+            var newResult = queryCommandBuilder.BuildQueryCommand()
+                                               .From(pathToAudioFile, length, startAt)
+                                               .WithFingerprintConfig(config => config.Stride = validationStride)
+                                               .UsingServices(modelService, audioService)
+                                               .Query()
+                                               .Result;
 
-            if (!newResult.IsSuccessful)
+            if (!newResult.ContainsMatches)
             {
                 return result;
             }

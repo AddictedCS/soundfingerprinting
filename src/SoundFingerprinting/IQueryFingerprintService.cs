@@ -6,23 +6,15 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
-    public interface IQueryFingerprintService
+    internal interface IQueryFingerprintService
     {
         /// <summary>
-        /// Query the underlying data source capturing best candidate and similarity information
+        ///   Query the underlying data source capturing best candidates and their similarity information
         /// </summary>
-        /// <param name="modelService">Model Service used to access the data source</param>
-        /// <param name="hashedFingerprints">Hashed fingerprints from query snippet</param>
-        /// <param name="queryConfiguration">Query configuration</param>
-        /// <returns>Result with details</returns>
-        QueryResult Query(
-            IModelService modelService,
-            List<HashedFingerprint> hashedFingerprints,
-            QueryConfiguration queryConfiguration);
-
-        QueryResult QueryExperimental(
-            IModelService modelService,
-            List<HashedFingerprint> hashedFingerprints,
-            QueryConfiguration queryConfiguration);
+        /// <param name="queryFingerprints">Hashed fingerprints generated from the query source</param>
+        /// <param name="configuration">Query configuration</param>
+        /// <param name="modelService">Storage service used to access the data source</param>
+        /// <returns>Query results</returns>
+        QueryResult Query(List<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService);
     }
 }
