@@ -1,7 +1,9 @@
-﻿using System;
-
-namespace SoundFingerprinting.FFT
+﻿namespace SoundFingerprinting.FFT
 {
+    using System;
+
+    using SoundFingerprinting.Configuration;
+
     public class LomontFFT : IFFTService
     {
         /// <summary>                                                                                            
@@ -14,13 +16,12 @@ namespace SoundFingerprinting.FFT
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
         /// inverse transform</param>                                                                            
-        public void FFT(double[] data, bool forward)
+        public void FFT(float[] data, bool forward)
         {
             var n = data.Length;
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
-                throw new ArgumentException(
-                    "data length " + n + " in FFT is not a power of 2");
+                throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
             n /= 2;    // n is the number of samples                                                             
 
             Reverse(data, n); // bit index data reversal                                                         
@@ -32,16 +33,16 @@ namespace SoundFingerprinting.FFT
             {
                 var istep = 2 * mmax;
                 var theta = sign * System.Math.PI / mmax;
-                double wr = 1, wi = 0;
-                var wpr = System.Math.Cos(theta);
-                var wpi = System.Math.Sin(theta);
+                float wr = 1, wi = 0;
+                float wpr = (float) System.Math.Cos(theta);
+                float wpi = (float) System.Math.Sin(theta);
                 for (var m = 0; m < istep; m += 2)
                 {
                     for (var k = m; k < 2 * n; k += 2 * istep)
                     {
                         var j = k + istep;
-                        var tempr = wr * data[j] - wi * data[j + 1];
-                        var tempi = wi * data[j] + wr * data[j + 1];
+                        float tempr = wr * data[j] - wi * data[j + 1];
+                        float tempi = wi * data[j] + wr * data[j + 1];
                         data[j] = data[k] - tempr;
                         data[j + 1] = data[k + 1] - tempi;
                         data[k] = data[k] + tempr;
@@ -69,24 +70,18 @@ namespace SoundFingerprinting.FFT
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
         /// inverse transform</param>                                                                            
-        public void TableFFT(double[] data, bool forward)
+        public void TableFFT(float[] data, bool forward)
         {
             var n = data.Length;
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
-                throw new ArgumentException(
-                    "data length " + n + " in FFT is not a power of 2"
-                    );
+                throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
             n /= 2;    // n is the number of samples                                                             
 
             Reverse(data, n); // bit index data reversal                                                         
 
-            // make table if needed                                                                              
-            if ((cosTable == null) || (cosTable.Length != n))
-                Initialize(n);
-
             // do transform: so single point transforms, then doubles, etc.                                      
-            double sign = forward ? B : -B;
+            float sign = forward ? B : -B;
             var mmax = 1;
             var tptr = 0;
             while (n > mmax)
@@ -94,8 +89,8 @@ namespace SoundFingerprinting.FFT
                 var istep = 2 * mmax;
                 for (var m = 0; m < istep; m += 2)
                 {
-                    var wr = cosTable[tptr];
-                    var wi = sign * sinTable[tptr++];
+                    float wr = cosTable[tptr];
+                    float wi = sign * sinTable[tptr++];
                     for (var k = m; k < 2 * n; k += 2 * istep)
                     {
                         var j = k + istep;
@@ -128,9 +123,8 @@ namespace SoundFingerprinting.FFT
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
         /// inverse transform</param>                                                                            
-        public void RealFFT(double[] data, bool forward)
+        public void RealFFT(float[] data, bool forward)
         {
-
             var n = data.Length; // # of real inputs, 1/2 the complex length                                     
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
@@ -138,23 +132,23 @@ namespace SoundFingerprinting.FFT
                     "data length " + n + " in FFT is not a power of 2"
                     );
 
-            var sign = -1.0; // assume inverse FFT, this controls how algebra below works                        
+            float sign = -1.0f; // assume inverse FFT, this controls how algebra below works                        
             if (forward)
             { // do packed FFT. This can be changed to FFT to save memory                                        
                 TableFFT(data, true);
-                sign = 1.0;
+                sign = 1.0f;
                 // scaling - divide by scaling for N/2, then mult by scaling for N                               
                 if (A != 1)
                 {
-                    var scale = System.Math.Pow(2.0, (A - 1) / 2.0);
+                    var scale = (float)Math.Pow(2.0, (A - 1) / 2.0);
                     for (var i = 0; i < data.Length; ++i)
                         data[i] *= scale;
                 }
             }
 
-            var theta = B * sign * 2 * System.Math.PI / n;
-            var wpr =System. Math.Cos(theta);
-            var wpi = System.Math.Sin(theta);
+            var theta = B * sign * 2 * Math.PI / n;
+            var wpr = (float)Math.Cos(theta);
+            var wpi = (float)Math.Sin(theta);
             var wjr = wpr;
             var wji = wpi;
 
@@ -174,12 +168,12 @@ namespace SoundFingerprinting.FFT
                 var f = (tji - tki);
 
                 // compute entry y[j]                                                                            
-                data[2 * j] = 0.5 * (e + sign * (a + b));
-                data[2 * j + 1] = 0.5 * (f + sign * (d - c));
+                data[2 * j] = 0.5f * (e + sign * (a + b));
+                data[2 * j + 1] = 0.5f * (f + sign * (d - c));
 
                 // compute entry y[k]                                                                            
-                data[2 * k] = 0.5 * (e - sign * (b + a));
-                data[2 * k + 1] = 0.5 * (sign * (d - c) - f);
+                data[2 * k] = 0.5f * (e - sign * (b + a));
+                data[2 * k + 1] = 0.5f * (sign * (d - c) - f);
 
                 var temp = wjr;
                 // todo - allow more accurate version here? make option?                                         
@@ -197,14 +191,14 @@ namespace SoundFingerprinting.FFT
             else
             {
                 var temp = data[0]; // unpack the y0 and y_{N/2}, then invert FFT                                
-                data[0] = 0.5 * (temp + data[1]);
-                data[1] = 0.5 * (temp - data[1]);
+                data[0] = 0.5f * (temp + data[1]);
+                data[1] = 0.5f * (temp - data[1]);
                 // do packed inverse (table based) FFT. This can be changed to regular inverse FFT to save memory
                 TableFFT(data, false);
                 // scaling - divide by scaling for N, then mult by scaling for N/2                               
                 //if (A != -1) // todo - off by factor of 2? this works, but something seems weird               
                 {
-                    var scale = System.Math.Pow(2.0, -(A + 1) / 2.0) * 2;
+                    var scale = (float)Math.Pow(2.0, -(A + 1) / 2.0) * 2;
                     for (var i = 0; i < data.Length; ++i)
                         data[i] *= scale;
                 }
@@ -242,6 +236,8 @@ namespace SoundFingerprinting.FFT
         {
             A = 0;
             B = 1;
+            var config = new DefaultSpectrogramConfig();
+            Initialize(config.WdftSize);
         }
 
         #region Internals
@@ -252,12 +248,12 @@ namespace SoundFingerprinting.FFT
         /// <param name="data"></param>                                                                          
         /// <param name="n"></param>                                                                             
         /// <param name="forward"></param>                                                                       
-        void Scale(double[] data, int n, bool forward)
+        void Scale(float[] data, int n, bool forward)
         {
             // forward scaling if needed                                                                         
             if ((forward) && (A != 1))
             {
-                var scale = System.Math.Pow(n, (A - 1) / 2.0);
+                var scale = (float)Math.Pow(n, (A - 1) / 2.0);
                 for (var i = 0; i < data.Length; ++i)
                     data[i] *= scale;
             }
@@ -265,7 +261,7 @@ namespace SoundFingerprinting.FFT
             // inverse scaling if needed                                                                         
             if ((!forward) && (A != -1))
             {
-                var scale = System.Math.Pow(n, -(A + 1) / 2.0);
+                var scale = (float)Math.Pow(n, -(A + 1) / 2.0);
                 for (var i = 0; i < data.Length; ++i)
                     data[i] *= scale;
             }
@@ -280,8 +276,8 @@ namespace SoundFingerprinting.FFT
         {
             // NOTE: if you port to non garbage collected languages                                              
             // like C# or Java be sure to free these correctly                                                   
-            cosTable = new double[size];
-            sinTable = new double[size];
+            cosTable = new float[size];
+            sinTable = new float[size];
 
             // forward pass                                                                                      
             var n = size;
@@ -289,11 +285,11 @@ namespace SoundFingerprinting.FFT
             while (n > mmax)
             {
                 var istep = 2 * mmax;
-                var theta = System.Math.PI / mmax;
-                double wr = 1, wi = 0;
-                var wpi = System.Math.Sin(theta);
+                var theta = Math.PI / mmax;
+                float wr = 1, wi = 0;
+                var wpi = (float) Math.Sin(theta);
                 // compute in a slightly slower yet more accurate manner                                         
-                var wpr = System.Math.Sin(theta / 2);
+                var wpr = (float)System.Math.Sin(theta / 2);
                 wpr = -2 * wpr * wpr;
                 for (var m = 0; m < istep; m += 2)
                 {
@@ -314,7 +310,7 @@ namespace SoundFingerprinting.FFT
         /// </summary>                                                                                           
         /// <param name="data"></param>                                                                          
         /// <param name="n"></param>                                                                             
-        static void Reverse(double[] data, int n)
+        static void Reverse(float[] data, int n)
         {
             // bit reverse the indices. This is exercise 5 in section                                            
             // 7.2.1.1 of Knuth's TAOCP the idea is a binary counter                                             
@@ -365,26 +361,17 @@ namespace SoundFingerprinting.FFT
         /// <summary>                                                                                            
         /// Pre-computed sine/cosine tables for speed                                                            
         /// </summary>                                                                                           
-        double[] cosTable;
-        double[] sinTable;
+        float[] cosTable;
+        float[] sinTable;
 
         #endregion
 
         public float[] FFTForward(float[] signal, int startIndex, int length)
         {
-            double[] data = new double[length * 2];
-            for (int i = 0; i < length; i++)
-            {
-                data[i] = signal[startIndex + i];
-            }
-
-            this.FFT(data, true);
-            float[] result = new float[data.Length];
-            for (int i = 0; i < data.Length; i++)
-            {
-                result[i] = (float)data[i];
-            }
-            return result;
+            float[] data = new float[length * 2];
+            Array.Copy(signal, startIndex, data, 0, length);
+            TableFFT(data, true);
+            return data;
         }
     }                                       
 }
