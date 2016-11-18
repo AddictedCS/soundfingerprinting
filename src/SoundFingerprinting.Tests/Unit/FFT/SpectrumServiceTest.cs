@@ -93,7 +93,7 @@
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
                 Assert.IsTrue(
-                    System.Math.Abs(cutLogarithmizedSpectrum[i].Timestamp - (i * lengthOfOneFingerprint)) < Epsilon);
+                    System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint)) < Epsilon);
             }
         }
         
@@ -124,7 +124,7 @@
             double lengthOfOneFingerprint = (double)config.ImageLength * config.Overlap / SampleRate;
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].Timestamp - (i * lengthOfOneFingerprint / 2)) < Epsilon);
+                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint / 2)) < Epsilon);
             }
         }
 
@@ -143,7 +143,7 @@
             Assert.AreEqual(37, cutLogarithmizedSpectrum.Count);
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].Timestamp - (i * TimestampOfFingerprints)) < Epsilon);
+                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * TimestampOfFingerprints)) < Epsilon);
             }
         }
 
