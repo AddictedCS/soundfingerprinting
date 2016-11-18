@@ -85,6 +85,7 @@
     <Compile Include="Unit\FFT\FFTW\CachedFFTWServiceTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
+    <Compile Include="Unit\LCS\QueryResultCoverageCalculatorTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Math\FScoreTest.cs" />
     <Compile Include="Unit\Math\HammingDistanceResultStatisticsTest.cs" />
@@ -135,9 +136,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Unit\LCS\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>copy "$(ProjectDir)TestEnvironment\*.*" "$(TargetDir)"</PreBuildEvent>

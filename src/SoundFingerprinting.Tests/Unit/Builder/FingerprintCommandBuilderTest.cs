@@ -8,6 +8,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
@@ -56,9 +57,9 @@
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
 
-            var fingerprints = fingerprintCommandBuilder.BuildFingerprintCommand()
+            var fingerprints = ((FingerprintCommand)fingerprintCommandBuilder.BuildFingerprintCommand()
                                   .From(PathToAudioFile)
-                                  .UsingServices(audioService.Object)
+                                  .UsingServices(audioService.Object))
                                   .Fingerprint()
                                   .Result;
 
@@ -170,7 +171,7 @@
             var list = new List<Fingerprint>();
             for (int i = 0; i < count; i++)
             {
-                list.Add(new Fingerprint { Signature = GenericFingerprint, Timestamp = i * 0.928 });
+                list.Add(new Fingerprint(GenericFingerprint, i * 0.928, i));
             }
 
             return list;

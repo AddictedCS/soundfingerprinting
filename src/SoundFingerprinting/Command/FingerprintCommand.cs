@@ -29,7 +29,7 @@ namespace SoundFingerprinting.Command
 
         public FingerprintConfiguration FingerprintConfiguration { get; private set; }
 
-        public Task<List<Fingerprint>> Fingerprint()
+        internal Task<List<Fingerprint>> Fingerprint()
         {
             return Task.Factory.StartNew(() => this.createFingerprintsMethod().Item1);
         }
@@ -98,7 +98,7 @@ namespace SoundFingerprinting.Command
                             fingerprint,
                             FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
                             FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
-                        hashedFingerprint.SourceDuration = sourceDuration;
+                        hashedFingerprint.QuerySourceDuration = sourceDuration;
                         hashedFingerprints.Add(hashedFingerprint);
                     });
 

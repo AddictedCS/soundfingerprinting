@@ -13,7 +13,7 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
-    public class FingerprintService : IFingerprintService
+    internal class FingerprintService : IFingerprintService
     {
         private readonly ISpectrumService spectrumService;
         private readonly IWaveletDecomposition waveletDecomposition;
@@ -57,7 +57,7 @@ namespace SoundFingerprinting
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
                 if (!IsSilence(image))
                 {
-                    fingerprints.Add(new Fingerprint { Signature = image, Timestamp = spectralImage.Timestamp, SequenceNumber = spectralImage.SequenceNumber });
+                    fingerprints.Add(new Fingerprint(image, spectralImage.Timestamp, spectralImage.SequenceNumber));
                 }
             });
 
