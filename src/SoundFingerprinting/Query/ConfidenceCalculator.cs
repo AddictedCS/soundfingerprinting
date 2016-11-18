@@ -19,12 +19,64 @@
             double originStartsAt,
             double originLength)
         {
-            if (OriginTrackIsClippedFromTheBegining(sourceMatchStartsAt, originStartsAt))
+            if (NeedleInHaystack(queryLength, originLength))
+            {
+                return
+                    Ceil(
+                        GetConfidenceForSmallSnippetFoundInLongQuery(
+                            sourceMatchStartsAt, sourceMatchLength, queryLength, originStartsAt, originLength));
+            }
+
+            return
+                Ceil(
+                    GetConfidenceForSmallSnippetFoundInLongOrigin(
+                        sourceMatchStartsAt, sourceMatchLength, queryLength, originStartsAt, originLength));
+        }
+
+        private static double Ceil(double confidence)
+        {
+            if (confidence > 1d)
+            {
+                return 1d;
+            }
+
+            return confidence;
+        }
+
+        private double GetConfidenceForSmallSnippetFoundInLongOrigin(double sourceMatchStartsAt, double sourceMatchLength, double queryLength, double originStartsAt, double originLength)
+        {
+            if (QueryClippedFromTheBegining(originStartsAt, originLength, queryLength))
             {
                 return sourceMatchLength / (originLength - (originStartsAt - sourceMatchStartsAt));
             }
 
-            if (OriginTrackIsClippedAtTheEnd(sourceMatchStartsAt, queryLength, originLength))
+            if (QueryClippedFromTheEnd(sourceMatchStartsAt, originStartsAt))
+            {
+                return sourceMatchLength / (queryLength - sourceMatchStartsAt + originStartsAt);
+            }
+
+            return sourceMatchLength / queryLength;
+        }
+
+        private bool QueryClippedFromTheEnd(double sourceMatchStartsAt, double originStartsAt)
+        {
+            return sourceMatchStartsAt > originStartsAt;
+        }
+
+        private bool QueryClippedFromTheBegining(double originStartsAt, double originLength, double queryLength)
+        {
+            return originStartsAt + queryLength > originLength;
+        }
+
+        private double GetConfidenceForSmallSnippetFoundInLongQuery(
+            double sourceMatchStartsAt, double sourceMatchLength, double queryLength, double originStartsAt, double originLength)
+        {
+            if (this.OriginTrackIsClippedFromTheBegining(sourceMatchStartsAt, originStartsAt))
+            {
+                return sourceMatchLength / (originLength - (originStartsAt - sourceMatchStartsAt));
+            }
+
+            if (this.OriginTrackIsClippedAtTheEnd(sourceMatchStartsAt, queryLength, originLength))
             {
                 return sourceMatchLength / (queryLength - sourceMatchStartsAt + originStartsAt);
             }
@@ -32,12 +84,17 @@
             return sourceMatchLength / originLength;
         }
 
-        private static bool OriginTrackIsClippedAtTheEnd(double sourceMatchStartsAt, double queryLength, double originLength)
+        private bool NeedleInHaystack(double queryLength, double originLength)
+        {
+            return queryLength > originLength;
+        }
+
+        private bool OriginTrackIsClippedAtTheEnd(double sourceMatchStartsAt, double queryLength, double originLength)
         {
             return sourceMatchStartsAt + originLength > queryLength;
         }
 
-        private static bool OriginTrackIsClippedFromTheBegining(double sourceMatchStartsAt, double originStartsAt)
+        private bool OriginTrackIsClippedFromTheBegining(double sourceMatchStartsAt, double originStartsAt)
         {
             return originStartsAt > sourceMatchStartsAt;
         }

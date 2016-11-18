@@ -41,6 +41,18 @@
                                      .ToList();
         }
 
+        public double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
+        {
+            double startsAt = double.MaxValue, endsAt = double.MinValue;
+            foreach (var hashedFingerprint in hashedFingerprints)
+            {
+                startsAt = System.Math.Min(startsAt, hashedFingerprint.StartsAt);
+                endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
+            }
+
+            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
+        }
+
         private ResultEntry GetResultEntry(IModelService modelService, FingerprintConfiguration configuration, KeyValuePair<IModelReference, ResultEntryAccumulator> pair, double queryLength)
         {
             var track = modelService.ReadTrackByReference(pair.Key);
@@ -68,25 +80,8 @@
                 pair.Value.BestMatch);
         }
 
-        public double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
-        {
-            double startsAt = double.MaxValue, endsAt = double.MinValue;
-            foreach (var hashedFingerprint in hashedFingerprints)
-            {
-                startsAt = System.Math.Min(startsAt, hashedFingerprint.StartsAt);
-                endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
-            }
-
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
-        }
-
         private double GetTrackStartsAt(MatchedPair bestMatch)
         {
-            if (bestMatch.SubFingerprint.SequenceAt > bestMatch.HashedFingerprint.StartsAt)
-            {
-                return 0;
-            }
-
             return bestMatch.HashedFingerprint.StartsAt - bestMatch.SubFingerprint.SequenceAt;
         }
     }

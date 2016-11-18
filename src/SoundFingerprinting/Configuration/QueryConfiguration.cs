@@ -56,7 +56,7 @@
         public string TrackGroupId { get; set; }
 
         /// <summary>
-        /// Gets/Sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
+        /// Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
         /// It doesnt have to be exposed to the outside framework users.
         /// </summary>
         internal FingerprintConfiguration FingerprintConfiguration { get; set; }

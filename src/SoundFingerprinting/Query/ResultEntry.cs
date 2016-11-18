@@ -28,7 +28,7 @@ namespace SoundFingerprinting.Query
         public double QueryMatchLength { get; private set; }
 
         /// <summary>
-        ///  Gets best guess where does the result track starts in the query snippet.
+        ///  Gets best guess where does the result track starts in the query snippet. This value may be negative.
         /// </summary>
         public double TrackStartsAt { get; private set; }
 

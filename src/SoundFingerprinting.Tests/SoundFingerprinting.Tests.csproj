@@ -94,6 +94,7 @@
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
     <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
+    <Compile Include="Unit\Query\ConfidenceCalculatorTest.cs" />
     <Compile Include="Unit\Query\QueryMathTest.cs" />
     <Compile Include="Unit\Utils\ArrayUtilsTest.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />

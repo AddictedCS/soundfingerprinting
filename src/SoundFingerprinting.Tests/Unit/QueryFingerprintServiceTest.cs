@@ -123,8 +123,8 @@
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference))
                         .Returns(new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash },
-                defaultQueryConfiguration, this.modelService.Object);
+            var queryResult = queryFingerprintService.Query(
+                new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, this.modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
