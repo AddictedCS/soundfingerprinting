@@ -9,7 +9,7 @@
     {
         private readonly SortedSet<MatchedPair> matches = new SortedSet<MatchedPair>();
 
-        public int SummedHammingSimilarity { get; set; }
+        public int HammingSimilaritySum { get; set; }
 
         public SortedSet<MatchedPair> Matches
         {
@@ -28,17 +28,17 @@
             matches.Add(matchedPair);
         }
 
-        private void ResetBestMatchIfAppropriate(MatchedPair matchedPair)
+        private void ResetBestMatchIfAppropriate(MatchedPair newPair)
         {
             if (BestMatch == null)
             {
-                BestMatch = matchedPair;
+                BestMatch = newPair;
                 return;
             }
 
-            if (BestMatch.HammingSimilarity < matchedPair.HammingSimilarity)
+            if (BestMatch.HammingSimilarity < newPair.HammingSimilarity)
             {
-                BestMatch = matchedPair;
+                BestMatch = newPair;
             }
         }
     }

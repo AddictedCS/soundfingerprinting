@@ -92,5 +92,13 @@ namespace SoundFingerprinting.Configuration
         /// Gets or sets hashing configuration parameters
         /// </summary>
         internal HashingConfig HashingConfig { get; set; }
+
+        internal double FingerprintLengthInSeconds
+        {
+            get
+            {
+                return (double)SamplesPerFingerprint / SampleRate;
+            }
+        }
     }
 }

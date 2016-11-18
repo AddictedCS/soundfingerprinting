@@ -28,7 +28,7 @@
                 subFingerprint,
                 GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable),
                 fingerprint.SequenceNumber,
-                fingerprint.Timestamp);
+                fingerprint.StartsAt);
         }
 
         /// <summary>

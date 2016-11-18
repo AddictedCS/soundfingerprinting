@@ -27,9 +27,9 @@
                     new HashedFingerprint(null, null, 3, 9.142235)
                 };
 
-            double snippetLength = queryMath.CalculateExactSnippetLength(hashedFingerprints, new DefaultFingerprintConfiguration());
+            double snippetLength = queryMath.CalculateExactQueryLength(hashedFingerprints, new DefaultFingerprintConfiguration());
 
-            Assert.AreEqual(10d, snippetLength, 0.00001);
+            Assert.AreEqual(9.6284d, snippetLength, 0.0001);
         }
 
         [TestMethod]
@@ -41,11 +41,11 @@
 
             var queryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1 };
 
-            var first = new ResultEntryAccumulator { SummedHammingSimilarity = 100 };
+            var first = new ResultEntryAccumulator { HammingSimilaritySum = 100 };
             first.Add(new HashedFingerprint(null, null, 1, 0d),  new SubFingerprintData(null, 1, 0d, null, null), 100);
-            var second = new ResultEntryAccumulator { SummedHammingSimilarity = 99 };
+            var second = new ResultEntryAccumulator { HammingSimilaritySum = 99 };
             second.Add(new HashedFingerprint(null, null, 1, 0d), new SubFingerprintData(null, 1, 0d, null, null), 99);
-            var third = new ResultEntryAccumulator { SummedHammingSimilarity = 101 };
+            var third = new ResultEntryAccumulator { HammingSimilaritySum = 101 };
             third.Add(new HashedFingerprint(null, null, 1, 0d), new SubFingerprintData(null, 1, 0d, null, null), 101);
             var hammingSimilarties = new Dictionary<IModelReference, ResultEntryAccumulator>
                 {

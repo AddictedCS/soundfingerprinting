@@ -90,7 +90,7 @@
                     accumulator.Add(subFingerprint.TrackReference, new ResultEntryAccumulator());
                 }
 
-                accumulator[subFingerprint.TrackReference].SummedHammingSimilarity += hammingSimilarity;
+                accumulator[subFingerprint.TrackReference].HammingSimilaritySum += hammingSimilarity;
                 accumulator[subFingerprint.TrackReference].Add(expected, subFingerprint, hammingSimilarity);
             }
         }

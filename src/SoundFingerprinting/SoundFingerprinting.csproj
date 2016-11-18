@@ -58,6 +58,7 @@
     <Compile Include="Math\FScore.cs" />
     <Compile Include="Math\HashConverter.cs" />
     <Compile Include="Math\IHashConverter.cs" />
+    <Compile Include="Query\SubFingerprintsToSeconds.cs" />
     <Compile Include="Query\ConfidenceCalculator.cs" />
     <Compile Include="Query\IConfidenceCalculator.cs" />
     <Compile Include="Query\IQueryMath.cs" />

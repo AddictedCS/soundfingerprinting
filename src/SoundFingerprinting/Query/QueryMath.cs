@@ -27,65 +27,52 @@
             this.confidenceCalculator = confidenceCalculator;
         }
 
-        public double CalculateExactSnippetLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
+        public double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
         {
-            double min = double.MaxValue, max = double.MinValue;
+            double startsAt = double.MaxValue, endsAt = double.MinValue;
             foreach (var hashedFingerprint in hashedFingerprints)
             {
-                min = System.Math.Min(min, hashedFingerprint.StartsAt);
-                max = System.Math.Max(max, hashedFingerprint.StartsAt);
+                startsAt = System.Math.Min(startsAt, hashedFingerprint.StartsAt);
+                endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
             }
 
-            return AdjustSnippetLengthToConfigsUsedDuringFingerprinting(max - min, fingerprintConfiguration);
+            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
         }
 
         public List<ResultEntry> GetBestCandidates(IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites, int numberOfCandidatesToReturn, IModelService modelService, FingerprintConfiguration fingerprintConfiguration, double queryLength)
         {
-            return hammingSimilarites.OrderByDescending(e => e.Value.SummedHammingSimilarity)
+            return hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
                                      .Take(numberOfCandidatesToReturn)
                                      .Select(e => GetResultEntry(modelService, fingerprintConfiguration, e, queryLength))
                                      .ToList();
         }
 
-        private ResultEntry GetResultEntry(IModelService modelService, FingerprintConfiguration fingerprintConfiguration, KeyValuePair<IModelReference, ResultEntryAccumulator> pair, double queryLength)
+        private ResultEntry GetResultEntry(IModelService modelService, FingerprintConfiguration configuration, KeyValuePair<IModelReference, ResultEntryAccumulator> pair, double queryLength)
         {
             var track = modelService.ReadTrackByReference(pair.Key);
-            var coverage = queryResultCoverageCalculator.GetLongestMatch(
+            var coverage = queryResultCoverageCalculator.GetCoverage(
                 pair.Value.Matches,
                 queryLength,
-                (double)fingerprintConfiguration.SamplesPerFingerprint / fingerprintConfiguration.SampleRate);
-
-            double adjustedSourceMatchLength =
-                AdjustSnippetLengthToConfigsUsedDuringFingerprinting(
-                    coverage.SourceMatchLength, fingerprintConfiguration);
+                configuration);
 
             double confidence = confidenceCalculator.CalculateConfidence(
                 coverage.SourceMatchStartsAt,
-                adjustedSourceMatchLength,
-                pair.Value.BestMatch.HashedFingerprint.SourceDuration,
+                coverage.SourceMatchLength,
+                pair.Value.BestMatch.HashedFingerprint.QuerySourceDuration,
                 coverage.OriginMatchStartsAt,
                 track.TrackLengthSec);
 
             return new ResultEntry(
                 track,
                 coverage.SourceMatchStartsAt,
-                adjustedSourceMatchLength,
+                coverage.SourceMatchLength,
                 coverage.OriginMatchStartsAt,
                 GetTrackStartsAt(pair.Value.BestMatch),
                 confidence,
-                pair.Value.SummedHammingSimilarity)
+                pair.Value.HammingSimilaritySum)
                     {
                         BestMatch = pair.Value.BestMatch
                     };
-        }
-
-        private double AdjustSnippetLengthToConfigsUsedDuringFingerprinting(double snipetLength, FingerprintConfiguration fingerprintConfiguration)
-        {
-            int sampleRate = fingerprintConfiguration.SampleRate;
-            int wdftSize = fingerprintConfiguration.SpectrogramConfig.WdftSize;
-            int fingerprintSize = fingerprintConfiguration.SamplesPerFingerprint;
-            double firstFingerprint = ((double)(fingerprintSize + wdftSize)) / sampleRate;
-            return snipetLength + firstFingerprint;
         }
 
         private double GetTrackStartsAt(MatchedPair bestMatch)

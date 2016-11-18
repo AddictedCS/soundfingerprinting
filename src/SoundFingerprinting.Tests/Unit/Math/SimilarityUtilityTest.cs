@@ -55,8 +55,8 @@
                 hammingSimilarities);
 
             Assert.AreEqual(2, hammingSimilarities.Count);
-            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)].SummedHammingSimilarity);
-            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)].SummedHammingSimilarity);
+            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)].HammingSimilaritySum);
+            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)].HammingSimilaritySum);
         }
 
         [TestMethod]

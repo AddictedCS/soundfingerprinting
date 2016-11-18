@@ -27,8 +27,8 @@
         {
                 double startAt = result.TrackStartsAt;
 
-                double length = startAt + result.Track.TrackLengthSec < result.BestMatch.HashedFingerprint.SourceDuration ? 
-                    result.Track.TrackLengthSec : result.BestMatch.HashedFingerprint.SourceDuration - startAt;
+                double length = startAt + result.Track.TrackLengthSec < result.BestMatch.HashedFingerprint.QuerySourceDuration ? 
+                    result.Track.TrackLengthSec : result.BestMatch.HashedFingerprint.QuerySourceDuration - startAt;
 
                 var newResult = queryCommandBuilder.BuildQueryCommand()
                                                    .From(pathToAudioFile, (int)length, (int)startAt)
