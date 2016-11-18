@@ -79,7 +79,7 @@
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, this.modelService.Object);
 
-            Assert.IsTrue(queryResult.IsSuccessful);
+            Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
             Assert.AreEqual(50, queryResult.BestMatch.HammingSimilaritySum);
@@ -100,7 +100,7 @@
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash },
                 customQueryConfiguration, this.modelService.Object);
 
-            Assert.IsFalse(queryResult.IsSuccessful);
+            Assert.IsFalse(queryResult.ContainsMatches);
             Assert.IsNull(queryResult.BestMatch);
             Assert.AreEqual(0, queryResult.ResultEntries.Count());
         }
@@ -126,7 +126,7 @@
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash },
                 defaultQueryConfiguration, this.modelService.Object);
 
-            Assert.IsTrue(queryResult.IsSuccessful);
+            Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
             Assert.AreEqual(GenericSignature.Length * 2, queryResult.BestMatch.HammingSimilaritySum);

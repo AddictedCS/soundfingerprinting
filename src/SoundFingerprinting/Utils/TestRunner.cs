@@ -151,7 +151,7 @@
                             var tags = GetTagsFromFile(positive);
                             var actualTrack = GetActualTrack(tags);
                             var queryResult = BuildQuery(queryStride, seconds, positive, startAts[iteration]).Result;
-                            if (!queryResult.IsSuccessful)
+                            if (!queryResult.ContainsMatches)
                             {
                                 falseNegatives++;
                                 var notFoundLine = GetNotFoundLine(tags);
@@ -193,7 +193,7 @@
                             verified++;
                             var tags = GetTagsFromFile(negative);
                             var queryResult = BuildQuery(queryStride, seconds, negative, startAts[iteration]).Result;
-                            if (!queryResult.IsSuccessful)
+                            if (!queryResult.ContainsMatches)
                             {
                                 trueNegatives++;
                                 var notFoundLine = GetNotFoundLine(tags);
