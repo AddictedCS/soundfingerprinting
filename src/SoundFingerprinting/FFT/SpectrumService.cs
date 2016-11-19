@@ -103,7 +103,6 @@
 
         private float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins)
         {
-            int width = spectrum.Length / 2;
             float[] sumFreq = new float[logBins]; /*32*/
             for (int i = 0; i < logBins; i++)
             {
@@ -112,8 +111,8 @@
 
                 for (int k = lowBound; k < higherBound; k++)
                 {
-                    double re = spectrum[2 * k] / ((float)width / 2);
-                    double img = spectrum[(2 * k) + 1] / ((float)width / 2);
+                    double re = spectrum[2 * k];
+                    double img = spectrum[(2 * k) + 1];
                     sumFreq[i] += (float)((re * re) + (img * img));
                 }
 
