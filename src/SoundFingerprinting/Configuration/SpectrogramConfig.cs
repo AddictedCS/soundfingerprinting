@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Configuration
     using System;
 
     using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Windows;
 
     internal abstract class SpectrogramConfig
     {
@@ -151,18 +152,23 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
+        ///  Gets or sets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
         /// </summary>
         public bool UseDynamicLogBase { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether audio signal has to be normalized before its spectrum is built
+        ///  Gets or sets a value indicating whether audio signal has to be normalized before its spectrum is built
         /// </summary>
         public bool NormalizeSignal { get; set; }
 
         /// <summary>
-        /// Gets or sets stride between 2 consecutive spectrogram images
+        ///  Gets or sets stride between 2 consecutive spectrogram images
         /// </summary>
         public IStride Stride { get; set; }
+
+        /// <summary>
+        ///  Gets or sets window function to apply before FFT-ing
+        /// </summary>
+        public IWindowFunction Window { get; set; }
     }
 }

@@ -18,8 +18,7 @@
         {
         }
 
-        public SpectrumService(IFFTService fftService)
-            : this(fftService, DependencyResolver.Current.Get<ILogUtility>())
+        public SpectrumService(IFFTService fftService) : this(fftService, DependencyResolver.Current.Get<ILogUtility>())
         {
         }
 
@@ -31,12 +30,13 @@
 
         public float[][] CreateSpectrogram(AudioSamples audioSamples, int overlap, int wdftSize)
         {
+            float[] window = new DefaultSpectrogramConfig().Window.GetWindow(wdftSize);
             float[] samples = audioSamples.Samples;
             int width = (samples.Length - wdftSize) / overlap;
             float[][] frames = new float[width][];
             for (int i = 0; i < width; i++)
             {
-                float[] complexSignal = fftService.FFTForward(samples, i * overlap, wdftSize);
+                float[] complexSignal = fftService.FFTForward(samples, i * overlap, wdftSize, window);
                 float[] band = new float[(wdftSize / 2) + 1];
                 for (int j = 0; j < (wdftSize / 2) + 1; j++)
                 {
@@ -65,9 +65,9 @@
 
             float[][] frames = new float[width][];
             int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
-            Parallel.For(0, width, i => 
-            {
-                float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize);
+            float[] window = configuration.Window.GetWindow(configuration.WdftSize);
+            Parallel.For(0, width, i => {
+                float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize, window);
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
             });
 

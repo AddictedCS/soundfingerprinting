@@ -7,6 +7,7 @@
 
     using Moq;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT.FFTW;
 
     [TestClass]
@@ -45,11 +46,12 @@
             fftwService.Setup(service => service.FreeUnmanagedMemory(output));
             fftwService.Setup(service => service.FreePlan(plan));
 
+            float[] window = new DefaultSpectrogramConfig().Window.GetWindow(2048);
             using (var cachedFFTWService = new CachedFFTWService(fftwService.Object))
             {
                 for (int i = 0; i < NumberOfInvocations; i++)
                 {
-                    cachedFFTWService.FFTForward(signal, FFTLength * i, FFTLength);
+                    cachedFFTWService.FFTForward(signal, FFTLength * i, FFTLength, window);
                 }
             }
 

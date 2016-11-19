@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Configuration
 {
     using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Windows;
 
     internal class DefaultSpectrogramConfig : SpectrogramConfig
     {
@@ -15,6 +16,7 @@ namespace SoundFingerprinting.Configuration
             UseDynamicLogBase = false;
             NormalizeSignal = false;
             Stride = new IncrementalStaticStride(2048, ImageLength * Overlap);
+            Window = new HanningWindow();
         }
     }
 }
