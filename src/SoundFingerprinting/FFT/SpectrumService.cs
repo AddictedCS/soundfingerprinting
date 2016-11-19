@@ -68,7 +68,7 @@
             float[] window = configuration.Window.GetWindow(configuration.WdftSize);
             Parallel.For(0, width, i => {
                 float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize, window);
-                frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins);
+                frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins, configuration.WdftSize);
             });
 
             return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
@@ -101,8 +101,9 @@
             return spectralImages;
         }
 
-        private float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins)
+        private float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins, int wdftSize)
         {
+            int width = wdftSize / 2; /* 1024 */
             float[] sumFreq = new float[logBins]; /*32*/
             for (int i = 0; i < logBins; i++)
             {
@@ -111,12 +112,12 @@
 
                 for (int k = lowBound; k < higherBound; k++)
                 {
-                    double re = spectrum[2 * k];
-                    double img = spectrum[(2 * k) + 1];
+                    double re = spectrum[2 * k] / width;
+                    double img = spectrum[(2 * k) + 1] / width;
                     sumFreq[i] += (float)((re * re) + (img * img));
                 }
 
-                sumFreq[i] /= higherBound - lowBound;
+                sumFreq[i] = sumFreq[i] / (higherBound - lowBound);
             }
 
             return sumFreq;
