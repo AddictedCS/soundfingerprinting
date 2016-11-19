@@ -1,62 +1,27 @@
 ﻿namespace SoundFingerprinting.FFT
 {
+    // Code to implement decently performing FFT for complex and real valued                                         
+    // signals. See www.lomont.org for a derivation of the relevant algorithms                                       
+    // from first principles. Copyright Chris Lomont 2010-2012.                                                      
+    // This code and any ports are free for all to use for any reason as long                                        
+    // as this header is left in place.                                                                              
+    // Version 1.1, Sept 2011 
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     using SoundFingerprinting.Configuration;
 
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1515:SingleLineCommentMustBePrecededByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
+    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1503:CurlyBracketsMustNotBeOmitted", Justification = "Reviewed. Suppression is OK here.")]
     public class LomontFFT : IFFTService
     {
-        /// <summary>                                                                                            
-        /// Compute the forward or inverse Fourier Transform of data, with                                       
-        /// data containing complex valued data as alternating real and                                          
-        /// imaginary parts. The length must be a power of 2. The data is                                        
-        /// modified in place.                                                                                   
-        /// </summary>                                                                                           
-        /// <param name="data">The complex data stored as alternating real                                       
-        /// and imaginary parts</param>                                                                          
-        /// <param name="forward">true for a forward transform, false for                                        
-        /// inverse transform</param>                                                                            
-        public void FFT(float[] data, bool forward)
+        public LomontFFT()
         {
-            var n = data.Length;
-            // checks n is a power of 2 in 2's complement format                                                 
-            if ((n & (n - 1)) != 0)
-                throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
-            n /= 2;    // n is the number of samples                                                             
-
-            Reverse(data, n); // bit index data reversal                                                         
-
-            // do transform: so single point transforms, then doubles, etc.                                      
-            double sign = forward ? B : -B;
-            var mmax = 1;
-            while (n > mmax)
-            {
-                var istep = 2 * mmax;
-                var theta = sign * System.Math.PI / mmax;
-                float wr = 1, wi = 0;
-                float wpr = (float) System.Math.Cos(theta);
-                float wpi = (float) System.Math.Sin(theta);
-                for (var m = 0; m < istep; m += 2)
-                {
-                    for (var k = m; k < 2 * n; k += 2 * istep)
-                    {
-                        var j = k + istep;
-                        float tempr = wr * data[j] - wi * data[j + 1];
-                        float tempi = wi * data[j] + wr * data[j + 1];
-                        data[j] = data[k] - tempr;
-                        data[j + 1] = data[k + 1] - tempi;
-                        data[k] = data[k] + tempr;
-                        data[k + 1] = data[k + 1] + tempi;
-                    }
-                    var t = wr; // trig recurrence                                                               
-                    wr = wr * wpr - wi * wpi;
-                    wi = wi * wpr + t * wpi;
-                }
-                mmax = istep;
-            }
-
-            // perform data scaling as needed                                                                    
-            Scale(data, n, forward);
+            A = 0;
+            B = 1;
+            var config = new DefaultSpectrogramConfig();
+            Initialize(config.WdftSize);
         }
 
         /// <summary>                                                                                            
@@ -128,9 +93,7 @@
             var n = data.Length; // # of real inputs, 1/2 the complex length                                     
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
-                throw new ArgumentException(
-                    "data length " + n + " in FFT is not a power of 2"
-                    );
+                throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
 
             float sign = -1.0f; // assume inverse FFT, this controls how algebra below works                        
             if (forward)
@@ -212,7 +175,7 @@
         /// values for (A,B) are                                                                                 
         ///     ( 0, 1)  - default                                                                               
         ///     (-1, 1)  - data processing                                                                       
-        ///     ( 1,-1)  - signal processing                                                                     
+        ///     ( 1,-1)  - data processing                                                                     
         /// Usual values for A are 1, 0, or -1                                                                   
         /// </summary>                                                                                           
         public int A { get; set; }
@@ -224,7 +187,7 @@
         /// Common values for (A,B) are                                                                          
         ///     ( 0, 1)  - default                                                                               
         ///     (-1, 1)  - data processing                                                                       
-        ///     ( 1,-1)  - signal processing                                                                     
+        ///     ( 1,-1)  - data processing                                                                     
         /// Abs(B) should be relatively prime to N.                                                              
         /// Setting B=-1 effectively corresponds to conjugating both input and                                   
         /// output data.                                                                                         
@@ -232,15 +195,7 @@
         /// </summary>                                                                                           
         public int B { get; set; }
 
-        public LomontFFT()
-        {
-            A = 0;
-            B = 1;
-            var config = new DefaultSpectrogramConfig();
-            Initialize(config.WdftSize);
-        }
-
-        #region Internals
+                #region Internals
 
         /// <summary>                                                                                            
         /// Scale data using n samples for forward and inverse transforms as needed                              
@@ -366,12 +321,21 @@
 
         #endregion
 
-        public float[] FFTForward(float[] signal, int startIndex, int length)
+        public float[] FFTForward(float[] data, int startIndex, int length, float[] window)
         {
-            float[] data = new float[length * 2];
-            Array.Copy(signal, startIndex, data, 0, length);
-            TableFFT(data, true);
-            return data;
+            float[] toTransform = new float[length];
+            Array.Copy(data, startIndex, toTransform, 0, length);
+            Window(toTransform, window);
+            RealFFT(toTransform, true);
+            return toTransform;
+        }
+
+        private void Window(float[] toTransform, float[] window)
+        {
+            for (int i = 0; i < window.Length; ++i)
+            {
+                toTransform[i] = toTransform[i] * window[i];
+            }
         }
     }                                       
 }
