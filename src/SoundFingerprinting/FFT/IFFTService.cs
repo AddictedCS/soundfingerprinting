@@ -1,14 +1,15 @@
 ﻿namespace SoundFingerprinting.FFT
 {
-    public interface IFFTService
+    internal interface IFFTService
     {
         /// <summary>
-        /// Performs a forward fast Fourier transform
+        ///   Performs a forward fast Fourier transform on real data input
         /// </summary>
-        /// <param name="signal">Array to be transformed</param>
-        /// <param name="startIndex">Index to start at</param>
-        /// <param name="length">Length of FFT window</param>
-        /// <returns>Twice as bigger result with real amd img transforms</returns>
-        float[] FFTForward(float[] signal, int startIndex, int length);
+        /// <param name="data">Array to be transformed (not affected by FFT)</param>
+        /// <param name="startIndex">Start index</param>
+        /// <param name="length">Length of the FFT window</param>
+        /// <param name="window">Windowing function to run on input</param>
+        /// <returns>Twice as bigger result with real and img transforms</returns>
+        float[] FFTForward(float[] data, int startIndex, int length, float[] window);
     }
 }

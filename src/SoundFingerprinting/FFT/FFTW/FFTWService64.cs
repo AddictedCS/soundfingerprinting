@@ -7,13 +7,14 @@
 
     public class FFTWService64 : FFTWService
     {
-        public override float[] FFTForward(float[] signal, int startIndex, int length)
+        public override float[] FFTForward(float[] data, int startIndex, int length, float[] window)
         {
             IntPtr input = GetInput(length);
             IntPtr output = GetOutput(length);
             IntPtr fftPlan = GetFFTPlan(length, input, output);
             float[] applyTo = new float[length];
-            Array.Copy(signal, startIndex, applyTo, 0, length);
+            Array.Copy(data, startIndex, applyTo, 0, length);
+            Window(applyTo, window);
             Marshal.Copy(applyTo, 0, input, length);
             FFTWNativeMethods.execute(fftPlan);
             float[] result = new float[length * 2];

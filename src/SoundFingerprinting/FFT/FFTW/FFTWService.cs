@@ -4,7 +4,7 @@
 
     public abstract class FFTWService : IFFTService, IDisposable
     {
-        public abstract float[] FFTForward(float[] signal, int startIndex, int length);
+        public abstract float[] FFTForward(float[] data, int startIndex, int length, float[] window);
 
         public abstract IntPtr GetOutput(int length);
 
@@ -25,5 +25,13 @@
         }
 
         protected abstract void Dispose(bool isDisposing);
+
+        protected void Window(float[] data, float[] window)
+        {
+            for (int i = 0; i < window.Length; ++i)
+            {
+                data[i] = data[i] * window[i];
+            }
+        }
     }
 }
