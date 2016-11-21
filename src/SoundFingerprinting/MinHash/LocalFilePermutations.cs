@@ -5,7 +5,7 @@
     using System.Globalization;
     using System.IO;
 
-    public class LocalFilePermutations : IPermutations
+    internal class LocalFilePermutations : IPermutations
     {
         private readonly string pathToPermutations;
 

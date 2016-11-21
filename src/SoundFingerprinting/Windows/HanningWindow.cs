@@ -3,7 +3,7 @@
     /// <summary>
     ///   Hanning window function
     /// </summary>
-    public class HanningWindow : IWindowFunction
+    internal class HanningWindow : IWindowFunction
     {
         /// <summary>
         ///   Window the outer space by Hanning window function

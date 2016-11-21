@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public abstract class HaarWaveletDecomposition : IWaveletDecomposition
+    internal abstract class HaarWaveletDecomposition : IWaveletDecomposition
     {
         public void DecomposeImagesInPlace(IEnumerable<float[][]> logarithmizedSpectrum)
         {

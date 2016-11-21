@@ -11,7 +11,7 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
 
-    internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
+    public sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
     {
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
         private readonly IFingerprintService fingerprintService;
@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Command
 
         private IAudioService audioService;
 
-        public FingerprintCommand(IFingerprintService fingerprintService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
+        internal FingerprintCommand(IFingerprintService fingerprintService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
         {
             this.fingerprintService = fingerprintService;
             this.lshAlgorithm = lshAlgorithm;

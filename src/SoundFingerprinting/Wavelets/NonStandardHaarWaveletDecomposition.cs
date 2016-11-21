@@ -8,7 +8,7 @@
     /// According to Fast Multiresolution Image Query, standard Haar wavelet decomposition works better on image querying.
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-    public class NonStandardHaarWaveletDecomposition : HaarWaveletDecomposition
+    internal class NonStandardHaarWaveletDecomposition : HaarWaveletDecomposition
     {
         #region IWaveletDecomposition Members
 

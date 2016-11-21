@@ -8,12 +8,12 @@
     public interface IQueryCommand
     {
         /// <summary>
-        /// Gets fingerprint configuration used to create fingerprints during query snippet processing.
+        ///  Gets the fingerprint configuration used to create fingerprints during query snippet processing.
         /// </summary>
         FingerprintConfiguration FingerprintConfiguration { get; }
 
         /// <summary>
-        /// Gets query configuration used to query the underlying data source with fingerprints created from the query snippet
+        ///  Gets the query configuration used to query the underlying data source with fingerprints created from the query snippet
         /// </summary>
         QueryConfiguration QueryConfiguration { get; }
 

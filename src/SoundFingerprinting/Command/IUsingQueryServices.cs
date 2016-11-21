@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Audio;
 
     /// <summary>
-    /// Query services selector
+    ///   Query services selector
     /// </summary>
     public interface IUsingQueryServices
     {

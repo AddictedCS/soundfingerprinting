@@ -2,7 +2,7 @@
 {
     using System.Diagnostics.CodeAnalysis;
 
-    public class DefaultPermutations : IPermutations
+    internal class DefaultPermutations : IPermutations
     {
         [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1001:CommasMustBeSpacedCorrectly", Justification = "Reviewed. Suppression is OK here.")]
         private readonly int[][] permutations = new[]

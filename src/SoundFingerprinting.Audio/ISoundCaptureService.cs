@@ -1,7 +1,7 @@
 namespace SoundFingerprinting.Audio
 {
     /// <summary>
-    /// Sound capture service
+    ///  Sound capture service
     /// </summary>
     public interface ISoundCaptureService
     {

@@ -63,7 +63,6 @@
     <Compile Include="Query\IConfidenceCalculator.cs" />
     <Compile Include="Query\IQueryMath.cs" />
     <Compile Include="Query\MatchedPair.cs" />
-    <Compile Include="Query\QueryInfo.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
     <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
     <Compile Include="Configuration\EfficientFingerprintConfigurationForQuerying.cs" />
@@ -114,7 +113,6 @@
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
     <Compile Include="FFT\IFFTService.cs" />
-    <Compile Include="Utils\ArrayUtils.cs" />
     <Compile Include="Utils\FingerprintDescriptor.cs" />
     <Compile Include="IFingerprintService.cs" />
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
@@ -136,7 +134,6 @@
     <Compile Include="Command\FingerprintCommand.cs" />
     <Compile Include="Command\ISourceFrom.cs" />
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
-    <Compile Include="Wavelets\IntegralImage.cs" />
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
     <Compile Include="Command\IWithFingerprintConfiguration.cs" />
     <Compile Include="Command\IFingerprintCommand.cs" />

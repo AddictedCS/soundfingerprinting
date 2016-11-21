@@ -10,7 +10,7 @@ namespace SoundFingerprinting.Configuration
         private int sampleRate;
 
         /// <summary>
-        ///    Gets or sets stride between 2 consecutive fingerprints
+        ///  Gets or sets stride between 2 consecutive fingerprints
         /// </summary>
         public IStride Stride
         {
@@ -26,12 +26,12 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the algorithm has to normalize the audio signal
+        ///  Gets or sets a value indicating whether the algorithm has to normalize the audio signal
         /// </summary>
         internal bool NormalizeSignal { get; set; }
 
         /// <summary>
-        /// Gets or sets spectrogram creation configuration parameters
+        ///  Gets or sets spectrogram creation configuration parameters
         /// </summary>
         internal SpectrogramConfig SpectrogramConfig { get; set; }
 
@@ -89,10 +89,13 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        /// Gets or sets hashing configuration parameters
+        ///  Gets or sets hashing configuration parameters
         /// </summary>
         internal HashingConfig HashingConfig { get; set; }
 
+        /// <summary>
+        ///  Gets fingerprint length in seconds
+        /// </summary>
         internal double FingerprintLengthInSeconds
         {
             get

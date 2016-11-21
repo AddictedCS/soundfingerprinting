@@ -9,12 +9,12 @@ namespace SoundFingerprinting.Command
     public interface IFingerprintCommand
     {
         /// <summary>
-        /// Gets configuration object used during fingerprinting audio source
+        ///  Gets the configuration object used during fingerprinting audio source
         /// </summary>
         FingerprintConfiguration FingerprintConfiguration { get; }
  
         /// <summary>
-        /// Fingerprint and hash the source
+        ///   Fingerprint the audio source
         /// </summary>
         /// <returns>Hashed fingerprints which can be stored in the data source</returns>
         Task<List<HashedFingerprint>> Hash();

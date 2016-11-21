@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Math
 {
-    public class FScore
+    internal class FScore
     {
         private readonly int truePositives;
         private readonly int trueNegatives;

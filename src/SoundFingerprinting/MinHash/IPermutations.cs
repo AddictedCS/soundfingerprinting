@@ -3,7 +3,7 @@
     /// <summary>
     ///   Permutations storage
     /// </summary>
-    public interface IPermutations
+    internal interface IPermutations
     {
         /// <summary>
         ///   Get Min Hash random permutations
