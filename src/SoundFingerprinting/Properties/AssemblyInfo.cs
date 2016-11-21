@@ -24,6 +24,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.Solr.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SoundTools")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 
 [assembly: AssemblyVersion("3.0.0")]
 [assembly: AssemblyInformationalVersion("3.0.0")]

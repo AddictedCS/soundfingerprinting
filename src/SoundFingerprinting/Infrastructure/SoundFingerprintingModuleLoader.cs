@@ -1,14 +1,11 @@
 ﻿namespace SoundFingerprinting.Infrastructure
 {
-    using System;
-
     using Ninject;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.FFT.FFTW;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.LSH;
@@ -28,18 +25,7 @@
             kernel.Bind<IAudioSamplesNormalizer>().To<AudioSamplesNormalizer>().InSingletonScope();
             kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>().InSingletonScope();
             kernel.Bind<IFFTService>().To<LomontFFT>().InSingletonScope();
-            /* kernel.Bind<IFFTService>().To<CachedFFTWService>().InSingletonScope();
-            if (Environment.Is64BitProcess)
-            {
-                kernel.Bind<FFTWService>().To<FFTWService64>().WhenInjectedInto<CachedFFTWService>().InSingletonScope();
-            }
-            else
-            {
-                kernel.Bind<FFTWService>().To<FFTWService86>().WhenInjectedInto<CachedFFTWService>().InSingletonScope();
-            } */
-
             kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
-            
             kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
             kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
             kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();

@@ -27,8 +27,5 @@
 		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net35" />
 		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net40" />
 		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net45" />
-		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net35" />
-		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net40" />
-		<file src="..\Scripts\SoundFingerprintingPackage\*.ps1" target="tools\net45" />
    </files>
 </package>
