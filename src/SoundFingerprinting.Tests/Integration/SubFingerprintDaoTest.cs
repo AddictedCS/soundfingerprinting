@@ -49,7 +49,7 @@
         {
             TagInfo tagInfo = GetTagInfo();
             int releaseYear = tagInfo.Year;
-            TrackData track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
+            var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = trackDao.InsertTrack(track);
             var hashedFingerprints = FingerprintCommandBuilder
                 .BuildFingerprintCommand()

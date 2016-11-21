@@ -25,3 +25,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.Solr")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Solr.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.NeuralHasher")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Tests")]

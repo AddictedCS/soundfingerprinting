@@ -152,7 +152,7 @@
 
             var subFingerprints = modelService.ReadSubFingerprints(queryBuckets, new DefaultQueryConfiguration());
 
-            Assert.IsTrue(subFingerprints.Count == 1);
+            Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
 
@@ -193,7 +193,7 @@
             var subFingerprints = modelService.ReadSubFingerprints(
                 queryBuckets, new DefaultQueryConfiguration { TrackGroupId = "first-group-id" });
 
-            Assert.IsTrue(subFingerprints.Count == 1);
+            Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
 
@@ -219,13 +219,10 @@
 
             var fingerprints = modelService.ReadFingerprintsByTrackReference(trackReference);
 
-            Assert.IsTrue(fingerprints.Count == 1);
+            Assert.AreEqual(1, fingerprints.Count);
             Assert.AreEqual(fingerprint.FingerprintReference, fingerprints[0].FingerprintReference);
             Assert.AreEqual(trackReference, fingerprints[0].TrackReference);
-            for (int i = 0; i < GenericFingerprint.Length; i++)
-            {
-                Assert.AreEqual(GenericFingerprint[i], fingerprints[0].Signature[i]);
-            }
+            CollectionAssert.AreEqual(GenericFingerprint, fingerprints[0].Signature);
         }
     }
 }

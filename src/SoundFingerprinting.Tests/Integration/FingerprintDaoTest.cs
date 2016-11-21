@@ -21,9 +21,9 @@
         }
 
         [TestMethod]
-        public void InsertTest()
+        public void ShouldInsertFingerprintInStorage()
         {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = trackDao.InsertTrack(track);
 
             var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
@@ -32,25 +32,23 @@
         }
 
         [TestMethod]
-        public void MultipleFingerprintsInsertTest()
+        public void ShouldInsertMultipleFingerprintsInStorage()
         {
             const int NumberOfFingerprints = 100;
+            var trackReference = InsertTrack();
+
             for (int i = 0; i < NumberOfFingerprints; i++)
             {
-                var trackData = new TrackData("isrc" + i, "artist", "title", "album", 2012, 200);
-                var trackReference = trackDao.InsertTrack(trackData);
                 var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
-
                 AssertModelReferenceIsInitialized(fingerprintReference);
             }
         }
-
+        
         [TestMethod]
-        public void ReadTest()
+        public void ShouldReadFingerprintsFromStorage()
         {
             const int NumberOfFingerprints = 100;
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = trackDao.InsertTrack(track);
+            var trackReference = InsertTrack();
 
             for (int i = 0; i < NumberOfFingerprints; i++)
             {
@@ -59,12 +57,17 @@
 
             var fingerprints = fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
 
-            Assert.IsTrue(fingerprints.Count == NumberOfFingerprints);
-
+            Assert.AreEqual(NumberOfFingerprints, fingerprints.Count);
             foreach (var fingerprint in fingerprints)
             {
                 CollectionAssert.AreEqual(GenericFingerprint, fingerprint.Signature);
             }
+        }
+
+        private IModelReference InsertTrack()
+        {
+            var trackData = new TrackData("isrc", "artist", "title", "album", 2012, 200);
+            return trackDao.InsertTrack(trackData);
         }
     }
 }
