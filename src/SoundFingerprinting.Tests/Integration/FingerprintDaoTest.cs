@@ -63,11 +63,7 @@
 
             foreach (var fingerprint in fingerprints)
             {
-                Assert.IsTrue(GenericFingerprint.Length == fingerprint.Signature.Length);
-                for (var i = 0; i < GenericFingerprint.Length; i++)
-                {
-                    Assert.AreEqual(GenericFingerprint[i], fingerprint.Signature[i]);
-                }
+                CollectionAssert.AreEqual(GenericFingerprint, fingerprint.Signature);
             }
         }
     }

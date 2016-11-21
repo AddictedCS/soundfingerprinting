@@ -13,5 +13,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("8750fb98-a464-4917-8489-19cc756b4d68")]
 [assembly: AssemblyVersion("3.0.0")]
+[assembly: AssemblyInformationalVersion("3.0.0-alpha")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.NAudio.Test")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
