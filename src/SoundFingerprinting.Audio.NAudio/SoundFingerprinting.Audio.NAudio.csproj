@@ -51,6 +51,7 @@
     <Compile Include="NAudioSoundCaptureService.cs" />
     <Compile Include="NAudioSourceReader.cs" />
     <Compile Include="NAudioStreamingUrlReader.cs" />
+    <Compile Include="NAudioTagService.cs" />
     <Compile Include="NAudioWaveFileUtility.cs" />
     <Compile Include="Play\INAudioPlayAudioFactory.cs" />
     <Compile Include="Play\NAudioPlayAudioFactory.cs" />
