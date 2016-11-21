@@ -1,21 +1,19 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.FFT
 {
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Moq;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
 
     [TestClass]
     public class SpectrumServiceTest : AbstractTest
     {
-        private DerivedSpectrumService spectrumService;
+        private SpectrumService spectrumService;
         private Mock<IFFTService> fftService;
         private Mock<ILogUtility> logUtility;
 
@@ -24,7 +22,7 @@
         {
             fftService = new Mock<IFFTService>(MockBehavior.Strict);
             logUtility = new Mock<ILogUtility>(MockBehavior.Strict);
-            spectrumService = new DerivedSpectrumService(fftService.Object, logUtility.Object);
+            spectrumService = new SpectrumService(fftService.Object, logUtility.Object);
         }
 
         [TestCleanup]
@@ -34,7 +32,7 @@
             logUtility.VerifyAll();
         }
         
-      //  [TestMethod]
+        [TestMethod]
         public void CreateLogSpectrogramTest()
         {
             var configuration = new DefaultSpectrogramConfig { ImageLength = 2048 };
@@ -51,7 +49,7 @@
             Assert.AreEqual(32, result[0].Image[0].Length);
         }
 
-      //  [TestMethod]
+        [TestMethod]
         public void CreateLogSpectrogramFromMinimalSamplesLengthTest()
         {
             var configuration = new DefaultSpectrogramConfig { NormalizeSignal = false };
@@ -159,6 +157,18 @@
 
             Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
         }
+
+        [TestMethod]
+        public void ShouldExtractLogarithmicBandsCorrectly()
+        {
+            var utility = new LogUtility();
+            int[] indexes = utility.GenerateLogFrequenciesRanges(5512, new DefaultSpectrogramConfig { UseDynamicLogBase = true });
+            float[] spectrum = Enumerable.Range(0, 2048).Select(item => (float)item).ToArray();
+
+            float[] bands = spectrumService.ExtractLogBins(spectrum, indexes, 32, 2048);
+
+            Assert.AreEqual(32, bands.Length);
+        }
        
         private float[][] GetLogSpectrum(int logSpectrumLength)
         {
@@ -169,20 +179,6 @@
             }
 
             return logSpectrum;
-        }
-    }
-
-    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed. Suppression is OK here.")]
-    internal class DerivedSpectrumService : SpectrumService
-    {
-        public DerivedSpectrumService(IFFTService fftService, ILogUtility logUtility)
-            : base(fftService, logUtility)
-        {
-        }
-
-        public new List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
-        {
-            return base.CutLogarithmizedSpectrum(logarithmizedSpectrum, sampleRate, configuration);
         }
     }
 }

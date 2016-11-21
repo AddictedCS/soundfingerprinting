@@ -74,7 +74,7 @@
             return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
         }
 
-        protected List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
+        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
         {
             var strideBetweenConsecutiveImages = configuration.Stride;
             int overlap = configuration.Overlap;
@@ -101,7 +101,7 @@
             return spectralImages;
         }
 
-        private float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins, int wdftSize)
+        public float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins, int wdftSize)
         {
             int width = wdftSize / 2; /* 1024 */
             float[] sumFreq = new float[logBins]; /*32*/
