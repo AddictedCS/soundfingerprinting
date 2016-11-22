@@ -39,6 +39,15 @@
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoUnitTests|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\NoUnitTests\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net, Version=2.4.6.4, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
