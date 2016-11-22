@@ -1,4 +1,4 @@
 language: csharp
 solution: src/SoundFingerprinting.sln
 script:
-  - xbuild /p:Configuration=Release src/SoundFingerprinting.sln
+  - xbuild /p:Configuration=NoUnitTests src/SoundFingerprinting.sln
