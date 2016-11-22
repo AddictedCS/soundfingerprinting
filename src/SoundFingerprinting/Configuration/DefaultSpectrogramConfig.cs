@@ -13,7 +13,7 @@ namespace SoundFingerprinting.Configuration
             LogBase = 2;
             LogBins = 32;
             ImageLength = 128;
-            UseDynamicLogBase = false;
+            UseDynamicLogBase = true;
             NormalizeSignal = false;
             Stride = new IncrementalStaticStride(1536, ImageLength * Overlap);
             Window = new HanningWindow();
