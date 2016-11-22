@@ -1,4 +1,8 @@
 language: csharp
 solution: src/SoundFingerprinting.sln
+install:
+  - nuget restore src/SoundFingerprinting.sln
+  - nuget install NUnit.Runners -Version 3.5.0 -OutputDirectory build/testrunner
 script:
   - xbuild /p:Configuration=NoUnitTests src/SoundFingerprinting.sln
+  - mono build/testrunner/NUnit.ConsoleRunner.3.5.0/tools/nunit3-console.exe src/SoundFingerprinting.Audio.NAudio.Test/bin/NoUnitTests/SoundFingerprinting.Audio.NAudio.Test.dll --where="cat!=RequiresWindowsDLL"
