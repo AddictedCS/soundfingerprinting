@@ -87,6 +87,7 @@ Global
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.NoUnitTests|Any CPU.ActiveCfg = NoUnitTests|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.NoUnitTests|Any CPU.Build.0 = NoUnitTests|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.NoUnitTests|Mixed Platforms.ActiveCfg = NoUnitTests|Any CPU
+		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.NoUnitTests|Mixed Platforms.Build.0 = NoUnitTests|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.NoUnitTests|x86.ActiveCfg = NoUnitTests|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE1865DB-C8D2-48E8-BB00-551D9D858C37}.Release|Any CPU.Build.0 = Release|Any CPU

@@ -94,10 +94,6 @@
       <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
       <Name>SoundFingerprinting.Audio</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.Tests\SoundFingerprinting.Tests.csproj">
-      <Project>{987DA38D-5157-4D83-9B1D-83A0A62D0E94}</Project>
-      <Name>SoundFingerprinting.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>
