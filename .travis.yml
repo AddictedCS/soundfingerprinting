@@ -1,0 +1,4 @@
+language: csharp
+solution: src/SoundFingerprinting.sln
+script:
+  - xbuild /p:Configuration=Release src/SoundFingerprinting.sln
