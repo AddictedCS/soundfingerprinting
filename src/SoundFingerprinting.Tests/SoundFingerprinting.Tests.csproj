@@ -156,7 +156,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy "$(ProjectDir)TestEnvironment\*.*" "$(TargetDir)"</PreBuildEvent>
+    <PreBuildEvent Condition=" '$(OS)' != 'Unix' ">copy "$(ProjectDir)TestEnvironment\*.*" "$(TargetDir)"</PreBuildEvent>
+    <PreBuildEvent Condition=" '$(OS)' == 'Unix' ">cp $(ProjectDir)TestEnvironment/*.* $(TargetDir)</PreBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
