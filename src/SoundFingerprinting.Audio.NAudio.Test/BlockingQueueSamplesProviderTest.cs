@@ -13,11 +13,11 @@
         private readonly Random random = new Random();
 
         [Test]
-        public void TestGetNextSamples()
+        public void ShouldGetNextSamples()
         {
             var producer = new BlockingCollection<float[]>();
             const int NumberOfItemsToAdd = 5;
-            PutSamplesIntoQueueOnUnregularIntervals(producer, NumberOfItemsToAdd);
+            PutSamplesIntoQueueOnIregularIntervals(producer, NumberOfItemsToAdd);
 
             var samplesProvider = new BlockingQueueSamplesProvider(producer);
 
@@ -36,20 +36,18 @@
             Assert.AreEqual(NumberOfItemsToAdd + 1, count);
         }
 
-        private void PutSamplesIntoQueueOnUnregularIntervals(BlockingCollection<float[]> producer, int count)
+        private void PutSamplesIntoQueueOnIregularIntervals(BlockingCollection<float[]> producer, int count)
         {
-            Task.Factory.StartNew(
-                () =>
-                    {
-                        Parallel.For(
-                            0,
-                            count,
-                            index =>
-                                {
-                                    Thread.Sleep(random.Next(1000, 3000));
-                                    producer.Add(new float[1024]);
-                                });
-                    }).ContinueWith(t => producer.CompleteAdding());
+            Task.Factory.StartNew(() => AddValues(producer, count)).ContinueWith(t => producer.CompleteAdding());
+        }
+
+        private void AddValues(BlockingCollection<float[]> producer, int count)
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                Thread.Sleep(this.random.Next(1000, 3000));
+                producer.Add(new float[1024]);
+            }
         }
     }
 }

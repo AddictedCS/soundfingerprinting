@@ -8,13 +8,13 @@
     public class DependencyResolverTest
     {
         [Test]
-        public void TestPublicInterfacesAreResolvedFromNAudioModule()
+        public void PublicInterfacesAreResolvedFromNAudioModule()
         {
-            var naudioService = new NAudioService();
-            var naudioPlayService = new NAudioPlayAudioFileService();
+            var audioService = new NAudioService();
+            var audioPlayAudioFileService = new NAudioPlayAudioFileService();
 
-            Assert.IsNotNull(naudioPlayService);
-            Assert.IsNotNull(naudioService);
+            Assert.IsNotNull(audioPlayAudioFileService);
+            Assert.IsNotNull(audioService);
         }
     }
 }

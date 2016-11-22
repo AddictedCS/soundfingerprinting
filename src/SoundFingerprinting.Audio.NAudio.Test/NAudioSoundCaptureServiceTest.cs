@@ -7,8 +7,6 @@
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Tests;
-
     [TestFixture]
     public class NAudioSoundCaptureServiceTest
     {
@@ -28,7 +26,7 @@
         {
             var waveInEvent = new Mock<WaveInEvent>(MockBehavior.Strict);
             naudioFactory.Setup(factory => factory.GetWaveInEvent(5512, 1)).Returns(waveInEvent.Object);
-            float[] samples = TestUtilities.GenerateRandomFloatArray(1024);
+            float[] samples = new float[1024];
             const int SecondsToRecord = 10;
             samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), SecondsToRecord, 5512))
                 .Returns(samples);

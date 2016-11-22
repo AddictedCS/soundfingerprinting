@@ -11,8 +11,6 @@ namespace SoundFingerprinting.Audio.NAudio.Test
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Tests;
-
     [TestFixture]
     public class NAudioSourceReaderTest
     {
@@ -37,7 +35,7 @@ namespace SoundFingerprinting.Audio.NAudio.Test
         [Test]
         public void TestReadMonoSamplesFromFile()
         {
-            Mock<WaveStream> waveStream = new Mock<WaveStream>(MockBehavior.Strict);
+            var waveStream = new Mock<WaveStream>(MockBehavior.Strict);
             naudioFactory.Setup(factory => factory.GetStream("path-to-audio-file")).Returns(waveStream.Object);
             const int Mono = 1;
             WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(5512, Mono);
@@ -50,7 +48,7 @@ namespace SoundFingerprinting.Audio.NAudio.Test
             var resampler = new Mock<MediaFoundationTransform>(MockBehavior.Strict, new object[] { waveStream.Object, waveFormat });
             resampler.Protected().Setup("Dispose", new object[] { true });
             naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, 5512, Mono)).Returns(resampler.Object);
-            float[] samplesArray = TestUtilities.GenerateRandomFloatArray(1024);
+            float[] samplesArray = new float[1024];
             const double SecondsToRead = 10d;
             samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<NAudioSamplesProviderAdapter>(), SecondsToRead, 5512))
                                               .Returns(samplesArray);

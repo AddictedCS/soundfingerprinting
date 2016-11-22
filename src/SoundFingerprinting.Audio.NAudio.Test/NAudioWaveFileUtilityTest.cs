@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio.Test
 {
+    using System;
     using System.IO;
 
     using Moq;
@@ -11,13 +12,11 @@
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Tests;
-
     [TestFixture]
-    public class NAudioWaveFileUtilityTest : AbstractTest
+    public class NAudioWaveFileUtilityTest
     {
+        private readonly Random rand = new Random((int)DateTime.Now.Ticks << 4);
         private readonly Mock<INAudioFactory> naudioFactory = new Mock<INAudioFactory>(MockBehavior.Strict);
-
         private NAudioWaveFileUtility waveFileUtility;
 
         [SetUp]
@@ -29,21 +28,20 @@
         [Test]
         public void TestWriteSamplesToWaveFile()
         {
-            using (var memoryStream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 const int Mono = 1;
-                Mock<WaveFileWriter> writer = new Mock<WaveFileWriter>(
-                    MockBehavior.Strict, memoryStream, WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Mono));
-                naudioFactory.Setup(factory => factory.GetWriter("path-to-audio-file", SampleRate, Mono)).Returns(
-                    writer.Object);
+                var writer = new Mock<WaveFileWriter>(MockBehavior.Strict, stream, WaveFormat.CreateIeeeFloatWaveFormat(5512, Mono));
+                naudioFactory.Setup(factory => factory.GetWriter("path-to-audio-file", 5512, Mono))
+                                                      .Returns(writer.Object);
                 const int SongLengthInFloats = 16;
-                float[] samples = TestUtilities.GenerateRandomFloatArray(SongLengthInFloats);
+                float[] samples = GenerateRandomFloatArray(SongLengthInFloats);
                 writer.Setup(w => w.Close());
 
-                waveFileUtility.WriteSamplesToFile(samples, SampleRate, "path-to-audio-file");
+                waveFileUtility.WriteSamplesToFile(samples, 5512, "path-to-audio-file");
 
-                var readSamples = GetWrittenSamplesInStream(memoryStream, SongLengthInFloats);
-                AssertArraysAreEqual(samples, readSamples);
+                var readSamples = GetWrittenSamplesInStream(stream, SongLengthInFloats);
+                CollectionAssert.AreEqual(samples, readSamples);
             }
         }
 
@@ -53,16 +51,16 @@
             Mock<WaveStream> waveStream = new Mock<WaveStream>(MockBehavior.Strict);
             naudioFactory.Setup(factory => factory.GetStream("path-to-audio-file")).Returns(waveStream.Object);
             const int Mono = 1;
-            WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, Mono);
+            WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(5512, Mono);
             waveStream.Setup(stream => stream.WaveFormat).Returns(waveFormat);
             waveStream.Setup(stream => stream.Close());
             Mock<MediaFoundationTransform> resampler = new Mock<MediaFoundationTransform>(
                 MockBehavior.Strict, new object[] { waveStream.Object, waveFormat });
             resampler.Protected().Setup("Dispose", new object[] { true });
-            naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, SampleRate, Mono)).Returns(resampler.Object);
+            naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, 5512, Mono)).Returns(resampler.Object);
             naudioFactory.Setup(factory => factory.CreateWaveFile("path-to-recoded-file", resampler.Object));
 
-            waveFileUtility.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", SampleRate);
+            waveFileUtility.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", 5512);
         }
 
         private float[] GetWrittenSamplesInStream(MemoryStream memoryStream, int length)
@@ -75,12 +73,15 @@
             return SamplesConverter.GetFloatSamplesFromByte(length * BytesInFloat, buffer);
         }
 
-        private void AssertArraysAreEqual(float[] samples, float[] readSamples)
+        private float[] GenerateRandomFloatArray(int length)
         {
-            for (int i = 0; i < samples.Length; i++)
+            float[] result = new float[length];
+            for (int i = 0; i < length; i++)
             {
-                Assert.AreEqual(samples[i], readSamples[i]);
+                result[i] = (float)this.rand.NextDouble() * 32767;
             }
+
+            return result;
         }
     }
 }
