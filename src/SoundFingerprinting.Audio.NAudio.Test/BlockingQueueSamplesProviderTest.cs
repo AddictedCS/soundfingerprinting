@@ -5,14 +5,14 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
-    [TestClass]
+    [TestFixture]
     public class BlockingQueueSamplesProviderTest
     {
         private readonly Random random = new Random();
 
-        [TestMethod]
+        [Test]
         public void TestGetNextSamples()
         {
             var producer = new BlockingCollection<float[]>();

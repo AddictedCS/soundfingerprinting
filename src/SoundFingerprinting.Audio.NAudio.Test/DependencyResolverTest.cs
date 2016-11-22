@@ -1,13 +1,13 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio.Test
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio.NAudio.Play;
 
-    [TestClass]
+    [TestFixture]
     public class DependencyResolverTest
     {
-        [TestMethod]
+        [Test]
         public void TestPublicInterfacesAreResolvedFromNAudioModule()
         {
             var naudioService = new NAudioService();

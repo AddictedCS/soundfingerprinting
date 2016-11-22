@@ -2,30 +2,31 @@
 {
     using System.IO;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
     using Moq.Protected;
 
     using global::NAudio.MediaFoundation;
+
     using global::NAudio.Wave;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Tests;
 
-    [TestClass]
+    [TestFixture]
     public class NAudioWaveFileUtilityTest : AbstractTest
     {
         private readonly Mock<INAudioFactory> naudioFactory = new Mock<INAudioFactory>(MockBehavior.Strict);
 
         private NAudioWaveFileUtility waveFileUtility;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             waveFileUtility = new NAudioWaveFileUtility(naudioFactory.Object);
         }
 
-        [TestMethod]
+        [Test]
         public void TestWriteSamplesToWaveFile()
         {
             using (var memoryStream = new MemoryStream())
@@ -46,7 +47,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestRecodeFileToMonoWave()
         {
             Mock<WaveStream> waveStream = new Mock<WaveStream>(MockBehavior.Strict);

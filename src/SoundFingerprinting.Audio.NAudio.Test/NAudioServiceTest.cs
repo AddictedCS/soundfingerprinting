@@ -2,32 +2,30 @@
 {
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
 
-    using SoundFingerprinting.Tests;
+    using NUnit.Framework;
 
-    [TestClass]
-    public class NAudioServiceTest : AbstractTest
+    [TestFixture]
+    public class NAudioServiceTest
     {
         private readonly Mock<INAudioSourceReader> sourceReader = new Mock<INAudioSourceReader>(MockBehavior.Strict);
 
         private NAudioService naudioService;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             naudioService = new NAudioService(sourceReader.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             sourceReader.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void TestSupportedNAudioFormats()
         {
             var supportedFormats = naudioService.SupportedFormats.ToList();
@@ -36,15 +34,15 @@
             Assert.IsTrue(supportedFormats.Contains(".wav"));
         }
 
-        [TestMethod]
+        [Test]
         public void TestReadMonoSamplesFromFile()
         {
             const int SecondsToRead = 10;
             const int StartAt = 10;
             float[] samples = new float[1024];
-            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-audio-file", SampleRate, SecondsToRead, StartAt)).Returns(samples);
+            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-audio-file", 5512, SecondsToRead, StartAt)).Returns(samples);
 
-            var result = naudioService.ReadMonoSamplesFromFile("path-to-audio-file", SampleRate, SecondsToRead, StartAt);
+            var result = naudioService.ReadMonoSamplesFromFile("path-to-audio-file", 5512, SecondsToRead, StartAt);
 
             Assert.AreSame(samples, result.Samples);
         }

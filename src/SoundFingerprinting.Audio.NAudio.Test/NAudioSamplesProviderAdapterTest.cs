@@ -1,16 +1,17 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio.Test
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
 
     using global::NAudio.Wave;
+
     using global::NAudio.Wave.SampleProviders;
 
-    [TestClass]
+    using NUnit.Framework;
+
+    [TestFixture]
     public class NAudioSamplesProviderAdapterTest
     {
-        [TestMethod]
+        [Test]
         public void TestGetNextSamplesQueriesStreamCorrectly()
         {
             var waveProvider = new Mock<IWaveProvider>(MockBehavior.Loose);
