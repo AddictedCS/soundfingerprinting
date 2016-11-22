@@ -8,6 +8,7 @@
     using NUnit.Framework;
 
     [TestFixture]
+    [Category("RequiresWindowsDLL")]
     public class NAudioSoundCaptureServiceTest
     {
         private readonly Mock<INAudioFactory> naudioFactory = new Mock<INAudioFactory>(MockBehavior.Strict);
@@ -22,7 +23,7 @@
         }
 
         [Test]
-        public void TestReadFromMicrophone()
+        public void ShouldReadFromMicrophone()
         {
             var waveInEvent = new Mock<WaveInEvent>(MockBehavior.Strict);
             naudioFactory.Setup(factory => factory.GetWaveInEvent(5512, 1)).Returns(waveInEvent.Object);
