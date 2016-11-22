@@ -10,4 +10,4 @@ namespace SoundFingerprinting.DAO
 
         IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference);
     }
-} 
+}

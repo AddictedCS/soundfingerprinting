@@ -24,7 +24,7 @@
         public long[] Hashes { get; set; }
 
         public int SequenceNumber { get; set; }
-        
+
         public double SequenceAt { get; set; }
 
         [IgnoreBinding]
