@@ -2,36 +2,23 @@
 {
     using System;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
 
-    [TestClass]
+    [TestFixture]
     public class QueryConfigurationTest : AbstractTest
     {
-        [TestMethod]
-        public void CustomQueryConfigurationParametersCanBeSuccessfullySetTest()
-        {
-            var queryConfiguration = new DefaultQueryConfiguration { ThresholdVotes = 7, MaxTracksToReturn = 10 };
-
-            Assert.AreEqual(7, queryConfiguration.ThresholdVotes);
-            Assert.AreEqual(10, queryConfiguration.MaxTracksToReturn);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidThresholdVotesIsSetOnQueryConfigurationInstanceTest()
         {
-            var queryConfig = new DefaultQueryConfiguration { ThresholdVotes = -1 };
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultQueryConfiguration { ThresholdVotes = -1 });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidMaximumNumberOfTracksToReturnIsSetOnQueryConfigurationInstanceTest()
         {
-            var queryConfig = new DefaultQueryConfiguration { MaxTracksToReturn = 0 };
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultQueryConfiguration { MaxTracksToReturn = 0 });
         }
     }
 }

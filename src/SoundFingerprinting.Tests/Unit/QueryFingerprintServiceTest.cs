@@ -3,23 +3,23 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
-    [TestClass]
+    [TestFixture]
     public class QueryFingerprintServiceTest : AbstractTest
     {
         private QueryFingerprintService queryFingerprintService;
 
         private Mock<IModelService> modelService;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             modelService = new Mock<IModelService>(MockBehavior.Strict);
@@ -27,13 +27,13 @@
             queryFingerprintService = new QueryFingerprintService();
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             modelService.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void MaximumNumberOfReturnedTracksIsLessThanAnalyzedCandidatesResultsTest()
         {
             long[] buckets = GenericHashBuckets;
@@ -90,7 +90,7 @@
             Assert.AreEqual(thirdTrackReference,  results[2].Track.TrackReference);
         }
 
-        [TestMethod]
+        [Test]
         public void NoResultsReturnedFromUnderlyingStorageTest()
         {
             var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0);
@@ -105,7 +105,7 @@
             Assert.AreEqual(0, queryResult.ResultEntries.Count());
         }
 
-        [TestMethod]
+        [Test]
         public void HammingSimilarityIsSummedUpAccrossAllSubFingerprintsTest()
         {
             long[] buckets = GenericHashBuckets;

@@ -3,22 +3,22 @@
     using System;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Wavelets;
 
-    [TestClass]
+    [TestFixture]
     public class StandardHaarWaveletDecompositionTest : AbstractTest
     {
         private IWaveletDecomposition waveletDecomposition;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             waveletDecomposition = new StandardHaarWaveletDecomposition();
         }
 
-        [TestMethod]
+        [Test]
         public void StandardDecompositionTest()
         {
             const int Rows = 128;

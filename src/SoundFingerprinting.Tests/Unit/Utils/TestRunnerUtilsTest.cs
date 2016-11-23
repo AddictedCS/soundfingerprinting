@@ -5,16 +5,16 @@
     using System.IO;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
     public class TestRunnerUtilsTest
     {
         private readonly TestRunnerUtils testRunnerUtils = new TestRunnerUtils();
 
-        [TestMethod]
+        [Test]
         public void ShouldCaptureAllAudioFilesFromFolder()
         {
             string path = Path.GetFullPath(".");
@@ -27,7 +27,7 @@
             Assert.IsTrue(unique.Contains("Kryptonite"));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldParseInts()
         {
             const string Ints = "1|2|3|4|5";
@@ -37,13 +37,12 @@
             CollectionAssert.AreEqual(new List<int> { 1, 2, 3, 4, 5 }, result);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FormatException))]
+        [Test]
         public void ShouldFailParsingInts()
         {
             const string Ints = "1|2|3|4|%";
 
-            testRunnerUtils.ParseInts(Ints, '|');
+            Assert.Throws<FormatException>(() => testRunnerUtils.ParseInts(Ints, '|'));
         }
     }
 }

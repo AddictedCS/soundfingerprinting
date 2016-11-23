@@ -3,9 +3,9 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
@@ -14,7 +14,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
-    [TestClass]
+    [TestFixture]
     public class QueryCommandBuilderTest : AbstractTest
     {
         private QueryCommandBuilder queryCommandBuilder;
@@ -28,7 +28,7 @@
         private Mock<IModelService> modelService;
         private Mock<IAudioService> audioService;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             fingerprintCommandBuilder = new Mock<IFingerprintCommandBuilder>(MockBehavior.Strict);
@@ -43,7 +43,7 @@
             queryCommandBuilder = new QueryCommandBuilder(fingerprintCommandBuilder.Object, queryFingerprintService.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             fingerprintCommandBuilder.VerifyAll();
@@ -53,7 +53,7 @@
             queryFingerprintService.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void QueryIsBuiltFromFileCorrectly()
         {
             const string PathToFile = "path-to-file";
@@ -83,7 +83,7 @@
             Assert.AreSame(dummyResult, queryResult);
         }
 
-        [TestMethod]
+        [Test]
         public void QueryIsBuiltFromFileStartingAtAtSpecificSecondCorrectly()
         {
             const string PathToFile = "path-to-file";
@@ -124,18 +124,18 @@
             fingerprintingSource.Verify(source => source.From(PathToFile, SecondsToQuery, StartAtSecond), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void QueryCommandIsBuiltWithDefaultConfigsCorrectly()
         {
             var command = queryCommandBuilder.BuildQueryCommand()
                                .From("path-to-file", 10, 0)
                                .UsingServices(modelService.Object, audioService.Object);
 
-            Assert.IsInstanceOfType(command.FingerprintConfiguration, typeof(EfficientFingerprintConfigurationForQuerying));
-            Assert.IsInstanceOfType(command.QueryConfiguration, typeof(DefaultQueryConfiguration));
+            Assert.IsInstanceOf<EfficientFingerprintConfigurationForQuerying>(command.FingerprintConfiguration);
+            Assert.IsInstanceOf<DefaultQueryConfiguration>(command.QueryConfiguration);
         }
 
-        [TestMethod]
+        [Test]
         public void QueryCommandIsBuiltWithCustomConfigsCorrectly()
         {
             var command = queryCommandBuilder.BuildQueryCommand()

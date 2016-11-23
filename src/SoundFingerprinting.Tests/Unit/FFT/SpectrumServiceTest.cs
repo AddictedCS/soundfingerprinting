@@ -2,22 +2,22 @@
 {
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
 
-    [TestClass]
+    [TestFixture]
     public class SpectrumServiceTest : AbstractTest
     {
         private SpectrumService spectrumService;
         private Mock<IFFTService> fftService;
         private Mock<ILogUtility> logUtility;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             fftService = new Mock<IFFTService>(MockBehavior.Strict);
@@ -25,14 +25,14 @@
             spectrumService = new SpectrumService(fftService.Object, logUtility.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             fftService.VerifyAll();
             logUtility.VerifyAll();
         }
         
-        [TestMethod]
+        [Test]
         public void CreateLogSpectrogramTest()
         {
             var configuration = new DefaultSpectrogramConfig { ImageLength = 2048 };
@@ -49,7 +49,7 @@
             Assert.AreEqual(32, result[0].Image[0].Length);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateLogSpectrogramFromMinimalSamplesLengthTest()
         {
             var configuration = new DefaultSpectrogramConfig { NormalizeSignal = false };
@@ -65,7 +65,7 @@
             Assert.AreEqual(configuration.ImageLength, result[0].Image.Length);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateLogSpectrogramFromSamplesLessThanFourierTransformWindowLength()
         {
             var configuration = new DefaultSpectrogramConfig();
@@ -76,7 +76,7 @@
             Assert.AreEqual(0, result.Count); 
         }
 
-        [TestMethod]
+        [Test]
         public void CutLogarithmizedSpectrumTest()
         {
             var stride = new StaticStride(0, 0);
@@ -95,7 +95,7 @@
             }
         }
         
-        [TestMethod]
+        [Test]
         public void CutLogarithmizedSpectrumOfJustOneFingerprintTest()
         {
             var stride = new StaticStride(0, 0);
@@ -108,7 +108,7 @@
             Assert.AreEqual(1, cutLogarithmizedSpectrum.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void CutLogarithmizedSpectrumWithAnIncrementalStaticStride()
         {
             var stride = new IncrementalStaticStride(new DefaultFingerprintConfiguration().SamplesPerFingerprint / 2);
@@ -126,7 +126,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void CutLogarithmizedSpectrumWithDefaultStride()
         {
             var config = new DefaultSpectrogramConfig();
@@ -145,7 +145,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void CutLogarithmizedSpectrumWithSpectrumWhichIsLessThanMinimalLengthOfOneFingerprintTest()
         {
             var stride = new StaticStride(0, 0);
@@ -158,7 +158,7 @@
             Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldExtractLogarithmicBandsCorrectly()
         {
             var utility = new LogUtility();

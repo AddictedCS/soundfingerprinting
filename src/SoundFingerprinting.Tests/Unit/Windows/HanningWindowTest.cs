@@ -1,27 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SoundFingerprinting.Tests.Unit.Windows
+﻿namespace SoundFingerprinting.Tests.Unit.Windows
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Windows;
 
-    [TestClass]
+    [TestFixture]
     public class HanningWindowTest
     {
         private IWindowFunction windowFunction;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             windowFunction = new HanningWindow();
         }
 
-        [TestMethod]
+        [Test]
         public void WindowInPlaceTest()
         {
             const int Length = 128 * 64;

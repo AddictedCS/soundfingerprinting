@@ -2,12 +2,12 @@
 {
     using System;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
-    [TestClass]
+    [TestFixture]
     public class ArrayUtilsTest
     {
-        [TestMethod]
+        [Test]
         public void TestArrayIsConcatenatedCorrectly()
         {
             float[][] array = new[] { new float[] { 1, 2, 3 }, new float[] { 4, 5, 6 }, new float[] { 7, 8, 9 } };

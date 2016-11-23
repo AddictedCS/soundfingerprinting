@@ -5,9 +5,9 @@
     using System.IO;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
@@ -15,7 +15,7 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
     public class TestRunnerTest : IntegrationWithSampleFilesTest
     {
         private readonly IModelService modelService = new InMemoryModelService();
@@ -31,7 +31,7 @@
 
         private readonly Mock<ITagService> tagService = new Mock<ITagService>(MockBehavior.Strict);
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             tagService.Setup(service => service.GetTagInfo(It.IsAny<string>())).Returns(
@@ -46,7 +46,7 @@
                     });
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             nfe.VerifyAll();
@@ -56,7 +56,7 @@
             tife.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldSuccessfullyRunTest()
         {
             string results = Path.GetTempPath();

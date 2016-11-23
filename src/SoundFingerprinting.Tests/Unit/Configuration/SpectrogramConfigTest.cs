@@ -2,74 +2,55 @@
 {
     using System;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
 
-    [TestClass]
+    [TestFixture]
     public class SpectrogramConfigTest
     {
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void NegativeOverlapTest()
         {
-            var configuration = new DefaultSpectrogramConfig { Overlap = -1 };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultSpectrogramConfig { Overlap = -1 });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidWdftSizeTest()
         {
-            var configuration = new DefaultSpectrogramConfig { WdftSize = -1 };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultSpectrogramConfig { WdftSize = -1 });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidMaxFrequencyTest()
         {
-            var configuration = new DefaultSpectrogramConfig { FrequencyRange = new FrequencyRange { Max = -1, Min = 5512 } };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(
+                () => new DefaultSpectrogramConfig { FrequencyRange = new FrequencyRange { Max = -1, Min = 5512 } });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidMinFrequencyTest()
         {
-            var configuration = new DefaultSpectrogramConfig { FrequencyRange = new FrequencyRange { Max = 5512, Min = -1 } };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(
+                () => new DefaultSpectrogramConfig { FrequencyRange = new FrequencyRange { Max = 5512, Min = -1 } });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidLogBaseTest()
         {
-            var configuration = new DefaultSpectrogramConfig { LogBase = -1 };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultSpectrogramConfig { LogBase = -1 });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidLogBinsTest()
         {
-            var configuration = new DefaultSpectrogramConfig { LogBins = 0 };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultSpectrogramConfig { LogBins = 0 });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidFingerprintLengthTest()
         {
-            var configuration = new DefaultSpectrogramConfig { ImageLength = 0 };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultSpectrogramConfig { ImageLength = 0 });
         }
     }
 }

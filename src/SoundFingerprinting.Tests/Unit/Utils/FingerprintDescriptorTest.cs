@@ -4,24 +4,24 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintDescriptorTest : AbstractTest
     {
         private const int TopWavelets = 200;
 
         private IFingerprintDescriptor fingerprintDescriptor;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             fingerprintDescriptor = new FingerprintDescriptor();
         }
 
-        [TestMethod]
+        [Test]
         public void ExtractTopWaveletesText()
         {
             float[][] frames = new float[128][];
@@ -36,7 +36,7 @@
             CollectionAssert.AreEqual(expected, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void ExtractTopWaveletWorksCorrectly()
         {
             float[][] frames = new float[2][];
@@ -54,7 +54,7 @@
             CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
-        [TestMethod]
+        [Test]
         public void EncodeFingerprintWorksAsExpected()
         {
             float[] concatenatedSpectrumPowers = new float[] { 2, 4, 8, 9, 1, 3, 5 };
@@ -66,7 +66,7 @@
             CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
-        [TestMethod]
+        [Test]
         public void DecodeFingerprintWorksAsExpected()
         {
             double[] expected = new double[] { 0, 0, 1, -1, 0, 0, 0 };

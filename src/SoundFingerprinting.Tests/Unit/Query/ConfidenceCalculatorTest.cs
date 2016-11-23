@@ -1,15 +1,15 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Query
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Query;
 
-    [TestClass]
+    [TestFixture]
     public class ConfidenceCalculatorTest
     {
         private readonly ConfidenceCalculator confidenceCalculator = new ConfidenceCalculator();
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculateConfidence1()
         {
             // Query Length 2 mins
@@ -21,7 +21,7 @@
             Assert.AreEqual(1d, confidence, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculatedConfidence2()
         {
             // Query Length 2 mins
@@ -33,7 +33,7 @@
             Assert.AreEqual(1d, confidence, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculateConfidence3()
         {
             // Query Length 2 mins
@@ -45,7 +45,7 @@
             Assert.AreEqual(1d, confidence, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculateConfidence4()
         {
             // Query Length 10 sec
@@ -57,7 +57,7 @@
             Assert.AreEqual(1d, confidence, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculateConfidence5()
         {
             // Query Length 10 sec
@@ -69,7 +69,7 @@
             Assert.AreEqual(1d, confidence, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculateConfidence6()
         {
             // Query Length 10 sec
@@ -81,7 +81,7 @@
             Assert.AreEqual(1d, confidence, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculateConfidence7()
         {
             // Query Length 10 sec
@@ -93,7 +93,7 @@
             Assert.AreEqual(1d, confidence, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldCalculateConfidence()
         {
             // Query Length 10 sec

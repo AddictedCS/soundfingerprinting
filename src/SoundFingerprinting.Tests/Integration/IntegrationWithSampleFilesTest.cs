@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
@@ -11,9 +11,6 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
 
-    [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
-    [DeploymentItem(@"TestEnvironment\Kryptonite.mp3")]
-    [TestClass]
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
         protected const int NumberOfHashTables = 25;

@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
@@ -13,7 +13,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintCommandBuilderTest : AbstractTest
     {
         private const int NumberOfHashTables = 25;
@@ -28,7 +28,7 @@
 
         private Mock<ILocalitySensitiveHashingAlgorithm> lshAlgorithm;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             fingerprintService = new Mock<IFingerprintService>(MockBehavior.Strict);
@@ -38,7 +38,7 @@
             fingerprintCommandBuilder = new FingerprintCommandBuilder(fingerprintService.Object, lshAlgorithm.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             fingerprintService.VerifyAll();
@@ -46,7 +46,7 @@
             lshAlgorithm.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void FingerprintsAreBuiltCorrectlyFromFile()
         {
             const string PathToAudioFile = "path-to-audio-file";
@@ -67,7 +67,7 @@
             Assert.AreSame(rawFingerprints, fingerprints);
         }
 
-        [TestMethod]
+        [Test]
         public void SubFingerprintsAreBuiltCorrectlyFromFileForTrack()
         {
             const int TenSeconds = 10;
@@ -94,7 +94,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SubFingerprintsAreBuiltCorrectlyFromAudioSamplesForTrack()
         {
             const int TenSeconds = 10;
@@ -119,7 +119,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SubFingerprintsAreBuiltCorrectlyFromFileForTrackStartingAtSpecificSecond()
         {
             const string PathToAudioFile = "path-to-audio-file";
@@ -150,7 +150,7 @@
             audioService.Verify(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond));
         }
 
-        [TestMethod]
+        [Test]
         public void CorrectFingerprintConfigurationIsUsedWithInstanceConfigTest()
         {
             const string PathToAudioFile = "path-to-audio-file";

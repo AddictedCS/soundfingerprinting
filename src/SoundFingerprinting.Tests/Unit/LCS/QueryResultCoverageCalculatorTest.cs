@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
@@ -10,12 +10,12 @@
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
-    [TestClass]
+    [TestFixture]
     public class QueryResultCoverageCalculatorTest
     {
         private QueryResultCoverageCalculator qrc = new QueryResultCoverageCalculator();
 
-        [TestMethod]
+        [Test]
         public void ShouldIdentifyLongestMatch()
         {
             var matches = new SortedSet<MatchedPair>()
@@ -31,7 +31,7 @@
             Assert.AreEqual(5.4586, coverage.SourceMatchLength, 0.001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldSelectBestLongestMatch()
         {
             var matches = new SortedSet<MatchedPair>()

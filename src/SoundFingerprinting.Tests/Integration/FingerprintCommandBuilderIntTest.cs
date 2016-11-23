@@ -4,7 +4,7 @@
     using System.IO;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
@@ -15,7 +15,7 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Strides;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
     {
         private readonly ModelService modelService;
@@ -35,14 +35,14 @@
             queryFingerprintService = new QueryFingerprintService();
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             var ramStorage = (RAMStorage)DependencyResolver.Current.Get<IRAMStorage>();
             ramStorage.Reset(new DefaultFingerprintConfiguration().HashingConfig.NumberOfLSHTables);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFingerprintsFromFileAndAssertNumberOfFingerprints()
         {
             const int StaticStride = 5096;
@@ -65,7 +65,7 @@
             Assert.AreEqual(expectedFingerprints, fingerprints.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFingerprintsInsertThenQueryAndGetTheRightResult()
         {
             const int SecondsToProcess = 10;
@@ -90,7 +90,7 @@
             Assert.AreEqual(trackReference, queryResult.BestMatch.Track.TrackReference);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFingerprintsFromFileAndFromAudioSamplesAndGetTheSameResultTest()
         {
             const int SecondsToProcess = 20;
@@ -115,7 +115,7 @@
             AssertHashDatasAreTheSame(hashDatasFromFile, hashDatasFromSamples);
         }
 
-        [TestMethod]
+        [Test]
         public void CheckFingerprintCreationAlgorithmTest()
         {
             string tempFile = Path.GetTempPath() + DateTime.Now.Ticks + ".wav";
@@ -134,7 +134,7 @@
             File.Delete(tempFile);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFingerprintsWithTheSameFingerprintCommandTest()
         {
             const int SecondsToProcess = 20;
@@ -151,7 +151,7 @@
             AssertHashDatasAreTheSame(firstHashDatas, secondHashDatas);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFingerprintFromSamplesWhichAreExactlyEqualToMinimumLength()
         {
             DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();

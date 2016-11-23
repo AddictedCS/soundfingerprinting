@@ -2,14 +2,14 @@
 {
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Math;
 
-    [TestClass]
+    [TestFixture]
     public class HammingDistanceResultStatisticsTest
     {
-        [TestMethod]
+        [Test]
         public void ShouldCalculatePercentilesCorrenctly()
         {
             var stats = HammingDistanceResultStatistics.From(

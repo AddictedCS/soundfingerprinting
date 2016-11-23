@@ -2,14 +2,14 @@
 {
     using System;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Strides;
 
-    [TestClass]
+    [TestFixture]
     public class StrideClassesTest : AbstractTest
     {
-        [TestMethod]
+        [Test]
         public void StaticStrideClassTest()
         {
             const int Value = 5115;
@@ -17,14 +17,14 @@
             Assert.AreEqual(Value, stride.GetNextStride());
         }
 
-        [TestMethod]
+        [Test]
         public void IncrementalStaticStrideTest()
         {
             IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115, SamplesPerFingerprint);
             Assert.AreEqual(5115 - SamplesPerFingerprint, incrementalStatic.GetNextStride());
         }
 
-        [TestMethod]
+        [Test]
         public void RandomStrideClassTest()
         {
             const int Min = 0;
@@ -39,13 +39,10 @@
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void RandomStrideClassBadMinMaxTest()
         {
-// ReSharper disable ObjectCreationAsStatement
-            new RandomStride(253, 0);
-// ReSharper restore ObjectCreationAsStatement
+            Assert.Throws<ArgumentException>(() => new RandomStride(253, 0));
         }
     }
 }

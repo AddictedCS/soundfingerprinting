@@ -3,16 +3,16 @@
     using System.Collections.Generic;
     using System.IO;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
     public class TestRunnerScenarioValidatorTest
     {
         private readonly TestRunnerScenarioValidator validator = new TestRunnerScenarioValidator();
 
-        [TestMethod]
+        [Test]
         public void ShouldNotValidateSinceNoSuchAction()
         {
             string scenario = string.Format("Action,{0},IncrementalStatic,0,5115", "C:\\");
@@ -22,7 +22,7 @@
             Assert.IsFalse(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldValidateInsert()
         {
             string path = Path.GetFullPath(".");
@@ -34,7 +34,7 @@
             Assert.IsTrue(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldValidateFullRun()
         {
             string path = Path.GetFullPath(".");
@@ -51,7 +51,7 @@
             Assert.IsTrue(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldValidateRun()
         {
             string path = Path.GetFullPath(".");
@@ -63,7 +63,7 @@
             Assert.IsTrue(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldNotValidateInsertSinceNoAudioFilesInInputFolder()
         {
             string path = Path.GetTempPath();
@@ -75,7 +75,7 @@
             Assert.IsFalse(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldNotValidateRunSinceNoAudioFilesInInputFolder()
         {
             string path = Path.GetTempPath();

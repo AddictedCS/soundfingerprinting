@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.DAO;
@@ -12,13 +12,13 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Strides;
 
-    [TestClass]
+    [TestFixture]
     public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
     {
         private ISubFingerprintDao subFingerprintDao;
         private ITrackDao trackDao;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
@@ -26,7 +26,7 @@
             trackDao = new TrackDao(ramStorage);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldInsertAndReadSubFingerprints()
         {
             var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -44,7 +44,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SameNumberOfHashBinsIsInsertedInAllTablesWhenFingerprintingEntireSongTest()
         {
             TagInfo tagInfo = GetTagInfo();
@@ -68,7 +68,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ReadByTrackGroupIdWorksAsExpectedTest()
         {
             const int StaticStride = 5115;
@@ -114,7 +114,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void ReadHashDataByTrackTest()
         {
             TrackData firstTrack = new TrackData("isrc", "artist", "title", "album", 2012, 200);

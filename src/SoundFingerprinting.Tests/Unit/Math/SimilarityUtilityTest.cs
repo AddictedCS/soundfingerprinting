@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -11,12 +11,12 @@
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
-    [TestClass]
+    [TestFixture]
     public class SimilarityUtilityTest : AbstractTest
     {
         private readonly ISimilarityUtility similarityUtility = new SimilarityUtility();
 
-        [TestMethod]
+        [Test]
         public void ShouldSumUpHammingDistanceAccrossTracks()
         {
             var hammingSimilarities = new Dictionary<IModelReference, ResultEntryAccumulator>();
@@ -59,7 +59,7 @@
             Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)].HammingSimilaritySum);
         }
 
-        [TestMethod]
+        [Test]
         public void CalculateHammingDistanceCorrect()
         {
             byte[] first = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -70,7 +70,7 @@
             Assert.AreEqual(4, result);
         }
 
-        [TestMethod]
+        [Test]
         public void CalculateHammingSimilarityCorrect()
         {
             byte[] first = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -81,7 +81,7 @@
             Assert.AreEqual(6, result);
         }
 
-        [TestMethod]
+        [Test]
         public void CalculateJaccardSimilarityCorrect()
         {
             bool[] first = new[] { true, true, false, true, false, true, false, false, true, true };

@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
@@ -12,12 +12,12 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
-    [TestClass]
+    [TestFixture]
     public class QueryMathTest
     {
         private readonly QueryMath queryMath = new QueryMath();
 
-        [TestMethod]
+        [Test]
         public void ShoulCalculateSnippetLengthCorrectly()
         {
             var hashedFingerprints = new List<HashedFingerprint>
@@ -32,7 +32,7 @@
             Assert.AreEqual(9.6284d, snippetLength, 0.0001);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldGetBestCandidatesByHammingDistance()
         {
             var modelService = new Mock<IModelService>(MockBehavior.Strict);

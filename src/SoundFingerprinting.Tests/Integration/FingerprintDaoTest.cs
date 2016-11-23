@@ -1,18 +1,18 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintDaoTest : IntegrationWithSampleFilesTest
     {
         private IFingerprintDao fingerprintDao;
         private ITrackDao trackDao;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
@@ -20,7 +20,7 @@
             trackDao = new TrackDao(ramStorage);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldInsertFingerprintInStorage()
         {
             var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -31,7 +31,7 @@
             AssertModelReferenceIsInitialized(fingerprintReference);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldInsertMultipleFingerprintsInStorage()
         {
             const int NumberOfFingerprints = 100;
@@ -44,7 +44,7 @@
             }
         }
         
-        [TestMethod]
+        [Test]
         public void ShouldReadFingerprintsFromStorage()
         {
             const int NumberOfFingerprints = 100;

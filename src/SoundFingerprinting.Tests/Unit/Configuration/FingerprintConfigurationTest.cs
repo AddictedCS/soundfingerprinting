@@ -2,29 +2,23 @@
 {
     using System;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintConfigurationTest
     {
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidTopWaveletsTest()
         {
-            var configuration = new DefaultFingerprintConfiguration { TopWavelets = 0 };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultFingerprintConfiguration { TopWavelets = 0 });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void InvalidSampleRateTest()
         {
-            var configuration = new DefaultFingerprintConfiguration { SampleRate = 0 };
-
-            Assert.Fail();
+            Assert.Throws<ArgumentException>(() => new DefaultFingerprintConfiguration { SampleRate = 0 });
         }
     }
 }

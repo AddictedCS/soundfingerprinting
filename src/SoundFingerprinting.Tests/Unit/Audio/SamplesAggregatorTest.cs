@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
 
-    [TestClass]
+    [TestFixture]
     public class SamplesAggregatorTest : AbstractTest
     {
-        private Random random = new Random((int)(DateTime.Now.Ticks << 4));
+        private readonly Random random = new Random((int)(DateTime.Now.Ticks << 4));
 
         private readonly ISamplesAggregator samplesAggregator;
 
@@ -19,8 +19,7 @@
             samplesAggregator = new SamplesAggregator();
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(AudioServiceException))]
+        [Test]
         public void TestLessDataThanRequestedIsReceivedFromSamplesProvider()
         {
             const int SecondsToRead = 55;
@@ -35,11 +34,13 @@
                             GetRandomFloatArray(10, SampleRate),
                             new float[0]
                         });
-
-            samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queueBytesRead), SecondsToRead, SampleRate);
+            Assert.Throws<AudioServiceException>(
+                () =>
+                samplesAggregator.ReadSamplesFromSource(
+                    new QueueSamplesProvider(queueBytesRead), SecondsToRead, SampleRate));
         }
 
-        [TestMethod]
+        [Test]
         public void TestMoreDataIsReceivedThanRequested()
         {
             const int SecondsToRead = 45;
@@ -59,7 +60,7 @@
             Assert.AreEqual(SecondsToRead * SampleRate, samples.Length);
         }
 
-        [TestMethod]
+        [Test]
         public void TestExactAmountOfDataIsReceivedAsRequested()
         {
             const double SecondsToRead = 65.8;

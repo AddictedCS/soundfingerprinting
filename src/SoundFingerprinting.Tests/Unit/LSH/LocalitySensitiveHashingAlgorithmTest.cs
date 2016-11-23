@@ -1,22 +1,22 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LSH
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
 
-    [TestClass]
+    [TestFixture]
     public class LocalitySensitiveHashingAlgorithmTest : AbstractTest
     {
         private LocalitySensitiveHashingAlgorithm lshAlgorithm;
         private Mock<IMinHashService> minHashService;
         private Mock<IHashConverter> hashConverter;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             minHashService = new Mock<IMinHashService>(MockBehavior.Strict);
@@ -24,14 +24,14 @@
             lshAlgorithm = new LocalitySensitiveHashingAlgorithm(minHashService.Object, hashConverter.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             minHashService.VerifyAll();
             hashConverter.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void FingerprintParametersAreCopiedToHashedFingerprintObject()
         {
             var bytes = new byte[] { 1, 0, 1, 0, 0, 6, 0, 1, 0, 9, 0, 2, 8, 7, 6, 3 };

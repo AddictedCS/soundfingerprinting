@@ -3,19 +3,19 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
 
-    [TestClass]
+    [TestFixture]
     public class InMemoryModelServiceTest : IntegrationWithSampleFilesTest
     {
         private IAdvancedModelService modelService;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
@@ -26,7 +26,7 @@
                 new SpectralImageDao());
         }
 
-        [TestMethod]
+        [Test]
         public void InsertTrackTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -36,7 +36,7 @@
             AssertModelReferenceIsInitialized(trackReference);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadTrackByTrackReferenceTest()
         {
             TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -47,7 +47,7 @@
             AssertTracksAreEqual(expectedTrack, actualTrack);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadTrackByISRCTest()
         {
             TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -58,7 +58,7 @@
             AssertTracksAreEqual(expectedTrack, actualTrack);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadTrackByArtistAndTitleTest()
         {
             TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -70,7 +70,7 @@
             AssertTracksAreEqual(expectedTrack, actualTracks[0]);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadMultipleTracksTest()
         {
             const int NumberOfTracks = 100;
@@ -90,7 +90,7 @@
             Assert.AreEqual(NumberOfTracks, actualTracks.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void DeleteTrackTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -106,7 +106,7 @@
             Assert.IsNull(actualTrack);
         }
 
-        [TestMethod]
+        [Test]
         public void InsertHashDataTest()
         {
             TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -122,7 +122,7 @@
             CollectionAssert.AreEqual(GenericHashBuckets, subFingerprints[0].Hashes);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdTest()
         {
             TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200);
@@ -156,7 +156,7 @@
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdWithGroupIdTest()
         {
             TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200)
@@ -197,7 +197,7 @@
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
 
-        [TestMethod]
+        [Test]
         public void InsertFingerprintTest()
         {
             var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
@@ -209,7 +209,7 @@
             AssertModelReferenceIsInitialized(fingerprint.FingerprintReference);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadFingerprintsByTrackReferenceTest()
         {
             TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);

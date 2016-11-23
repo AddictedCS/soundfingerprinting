@@ -1,14 +1,9 @@
 ﻿namespace SoundFingerprinting.Tests
 {
-    using System;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.DAO.Data;
 
-    [DeploymentItem(@"x86", @"x86")]
-    [DeploymentItem(@"x64", @"x64")]
-    [TestClass]
     public abstract class AbstractTest
     {
         protected const double Epsilon = 0.0001;

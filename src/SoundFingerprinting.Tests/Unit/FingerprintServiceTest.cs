@@ -3,9 +3,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
@@ -14,7 +14,7 @@
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintServiceTest : AbstractTest
     {
         private FingerprintService fingerprintService;
@@ -27,7 +27,7 @@
 
         private Mock<IAudioSamplesNormalizer> audioSamplesNormalizer;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             fingerprintDescriptor = new Mock<IFingerprintDescriptor>(MockBehavior.Strict);
@@ -41,7 +41,7 @@
                 audioSamplesNormalizer.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             fingerprintDescriptor.VerifyAll();
@@ -50,7 +50,7 @@
             audioSamplesNormalizer.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFingerprints()
         {
             const int TenSeconds = 5512 * 10;
@@ -74,7 +74,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void AudioSamplesAreNormalized()
         {
             const int TenSeconds = 5512 * 10;
@@ -90,7 +90,7 @@
             fingerprintService.CreateFingerprints(samples, fingerprintConfig);
         }
 
-        [TestMethod]
+        [Test]
         public void SilenceIsNotFingerprinted()
         {
             var samples = TestUtilities.GenerateRandomAudioSamples(5512 * 10);

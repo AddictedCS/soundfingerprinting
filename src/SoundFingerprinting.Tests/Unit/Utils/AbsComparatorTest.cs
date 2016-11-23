@@ -3,16 +3,16 @@
     using System;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
     public class AbsComparatorTest
     {
         private readonly AbsComparator comparator = new AbsComparator();
 
-        [TestMethod]
+        [Test]
         public void ArraysIsSortedCorrectlyDescending()
         {
             float[] expected = new[] { -13, -8, 7, 5, 2, -1, -0.5f, 0 };
