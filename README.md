@@ -1,6 +1,6 @@
 ## Audio fingerprinting and recognition in .NET
 
-_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/32685.pdf) of digital signal processing which allows developing a system of acoustic fingerprinting and recognition in .NET.
+_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en/pubs/archive/32685.pdf) of digital signal processing which allows developing a system of acoustic fingerprinting and recognition in .NET.
 
 [![Build Status](https://travis-ci.org/AddictedCS/soundfingerprinting.png)](https://travis-ci.org/AddictedCS/soundfingerprinting)
 
@@ -140,7 +140,5 @@ If you want to contribute you are welcome to open issues or discuss on [issues](
 
 ## Licence
 The framework is provided under [MIT](https://opensource.org/licenses/MIT) licence agreement.
-
-The framework implements the algorithm from [Content Fingerprinting Using Wavelets](http://www.nhchau.com/files/cvmp_BalujaCovell.A4color.pdf) paper.
 
 &copy; Soundfingerprinting, 2010-2016, ciumac.sergiu@gmail.com
