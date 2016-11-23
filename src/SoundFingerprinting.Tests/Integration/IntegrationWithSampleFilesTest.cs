@@ -6,17 +6,13 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
-    using SoundFingerprinting.Builder;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        protected const int NumberOfHashTables = 25;
+        protected const string PathToMp3 = "Kryptonite.mp3";
 
-        protected readonly IFingerprintCommandBuilder FingerprintCommandBuilder = new FingerprintCommandBuilder();
-        protected readonly IAudioService AudioService = new NAudioService();
+        protected const string PathToSamples = @"floatsamples.bin";
 
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
@@ -33,12 +29,6 @@
                 Assert.AreEqual(firstHashDatas[i].SequenceNumber, secondHashDatas[i].SequenceNumber);
                 Assert.AreEqual(firstHashDatas[i].StartsAt, secondHashDatas[i].StartsAt, Epsilon);
             }
-        }
-
-        protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
-        {
-            Assert.IsNotNull(modelReference);
-            Assert.IsTrue(modelReference.GetHashCode() != 0);
         }
 
         protected TagInfo GetTagInfo()

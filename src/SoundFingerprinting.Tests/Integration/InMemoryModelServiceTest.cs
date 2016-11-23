@@ -11,7 +11,7 @@
     using SoundFingerprinting.InMemory;
 
     [TestFixture]
-    public class InMemoryModelServiceTest : IntegrationWithSampleFilesTest
+    public class InMemoryModelServiceTest : AbstractTest
     {
         private IAdvancedModelService modelService;
 

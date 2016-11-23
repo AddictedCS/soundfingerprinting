@@ -16,8 +16,6 @@
     [TestFixture]
     public class FingerprintCommandBuilderTest : AbstractTest
     {
-        private const int NumberOfHashTables = 25;
-        
         private const int NumberOfHashKeysPerTable = 4;
         
         private FingerprintCommandBuilder fingerprintCommandBuilder;

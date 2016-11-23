@@ -7,7 +7,7 @@
     using SoundFingerprinting.InMemory;
 
     [TestFixture]
-    public class FingerprintDaoTest : IntegrationWithSampleFilesTest
+    public class FingerprintDaoTest : AbstractTest
     {
         private IFingerprintDao fingerprintDao;
         private ITrackDao trackDao;

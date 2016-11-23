@@ -16,6 +16,7 @@
     using SoundFingerprinting.Utils;
 
     [TestFixture]
+    [Category("RequiresWindowsDLL")]
     public class TestRunnerTest : IntegrationWithSampleFilesTest
     {
         private readonly IModelService modelService = new InMemoryModelService();

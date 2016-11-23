@@ -20,8 +20,8 @@
         [Test]
         public void IncrementalStaticStrideTest()
         {
-            IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115, SamplesPerFingerprint);
-            Assert.AreEqual(5115 - SamplesPerFingerprint, incrementalStatic.GetNextStride());
+            IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115);
+            Assert.AreEqual(5115 - 8192, incrementalStatic.GetNextStride());
         }
 
         [Test]

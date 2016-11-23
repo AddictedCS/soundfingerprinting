@@ -89,7 +89,7 @@
 
             var result = similarityUtility.CalculateJaccardSimilarity(first, second);
 
-            Assert.AreEqual(5f / 6, result);
+            Assert.AreEqual(5f / 6, result, 0.0001);
         }
     }
 }

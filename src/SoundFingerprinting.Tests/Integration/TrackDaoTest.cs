@@ -8,14 +8,19 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Strides;
 
     [TestFixture]
+    [Category("RequiresWindowsDLL")]
     public class TrackDaoTest : IntegrationWithSampleFilesTest
     {
+        private readonly FingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
+        private readonly IAudioService audioService = new NAudioService();
         private ITrackDao trackDao;
         private ISubFingerprintDao subFingerprintDao;
 
@@ -168,14 +173,14 @@
             int releaseYear = tagInfo.Year;
             var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = trackDao.InsertTrack(track);
-            var hashData = FingerprintCommandBuilder
+            var hashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, SecondsToProcess, StartAtSecond)
                 .WithFingerprintConfig(config =>
                     {
                         config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                     })
-                .UsingServices(AudioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 

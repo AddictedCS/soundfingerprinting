@@ -16,6 +16,7 @@
     using SoundFingerprinting.Strides;
 
     [TestFixture]
+    [Category("RequiresWindowsDLL")]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
     {
         private readonly ModelService modelService;

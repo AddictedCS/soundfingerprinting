@@ -6,6 +6,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -13,8 +15,11 @@
     using SoundFingerprinting.Strides;
 
     [TestFixture]
+    [Category("RequiresWindowsDLL")]
     public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
     {
+        private readonly FingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
+        private readonly IAudioService audioService = new NAudioService();
         private ISubFingerprintDao subFingerprintDao;
         private ITrackDao trackDao;
 
@@ -51,10 +56,10 @@
             int releaseYear = tagInfo.Year;
             var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = trackDao.InsertTrack(track);
-            var hashedFingerprints = FingerprintCommandBuilder
+            var hashedFingerprints = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3)
-                .UsingServices(AudioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -82,14 +87,14 @@
             var firstTrackReference = trackDao.InsertTrack(firstTrack);
             var secondTrackReference = trackDao.InsertTrack(secondTrack);
 
-            var hashedFingerprints = FingerprintCommandBuilder
+            var hashedFingerprints = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 20, 0)
                 .WithFingerprintConfig(config =>
                 {
                     config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
                 })
-                .UsingServices(AudioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -121,10 +126,10 @@
 
             var firstTrackReference = trackDao.InsertTrack(firstTrack);
 
-            var firstHashData = FingerprintCommandBuilder
+            var firstHashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 10, 0)
-                .UsingServices(AudioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -134,10 +139,10 @@
 
             var secondTrackReference = trackDao.InsertTrack(secondTrack);
 
-            var secondHashData = FingerprintCommandBuilder
+            var secondHashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
                 .From(PathToMp3, 20, 10)
-                .UsingServices(AudioService)
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 

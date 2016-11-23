@@ -2,27 +2,16 @@
 {
     using NUnit.Framework;
 
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
 
     public abstract class AbstractTest
     {
         protected const double Epsilon = 0.0001;
 
-        protected const int BitsPerSample = 32;
-        
         protected const int SampleRate = 5512;
 
-        protected const int SamplesPerFingerprint = 128 * 64;
-
-        protected const int WaveHeader = 58;
-
-        protected const string PathToMp3 = @"Kryptonite.mp3";
-
-        protected const string PathToSamples = @"floatsamples.bin";
-
-        protected const int SamplesToRead = 128 * 64;
-
-        protected const int MinYear = 1501;
+        protected const int NumberOfHashTables = 25;
 
         protected readonly bool[] GenericFingerprint = new[]
             {
@@ -60,6 +49,12 @@
             Assert.AreEqual(expectedTrack.TrackLengthSec, actualTrack.TrackLengthSec);
             Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
             Assert.AreEqual(expectedTrack.GroupId, actualTrack.GroupId);
+        }
+
+        protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
+        {
+            Assert.IsNotNull(modelReference);
+            Assert.IsTrue(modelReference.GetHashCode() != 0);
         }
     }
 }
