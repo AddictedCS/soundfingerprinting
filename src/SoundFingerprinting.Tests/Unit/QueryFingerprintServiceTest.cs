@@ -108,8 +108,7 @@
         [Test]
         public void HammingSimilarityIsSummedUpAccrossAllSubFingerprintsTest()
         {
-            long[] buckets = GenericHashBuckets;
-            var queryHash = new HashedFingerprint(GenericSignature, buckets, 0, 0);
+            var queryHash = new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0);
             const int FirstTrackId = 20;
             const int FirstSubFingerprintId = 10;
             const int SecondSubFingerprintId = 11;
@@ -118,13 +117,12 @@
             var secondResult = new SubFingerprintData(GenericHashBuckets, 2, 0.928, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
             var defaultQueryConfiguration = new DefaultQueryConfiguration(); 
 
-            modelService.Setup(service => service.ReadSubFingerprints(buckets, defaultQueryConfiguration))
+            modelService.Setup(service => service.ReadSubFingerprints(GenericHashBuckets, defaultQueryConfiguration))
                         .Returns(new List<SubFingerprintData> { firstResult, secondResult });
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference))
                         .Returns(new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
 
-            var queryResult = queryFingerprintService.Query(
-                new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, this.modelService.Object);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, this.modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);

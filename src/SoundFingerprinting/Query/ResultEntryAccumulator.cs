@@ -9,7 +9,13 @@
     {
         private readonly SortedSet<MatchedPair> matches = new SortedSet<MatchedPair>();
 
-        public int HammingSimilaritySum { get; set; }
+        public ResultEntryAccumulator(HashedFingerprint hashedFingerprint, SubFingerprintData match, int hammingSimilarity)
+        {
+            BestMatch = new MatchedPair(hashedFingerprint, match, hammingSimilarity);
+            Add(hashedFingerprint, match, hammingSimilarity);
+        }
+
+        public int HammingSimilaritySum { get; private set; }
 
         public SortedSet<MatchedPair> Matches
         {
@@ -23,19 +29,17 @@
 
         public void Add(HashedFingerprint hashedFingerprint,  SubFingerprintData match, int hammingSimilarity)
         {
-            var matchedPair = new MatchedPair(hashedFingerprint, match, hammingSimilarity);
-            ResetBestMatchIfAppropriate(matchedPair);
-            matches.Add(matchedPair);
+            lock (this)
+            {
+                HammingSimilaritySum += hammingSimilarity;
+                var matchedPair = new MatchedPair(hashedFingerprint, match, hammingSimilarity);
+                ResetBestMatchIfAppropriate(matchedPair);
+                matches.Add(matchedPair);
+            }
         }
 
         private void ResetBestMatchIfAppropriate(MatchedPair newPair)
         {
-            if (BestMatch == null)
-            {
-                BestMatch = newPair;
-                return;
-            }
-
             if (BestMatch.HammingSimilarity < newPair.HammingSimilarity)
             {
                 BestMatch = newPair;

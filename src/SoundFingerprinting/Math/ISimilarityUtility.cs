@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Math
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO;
@@ -29,6 +30,6 @@ namespace SoundFingerprinting.Math
         /// </remarks>
         double CalculateJaccardSimilarity(bool[] x, bool[] y);
 
-        void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, Dictionary<IModelReference, ResultEntryAccumulator> accumulator);
+        void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator);
     }
 }

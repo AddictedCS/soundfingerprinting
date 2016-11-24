@@ -1,7 +1,9 @@
 ﻿namespace SoundFingerprinting
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
@@ -30,14 +32,14 @@
     
         public QueryResult Query(List<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
-            var hammingSimilarities = new Dictionary<IModelReference, ResultEntryAccumulator>();
+            var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
             int subFingerprintsCount = 0;
-            foreach (var queryFingerprint in queryFingerprints)
+            Parallel.ForEach(queryFingerprints, queryFingerprint =>
             {
                 var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
                 subFingerprintsCount += subFingerprints.Count;
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
-            }
+            });
 
             if (!hammingSimilarities.Any())
             {

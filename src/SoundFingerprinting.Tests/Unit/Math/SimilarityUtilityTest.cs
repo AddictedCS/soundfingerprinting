@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Math
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using NUnit.Framework;
@@ -19,7 +20,7 @@
         [Test]
         public void ShouldSumUpHammingDistanceAccrossTracks()
         {
-            var hammingSimilarities = new Dictionary<IModelReference, ResultEntryAccumulator>();
+            var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
             
             long[] hashes1 = new long[GenericHashBuckets.Length];
             Array.Copy(GenericHashBuckets, hashes1, hashes1.Length);
