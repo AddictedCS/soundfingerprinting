@@ -24,11 +24,11 @@
         private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
         private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
 
-        private readonly Mock<NegativeFoundEvent> nfe = new Mock<NegativeFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<NegativeNotFoundEvent> nnfe = new Mock<NegativeNotFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<PositiveFoundEvent> pfe = new Mock<PositiveFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<PositiveNotFoundEvent> pnfe = new Mock<PositiveNotFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<TestIterationFinishedEvent> tife = new Mock<TestIterationFinishedEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> nfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> nnfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> pfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> pnfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> tife = new Mock<TestRunnerEvent>(MockBehavior.Strict);
 
         private readonly Mock<ITagService> tagService = new Mock<ITagService>(MockBehavior.Strict);
 

@@ -33,11 +33,9 @@
         public QueryResult Query(List<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
-            int subFingerprintsCount = 0;
             Parallel.ForEach(queryFingerprints, queryFingerprint =>
             {
                 var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
-                subFingerprintsCount += subFingerprints.Count;
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
             });
 
@@ -47,7 +45,7 @@
             }
 
             var resultEntries = queryMath.GetBestCandidates(queryFingerprints, hammingSimilarities, configuration.MaxTracksToReturn, modelService, configuration.FingerprintConfiguration);
-            return QueryResult.NonEmptyResult(resultEntries, subFingerprintsCount);
+            return QueryResult.NonEmptyResult(resultEntries);
         }
     }
 }

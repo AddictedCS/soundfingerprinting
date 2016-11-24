@@ -5,10 +5,9 @@
 
     public class QueryResult
     {
-        internal QueryResult(IEnumerable<ResultEntry> results, int analyzedSubfingerprints)
+        internal QueryResult(IEnumerable<ResultEntry> results)
         {
             ResultEntries = results;
-            AnalyzedSubFingerprintsCount = analyzedSubfingerprints;
         }
 
         /// <summary>
@@ -43,19 +42,14 @@
             }
         }
         
-        /// <summary>
-        ///   Gets the number of analyzed sub-fingerprints during querying
-        /// </summary>
-        internal int AnalyzedSubFingerprintsCount { get; private set; }
-
         internal static QueryResult EmptyResult()
         {
-            return new QueryResult(Enumerable.Empty<ResultEntry>(), 0);
+            return new QueryResult(Enumerable.Empty<ResultEntry>());
         }
 
-        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, int analyzedSubfingerprints)
+        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results)
         {
-            return new QueryResult(results, analyzedSubfingerprints);
+            return new QueryResult(results);
         }
     }
 }
