@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
 
     using NUnit.Framework;
@@ -10,9 +11,9 @@
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        protected const string PathToMp3 = "Kryptonite.mp3";
+        protected readonly string PathToMp3 = Path.Combine(TestContext.CurrentContext.TestDirectory, "Kryptonite.mp3");
 
-        protected const string PathToSamples = @"floatsamples.bin";
+        protected readonly string PathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "floatsamples.bin");
 
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {

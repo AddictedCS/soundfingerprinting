@@ -3,7 +3,8 @@
   <Configuration Condition="$(Configuration) == ''">Release</Configuration>
   <SolutionFile>..\src\SoundFingerprinting.sln</SolutionFile>
   <NugetExecutable>..\src\.nuget\NuGet.exe</NugetExecutable>
-  <MSTestExecutable>..\tools\MSTest.exe</MSTestExecutable>
+  <NUnitVersion>3.5.0</NUnitVersion>
+  <NUnitTestRunner>testrunner\NUnit.ConsoleRunner.$(NUnitVersion)\tools\nunit3-console.exe</NUnitTestRunner>
   <SoundFingerprintingLibProject>..\src\SoundFingerprinting\SoundFingerprinting.csproj</SoundFingerprintingLibProject>
   <SoundFingerprintingNAudioProject>..\src\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj</SoundFingerprintingNAudioProject>
   <SoundFingerprintingOutputDir>$(Configuration)\SoundFingerprinting</SoundFingerprintingOutputDir>
@@ -16,7 +17,6 @@
 	<MakeDir Directories="$(UnitTestsOutputDir)" Condition="!Exists('$(UnitTestsOutputDir)')" />
 	
 	<CreateItem Include="..\src\SoundFingerprinting.Tests\bin\$(Configuration)\**\*.*;
-	..\src\SoundFingerprinting.SQL.Tests\bin\$(Configuration)\**\*.*;
 	..\src\SoundFingerprinting.Audio.NAudio.Test\bin\$(Configuration)\**\*.*">
     	<Output TaskParameter="Include" ItemName="UnitTestFiles" />
     </CreateItem>
@@ -24,19 +24,23 @@
 	<Copy SourceFiles="@(UnitTestFiles)" DestinationFiles="@(UnitTestFiles->'$(UnitTestsOutputDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
 </Target>
 
+<Target Name = "InstallNUnit3ConsoleRunner">
+	<Exec Command="&quot;$(NugetExecutable)&quot; install NUnit.Runners -Version $(NUnitVersion) -OutputDirectory testrunner" />
+</Target>
+
 <Target Name = "RunSoundFingerprintingLibTests">
-	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.Tests.dll" >
+	<Exec Command="$(NUnitTestRunner) $(UnitTestsOutputDir)\SoundFingerprinting.Tests.dll" >
 		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
     </Exec>
 </Target>
 
 <Target Name = "RunNAudioTests">
-	<Exec Command="$(MSTestExecutable) /testcontainer:$(UnitTestsOutputDir)\SoundFingerprinting.Audio.NAudio.Test.dll" >
+	<Exec Command="$(NUnitTestRunner) $(UnitTestsOutputDir)\SoundFingerprinting.Audio.NAudio.Test.dll" >
 		<Output TaskParameter="ExitCode" PropertyName="TestSuccessOrNot"/>
     </Exec>
 </Target>
 
-<Target Name = "PackageSoundFingerprintingLib" DependsOnTargets="RunSoundFingerprintingLibTests;RunNAudioTests">
+<Target Name = "PackageSoundFingerprintingLib" DependsOnTargets="InstallNUnit3ConsoleRunner;RunSoundFingerprintingLibTests;RunNAudioTests">
 	<Exec Command="&quot;$(NugetExecutable)&quot; pack $(SoundFingerprintingLibProject) -Build -Properties Configuration=$(Configuration)" />
 </Target>
 
