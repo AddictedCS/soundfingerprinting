@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System.Collections.Generic;
+
     public class HashedFingerprint 
     {
         public HashedFingerprint(byte[] subFingerprint, long[] hashBins, int sequenceNumber, double startsAt)
@@ -17,5 +19,7 @@
         public int SequenceNumber { get; private set; }
 
         public double StartsAt { get; private set; }
+
+        public IEnumerable<string> AssignedClusters { get; internal set; }
     }
 }

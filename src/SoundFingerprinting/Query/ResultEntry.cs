@@ -39,7 +39,7 @@ namespace SoundFingerprinting.Query
         {
             get
             {
-                return QueryMatchLength / Track.TrackLengthSec;
+                return QueryMatchLength / Track.Length;
             }
         }
 

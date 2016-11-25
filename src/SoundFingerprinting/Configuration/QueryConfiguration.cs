@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     ///    Configuration options used during querying the data source
@@ -52,8 +53,10 @@
             }
         }
 
-        // TODO Add a wildcard option here
-        public string TrackGroupId { get; set; }
+        /// <summary>
+        ///  Gets or sets list of clusters to consider when querying the datasource for potential candidates
+        /// </summary>
+        public IEnumerable<string> Clusters { get; set; }
 
         /// <summary>
         /// Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 

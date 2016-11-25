@@ -66,7 +66,7 @@
                 coverage.SourceMatchLength,
                 queryLength,
                 coverage.OriginMatchStartsAt,
-                track.TrackLengthSec);
+                track.Length);
 
             return new ResultEntry(
                 track,

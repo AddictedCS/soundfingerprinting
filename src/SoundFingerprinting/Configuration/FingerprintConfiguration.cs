@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Configuration
 {
     using System;
+    using System.Collections.Generic;
 
     using SoundFingerprinting.Strides;
 
@@ -24,6 +25,11 @@ namespace SoundFingerprinting.Configuration
                 SpectrogramConfig.Stride = value;
             }
         }
+
+        /// <summary>
+        ///   Gets or sets the list of assigned clusters to all generated fingerprints
+        /// </summary>
+        public IEnumerable<string> AssignedClusters { get; set; }
 
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm has to normalize the audio signal

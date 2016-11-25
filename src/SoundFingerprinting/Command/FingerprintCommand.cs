@@ -98,6 +98,7 @@ namespace SoundFingerprinting.Command
                             fingerprint,
                             FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
                             FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
+                        hashedFingerprint.AssignedClusters = FingerprintConfiguration.AssignedClusters;
                         hashedFingerprints.Add(hashedFingerprint);
                     });
 

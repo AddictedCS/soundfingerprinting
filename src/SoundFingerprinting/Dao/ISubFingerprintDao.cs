@@ -11,10 +11,8 @@ namespace SoundFingerprinting.DAO
 
         IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference);
 
-        IEnumerable<SubFingerprintData> ReadSubFingerprints(long[] hashes, int thresholdVotes);
+        IEnumerable<SubFingerprintData> ReadSubFingerprints(long[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters);
 
-        IEnumerable<SubFingerprintData> ReadSubFingerprints(long[] hashes, int thresholdVotes, string trackGroupId);
-
-        ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, int threshold);
+        ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, int threshold, IEnumerable<string> assignedClusters);
     }
 }

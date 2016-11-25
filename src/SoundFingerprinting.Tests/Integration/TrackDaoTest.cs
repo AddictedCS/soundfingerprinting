@@ -49,10 +49,7 @@
             var modelReferences = new ConcurrentBag<IModelReference>();
             for (int i = 0; i < 1000; i++)
             {
-                var modelReference = trackDao.InsertTrack(new TrackData("isrc", "artist", "title", "album", 2012, 200)
-                    {
-                        GroupId = "group-id"
-                    });
+                var modelReference = trackDao.InsertTrack(new TrackData("isrc", "artist", "title", "album", 2012, 200));
 
                 Assert.IsFalse(modelReferences.Contains(modelReference));
                 modelReferences.Add(modelReference);
@@ -77,10 +74,7 @@
         [Test]
         public void ReadByIdTest()
         {
-            var track = new TrackData("isrc", "artist", "title", "album", 2012, 200)
-                {
-                    GroupId = "group-id"
-                };
+            var track = new TrackData("isrc", "artist", "title", "album", 2012, 200);
 
             var trackReference = trackDao.InsertTrack(track);
 
@@ -224,10 +218,7 @@
 
         private TrackData GetTrack()
         {
-            return new TrackData(Guid.NewGuid().ToString(), "artist", "title", "album", 1986, 360)
-                { 
-                    GroupId = Guid.NewGuid().ToString().Substring(0, 20)
-                };
+            return new TrackData(Guid.NewGuid().ToString(), "artist", "title", "album", 1986, 360);
         }
     }
 }

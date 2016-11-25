@@ -27,9 +27,9 @@
         {
             double startAt = result.TrackStartsAt, length = result.QueryLength - result.TrackStartsAt;
 
-            if (startAt + result.Track.TrackLengthSec < result.QueryLength)
+            if (startAt + result.Track.Length < result.QueryLength)
             {
-                length = result.Track.TrackLengthSec;
+                length = result.Track.Length;
             }
 
             var newResult = queryCommandBuilder.BuildQueryCommand()

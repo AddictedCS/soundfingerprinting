@@ -159,15 +159,9 @@
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdWithGroupIdTest()
         {
-            TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200)
-                {
-                    GroupId = "first-group-id" 
-                };
+            TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200);
             var firstTrackReference = modelService.InsertTrack(firstTrack);
-            TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200)
-                {
-                    GroupId = "second-group-id" 
-                };
+            TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200);
             var secondTrackReference = modelService.InsertTrack(secondTrack);
             Assert.IsFalse(firstTrackReference.Equals(secondTrackReference));
             long[] firstTrackBuckets = new long[]
@@ -176,10 +170,12 @@
                 };
             long[] secondTrackBuckets = new long[]
                 {
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 
+                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
                 };
-            var firstHashData = new HashedFingerprint(GenericSignature, firstTrackBuckets, 1, 0.928);
-            var secondHashData = new HashedFingerprint(GenericSignature, secondTrackBuckets, 1, 0.928);
+            var firstHashData = new HashedFingerprint(GenericSignature, firstTrackBuckets, 1, 0.928)
+                { AssignedClusters = new[] { "first-group-id" } };
+            var secondHashData = new HashedFingerprint(GenericSignature, secondTrackBuckets, 1, 0.928)
+                { AssignedClusters = new[] { "second-group-id" } };
 
             modelService.InsertHashDataForTrack(new[] { firstHashData }, firstTrackReference);
             modelService.InsertHashDataForTrack(new[] { secondHashData }, secondTrackReference);
@@ -190,8 +186,7 @@
                     3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 
                 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(
-                queryBuckets, new DefaultQueryConfiguration { TrackGroupId = "first-group-id" });
+            var subFingerprints = modelService.ReadSubFingerprints(queryBuckets, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } });
 
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);

@@ -1,5 +1,7 @@
 namespace SoundFingerprinting.Configuration
 {
+    using System.Linq;
+
     public class DefaultFingerprintConfiguration : FingerprintConfiguration
     {
         public DefaultFingerprintConfiguration()
@@ -9,6 +11,7 @@ namespace SoundFingerprinting.Configuration
             TopWavelets = 200;
             SampleRate = 5512;
             NormalizeSignal = false;
+            AssignedClusters = Enumerable.Empty<string>();
         }
     }
 }

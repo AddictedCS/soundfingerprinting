@@ -21,17 +21,12 @@
  
         public virtual IList<SubFingerprintData> ReadSubFingerprints(long[] hashBins, QueryConfiguration config)
         {
-            if (!string.IsNullOrEmpty(config.TrackGroupId))
-            {
-                return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes, config.TrackGroupId).ToList();
-            }
-
-            return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes).ToList();
+            return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes, config.Clusters).ToList();
         }
 
         public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, QueryConfiguration config)
         {
-            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes);
+            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes, config.Clusters);
         }
 
         public virtual bool ContainsTrack(string isrc, string artist, string title)
