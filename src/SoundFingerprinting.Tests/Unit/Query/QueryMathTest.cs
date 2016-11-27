@@ -60,5 +60,27 @@
           Assert.AreEqual("isrc-1234-1234", best[0].Track.ISRC);
           modelService.VerifyAll();
         }
+
+        [Test]
+        public void ShouldFilterExactMatches0()
+        {
+            bool result = queryMath.IsCandidatePassingThresholdVotes(
+                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d),
+                new SubFingerprintData(new long[] { 1, 2, 3, 7, 8 }, 0, 0d, null, null),
+                3);
+
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void ShouldFilterExactMatches1()
+        {
+            bool result = queryMath.IsCandidatePassingThresholdVotes(
+                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d),
+                new SubFingerprintData(new long[] { 1, 2, 4, 7, 8 }, 0, 0d, null, null),
+                3);
+
+            Assert.IsFalse(result);
+        }
     }
 }

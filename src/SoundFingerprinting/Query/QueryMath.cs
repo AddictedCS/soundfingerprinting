@@ -5,6 +5,7 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.LCS;
@@ -39,6 +40,27 @@
                                      .Take(maxNumberOfMatchesToReturn)
                                      .Select(e => GetResultEntry(modelService, fingerprintConfiguration, e, queryLength))
                                      .ToList();
+        }
+
+        public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
+        {
+            long[] query = queryFingerprint.HashBins;
+            long[] result = candidate.Hashes;
+            int count = 0;
+            for (int i = 0; i < query.Length; ++i)
+            {
+                if (query[i] == result[i])
+                {
+                    count++;
+                }
+
+                if (count >= thresholdVotes)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)

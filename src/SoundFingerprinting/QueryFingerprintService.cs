@@ -7,7 +7,6 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
@@ -71,32 +70,11 @@
             foreach (var hashedFingerprint in hashedFingerprints)
             {
                 HashedFingerprint fingerprint = hashedFingerprint;
-                var subFingerprints = allCandidates.Where(candidate => DoesMatchThisExactCandidate(configuration, fingerprint, candidate));
+                var subFingerprints = allCandidates.Where(candidate => queryMath.IsCandidatePassingThresholdVotes(fingerprint, candidate, configuration.ThresholdVotes));
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint, hammingSimilarities);
             }
 
             return hammingSimilarities;
-        }
-
-        private bool DoesMatchThisExactCandidate(QueryConfiguration queryConfiguration, HashedFingerprint fingerprint, SubFingerprintData candidate)
-        {
-            long[] actual = fingerprint.HashBins;
-            var result = candidate.Hashes;
-            int count = 0;
-            for (int i = 0; i < actual.Length; ++i)
-            {
-                if (actual[i] == result[i])
-                {
-                    count++;
-                }
-
-                if (count >= queryConfiguration.ThresholdVotes)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

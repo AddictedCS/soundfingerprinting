@@ -4,6 +4,7 @@ namespace SoundFingerprinting.Query
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     internal interface IQueryMath
@@ -14,5 +15,7 @@ namespace SoundFingerprinting.Query
             int maxNumberOfMatchesToReturn,
             IModelService modelService,
             FingerprintConfiguration fingerprintConfiguration);
+
+        bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes);
     }
 }
