@@ -69,9 +69,9 @@
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
             foreach (var hashedFingerprint in hashedFingerprints)
             {
-                HashedFingerprint fingerprint = hashedFingerprint;
-                var subFingerprints = allCandidates.Where(candidate => queryMath.IsCandidatePassingThresholdVotes(fingerprint, candidate, configuration.ThresholdVotes));
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint, hammingSimilarities);
+                HashedFingerprint queryFingerprint = hashedFingerprint;
+                var subFingerprints = allCandidates.Where(candidate => queryMath.IsCandidatePassingThresholdVotes(queryFingerprint, candidate, configuration.ThresholdVotes));
+                similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
             }
 
             return hammingSimilarities;

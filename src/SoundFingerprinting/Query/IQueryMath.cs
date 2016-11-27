@@ -17,5 +17,7 @@ namespace SoundFingerprinting.Query
             FingerprintConfiguration fingerprintConfiguration);
 
         bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes);
+
+        double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration);
     }
 }
