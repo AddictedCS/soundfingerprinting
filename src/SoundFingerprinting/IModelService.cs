@@ -30,5 +30,7 @@ namespace SoundFingerprinting
         int DeleteTrack(IModelReference trackReference);
 
         bool ContainsTrack(string isrc, string artist, string title);
+
+        bool SupportsBatchedSubFingerprintQuery { get; }
     }
 }

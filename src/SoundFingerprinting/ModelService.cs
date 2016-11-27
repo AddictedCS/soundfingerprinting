@@ -18,7 +18,10 @@
             this.trackDao = trackDao;
             this.subFingerprintDao = subFingerprintDao;
         }
- 
+
+
+        public abstract bool SupportsBatchedSubFingerprintQuery { get; }
+
         public virtual IList<SubFingerprintData> ReadSubFingerprints(long[] hashBins, QueryConfiguration config)
         {
             return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes, config.Clusters).ToList();

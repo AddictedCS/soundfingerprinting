@@ -15,5 +15,13 @@
         {
             // no op
         }
+
+        public override bool SupportsBatchedSubFingerprintQuery
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }
