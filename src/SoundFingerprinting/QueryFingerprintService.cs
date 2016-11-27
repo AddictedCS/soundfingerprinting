@@ -33,17 +33,15 @@
     
         public QueryResult Query(List<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
+            ConcurrentDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarities;
             if (modelService.SupportsBatchedSubFingerprintQuery)
             {
-                return GetResultsViaBatchQuery(queryFingerprints, configuration, modelService);
+                hammingSimilarities = GetSimilaritiesUsingBatchedStrategy(queryFingerprints, configuration, modelService);
             }
-
-            var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
-            Parallel.ForEach(queryFingerprints, queryFingerprint =>
+            else
             {
-                var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
-            });
+                hammingSimilarities = GetSimilaritiesUsingNonBatchedStrategy(queryFingerprints, configuration, modelService);
+            }
 
             if (!hammingSimilarities.Any())
             {
@@ -54,7 +52,18 @@
             return QueryResult.NonEmptyResult(resultEntries);
         }
 
-        private QueryResult GetResultsViaBatchQuery(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+        private ConcurrentDictionary<IModelReference, ResultEntryAccumulator> GetSimilaritiesUsingNonBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+        {
+            var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
+            Parallel.ForEach(queryFingerprints, queryFingerprint =>
+                    {
+                        var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
+                        similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
+                    });
+            return hammingSimilarities;
+        }
+
+        private ConcurrentDictionary<IModelReference, ResultEntryAccumulator> GetSimilaritiesUsingBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
             var allCandidates = modelService.ReadSubFingerprints(hashedFingerprints.Select(querySubfingerprint => querySubfingerprint.HashBins), configuration);
@@ -66,18 +75,7 @@
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, hashedFingerprint, hammingSimilarities);
             }
 
-            if (!hammingSimilarities.Any())
-            {
-                return QueryResult.EmptyResult();
-            }
-
-            var resultEntries = queryMath.GetBestCandidates(
-                hashedFingerprints.ToList(),
-                hammingSimilarities,
-                configuration.MaxTracksToReturn,
-                modelService,
-                configuration.FingerprintConfiguration);
-            return QueryResult.NonEmptyResult(resultEntries);
+            return hammingSimilarities;
         }
 
         private bool DoesMatchThisExactCandidate(QueryConfiguration queryConfiguration, HashedFingerprint fingerprint, SubFingerprintData candidate)
