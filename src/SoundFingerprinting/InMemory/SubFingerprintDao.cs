@@ -130,7 +130,7 @@
                 hashedFingerprint.StartsAt,
                 subFingerprintReference,
                 trackReference) {
-                                    Clusters = hashedFingerprint.AssignedClusters 
+                                    Clusters = hashedFingerprint.Clusters 
                                 };
             if (!storage.TracksHashes.ContainsKey(trackReference))
             {

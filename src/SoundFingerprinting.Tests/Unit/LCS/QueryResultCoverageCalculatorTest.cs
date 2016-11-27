@@ -13,17 +13,17 @@
     [TestFixture]
     public class QueryResultCoverageCalculatorTest
     {
-        private QueryResultCoverageCalculator qrc = new QueryResultCoverageCalculator();
+        private readonly QueryResultCoverageCalculator qrc = new QueryResultCoverageCalculator();
 
         [Test]
         public void ShouldIdentifyLongestMatch()
         {
-            var matches = new SortedSet<MatchedPair>()
+            var matches = new SortedSet<MatchedPair> 
                 {
-                    new MatchedPair(new HashedFingerprint(null, null, 10, 5d), new SubFingerprintData(null, 1, 0d, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, null, 20, 9d), new SubFingerprintData(null, 5, 5d, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, null, 30, 11d), new SubFingerprintData(null, 9, 9d, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, null, 40, 14d), new SubFingerprintData(null, 10, 10d, null, null), 100)
+                    new MatchedPair(new HashedFingerprint(null, null, 10, 5d, new string[0]), new SubFingerprintData(null, 1, 0d, null, null), 100),
+                    new MatchedPair(new HashedFingerprint(null, null, 20, 9d, new string[0]), new SubFingerprintData(null, 5, 5d, null, null), 100),
+                    new MatchedPair(new HashedFingerprint(null, null, 30, 11d, new string[0]), new SubFingerprintData(null, 9, 9d, null, null), 100),
+                    new MatchedPair(new HashedFingerprint(null, null, 40, 14d, new string[0]), new SubFingerprintData(null, 10, 10d, null, null), 100)
                 };
 
             var coverage = qrc.GetCoverage(matches, 10d, new DefaultFingerprintConfiguration());
@@ -34,13 +34,13 @@
         [Test]
         public void ShouldSelectBestLongestMatch()
         {
-            var matches = new SortedSet<MatchedPair>()
+            var matches = new SortedSet<MatchedPair> 
                 {
-                    new MatchedPair(new HashedFingerprint(null, null, 10, 5d), new SubFingerprintData(null, 1, 0d, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, null, 20, 9d), new SubFingerprintData(null, 2, 2d, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, null, 30, 11d), new SubFingerprintData(null, 9, 9d, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, null, 40, 14d), new SubFingerprintData(null, 10, 11d, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, null, 40, 14d), new SubFingerprintData(null, 11, 12d, null, null), 100)
+                    new MatchedPair(new HashedFingerprint(null, null, 10, 5d, new string[0]), new SubFingerprintData(null, 1, 0d, null, null), 100),
+                    new MatchedPair(new HashedFingerprint(null, null, 20, 9d, new string[0]), new SubFingerprintData(null, 2, 2d, null, null), 100),
+                    new MatchedPair(new HashedFingerprint(null, null, 30, 11d, new string[0]), new SubFingerprintData(null, 9, 9d, null, null), 100),
+                    new MatchedPair(new HashedFingerprint(null, null, 40, 14d, new string[0]), new SubFingerprintData(null, 10, 11d, null, null), 100),
+                    new MatchedPair(new HashedFingerprint(null, null, 40, 14d, new string[0]), new SubFingerprintData(null, 11, 12d, null, null), 100)
                 };
 
             var coverage = qrc.GetCoverage(matches, 5d, new DefaultFingerprintConfiguration());

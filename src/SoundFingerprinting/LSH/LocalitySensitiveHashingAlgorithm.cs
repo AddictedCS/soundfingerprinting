@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.LSH
 {
+    using System.Collections.Generic;
+
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
@@ -21,14 +23,15 @@
             this.hashConverter = hashConverter;
         }
 
-        public HashedFingerprint Hash(Fingerprint fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable)
+        public HashedFingerprint Hash(Fingerprint fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable, IEnumerable<string> clusters)
         {
             byte[] subFingerprint = minHashService.Hash(fingerprint.Signature);
             return new HashedFingerprint(
                 subFingerprint,
                 GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable),
                 fingerprint.SequenceNumber,
-                fingerprint.StartsAt);
+                fingerprint.StartsAt,
+                clusters);
         }
 
         /// <summary>

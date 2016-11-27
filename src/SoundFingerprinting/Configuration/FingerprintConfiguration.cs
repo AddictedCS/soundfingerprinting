@@ -29,7 +29,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets the list of assigned clusters to all generated fingerprints
         /// </summary>
-        public IEnumerable<string> AssignedClusters { get; set; }
+        public IEnumerable<string> Clusters { get; set; }
 
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm has to normalize the audio signal

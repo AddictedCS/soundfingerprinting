@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using Moq;
 
@@ -22,9 +23,9 @@
         {
             var hashedFingerprints = new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(null, null, 1, 3d),
-                    new HashedFingerprint(null, null, 0, 1d),
-                    new HashedFingerprint(null, null, 3, 9.142235)
+                    new HashedFingerprint(null, null, 1, 3d, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 0, 1d, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 3, 9.142235, Enumerable.Empty<string>())
                 };
 
             double snippetLength = queryMath.CalculateExactQueryLength(hashedFingerprints, new DefaultFingerprintConfiguration());
@@ -42,11 +43,11 @@
             var queryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1 };
 
             var first = new ResultEntryAccumulator(
-                new HashedFingerprint(null, null, 1, 0d), new SubFingerprintData(null, 1, 0d, null, null), 100);
+                new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()), new SubFingerprintData(null, 1, 0d, null, null), 100);
             var second = new ResultEntryAccumulator(
-                new HashedFingerprint(null, null, 1, 0d), new SubFingerprintData(null, 1, 0d, null, null), 99);
+                new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()), new SubFingerprintData(null, 1, 0d, null, null), 99);
             var third = new ResultEntryAccumulator(
-                new HashedFingerprint(null, null, 1, 0d), new SubFingerprintData(null, 1, 0d, null, null), 101);
+                new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()), new SubFingerprintData(null, 1, 0d, null, null), 101);
             var hammingSimilarties = new Dictionary<IModelReference, ResultEntryAccumulator>
                 {
                     { new ModelReference<int>(1), first },
@@ -65,7 +66,7 @@
         public void ShouldFilterExactMatches0()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d),
+                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d, Enumerable.Empty<string>()),
                 new SubFingerprintData(new long[] { 1, 2, 3, 7, 8 }, 0, 0d, null, null),
                 3);
 
@@ -76,7 +77,7 @@
         public void ShouldFilterExactMatches1()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d),
+                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d, Enumerable.Empty<string>()),
                 new SubFingerprintData(new long[] { 1, 2, 4, 7, 8 }, 0, 0d, null, null),
                 3);
 

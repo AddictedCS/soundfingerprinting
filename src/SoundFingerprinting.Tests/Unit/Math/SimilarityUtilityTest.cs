@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
 
     using NUnit.Framework;
 
@@ -52,7 +53,7 @@
                             new ModelReference<int>(2),
                             new ModelReference<int>(2))
                     },
-                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0),
+                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0, Enumerable.Empty<string>()),
                 hammingSimilarities);
 
             Assert.AreEqual(2, hammingSimilarities.Count);
