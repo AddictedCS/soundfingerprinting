@@ -11,7 +11,7 @@
     {
         public SubFingerprintData()
         {
-            AssignedClusters = Enumerable.Empty<string>();
+            Clusters = Enumerable.Empty<string>();
         }
 
         public SubFingerprintData(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
@@ -23,13 +23,15 @@
             SequenceAt = sequenceAt;
         }
 
+        [IgnoreBinding]
         public long[] Hashes { get; set; }
 
         public int SequenceNumber { get; set; }
 
         public double SequenceAt { get; set; }
 
-        public IEnumerable<string> AssignedClusters { get; set; }
+        [IgnoreBinding]
+        public IEnumerable<string> Clusters { get; set; }
 
         [IgnoreBinding]
         public IModelReference SubFingerprintReference { get; set; }

@@ -82,7 +82,7 @@
             var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
             if (clusters.Any())
             {
-                return subFingerprints.Where(subFingerprint => subFingerprint.AssignedClusters.Intersect(clusters).Any());
+                return subFingerprints.Where(subFingerprint => subFingerprint.Clusters.Intersect(clusters).Any());
             }
 
             return subFingerprints;
@@ -130,7 +130,7 @@
                 hashedFingerprint.StartsAt,
                 subFingerprintReference,
                 trackReference) {
-                                    AssignedClusters = hashedFingerprint.AssignedClusters 
+                                    Clusters = hashedFingerprint.AssignedClusters 
                                 };
             if (!storage.TracksHashes.ContainsKey(trackReference))
             {

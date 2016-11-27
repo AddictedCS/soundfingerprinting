@@ -1,6 +1,8 @@
 ﻿namespace SoundFingerprinting.DAO.Data
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using SoundFingerprinting.DAO;
 
@@ -9,10 +11,10 @@
     {
         public SubFingerprintData()
         {
-            // no op
+            Clusters = Enumerable.Empty<string>();
         }
 
-        public SubFingerprintData(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference)
+        public SubFingerprintData(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
         {
             Hashes = hashes;
             SubFingerprintReference = subFingerprintReference;
@@ -21,11 +23,15 @@
             SequenceAt = sequenceAt;
         }
 
+        [IgnoreBinding]
         public long[] Hashes { get; set; }
 
         public int SequenceNumber { get; set; }
 
         public double SequenceAt { get; set; }
+
+        [IgnoreBinding]
+        public IEnumerable<string> Clusters { get; set; }
 
         [IgnoreBinding]
         public IModelReference SubFingerprintReference { get; set; }
