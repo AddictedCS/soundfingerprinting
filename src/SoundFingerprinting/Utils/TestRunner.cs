@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -109,8 +110,8 @@
         private void RunTestScenario(string folderWithPositives, string folderWithNegatives, IStride queryStride, int seconds, List<int> startAts)
         {
             int iterations = startAts.Count;
-            var positives = AllFiles(folderWithPositives);
-            var negatives = AllFiles(folderWithNegatives);
+            var positives = AllFiles(folderWithPositives).ToList();
+            var negatives = AllFiles(folderWithNegatives).ToList();
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
                 OnTestRunnerEvent(
@@ -137,16 +138,16 @@
                     positives,
                     positive =>
                         {
-                            verified++;
+                            Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(positive);
                             var actualTrack = GetActualTrack(tags);
                             var queryResult = BuildQuery(queryStride, seconds, positive, startAts[iteration]).Result;
                             if (!queryResult.ContainsMatches)
                             {
-                                falseNegatives++;
+                                Interlocked.Increment(ref falseNegatives);
                                 var notFoundLine = GetNotFoundLine(tags);
                                 AppendLine(sb, notFoundLine);
-                                this.OnTestRunnerEvent(
+                                OnTestRunnerEvent(
                                     PositiveNotFoundEvent,
                                     GetTestRunnerEventArgs(
                                         truePositives,
@@ -162,12 +163,12 @@
                             bool isSuccessful = recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
                             if (isSuccessful)
                             {
-                                truePositives++;
+                                Interlocked.Increment(ref truePositives);
                                 truePositiveHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             }
                             else
                             {
-                                falseNegatives++;
+                                Interlocked.Increment(ref falseNegatives);
                                 falseNegativesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             }
 
@@ -180,12 +181,12 @@
                     negatives,
                     negative =>
                         {
-                            verified++;
+                            Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(negative);
                             var queryResult = BuildQuery(queryStride, seconds, negative, startAts[iteration]).Result;
                             if (!queryResult.ContainsMatches)
                             {
-                                trueNegatives++;
+                                Interlocked.Increment(ref trueNegatives);
                                 var notFoundLine = GetNotFoundLine(tags);
                                 AppendLine(sb, notFoundLine);
                                 OnTestRunnerEvent(
@@ -202,13 +203,12 @@
 
                             var recognizedTrack = queryResult.BestMatch.Track;
                             falsePositivesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
-                            falsePositives++;
+                            Interlocked.Increment(ref falsePositives);
                             var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                             AppendLine(sb, foundLine);
-                            this.OnTestRunnerEvent(
+                            OnTestRunnerEvent(
                                 NegativeFoundEvent,
-                                GetTestRunnerEventArgs(
-                                    truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
+                                GetTestRunnerEventArgs(truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                         });
 
                 stopwatch.Stop();
@@ -219,11 +219,9 @@
                     falsePositivesHammingDistance,
                     testRunnerConfig.Percentiles);
                 TestRunnerWriter.FinishTestIteration(sb, fscore, stats, stopwatch.ElapsedMilliseconds);
-                TestRunnerWriter.SaveTestIterationToFolder(
-                    sb, pathToResultsFolder, queryStride, this.GetInsertMetadata(), seconds, startAts[iteration]);
+                TestRunnerWriter.SaveTestIterationToFolder(sb, pathToResultsFolder, queryStride, GetInsertMetadata(), seconds, startAts[iteration]);
 
-                var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(
-                    queryStride, seconds, startAts, fscore, stats, iteration, stopwatch, verified);
+                var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(queryStride, seconds, startAts, fscore, stats, iteration, stopwatch, verified);
                 OnTestRunnerEvent(TestIterationFinishedEvent, finishedTestIteration);
                 TestRunnerWriter.AppendLine(suite, finishedTestIteration.RowWithDetails);
             }
@@ -290,10 +288,7 @@
 
         private object[] GetNotFoundLine(TagInfo tags)
         {
-            return new object[]
-                {
-                    ToTrackString(tags), "No match found!", false, 0, 0, 0, 0, 0 
-                };
+            return new object[] { ToTrackString(tags), "No match found!", false, 0, 0, 0, 0, 0 };
         }
 
         private object[] GetFoundLine(string actualTrack, TrackData recognizedTrack, bool isSuccessful, QueryResult queryResult)
@@ -312,7 +307,7 @@
         {
             return this.qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
-                .WithConfigs(fingerprintConfig => { fingerprintConfig.SpectrogramConfig.Stride = queryStride; }, queryConfig => { })
+                .WithFingerprintConfig(fingerprintConfig => { fingerprintConfig.SpectrogramConfig.Stride = queryStride; })
                 .UsingServices(modelService, audioService)
                 .Query();
         }
@@ -329,10 +324,9 @@
                             OngoingActionEvent,
                             new TestRunnerOngoingEventArgs
                                 {
-                                    Message =
-                                        string.Format(
+                                    Message = string.Format(
                                             "Inserting tracks {0} out of {1}. Track {2}",
-                                            inserted++,
+                                            Interlocked.Increment(ref inserted),
                                             allFiles.Count,
                                             System.IO.Path.GetFileNameWithoutExtension(file))
                                 });
@@ -366,7 +360,7 @@
                     OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {
-                            Message = string.Format("Deleted {0} out of {1} tracks from storage", deleted++, tracks.Count)
+                            Message = string.Format("Deleted {0} out of {1} tracks from storage", Interlocked.Increment(ref deleted), tracks.Count)
                         });
             }
         }
@@ -401,7 +395,7 @@
             if (handler != null)
             {
                 handler(this, args);
-            } 
+            }
         }
     }
 }
