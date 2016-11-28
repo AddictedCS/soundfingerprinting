@@ -90,11 +90,7 @@
                 accumulator.AddOrUpdate(
                     subFingerprint.TrackReference,
                     reference => new ResultEntryAccumulator(expected, fingerprint, hammingSimilarity),
-                    (reference, entryAccumulator) =>
-                        {
-                            entryAccumulator.Add(expected, fingerprint, hammingSimilarity);
-                            return entryAccumulator;
-                        });
+                    (reference, entryAccumulator) => entryAccumulator.Add(expected, fingerprint, hammingSimilarity));
             }
         }
     }

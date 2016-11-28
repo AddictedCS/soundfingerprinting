@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Query
 {
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
 
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -27,15 +28,14 @@
 
         public MatchedPair BestMatch { get; private set; }
 
-        public void Add(HashedFingerprint hashedFingerprint,  SubFingerprintData match, int hammingSimilarity)
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public ResultEntryAccumulator Add(HashedFingerprint hashedFingerprint, SubFingerprintData match, int hammingSimilarity)
         {
-            lock (this)
-            {
-                HammingSimilaritySum += hammingSimilarity;
-                var matchedPair = new MatchedPair(hashedFingerprint, match, hammingSimilarity);
-                ResetBestMatchIfAppropriate(matchedPair);
-                matches.Add(matchedPair);
-            }
+            HammingSimilaritySum += hammingSimilarity;
+            var matchedPair = new MatchedPair(hashedFingerprint, match, hammingSimilarity);
+            ResetBestMatchIfAppropriate(matchedPair);
+            matches.Add(matchedPair);
+            return this;
         }
 
         private void ResetBestMatchIfAppropriate(MatchedPair newPair)
