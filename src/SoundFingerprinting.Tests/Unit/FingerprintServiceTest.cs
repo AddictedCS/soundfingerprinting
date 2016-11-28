@@ -69,7 +69,7 @@
             Assert.AreEqual(dividedLogSpectrum.Count, fingerprints.Count);
             for (int index = 0; index < fingerprints.Count; index++)
             {
-                Assert.AreEqual(GenericFingerprint, fingerprints[index].Signature);
+                Assert.AreEqual(GenericFingerprint(), fingerprints[index].Signature);
                 Assert.AreEqual(dividedLogSpectrum[index].StartsAt, fingerprints[index].StartsAt, Epsilon);
             }
         }

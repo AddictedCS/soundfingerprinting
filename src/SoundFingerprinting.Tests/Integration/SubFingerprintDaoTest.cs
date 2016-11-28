@@ -37,7 +37,7 @@
             var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = trackDao.InsertTrack(track);
             const int NumberOfHashBins = 100;
-            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins).Select(i => new HashedFingerprint(GenericSignature, GenericHashBuckets, i, i * 0.928, Enumerable.Empty<string>()));
+            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins).Select(i => new HashedFingerprint(GenericSignature(), GenericHashBuckets(), i, i * 0.928, Enumerable.Empty<string>()));
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
@@ -45,7 +45,7 @@
             Assert.AreEqual(NumberOfHashBins, hashedFingerprintss.Count);
             foreach (var hashedFingerprint in hashedFingerprintss)
             {
-                CollectionAssert.AreEqual(GenericHashBuckets, hashedFingerprint.HashBins);
+                CollectionAssert.AreEqual(GenericHashBuckets(), hashedFingerprint.HashBins);
             }
         }
 

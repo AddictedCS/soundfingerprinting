@@ -63,9 +63,9 @@
                 new List<HashedFingerprint>(
                     new[]
                         {
-                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 2, 0.928 * 2, Enumerable.Empty<string>())
+                            new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()),
+                            new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 1, 0.928, Enumerable.Empty<string>()),
+                            new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 2, 0.928 * 2, Enumerable.Empty<string>())
                         });
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
@@ -95,9 +95,9 @@
                 new List<HashedFingerprint>(
                     new[]
                         {
-                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 1, 0.928, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericSignature, GenericHashBuckets, 2, 0.928 * 2, Enumerable.Empty<string>())
+                            new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()),
+                            new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 1, 0.928, Enumerable.Empty<string>()),
+                            new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 2, 0.928 * 2, Enumerable.Empty<string>())
                         });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile, SecondsToQuery, StartAtSecond)).Returns(withAlgorithConfiguration.Object);

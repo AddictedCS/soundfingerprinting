@@ -26,7 +26,7 @@
             var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = trackDao.InsertTrack(track);
 
-            var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
+            var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint(), trackReference));
 
             AssertModelReferenceIsInitialized(fingerprintReference);
         }
@@ -39,7 +39,7 @@
 
             for (int i = 0; i < NumberOfFingerprints; i++)
             {
-                var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
+                var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint(), trackReference));
                 AssertModelReferenceIsInitialized(fingerprintReference);
             }
         }
@@ -52,7 +52,7 @@
 
             for (int i = 0; i < NumberOfFingerprints; i++)
             {
-                fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
+                fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint(), trackReference));
             }
 
             var fingerprints = fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
@@ -60,7 +60,7 @@
             Assert.AreEqual(NumberOfFingerprints, fingerprints.Count);
             foreach (var fingerprint in fingerprints)
             {
-                CollectionAssert.AreEqual(GenericFingerprint, fingerprint.Signature);
+                CollectionAssert.AreEqual(GenericFingerprint(), fingerprint.Signature);
             }
         }
 

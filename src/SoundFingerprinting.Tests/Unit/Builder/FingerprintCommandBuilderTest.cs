@@ -78,7 +78,7 @@
             fingerprintService.Setup(
                 service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(
                     rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0.928, Enumerable.Empty<string>()));
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0.928, Enumerable.Empty<string>()));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                      .From(PathToAudioFile)
@@ -89,7 +89,7 @@
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreSame(GenericSignature, hashData.SubFingerprint);
+                Assert.AreSame(GenericSignature(), hashData.SubFingerprint);
             }
         }
 
@@ -102,7 +102,7 @@
             const int ThreeFingerprints = 3;
             var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0, Enumerable.Empty<string>()));
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(samples)
@@ -113,8 +113,8 @@
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreSame(GenericSignature, hashData.SubFingerprint);
-                Assert.AreSame(GenericHashBuckets, hashData.HashBins);
+                Assert.AreSame(GenericSignature(), hashData.SubFingerprint);
+                Assert.AreSame(GenericHashBuckets(), hashData.HashBins);
             }
         }
 
@@ -132,7 +132,7 @@
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
             lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(
-                new HashedFingerprint(GenericSignature, GenericHashBuckets, 0, 0, Enumerable.Empty<string>()));
+                new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
@@ -143,7 +143,7 @@
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreSame(GenericSignature, hashData.SubFingerprint);
+                Assert.AreSame(GenericSignature(), hashData.SubFingerprint);
             }
 
             audioService.Verify(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond));
@@ -170,7 +170,7 @@
             var list = new List<Fingerprint>();
             for (int i = 0; i < count; i++)
             {
-                list.Add(new Fingerprint(GenericFingerprint, i * 0.928, i));
+                list.Add(new Fingerprint(GenericFingerprint(), i * 0.928, i));
             }
 
             return list;
