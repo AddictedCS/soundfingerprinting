@@ -78,7 +78,8 @@
             fingerprintService.Setup(
                 service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(
                     rawFingerprints);
-            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0.928, Enumerable.Empty<string>()));
+            byte[] genericSignature = GenericSignature();
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(genericSignature, GenericHashBuckets(), 0, 0.928, Enumerable.Empty<string>()));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                      .From(PathToAudioFile)
@@ -89,7 +90,7 @@
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreSame(GenericSignature(), hashData.SubFingerprint);
+                CollectionAssert.AreEqual(genericSignature, hashData.SubFingerprint);
             }
         }
 
@@ -97,8 +98,7 @@
         public void SubFingerprintsAreBuiltCorrectlyFromAudioSamplesForTrack()
         {
             const int TenSeconds = 10;
-            AudioSamples samples = new AudioSamples
-                { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
+            var samples = new AudioSamples { Samples = TestUtilities.GenerateRandomFloatArray(SampleRate * TenSeconds) };
             const int ThreeFingerprints = 3;
             var rawFingerprints = GetGenericFingerprints(ThreeFingerprints);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
@@ -111,10 +111,13 @@
                                       .Result;
 
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
+            byte[] genericSignature = GenericSignature();
+            long[] genericHashBuckets = GenericHashBuckets();
+
             foreach (var hashData in hashDatas)
             {
-                Assert.AreSame(GenericSignature(), hashData.SubFingerprint);
-                Assert.AreSame(GenericHashBuckets(), hashData.HashBins);
+                CollectionAssert.AreEqual(genericSignature, hashData.SubFingerprint);
+                CollectionAssert.AreEqual(genericHashBuckets, hashData.HashBins);
             }
         }
 
@@ -131,8 +134,9 @@
 
             audioService.Setup(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond)).Returns(samples);
             fingerprintService.Setup(service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(rawFingerprints);
+            byte[] genericSignature = GenericSignature();
             lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(
-                new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()));
+                new HashedFingerprint(genericSignature, GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                       .From(PathToAudioFile, SecondsToProcess, StartSecond)
@@ -143,7 +147,7 @@
             Assert.AreEqual(ThreeFingerprints, hashDatas.Count);
             foreach (var hashData in hashDatas)
             {
-                Assert.AreSame(GenericSignature(), hashData.SubFingerprint);
+                CollectionAssert.AreEqual(genericSignature, hashData.SubFingerprint);
             }
 
             audioService.Verify(service => service.ReadMonoSamplesFromFile(PathToAudioFile, SampleRate, SecondsToProcess, StartSecond));
