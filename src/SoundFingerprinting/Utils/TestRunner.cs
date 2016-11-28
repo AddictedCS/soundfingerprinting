@@ -134,6 +134,7 @@
                 List<int> falseNegativesHammingDistance = new List<int>();
                 List<int> falsePositivesHammingDistance = new List<int>();
                 var sb = TestRunnerWriter.StartTestIteration();
+                int currentIteration = iteration;
                 Parallel.ForEach(
                     positives,
                     positive =>
@@ -141,7 +142,7 @@
                             Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(positive);
                             var actualTrack = GetActualTrack(tags);
-                            var queryResult = BuildQuery(queryStride, seconds, positive, startAts[iteration]).Result;
+                            var queryResult = BuildQuery(queryStride, seconds, positive, startAts[currentIteration]).Result;
                             if (!queryResult.ContainsMatches)
                             {
                                 Interlocked.Increment(ref falseNegatives);
@@ -168,7 +169,7 @@
                             }
                             else
                             {
-                                Interlocked.Increment(ref falseNegatives);
+                                Interlocked.Increment(ref falsePositives);
                                 falseNegativesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             }
 
@@ -183,7 +184,7 @@
                         {
                             Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(negative);
-                            var queryResult = BuildQuery(queryStride, seconds, negative, startAts[iteration]).Result;
+                            var queryResult = BuildQuery(queryStride, seconds, negative, startAts[currentIteration]).Result;
                             if (!queryResult.ContainsMatches)
                             {
                                 Interlocked.Increment(ref trueNegatives);
@@ -219,7 +220,7 @@
                     falsePositivesHammingDistance,
                     testRunnerConfig.Percentiles);
                 TestRunnerWriter.FinishTestIteration(sb, fscore, stats, stopwatch.ElapsedMilliseconds);
-                TestRunnerWriter.SaveTestIterationToFolder(sb, pathToResultsFolder, queryStride, GetInsertMetadata(), seconds, startAts[iteration]);
+                TestRunnerWriter.SaveTestIterationToFolder(sb, pathToResultsFolder, queryStride, GetInsertMetadata(), seconds, startAts[currentIteration]);
 
                 var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(queryStride, seconds, startAts, fscore, stats, iteration, stopwatch, verified);
                 OnTestRunnerEvent(TestIterationFinishedEvent, finishedTestIteration);
