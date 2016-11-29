@@ -1,9 +1,11 @@
 ﻿namespace SoundFingerprinting.Utils
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -110,8 +112,8 @@
         private void RunTestScenario(string folderWithPositives, string folderWithNegatives, IStride queryStride, int seconds, List<int> startAts)
         {
             int iterations = startAts.Count;
-            var positives = AllFiles(folderWithPositives).ToList();
-            var negatives = AllFiles(folderWithNegatives).ToList();
+            var positives = AllFiles(folderWithPositives);
+            var negatives = AllFiles(folderWithNegatives);
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
                 OnTestRunnerEvent(
@@ -130,11 +132,12 @@
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 int trueNegatives = 0, truePositives = 0, falseNegatives = 0, falsePositives = 0, verified = 0;
-                List<int> truePositiveHammingDistance = new List<int>();
-                List<int> falseNegativesHammingDistance = new List<int>();
-                List<int> falsePositivesHammingDistance = new List<int>();
+                var truePositiveHammingDistance = new ConcurrentBag<int>();
+                var falseNegativesHammingDistance = new ConcurrentBag<int>();
+                var falsePositivesHammingDistance = new ConcurrentBag<int>();
                 var sb = TestRunnerWriter.StartTestIteration();
                 int currentIteration = iteration;
+                int startAt = startAts[currentIteration];
                 Parallel.ForEach(
                     positives,
                     positive =>
@@ -142,7 +145,7 @@
                             Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(positive);
                             var actualTrack = GetActualTrack(tags);
-                            var queryResult = BuildQuery(queryStride, seconds, positive, startAts[currentIteration]).Result;
+                            var queryResult = BuildQuery(queryStride, seconds, positive, startAt).Result;
                             if (!queryResult.ContainsMatches)
                             {
                                 Interlocked.Increment(ref falseNegatives);
@@ -184,7 +187,7 @@
                         {
                             Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(negative);
-                            var queryResult = BuildQuery(queryStride, seconds, negative, startAts[currentIteration]).Result;
+                            var queryResult = BuildQuery(queryStride, seconds, negative, startAt).Result;
                             if (!queryResult.ContainsMatches)
                             {
                                 Interlocked.Increment(ref trueNegatives);
@@ -220,7 +223,7 @@
                     falsePositivesHammingDistance,
                     testRunnerConfig.Percentiles);
                 TestRunnerWriter.FinishTestIteration(sb, fscore, stats, stopwatch.ElapsedMilliseconds);
-                TestRunnerWriter.SaveTestIterationToFolder(sb, pathToResultsFolder, queryStride, GetInsertMetadata(), seconds, startAts[currentIteration]);
+                TestRunnerWriter.SaveTestIterationToFolder(sb, pathToResultsFolder, queryStride, GetInsertMetadata(), seconds, startAt);
 
                 var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(queryStride, seconds, startAts, fscore, stats, iteration, stopwatch, verified);
                 OnTestRunnerEvent(TestIterationFinishedEvent, finishedTestIteration);
@@ -265,6 +268,7 @@
             return this.lastInsertStride != null ? this.lastInsertStride.ToString() : string.Empty;
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         private void AppendLine(StringBuilder sb, object[] objects)
         {
             TestRunnerWriter.AppendLine(sb, objects);
@@ -306,16 +310,16 @@
 
         private Task<QueryResult> BuildQuery(IStride queryStride, int seconds, string positive, int startAt)
         {
-            return this.qcb.BuildQueryCommand()
+            return qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
-                .WithFingerprintConfig(fingerprintConfig => { fingerprintConfig.SpectrogramConfig.Stride = queryStride; })
+                .WithFingerprintConfig(fingerprintConfig => { fingerprintConfig.Stride = queryStride; })
                 .UsingServices(modelService, audioService)
                 .Query();
         }
 
         private void Insert(string folderWithSongs, IStride stride)
         {
-            var allFiles = AllFiles(folderWithSongs).ToList();
+            var allFiles = AllFiles(folderWithSongs);
             int inserted = 0;
             Parallel.ForEach(
                 allFiles,
@@ -334,7 +338,7 @@
                         var track = InsertTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
                                         .From(file)
-                                        .WithFingerprintConfig(config => { config.SpectrogramConfig.Stride = stride; })
+                                        .WithFingerprintConfig(config => { config.Stride = stride; })
                                         .UsingServices(audioService)
                                         .Hash()
                                         .Result;
@@ -366,9 +370,9 @@
             }
         }
 
-        private IEnumerable<string> AllFiles(string rootFolder)
+        private ConcurrentBag<string> AllFiles(string rootFolder)
         {
-            return utils.ListFiles(rootFolder, testRunnerConfig.AudioFileFilters);
+            return new ConcurrentBag<string>(utils.ListFiles(rootFolder, testRunnerConfig.AudioFileFilters));
         }
 
         private List<int> ToStartAts(string startAtSeconds)
