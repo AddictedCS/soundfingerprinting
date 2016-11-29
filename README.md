@@ -1,5 +1,7 @@
 ## Audio fingerprinting and recognition in .NET
 
+[![Join the chat at https://gitter.im/soundfingerprinting/Lobby](https://badges.gitter.im/soundfingerprinting/Lobby.svg)](https://gitter.im/soundfingerprinting/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 _soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en/pubs/archive/32685.pdf) of digital signal processing which allows developing a system of acoustic fingerprinting and recognition in .NET.
 
 [![Build Status](https://travis-ci.org/AddictedCS/soundfingerprinting.png)](https://travis-ci.org/AddictedCS/soundfingerprinting)
