@@ -21,10 +21,10 @@
     {
         private readonly DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
 
-        private readonly ModelService modelService;
+        private readonly IModelService modelService;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
-        private readonly QueryFingerprintService queryFingerprintService;
-        private readonly NAudioService audioService;
+        private readonly IQueryFingerprintService queryFingerprintService;
+        private readonly IAudioService audioService;
         private readonly ITagService tagService;
         private readonly IWaveFileUtility waveUtility;
 

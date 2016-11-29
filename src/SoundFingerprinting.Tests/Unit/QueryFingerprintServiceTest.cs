@@ -15,7 +15,7 @@
     [TestFixture]
     public class QueryFingerprintServiceTest : AbstractTest
     {
-        private QueryFingerprintService queryFingerprintService;
+        private readonly QueryFingerprintService queryFingerprintService = new QueryFingerprintService();
 
         private Mock<IModelService> modelService;
 
@@ -23,8 +23,6 @@
         public void SetUp()
         {
             modelService = new Mock<IModelService>(MockBehavior.Strict);
-
-            queryFingerprintService = new QueryFingerprintService();
         }
 
         [TearDown]
@@ -75,7 +73,7 @@
             modelService.Setup(service => service.ReadTrackByReference(secondTrackReference)).Returns(
                new TrackData { ISRC = "isrc_1", TrackReference = secondTrackReference });
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, this.modelService.Object);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
@@ -95,8 +93,7 @@
             modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
             modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<long[]>(), customQueryConfiguration)).Returns(new List<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(
-                new List<HashedFingerprint> { queryHash }, customQueryConfiguration, this.modelService.Object);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
 
             Assert.IsFalse(queryResult.ContainsMatches);
             Assert.IsNull(queryResult.BestMatch);
@@ -121,13 +118,30 @@
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference))
                         .Returns(new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, this.modelService.Object);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
             Assert.AreEqual(GenericSignature().Length * 2, queryResult.BestMatch.HammingSimilaritySum);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
+        }
+
+        [Test]
+        public void ShouldSelectProperStrategyAccordingToModelServiceSupportingBatchedQuery()
+        {
+            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(true);
+            modelService.Setup(
+                service => service.ReadSubFingerprints(It.IsAny<IEnumerable<long[]>>(), It.IsAny<QueryConfiguration>()))
+                .Returns(new HashSet<SubFingerprintData>());
+
+            queryFingerprintService.Query(
+                new List<HashedFingerprint>
+                    {
+                        new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0d, Enumerable.Empty<string>())
+                    },
+                new DefaultQueryConfiguration(),
+                modelService.Object);
         }
     }
 }

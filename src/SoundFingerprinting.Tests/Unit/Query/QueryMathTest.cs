@@ -38,16 +38,21 @@
         {
             var modelService = new Mock<IModelService>(MockBehavior.Strict);
             var trackReference = new ModelReference<int>(3);
-            modelService.Setup(s => s.ReadTrackByReference(trackReference)).Returns(new TrackData { ISRC = "isrc-1234-1234" });
+            modelService.Setup(s => s.ReadTrackByReference(trackReference)).Returns(
+                new TrackData { ISRC = "isrc-1234-1234" });
 
             var queryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1 };
 
-            var first = new ResultEntryAccumulator(
-                new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()), new SubFingerprintData(null, 1, 0d, null, null), 100);
-            var second = new ResultEntryAccumulator(
-                new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()), new SubFingerprintData(null, 1, 0d, null, null), 99);
-            var third = new ResultEntryAccumulator(
-                new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()), new SubFingerprintData(null, 1, 0d, null, null), 101);
+            var query = new List<HashedFingerprint>
+                {
+                    new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 1, 4d, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 1, 8d, Enumerable.Empty<string>())
+                };
+
+            var first = new ResultEntryAccumulator(query[0], new SubFingerprintData(null, 1, 0d, null, null), 100);
+            var second = new ResultEntryAccumulator(query[1], new SubFingerprintData(null, 1, 4d, null, null), 99);
+            var third = new ResultEntryAccumulator(query[2], new SubFingerprintData(null, 1, 8d, null, null), 101);
             var hammingSimilarties = new Dictionary<IModelReference, ResultEntryAccumulator>
                 {
                     { new ModelReference<int>(1), first },
@@ -55,11 +60,18 @@
                     { new ModelReference<int>(3), third },
                 };
 
-          var best = queryMath.GetBestCandidates(new List<HashedFingerprint>(), hammingSimilarties, queryConfiguration.MaxTracksToReturn, modelService.Object, queryConfiguration.FingerprintConfiguration);
+            var best = queryMath.GetBestCandidates(
+                query,
+                hammingSimilarties,
+                queryConfiguration.MaxTracksToReturn,
+                modelService.Object,
+                queryConfiguration.FingerprintConfiguration);
 
-          Assert.AreEqual(1, best.Count);
-          Assert.AreEqual("isrc-1234-1234", best[0].Track.ISRC);
-          modelService.VerifyAll();
+            Assert.AreEqual(1, best.Count);
+            Assert.AreEqual("isrc-1234-1234", best[0].Track.ISRC);
+            Assert.AreEqual(9.48d, best[0].QueryLength, 0.01);
+            Assert.AreEqual(0d, best[0].TrackStartsAt);
+            modelService.VerifyAll();
         }
 
         [Test]
