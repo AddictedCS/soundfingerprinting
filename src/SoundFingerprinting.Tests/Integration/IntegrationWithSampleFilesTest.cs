@@ -13,8 +13,6 @@
     {
         protected readonly string PathToMp3 = Path.Combine(TestContext.CurrentContext.TestDirectory, "Kryptonite.mp3");
 
-        protected readonly string PathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "floatsamples.bin");
-
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
             Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);

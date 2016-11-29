@@ -121,7 +121,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <Content Include="TestEnvironment\floatsamples.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">

@@ -97,7 +97,7 @@
             const int SecondsToProcess = 20;
             const int StartAtSecond = 15;
 
-            AudioSamples samples = audioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
+            var samples = audioService.ReadMonoSamplesFromFile(PathToMp3, SampleRate, SecondsToProcess, StartAtSecond);
 
             var hashDatasFromFile = fingerprintCommandBuilder
                                         .BuildFingerprintCommand()
