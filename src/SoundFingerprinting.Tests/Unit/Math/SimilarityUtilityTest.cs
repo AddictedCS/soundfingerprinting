@@ -140,6 +140,30 @@
             Assert.AreEqual(CandidatesCount, acumulator[trackReference2].BestMatch.SubFingerprint.SubFingerprintReference.Id);
         }
 
+        [Test]
+        public void ShouldSortMatchesProperly()
+        {
+            List<SubFingerprintData> subFingerprints = new List<SubFingerprintData>();
+            var trackReference = new ModelReference<int>(0);
+            const double OneFingerprintLength = 1.0d;
+            const int CandidatesCount = 20;
+            for (int i = 0; i < CandidatesCount; ++i)
+            {
+                var sub = new SubFingerprintData(GenericHashBuckets(), i, OneFingerprintLength * (CandidatesCount - i), new ModelReference<int>(i), trackReference);
+                subFingerprints.Add(sub);
+            } 
+
+            var acumulator = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>(); 
+
+            similarityUtility.AccumulateHammingSimilarity(subFingerprints, new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 1, 0d, Enumerable.Empty<string>()), acumulator);
+
+            var expected = Enumerable.Range(1, 20);
+            var actual = acumulator[trackReference].Matches.Select(m => m.SubFingerprint.SequenceAt).ToList();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+
         private IEnumerable<SubFingerprintData> GetSubFingerprintsForTrack(ModelReference<int> trackReference, int candidatesCount)
         {
             List<SubFingerprintData> subFingerprints = new List<SubFingerprintData>();
