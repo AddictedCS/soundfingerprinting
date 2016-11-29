@@ -11,7 +11,7 @@
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        protected readonly string PathToMp3 = Path.Combine(TestContext.CurrentContext.TestDirectory, "Kryptonite.mp3");
+        protected readonly string PathToMp3 = Path.Combine(TestContext.CurrentContext.TestDirectory, "Chopin.mp3");
 
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {

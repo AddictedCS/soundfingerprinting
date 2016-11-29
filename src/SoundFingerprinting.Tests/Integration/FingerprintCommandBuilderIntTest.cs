@@ -19,6 +19,8 @@
     [Category("RequiresWindowsDLL")]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
     {
+        private readonly DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
+
         private readonly ModelService modelService;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly QueryFingerprintService queryFingerprintService;
@@ -40,7 +42,7 @@
         public void TearDown()
         {
             var ramStorage = (RAMStorage)DependencyResolver.Current.Get<IRAMStorage>();
-            ramStorage.Reset(new DefaultFingerprintConfiguration().HashingConfig.NumberOfLSHTables);
+            ramStorage.Reset(config.HashingConfig.NumberOfLSHTables);
         }
 
         [Test]
@@ -50,9 +52,9 @@
 
             var command = fingerprintCommandBuilder.BuildFingerprintCommand()
                                         .From(PathToMp3)
-                                        .WithFingerprintConfig(config =>
+                                        .WithFingerprintConfig(cnf =>
                                             {
-                                                config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride);
+                                                cnf.Stride = new IncrementalStaticStride(StaticStride);
                                             })
                                         .UsingServices(audioService);
 
@@ -72,7 +74,7 @@
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
             var info = tagService.GetTagInfo(PathToMp3);
-            var track = new TrackData(info.ISRC, info.Artist, info.Title, info.Album, info.Year, (int)info.Duration);
+            var track = new TrackData(info.ISRC, info.Artist, info.Title, info.Album, info.Year, info.Duration);
             var trackReference = modelService.InsertTrack(track);
 
             var hashDatas = fingerprintCommandBuilder
@@ -130,7 +132,7 @@
                                       .Hash()
                                       .Result;
 
-            long expected = fileSize / (8192 * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
+            long expected = fileSize / (config.SamplesPerFingerprint * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
             Assert.AreEqual(expected, list.Count);
             File.Delete(tempFile);
         }
@@ -155,8 +157,6 @@
         [Test]
         public void CreateFingerprintFromSamplesWhichAreExactlyEqualToMinimumLength()
         {
-            DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
-
             var samples = GenerateRandomAudioSamples(config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize);
 
             var hash = fingerprintCommandBuilder.BuildFingerprintCommand()

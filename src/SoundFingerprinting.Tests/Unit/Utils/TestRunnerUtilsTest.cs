@@ -7,10 +7,11 @@
 
     using NUnit.Framework;
 
+    using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
 
     [TestFixture]
-    public class TestRunnerUtilsTest
+    public class TestRunnerUtilsTest : IntegrationWithSampleFilesTest
     {
         private readonly TestRunnerUtils testRunnerUtils = new TestRunnerUtils();
 
@@ -24,7 +25,7 @@
             var filenames = files.Select(Path.GetFileNameWithoutExtension).ToList();
             var unique = new HashSet<string>(filenames);
             Assert.AreEqual(1, unique.Count);
-            Assert.IsTrue(unique.Contains("Kryptonite"));
+            Assert.IsTrue(unique.Contains(Path.GetFileNameWithoutExtension(PathToMp3)));
         }
 
         [Test]

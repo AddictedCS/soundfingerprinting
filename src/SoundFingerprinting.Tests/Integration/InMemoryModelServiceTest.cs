@@ -29,7 +29,7 @@
         [Test]
         public void InsertTrackTest()
         {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
 
             var trackReference = modelService.InsertTrack(track);
 
@@ -39,7 +39,7 @@
         [Test]
         public void ReadTrackByTrackReferenceTest()
         {
-            TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(expectedTrack);
 
             var actualTrack = modelService.ReadTrackByReference(trackReference);
@@ -50,7 +50,7 @@
         [Test]
         public void ReadTrackByISRCTest()
         {
-            TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             modelService.InsertTrack(expectedTrack);
 
             var actualTrack = modelService.ReadTrackByISRC("isrc");
@@ -61,7 +61,7 @@
         [Test]
         public void ReadTrackByArtistAndTitleTest()
         {
-            TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             modelService.InsertTrack(expectedTrack);
 
             var actualTracks = modelService.ReadTrackByArtistAndTitleName("artist", "title");
