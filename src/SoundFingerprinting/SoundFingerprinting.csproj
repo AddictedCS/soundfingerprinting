@@ -136,7 +136,6 @@
     <Compile Include="Utils\TestRunnerUtils.cs" />
     <Compile Include="Utils\TestRunnerWriter.cs" />
     <Compile Include="Utils\TestScenariousValidationResult.cs" />
-    <Compile Include="Wavelets\NonStandardHaarWaveletDecomposition.cs" />
     <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />
     <Compile Include="FFT\SpectrumService.cs" />
