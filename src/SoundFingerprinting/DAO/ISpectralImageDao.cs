@@ -8,6 +8,6 @@
     {
         void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 
-        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);  // 
+        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
     }
 }
