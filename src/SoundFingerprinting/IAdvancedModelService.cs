@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
 
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
+    using DAO;
+    using DAO.Data;
 
     public interface IAdvancedModelService : IModelService
     {
@@ -13,6 +13,6 @@
 
         void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 
-        List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference);
+        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
     }
 }

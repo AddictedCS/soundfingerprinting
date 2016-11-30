@@ -3,9 +3,9 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
+    using DAO;
+    using DAO.Data;
+    using Data;
 
     internal class RAMStorage : IRAMStorage
     {
@@ -19,50 +19,24 @@
 
         private IDictionary<IModelReference, List<FingerprintData>> fingerprints;
 
+        private IDictionary<IModelReference, List<SpectralImageData>> spectralImages;
+
         public RAMStorage(int numberOfHashTables)
         {
             Initialize(numberOfHashTables);
         }
 
-        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints
-        {
-            get
-            {
-                return subFingerprints;
-            }
-        }
+        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints => subFingerprints;
 
-        public IDictionary<IModelReference, TrackData> Tracks
-        {
-            get
-            {
-                return tracks;
-            }
-        }
+        public IDictionary<IModelReference, TrackData> Tracks => tracks;
 
-        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes
-        {
-            get
-            {
-                return tracksHashes;
-            }
-        }
+        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes => tracksHashes;
 
-        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints
-        {
-            get
-            {
-                return fingerprints;
-            }
-        }
+        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints => fingerprints;
 
-        public IDictionary<long, List<IModelReference>>[] HashTables
-        {
-            get
-            {
-                return hashTables;
-            }
-        }
+        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages => spectralImages;
+
+        public IDictionary<long, List<IModelReference>>[] HashTables => hashTables;
 
         public int NumberOfHashTables { get; private set; }
 
@@ -79,6 +53,7 @@
             tracksHashes = new Dictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
             hashTables = new Dictionary<long, List<IModelReference>>[NumberOfHashTables];
             fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
+            spectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
 
             for (int table = 0; table < numberOfHashTables; table++)
             {

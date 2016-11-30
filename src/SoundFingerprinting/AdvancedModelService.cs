@@ -27,9 +27,9 @@
             this.spectralImageDao.InsertSpectralImages(spectralImages, trackReference);
         }
 
-        public virtual List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference)
+        public virtual IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
         {
-            return this.spectralImageDao.GetSpectralImagesByTrackId(trackReference);
+            return this.spectralImageDao.GetSpectralImagesByTrackReference(trackReference);
         }
 
         public virtual IModelReference InsertFingerprint(FingerprintData fingerprint)
