@@ -9,34 +9,22 @@
 
     internal class RAMStorage : IRAMStorage
     {
-        private IDictionary<IModelReference, SubFingerprintData> subFingerprints;
-
-        private IDictionary<IModelReference, TrackData> tracks;
-
-        private IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> tracksHashes;
-
-        private IDictionary<long, List<IModelReference>>[] hashTables;
-
-        private IDictionary<IModelReference, List<FingerprintData>> fingerprints;
-
-        private IDictionary<IModelReference, List<SpectralImageData>> spectralImages;
-
         public RAMStorage(int numberOfHashTables)
         {
             Initialize(numberOfHashTables);
         }
 
-        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints => subFingerprints;
+        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints { get; private set; }
 
-        public IDictionary<IModelReference, TrackData> Tracks => tracks;
+        public IDictionary<IModelReference, TrackData> Tracks { get; private set; }
 
-        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes => tracksHashes;
+        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes { get; private set; }
 
-        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints => fingerprints;
+        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; private set; }
 
-        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages => spectralImages;
+        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; private set; }
 
-        public IDictionary<long, List<IModelReference>>[] HashTables => hashTables;
+        public IDictionary<long, List<IModelReference>>[] HashTables { get; private set; }
 
         public int NumberOfHashTables { get; private set; }
 
@@ -48,16 +36,16 @@
         private void Initialize(int numberOfHashTables)
         {
             NumberOfHashTables = numberOfHashTables;
-            subFingerprints = new Dictionary<IModelReference, SubFingerprintData>();
-            tracks = new Dictionary<IModelReference, TrackData>();
-            tracksHashes = new Dictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
-            hashTables = new Dictionary<long, List<IModelReference>>[NumberOfHashTables];
-            fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
-            spectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
+            SubFingerprints = new Dictionary<IModelReference, SubFingerprintData>();
+            Tracks = new Dictionary<IModelReference, TrackData>();
+            TracksHashes = new Dictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
+            HashTables = new Dictionary<long, List<IModelReference>>[NumberOfHashTables];
+            Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
+            SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
 
             for (int table = 0; table < numberOfHashTables; table++)
             {
-                hashTables[table] = new Dictionary<long, List<IModelReference>>();
+                HashTables[table] = new Dictionary<long, List<IModelReference>>();
             }
         }
     }

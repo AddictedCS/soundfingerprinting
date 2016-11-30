@@ -5,8 +5,6 @@
     /// </summary>
     public class StaticStride : IStride
     {
-        private readonly int nextStride;
-
         /// <summary>
         ///   Initializes a new instance of the <see cref="StaticStride"/> class. 
         /// </summary>
@@ -15,7 +13,7 @@
         /// </param>
         public StaticStride(int strideSize)
         {
-            nextStride = strideSize;
+            NextStride = strideSize;
             FirstStride = 0;
         }
 
@@ -24,19 +22,13 @@
             FirstStride = firstStride;
         }
 
-        public int FirstStride { get; }
+        public int FirstStride { get; private set; }
 
-        public int NextStride
-        {
-            get
-            {
-                return nextStride;
-            }
-        }
+        public int NextStride { get; private set; }
 
         public override string ToString()
         {
-            return $"StaticStride{nextStride}";
+            return string.Format("StaticStride{0}", NextStride);
         }
     }
 }

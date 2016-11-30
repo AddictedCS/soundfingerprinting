@@ -31,7 +31,7 @@
             const int SecondsToRecord = 10;
             samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), SecondsToRecord, 5512))
                 .Returns(samples);
-            waveInEvent.Protected().Setup("Dispose", new object[] { true });
+            waveInEvent.Protected().Setup("Dispose", true);
 
             float[] resultSamples = soundCaptureService.ReadMonoSamples(5512, SecondsToRecord);
 

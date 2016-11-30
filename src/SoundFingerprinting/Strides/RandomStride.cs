@@ -36,11 +36,11 @@
             FirstStride = firstStride;
         }
 
-        public int Min { get; }
+        public int Min { get; private set; }
 
-        public int Max { get; }
+        public int Max { get; private set; }
 
-        public int FirstStride { get; }
+        public int FirstStride { get; private set; }
 
         public virtual int NextStride
         {
@@ -52,7 +52,7 @@
 
         public override string ToString()
         {
-            return $"RandomStride{Min}-{Max}";
+            return string.Format("RandomStride{0}-{1}", Min, Max);
         }
     }
 }

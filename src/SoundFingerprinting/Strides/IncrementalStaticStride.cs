@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Strides
 {
+    using System;
+
     /// <summary>
     ///  Incremental static stride used in providing an exact step length (measured in number of audio samples) between 2 consecutive fingerprints
     /// </summary>
@@ -26,7 +28,7 @@
 
         public override string ToString()
         {
-            return $"IncrementalStaticStride{incrementBy}";
+            return string.Format("IncrementalStaticStride{0}", incrementBy);
         }
     }
 }

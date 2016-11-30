@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Strides
 {
+    using System;
+
     /// <summary>
     ///   Incremental random stride used in providing step length (measured in number of audio samples) between 2 consecutive fingerprints
     /// </summary>
@@ -38,7 +40,7 @@
 
         public override string ToString()
         {
-            return $"IncrementalRandomStride[{Min}-{Max})";
+            return string.Format("IncrementalRandomStride[{0}-{1})", Min, Max);
         }
     }
 }
