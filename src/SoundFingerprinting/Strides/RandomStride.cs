@@ -42,9 +42,12 @@
 
         public int FirstStride { get; }
 
-        public virtual int GetNextStride()
+        public virtual int NextStride
         {
-            return Random.Next(Min, Max);
+            get
+            {
+                return Random.Next(Min, Max);
+            }
         }
 
         public override string ToString()

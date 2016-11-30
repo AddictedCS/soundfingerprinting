@@ -28,9 +28,12 @@
         {
         }
 
-        public override int GetNextStride()
+        public override int NextStride
         {
-            return -SamplesPerFingerprint + Random.Next(Min, Max);
+            get
+            {
+                return -SamplesPerFingerprint + Random.Next(Min, Max);
+            }
         }
 
         public override string ToString()

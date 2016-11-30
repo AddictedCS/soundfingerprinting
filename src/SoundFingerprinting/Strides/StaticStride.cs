@@ -26,9 +26,12 @@
 
         public int FirstStride { get; }
 
-        public int GetNextStride()
+        public int NextStride
         {
-            return nextStride;
+            get
+            {
+                return nextStride;
+            }
         }
 
         public override string ToString()

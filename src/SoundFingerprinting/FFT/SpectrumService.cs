@@ -94,7 +94,7 @@
                 }
 
                 spectralImages.Add(new SpectralImage(spectralImage, index * ((double)overlap / sampleRate), sequenceNumber));
-                index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.GetNextStride() / overlap);
+                index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.NextStride / overlap);
                 sequenceNumber++;
             }
 
