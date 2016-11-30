@@ -73,7 +73,7 @@
 
             try
             {
-                utils.ToStride(parameters[2], parameters[3], parameters[4], testRunnerConfig.SamplesPerFingerprint);
+                utils.ToStride(parameters[2], parameters[3], parameters[4]);
             }
             catch (Exception e)
             {
@@ -103,7 +103,7 @@
 
             try
             {
-                utils.ToStride(parameters[3], parameters[4], parameters[5], testRunnerConfig.SamplesPerFingerprint);
+                utils.ToStride(parameters[3], parameters[4], parameters[5]);
                 int secondsToProcess = int.Parse(parameters[6]);
                 utils.ParseInts(parameters[7], testRunnerConfig.StartAtsSeparator);
             }

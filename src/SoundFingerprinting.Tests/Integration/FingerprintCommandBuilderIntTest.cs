@@ -8,17 +8,11 @@
     using Audio.NAudio;
 
     using Builder;
-
     using Configuration;
-
     using DAO.Data;
-
     using Infrastructure;
-
     using InMemory;
-
     using NUnit.Framework;
-
     using Strides;
 
     [TestFixture]

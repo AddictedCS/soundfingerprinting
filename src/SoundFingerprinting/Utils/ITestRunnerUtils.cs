@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Utils
 {
     using System.Collections.Generic;
 
-    using SoundFingerprinting.Strides;
+    using Strides;
 
     internal interface ITestRunnerUtils
     {
@@ -10,6 +10,6 @@ namespace SoundFingerprinting.Utils
 
         List<int> ParseInts(string cell, char separator);
 
-        IStride ToStride(string stride, string min, string max, int samples);
+        IStride ToStride(string stride, string min, string max);
     }
 }

@@ -92,7 +92,7 @@
             {
                 case "Insert":
                     string folderWithSongs = parameters[1];
-                    var stride = utils.ToStride(parameters[2], parameters[3], parameters[4], testRunnerConfig.SamplesPerFingerprint);
+                    var stride = utils.ToStride(parameters[2], parameters[3], parameters[4]);
                     DeleteAll();
                     Insert(folderWithSongs, stride);
                     lastInsertStride = stride;
@@ -100,8 +100,7 @@
                 case "Run":
                     string folderWithPositives = parameters[1];
                     string folderWithNegatives = parameters[2];
-                    var queryStride = utils.ToStride(
-                        parameters[3], parameters[4], parameters[5], testRunnerConfig.SamplesPerFingerprint);
+                    var queryStride = utils.ToStride(parameters[3], parameters[4], parameters[5]);
                     int seconds = int.Parse(parameters[6]);
                     var startAts = ToStartAts(parameters[7]);
                     RunTestScenario(folderWithPositives, folderWithNegatives,  queryStride, seconds, startAts);

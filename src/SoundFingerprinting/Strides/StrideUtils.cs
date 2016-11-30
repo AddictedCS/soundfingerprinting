@@ -4,7 +4,7 @@
 
     internal static class StrideUtils
     {
-        public static IStride ToStride(string strideType, int min, int max, int samplesPerFingerprint)
+        public static IStride ToStride(string strideType, int min, int max)
         {
             switch (strideType)
             {
@@ -13,9 +13,9 @@
                 case "Random":
                     return new RandomStride(min, max);
                 case "IncrementalStatic":
-                    return new IncrementalStaticStride(max, samplesPerFingerprint);
+                    return new IncrementalStaticStride(max);
                 case "IncrementalRandom":
-                    return new IncrementalRandomStride(min, max, samplesPerFingerprint);
+                    return new IncrementalRandomStride(min, max);
                 default:
                     throw new ArgumentException("Cannot find a matching strideType");
             }

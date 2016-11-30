@@ -20,9 +20,9 @@
             return cell.Split(separator).Select(int.Parse).ToList();
         }
 
-        public IStride ToStride(string stride, string min, string max, int samples)
+        public IStride ToStride(string stride, string min, string max)
         {
-            return StrideUtils.ToStride(stride, int.Parse(min), int.Parse(max), samples);
+            return StrideUtils.ToStride(stride, int.Parse(min), int.Parse(max));
         }
     }
 }
