@@ -152,7 +152,6 @@
     <Compile Include="MinHash\IMinHashService.cs" />
     <Compile Include="Math\SimilarityUtility.cs" />
     <Compile Include="MinHash\IPermutations.cs" />
-    <Compile Include="MinHash\LocalFilePermutations.cs" />
     <Compile Include="MinHash\MinHashService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\DefaultQueryConfiguration.cs" />
