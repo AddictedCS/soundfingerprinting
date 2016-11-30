@@ -8,13 +8,13 @@
         private readonly int samplesPerFingerprint;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IncrementalRandomStride"/> class. 
+        ///   Initializes a new instance of the <see cref="IncrementalRandomStride"/> class. 
         /// </summary>
         /// <example>
-        /// new IncrementalRandomStride(256, 521)
+        ///   new IncrementalRandomStride(256, 521)
         /// </example>
         /// <param name="min">
-        /// Inclusive minimal value used for generating a random stride
+        ///   Inclusive minimal value used for generating a random stride
         /// </param>
         /// <param name="max">
         /// Exclusive maximum value used for generating a random stride
