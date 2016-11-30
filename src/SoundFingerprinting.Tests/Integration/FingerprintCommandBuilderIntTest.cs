@@ -4,16 +4,22 @@
     using System.IO;
     using System.Linq;
 
+    using Audio;
+    using Audio.NAudio;
+
+    using Builder;
+
+    using Configuration;
+
+    using DAO.Data;
+
+    using Infrastructure;
+
+    using InMemory;
+
     using NUnit.Framework;
 
-    using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
-    using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Strides;
+    using Strides;
 
     [TestFixture]
     [Category("RequiresWindowsDLL")]

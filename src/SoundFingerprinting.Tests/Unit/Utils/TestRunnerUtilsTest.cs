@@ -5,9 +5,10 @@
     using System.IO;
     using System.Linq;
 
+    using Integration;
+
     using NUnit.Framework;
 
-    using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
 
     [TestFixture]
@@ -18,7 +19,7 @@
         [Test]
         public void ShouldCaptureAllAudioFilesFromFolder()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             var files = testRunnerUtils.ListFiles(path, new List<string> { "*.mp3" });
 

@@ -25,7 +25,7 @@
         [Test]
         public void ShouldValidateInsert()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             string scenario = string.Format("Insert,{0},IncrementalStatic,0,5115", path);
 
@@ -37,7 +37,7 @@
         [Test]
         public void ShouldValidateFullRun()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             string scenario1 = string.Format("Insert,{0},IncrementalStatic,0,5115", path);
             string scenario2 = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10|30|50", path, path);
@@ -54,7 +54,7 @@
         [Test]
         public void ShouldValidateRun()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             string scenario = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10|30|50", path, path);
 
