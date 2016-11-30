@@ -102,7 +102,6 @@
     <Compile Include="DAO\Data\TrackData.cs" />
     <Compile Include="FFT\ILogUtility.cs" />
     <Compile Include="FFT\LogUtility.cs" />
-    <Compile Include="LSH\BoundedLocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="Math\ISimilarityUtility.cs" />
     <Compile Include="MinHash\DefaultPermutations.cs" />
     <Compile Include="Query\QueryMath.cs" />
