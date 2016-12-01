@@ -10,8 +10,8 @@
     <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Improved precision and recall rate. Additional fixes in finding exact time location of matched fingerprint. Design improvements in storage mechanisms. All users of v2.x are ecouraged to upgrade to 3.x</releaseNotes>
-    <copyright>Copyright 2016, Sergiu Ciumac</copyright>
+    <releaseNotes>Version 3.0.0 comes with a long list of improvements. The framwork provides better precision / recall / processing speed when creating and querying the datasource for the matches. Result entries do contain Coverage/Confidence/StartAt information, which is a lot more precise than in previous versions. All users of 2.x are encouraged to migrate to 3.0.x, and re-insert all the fingerprints in the datasource (since the signature of the fingerprints has changed). Solr datasource is now considered the default option for storing fingerprints</releaseNotes>
+    <copyright>Copyright 2016 Sergiu Ciumac</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
 	<dependencies>
 	   <dependency id="NAudio" version="1.7.3" />

@@ -14,6 +14,7 @@
     internal class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly ISimilarityUtility similarityUtility;
+
         private readonly IQueryMath queryMath;
 
         public QueryFingerprintService()

@@ -16,6 +16,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.NAudio")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.Bass")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Audio.Bass.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.MongoDb.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL")]
@@ -27,4 +28,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 
 [assembly: AssemblyVersion("3.0.0")]
-[assembly: AssemblyInformationalVersion("3.0.0-beta")]
+[assembly: AssemblyInformationalVersion("3.0.0")]
