@@ -2,17 +2,12 @@
 {
     using System;
 
-    using SoundFingerprinting.Audio;
-    using SoundFingerprinting.DAO;
+    using Audio;
+    using DAO;
 
     [Serializable]
     public class TrackData
     {
-        public TrackData()
-        {
-            // no op
-        }
-
         public TrackData(string isrc, string artist, string title, string album, int releaseYear, double length)
         {
             ISRC = isrc;
@@ -40,28 +35,28 @@
             TrackReference = trackReference;
         }
 
-        public string Artist { get; set; }
+        internal TrackData()
+        {
+            // no op
+        }
 
-        public string Title { get; set; }
+        public string Artist { get; internal set; }
 
-        public string ISRC { get; set; }
+        public string Title { get; internal set; }
 
-        public string Album { get; set; }
+        public string ISRC { get; internal set; }
 
-        public int ReleaseYear { get; set; }
+        public string Album { get; internal set; }
 
-        public double Length { get; set; }
+        public int ReleaseYear { get; internal set; }
+
+        public double Length { get; internal set; }
 
         [IgnoreBinding]
-        public IModelReference TrackReference { get; set; }
+        public IModelReference TrackReference { get; internal set; }
 
         public override bool Equals(object obj)
         {
-            if (obj == null)
-            {
-                return false;
-            }
-
             if (!(obj is TrackData))
             {
                 return false;

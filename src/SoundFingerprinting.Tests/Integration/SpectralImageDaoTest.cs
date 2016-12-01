@@ -31,6 +31,11 @@
             spectralImageDao.InsertSpectralImages(images, trackReference);
 
             Assert.AreEqual(3, spectralImageDao.GetSpectralImagesByTrackReference(trackReference).Count());
+            var ids =
+                spectralImageDao.GetSpectralImagesByTrackReference(trackReference)
+                    .Select(dto => (int)dto.SpectralImageReference.Id)
+                    .ToList();
+            CollectionAssert.AreEqual(Enumerable.Range(1, 3), ids);
         }
 
         [Test]

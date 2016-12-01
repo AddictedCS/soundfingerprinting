@@ -89,6 +89,10 @@
     <Compile Include="Unit\Configuration\FingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\QueryConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\SpectrogramConfigTest.cs" />
+    <Compile Include="Unit\DAO\Data\FingerprintDataTest.cs" />
+    <Compile Include="Unit\DAO\Data\SpectralImageDataTest.cs" />
+    <Compile Include="Unit\DAO\Data\SubFingerprintDataTest.cs" />
+    <Compile Include="Unit\DAO\Data\TrackDataTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
     <Compile Include="Unit\LCS\QueryResultCoverageCalculatorTest.cs" />

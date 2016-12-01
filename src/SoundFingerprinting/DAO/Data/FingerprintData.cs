@@ -2,29 +2,51 @@
 {
     using System;
 
-    using SoundFingerprinting.DAO;
+    using DAO;
 
     [Serializable]
     public class FingerprintData
     {
-        public FingerprintData()
-        {
-            // no op
-        }
-
         public FingerprintData(bool[] signature, IModelReference trackReference)
         {
             Signature = signature;
             TrackReference = trackReference;
         }
 
-        [IgnoreBinding]
-        public bool[] Signature { get; set; }
+        public FingerprintData(bool[] signature, IModelReference fingerprintReference, IModelReference trackReference)
+        {
+            Signature = signature;
+            FingerprintReference = fingerprintReference;
+            TrackReference = trackReference;
+        }
+
+        internal FingerprintData()
+        {
+            // no op
+        }
 
         [IgnoreBinding]
-        public IModelReference FingerprintReference { get; set; }
+        public bool[] Signature { get; internal set; }
 
         [IgnoreBinding]
-        public IModelReference TrackReference { get; set; }
+        public IModelReference FingerprintReference { get; internal set; }
+
+        [IgnoreBinding]
+        public IModelReference TrackReference { get; internal set; }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is FingerprintData))
+            {
+                return false;
+            }
+
+            return ((FingerprintData)obj).FingerprintReference.Equals(FingerprintReference);
+        }
+
+        public override int GetHashCode()
+        {
+            return FingerprintReference.GetHashCode();
+        }
     }
 }

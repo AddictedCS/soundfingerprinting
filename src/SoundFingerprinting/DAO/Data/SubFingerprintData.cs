@@ -4,16 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using SoundFingerprinting.DAO;
+    using DAO;
 
     [Serializable]
     public class SubFingerprintData
     {
-        public SubFingerprintData()
-        {
-            Clusters = Enumerable.Empty<string>();
-        }
-
         public SubFingerprintData(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
         {
             Hashes = hashes;
@@ -21,6 +16,11 @@
             TrackReference = trackReference;
             SequenceNumber = sequenceNumber;
             SequenceAt = sequenceAt;
+        }
+
+        internal SubFingerprintData()
+        {
+            Clusters = Enumerable.Empty<string>();
         }
 
         [IgnoreBinding]
@@ -34,18 +34,13 @@
         public IEnumerable<string> Clusters { get; set; }
 
         [IgnoreBinding]
-        public IModelReference SubFingerprintReference { get; set; }
+        public IModelReference SubFingerprintReference { get; internal set; }
 
         [IgnoreBinding]
-        public IModelReference TrackReference { get; set; }
+        public IModelReference TrackReference { get; internal set; }
 
         public override bool Equals(object obj)
         {
-            if (obj == null)
-            {
-                return false;
-            }
-
             if (!(obj is SubFingerprintData))
             {
                 return false;

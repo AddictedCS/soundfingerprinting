@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
 
     using DAO;
     using DAO.Data;
@@ -9,6 +10,8 @@
 
     internal class SpectralImageDao : ISpectralImageDao
     {
+        private static int counter;
+
         private readonly IRAMStorage ramStorage;
 
         public SpectralImageDao() : this(DependencyResolver.Current.Get<IRAMStorage>())
@@ -23,7 +26,15 @@
         public void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
         {
             int orderNumber = 0;
-            var dtos = spectralImages.Select(spectralImage => new SpectralImageData(spectralImage, orderNumber++, trackReference)).ToList();
+            var dtos =
+                spectralImages.Select(
+                    spectralImage =>
+                        new SpectralImageData(
+                            spectralImage,
+                            orderNumber++,
+                            new ModelReference<int>(Interlocked.Increment(ref counter)),
+                            trackReference)).ToList();
+
             if (!ramStorage.SpectralImages.ContainsKey(trackReference))
             {
                 ramStorage.SpectralImages[trackReference] = dtos;
