@@ -172,13 +172,7 @@
 
         private AudioSamples GenerateRandomAudioSamples(int length)
         {
-            return new AudioSamples
-            {
-                Duration = length,
-                Origin = string.Empty,
-                SampleRate = SampleRate,
-                Samples = TestUtilities.GenerateRandomFloatArray(length)
-            };
+            return new AudioSamples(TestUtilities.GenerateRandomFloatArray(length), string.Empty, SampleRate);
         }
     }
 }

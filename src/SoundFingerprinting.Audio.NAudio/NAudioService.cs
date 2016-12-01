@@ -32,13 +32,7 @@
         public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt)
         {
             float[] samples = sourceReader.ReadMonoFromSource(pathToSourceFile, sampleRate, seconds, startAt);
-            return new AudioSamples
-                {
-                    Samples = samples,
-                    Origin = pathToSourceFile,
-                    SampleRate = sampleRate,
-                    Duration = (double)samples.Length / sampleRate
-                };
+            return new AudioSamples(samples, pathToSourceFile, sampleRate);
         }
     }
 }

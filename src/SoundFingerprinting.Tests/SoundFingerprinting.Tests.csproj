@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration\FingerprintCommandBuilderIntTest.cs" />
+    <Compile Include="Integration\FingerprintCommandBuilderNativeIntTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
@@ -127,6 +128,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <Content Include="TestEnvironment\chopinsamples.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">

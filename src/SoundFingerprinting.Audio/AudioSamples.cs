@@ -1,28 +1,48 @@
 ﻿namespace SoundFingerprinting.Audio
 {
+    using System;
+
     /// <summary>
     ///  Audio samples that can be used for fingerprinting
     /// </summary>
+    [Serializable]
     public class AudioSamples
     {
-        /// <summary>
-        ///  Gets or set audio samples
-        /// </summary>
-        public float[] Samples { get; set; }
+        public AudioSamples(float[] samples, string origin, int sampleRate)
+        {
+            Samples = samples;
+            Origin = origin;
+            SampleRate = sampleRate;
+        }
+
+        internal AudioSamples()
+        {
+        }
 
         /// <summary>
-        /// Gets or sets the origin of the audio samples
+        ///  Gets audio samples in Ieee32 format
         /// </summary>
-        public string Origin { get; set; }
+        public float[] Samples { get; internal set; }
 
         /// <summary>
-        ///  Gets or sets sample rate at which the audio has been sampled
+        ///  Gets the origin of the audio samples
         /// </summary>
-        public int SampleRate { get; set; }
+        public string Origin { get; internal set; }
 
         /// <summary>
-        ///  Gets or sets duration of the audio samples
+        ///  Gets sample rate at which the audio has been sampled
         /// </summary>
-        public double Duration { get; set; }
+        public int SampleRate { get;  internal set; }
+
+        /// <summary>
+        ///  Gets the duration of the audio samples
+        /// </summary>
+        public double Duration
+        {
+            get
+            {
+                return (double)Samples.Length / SampleRate;
+            }
+        }
     }
 }

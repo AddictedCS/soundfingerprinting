@@ -4,14 +4,15 @@
     using System.IO;
     using System.Linq;
 
-    using NUnit.Framework;
+    using Audio;
+    using Data;
 
-    using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Data;
+    using NUnit.Framework;
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
         protected readonly string PathToMp3 = Path.Combine(TestContext.CurrentContext.TestDirectory, "Chopin.mp3");
+        protected readonly string PathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
 
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
