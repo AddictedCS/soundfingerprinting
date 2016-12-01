@@ -24,14 +24,14 @@
         }
 
         [IgnoreBinding]
-        public long[] Hashes { get; set; }
+        public long[] Hashes { get; internal set; }
 
-        public int SequenceNumber { get; set; }
+        public int SequenceNumber { get; internal set; }
 
-        public double SequenceAt { get; set; }
+        public double SequenceAt { get; internal set; }
 
         [IgnoreBinding]
-        public IEnumerable<string> Clusters { get; set; }
+        public IEnumerable<string> Clusters { get; internal set; }
 
         [IgnoreBinding]
         public IModelReference SubFingerprintReference { get; internal set; }

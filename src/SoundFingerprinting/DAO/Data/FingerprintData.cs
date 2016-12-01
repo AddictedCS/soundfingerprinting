@@ -7,7 +7,7 @@
     [Serializable]
     public class FingerprintData
     {
-        public FingerprintData(bool[] signature, IModelReference trackReference)
+        public FingerprintData(bool[] signature, IModelReference trackReference) : this()
         {
             Signature = signature;
             TrackReference = trackReference;

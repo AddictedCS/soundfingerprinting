@@ -7,18 +7,15 @@
     [Serializable]
     public class SpectralImageData
     {
-        public SpectralImageData(float[] image, int orderNumber, IModelReference trackReference)
+        public SpectralImageData(float[] image, int orderNumber, IModelReference trackReference) : this()
         {
             Image = image;
             TrackReference = trackReference;
             OrderNumber = orderNumber;
         }
 
-        public SpectralImageData(float[] image, int orderNumber, IModelReference spectralImageReference, IModelReference trackReference)
+        public SpectralImageData(float[] image, int orderNumber, IModelReference spectralImageReference, IModelReference trackReference) : this(image, orderNumber, trackReference)
         {
-            Image = image;
-            TrackReference = trackReference;
-            OrderNumber = orderNumber;
             SpectralImageReference = spectralImageReference;
         }
 
