@@ -18,7 +18,8 @@
             SequenceAt = sequenceAt;
         }
 
-        internal SubFingerprintData()
+        [Obsolete]
+        public SubFingerprintData()
         {
             Clusters = Enumerable.Empty<string>();
         }

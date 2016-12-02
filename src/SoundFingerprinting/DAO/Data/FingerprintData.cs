@@ -20,7 +20,8 @@
             TrackReference = trackReference;
         }
 
-        internal FingerprintData()
+        [Obsolete]
+        public FingerprintData()
         {
             // no op
         }

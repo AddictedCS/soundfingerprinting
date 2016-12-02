@@ -35,9 +35,11 @@
             TrackReference = trackReference;
         }
 
-        internal TrackData()
+        [Obsolete]
+        public TrackData()
         {
-            // no op
+            // this public parameterless constructor is left here to allow datastorages that leverage reflection to instantiate objects
+            // nontheless it is going to be removed in future versions
         }
 
         public string Artist { get; internal set; }
