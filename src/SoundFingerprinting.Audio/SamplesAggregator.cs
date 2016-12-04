@@ -65,7 +65,7 @@
         private float[] CopyFromBufferToNewChunk(int chunkLength, float[] buffer)
         {
             float[] chunk = new float[chunkLength];
-            Buffer.BlockCopy(buffer, 0, chunk, 0, chunkLength * BlockAlign);
+            Buffer.BlockCopy(buffer, 0, chunk, 0, chunkLength * sizeof(float));
             return chunk;
         }
 
@@ -95,7 +95,7 @@
             int startAt = 0;
             foreach (float[] chunk in chunks)
             {
-                Buffer.BlockCopy(chunk, 0, samples, startAt * BlockAlign, chunk.Length * BlockAlign);
+                Buffer.BlockCopy(chunk, 0, samples, startAt * sizeof(float), chunk.Length * sizeof(float));
                 startAt += chunk.Length;
             }
 
