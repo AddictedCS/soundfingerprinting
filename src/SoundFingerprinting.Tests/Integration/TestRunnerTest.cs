@@ -38,12 +38,12 @@
             tagService.Setup(service => service.GetTagInfo(It.IsAny<string>())).Returns(
                 new TagInfo
                     {
-                        Artist = "3 Doors Down",
-                        Album = "3 Doors Down",
-                        Title = "Kryptonite",
+                        Artist = "Chopin",
+                        Album = string.Empty,
+                        Title = "Nocturne C#",
                         ISRC = "USUR19980187",
                         Year = 1997,
-                        Duration = (3 * 60) + 55
+                        Duration = 193.07d
                     });
         }
 
@@ -63,6 +63,7 @@
             string results = Path.GetTempPath();
             Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList().ForEach(File.Delete);
             Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList().ForEach(File.Delete);
+            Directory.GetFiles(results).Where(file => file.Contains("insert_")).ToList().ForEach(File.Delete);
             pfe.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Callback(
                 (object runner, EventArgs param) =>
                     {
@@ -113,15 +114,17 @@
             Assert.AreEqual(6, testRuns.Count);
             var testSuite = Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList();
             Assert.AreEqual(1, testSuite.Count);
+            var testInsert = Directory.GetFiles(results).Where(file => file.Contains("insert_")).ToList();
+            Assert.AreEqual(2, testInsert.Count);
         }
 
         private void AttachEventHandlers(TestRunner testRunner)
         {
-            testRunner.NegativeFoundEvent += this.nfe.Object;
-            testRunner.NegativeNotFoundEvent += this.nnfe.Object;
-            testRunner.PositiveFoundEvent += this.pfe.Object;
-            testRunner.PositiveNotFoundEvent += this.pnfe.Object;
-            testRunner.TestIterationFinishedEvent += this.tife.Object;
+            testRunner.NegativeFoundEvent += nfe.Object;
+            testRunner.NegativeNotFoundEvent += nnfe.Object;
+            testRunner.PositiveFoundEvent += pfe.Object;
+            testRunner.PositiveNotFoundEvent += pnfe.Object;
+            testRunner.TestIterationFinishedEvent += tife.Object;
         }
     }
 }

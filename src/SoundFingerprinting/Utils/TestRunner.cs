@@ -94,7 +94,9 @@
                     string folderWithSongs = parameters[1];
                     var stride = utils.ToStride(parameters[2], parameters[3], parameters[4]);
                     DeleteAll();
-                    Insert(folderWithSongs, stride);
+                    var sb = TestRunnerWriter.StartInsert();
+                    Insert(folderWithSongs, stride, sb);
+                    TestRunnerWriter.SaveInsertDataToFolder(sb, pathToResultsFolder, stride);
                     lastInsertStride = stride;
                     break;
                 case "Run":
@@ -316,10 +318,12 @@
                 .Query();
         }
 
-        private void Insert(string folderWithSongs, IStride stride)
+        private void Insert(string folderWithSongs, IStride stride, StringBuilder sb)
         {
             var allFiles = AllFiles(folderWithSongs);
             int inserted = 0;
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             Parallel.ForEach(
                 allFiles,
                 file =>
@@ -344,6 +348,9 @@
 
                         modelService.InsertHashDataForTrack(hashes, track);
                     });
+ 
+            stopWatch.Stop();
+            sb.AppendLine(string.Format("{0},{1}", inserted, stopWatch.ElapsedMilliseconds / 1000));
         }
 
         private IModelReference InsertTrack(string file)

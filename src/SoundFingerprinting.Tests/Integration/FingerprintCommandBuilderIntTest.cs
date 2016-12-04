@@ -129,7 +129,7 @@
                                       .Hash()
                                       .Result;
 
-            long expected = fileSize / (config.SamplesPerFingerprint * 4); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
+            long expected = fileSize / (config.SamplesPerFingerprint * sizeof(float)); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
             Assert.AreEqual(expected, list.Count);
             File.Delete(tempFile);
         }

@@ -110,7 +110,7 @@ namespace SoundFingerprinting.Utils
             float[] concatenated = new float[rows * cols]; /* 128 * 32 */
             for (int row = 0; row < rows; row++)
             {
-                Buffer.BlockCopy(frames[row], 0, concatenated, row * frames[row].Length * 4, frames[row].Length * 4);
+                Buffer.BlockCopy(frames[row], 0, concatenated, row * frames[row].Length * sizeof(float), frames[row].Length * sizeof(float));
             }
 
             return concatenated;
