@@ -37,7 +37,17 @@
             var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = trackDao.InsertTrack(track);
             const int NumberOfHashBins = 100;
-            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins).Select(i => new HashedFingerprint(GenericSignature(), GenericHashBuckets(), i, i * 0.928, Enumerable.Empty<string>()));
+            var genericHashBuckets = GenericHashBuckets();
+            var hashedFingerprints =
+                Enumerable.Range(0, NumberOfHashBins)
+                    .Select(
+                        sequenceNumber =>
+                            new HashedFingerprint(
+                                GenericSignature(),
+                                genericHashBuckets,
+                                sequenceNumber,
+                                sequenceNumber * 0.928,
+                                Enumerable.Empty<string>()));
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
@@ -45,20 +55,18 @@
             Assert.AreEqual(NumberOfHashBins, hashedFingerprintss.Count);
             foreach (var hashedFingerprint in hashedFingerprintss)
             {
-                CollectionAssert.AreEqual(GenericHashBuckets(), hashedFingerprint.HashBins);
+                CollectionAssert.AreEqual(genericHashBuckets, hashedFingerprint.HashBins);
             }
         }
 
         [Test]
         public void SameNumberOfHashBinsIsInsertedInAllTablesWhenFingerprintingEntireSongTest()
         {
-            TagInfo tagInfo = GetTagInfo();
-            int releaseYear = tagInfo.Year;
-            var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
+            var track = new TrackData(GetTagInfo());
             var trackReference = trackDao.InsertTrack(track);
             var hashedFingerprints = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
-                .From(PathToMp3)
+                .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash()
                 .Result;
@@ -76,7 +84,6 @@
         [Test]
         public void ReadByTrackGroupIdWorksAsExpectedTest()
         {
-            const int StaticStride = 5115;
             TagInfo tagInfo = GetTagInfo();
             TrackData firstTrack = new TrackData(tagInfo);
             TrackData secondTrack = new TrackData(tagInfo);
@@ -86,11 +93,9 @@
 
             var hashedFingerprintsForFirstTrack = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
-                .From(PathToMp3, 20, 0)
+                .From(GetAudioSamples())
                 .WithFingerprintConfig(config =>
                 {
-                    config.SpectrogramConfig.Stride = new IncrementalStaticStride(
-                        StaticStride, config.SamplesPerFingerprint);
                     config.Clusters = new[] { "first-group-id" };
                 }).UsingServices(audioService)
                 .Hash()
@@ -100,11 +105,9 @@
 
             var hashedFingerprintsForSecondTrack = fingerprintCommandBuilder
                .BuildFingerprintCommand()
-               .From(PathToMp3, 20, 0)
+               .From(GetAudioSamples())
                .WithFingerprintConfig(config =>
                {
-                   config.SpectrogramConfig.Stride = new IncrementalStaticStride(
-                       StaticStride, config.SamplesPerFingerprint);
                    config.Clusters = new[] { "second-group-id" };
                }).UsingServices(audioService)
                .Hash()
@@ -114,18 +117,16 @@
             const int ThresholdVotes = 25;
             foreach (var hashedFingerprint in hashedFingerprintsForFirstTrack)
             {
-                var subFingerprintData =
-                    subFingerprintDao.ReadSubFingerprints(
+                var subFingerprintData = subFingerprintDao.ReadSubFingerprints(
                         hashedFingerprint.HashBins, ThresholdVotes, new[] { "first-group-id" }).ToList();
 
-                Assert.IsTrue(subFingerprintData.Count == 1);
+                Assert.AreEqual(1, subFingerprintData.Count);
                 Assert.AreEqual(firstTrackReference, subFingerprintData[0].TrackReference);
 
-                subFingerprintData =
-                    subFingerprintDao.ReadSubFingerprints(
+                subFingerprintData = subFingerprintDao.ReadSubFingerprints(
                         hashedFingerprint.HashBins, ThresholdVotes, new[] { "second-group-id" }).ToList();
 
-                Assert.IsTrue(subFingerprintData.Count == 1);
+                Assert.AreEqual(1, subFingerprintData.Count);
                 Assert.AreEqual(secondTrackReference, subFingerprintData[0].TrackReference);
 
                 subFingerprintData = subFingerprintDao.ReadSubFingerprints(hashedFingerprint.HashBins, ThresholdVotes, Enumerable.Empty<string>()).ToList();
@@ -142,7 +143,7 @@
 
             var firstHashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
-                .From(PathToMp3, 10, 0)
+                .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash()
                 .Result;
@@ -155,7 +156,7 @@
 
             var secondHashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
-                .From(PathToMp3, 20, 10)
+                .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash()
                 .Result;

@@ -61,15 +61,5 @@
             Array.Copy(audioSamples.Samples, startAt, querySamples, 0, querySamples.Length);
             return querySamples;
         }
-
-        private AudioSamples GetAudioSamples()
-        {
-            var serializer = new BinaryFormatter();
-
-            using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
-            {
-                return (AudioSamples)serializer.Deserialize(stream);
-            }
-        }
     }
 }

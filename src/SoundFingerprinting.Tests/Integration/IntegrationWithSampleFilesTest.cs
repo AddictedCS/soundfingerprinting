@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization.Formatters.Binary;
 
     using Audio;
     using Data;
@@ -46,6 +47,16 @@
                 Title = "Title",
                 Year = 1986
             };
+        }
+
+        protected AudioSamples GetAudioSamples()
+        {
+            var serializer = new BinaryFormatter();
+
+            using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
+            {
+                return (AudioSamples)serializer.Deserialize(stream);
+            }
         }
 
         private List<HashedFingerprint> SortHashesByFirstValueOfHashBin(IEnumerable<HashedFingerprint> hashDatasFromFile)

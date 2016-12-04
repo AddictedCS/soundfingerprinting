@@ -16,7 +16,6 @@
     using SoundFingerprinting.Strides;
 
     [TestFixture]
-    [Category("RequiresWindowsDLL")]
     public class TrackDaoTest : IntegrationWithSampleFilesTest
     {
         private readonly FingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
@@ -160,19 +159,16 @@
         [Test]
         public void DeleteHashBinsAndSubfingerprintsOnTrackDelete()
         {
-            const int StaticStride = 5115;
-            const int SecondsToProcess = 20;
-            const int StartAtSecond = 30;
             TagInfo tagInfo = GetTagInfo();
             int releaseYear = tagInfo.Year;
             var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = trackDao.InsertTrack(track);
             var hashData = fingerprintCommandBuilder
                 .BuildFingerprintCommand()
-                .From(PathToMp3, SecondsToProcess, StartAtSecond)
+                .From(GetAudioSamples())
                 .WithFingerprintConfig(config =>
                     {
-                        config.SpectrogramConfig.Stride = new IncrementalStaticStride(StaticStride, config.SamplesPerFingerprint);
+                        config.Stride = new StaticStride(0);
                     })
                 .UsingServices(audioService)
                 .Hash()
