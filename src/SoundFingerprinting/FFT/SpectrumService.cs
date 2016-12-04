@@ -78,8 +78,8 @@
         {
             var strideBetweenConsecutiveImages = configuration.Stride;
             int overlap = configuration.Overlap;
-            int index = (int)((float)strideBetweenConsecutiveImages.FirstStride / overlap);
-            int numberOfLogBins = logarithmizedSpectrum[0].Length;
+            int index = GetFrequencyIndexLocationOfAudioSamples(strideBetweenConsecutiveImages.FirstStride, overlap);
+            int numberOfLogBins = configuration.LogBins;
             var spectralImages = new List<SpectralImage>();
 
             int width = logarithmizedSpectrum.GetLength(0);
@@ -90,11 +90,12 @@
                 float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
                 for (int i = 0; i < fingerprintImageLength; i++)
                 {
-                    Array.Copy(logarithmizedSpectrum[index + i], spectralImage[i], numberOfLogBins);
+                    Buffer.BlockCopy(logarithmizedSpectrum[index + i], 0, spectralImage[i], 0, numberOfLogBins * sizeof(float));
                 }
 
-                spectralImages.Add(new SpectralImage(spectralImage, index * ((double)overlap / sampleRate), sequenceNumber));
-                index += fingerprintImageLength + (int)((float)strideBetweenConsecutiveImages.NextStride / overlap);
+                var startsAt = index * ((double)overlap / sampleRate);
+                spectralImages.Add(new SpectralImage(spectralImage, startsAt, sequenceNumber));
+                index += fingerprintImageLength + GetFrequencyIndexLocationOfAudioSamples(strideBetweenConsecutiveImages.NextStride, overlap);
                 sequenceNumber++;
             }
 
@@ -121,6 +122,12 @@
             }
 
             return sumFreq;
+        }
+
+        private int GetFrequencyIndexLocationOfAudioSamples(int audioSamples, int overlap)
+        {
+            // There are 64 audio samples in 1 unit of spectrum due to FFT window overlap (which is 64)
+            return (int)((float)audioSamples / overlap);
         }
 
         private float[][] AllocateMemoryForFingerprintImage(int fingerprintLength, int logBins)

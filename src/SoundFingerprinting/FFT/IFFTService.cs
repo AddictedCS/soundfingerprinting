@@ -9,7 +9,7 @@
         /// <param name="startIndex">Start index</param>
         /// <param name="length">Length of the FFT window</param>
         /// <param name="window">Windowing function to run on input</param>
-        /// <returns>Twice as bigger result with real and img transforms</returns>
+        /// <returns>Real FFT</returns>
         float[] FFTForward(float[] data, int startIndex, int length, float[] window);
     }
 }

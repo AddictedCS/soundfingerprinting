@@ -6,6 +6,7 @@
 
     using NUnit.Framework;
 
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
@@ -37,9 +38,7 @@
         {
             var configuration = new DefaultSpectrogramConfig { ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
-            logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration)).Returns(new int[33]);
-            fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize, It.IsAny<float[]>()))
-                      .Returns(TestUtilities.GenerateRandomFloatArray(2048));
+            SetupFftService(configuration, samples);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
@@ -54,15 +53,26 @@
         {
             var configuration = new DefaultSpectrogramConfig { NormalizeSignal = false };
             var samples = TestUtilities.GenerateRandomAudioSamples(new DefaultFingerprintConfiguration().SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
-            logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration)).Returns(new int[33]);
-            fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize, It.IsAny<float[]>()))
-                      .Returns(TestUtilities.GenerateRandomFloatArray(2048));
+            SetupFftService(configuration, samples);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(configuration.ImageLength, result[0].Image.Length);
+        }
+
+        [Test]
+        public void ShouldCreateCorrectNumberOfSubFingerprints()
+        {
+            var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0) };
+            var tenMinutes = 10 * 60;
+            var samples = TestUtilities.GenerateRandomAudioSamples(tenMinutes * SampleRate);
+            SetupFftService(configuration, samples);
+
+            var result = spectrumService.CreateLogSpectrogram(samples, configuration);
+
+            Assert.AreEqual((tenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
         }
 
         [Test]
@@ -169,7 +179,19 @@
 
             Assert.AreEqual(32, bands.Length);
         }
-       
+
+        private void SetupFftService(DefaultSpectrogramConfig configuration, AudioSamples samples)
+        {
+            logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration))
+                .Returns(new[]
+                        {
+                            118, 125, 133, 141, 149, 158, 167, 177, 187, 198, 210, 223, 236, 250, 264, 280, 297, 314,
+                            333, 352, 373, 395, 419, 443, 470, 497, 527, 558, 591, 626, 663, 702, 744,
+                        });
+            fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize, It.IsAny<float[]>()))
+                .Returns(TestUtilities.GenerateRandomFloatArray(2048));
+        }
+
         private float[][] GetLogSpectrum(int logSpectrumLength)
         {
             var logSpectrum = new float[logSpectrumLength][];

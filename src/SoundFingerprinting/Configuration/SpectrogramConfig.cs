@@ -110,7 +110,7 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        /// Gets or sets number of logarithmically spaced bins between the frequency components computed by Fast Fourier Transform.
+        ///   Gets or sets number of logarithmically spaced bins between the frequency components computed by Fast Fourier Transform.
         /// </summary>
         public int LogBins
         {
