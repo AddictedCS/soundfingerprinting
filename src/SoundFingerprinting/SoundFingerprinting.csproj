@@ -121,6 +121,7 @@
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
     <Compile Include="FFT\IFFTService.cs" />
+    <Compile Include="Utils\FastFingerprintDescriptor.cs" />
     <Compile Include="Utils\FingerprintDescriptor.cs" />
     <Compile Include="IFingerprintService.cs" />
     <Compile Include="Configuration\FingerprintConfiguration.cs" />

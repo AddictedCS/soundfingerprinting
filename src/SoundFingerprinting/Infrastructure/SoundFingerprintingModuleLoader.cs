@@ -25,7 +25,7 @@
             kernel.Bind<IAudioSamplesNormalizer>().To<AudioSamplesNormalizer>().InSingletonScope();
             kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>().InSingletonScope();
             kernel.Bind<IFFTService>().To<LomontFFT>().InSingletonScope();
-            kernel.Bind<IFingerprintDescriptor>().To<FingerprintDescriptor>().InSingletonScope();
+            kernel.Bind<IFingerprintDescriptor>().To<FastFingerprintDescriptor>().InSingletonScope();
             kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
             kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
             kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();
