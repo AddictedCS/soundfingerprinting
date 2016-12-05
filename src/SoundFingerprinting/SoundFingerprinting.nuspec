@@ -8,7 +8,7 @@
     <owners>$author$</owners>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Version 3.0.0 comes with a long list of improvements. The framwork provides better precision / recall / processing speed when creating and querying the datasource for the matches. Result entries do contain Coverage/Confidence/StartAt information, which is a lot more precise than in previous versions. All users of 2.x are encouraged to migrate to 3.0.x, and re-insert all the fingerprints in the datasource (since the signature of the fingerprints has changed). Solr datasource is now considered the default option for storing fingerprints</releaseNotes>
     <copyright>Copyright 2016 Sergiu Ciumac</copyright>
