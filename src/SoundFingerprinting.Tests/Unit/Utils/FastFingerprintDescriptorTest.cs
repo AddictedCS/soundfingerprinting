@@ -114,9 +114,10 @@
                 (fingerprint, hashedFingerprint) =>
                 fingerprint.SequenceNumber.CompareTo(hashedFingerprint.SequenceNumber));
 
-            CollectionAssert.AreEqual(
-                fingerprints0.Select(f => f.SubFingerprint).ToList(),
-                fingerprints1.Select(f => f.SubFingerprint).ToList());
+            for (int i = 0; i < fingerprints0.Count; ++i)
+            {
+                CollectionAssert.AreEqual(fingerprints0[i].SubFingerprint, fingerprints1[i].SubFingerprint);
+            }
         }
     }
 }

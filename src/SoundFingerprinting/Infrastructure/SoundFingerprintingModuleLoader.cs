@@ -19,8 +19,8 @@
     {
         public void LoadAssemblyBindings(IKernel kernel)
         {
-            kernel.Bind<IFingerprintService>().To<FingerprintService>();
-            kernel.Bind<ISpectrumService>().To<SpectrumService>();
+            kernel.Bind<IFingerprintService>().To<FingerprintService>().InSingletonScope();
+            kernel.Bind<ISpectrumService>().To<SpectrumService>().InSingletonScope();
             kernel.Bind<ILogUtility>().To<LogUtility>().InSingletonScope();
             kernel.Bind<IAudioSamplesNormalizer>().To<AudioSamplesNormalizer>().InSingletonScope();
             kernel.Bind<IWaveletDecomposition>().To<StandardHaarWaveletDecomposition>().InSingletonScope();
@@ -36,9 +36,9 @@
             kernel.Bind<ITestRunnerUtils>().To<TestRunnerUtils>().InSingletonScope();
             kernel.Bind<IHashConverter>().To<HashConverter>().InSingletonScope();
 
-            kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>();
-            kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>();
-            kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>();
+            kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>().InSingletonScope();
+            kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>().InSingletonScope();
+            kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>().InSingletonScope();
 
             kernel.Bind<IRAMStorage>().To<RAMStorage>()
                                       .InSingletonScope()
