@@ -5,10 +5,19 @@
 
     using NUnit.Framework;
 
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Audio.NAudio;
+    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.FFT;
+    using SoundFingerprinting.LSH;
+    using SoundFingerprinting.Math;
+    using SoundFingerprinting.MinHash;
+    using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
+    using SoundFingerprinting.Wavelets;
 
     [TestFixture]
-    public class FastFingerprintDescriptorTest
+    public class FastFingerprintDescriptorTest : IntegrationWithSampleFilesTest
     {
         private readonly Random random = new Random((int)DateTime.Now.Ticks << 4);
 
@@ -61,6 +70,53 @@
             {
                 Assert.AreEqual(1, randomized[i]);
             }
+        }
+
+        [Test]
+        public void ShouldCreateExactlyTheSameFingerprints()
+        {
+            var fcb0 =
+                new FingerprintCommandBuilder(
+                    new FingerprintService(
+                        new SpectrumService(new LomontFFT()),
+                        new StandardHaarWaveletDecomposition(),
+                        new FingerprintDescriptor(),
+                        new AudioSamplesNormalizer()),
+                    new LocalitySensitiveHashingAlgorithm(
+                        new MinHashService(new DefaultPermutations()), new HashConverter()));
+
+            var fcb1 = new FingerprintCommandBuilder(
+                    new FingerprintService(
+                        new SpectrumService(new LomontFFT()),
+                        new StandardHaarWaveletDecomposition(),
+                        new FastFingerprintDescriptor(), 
+                        new AudioSamplesNormalizer()),
+                    new LocalitySensitiveHashingAlgorithm(
+                        new MinHashService(new DefaultPermutations()), new HashConverter()));
+
+            var fingerprints0 = fcb0.BuildFingerprintCommand()
+                .From(GetAudioSamples())
+                .UsingServices(new NAudioService())
+                .Hash()
+                .Result;
+
+            fingerprints0.Sort(
+                (fingerprint, hashedFingerprint) =>
+                fingerprint.SequenceNumber.CompareTo(hashedFingerprint.SequenceNumber));
+                
+            var fingerprints1 = fcb1.BuildFingerprintCommand()
+                .From(GetAudioSamples())
+                .UsingServices(new NAudioService())
+                .Hash()
+                .Result;
+
+            fingerprints1.Sort(
+                (fingerprint, hashedFingerprint) =>
+                fingerprint.SequenceNumber.CompareTo(hashedFingerprint.SequenceNumber));
+
+            CollectionAssert.AreEqual(
+                fingerprints0.Select(f => f.SubFingerprint).ToList(),
+                fingerprints1.Select(f => f.SubFingerprint).ToList());
         }
     }
 }
