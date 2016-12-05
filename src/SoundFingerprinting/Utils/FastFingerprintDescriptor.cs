@@ -5,25 +5,26 @@
 
     internal class FastFingerprintDescriptor : FingerprintDescriptor
     {
+        private readonly Random rand = new Random((int)DateTime.Now.Ticks << 4);
+
         public override bool[] ExtractTopWavelets(float[][] frames, int topWavelets)
         {
             float[] concatenated = ConcatenateFrames(frames);
             int[] indexes = Enumerable.Range(0, concatenated.Length).ToArray();
-            int pi = Find(topWavelets, concatenated, indexes, 0, concatenated.Length - 1);
-            Partition(concatenated, indexes, pi, concatenated.Length - 1);
+            Find(topWavelets - 1, concatenated, indexes, 0, concatenated.Length - 1);
             bool[] result = EncodeFingerprint(concatenated, indexes, topWavelets);
             return result;
         }
 
-        private int Find(int kth, float[] list, int[] indexes, int lo, int hi)
+        public int Find(int kth, float[] list, int[] indexes, int lo, int hi)
         {
-            int pi = Partition(list, indexes, lo, hi);
-            if (pi == list.Length - kth)
+            int pi = Partition(list, indexes, rand.Next(lo, hi + 1), lo, hi);
+            if (pi == kth)
             {
                 return pi;
             }
 
-            if (pi > list.Length - kth)
+            if (pi > kth)
             {
                 return Find(kth, list, indexes, lo, pi - 1);
             }
@@ -31,10 +32,10 @@
             return Find(kth, list, indexes, pi + 1, hi);
         }
 
-        private int Partition(float[] list, int[] indexes, int lo, int hi)
+        private int Partition(float[] list, int[] indexes, int pivotIndex, int lo, int hi)
         {
-            float pivot = list[lo];
-
+            Swap(list, indexes, pivotIndex, lo);
+            float pivot = Math.Abs(list[lo]);
             int i = lo + 1, j = lo + 1;
             for (; j <= hi; j++)
             {
