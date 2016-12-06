@@ -135,8 +135,8 @@ The demo project is a Audio File Duplicates Detector. Its latest source code can
 ### Contribute
 If you want to contribute you are welcome to open issues or discuss on [issues](https://github.com/AddictedCS/soundfingerprinting/issues) page. Feel free to contact me for any remarks, ideas, bug reports etc. 
 
-### Licence
-The framework is provided under [MIT](https://opensource.org/licenses/MIT) licence agreement. The theoretical description of the algorithm can be read in [Content Fingerprinting using Wavelets](http://static.googleusercontent.com/media/research.google.com/en/pubs/archive/32685.pdf) paper.
+### License
+The framework is provided under [MIT](https://opensource.org/licenses/MIT) license agreement. The theoretical description of the algorithm can be read in [Content Fingerprinting using Wavelets](http://static.googleusercontent.com/media/research.google.com/en/pubs/archive/32685.pdf) paper.
 
 Special thanks to [JetBrains](https://www.jetbrains.com/) for providing this project with a license for [ReSharper](https://www.jetbrains.com/resharper/)!
 
