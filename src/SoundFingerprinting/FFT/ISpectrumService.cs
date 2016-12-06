@@ -6,7 +6,7 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
 
-    public interface ISpectrumService
+    internal interface ISpectrumService
     {
         List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration);
 

@@ -2,9 +2,9 @@ namespace SoundFingerprinting.InMemory
 {
     using System.Collections.Generic;
 
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
+    using DAO;
+    using DAO.Data;
+    using Data;
 
     internal interface IRAMStorage
     {
@@ -15,6 +15,8 @@ namespace SoundFingerprinting.InMemory
         IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes { get; } // key: track reference, value: key - sub-fingerprint-id
 
         IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; }       // key: track reference
+
+        IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; }   // key: track reference
 
         IDictionary<long, List<IModelReference>>[] HashTables { get; }                  // value: list of sub-fingerprints
 

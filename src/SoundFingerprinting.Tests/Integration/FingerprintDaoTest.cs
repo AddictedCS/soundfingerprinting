@@ -1,18 +1,18 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
 
-    [TestClass]
-    public class FingerprintDaoTest : IntegrationWithSampleFilesTest
+    [TestFixture]
+    public class FingerprintDaoTest : AbstractTest
     {
         private IFingerprintDao fingerprintDao;
         private ITrackDao trackDao;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
@@ -20,55 +20,55 @@
             trackDao = new TrackDao(ramStorage);
         }
 
-        [TestMethod]
-        public void InsertTest()
+        [Test]
+        public void ShouldInsertFingerprintInStorage()
         {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = trackDao.InsertTrack(track);
 
-            var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
+            var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint(), trackReference));
 
             AssertModelReferenceIsInitialized(fingerprintReference);
         }
 
-        [TestMethod]
-        public void MultipleFingerprintsInsertTest()
+        [Test]
+        public void ShouldInsertMultipleFingerprintsInStorage()
         {
             const int NumberOfFingerprints = 100;
+            var trackReference = InsertTrack();
+
             for (int i = 0; i < NumberOfFingerprints; i++)
             {
-                var trackData = new TrackData("isrc" + i, "artist", "title", "album", 2012, 200);
-                var trackReference = trackDao.InsertTrack(trackData);
-                var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
-
+                var fingerprintReference = fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint(), trackReference));
                 AssertModelReferenceIsInitialized(fingerprintReference);
             }
         }
-
-        [TestMethod]
-        public void ReadTest()
+        
+        [Test]
+        public void ShouldReadFingerprintsFromStorage()
         {
             const int NumberOfFingerprints = 100;
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = trackDao.InsertTrack(track);
+            var trackReference = InsertTrack();
 
+            bool[] genericFingerprint = GenericFingerprint();
             for (int i = 0; i < NumberOfFingerprints; i++)
             {
-                fingerprintDao.InsertFingerprint(new FingerprintData(GenericFingerprint, trackReference));
+                fingerprintDao.InsertFingerprint(new FingerprintData(genericFingerprint, trackReference));
             }
 
             var fingerprints = fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
 
-            Assert.IsTrue(fingerprints.Count == NumberOfFingerprints);
-
+            Assert.AreEqual(NumberOfFingerprints, fingerprints.Count);
             foreach (var fingerprint in fingerprints)
             {
-                Assert.IsTrue(GenericFingerprint.Length == fingerprint.Signature.Length);
-                for (var i = 0; i < GenericFingerprint.Length; i++)
-                {
-                    Assert.AreEqual(GenericFingerprint[i], fingerprint.Signature[i]);
-                }
+                CollectionAssert.AreEqual(genericFingerprint, fingerprint.Signature);
             }
+        }
+
+        private IModelReference InsertTrack()
+        {
+            var trackData = new TrackData("isrc", "artist", "title", "album", 2012, 200);
+            return trackDao.InsertTrack(trackData);
         }
     }
 }

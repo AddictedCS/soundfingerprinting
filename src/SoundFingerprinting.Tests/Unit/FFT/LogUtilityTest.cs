@@ -1,17 +1,17 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.FFT
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
 
-    [TestClass]
+    [TestFixture]
     public class LogUtilityTest : AbstractTest
     {
         private readonly ILogUtility logUtility = new LogUtility();
         private readonly FingerprintConfiguration defaultFingerprintConfiguration = new DefaultFingerprintConfiguration();
 
-        [TestMethod]
+        [Test]
         public void FrequencyToIndexTest()
         {
             int result = logUtility.FrequencyToSpectrumIndex(318, 5512, 2048);
@@ -19,10 +19,10 @@
             Assert.AreEqual((318 * 1024) / (5512 / 2), result);
         }
 
-        [TestMethod]
+        [Test]
         public void GenerateLogFrequenciesRangesTest()
         {
-            var defaultConfig = new CustomSpectrogramConfig { UseDynamicLogBase = false, LogBase = 10 };
+            var defaultConfig = new DefaultSpectrogramConfig { UseDynamicLogBase = false, LogBase = 10 };
             float[] logSpacedFrequencies = new[] // generated in matlab with logspace(2.50242712, 3.3010299957, 33)
                 {
                     318.00f, 336.81f, 356.73f, 377.83f, 400.18f, 423.85f, 448.92f, 475.47f, 503.59f, 533.38f, 564.92f,

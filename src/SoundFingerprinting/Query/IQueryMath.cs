@@ -4,12 +4,20 @@ namespace SoundFingerprinting.Query
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     internal interface IQueryMath
     {
-        double CalculateExactSnippetLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration);
+        List<ResultEntry> GetBestCandidates(
+            List<HashedFingerprint> hashedFingerprints,
+            IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites,
+            int maxNumberOfMatchesToReturn,
+            IModelService modelService,
+            FingerprintConfiguration fingerprintConfiguration);
 
-        List<ResultEntry> GetBestCandidates(IDictionary<IModelReference, int> hammingSimilarites, int numberOfCandidatesToReturn, IModelService modelService);
+        bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes);
+
+        double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration);
     }
 }

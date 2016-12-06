@@ -1,10 +1,11 @@
 ﻿namespace SoundFingerprinting.Tests.Unit
 {
     using System.Collections.Generic;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Linq;
 
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
@@ -13,7 +14,7 @@
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintServiceTest : AbstractTest
     {
         private FingerprintService fingerprintService;
@@ -26,7 +27,7 @@
 
         private Mock<IAudioSamplesNormalizer> audioSamplesNormalizer;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             fingerprintDescriptor = new Mock<IFingerprintDescriptor>(MockBehavior.Strict);
@@ -40,7 +41,7 @@
                 audioSamplesNormalizer.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             fingerprintDescriptor.VerifyAll();
@@ -49,7 +50,7 @@
             audioSamplesNormalizer.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFingerprints()
         {
             const int TenSeconds = 5512 * 10;
@@ -61,24 +62,26 @@
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets))
                 .Returns(GenericFingerprint);
 
-            var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig);
+            var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
+                                                 .OrderBy(f => f.SequenceNumber)
+                                                 .ToList();
 
             Assert.AreEqual(dividedLogSpectrum.Count, fingerprints.Count);
             for (int index = 0; index < fingerprints.Count; index++)
             {
-                Assert.AreEqual(GenericFingerprint, fingerprints[index].Signature);
-                Assert.AreEqual(dividedLogSpectrum[index].Timestamp, fingerprints[index].Timestamp, Epsilon);
+                Assert.AreEqual(GenericFingerprint(), fingerprints[index].Signature);
+                Assert.AreEqual(dividedLogSpectrum[index].StartsAt, fingerprints[index].StartsAt, Epsilon);
             }
         }
 
-        [TestMethod]
+        [Test]
         public void AudioSamplesAreNormalized()
         {
             const int TenSeconds = 5512 * 10;
             var samples = TestUtilities.GenerateRandomAudioSamples(TenSeconds);
-            var fingerprintConfig = new CustomFingerprintConfiguration { NormalizeSignal = true };
+            var fingerprintConfig = new DefaultFingerprintConfiguration { NormalizeSignal = true };
             var dividedLogSpectrum = GetDividedLogSpectrum();
-            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<CustomSpectrogramConfig>())).Returns(dividedLogSpectrum);
+            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets))
                 .Returns(GenericFingerprint);
@@ -87,7 +90,7 @@
             fingerprintService.CreateFingerprints(samples, fingerprintConfig);
         }
 
-        [TestMethod]
+        [Test]
         public void SilenceIsNotFingerprinted()
         {
             var samples = TestUtilities.GenerateRandomAudioSamples(5512 * 10);
@@ -110,11 +113,7 @@
             var dividedLogSpectrum = new List<SpectralImage>();
             for (int index = 0; index < 4; index++)
             {
-                dividedLogSpectrum.Add(
-                    new SpectralImage
-                        {
-                            Image = new[] { TestUtilities.GenerateRandomFloatArray(2048) }, Timestamp = 0.928 * index
-                        });
+                dividedLogSpectrum.Add(new SpectralImage(new[] { TestUtilities.GenerateRandomFloatArray(2048) }, 0.928 * index, index));
             }
 
             return dividedLogSpectrum;

@@ -5,10 +5,15 @@
 
     public class QueryResult
     {
+        internal QueryResult(IEnumerable<ResultEntry> results)
+        {
+            ResultEntries = results;
+        }
+
         /// <summary>
-        /// Gets a value indicating whether query result contains any matches
+        ///   Gets a value indicating whether query result contains any matches
         /// </summary>
-        public bool IsSuccessful
+        public bool ContainsMatches
         {
             get
             {
@@ -17,39 +22,34 @@
         }
 
         /// <summary>
-        /// Gets additional information about the query
+        ///   Gets the list of potential matches, sorted from the most probable to the least probable
         /// </summary>
-        public QueryInfo Info { get; internal set; }
+        public IEnumerable<ResultEntry> ResultEntries { get; private set; }
 
         /// <summary>
-        /// Gets the list of potential matches, sorted from the most probable to the least probable
-        /// </summary>
-        public List<ResultEntry> ResultEntries { get; internal set; }
-
-        /// <summary>
-        /// Gets the number of analyzed tracks. This information is useful for debugging and analysis purposes
-        /// </summary>
-        public int AnalyzedTracksCount { get; internal set; }
-       
-        /// <summary>
-        /// Gets best match if any
+        ///  Gets best match if result entries are not empty
         /// </summary>
         public ResultEntry BestMatch
         {
             get
             {
-                if (IsSuccessful)
+                if (ContainsMatches)
                 {
-                    return ResultEntries[0];
+                    return ResultEntries.First();
                 }
 
                 return null;
             }
         }
         
-        /// <summary>
-        /// Gets or sets the number of analyzed sub-fingerprints during querying
-        /// </summary>
-        internal int AnalyzedSubFingerprintsCount { get; set; }
+        internal static QueryResult EmptyResult()
+        {
+            return new QueryResult(Enumerable.Empty<ResultEntry>());
+        }
+
+        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results)
+        {
+            return new QueryResult(results);
+        }
     }
 }

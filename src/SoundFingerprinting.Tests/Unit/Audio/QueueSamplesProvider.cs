@@ -1,21 +1,24 @@
 namespace SoundFingerprinting.Tests.Unit.Audio
 {
+    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Audio;
 
-    public class QueueSamplesProvider : ISamplesProvider
+    internal class QueueSamplesProvider : ISamplesProvider
     {
-        private readonly Queue<int> queue;
+        private readonly Queue<float[]> samples; 
 
-        public QueueSamplesProvider(Queue<int> queue)
+        public QueueSamplesProvider(Queue<float[]> samples)
         {
-            this.queue = queue;
+            this.samples = samples;
         }
 
         public int GetNextSamples(float[] buffer)
         {
-            return queue.Dequeue();
+            float[] toCopy = samples.Dequeue();
+            Array.Copy(toCopy, buffer, toCopy.Length);
+            return toCopy.Length * 4;
         }
     }
 }

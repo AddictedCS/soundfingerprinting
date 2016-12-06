@@ -1,32 +1,32 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.MinHash
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.MinHash;
 
-    [TestClass]
+    [TestFixture]
     public class CachedPermutationsTest : AbstractTest
     {
         private CachedPermutations cachedPermutations;
 
         private Mock<IPermutations> permutations;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             permutations = new Mock<IPermutations>(MockBehavior.Strict);
             cachedPermutations = new CachedPermutations(permutations.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             permutations.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void PermutationsAreCachedTest()
         {
             int[][] intPerms = new int[][] { };

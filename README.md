@@ -1,23 +1,27 @@
 ## Audio fingerprinting and recognition in .NET
 
-_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining, and alike.  It implements an [efficient algorithm](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/32685.pdf) of digital signal processing which allows developing a system of audio fingerprinting and recognition in .NET environment.
+[![Join the chat at https://gitter.im/soundfingerprinting/Lobby](https://badges.gitter.im/soundfingerprinting/Lobby.svg)](https://gitter.im/soundfingerprinting/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+_soundfingerprinting_ is a C# framework designed for developers, enthusiasts, researchers in the fields of audio and digital signal processing, data mining and audio recognition.  It implements an efficient algorithm which provides fast insert and retrieval of acoustic fingerprints with high precision and recall rate.
+
+[![Build Status](https://travis-ci.org/AddictedCS/soundfingerprinting.png)](https://travis-ci.org/AddictedCS/soundfingerprinting)
 
 ## Documentation
 
-Following is a code sample that shows you how to extract unique characteristics from an audio file and later use them as identifiers to recognize unknown snippets from a variety of sources. These characteristics known as _sub-fingerprints_ (or _fingerprints_, these 2 terms used interchangeably) will be stored in the configurable backend. The interfaces for fingerprinting and querying audio files have been implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) with [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns in mind.
+Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, 2 terms are used interchangeably) will be stored in a configurable backend. The interfaces for fingerprinting and querying audio files are implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) using [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns.
 ```csharp
-private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in memory
+private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM
 private readonly IAudioService audioService = new NAudioService(); // use NAudio audio processing library
 private readonly IFingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
 
 public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAudioFile)
 {
-    TrackData track = new TrackData("GBBKS1200164", "Adele", "Skyfall", "Skyfall", 2012, 290);
+    var track = new TrackData("GBBKS1200164", "Adele", "Skyfall", "Skyfall", 2012, 290);
 	
-    // store track metadata in the database
+    // store track metadata in the datasource
     var trackReference = modelService.InsertTrack(track);
 
-    // create sub-fingerprints and its hash representation
+    // create hashed fingerprints
     var hashedFingerprints = fingerprintCommandBuilder
                                 .BuildFingerprintCommand()
                                 .From(pathToAudioFile)
@@ -25,13 +29,17 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
                                 .Hash()
                                 .Result;
 								
-    // store sub-fingerprints and its hash representation in the database 
+    // store hashes in the database for later retrieval
     modelService.InsertHashDataForTrack(hashedFingerprints, trackReference);
 }
 ```
-The default storage, which comes bundled with _soundfingerprinting_ package, is a plain in memory storage, managed by <code>InMemoryModelService</code>. In case you would like to store fingerprints in a perstistent database you can take advantage of MSSQL integration available in [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) package via <code>SqlModelService</code> class. The MSSQL database initialization script as well as source files can be found [here](https://github.com/AddictedCS/soundfingerprinting.sql). Do not forget to add connection string <code>FingerprintConnectionString</code> in your app.config file, as described on the wiki.
+The default storage, which comes bundled with _soundfingerprinting_ package, is a plain RAM storage, managed by <code>InMemoryModelService</code>. The following list of persistent storages is available for general use: 
+- Solr, highly efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). Considered as the default option, highly optimized for both query and insertion.
+- MSSQL, [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql)
+- MongoDB, (still in development) [soundfingerprinting.mongodb](https://github.com/AddictedCS/soundfingerprinting.mongodb). Not ready for use, developers are welcome to contribute.
 
-Once you've inserted the fingerprints into the database, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
+Once you've inserted the fingerprints into the datastore, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
+
 ```csharp
 private readonly IQueryCommandBuilder queryCommandBuilder = new QueryCommandBuilder();
 
@@ -46,7 +54,7 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
                                          .UsingServices(modelService, audioService)
                                          .Query()
                                          .Result;
-    if(queryResult.IsSuccessful)
+    if(queryResult.ContainsMatches)
     {
         return queryResult.BestMatch.Track; // successful match has been found
     }
@@ -54,26 +62,21 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     return null; // no match has been found
 }
 ```
-See the [Wiki Page](https://github.com/AddictedCS/soundfingerprinting/wiki) for the operational details and information. 
 
-### Upgrade from 1.0.1 to 2.0.0
-_soundfingerprinting_ project structure, as well interface signatures has been drastically changed from release 1.0.1 to 2.0.0. This is due to the fact that git repository has been splitted to accommodate correct release cycles for all developed modules. This is a necessary evil which has been planned for a while, since releases were bloated with versioning issues.
-- Unseen.Bass audio library integration [soundfingerprinting.audio.bass](https://github.com/AddictedCS/soundfingerprinting.audio.bass)
-- MSSQL storage implementation (first choice for persistent storage) [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql)
-- MongoDB storage implementation (bad performance still in alpha) [soundfingerprinting.mongodb](https://github.com/AddictedCS/soundfingerprinting.mongodb)
-- NeuralHasher recognition algorithm (still in alpha) [soundfingerprinting.neuralhasher](https://github.com/AddictedCS/soundfingerprinting.neuralhasher),
-- and all demo apps are now located in separate git repositories, [duplicates detector](https://github.com/AddictedCS/soundfingerprinting.duplicatesdetector), [sound tools](https://github.com/AddictedCS/soundfingerprinting.soundtools).
+Every `ResultEntry` object will contain the following information:
+- `Track` - matched track from the datastore
+- `QueryMatchLength` - returns how many query seconds matched the resulting track
+- `TrackStartsAt` - returns where does the matched track starts, always relative to the query
+- `Coverage` - returns a value between [0, 1], informing how much the query covered the resulting track (i.e. a 2 minutes query found a 30 seconds track within it, starting at 100th second, coverage will be equal to (120 - 100)/30 ~= 0.66)
+- `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
 
-### Find exact audio snippet location within the resulting track
-This feature has been asked for a long time and is now available starting from release 2.0.0. <code>QueryCommand</code> interface has one additional method <code>QueryWithTimeSequenceInformation</code> which returns best candidate as well as query location in the resulting track.
 
-### Extension capabilities
-Some of the interfaces which are used by the framework can be easily substituted according to your needs. In case you don't want to use _NAudio_ as your audio library, you can take advantage of Bass.Net integration available through [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) package.
+### Upgrade from 2.x to 3.x
+All users of _soundfingerprinting_ are encouraged to migrate to v3.x due to all sorts of important bug-fixes and improvements. Version 3.0.0 is faster, more accurate, and provides an intuitive response interface with additional information about the query and the match. When migrating make sure to re-insert the fingerprints into the datasource, since their internal signature changed slightly.
 
-####Available integrations:
-* [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) - Bass.Net audio library integration. Works faster, more accurate resampling, independent upon target OS. Sources available [here](https://github.com/AddictedCS/soundfingerprinting.audio.bass)
-* [SoundFingerprinting.SQL](https://www.nuget.org/packages/SoundFingerprinting.SQL) - implements integration with MSSQL storage. Sources available [here](https://github.com/AddictedCS/soundfingerprinting.sql)
-* [SoundFingerprinting.MongoDb](https://www.nuget.org/packages/SoundFingerprinting.MongoDb) - implements integration with MongoDb, still in alpha phase. Source available [here](https://github.com/AddictedCS/soundfingerprinting.mongodb)
+### List of additional soundfingerprinting integrations
+- [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) - Bass.Net audio library integration, comes as a replacement for NAudio default service. Works faster, more accurate resampling, supports multiple audio formats, independent upon target OS. [Bass](http://www.un4seen.com) is free for non-comercial use.
+- All demo apps are now located in separate git repositories, [duplicates detector](https://github.com/AddictedCS/soundfingerprinting.duplicatesdetector), [sound tools](https://github.com/AddictedCS/soundfingerprinting.soundtools).
 
 ### Algorithm configuration
 Fingerprinting and Querying algorithms can be easily parametrized with corresponding configuration objects passed as parameters on command creation.
@@ -85,8 +88,7 @@ Fingerprinting and Querying algorithms can be easily parametrized with correspon
                            .WithFingerprintConfig(
 	                            config =>
 	                            {
-	                                config.TopWavelets = 250; // increase number of top wavelets
-	                                config.Stride = new RandomStride(512, 256); // stride between sub-fingerprints
+	                                config.Stride = new IncrementalRandomStride(256, 512); // more agressive stride for noisy environments
 	                            })
                            .UsingServices(audioService)
                            .Hash()
@@ -94,55 +96,50 @@ Fingerprinting and Querying algorithms can be easily parametrized with correspon
 ```
 Each and every configuration parameter can influence the recognition rate, required storage, computational cost, etc. Stick with the defaults, unless you would like to experiment. 
 
-#### Changes in default algorithm configuration in release 2.1.x
-Since the startup of the project until release 2.1.x both fingerprinting and querying operations had used the same configuration defaults. The most sensitive parameter (which directly affects precision/recall rate) is the <code>Stride</code> parameter. Empirically it was determined that using a smaller stride during querying gives both better precision and recall rate, at the expense of execution time and CPU load. 
-
-Starting from release 2.1.x new class has been introduced <code>EfficientFingerprintConfigurationForQuerying</code> which overrides default <i>query</i> stride (previously set to <code>IncrementalStaticStride</code> with <code>0.928ms</code>). Fingerprint stride remains the same as in previous versions <code>DefaultFingerprintConfiguration</code>. This change slows down querying but increases both precision and recall rate.
+The most sensitive parameter (which directly affects precision/recall rate) is <code>Stride</code> parameter. Empirically it was determined that using a smaller stride during querying gives a better recall rate, at the expense of execution time.
 
 In case you need directions for fine-tunning the algorithm for your particular use case do not hesitate to contact me.
 
-### Third party libraries involved
+### Third party dependencies
 Links to the third party libraries used by _soundfingerprinting_ project.
-* [NAudio](http://naudio.codeplex.com/)
-* [FFTW](http://www.fftw.org/) - used as a default framework for FFT algorithm.
-* [Ninject](http://www.ninject.org/) - used to take advantage of dependency inversion principle.
-
-### Unit testing
-Even though a couple of controversial topics are discussed recently in software community ([here](http://david.heinemeierhansson.com/2014/tdd-is-dead-long-live-testing.html), and [here](https://www.youtube.com/watch?v=z9quxZsLcfo)) I'm still strongly committed to TDD practices. In case you'd like to contribute, your code has to come with well written unit or integration tests (when appropriate). Below are some coverage percentages for the released modules:
-* SoundFingerprinting - 83%
-* SoundFingerprinting.Audio.Bass - 82%
-* SoundFingerprinting.Audio.NAudio - 78%
-* SoundFingerprinting.SQL - 76%
-* SoundFingerprinting.MongoDb - 98%
-
-These coverage percentages are given only for the reference, they do not neceserally mean the code is without bugs (which is obvisouly not true).
+* [NAudio](http://naudio.codeplex.com)
+* [Ninject](http://www.ninject.org)
+* [LomontFFT](http://www.lomont.org/Software/Misc/FFT/LomontFFT.html)
 
 ### FAQ
 - Can I apply this algorithm for speech recognition purposes?
-No. The granularity of one fingerprint is roughly ~1.86 seconds, thus any sound recording which is less than that will be disregarded.
+> No. The granularity of one fingerprint is roughly ~1.46 seconds.
 - Can the algorithm detect exact query position in resulted track?
-Yes. Starting from version 2.0.0 it's possible to detect exact query snippet position within the best-matched track.
+> Yes.
+- Can I use **SoundFingerprinting** to detect ads in radio streams?
+> Yes.
+- Will **SoundFingerprinting** match tracks with samples captured in noisy environment?
+Yes, but you will have to play around with `Stride` (decreasing it on both insertion and query) and `ThresholdVotes` query parameter (decreasing it as well).
+- Can I use **SoundFingerprinting** framework on **Mono**?
+Yes. SoundFingerprinting can be used in cross-platform applications. Just keep in mind that the default audio service **NAudio**, requires Windows native DLLs. Since these are not available in Unix, you can use the override method which asks for `AudioSamples` as the source for fingerprinting and querying. It's the responsability of the caller to provide mono audio samples at 5512 frequency rate. If this condition is met, the algorithm will not invoke any methods from NAudio.
 
-## Binaries
+### Binaries
     git clone git@github.com:AddictedCS/soundfingerprinting.git
     
-In order to build latest version of the <code>SoundFingerprinting</code> assembly run the following command from repository root
+In order to build latest version of the **SoundFingerprinting** assembly run the following command from repository root.
 
     .\build.cmd
 ### Get it on NuGet
 
     Install-Package SoundFingerprinting
 
-## Demo
+### Demo
 My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting)
 The demo project is a Audio File Duplicates Detector. Its latest source code can be found [here](src/SoundFingerprinting.DuplicatesDetector). Its a WPF MVVM project that uses the algorithm to detect what files are perceptually very similar.
 
-## Contribute
+### Contribute
 If you want to contribute you are welcome to open issues or discuss on [issues](https://github.com/AddictedCS/soundfingerprinting/issues) page. Feel free to contact me for any remarks, ideas, bug reports etc. 
 
-## Licence
-The framework is provided under [MIT](https://opensource.org/licenses/MIT) licence agreement.
+### Licence
+The framework is provided under [MIT](https://opensource.org/licenses/MIT) licence agreement. The theoretical description of the algorithm can be read in [Content Fingerprinting using Wavelets](http://static.googleusercontent.com/media/research.google.com/en/pubs/archive/32685.pdf) paper.
 
-The framework implements the algorithm from [Content Fingerprinting Using Wavelets](http://www.nhchau.com/files/cvmp_BalujaCovell.A4color.pdf) paper.
+Special thanks to [JetBrains](https://www.jetbrains.com/) for providing this project with a license for [ReSharper](https://www.jetbrains.com/resharper/)!
 
-&copy; Soundfingerprinting, 2010-2015, ciumac.sergiu@gmail.com
+![JetBrains](http://blog.jetbrains.com/webide/files/2012/12/logo_JB_tagline-300x108.png)
+
+&copy; Soundfingerprinting, 2010-2016, ciumac.sergiu@gmail.com

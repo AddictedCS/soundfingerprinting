@@ -1,13 +1,13 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Math
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Math;
 
-    [TestClass]
+    [TestFixture]
     public class FScoreTest
     {
-        [TestMethod]
+        [Test]
         public void ShouldCalculateFScore()
         {
             var score = new FScore(90, 90, 10, 10);

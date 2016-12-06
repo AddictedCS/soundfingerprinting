@@ -5,9 +5,9 @@
     using System.IO;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
@@ -15,7 +15,8 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
+    [Category("RequiresWindowsDLL")]
     public class TestRunnerTest : IntegrationWithSampleFilesTest
     {
         private readonly IModelService modelService = new InMemoryModelService();
@@ -23,30 +24,30 @@
         private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
         private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
 
-        private readonly Mock<NegativeFoundEvent> nfe = new Mock<NegativeFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<NegativeNotFoundEvent> nnfe = new Mock<NegativeNotFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<PositiveFoundEvent> pfe = new Mock<PositiveFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<PositiveNotFoundEvent> pnfe = new Mock<PositiveNotFoundEvent>(MockBehavior.Strict);
-        private readonly Mock<TestIterationFinishedEvent> tife = new Mock<TestIterationFinishedEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> nfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> nnfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> pfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> pnfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> tife = new Mock<TestRunnerEvent>(MockBehavior.Strict);
 
         private readonly Mock<ITagService> tagService = new Mock<ITagService>(MockBehavior.Strict);
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             tagService.Setup(service => service.GetTagInfo(It.IsAny<string>())).Returns(
                 new TagInfo
                     {
-                        Artist = "3 Doors Down",
-                        Album = "3 Doors Down",
-                        Title = "Kryptonite",
+                        Artist = "Chopin",
+                        Album = string.Empty,
+                        Title = "Nocturne C#",
                         ISRC = "USUR19980187",
                         Year = 1997,
-                        Duration = (3 * 60) + 55
+                        Duration = 193.07d
                     });
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             nfe.VerifyAll();
@@ -56,12 +57,13 @@
             tife.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldSuccessfullyRunTest()
         {
             string results = Path.GetTempPath();
             Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList().ForEach(File.Delete);
             Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList().ForEach(File.Delete);
+            Directory.GetFiles(results).Where(file => file.Contains("insert_")).ToList().ForEach(File.Delete);
             pfe.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Callback(
                 (object runner, EventArgs param) =>
                     {
@@ -84,7 +86,7 @@
 
             tife.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Verifiable();
 
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
             
             string scenario1 = string.Format("Insert,{0},IncrementalStatic,0,5115", path);
             string scenario2 = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10|30|50", path, path);
@@ -112,15 +114,17 @@
             Assert.AreEqual(6, testRuns.Count);
             var testSuite = Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList();
             Assert.AreEqual(1, testSuite.Count);
+            var testInsert = Directory.GetFiles(results).Where(file => file.Contains("insert_")).ToList();
+            Assert.AreEqual(2, testInsert.Count);
         }
 
         private void AttachEventHandlers(TestRunner testRunner)
         {
-            testRunner.NegativeFoundEvent += this.nfe.Object;
-            testRunner.NegativeNotFoundEvent += this.nnfe.Object;
-            testRunner.PositiveFoundEvent += this.pfe.Object;
-            testRunner.PositiveNotFoundEvent += this.pnfe.Object;
-            testRunner.TestIterationFinishedEvent += this.tife.Object;
+            testRunner.NegativeFoundEvent += nfe.Object;
+            testRunner.NegativeNotFoundEvent += nnfe.Object;
+            testRunner.PositiveFoundEvent += pfe.Object;
+            testRunner.PositiveNotFoundEvent += pnfe.Object;
+            testRunner.TestIterationFinishedEvent += tife.Object;
         }
     }
 }

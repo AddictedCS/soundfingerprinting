@@ -2,39 +2,38 @@
 {
     using System;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Math;
 
-    [TestClass]
+    [TestFixture]
     public class HashConverterTest
     {
         private readonly Random random = new Random((int)DateTime.Now.Ticks);
         private readonly HashConverter hashConverter = new HashConverter();
 
-        [TestMethod]
+        [Test]
         public void ShouldConvertBackAndFourthForInts()
         {
             ShouldConvertBackAndFourth(100, 25);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldConvertBackAndFourthForSmallInts()
         {
             ShouldConvertBackAndFourth(100, 50);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldConvertBackAndFourthForLongs()
         {
             ShouldConvertBackAndFourth(160, 20);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void ShouldThrowAnException()
         {
-            ShouldConvertBackAndFourth(120, 20);
+            Assert.Throws<ArgumentException>(() => ShouldConvertBackAndFourth(120, 20));
         }
 
         private void ShouldConvertBackAndFourth(int byteArrayLength, int longArrayLength)

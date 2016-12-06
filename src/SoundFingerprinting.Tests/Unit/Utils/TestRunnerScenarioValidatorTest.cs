@@ -3,16 +3,16 @@
     using System.Collections.Generic;
     using System.IO;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
     public class TestRunnerScenarioValidatorTest
     {
         private readonly TestRunnerScenarioValidator validator = new TestRunnerScenarioValidator();
 
-        [TestMethod]
+        [Test]
         public void ShouldNotValidateSinceNoSuchAction()
         {
             string scenario = string.Format("Action,{0},IncrementalStatic,0,5115", "C:\\");
@@ -22,10 +22,10 @@
             Assert.IsFalse(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldValidateInsert()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             string scenario = string.Format("Insert,{0},IncrementalStatic,0,5115", path);
 
@@ -34,10 +34,10 @@
             Assert.IsTrue(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldValidateFullRun()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             string scenario1 = string.Format("Insert,{0},IncrementalStatic,0,5115", path);
             string scenario2 = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10|30|50", path, path);
@@ -51,10 +51,10 @@
             Assert.IsTrue(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldValidateRun()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             string scenario = string.Format("Run,{0},{1},IncrementalRandom,256,512,10,10|30|50", path, path);
 
@@ -63,7 +63,7 @@
             Assert.IsTrue(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldNotValidateInsertSinceNoAudioFilesInInputFolder()
         {
             string path = Path.GetTempPath();
@@ -75,7 +75,7 @@
             Assert.IsFalse(result.IsValid);
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldNotValidateRunSinceNoAudioFilesInInputFolder()
         {
             string path = Path.GetTempPath();

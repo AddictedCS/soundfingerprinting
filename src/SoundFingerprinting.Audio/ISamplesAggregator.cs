@@ -2,6 +2,6 @@ namespace SoundFingerprinting.Audio
 {
     public interface ISamplesAggregator
     {
-        float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, int secondsToRead, int sampleRate);
+        float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, double secondsToRead, int sampleRate);
     }
 }

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("SoundFingerprinting.Infrastructure")]
-[assembly: AssemblyDescription("Dependency injection via Service Locator in SoundFingerprinting projects. Contact ciumac.sergiu@gmail.com in case you need this library.")]
+[assembly: AssemblyDescription("Dependency injection via Service Locator in SoundFingerprinting projects.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sergiu Ciumac")]
 [assembly: AssemblyProduct("SoundFingerprinting.Infrastructure")]
@@ -12,10 +12,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("d93d0198-0f7f-4b9f-a318-7209915ff1cf")]
-[assembly: AssemblyVersion("2.3.3")]
-[assembly: AssemblyFileVersion("2.3.3")]
+[assembly: AssemblyVersion("3.0.0")]
+[assembly: AssemblyFileVersion("3.0.0")]
+[assembly: AssemblyInformationalVersion("3.0.0")]
 [assembly: InternalsVisibleTo("SoundFingerprinting")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.Bass")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Audio.Bass.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.NAudio")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SoundTools")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.SQL")]
@@ -24,3 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.Solr")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Solr.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.NeuralHasher")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Tests")]

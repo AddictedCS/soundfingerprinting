@@ -1,21 +1,21 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Math
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Math;
 
-    [TestClass]
+    [TestFixture]
     public class HammingDistanceResultStatisticsTest
     {
-        [TestMethod]
+        [Test]
         public void ShouldCalculatePercentilesCorrenctly()
         {
             var stats = HammingDistanceResultStatistics.From(
-                new List<int> { 5, 4, 3, 2, 1 },
-                new List<int>(),
-                new List<int>(),
+                new ConcurrentBag<int> { 5, 4, 3, 2, 1 },
+                new ConcurrentBag<int>(),
+                new ConcurrentBag<int>(),
                 new[] { 0.9, 0.95, 0.98 });
 
             var percentiles = stats.TruePositivePercentile;

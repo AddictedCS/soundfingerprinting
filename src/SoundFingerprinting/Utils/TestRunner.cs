@@ -1,10 +1,13 @@
 ﻿namespace SoundFingerprinting.Utils
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -16,17 +19,7 @@
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
-    public delegate void PositiveNotFoundEvent(object sender, EventArgs e);
-
-    public delegate void PositiveFoundEvent(object sender, EventArgs e);
-
-    public delegate void NegativeNotFoundEvent(object sender, EventArgs e);
-
-    public delegate void NegativeFoundEvent(object sender, EventArgs e);
-
-    public delegate void TestIterationFinishedEvent(object sender, EventArgs e);
-
-    public delegate void OngoingTestRunnerActionEvent(object sender, EventArgs e);
+    public delegate void TestRunnerEvent(object sender, EventArgs e);
 
     internal class TestRunner
     {
@@ -67,17 +60,17 @@
             this.utils = utils;
         }
 
-        public event PositiveNotFoundEvent PositiveNotFoundEvent;
+        public event TestRunnerEvent PositiveNotFoundEvent;
 
-        public event PositiveFoundEvent PositiveFoundEvent;
+        public event TestRunnerEvent PositiveFoundEvent;
 
-        public event NegativeNotFoundEvent NegativeNotFoundEvent;
+        public event TestRunnerEvent NegativeNotFoundEvent;
 
-        public event NegativeFoundEvent NegativeFoundEvent;
+        public event TestRunnerEvent NegativeFoundEvent;
 
-        public event TestIterationFinishedEvent TestIterationFinishedEvent;
+        public event TestRunnerEvent TestIterationFinishedEvent;
 
-        public event OngoingTestRunnerActionEvent OngoingActionEvent;
+        public event TestRunnerEvent OngoingActionEvent;
         
         public void Run()
         {
@@ -89,7 +82,7 @@
             }
 
             TestRunnerWriter.SaveSuiteResultsToFolder(suite, pathToResultsFolder);
-            OnOngoingActionEvent(new TestRunnerOngoingEventArgs { Message = "All test scenarious finished!" });
+            OnTestRunnerEvent(OngoingActionEvent, new TestRunnerOngoingEventArgs { Message = "All test scenarious finished!" });
         }
 
         private void RunTest(string[] parameters)
@@ -99,16 +92,17 @@
             {
                 case "Insert":
                     string folderWithSongs = parameters[1];
-                    var stride = utils.ToStride(parameters[2], parameters[3], parameters[4], testRunnerConfig.SamplesPerFingerprint);
+                    var stride = utils.ToStride(parameters[2], parameters[3], parameters[4]);
                     DeleteAll();
-                    Insert(folderWithSongs, stride);
+                    var sb = TestRunnerWriter.StartInsert();
+                    Insert(folderWithSongs, stride, sb);
+                    TestRunnerWriter.SaveInsertDataToFolder(sb, pathToResultsFolder, stride);
                     lastInsertStride = stride;
                     break;
                 case "Run":
                     string folderWithPositives = parameters[1];
                     string folderWithNegatives = parameters[2];
-                    var queryStride = utils.ToStride(
-                        parameters[3], parameters[4], parameters[5], testRunnerConfig.SamplesPerFingerprint);
+                    var queryStride = utils.ToStride(parameters[3], parameters[4], parameters[5]);
                     int seconds = int.Parse(parameters[6]);
                     var startAts = ToStartAts(parameters[7]);
                     RunTestScenario(folderWithPositives, folderWithNegatives,  queryStride, seconds, startAts);
@@ -123,7 +117,8 @@
             var negatives = AllFiles(folderWithNegatives);
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
-              OnOngoingActionEvent(
+                OnTestRunnerEvent(
+                    OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {
                             Message =
@@ -138,25 +133,27 @@
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 int trueNegatives = 0, truePositives = 0, falseNegatives = 0, falsePositives = 0, verified = 0;
-                List<int> truePositiveHammingDistance = new List<int>();
-                List<int> falseNegativesHammingDistance = new List<int>();
-                List<int> falsePositivesHammingDistance = new List<int>();
+                var truePositiveHammingDistance = new ConcurrentBag<int>();
+                var falseNegativesHammingDistance = new ConcurrentBag<int>();
+                var falsePositivesHammingDistance = new ConcurrentBag<int>();
                 var sb = TestRunnerWriter.StartTestIteration();
+                int currentIteration = iteration;
+                int startAt = startAts[currentIteration];
                 Parallel.ForEach(
                     positives,
-                    GetParallelOptions(),
                     positive =>
                         {
-                            verified++;
+                            Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(positive);
                             var actualTrack = GetActualTrack(tags);
-                            var queryResult = BuildQuery(queryStride, seconds, positive, startAts[iteration]).Result;
-                            if (!queryResult.IsSuccessful)
+                            var queryResult = BuildQuery(queryStride, seconds, positive, startAt).Result;
+                            if (!queryResult.ContainsMatches)
                             {
-                                falseNegatives++;
+                                Interlocked.Increment(ref falseNegatives);
                                 var notFoundLine = GetNotFoundLine(tags);
                                 AppendLine(sb, notFoundLine);
-                                this.OnPositiveNotFound(
+                                OnTestRunnerEvent(
+                                    PositiveNotFoundEvent,
                                     GetTestRunnerEventArgs(
                                         truePositives,
                                         trueNegatives,
@@ -171,34 +168,34 @@
                             bool isSuccessful = recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
                             if (isSuccessful)
                             {
-                                truePositives++;
-                                truePositiveHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
+                                Interlocked.Increment(ref truePositives);
+                                truePositiveHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             }
                             else
                             {
-                                falseNegatives++;
-                                falseNegativesHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
+                                Interlocked.Increment(ref falsePositives);
+                                falseNegativesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
                             }
 
                             var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
                             AppendLine(sb, foundLine);
-                            OnPositiveFoundEvent(GetTestRunnerEventArgs(truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
+                            OnTestRunnerEvent(PositiveFoundEvent, GetTestRunnerEventArgs(truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                         });
 
                 Parallel.ForEach(
                     negatives,
-                    GetParallelOptions(),
                     negative =>
                         {
-                            verified++;
+                            Interlocked.Increment(ref verified);
                             var tags = GetTagsFromFile(negative);
-                            var queryResult = BuildQuery(queryStride, seconds, negative, startAts[iteration]).Result;
-                            if (!queryResult.IsSuccessful)
+                            var queryResult = BuildQuery(queryStride, seconds, negative, startAt).Result;
+                            if (!queryResult.ContainsMatches)
                             {
-                                trueNegatives++;
+                                Interlocked.Increment(ref trueNegatives);
                                 var notFoundLine = GetNotFoundLine(tags);
                                 AppendLine(sb, notFoundLine);
-                                OnNegativeNotFoundEvent(
+                                OnTestRunnerEvent(
+                                    NegativeNotFoundEvent,
                                     GetTestRunnerEventArgs(
                                         truePositives,
                                         trueNegatives,
@@ -210,13 +207,13 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
-                            falsePositivesHammingDistance.Add(queryResult.BestMatch.MatchedFingerprints);
-                            falsePositives++;
+                            falsePositivesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
+                            Interlocked.Increment(ref falsePositives);
                             var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                             AppendLine(sb, foundLine);
-                            OnNegativeFoundEvent(
-                                GetTestRunnerEventArgs(
-                                    truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
+                            OnTestRunnerEvent(
+                                NegativeFoundEvent,
+                                GetTestRunnerEventArgs(truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                         });
 
                 stopwatch.Stop();
@@ -227,19 +224,12 @@
                     falsePositivesHammingDistance,
                     testRunnerConfig.Percentiles);
                 TestRunnerWriter.FinishTestIteration(sb, fscore, stats, stopwatch.ElapsedMilliseconds);
-                TestRunnerWriter.SaveTestIterationToFolder(
-                    sb, pathToResultsFolder, queryStride, this.GetInsertMetadata(), seconds, startAts[iteration]);
+                TestRunnerWriter.SaveTestIterationToFolder(sb, pathToResultsFolder, queryStride, GetInsertMetadata(), seconds, startAt);
 
-                var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(
-                    queryStride, seconds, startAts, fscore, stats, iteration, stopwatch, verified);
-                OnTestIterationFinishedEvent(finishedTestIteration);
+                var finishedTestIteration = GetTestRunnerEventArgsForFinishedTestIteration(queryStride, seconds, startAts, fscore, stats, iteration, stopwatch, verified);
+                OnTestRunnerEvent(TestIterationFinishedEvent, finishedTestIteration);
                 TestRunnerWriter.AppendLine(suite, finishedTestIteration.RowWithDetails);
             }
-        }
-
-        private ParallelOptions GetParallelOptions()
-        {
-            return new ParallelOptions { MaxDegreeOfParallelism = 2 };
         }
 
         private TestRunnerEventArgs GetTestRunnerEventArgsForFinishedTestIteration(IStride queryStride, int seconds, List<int> startAts, FScore fscore, HammingDistanceResultStatistics statistics, int iteration, Stopwatch stopwatch, int verified)
@@ -279,6 +269,7 @@
             return this.lastInsertStride != null ? this.lastInsertStride.ToString() : string.Empty;
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         private void AppendLine(StringBuilder sb, object[] objects)
         {
             TestRunnerWriter.AppendLine(sb, objects);
@@ -303,52 +294,63 @@
 
         private object[] GetNotFoundLine(TagInfo tags)
         {
-            return new object[]
-                {
-                    ToTrackString(tags), "No match found!", false, 0, 0, 0, string.Empty, string.Empty 
-                };
+            return new object[] { ToTrackString(tags), "No match found!", false, 0, 0, 0, 0, 0 };
         }
 
         private object[] GetFoundLine(string actualTrack, TrackData recognizedTrack, bool isSuccessful, QueryResult queryResult)
         {
+            var bestMatch = queryResult.BestMatch;
             return new object[]
                 {
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
-                    queryResult.BestMatch.MatchedFingerprints, queryResult.AnalyzedTracksCount, queryResult.AnalyzedSubFingerprintsCount,
-                    queryResult.BestMatch.SequenceLength, queryResult.BestMatch.SequenceStart
+                    bestMatch.HammingSimilaritySum, bestMatch.Confidence,
+                    bestMatch.Coverage,
+                    bestMatch.QueryMatchLength, bestMatch.TrackStartsAt
                 };
         }
 
-
         private Task<QueryResult> BuildQuery(IStride queryStride, int seconds, string positive, int startAt)
         {
-            return this.qcb.BuildQueryCommand()
+            return qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
-                .WithConfigs(fingerprintConfig => { fingerprintConfig.SpectrogramConfig.Stride = queryStride; }, queryConfig => { })
+                .WithFingerprintConfig(fingerprintConfig => { fingerprintConfig.Stride = queryStride; })
                 .UsingServices(modelService, audioService)
                 .Query();
         }
 
-        private void Insert(string folderWithSongs, IStride stride)
+        private void Insert(string folderWithSongs, IStride stride, StringBuilder sb)
         {
-            var allFiles = AllFiles(folderWithSongs).ToList();
+            var allFiles = AllFiles(folderWithSongs);
             int inserted = 0;
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             Parallel.ForEach(
                 allFiles,
-                GetParallelOptions(),
                 file =>
                     {
-                        OnOngoingActionEvent(new TestRunnerOngoingEventArgs { Message = string.Format("Inserting tracks {0} out of {1}. Track {2}", inserted++, allFiles.Count, System.IO.Path.GetFileNameWithoutExtension(file)) });
+                        OnTestRunnerEvent(
+                            OngoingActionEvent,
+                            new TestRunnerOngoingEventArgs
+                                {
+                                    Message = string.Format(
+                                            "Inserting tracks {0} out of {1}. Track {2}",
+                                            Interlocked.Increment(ref inserted),
+                                            allFiles.Count,
+                                            System.IO.Path.GetFileNameWithoutExtension(file))
+                                });
                         var track = InsertTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
                                         .From(file)
-                                        .WithFingerprintConfig(config => { config.SpectrogramConfig.Stride = stride; })
+                                        .WithFingerprintConfig(config => { config.Stride = stride; })
                                         .UsingServices(audioService)
                                         .Hash()
                                         .Result;
 
                         modelService.InsertHashDataForTrack(hashes, track);
                     });
+ 
+            stopWatch.Stop();
+            sb.AppendLine(string.Format("{0},{1}", inserted, stopWatch.ElapsedMilliseconds / 1000));
         }
 
         private IModelReference InsertTrack(string file)
@@ -365,22 +367,18 @@
             foreach (var track in tracks)
             {
                 modelService.DeleteTrack(track.TrackReference);
-                OnOngoingActionEvent(
+                OnTestRunnerEvent(
+                    OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {
-                            Message = string.Format("Deleted {0} out of {1} tracks from storage", deleted++, tracks.Count)
+                            Message = string.Format("Deleted {0} out of {1} tracks from storage", Interlocked.Increment(ref deleted), tracks.Count)
                         });
             }
         }
 
-        private IEnumerable<string> AllFiles(string rootFolder)
+        private ConcurrentBag<string> AllFiles(string rootFolder)
         {
-            return utils.ListFiles(rootFolder, testRunnerConfig.AudioFileFilters);
-        }
-
-        private bool IsDuplicateTrack(string isrc, string artist, string title)
-        {
-            return modelService.ContainsTrack(isrc, artist, title);
+            return new ConcurrentBag<string>(utils.ListFiles(rootFolder, testRunnerConfig.AudioFileFilters));
         }
 
         private List<int> ToStartAts(string startAtSeconds)
@@ -402,57 +400,12 @@
             return tags;
         }
 
-        private void OnPositiveNotFound(EventArgs e)
+        private void OnTestRunnerEvent(TestRunnerEvent runnerEvent, EventArgs args)
         {
-            PositiveNotFoundEvent handler = PositiveNotFoundEvent;
+            var handler = runnerEvent;
             if (handler != null)
             {
-                handler(this, e);
-            }
-        }
-
-        private void OnPositiveFoundEvent(EventArgs e)
-        {
-            PositiveFoundEvent handler = PositiveFoundEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        private void OnNegativeNotFoundEvent(EventArgs e)
-        {
-            NegativeNotFoundEvent handler = NegativeNotFoundEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        private void OnNegativeFoundEvent(EventArgs e)
-        {
-            NegativeFoundEvent handler = NegativeFoundEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        private void OnTestIterationFinishedEvent(EventArgs e)
-        {
-            TestIterationFinishedEvent handler = this.TestIterationFinishedEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        private void OnOngoingActionEvent(EventArgs e)
-        {
-            OngoingTestRunnerActionEvent handler = this.OngoingActionEvent;
-            if (handler != null)
-            {
-                handler(this, e);
+                handler(this, args);
             }
         }
     }

@@ -1,19 +1,18 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    public class Fingerprint
+    internal class Fingerprint
     {
-        public bool[] Signature { get; set; }
-
-        public int SequenceNumber { get; set; }
-
-        public double Timestamp { get; set; }
-
-        public int Length
+        public Fingerprint(bool[] signature, double startAt, int sequenceNumber)
         {
-            get
-            {
-                return Signature == null ? 0 : Signature.Length;
-            }
+            Signature = signature;
+            StartsAt = startAt;
+            SequenceNumber = sequenceNumber;
         }
+
+        public bool[] Signature { get; private set; }
+
+        public int SequenceNumber { get; private set; }
+
+        public double StartsAt { get; private set; }
     }
 }

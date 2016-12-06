@@ -5,29 +5,31 @@
     using System.IO;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Integration;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
 
-    [TestClass]
-    public class TestRunnerUtilsTest
+    [TestFixture]
+    public class TestRunnerUtilsTest : IntegrationWithSampleFilesTest
     {
         private readonly TestRunnerUtils testRunnerUtils = new TestRunnerUtils();
 
-        [TestMethod]
+        [Test]
         public void ShouldCaptureAllAudioFilesFromFolder()
         {
-            string path = Path.GetFullPath(".");
+            string path = TestContext.CurrentContext.TestDirectory;
 
             var files = testRunnerUtils.ListFiles(path, new List<string> { "*.mp3" });
 
             var filenames = files.Select(Path.GetFileNameWithoutExtension).ToList();
             var unique = new HashSet<string>(filenames);
             Assert.AreEqual(1, unique.Count);
-            Assert.IsTrue(unique.Contains("Kryptonite"));
+            Assert.IsTrue(unique.Contains(Path.GetFileNameWithoutExtension(PathToMp3)));
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldParseInts()
         {
             const string Ints = "1|2|3|4|5";
@@ -37,13 +39,12 @@
             CollectionAssert.AreEqual(new List<int> { 1, 2, 3, 4, 5 }, result);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FormatException))]
+        [Test]
         public void ShouldFailParsingInts()
         {
             const string Ints = "1|2|3|4|%";
 
-            testRunnerUtils.ParseInts(Ints, '|');
+            Assert.Throws<FormatException>(() => testRunnerUtils.ParseInts(Ints, '|'));
         }
     }
 }

@@ -6,11 +6,11 @@
 
     public class SamplesAggregator : ISamplesAggregator
     {
-        public const int DefaultBufferLengthInSeconds = 20;
+        internal const int DefaultBufferLengthInSeconds = 60;
 
         private const int BlockAlign = 4;
 
-        public float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, int secondsToRead, int sampleRate)
+        public float[] ReadSamplesFromSource(ISamplesProvider samplesProvider, double secondsToRead, int sampleRate)
         {
             var buffer = GetBuffer(secondsToRead, sampleRate);
             int totalBytesToRead = GetTotalBytesToRead(secondsToRead, sampleRate), totalBytesRead = 0;
@@ -20,9 +20,9 @@
             {
                 int bytesRead = samplesProvider.GetNextSamples(buffer);
 
-                if (bytesRead  < 0)
+                if (bytesRead < 0)
                 {
-                    throw new AudioServiceException("Number of bytes read is negative.");
+                    throw new AudioServiceException("Number of read bytes is negative. Check your audio provider.");
                 }
 
                 if (bytesRead == 0)
@@ -32,23 +32,12 @@
 
                 totalBytesRead += bytesRead;
 
-                float[] chunk;
-
-                if (totalBytesRead > totalBytesToRead)
-                {
-                    chunk = new float[(totalBytesToRead - (totalBytesRead - bytesRead)) / BlockAlign];
-                    Array.Copy(buffer, chunk, (totalBytesToRead - (totalBytesRead - bytesRead)) / BlockAlign);
-                }
-                else
-                {
-                    chunk = new float[bytesRead / BlockAlign];
-                    Array.Copy(buffer, chunk, bytesRead / BlockAlign);
-                }
+                float[] chunk = GetNewChunkFromBuffer(totalBytesRead, totalBytesToRead, bytesRead, buffer);
 
                 chunks.Add(chunk);
             }
 
-            if (totalBytesRead < (secondsToRead * sampleRate * BlockAlign))
+            if (totalBytesRead < GetExactNumberOfBytesToRead(secondsToRead, sampleRate))
             {
                 throw new AudioServiceException("Could not read requested number of seconds " + secondsToRead + ", audio file is not that long");
             }
@@ -56,19 +45,43 @@
             return ConcatenateChunksOfSamples(chunks);
         }
 
-        private int GetTotalBytesToRead(int secondsToRead, int sampleRate)
+        private float[] GetNewChunkFromBuffer(int totalBytesRead, int totalBytesToRead, int bytesRead, float[] buffer)
         {
-            if (secondsToRead == 0)
+            float[] chunk;
+            if (totalBytesRead > totalBytesToRead)
+            {
+                var chunkLength = (totalBytesToRead - (totalBytesRead - bytesRead)) / BlockAlign;
+                chunk = CopyFromBufferToNewChunk(chunkLength, buffer);
+            }
+            else
+            {
+                var chunkLength = bytesRead / BlockAlign;
+                chunk = CopyFromBufferToNewChunk(chunkLength, buffer);
+            }
+
+            return chunk;
+        }
+
+        private float[] CopyFromBufferToNewChunk(int chunkLength, float[] buffer)
+        {
+            float[] chunk = new float[chunkLength];
+            Buffer.BlockCopy(buffer, 0, chunk, 0, chunkLength * sizeof(float));
+            return chunk;
+        }
+
+        private int GetTotalBytesToRead(double secondsToRead, int sampleRate)
+        {
+            if (Math.Abs(secondsToRead) < 0.0001)
             {
                 return int.MaxValue;
             }
 
-            return secondsToRead * sampleRate * BlockAlign;
+            return GetExactNumberOfBytesToRead(secondsToRead, sampleRate);
         }
 
-        private float[] GetBuffer(int secondsToRead, int sampleRate)
+        private float[] GetBuffer(double secondsToRead, int sampleRate)
         {
-            return new float[GetBufferLength(sampleRate, secondsToRead)];
+            return new float[GetBufferLength(secondsToRead, sampleRate)];
         }
 
         private float[] ConcatenateChunksOfSamples(IReadOnlyList<float[]> chunks)
@@ -79,24 +92,29 @@
             }
 
             float[] samples = new float[chunks.Sum(a => a.Length)];
-            int index = 0;
+            int startAt = 0;
             foreach (float[] chunk in chunks)
             {
-                Array.Copy(chunk, 0, samples, index, chunk.Length);
-                index += chunk.Length;
+                Buffer.BlockCopy(chunk, 0, samples, startAt * sizeof(float), chunk.Length * sizeof(float));
+                startAt += chunk.Length;
             }
 
             return samples;
         }
 
-        private int GetBufferLength(int sampleRate, int secondsToRead)
+        private int GetBufferLength(double secondsToRead, int sampleRate)
         {
             if (secondsToRead > 0 && secondsToRead < DefaultBufferLengthInSeconds)
             {
-                return sampleRate * secondsToRead;
+                return GetExactNumberOfBytesToRead(secondsToRead, sampleRate) / BlockAlign;
             }
 
             return sampleRate * DefaultBufferLengthInSeconds;
+        }
+
+        private int GetExactNumberOfBytesToRead(double secondsToRead, int sampleRate)
+        {
+            return (int)(secondsToRead * sampleRate) / BlockAlign * BlockAlign * BlockAlign;
         }
     }
 }

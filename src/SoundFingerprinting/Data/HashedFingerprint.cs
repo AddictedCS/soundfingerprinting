@@ -1,21 +1,26 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System.Collections.Generic;
+
     public class HashedFingerprint 
     {
-        public HashedFingerprint(byte[] subFingerprint, long[] hashBins, int sequenceNumber, double sequenceAt)
+        public HashedFingerprint(byte[] subFingerprint, long[] hashBins, int sequenceNumber, double startsAt, IEnumerable<string> clusters)
         {
             SubFingerprint = subFingerprint;
             HashBins = hashBins;
             SequenceNumber = sequenceNumber;
-            Timestamp = sequenceAt;
+            StartsAt = startsAt;
+            Clusters = clusters;
         }
 
-        public byte[] SubFingerprint { get; set; }
+        public byte[] SubFingerprint { get; private set; }
 
-        public long[] HashBins { get; set; }
+        public long[] HashBins { get; private set; }
 
-        public int SequenceNumber { get; set; }
+        public int SequenceNumber { get; private set; }
 
-        public double Timestamp { get; set; }
+        public double StartsAt { get; private set; }
+
+        public IEnumerable<string> Clusters { get; private set; }
     }
 }

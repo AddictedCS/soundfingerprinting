@@ -1,40 +1,39 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio.Test
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
     using Moq.Protected;
 
     using global::NAudio.Wave;
 
-    using SoundFingerprinting.Tests;
+    using NUnit.Framework;
 
-    [TestClass]
-    public class NAudioSoundCaptureServiceTest : AbstractTest
+    [TestFixture]
+    [Category("RequiresWindowsDLL")]
+    public class NAudioSoundCaptureServiceTest
     {
         private readonly Mock<INAudioFactory> naudioFactory = new Mock<INAudioFactory>(MockBehavior.Strict);
         private readonly Mock<ISamplesAggregator> samplesAggregator = new Mock<ISamplesAggregator>(MockBehavior.Strict);
 
         private NAudioSoundCaptureService soundCaptureService;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             soundCaptureService = new NAudioSoundCaptureService(samplesAggregator.Object, naudioFactory.Object);
         }
 
-        [TestMethod]
-        public void TestReadFromMicrophone()
+        [Test]
+        public void ShouldReadFromMicrophone()
         {
             var waveInEvent = new Mock<WaveInEvent>(MockBehavior.Strict);
-            naudioFactory.Setup(factory => factory.GetWaveInEvent(SampleRate, 1)).Returns(waveInEvent.Object);
-            float[] samples = TestUtilities.GenerateRandomFloatArray(1024);
+            naudioFactory.Setup(factory => factory.GetWaveInEvent(5512, 1)).Returns(waveInEvent.Object);
+            float[] samples = new float[1024];
             const int SecondsToRecord = 10;
-            samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), SecondsToRecord, SampleRate))
+            samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), SecondsToRecord, 5512))
                 .Returns(samples);
-            waveInEvent.Protected().Setup("Dispose", new object[] { true });
+            waveInEvent.Protected().Setup("Dispose", true);
 
-            float[] resultSamples = soundCaptureService.ReadMonoSamples(SampleRate, SecondsToRecord);
+            float[] resultSamples = soundCaptureService.ReadMonoSamples(5512, SecondsToRecord);
 
             Assert.AreSame(samples, resultSamples);
         }

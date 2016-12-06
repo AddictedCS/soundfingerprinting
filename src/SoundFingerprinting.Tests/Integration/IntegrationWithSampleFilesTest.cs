@@ -1,25 +1,19 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization.Formatters.Binary;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Audio;
+    using Data;
 
-    using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
-    using SoundFingerprinting.Builder;
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.Data;
+    using NUnit.Framework;
 
-    [DeploymentItem(@"TestEnvironment\floatsamples.bin")]
-    [DeploymentItem(@"TestEnvironment\Kryptonite.mp3")]
-    [TestClass]
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        protected const int NumberOfHashTables = 25;
-
-        protected readonly IFingerprintCommandBuilder FingerprintCommandBuilder = new FingerprintCommandBuilder();
-        protected readonly IAudioService AudioService = new NAudioService();
+        protected readonly string PathToMp3 = Path.Combine(TestContext.CurrentContext.TestDirectory, "Chopin.mp3");
+        protected readonly string PathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
 
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
@@ -31,25 +25,11 @@
 
             for (int i = 0; i < firstHashDatas.Count; i++)
             {
-                for (int j = 0; j < firstHashDatas[i].SubFingerprint.Length; j++)
-                {
-                    Assert.AreEqual(firstHashDatas[i].SubFingerprint[j], secondHashDatas[i].SubFingerprint[j]);
-                }
-
-                for (int j = 0; j < firstHashDatas[i].HashBins.Length; j++)
-                {
-                    Assert.AreEqual(firstHashDatas[i].HashBins[j], secondHashDatas[i].HashBins[j]);
-                }
-
+                CollectionAssert.AreEqual(firstHashDatas[i].SubFingerprint, secondHashDatas[i].SubFingerprint);
+                CollectionAssert.AreEqual(firstHashDatas[i].HashBins, secondHashDatas[i].HashBins);
                 Assert.AreEqual(firstHashDatas[i].SequenceNumber, secondHashDatas[i].SequenceNumber);
-                Assert.AreEqual(firstHashDatas[i].Timestamp, secondHashDatas[i].Timestamp, Epsilon);
+                Assert.AreEqual(firstHashDatas[i].StartsAt, secondHashDatas[i].StartsAt, Epsilon);
             }
-        }
-
-        protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
-        {
-            Assert.IsNotNull(modelReference);
-            Assert.IsTrue(modelReference.GetHashCode() != 0);
         }
 
         protected TagInfo GetTagInfo()
@@ -69,9 +49,19 @@
             };
         }
 
+        protected AudioSamples GetAudioSamples()
+        {
+            var serializer = new BinaryFormatter();
+
+            using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
+            {
+                return (AudioSamples)serializer.Deserialize(stream);
+            }
+        }
+
         private List<HashedFingerprint> SortHashesByFirstValueOfHashBin(IEnumerable<HashedFingerprint> hashDatasFromFile)
         {
-            return hashDatasFromFile.OrderBy(hashData => hashData.HashBins[0]).ToList();
+            return hashDatasFromFile.OrderBy(hashData => hashData.SequenceNumber).ToList();
         }
     }
 }

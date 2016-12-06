@@ -1,8 +1,10 @@
 ﻿namespace SoundFingerprinting.Math
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     internal class HammingDistanceResultStatistics
     {
@@ -94,10 +96,14 @@
                     FalsePositivesPercentileInfo);
         }
 
-        public static HammingDistanceResultStatistics From(List<int> truePositives, List<int> falseNegatives, List<int> falsePositives, double[] percentiles)
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public static HammingDistanceResultStatistics From(ConcurrentBag<int> truePositivesBag, ConcurrentBag<int> falseNegativesBag, ConcurrentBag<int> falsePositivesBag, double[] percentiles)
         {
+            var truePositives = truePositivesBag.ToList();
             truePositives.Sort();
+            var falseNegatives = falseNegativesBag.ToList();
             falseNegatives.Sort();
+            var falsePositives = falsePositivesBag.ToList();
             falsePositives.Sort();
 
             var instance = new HammingDistanceResultStatistics()

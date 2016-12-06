@@ -1,20 +1,18 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    public class SpectralImage
+    internal class SpectralImage
     {
-        /// <summary>
-        /// Gets or sets spectral image
-        /// </summary>
-        public float[][] Image { get; set; }
+        public SpectralImage(float[][] image, double startsAt, int sequenceNumber)
+        {
+            Image = image;
+            StartsAt = startsAt;
+            SequenceNumber = sequenceNumber;
+        }
 
-        /// <summary>
-        /// Gets or sets the sequence number of the spectral image. Possible values [1, N]
-        /// </summary>
-        public int SequenceNumber { get; set; }
+        public float[][] Image { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the timestamp details of the spectral image. Possible values [0, N]
-        /// </summary>
-        public double Timestamp { get; set; }
+        public int SequenceNumber { get; private set; }
+
+        public double StartsAt { get; private set; }
     }
 }

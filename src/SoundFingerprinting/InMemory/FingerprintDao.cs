@@ -4,9 +4,9 @@
     using System.Linq;
     using System.Threading;
 
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Infrastructure;
+    using DAO;
+    using DAO.Data;
+    using Infrastructure;
 
     internal class FingerprintDao : IFingerprintDao
     {

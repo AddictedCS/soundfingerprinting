@@ -1,13 +1,13 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Audio
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
 
-    [TestClass]
+    [TestFixture]
     public class TagInfoTest
     {
-        [TestMethod]
+        [Test]
         public void ShouldNotIdentify()
         {
             var tagInfoWithoutTitle = new TagInfo { Artist = "artist" };
@@ -19,7 +19,7 @@
             Assert.IsFalse(tagInfoWithoutISRC.IsTrackUniquelyIdentifiable());
         }
 
-        [TestMethod]
+        [Test]
         public void ShouldIdentify()
         {
             var tagInfoWithTitleAndArtist = new TagInfo { Artist = "artist", Title = "title" };

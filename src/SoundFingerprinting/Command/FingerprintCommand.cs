@@ -11,7 +11,7 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
 
-    internal sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
+    public sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
     {
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
         private readonly IFingerprintService fingerprintService;
@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Command
 
         private IAudioService audioService;
 
-        public FingerprintCommand(IFingerprintService fingerprintService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
+        internal FingerprintCommand(IFingerprintService fingerprintService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
         {
             this.fingerprintService = fingerprintService;
             this.lshAlgorithm = lshAlgorithm;
@@ -29,12 +29,7 @@ namespace SoundFingerprinting.Command
 
         public FingerprintConfiguration FingerprintConfiguration { get; private set; }
 
-        public Task<List<Fingerprint>> Fingerprint()
-        {
-            return Task.Factory.StartNew(createFingerprintsMethod);
-        }
-
-        public Task<List<HashedFingerprint>> Hash()
+                public Task<List<HashedFingerprint>> Hash()
         {
             return Task.Factory
                 .StartNew(createFingerprintsMethod)
@@ -58,13 +53,7 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IWithFingerprintConfiguration From(IEnumerable<Fingerprint> fingerprints)
-        {
-            createFingerprintsMethod = fingerprints.ToList;
-            return this;
-        }
-
-        public IWithFingerprintConfiguration From(string pathToAudioFile, int secondsToProcess, int startAtSecond)
+        public IWithFingerprintConfiguration From(string pathToAudioFile, double secondsToProcess, double startAtSecond)
         {
             createFingerprintsMethod = () =>
                 {
@@ -81,17 +70,9 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig<T>() where T : FingerprintConfiguration, new()
+        public IUsingFingerprintServices WithFingerprintConfig(Action<FingerprintConfiguration> amendFunctor)
         {
-            FingerprintConfiguration = new T();
-            return this;
-        }
-
-        public IUsingFingerprintServices WithFingerprintConfig(Action<CustomFingerprintConfiguration> functor)
-        {
-            CustomFingerprintConfiguration customFingerprintConfiguration = new CustomFingerprintConfiguration();
-            FingerprintConfiguration = customFingerprintConfiguration;
-            functor(customFingerprintConfiguration);
+            amendFunctor(FingerprintConfiguration);
             return this;
         }
 
@@ -99,6 +80,11 @@ namespace SoundFingerprinting.Command
         {
             this.audioService = audioServiceToUse;
             return this;
+        }
+
+        internal Task<List<Fingerprint>> Fingerprint()
+        {
+            return Task.Factory.StartNew(createFingerprintsMethod);
         }
 
         private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints)
@@ -111,7 +97,8 @@ namespace SoundFingerprinting.Command
                         var hashedFingerprint = lshAlgorithm.Hash(
                             fingerprint,
                             FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
-                            FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
+                            FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable,
+                            FingerprintConfiguration.Clusters);
                         hashedFingerprints.Add(hashedFingerprint);
                     });
 

@@ -2,7 +2,7 @@
 {
     using SoundFingerprinting.Infrastructure;
 
-    public class MinHashService : IMinHashService
+    internal class MinHashService : IMinHashService
     {
         private readonly IPermutations permutations;
 

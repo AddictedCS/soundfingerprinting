@@ -1,38 +1,36 @@
 namespace SoundFingerprinting.Audio.NAudio.Test
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
 
-    using SoundFingerprinting.Tests;
+    using NUnit.Framework;
 
-    [TestClass]
-    public class NAudioStreamUrlReaderTest : AbstractTest
+    [TestFixture]
+    public class NAudioStreamUrlReaderTest
     {
         private readonly Mock<INAudioSourceReader> sourceReader = new Mock<INAudioSourceReader>(MockBehavior.Strict);
 
         private NAudioStreamingUrlReader reader;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             reader = new NAudioStreamingUrlReader(sourceReader.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             sourceReader.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void TestReadMonoSamplesFromFile()
         {
             const int SecondsToRead = 10;
             float[] samples = new float[1024];
-            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-streaming-url", SampleRate, SecondsToRead * 2, 0)).Returns(samples);
+            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-streaming-url", 5512, SecondsToRead * 2, 0)).Returns(samples);
 
-            var result = reader.ReadMonoSamples("path-to-streaming-url", SampleRate, SecondsToRead);
+            var result = reader.ReadMonoSamples("path-to-streaming-url", 5512, SecondsToRead);
 
             Assert.AreEqual(samples.Length / 2, result.Length);
         }

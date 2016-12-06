@@ -4,15 +4,16 @@
     using System.IO;
     using System.Text;
 
-    using SoundFingerprinting.Math;
-    using SoundFingerprinting.Strides;
+    using Math;
+    using Strides;
 
     internal class TestRunnerWriter
     {
-        private const string Header = "Query Track,Result Track,Match,Hamming Distance,Analyzed Tracks Count,Analyzed Subs Count,Match Length, Match Start";
+        private const string Header = "Query Track,Result Track,Match,Hamming Distance,Confidence,Coverage,Query Match Length, Starts At";
 
-        private const string HeaderFinalResult =
-            "Inserted As,Query Stride,Query Seconds,Start At,Precision,Recall,F1, TP, TP Percetile, FN, FN Percentile, FP, FP Percentile,Elapsed Time (sec)";
+        private const string HeaderFinalResult = "Inserted As,Query Stride,Query Seconds,Start At,Precision,Recall,F1, TP, TP Percetile, FN, FN Percentile, FP, FP Percentile,Elapsed Time (sec)";
+
+        private const string InsertHeader = "Inserted Tracks, Time (sec)";
 
         public static StringBuilder StartSuite()
         {
@@ -25,6 +26,13 @@
         {
             var sb = new StringBuilder();
             sb.AppendLine(Header);
+            return sb;
+        }
+
+        public static StringBuilder StartInsert()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(InsertHeader);
             return sb;
         }
 
@@ -64,7 +72,7 @@
 
         public static void SaveTestIterationToFolder(StringBuilder sb, string resultsFolder, IStride queryStride, string insertMetadata, int queryLength, int startAt)
         {
-            string filename = string.Format("results_{0}_{1}_q{2}s_at{3}s.csv", insertMetadata, queryStride.ToString(), queryLength, startAt);
+            string filename = string.Format("results_{0}_{1}_q{2}s_at{3}s.csv", insertMetadata, queryStride, queryLength, startAt);
             string absolutePath = Path.Combine(resultsFolder, filename);
             Write(sb, absolutePath);
         }
@@ -73,6 +81,13 @@
         {
             string finalname = string.Format("suite_{0}.csv", DateTime.Now.Ticks);
             string absolutePath = Path.Combine(resultsFolder, finalname);
+            Write(sb, absolutePath);
+        }
+
+        public static void SaveInsertDataToFolder(StringBuilder sb, string resultsFolder, IStride insertStride)
+        {
+            string filename = string.Format("insert_{0}.csv", insertStride);
+            string absolutePath = Path.Combine(resultsFolder, filename);
             Write(sb, absolutePath);
         }
 

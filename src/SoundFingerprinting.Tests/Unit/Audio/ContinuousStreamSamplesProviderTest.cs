@@ -2,20 +2,26 @@
 {
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
 
-    [TestClass]
+    [TestFixture]
     public class ContinuousStreamSamplesProviderTest
     {
         private ContinuousStreamSamplesProvider samplesProvider;
 
-        [TestMethod]
+        [Test]
         public void TestGetNextSamples()
         {
             float[] buffer = new float[1024];
-            var queue = new Queue<int>(new[] { 1024, 0, 0, 512, 0, 0, 0, 256 });
+            var queue =
+                new Queue<float[]>(
+                    new[]
+                        {
+                            new float[1024], new float[0], new float[0], new float[512], new float[0], new float[0],
+                            new float[0], new float[256]
+                        });
 
             samplesProvider = new ContinuousStreamSamplesProvider(new QueueSamplesProvider(queue));
 
@@ -23,7 +29,7 @@
             for (int i = 0; i < 3; i++)
             {
                 var result = samplesProvider.GetNextSamples(buffer);
-                Assert.AreEqual(expectedResults[i], result);
+                Assert.AreEqual(expectedResults[i], result / 4);
             }
         }
     }

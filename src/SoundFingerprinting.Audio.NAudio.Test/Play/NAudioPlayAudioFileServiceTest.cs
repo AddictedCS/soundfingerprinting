@@ -1,28 +1,28 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio.Test.Play
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
 
     using global::NAudio.Wave;
 
+    using NUnit.Framework;
+
     using SoundFingerprinting.Audio.NAudio.Play;
 
-    [TestClass]
+    [TestFixture]
     public class NAudioPlayAudioFileServiceTest
     {
         private NAudioPlayAudioFileService service;
 
         private Mock<INAudioPlayAudioFactory> factory;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             factory = new Mock<INAudioPlayAudioFactory>(MockBehavior.Strict);
             service = new NAudioPlayAudioFileService(factory.Object);
         }
 
-        [TestMethod]
+        [Test]
         public void TestPlayFile()
         {
             Mock<IWavePlayer> wavePlayer = new Mock<IWavePlayer>(MockBehavior.Strict);
@@ -34,7 +34,6 @@
 
             var playFileAttributes = service.PlayFile("path-to-file");
 
-            Assert.IsInstanceOfType(playFileAttributes, typeof(PlayFileAttributes));
             var attributes = playFileAttributes as PlayFileAttributes;
             if (attributes != null)
             {
@@ -43,7 +42,7 @@
             }
         }
 
-        [TestMethod]
+        [Test]
         public void TestStopPlayingFile()
         {
             Mock<IWavePlayer> wavePlayer = new Mock<IWavePlayer>(MockBehavior.Strict);

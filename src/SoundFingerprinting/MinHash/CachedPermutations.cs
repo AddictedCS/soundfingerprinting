@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.MinHash
 {
-    public class CachedPermutations : IPermutations
+    internal class CachedPermutations : IPermutations
     {
         private readonly IPermutations permutations;
 

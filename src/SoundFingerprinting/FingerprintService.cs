@@ -1,7 +1,9 @@
 namespace SoundFingerprinting
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
@@ -11,7 +13,7 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
-    public class FingerprintService : IFingerprintService
+    internal class FingerprintService : IFingerprintService
     {
         private readonly ISpectrumService spectrumService;
         private readonly IWaveletDecomposition waveletDecomposition;
@@ -48,18 +50,18 @@ namespace SoundFingerprinting
 
         private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
-            var fingerprints = new List<Fingerprint>();
-            foreach (var spectralImage in spectralImages)
+            var fingerprints = new ConcurrentBag<Fingerprint>();
+            Parallel.ForEach(spectralImages, spectralImage => 
             {
-                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image); 
+                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image);
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
                 if (!IsSilence(image))
                 {
-                    fingerprints.Add(new Fingerprint { Signature = image, Timestamp = spectralImage.Timestamp, SequenceNumber = spectralImage.SequenceNumber });
+                    fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
                 }
-            }
+            });
 
-            return fingerprints;
+            return fingerprints.ToList();
         }
 
         private bool IsSilence(IEnumerable<bool> image)
