@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("SoundFingerprinting.Audio")]
-[assembly: AssemblyDescription("Audio interfaces for SoundFingerprinting library.")]
+[assembly: AssemblyDescription("Audio interfaces for SoundFingerprinting library. ")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SoundFingerprinting.Audio")]
