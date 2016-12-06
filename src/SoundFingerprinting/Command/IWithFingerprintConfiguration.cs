@@ -8,8 +8,6 @@ namespace SoundFingerprinting.Command
     {
         IUsingFingerprintServices WithFingerprintConfig(FingerprintConfiguration configuration);
 
-        IUsingFingerprintServices WithFingerprintConfig<T>() where T : FingerprintConfiguration, new();
-
-        IUsingFingerprintServices WithFingerprintConfig(Action<CustomFingerprintConfiguration> functor);
+        IUsingFingerprintServices WithFingerprintConfig(Action<FingerprintConfiguration> amendFunctor);
     }
 }

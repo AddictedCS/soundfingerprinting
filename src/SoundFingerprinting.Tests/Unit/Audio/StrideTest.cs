@@ -2,29 +2,29 @@
 {
     using System;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Strides;
 
-    [TestClass]
+    [TestFixture]
     public class StrideClassesTest : AbstractTest
     {
-        [TestMethod]
+        [Test]
         public void StaticStrideClassTest()
         {
             const int Value = 5115;
             StaticStride stride = new StaticStride(Value);
-            Assert.AreEqual(Value, stride.GetNextStride());
+            Assert.AreEqual(Value, stride.NextStride);
         }
 
-        [TestMethod]
+        [Test]
         public void IncrementalStaticStrideTest()
         {
-            IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115, SamplesPerFingerprint);
-            Assert.AreEqual(5115 - SamplesPerFingerprint, incrementalStatic.GetNextStride());
+            IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115);
+            Assert.AreEqual(5115 - 8192, incrementalStatic.NextStride);
         }
 
-        [TestMethod]
+        [Test]
         public void RandomStrideClassTest()
         {
             const int Min = 0;
@@ -33,19 +33,16 @@
             const int Count = 1024;
             for (int i = 0; i < Count; i++)
             {
-                int skip = randomStride.GetNextStride();
+                int skip = randomStride.NextStride;
                 Assert.IsTrue(skip <= Max);
                 Assert.IsTrue(skip >= Min);
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void RandomStrideClassBadMinMaxTest()
         {
-// ReSharper disable ObjectCreationAsStatement
-            new RandomStride(253, 0);
-// ReSharper restore ObjectCreationAsStatement
+            Assert.Throws<ArgumentException>(() => new RandomStride(253, 0));
         }
     }
 }

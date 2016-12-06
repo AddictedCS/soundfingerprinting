@@ -1,46 +1,34 @@
 ﻿namespace SoundFingerprinting.Strides
 {
-    using System;
-
     /// <summary>
-    ///   Static Stride class
+    ///   Static stride class
     /// </summary>
-    [Serializable]
     public class StaticStride : IStride
     {
-        private readonly int nextStride;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="StaticStride"/> class. 
+        ///   Initializes a new instance of the <see cref="StaticStride"/> class. 
         /// </summary>
         /// <param name="strideSize">
-        /// Stride size, used each time StrideSize method is invoked
+        ///    Stride size, used each time GetNextStride method is invoked
         /// </param>
         public StaticStride(int strideSize)
         {
-            nextStride = strideSize;
+            NextStride = strideSize;
             FirstStride = 0;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StaticStride"/> class. 
-        /// </summary>
-        /// <param name="strideSize">
-        /// Stride size
-        /// </param>
-        /// <param name="firstStride">
-        /// First stride
-        /// </param>
-        public StaticStride(int strideSize, int firstStride) : this(strideSize)
+        internal StaticStride(int strideSize, int firstStride) : this(strideSize)
         {
             FirstStride = firstStride;
         }
 
-        public int FirstStride { get; protected set; }
+        public int FirstStride { get; private set; }
 
-        public int GetNextStride()
+        public int NextStride { get; private set; }
+
+        public override string ToString()
         {
-            return nextStride;
+            return string.Format("StaticStride{0}", NextStride);
         }
     }
 }

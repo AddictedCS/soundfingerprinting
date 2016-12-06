@@ -37,14 +37,16 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoUnitTests|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\NoUnitTests\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MathNet.Numerics, Version=2.6.1.30, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MathNet.Numerics.2.6.1\lib\net40\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics.IO">
-      <HintPath>..\packages\MathNet.Numerics.2.6.1\lib\net40\MathNet.Numerics.IO.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
@@ -56,9 +58,20 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
-    <Compile Include="Query\QueryInfo.cs" />
-    <Compile Include="Configuration\CustomHashingConfig.cs" />
-    <Compile Include="Configuration\CustomSpectrogramConfig.cs" />
+    <Compile Include="FFT\LomontFFT.cs" />
+    <Compile Include="IAdvancedModelService.cs" />
+    <Compile Include="AdvancedModelService.cs" />
+    <Compile Include="LCS\Coverage.cs" />
+    <Compile Include="LCS\IQueryResultCoverageCalculator.cs" />
+    <Compile Include="Math\HammingDistanceResultStatistics.cs" />
+    <Compile Include="Math\FScore.cs" />
+    <Compile Include="Math\HashConverter.cs" />
+    <Compile Include="Math\IHashConverter.cs" />
+    <Compile Include="Query\SubFingerprintsToSeconds.cs" />
+    <Compile Include="Query\ConfidenceCalculator.cs" />
+    <Compile Include="Query\IConfidenceCalculator.cs" />
+    <Compile Include="Query\IQueryMath.cs" />
+    <Compile Include="Query\MatchedPair.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
     <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
     <Compile Include="Configuration\EfficientFingerprintConfigurationForQuerying.cs" />
@@ -75,12 +88,10 @@
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
     <Compile Include="InMemory\FingerprintDao.cs" />
-    <Compile Include="InMemory\HashBinDao.cs" />
     <Compile Include="InMemory\RAMStorage.cs" />
     <Compile Include="InMemory\SpectralImageDao.cs" />
     <Compile Include="InMemory\SubFingerprintDao.cs" />
     <Compile Include="InMemory\TrackDao.cs" />
-    <Compile Include="DAO\IHashBinDao.cs" />
     <Compile Include="DAO\ISubFingerprintDao.cs" />
     <Compile Include="DAO\ITrackDao.cs" />
     <Compile Include="DAO\Data\FingerprintData.cs" />
@@ -89,28 +100,15 @@
     <Compile Include="DAO\ModelReference.cs" />
     <Compile Include="DAO\Data\SubFingerprintData.cs" />
     <Compile Include="DAO\Data\TrackData.cs" />
-    <Compile Include="FFT\FFTW\FFTWService.cs" />
-    <Compile Include="FFT\FFTW\FFTWService64.cs" />
-    <Compile Include="FFT\FFTW\X64\FFTWNativeMethods.cs" />
-    <Compile Include="FFT\FFTW\X64\FFTWFNativeMethods.cs" />
     <Compile Include="FFT\ILogUtility.cs" />
     <Compile Include="FFT\LogUtility.cs" />
-    <Compile Include="LCS\AudioSequencesAnalyzer.cs" />
-    <Compile Include="LCS\IAudioSequencesAnalyzer.cs" />
-    <Compile Include="LCS\SubfingerprintSetSortedByTimePosition.cs" />
-    <Compile Include="LSH\BoundedLocalitySensitiveHashingAlgorithm.cs" />
     <Compile Include="Math\ISimilarityUtility.cs" />
-    <Compile Include="Math\MathUtility.cs" />
-    <Compile Include="MinHash\AgressiveSelector.cs" />
-    <Compile Include="MinHash\ConservativeSelector.cs" />
     <Compile Include="MinHash\DefaultPermutations.cs" />
-    <Compile Include="MinHash\Hash.cs" />
-    <Compile Include="MinHash\IMinMutualSelector.cs" />
-    <Compile Include="MinHash\IPermutationGeneratorService.cs" />
-    <Compile Include="MinHash\MinMutualSelector.cs" />
-    <Compile Include="MinHash\PermutationGeneratorService.cs" />
-    <Compile Include="MinHash\SummedAcrossSelector.cs" />
+    <Compile Include="Query\QueryMath.cs" />
+    <Compile Include="LCS\QueryResultCoverageCalculator.cs" />
+    <Compile Include="Query\QueryResultValidatorService.cs" />
     <Compile Include="Query\ResultEntry.cs" />
+    <Compile Include="Query\ResultEntryAccumulator.cs" />
     <Compile Include="Strides\IncrementalRandomStride.cs" />
     <Compile Include="Strides\IncrementalStaticStride.cs" />
     <Compile Include="Strides\IStride.cs" />
@@ -119,33 +117,31 @@
     <Compile Include="Strides\StrideType.cs" />
     <Compile Include="IModelService.cs" />
     <Compile Include="ModelService.cs" />
-    <Compile Include="LCS\SubFingerprintSequenceComparer.cs" />
+    <Compile Include="Strides\StrideUtils.cs" />
     <Compile Include="Utils\AbsComparator.cs" />
-    <Compile Include="Configuration\CustomFingerprintConfiguration.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
-    <Compile Include="FFT\FFTW\CachedFFTWService.cs" />
-    <Compile Include="FFT\FFTW\FFTWArray.cs" />
-    <Compile Include="FFT\FFTW\X86\FFTWFNativeMethods.cs" />
-    <Compile Include="FFT\FFTW\FFTWService86.cs" />
-    <Compile Include="FFT\FFTW\X86\FFTWNativeMethods.cs" />
-    <Compile Include="FFT\FFTW\InteropFFTWDirection.cs" />
-    <Compile Include="FFT\FFTW\InteropFFTWFlags.cs" />
-    <Compile Include="FFT\FFTW\InteropFFTWKind.cs" />
     <Compile Include="FFT\IFFTService.cs" />
-    <Compile Include="Utils\ArrayUtils.cs" />
+    <Compile Include="Utils\FastFingerprintDescriptor.cs" />
     <Compile Include="Utils\FingerprintDescriptor.cs" />
     <Compile Include="IFingerprintService.cs" />
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
-    <Compile Include="Wavelets\NonStandardHaarWaveletDecomposition.cs" />
+    <Compile Include="Utils\ITestRunnerUtils.cs" />
+    <Compile Include="Utils\TestRunner.cs" />
+    <Compile Include="Utils\TestRunnerConfig.cs" />
+    <Compile Include="Utils\TestRunnerEventArgs.cs" />
+    <Compile Include="Utils\TestRunnerOngoingEventArgs.cs" />
+    <Compile Include="Utils\TestRunnerScenarioValidator.cs" />
+    <Compile Include="Utils\TestRunnerUtils.cs" />
+    <Compile Include="Utils\TestRunnerWriter.cs" />
+    <Compile Include="Utils\TestScenariousValidationResult.cs" />
     <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />
     <Compile Include="FFT\SpectrumService.cs" />
     <Compile Include="Command\FingerprintCommand.cs" />
     <Compile Include="Command\ISourceFrom.cs" />
     <Compile Include="Wavelets\StandardHaarWaveletDecomposition.cs" />
-    <Compile Include="Wavelets\IntegralImage.cs" />
     <Compile Include="Wavelets\IWaveletDecomposition.cs" />
     <Compile Include="Command\IWithFingerprintConfiguration.cs" />
     <Compile Include="Command\IFingerprintCommand.cs" />
@@ -157,10 +153,8 @@
     <Compile Include="MinHash\IMinHashService.cs" />
     <Compile Include="Math\SimilarityUtility.cs" />
     <Compile Include="MinHash\IPermutations.cs" />
-    <Compile Include="MinHash\LocalFilePermutations.cs" />
     <Compile Include="MinHash\MinHashService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Configuration\CustomQueryConfiguration.cs" />
     <Compile Include="Configuration\DefaultQueryConfiguration.cs" />
     <Compile Include="Builder\QueryCommandBuilder.cs" />
     <Compile Include="Command\QueryCommand.cs" />
@@ -172,26 +166,8 @@
     <Compile Include="IQueryFingerprintService.cs" />
     <Compile Include="QueryFingerprintService.cs" />
     <Compile Include="Query\QueryResult.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="x64\libfftw3-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\libfftw3f-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x64\libfftw3l-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\libfftw3-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\libfftw3f-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\libfftw3l-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Compile Include="Windows\HanningWindow.cs" />
+    <Compile Include="Windows\IWindowFunction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
@@ -208,7 +184,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -216,7 +194,7 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

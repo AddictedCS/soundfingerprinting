@@ -4,29 +4,24 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
 
-    [TestClass]
+    [TestFixture]
     public class FingerprintDescriptorTest : AbstractTest
     {
         private const int TopWavelets = 200;
 
         private IFingerprintDescriptor fingerprintDescriptor;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             fingerprintDescriptor = new FingerprintDescriptor();
         }
 
-        [TestCleanup]
-        public void TearDown()
-        {
-        }
-
-        [TestMethod]
+        [Test]
         public void ExtractTopWaveletesText()
         {
             float[][] frames = new float[128][];
@@ -37,14 +32,11 @@
 
             bool[] actual = fingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets);
             bool[] expected = ExtractTopWaveletsTested(frames, TopWavelets);
-            Assert.AreEqual(actual.Length, expected.Length);
-            for (int i = 0; i < actual.Length; i++)
-            {
-                Assert.AreEqual(actual[i], expected[i]);
-            }
+
+            CollectionAssert.AreEqual(expected, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void ExtractTopWaveletWorksCorrectly()
         {
             float[][] frames = new float[2][];
@@ -59,13 +51,10 @@
 
             bool[] encodedFingerprint = fingerprintDescriptor.ExtractTopWavelets(frames, 5);
 
-            for (int i = 0; i < encodedFingerprint.Length; i++)
-            {
-                Assert.AreEqual(expected[i], encodedFingerprint[i]);
-            }
+            CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
-        [TestMethod]
+        [Test]
         public void EncodeFingerprintWorksAsExpected()
         {
             float[] concatenatedSpectrumPowers = new float[] { 2, 4, 8, 9, 1, 3, 5 };
@@ -74,23 +63,17 @@
 
             bool[] encodedFingerprint = fingerprintDescriptor.EncodeFingerprint(concatenatedSpectrumPowers, indexes, 2);
 
-            for (int i = 0; i < encodedFingerprint.Length; i++)
-            {
-                Assert.AreEqual(expected[i], encodedFingerprint[i]);
-            }
+            CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
-        [TestMethod]
+        [Test]
         public void DecodeFingerprintWorksAsExpected()
         {
             double[] expected = new double[] { 0, 0, 1, -1, 0, 0, 0 };
 
             double[] decoded = fingerprintDescriptor.DecodeFingerprint(new[] { false, false, false, false, true, false, false, true, false, false, false, false, false, false });
 
-            for (int i = 0; i < decoded.Length; i++)
-            {
-                Assert.IsTrue(Math.Abs(expected[i] - decoded[i]) < Epsilon);
-            }
+            CollectionAssert.AreEqual(expected, decoded);
         }
 
         private bool[] ExtractTopWaveletsTested(float[][] frames, int topWavelets)
@@ -104,9 +87,8 @@
                 Array.Copy(frames[row], 0, concatenated, row * frames[row].Length, frames[row].Length);
             }
 
-            var query =
-                concatenated.Select((value, index) => new KeyValuePair<int, double>(index, value)).OrderByDescending(
-                    pair => Math.Abs(pair.Value));
+            var query = concatenated.Select((value, index) => new KeyValuePair<int, double>(index, value))
+                                    .OrderByDescending(pair => Math.Abs(pair.Value));
 
             if (topWavelets >= concatenated.Length)
             {

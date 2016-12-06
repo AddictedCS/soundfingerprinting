@@ -1,32 +1,32 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.MinHash
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.MinHash;
 
-    [TestClass]
+    [TestFixture]
     public class MinHashServiceTest : AbstractTest
     {
         private MinHashService minHashService;
 
         private Mock<IPermutations> permutations;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             permutations = new Mock<IPermutations>(MockBehavior.Strict);
             minHashService = new MinHashService(permutations.Object);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             permutations.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void DependencyResolverTest()
         {
             var instance = new MinHashService();
@@ -34,7 +34,7 @@
             Assert.IsNotNull(instance);
         }
 
-        [TestMethod]
+        [Test]
         public void PermutationsCountTest()
         {
             int[][] perms = new[] { new int[] { }, new int[] { }, new int[] { } };
@@ -45,7 +45,7 @@
             Assert.AreEqual(3, count);
         }
 
-        [TestMethod]
+        [Test]
         public void ComputeHashTest()
         {
             int[][] perms = new[] { new[] { 1, 4, 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };

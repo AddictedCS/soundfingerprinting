@@ -9,7 +9,7 @@
     /// Implemented according to the algorithm found here http://grail.cs.washington.edu/projects/wavelets/article/wavelet1.pdf
     /// According to Fast Multi-Resolution Image Query paper, Haar wavelet decomposition with standard basis function works better in image querying
     /// </remarks>
-    public class StandardHaarWaveletDecomposition : HaarWaveletDecomposition
+    internal class StandardHaarWaveletDecomposition : HaarWaveletDecomposition
     {
         /// <summary>
         ///   Apply Haar Wavelet decomposition on the image

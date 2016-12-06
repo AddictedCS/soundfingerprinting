@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.MinHash
 {
-    public interface IMinHashService
+    internal interface IMinHashService
     {
         int PermutationsCount { get; }
 

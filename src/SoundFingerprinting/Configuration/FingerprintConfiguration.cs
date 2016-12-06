@@ -1,16 +1,50 @@
 namespace SoundFingerprinting.Configuration
 {
     using System;
+    using System.Collections.Generic;
 
-    public class FingerprintConfiguration
+    using SoundFingerprinting.Strides;
+
+    public abstract class FingerprintConfiguration
     {
         private int topWavelets;
         private int sampleRate;
 
         /// <summary>
+        ///  Gets or sets stride between 2 consecutive fingerprints
+        /// </summary>
+        public IStride Stride
+        {
+            get
+            {
+                return SpectrogramConfig.Stride;
+            }
+
+            set
+            {
+                SpectrogramConfig.Stride = value;
+            }
+        }
+
+        /// <summary>
+        ///   Gets or sets the list of assigned clusters to all generated fingerprints
+        /// </summary>
+        public IEnumerable<string> Clusters { get; set; }
+
+        /// <summary>
+        ///  Gets or sets a value indicating whether the algorithm has to normalize the audio signal
+        /// </summary>
+        internal bool NormalizeSignal { get; set; }
+
+        /// <summary>
+        ///  Gets or sets spectrogram creation configuration parameters
+        /// </summary>
+        internal SpectrogramConfig SpectrogramConfig { get; set; }
+
+        /// <summary>
         ///   Gets number of audio samples read for one fingerprint
         /// </summary>
-        public int SamplesPerFingerprint
+        internal int SamplesPerFingerprint
         {
             get
             {
@@ -21,7 +55,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets number of Top wavelets to consider
         /// </summary>
-        public int TopWavelets
+        internal int TopWavelets
         {
             get
             {
@@ -42,7 +76,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets sample rate
         /// </summary>
-        public int SampleRate
+        internal int SampleRate
         {
             get
             {
@@ -61,18 +95,19 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the algorithm has to normalize the audio signal
+        ///  Gets or sets hashing configuration parameters
         /// </summary>
-        public bool NormalizeSignal { get; set; }
+        internal HashingConfig HashingConfig { get; set; }
 
         /// <summary>
-        /// Gets or sets spectrogram creation configuration parameters
+        ///  Gets fingerprint length in seconds
         /// </summary>
-        public SpectrogramConfig SpectrogramConfig { get; set; }
-
-        /// <summary>
-        /// Gets or sets hashing configuration parameters
-        /// </summary>
-        public HashingConfig HashingConfig { get; set; }
+        internal double FingerprintLengthInSeconds
+        {
+            get
+            {
+                return (double)SamplesPerFingerprint / SampleRate;
+            }
+        }
     }
 }

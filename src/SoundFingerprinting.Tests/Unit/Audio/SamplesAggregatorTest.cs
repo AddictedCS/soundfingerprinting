@@ -1,15 +1,16 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Audio
 {
+    using System;
     using System.Collections.Generic;
 
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
 
-    [TestClass]
+    [TestFixture]
     public class SamplesAggregatorTest : AbstractTest
     {
-        private const int DefaultSampleRate = 5512;
+        private readonly Random random = new Random((int)(DateTime.Now.Ticks << 4));
 
         private readonly ISamplesAggregator samplesAggregator;
 
@@ -18,66 +19,84 @@
             samplesAggregator = new SamplesAggregator();
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(AudioServiceException))]
+        [Test]
         public void TestLessDataThanRequestedIsReceivedFromSamplesProvider()
         {
             const int SecondsToRead = 55;
 
             // 20 20 10 seconds
             var queueBytesRead =
-                new Queue<int>(
+                new Queue<float[]>(
                     new[]
                         {
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4,
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4,
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4 / 2, 0
+                            GetRandomFloatArray(20, SampleRate),
+                            GetRandomFloatArray(20, SampleRate),
+                            GetRandomFloatArray(10, SampleRate),
+                            new float[0]
                         });
-
-            samplesAggregator.ReadSamplesFromSource(
-                new QueueSamplesProvider(queueBytesRead), SecondsToRead, DefaultSampleRate);
+            Assert.Throws<AudioServiceException>(
+                () =>
+                samplesAggregator.ReadSamplesFromSource(
+                    new QueueSamplesProvider(queueBytesRead), SecondsToRead, SampleRate));
         }
 
-        [TestMethod]
+        [Test]
         public void TestMoreDataIsReceivedThanRequested()
         {
             const int SecondsToRead = 45;
 
             // 20 20 10 seconds
-            var queueBytesRead =
-                new Queue<int>(
+            var queueBytesRead = new Queue<float[]>(
                     new[]
                         {
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4,
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4,
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4 / 2
+                            GetRandomFloatArray(20, SampleRate),
+                            GetRandomFloatArray(20, SampleRate),
+                            GetRandomFloatArray(10, SampleRate),
+                            new float[0]
                         });
 
-            var samples = samplesAggregator.ReadSamplesFromSource(
-                new QueueSamplesProvider(queueBytesRead), SecondsToRead, DefaultSampleRate);
+            var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queueBytesRead), SecondsToRead, SampleRate);
 
-            Assert.AreEqual(SecondsToRead * DefaultSampleRate, samples.Length);
+            Assert.AreEqual(SecondsToRead * SampleRate, samples.Length);
         }
 
-        [TestMethod]
+        [Test]
         public void TestExactAmountOfDataIsReceivedAsRequested()
         {
-            const int SecondsToRead = 60;
+            const double SecondsToRead = 65.8;
 
             // 20 20 20 seconds
-            var queueBytesRead =
-                new Queue<int>(
-                    new[]
-                        {
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4,
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4,
-                            DefaultSampleRate * SamplesAggregator.DefaultBufferLengthInSeconds * 4
-                        });
+            var floats = new[]
+                {
+                    GetRandomFloatArray(20, SampleRate), GetRandomFloatArray(20, SampleRate),
+                    GetRandomFloatArray(20, SampleRate), GetRandomFloatArray(5.8, SampleRate), 
+                    new float[0]
+                };
 
-            var samples = samplesAggregator.ReadSamplesFromSource(
-                new QueueSamplesProvider(queueBytesRead), SecondsToRead, DefaultSampleRate);
+            var queue = new Queue<float[]>(floats);
 
-            Assert.AreEqual(SecondsToRead * DefaultSampleRate, samples.Length);
+            var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queue), SecondsToRead, SampleRate);
+
+            Assert.AreEqual((int)(SecondsToRead * SampleRate) / 4 * 4, samples.Length);
+            int prevArrayLength = 0;
+            for (int i = 0; i < floats.Length - 1; ++i)
+            {
+                float[] toCompare = new float[floats[i].Length];
+                Array.Copy(samples, prevArrayLength, toCompare, 0, toCompare.Length);
+                CollectionAssert.AreEqual(floats[i], toCompare);
+                prevArrayLength += toCompare.Length;
+            }
+        }
+
+        private float[] GetRandomFloatArray(double seconds, int sampleRate)
+        {
+            float[] array = new float[(int)(seconds * sampleRate) / 4 * 4];
+            for (int i = 0; i < array.Length; ++i)
+            {
+                array[i] = (float)random.NextDouble();
+            }
+
+            return array;
         }
     }
 }

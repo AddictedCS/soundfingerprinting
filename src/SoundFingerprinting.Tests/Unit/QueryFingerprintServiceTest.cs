@@ -1,42 +1,40 @@
 ﻿namespace SoundFingerprinting.Tests.Unit
 {
     using System.Collections.Generic;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Linq;
 
     using Moq;
+
+    using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
-    [TestClass]
+    [TestFixture]
     public class QueryFingerprintServiceTest : AbstractTest
     {
-        private QueryFingerprintService queryFingerprintService;
+        private readonly QueryFingerprintService queryFingerprintService = new QueryFingerprintService();
 
         private Mock<IModelService> modelService;
 
-        [TestInitialize]
+        [SetUp]
         public void SetUp()
         {
             modelService = new Mock<IModelService>(MockBehavior.Strict);
-
-            queryFingerprintService = new QueryFingerprintService();
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TearDown()
         {
             modelService.VerifyAll();
         }
 
-        [TestMethod]
+        [Test]
         public void MaximumNumberOfReturnedTracksIsLessThanAnalyzedCandidatesResultsTest()
         {
-            long[] buckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, buckets, 1, 0);
+            var queryHash = new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 1, 0, Enumerable.Empty<string>());
             const int DefaultThreshold = 5;
             const int FirstTrackId = 20;
             const int SecondTrackId = 21;
@@ -44,128 +42,106 @@
             const int FirstSubFingerprintId = 10;
             const int SecondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            var thirdTrackReference = new ModelReference<int>(ThirdTrackId);
+            var secondTrackReference = new ModelReference<int>(SecondTrackId);
             var firstResult = new SubFingerprintData(
-                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                GenericHashBuckets(),
                 1,
                 0,
                 new ModelReference<int>(FirstSubFingerprintId),
                 firstTrackReference);
-            SubFingerprintData secondResult = new SubFingerprintData(
-                new byte[] { 11, 2, 13, 4, 15, 6, 7, 8, 10, 12 },
+            var secondResult = new SubFingerprintData(
+                GenericHashBuckets(),
                 2,
                 0.928,
                 new ModelReference<int>(SecondSubFingerprintId),
-                new ModelReference<int>(SecondTrackId));
-            SubFingerprintData thirdResult = new SubFingerprintData(
-                new byte[] { 1, 2, 3, 4, 5, 15, 7, 8, 10, 12 },
+                secondTrackReference);
+            var thirdResult = new SubFingerprintData(
+                GenericHashBuckets(),
                 3,
                 0.928 * 2,
                 new ModelReference<int>(SecondSubFingerprintId),
                 new ModelReference<int>(ThirdTrackId));
 
+            var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 2, ThresholdVotes = DefaultThreshold };
+            
+            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
             modelService.Setup(
-                service => service.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, DefaultThreshold)).Returns(
+                service => service.ReadSubFingerprints(It.IsAny<long[]>(), customQueryConfiguration)).Returns(
                     new List<SubFingerprintData> { firstResult, secondResult, thirdResult });
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference)).Returns(
                 new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
-            modelService.Setup(service => service.ReadTrackByReference(thirdTrackReference)).Returns(
-                new TrackData { ISRC = "isrc_2", TrackReference = thirdTrackReference });
+            modelService.Setup(service => service.ReadTrackByReference(secondTrackReference)).Returns(
+               new TrackData { ISRC = "isrc_1", TrackReference = secondTrackReference });
 
-            var queryResult = queryFingerprintService.Query(
-                modelService.Object,
-                new List<HashedFingerprint> { queryHash },
-                new CustomQueryConfiguration
-                    {
-                        MaximumNumberOfTracksToReturnAsResult = 2, ThresholdVotes = DefaultThreshold 
-                    });
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
 
-            Assert.IsTrue(queryResult.IsSuccessful);
+            Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(9, queryResult.BestMatch.MatchedFingerprints);
-            Assert.AreEqual(3, queryResult.AnalyzedTracksCount);
-            Assert.AreEqual(2, queryResult.ResultEntries.Count);
-            Assert.AreEqual(firstTrackReference, queryResult.ResultEntries[0].Track.TrackReference);
-            Assert.AreEqual(thirdTrackReference, queryResult.ResultEntries[1].Track.TrackReference);
+            Assert.AreEqual(50, queryResult.BestMatch.HammingSimilaritySum);
+            Assert.AreEqual(2, queryResult.ResultEntries.Count());
+            var results = queryResult.ResultEntries.ToList();
+            Assert.AreEqual(firstTrackReference, results[0].Track.TrackReference);
+            Assert.AreEqual(secondTrackReference,  results[1].Track.TrackReference);
         }
 
-        [TestMethod]
+        [Test]
         public void NoResultsReturnedFromUnderlyingStorageTest()
         {
-            var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0);
-            modelService.Setup(service => service.ReadSubFingerprintDataByHashBucketsWithThreshold(It.IsAny<long[]>(), 10)).Returns(new List<SubFingerprintData>());
+            var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0, Enumerable.Empty<string>());
+            var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
+            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
+            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<long[]>(), customQueryConfiguration)).Returns(new List<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(
-                modelService.Object,
-                new List<HashedFingerprint> { queryHash },
-                new CustomQueryConfiguration { MaximumNumberOfTracksToReturnAsResult = 1, ThresholdVotes = 10 });
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
 
-            Assert.IsFalse(queryResult.IsSuccessful);
+            Assert.IsFalse(queryResult.ContainsMatches);
             Assert.IsNull(queryResult.BestMatch);
-            Assert.AreEqual(0, queryResult.AnalyzedTracksCount);
-            Assert.AreEqual(0, queryResult.ResultEntries.Count);
+            Assert.AreEqual(0, queryResult.ResultEntries.Count());
         }
 
-        [TestMethod]
+        [Test]
         public void HammingSimilarityIsSummedUpAccrossAllSubFingerprintsTest()
         {
-            long[] buckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, buckets, 0, 0);
-            const int DefaultThreshold = 5;
+            var queryHash = new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0, Enumerable.Empty<string>());
             const int FirstTrackId = 20;
             const int FirstSubFingerprintId = 10;
             const int SecondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            SubFingerprintData firstResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1, 0, new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
-            SubFingerprintData secondResult = new SubFingerprintData(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 10, 12 }, 2, 0.928, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
+            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
+            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
+            var defaultQueryConfiguration = new DefaultQueryConfiguration();
 
-            modelService.Setup(service => service.ReadSubFingerprintDataByHashBucketsWithThreshold(buckets, DefaultThreshold))
+            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
+            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<long[]>(), defaultQueryConfiguration))
                         .Returns(new List<SubFingerprintData> { firstResult, secondResult });
             modelService.Setup(service => service.ReadTrackByReference(firstTrackReference))
                         .Returns(new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
 
-            var queryResult = queryFingerprintService.Query(modelService.Object, new List<HashedFingerprint> { queryHash }, new DefaultQueryConfiguration());
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, modelService.Object);
 
-            Assert.IsTrue(queryResult.IsSuccessful);
+            Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(9 + 8, queryResult.BestMatch.MatchedFingerprints);
-            Assert.AreEqual(1, queryResult.AnalyzedTracksCount);
-            Assert.AreEqual(1, queryResult.ResultEntries.Count);
+            Assert.AreEqual(GenericSignature().Length * 2, queryResult.BestMatch.HammingSimilaritySum);
+            Assert.AreEqual(1, queryResult.ResultEntries.Count());
         }
 
-        [TestMethod]
-        public void OnlyTracksWithGroupIdAreConsideredAsPotentialCandidatesTest()
+        [Test]
+        public void ShouldSelectProperStrategyAccordingToModelServiceSupportingBatchedQuery()
         {
-            long[] buckets = new long[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            var queryHash = new HashedFingerprint(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 }, buckets, 0, 0);
-            const int DefaultThreshold = 5;
-            const int FirstTrackId = 20;
-            const int FirstSubFingerprintId = 10;
-            var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            SubFingerprintData firstResult = new SubFingerprintData(
-                new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
-                1,
-                0.928,
-                new ModelReference<int>(FirstSubFingerprintId),
-                firstTrackReference);
-      
+            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(true);
             modelService.Setup(
-                service =>
-                service.ReadSubFingerprintDataByHashBucketsThresholdWithGroupId(buckets, DefaultThreshold, "group-id"))
-                .Returns(new List<SubFingerprintData> { firstResult });
-            modelService.Setup(service => service.ReadTrackByReference(firstTrackReference)).Returns(
-                new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
+                service => service.ReadSubFingerprints(It.IsAny<IEnumerable<long[]>>(), It.IsAny<QueryConfiguration>()))
+                .Returns(new HashSet<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(
-                modelService.Object,
-                new List<HashedFingerprint> { queryHash },
-                new CustomQueryConfiguration { TrackGroupId = "group-id" });
-
-            Assert.IsTrue(queryResult.IsSuccessful);
-            Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
-            Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
+            queryFingerprintService.Query(
+                new List<HashedFingerprint>
+                    {
+                        new HashedFingerprint(GenericSignature(), GenericHashBuckets(), 0, 0d, Enumerable.Empty<string>())
+                    },
+                new DefaultQueryConfiguration(),
+                modelService.Object);
         }
     }
 }

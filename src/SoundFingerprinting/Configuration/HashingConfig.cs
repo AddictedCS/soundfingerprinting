@@ -2,10 +2,8 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
 
-    public abstract class HashingConfig
+    internal abstract class HashingConfig
     {
-        public static readonly HashingConfig Default = new DefaultHashingConfig();
-
         private int numberOfLSHTables;
 
         private int numberOfMinHashesPerTable;

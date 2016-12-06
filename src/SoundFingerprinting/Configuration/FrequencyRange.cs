@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Configuration
 {
-    public class FrequencyRange
+    internal class FrequencyRange
     {
         public int Min { get; set; }
 

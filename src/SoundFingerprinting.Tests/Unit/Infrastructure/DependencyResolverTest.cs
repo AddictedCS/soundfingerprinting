@@ -1,26 +1,23 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Infrastructure
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-    using Moq;
+    using NUnit.Framework;
 
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.FFT;
 
-    [TestClass]
+    [TestFixture]
     public class DependencyResolverTest
     {
-        [TestMethod]
+        [Test]
         public void ResolveDefaultInterfacesForFingerprintCommandTest()
         {
-            IFingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
+            var fingerprintCommandBuilder = new FingerprintCommandBuilder();
             Assert.IsNotNull(fingerprintCommandBuilder);
         }
 
-        [TestMethod]
+        [Test]
         public void ResolverDefaultInterfacesForQueryCommandTest()
         {
-            IQueryCommandBuilder queryCommandBuilder = new QueryCommandBuilder();
+            var queryCommandBuilder = new QueryCommandBuilder();
             Assert.IsNotNull(queryCommandBuilder);
         }
     }

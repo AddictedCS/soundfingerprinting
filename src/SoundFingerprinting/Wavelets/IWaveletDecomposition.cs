@@ -5,7 +5,7 @@
     /// <summary>
     ///   Wavelet decomposition algorithm
     /// </summary>
-    public interface IWaveletDecomposition
+    internal interface IWaveletDecomposition
     {
         /// <summary>
         ///  Apply wavelet decomposition on entire set of fingerprint images

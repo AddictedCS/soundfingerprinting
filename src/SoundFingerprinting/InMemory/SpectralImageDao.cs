@@ -1,22 +1,59 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
-    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
 
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
+    using DAO;
+    using DAO.Data;
+    using Infrastructure;
 
     internal class SpectralImageDao : ISpectralImageDao
     {
-        public void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
+        private static int counter;
+
+        private readonly IRAMStorage ramStorage;
+
+        public SpectralImageDao() : this(DependencyResolver.Current.Get<IRAMStorage>())
         {
-            throw new NotImplementedException();
         }
 
-        public List<SpectralImageData> GetSpectralImagesByTrackId(IModelReference trackReference)
+        internal SpectralImageDao(IRAMStorage ramStorage)
         {
-            throw new NotImplementedException();
+            this.ramStorage = ramStorage;
+        }
+
+        public void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
+        {
+            int orderNumber = 0;
+            var dtos =
+                spectralImages.Select(
+                    spectralImage =>
+                        new SpectralImageData(
+                            spectralImage,
+                            orderNumber++,
+                            new ModelReference<int>(Interlocked.Increment(ref counter)),
+                            trackReference)).ToList();
+
+            if (!ramStorage.SpectralImages.ContainsKey(trackReference))
+            {
+                ramStorage.SpectralImages[trackReference] = dtos;
+            }
+            else
+            {
+                ramStorage.SpectralImages[trackReference] =
+                    ramStorage.SpectralImages[trackReference].Concat(dtos).ToList();
+            }
+        }
+
+        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
+        {
+            if (ramStorage.SpectralImages.ContainsKey(trackReference))
+            {
+                return ramStorage.SpectralImages[trackReference];
+            }
+
+            return Enumerable.Empty<SpectralImageData>();
         }
     }
 }

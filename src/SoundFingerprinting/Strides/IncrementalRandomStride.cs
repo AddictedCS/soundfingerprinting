@@ -1,25 +1,46 @@
 ﻿namespace SoundFingerprinting.Strides
 {
+    using System;
+
+    /// <summary>
+    ///   Incremental random stride used in providing step length (measured in number of audio samples) between 2 consecutive fingerprints
+    /// </summary>
     public class IncrementalRandomStride : RandomStride
     {
-        private readonly int samplesPerFingerprint;
-         
-        public IncrementalRandomStride(int minStride, int maxStride, int samplesPerFingerprint)
-            : base(minStride, maxStride)
+        private const int SamplesPerFingerprint = 128 * 64; // 8192 samples per one fingerprint
+
+        /// <summary>
+        ///   Initializes a new instance of the <see cref="IncrementalRandomStride"/> class. 
+        /// </summary>
+        /// <example>
+        ///   new IncrementalRandomStride(256, 512)
+        /// </example>
+        /// <param name="min">
+        ///   Inclusive min value used for generating a random stride
+        /// </param>
+        /// <param name="max">
+        ///   Exclusive max value used for generating a random stride
+        /// </param>
+        public IncrementalRandomStride(int min, int max) : base(min, max)
         {
-            this.samplesPerFingerprint = samplesPerFingerprint;
-            FirstStride = Random.Next(minStride, maxStride);
         }
 
-        public IncrementalRandomStride(int minStride, int maxStride, int samplesPerFingerprint, int firstStride)
-            : this(minStride, maxStride, samplesPerFingerprint)
+        internal IncrementalRandomStride(int minStride, int maxStride, int firstStride)
+            : base(minStride, maxStride, firstStride)
         {
-            FirstStride = firstStride;
         }
 
-        public override int GetNextStride()
+        public override int NextStride
         {
-            return -samplesPerFingerprint + Random.Next(Min, Max);
+            get
+            {
+                return -SamplesPerFingerprint + Random.Next(Min, Max);
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("IncrementalRandomStride[{0}-{1})", Min, Max);
         }
     }
 }

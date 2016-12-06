@@ -37,16 +37,9 @@ namespace SoundFingerprinting.Utils
         ///   Positive Numbers = 10
         ///   Zeros            = 00
         /// </remarks>
-        public bool[] ExtractTopWavelets(float[][] frames, int topWavelets)
+        public virtual bool[] ExtractTopWavelets(float[][] frames, int topWavelets)
         {
-            int rows = frames.GetLength(0); /*128*/
-            int cols = frames[0].Length; /*32*/
-            float[] concatenated = new float[rows * cols]; /* 128 * 32 */
-            for (int row = 0; row < rows; row++)
-            {
-                Buffer.BlockCopy(frames[row], 0, concatenated, row * frames[row].Length * 4, frames[row].Length * 4);
-            }
-
+            float[] concatenated = ConcatenateFrames(frames);
             int[] indexes = Enumerable.Range(0, concatenated.Length).ToArray();
             Array.Sort(concatenated, indexes, absComparator);
             bool[] result = EncodeFingerprint(concatenated, indexes, topWavelets);
@@ -108,6 +101,19 @@ namespace SoundFingerprinting.Utils
             }
 
             return result;
+        }
+
+        protected float[] ConcatenateFrames(float[][] frames)
+        {
+            int rows = frames.GetLength(0); /*128*/
+            int cols = frames[0].Length; /*32*/
+            float[] concatenated = new float[rows * cols]; /* 128 * 32 */
+            for (int row = 0; row < rows; row++)
+            {
+                Buffer.BlockCopy(frames[row], 0, concatenated, row * frames[row].Length * sizeof(float), frames[row].Length * sizeof(float));
+            }
+
+            return concatenated;
         }
     }
 }

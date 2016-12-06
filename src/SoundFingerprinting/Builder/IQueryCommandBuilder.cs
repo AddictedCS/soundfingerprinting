@@ -5,7 +5,7 @@
     public interface IQueryCommandBuilder
     {
         /// <summary>
-        /// Start building the query command
+        ///  Start building query command for audio identification
         /// </summary>
         /// <returns>Source selector</returns>
         IQuerySource BuildQueryCommand();
