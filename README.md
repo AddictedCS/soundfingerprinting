@@ -126,7 +126,7 @@ In order to build latest version of the **SoundFingerprinting** assembly run the
     .\build.cmd
 ### Get it on NuGet
 
-    Install-Package SoundFingerprinting -Pre
+    Install-Package SoundFingerprinting
 
 ### Demo
 My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting)
