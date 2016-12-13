@@ -26,6 +26,11 @@ namespace SoundFingerprinting.Query
         ///  Gets the best guess of how long did the resulting track matched in the query
         /// </summary>
         public double QueryMatchLength { get; private set; }
+        
+        /// <summary>
+        ///  Gets the exact position where resulting track started to match in the query 
+        /// </summary>
+        public double QueryMatchStartsAt { get; private set; }
 
         /// <summary>
         ///  Gets best guess where does the result track starts in the query snippet. This value may be negative.
@@ -52,11 +57,6 @@ namespace SoundFingerprinting.Query
         ///  Gets best matched pair
         /// </summary>
         internal MatchedPair BestMatch { get; private set; }
-
-        /// <summary>
-        ///  Gets the exact position where resulting track started to match 
-        /// </summary>
-        internal double QueryMatchStartsAt { get; private set; }
 
         /// <summary>
         ///   Gets starting position in the origin track that mached at QueryMatchStartPosition
