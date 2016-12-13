@@ -8,7 +8,8 @@ _soundfingerprinting_ is a C# framework designed for developers, enthusiasts, re
 
 ## Documentation
 
-Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, 2 terms are used interchangeably) will be stored in a configurable backend. The interfaces for fingerprinting and querying audio files are implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) using [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns.
+Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, 2 terms are used interchangeably) will be stored in a configurable backend. The interfaces for fingerprinting and querying audio files are implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html).
+
 ```csharp
 private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM
 private readonly IAudioService audioService = new NAudioService(); // use NAudio audio processing library
@@ -119,15 +120,14 @@ Yes, but you will have to play around with `Stride` (decreasing it on both inser
 Yes. SoundFingerprinting can be used in cross-platform applications. Just keep in mind that the default audio service **NAudio**, requires Windows native DLLs. Since these are not available in Unix, you can use the override method which asks for `AudioSamples` as the source for fingerprinting and querying. It's the responsability of the caller to provide mono audio samples at 5512 frequency rate. If this condition is met, the algorithm will not invoke any methods from NAudio.
 
 ### Binaries
-    git clone git@github.com:AddictedCS/soundfingerprinting.git
-    
+
+    git clone git@github.com:AddictedCS/soundfingerprinting.git    
 In order to build latest version of the **SoundFingerprinting** assembly run the following command from repository root.
 
     .\build.cmd
 ### Get it on NuGet
 
     Install-Package SoundFingerprinting
-
 ### Demo
 My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting)
 The demo project is a Audio File Duplicates Detector. Its latest source code can be found [here](src/SoundFingerprinting.DuplicatesDetector). Its a WPF MVVM project that uses the algorithm to detect what files are perceptually very similar.
