@@ -51,7 +51,7 @@
                     newEntry.Track,
                     newEntry.QueryMatchStartsAt,
                     newEntry.QueryMatchLength,
-                    newEntry.OriginStartsAt,
+                    newEntry.TrackMatchStartsAt,
                     newEntry.TrackStartsAt + result.TrackStartsAt,
                     newEntry.Confidence,
                     newEntry.HammingSimilaritySum,
