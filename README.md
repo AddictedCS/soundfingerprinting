@@ -8,7 +8,8 @@ _soundfingerprinting_ is a C# framework designed for developers, enthusiasts, re
 
 ## Documentation
 
-Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, 2 terms are used interchangeably) will be stored in a configurable backend. The interfaces for fingerprinting and querying audio files are implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html) using [Builder](http://en.wikipedia.org/wiki/Builder_pattern) and [Command](http://en.wikipedia.org/wiki/Command_pattern) patterns.
+Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, 2 terms are used interchangeably) will be stored in a configurable backend. The interfaces for fingerprinting and querying audio files are implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html).
+
 ```csharp
 private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM
 private readonly IAudioService audioService = new NAudioService(); // use NAudio audio processing library
@@ -35,7 +36,7 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
 ```
 The default storage, which comes bundled with _soundfingerprinting_ package, is a plain RAM storage, managed by <code>InMemoryModelService</code>. The following list of persistent storages is available for general use: 
 - Solr, highly efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). Considered as the default option, highly optimized for both query and insertion.
-- MSSQL, [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql)
+- MSSQL, [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql).
 - MongoDB, (still in development) [soundfingerprinting.mongodb](https://github.com/AddictedCS/soundfingerprinting.mongodb). Not ready for use, developers are welcome to contribute.
 
 Once you've inserted the fingerprints into the datastore, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
@@ -66,7 +67,9 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
 Every `ResultEntry` object will contain the following information:
 - `Track` - matched track from the datastore
 - `QueryMatchLength` - returns how many query seconds matched the resulting track
-- `TrackStartsAt` - returns where does the matched track starts, always relative to the query
+- `QueryMatchStartsAt` - returns time position where resulting track started to match in the query
+- `TrackMatchStartsAt` - returns time position where the query started to match in the resulting track
+- `TrackStartsAt` - returns an approximation where does the matched track starts, always relative to the query
 - `Coverage` - returns a value between [0, 1], informing how much the query covered the resulting track (i.e. a 2 minutes query found a 30 seconds track within it, starting at 100th second, coverage will be equal to (120 - 100)/30 ~= 0.66)
 - `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
 
@@ -119,15 +122,14 @@ Yes, but you will have to play around with `Stride` (decreasing it on both inser
 Yes. SoundFingerprinting can be used in cross-platform applications. Just keep in mind that the default audio service **NAudio**, requires Windows native DLLs. Since these are not available in Unix, you can use the override method which asks for `AudioSamples` as the source for fingerprinting and querying. It's the responsability of the caller to provide mono audio samples at 5512 frequency rate. If this condition is met, the algorithm will not invoke any methods from NAudio.
 
 ### Binaries
-    git clone git@github.com:AddictedCS/soundfingerprinting.git
-    
+
+    git clone git@github.com:AddictedCS/soundfingerprinting.git    
 In order to build latest version of the **SoundFingerprinting** assembly run the following command from repository root.
 
     .\build.cmd
 ### Get it on NuGet
 
     Install-Package SoundFingerprinting
-
 ### Demo
 My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting)
 The demo project is a Audio File Duplicates Detector. Its latest source code can be found [here](src/SoundFingerprinting.DuplicatesDetector). Its a WPF MVVM project that uses the algorithm to detect what files are perceptually very similar.
@@ -135,8 +137,8 @@ The demo project is a Audio File Duplicates Detector. Its latest source code can
 ### Contribute
 If you want to contribute you are welcome to open issues or discuss on [issues](https://github.com/AddictedCS/soundfingerprinting/issues) page. Feel free to contact me for any remarks, ideas, bug reports etc. 
 
-### Licence
-The framework is provided under [MIT](https://opensource.org/licenses/MIT) licence agreement. The theoretical description of the algorithm can be read in [Content Fingerprinting using Wavelets](http://static.googleusercontent.com/media/research.google.com/en/pubs/archive/32685.pdf) paper.
+### License
+The framework is provided under [MIT](https://opensource.org/licenses/MIT) license agreement. The theoretical description of the algorithm can be read in [Content Fingerprinting using Wavelets](http://static.googleusercontent.com/media/research.google.com/en/pubs/archive/32685.pdf) paper.
 
 Special thanks to [JetBrains](https://www.jetbrains.com/) for providing this project with a license for [ReSharper](https://www.jetbrains.com/resharper/)!
 

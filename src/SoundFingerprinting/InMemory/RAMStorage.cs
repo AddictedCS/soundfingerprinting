@@ -36,16 +36,16 @@
         private void Initialize(int numberOfHashTables)
         {
             NumberOfHashTables = numberOfHashTables;
-            SubFingerprints = new Dictionary<IModelReference, SubFingerprintData>();
-            Tracks = new Dictionary<IModelReference, TrackData>();
-            TracksHashes = new Dictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
-            HashTables = new Dictionary<long, List<IModelReference>>[NumberOfHashTables];
+            SubFingerprints = new ConcurrentDictionary<IModelReference, SubFingerprintData>();
+            Tracks = new ConcurrentDictionary<IModelReference, TrackData>();
+            TracksHashes = new ConcurrentDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
+            HashTables = new ConcurrentDictionary<long, List<IModelReference>>[NumberOfHashTables];
             Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
             SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
 
             for (int table = 0; table < numberOfHashTables; table++)
             {
-                HashTables[table] = new Dictionary<long, List<IModelReference>>();
+                HashTables[table] = new ConcurrentDictionary<long, List<IModelReference>>();
             }
         }
     }
