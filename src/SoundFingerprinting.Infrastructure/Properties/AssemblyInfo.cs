@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: Guid("d93d0198-0f7f-4b9f-a318-7209915ff1cf")]
 [assembly: AssemblyVersion("3.0.0")]
 [assembly: AssemblyFileVersion("3.0.0")]
-[assembly: AssemblyInformationalVersion("3.1.0-beta")]
+[assembly: AssemblyInformationalVersion("3.1.0")]
 [assembly: InternalsVisibleTo("SoundFingerprinting")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.Bass")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Audio.Bass.Tests")]
