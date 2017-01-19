@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="QueryFactory.cs" />
     <Compile Include="FFT\LomontFFT.cs" />
     <Compile Include="IAdvancedModelService.cs" />
     <Compile Include="AdvancedModelService.cs" />
