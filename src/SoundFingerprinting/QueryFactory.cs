@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
-using SoundFingerprinting.Configuration;
-using SoundFingerprinting.Data;
-using SoundFingerprinting.LCS;
-using SoundFingerprinting.Math;
-using SoundFingerprinting.Query;
-
+﻿
 namespace SoundFingerprinting
 {
+    using System.Collections.Generic;
+
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
+    using SoundFingerprinting.LCS;
+    using SoundFingerprinting.Math;
+    using SoundFingerprinting.Query;
+
     public class QueryFactory
     {
         private readonly QueryConfiguration _configuration;
