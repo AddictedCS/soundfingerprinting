@@ -55,12 +55,8 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
                                          .UsingServices(modelService, audioService)
                                          .Query()
                                          .Result;
-    if(queryResult.ContainsMatches)
-    {
-        return queryResult.BestMatch.Track; // successful match has been found
-    }
-	
-    return null; // no match has been found
+    
+    return queryResult.BestMatch.Track; // successful match has been found
 }
 ```
 
