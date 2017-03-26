@@ -23,7 +23,9 @@
             IStride validationStride,
             string pathToAudioFile,
             IModelService modelService,
-            IAudioService audioService)
+            IAudioService audioService,
+            int topWavelets,
+            int thresholdVotes)
         {
             double startAt = result.TrackStartsAt, length = result.QueryLength - result.TrackStartsAt;
 
@@ -33,8 +35,16 @@
             }
 
             var newResult = queryCommandBuilder.BuildQueryCommand()
-                                               .From(pathToAudioFile, length, startAt)
-                                               .WithFingerprintConfig(config => config.Stride = validationStride)
+                                               .From(pathToAudioFile, length, startAt).WithConfigs(
+                                                   config =>
+                                                       {
+                                                           config.Stride = validationStride;
+                                                           config.TopWavelets = topWavelets;
+                                                       },
+                                                   queryConfig =>
+                                                       {
+                                                           queryConfig.ThresholdVotes = thresholdVotes;
+                                                       })
                                                .UsingServices(modelService, audioService)
                                                .Query()
                                                .Result;

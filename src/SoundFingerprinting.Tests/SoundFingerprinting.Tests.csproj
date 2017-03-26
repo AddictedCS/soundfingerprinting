@@ -95,6 +95,7 @@
     <Compile Include="Unit\DAO\Data\SubFingerprintDataTest.cs" />
     <Compile Include="Unit\DAO\Data\TrackDataTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
+    <Compile Include="Unit\FFT\LomontFFTTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
     <Compile Include="Unit\LCS\QueryResultCoverageCalculatorTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
