@@ -18,7 +18,7 @@
     {
         public LomontFFT()
         {
-            A = 0;
+            A = 1;
             B = 1;
             var config = new DefaultSpectrogramConfig();
             Initialize(config.WdftSize);

@@ -11,7 +11,7 @@
     [TestFixture]
     public class LomontFFTTest
     {
-        private readonly LomontFFT lomontFFT = new LomontFFT { A = 1 };
+        private readonly LomontFFT lomontFFT = new LomontFFT();
 
         private readonly IComparer floatComparer = Comparer<float>.Create(
             (a, b) =>
