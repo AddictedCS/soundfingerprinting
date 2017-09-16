@@ -1,7 +1,9 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System;
     using System.Collections.Generic;
 
+    [Serializable]
     public class HashedFingerprint 
     {
         public HashedFingerprint(byte[] subFingerprint, long[] hashBins, int sequenceNumber, double startsAt, IEnumerable<string> clusters)

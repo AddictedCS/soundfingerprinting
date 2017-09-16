@@ -23,7 +23,7 @@
                 new TrackDao(ramStorage),
                 new SubFingerprintDao(ramStorage),
                 new FingerprintDao(ramStorage),
-                new SpectralImageDao());
+                new SpectralImageDao(), ramStorage);
         }
 
         [Test]

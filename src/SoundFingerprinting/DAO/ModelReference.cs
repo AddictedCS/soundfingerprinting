@@ -1,5 +1,8 @@
 ﻿namespace SoundFingerprinting.DAO
 {
+    using System;
+
+    [Serializable]
     public class ModelReference<T> : IModelReference<T>
     {
         public ModelReference(T id)
