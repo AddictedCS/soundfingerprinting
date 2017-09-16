@@ -6,6 +6,8 @@
 
     internal abstract class HaarWaveletDecomposition : IWaveletDecomposition
     {
+        private readonly double sqrtTwo = Math.Sqrt(2);
+
         public void DecomposeImagesInPlace(IEnumerable<float[][]> logarithmizedSpectrum)
         {
             Parallel.ForEach(logarithmizedSpectrum, DecomposeImageInPlace);
@@ -18,17 +20,13 @@
             float[] temp = new float[h];
 
             h /= 2;
-            var sqrt = Math.Sqrt(2.0);
-            for (int i = 0; i < h; i++)
+            for (int i = 0, j = 0; i < h; ++i, j = 2 * i)
             {
-                temp[i] = (float)((array[2 * i] + array[(2 * i) + 1]) / sqrt);
-                temp[i + h] = (float)((array[2 * i] - array[(2 * i) + 1]) / sqrt);
+                temp[i] = (float)((array[j] + array[j + 1]) / sqrtTwo);
+                temp[i + h] = (float)((array[j] - array[j + 1]) / sqrtTwo);
             }
 
-            for (int i = 0; i < (h * 2); i++)
-            {
-                array[i] = temp[i];
-            }
+            Buffer.BlockCopy(temp, 0, array, 0, sizeof(float) * (h * 2));
         }
     }
 }
