@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sergiu Ciumac")]
 [assembly: AssemblyProduct("SoundFingerprinting Library")]
-[assembly: AssemblyCopyright("Copyright © Sergiu Ciumac 2016")]
+[assembly: AssemblyCopyright("Copyright © Sergiu Ciumac 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
@@ -28,5 +28,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.DuplicatesDetector")]
 
-[assembly: AssemblyVersion("3.1.1")]
+[assembly: AssemblyVersion("3.1.2")]
 [assembly: AssemblyInformationalVersion("3.1.2")]
