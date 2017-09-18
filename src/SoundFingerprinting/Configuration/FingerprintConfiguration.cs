@@ -26,6 +26,30 @@ namespace SoundFingerprinting.Configuration
             }
         }
 
+        public int HashTables
+        {
+            get
+            {
+                return HashingConfig.NumberOfLSHTables;
+            }
+            set
+            {
+                HashingConfig.NumberOfLSHTables = value;
+            }
+        }
+
+        public int HashKeysPerTable
+        {
+            get
+            {
+                return HashingConfig.NumberOfMinHashesPerTable;
+            }
+            set
+            {
+                HashingConfig.NumberOfMinHashesPerTable = value;
+            }
+        }
+
         /// <summary>
         ///   Gets or sets the list of assigned clusters to all generated fingerprints
         /// </summary>
