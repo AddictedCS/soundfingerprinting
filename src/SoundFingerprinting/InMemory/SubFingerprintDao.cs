@@ -119,18 +119,19 @@
 
         private void InsertHashes(long[] hashBins, IModelReference subFingerprintReference)
         {
-            int table = 0;
             lock (((ICollection)storage.HashTables).SyncRoot)
             {
-                foreach (var hashTable in storage.HashTables)
+                for (int table = 0; table < hashBins.Length; ++table)
                 {
-                    if (!hashTable.ContainsKey(hashBins[table]))
+                    var hashTable = storage.HashTables[table];
+                    long value = hashBins[table];
+
+                    if (!hashTable.ContainsKey(value))
                     {
-                        hashTable[hashBins[table]] = new List<IModelReference>();
+                        hashTable[value] = new List<IModelReference>();
                     }
 
-                    hashTable[hashBins[table]].Add(subFingerprintReference);
-                    table++;
+                    hashTable[value].Add(subFingerprintReference);
                 }
             }
         }

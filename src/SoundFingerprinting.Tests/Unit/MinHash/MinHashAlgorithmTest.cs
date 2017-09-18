@@ -87,10 +87,21 @@
                 atLeastOneCandidateFounds[i] = Math.Round((double)atLeastOneCandidateFound / simulationRuns, 4);
             });
 
+            Console.WriteLine("Bands {0}, Rows {1}, Top Wavelets {2}", bands, rows, topWavelets);
+
+            string header = String.Format(
+                "{0,5}{1,19}{2,18}{3,25}",
+                "Actual Similarity",
+                "Th. At Least One",
+                "Pr. At Least One",
+                "Avg. Candidates Found");
+
+            Console.WriteLine(header);
+
             for (int i = 0; i < howSimilars.Length; ++i)
             {
                 Console.WriteLine(
-                        "Sim / Probability / At Least One / Avg Candidates: {0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}",
+                        "{0,5:0.0000}{1,20:0.0000}{2,18:0.0000}{3,20:0.0000}",
                         howSimilars[i],
                         probabilityOfAMatch[i],
                         atLeastOneCandidateFounds[i],
