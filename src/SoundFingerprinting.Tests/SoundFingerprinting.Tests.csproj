@@ -103,6 +103,7 @@
     <Compile Include="Unit\Math\HammingDistanceResultStatisticsTest.cs" />
     <Compile Include="Unit\Math\HashConverterTest.cs" />
     <Compile Include="Unit\MinHash\CachedPermutationsTest.cs" />
+    <Compile Include="Unit\MinHash\MinHashAlgorithmTest.cs" />
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
     <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
