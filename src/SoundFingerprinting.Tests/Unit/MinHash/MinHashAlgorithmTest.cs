@@ -11,14 +11,11 @@
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
-    using SoundFingerprinting.Utils;
 
     [TestFixture]
     public class MinHashAlgorithmTest
     {
-        private MinHashService minHash = new MinHashService(new DefaultPermutations());
         private LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new NewDefaultPermutations()), new HashConverter());
-        private FingerprintDescriptor descriptor = new FingerprintDescriptor();
 
         [Test]
         public void ShouldBeAbleToGenerateMultipleTimesDifferentSignatures()

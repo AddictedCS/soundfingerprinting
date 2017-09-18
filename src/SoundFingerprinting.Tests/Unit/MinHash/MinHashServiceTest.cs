@@ -53,7 +53,7 @@
 
             bool[] fingerprint = new[] { false, false, true, false, true, false, true, false, false, false };
 
-            byte[] hashed = minHashService.Hash(fingerprint);
+            byte[] hashed = minHashService.Hash(fingerprint, perms.Length);
 
             Assert.AreEqual(1, hashed[0]);
             Assert.AreEqual(0, hashed[1]);
