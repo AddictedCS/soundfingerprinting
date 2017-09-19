@@ -15,7 +15,7 @@
     [TestFixture]
     public class MinHashAlgorithmTest
     {
-        private LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new NewDefaultPermutations()), new HashConverter());
+        private LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()), new HashConverter());
 
         [Test]
         public void ShouldBeAbleToGenerateMultipleTimesDifferentSignatures()
@@ -55,7 +55,7 @@
             int topWavelets = 200;
             int vectorLength = 8192;
 
-            double[] howSimilars = new[] { 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 };
+            double[] howSimilars = new[] { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
             double[] avgCandidatesFound = new double[howSimilars.Length];
             double[] probabilityOfAMatch = new double[howSimilars.Length];
             double[] atLeastOneCandidateFounds = new double[howSimilars.Length];

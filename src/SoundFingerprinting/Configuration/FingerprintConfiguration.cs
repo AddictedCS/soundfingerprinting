@@ -32,6 +32,7 @@ namespace SoundFingerprinting.Configuration
             {
                 return HashingConfig.NumberOfLSHTables;
             }
+
             set
             {
                 HashingConfig.NumberOfLSHTables = value;
@@ -44,6 +45,7 @@ namespace SoundFingerprinting.Configuration
             {
                 return HashingConfig.NumberOfMinHashesPerTable;
             }
+
             set
             {
                 HashingConfig.NumberOfMinHashesPerTable = value;
@@ -58,7 +60,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm has to normalize the audio signal
         /// </summary>
-        internal bool NormalizeSignal { get; set; }
+        public bool NormalizeSignal { get; set; }
 
         /// <summary>
         ///  Gets or sets spectrogram creation configuration parameters
@@ -79,7 +81,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets number of Top wavelets to consider
         /// </summary>
-        internal int TopWavelets
+        public int TopWavelets
         {
             get
             {

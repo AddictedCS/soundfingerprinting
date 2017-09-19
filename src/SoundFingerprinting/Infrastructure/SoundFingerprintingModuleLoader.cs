@@ -27,7 +27,7 @@
             kernel.Bind<IFFTService>().To<LomontFFT>().InSingletonScope();
             kernel.Bind<IFingerprintDescriptor>().To<FastFingerprintDescriptor>().InSingletonScope();
             kernel.Bind<IMinHashService>().To<MinHashService>().InSingletonScope();
-            kernel.Bind<IPermutations>().To<NewDefaultPermutations>().InSingletonScope();
+            kernel.Bind<IPermutations>().To<DefaultPermutations>().InSingletonScope();
             kernel.Bind<ILocalitySensitiveHashingAlgorithm>().To<LocalitySensitiveHashingAlgorithm>().InSingletonScope();
             kernel.Bind<ISimilarityUtility>().To<SimilarityUtility>().InSingletonScope();
             kernel.Bind<IQueryMath>().To<QueryMath>().InSingletonScope();
