@@ -2,16 +2,13 @@
 {
     using System.Collections.Generic;
 
-    using SoundFingerprinting.Infrastructure;
-
     public class NAudioService : AudioService
     {
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
 
         private readonly INAudioSourceReader sourceReader;
 
-        public NAudioService()
-            : this(DependencyResolver.Current.Get<INAudioSourceReader>())
+        public NAudioService(int resamplerQuality = 25) : this(new NAudioSourceReader(resamplerQuality))
         {
             // no op
         }

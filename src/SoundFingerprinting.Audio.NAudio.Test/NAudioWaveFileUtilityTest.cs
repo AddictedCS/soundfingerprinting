@@ -57,10 +57,10 @@
             Mock<MediaFoundationTransform> resampler = new Mock<MediaFoundationTransform>(
                 MockBehavior.Strict, new object[] { waveStream.Object, waveFormat });
             resampler.Protected().Setup("Dispose", new object[] { true });
-            naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, 5512, Mono)).Returns(resampler.Object);
+            naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, 5512, Mono, 25)).Returns(resampler.Object);
             naudioFactory.Setup(factory => factory.CreateWaveFile("path-to-recoded-file", resampler.Object));
 
-            waveFileUtility.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", 5512);
+            waveFileUtility.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", 5512, 25);
         }
 
         private float[] GetWrittenSamplesInStream(MemoryStream memoryStream, int length)
