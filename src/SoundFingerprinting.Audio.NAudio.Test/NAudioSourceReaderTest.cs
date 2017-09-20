@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Audio.NAudio.Test
         [SetUp]
         public void SetUp()
         {
-            sourceReader = new NAudioSourceReader(25, samplesAggregator.Object, naudioFactory.Object);
+            sourceReader = new NAudioSourceReader(samplesAggregator.Object, naudioFactory.Object);
         }
 
         [TearDown]
@@ -53,7 +53,7 @@ namespace SoundFingerprinting.Audio.NAudio.Test
             samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<NAudioSamplesProviderAdapter>(), SecondsToRead, 5512))
                                               .Returns(samplesArray);
 
-            var result = sourceReader.ReadMonoFromSource("path-to-audio-file", 5512, SecondsToRead, StartAt);
+            var result = sourceReader.ReadMonoFromSource("path-to-audio-file", 5512, SecondsToRead, StartAt, 25);
 
             Assert.AreSame(samplesArray, result);
         }

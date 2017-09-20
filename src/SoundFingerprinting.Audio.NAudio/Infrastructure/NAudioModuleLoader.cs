@@ -11,6 +11,7 @@
         {
             kernel.Bind<INAudioPlayAudioFactory>().To<NAudioPlayAudioFactory>().InSingletonScope();
             kernel.Bind<INAudioFactory>().To<NAudioFactory>().InSingletonScope();
+            kernel.Bind<INAudioSourceReader>().To<NAudioSourceReader>().InSingletonScope();
         }
     }
 }
