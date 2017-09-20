@@ -36,7 +36,7 @@
 
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
 
-            var querySamples = GetQuerySamples(audioSamples, StartAtSecond, SecondsToProcess);
+            var querySamples = GetQuerySamples(GetAudioSamples(), StartAtSecond, SecondsToProcess);
 
             var queryResult = queryCommandBuilder.BuildQueryCommand()
                     .From(new AudioSamples(querySamples, string.Empty, audioSamples.SampleRate))
@@ -56,18 +56,29 @@
         [Test]
         public async Task ShouldCreateSameFingerprintsDuringDifferentParallelRuns()
         {
-            var audioSamples = GetAudioSamples();
             var hashDatas1 = await fingerprintCommandBuilder.BuildFingerprintCommand()
-                    .From(audioSamples)
+                    .From(GetAudioSamples())
                     .UsingServices(audioService)
                     .Hash();
 
             var hashDatas2 = await fingerprintCommandBuilder.BuildFingerprintCommand()
-                .From(audioSamples)
+                .From(GetAudioSamples())
+                .UsingServices(audioService)
+                .Hash();
+
+            var hashDatas3 = await fingerprintCommandBuilder.BuildFingerprintCommand()
+                .From(GetAudioSamples())
+                .UsingServices(audioService)
+                .Hash();
+
+            var hashDatas4 = await fingerprintCommandBuilder.BuildFingerprintCommand()
+                .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash();
 
             AssertHashDatasAreTheSame(hashDatas1, hashDatas2);
+            AssertHashDatasAreTheSame(hashDatas2, hashDatas3);
+            AssertHashDatasAreTheSame(hashDatas3, hashDatas4);
         }
 
         private static float[] GetQuerySamples(AudioSamples audioSamples, int startAtSecond, int secondsToProcess)

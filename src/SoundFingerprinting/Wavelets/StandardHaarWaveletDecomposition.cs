@@ -23,10 +23,10 @@
         private void Decomposition(float[] array)
         {
             int h = array.Length;
-            for (int i = 0; i < h; i++)
+           /* for (int i = 0; i < h; i++)
             {
                 array[i] /= (float)Math.Sqrt(h);
-            }
+            } */
 
             while (h > 1)
             {

@@ -6,7 +6,7 @@
 
     internal abstract class HaarWaveletDecomposition : IWaveletDecomposition
     {
-        private readonly double sqrtTwo = Math.Sqrt(2);
+        private readonly double sqrtTwo = 1; // = Math.Sqrt(2);
 
         public void DecomposeImagesInPlace(IEnumerable<float[][]> logarithmizedSpectrum)
         {

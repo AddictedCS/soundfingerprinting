@@ -97,7 +97,8 @@
                 .WithFingerprintConfig(config =>
                 {
                     config.Clusters = new[] { "first-group-id" };
-                }).UsingServices(audioService)
+                })
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -109,7 +110,8 @@
                .WithFingerprintConfig(config =>
                {
                    config.Clusters = new[] { "second-group-id" };
-               }).UsingServices(audioService)
+               })
+               .UsingServices(audioService)
                .Hash()
                .Result;
             InsertHashedFingerprintsForTrack(hashedFingerprintsForSecondTrack, secondTrackReference);
