@@ -18,7 +18,7 @@
     {
         public LomontFFT()
         {
-            A = 0;
+            A = 1;
             B = 1;
             var config = new DefaultSpectrogramConfig();
             Initialize(config.WdftSize);
@@ -324,7 +324,7 @@
         public float[] FFTForward(float[] data, int startIndex, int length, float[] window)
         {
             float[] toTransform = new float[length];
-            Array.Copy(data, startIndex, toTransform, 0, length);
+            Buffer.BlockCopy(data, sizeof(float) * startIndex, toTransform, 0, sizeof(float) * length);
             Window(toTransform, window);
             RealFFT(toTransform, true);
             return toTransform;

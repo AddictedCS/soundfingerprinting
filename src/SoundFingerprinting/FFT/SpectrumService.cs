@@ -38,7 +38,7 @@
             {
                 float[] complexSignal = fftService.FFTForward(samples, i * overlap, wdftSize, window);
                 float[] band = new float[(wdftSize / 2) + 1];
-                for (int j = 0; j < (wdftSize / 2) + 1; j++)
+                for (int j = 0; j < wdftSize / 2; j++)
                 {
                     double re = complexSignal[2 * j];
                     double img = complexSignal[(2 * j) + 1];

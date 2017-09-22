@@ -95,6 +95,7 @@
     <Compile Include="Unit\DAO\Data\SubFingerprintDataTest.cs" />
     <Compile Include="Unit\DAO\Data\TrackDataTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
+    <Compile Include="Unit\FFT\LomontFFTTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
     <Compile Include="Unit\LCS\QueryResultCoverageCalculatorTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Unit\Math\HammingDistanceResultStatisticsTest.cs" />
     <Compile Include="Unit\Math\HashConverterTest.cs" />
     <Compile Include="Unit\MinHash\CachedPermutationsTest.cs" />
+    <Compile Include="Unit\MinHash\MinHashAlgorithmTest.cs" />
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
     <Compile Include="Unit\QueryFingerprintServiceTest.cs" />

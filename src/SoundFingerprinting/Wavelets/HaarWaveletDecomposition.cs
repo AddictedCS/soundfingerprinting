@@ -18,17 +18,13 @@
             float[] temp = new float[h];
 
             h /= 2;
-            var sqrt = Math.Sqrt(2.0);
-            for (int i = 0; i < h; i++)
+            for (int i = 0, j = 0; i < h; ++i, j = 2 * i)
             {
-                temp[i] = (float)((array[2 * i] + array[(2 * i) + 1]) / sqrt);
-                temp[i + h] = (float)((array[2 * i] - array[(2 * i) + 1]) / sqrt);
+                temp[i] = array[j] + array[j + 1];
+                temp[i + h] = array[j] - array[j + 1];
             }
 
-            for (int i = 0; i < (h * 2); i++)
-            {
-                array[i] = temp[i];
-            }
+            Buffer.BlockCopy(temp, 0, array, 0, sizeof(float) * (h * 2));
         }
     }
 }

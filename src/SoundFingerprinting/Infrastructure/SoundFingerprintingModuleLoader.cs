@@ -4,7 +4,6 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LCS;
@@ -42,7 +41,7 @@
 
             kernel.Bind<IRAMStorage>().To<RAMStorage>()
                                       .InSingletonScope()
-                                      .WithConstructorArgument("numberOfHashTables", new DefaultFingerprintConfiguration().HashingConfig.NumberOfLSHTables);
+                                      .WithConstructorArgument("numberOfHashTables", 50);
         }
     }
 }

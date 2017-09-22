@@ -4,6 +4,7 @@ namespace SoundFingerprinting.Audio.NAudio
 
     public class NAudioStreamingUrlReader : IStreamingUrlReader
     {
+        private const int DefaultResamplerQuality = 25;
         private readonly INAudioSourceReader reader;
 
         public NAudioStreamingUrlReader() : this(DependencyResolver.Current.Get<INAudioSourceReader>())
@@ -21,7 +22,7 @@ namespace SoundFingerprinting.Audio.NAudio
             // When reading directly from URL NAudio 1.7.1 disregards Mono resampler parameter, thus reading stereo samples
             // End result has to be converted to Mono in order to comply to interface requirements
             // The issue has been addressed here: http://stackoverflow.com/questions/22385783/aac-stream-resampled-incorrectly though not yet resolved
-            float[] stereoSamples = reader.ReadMonoFromSource(url, sampleRate, secondsToRead * 2 /*for stereo request twice as much data as for mono*/, startAtSecond: 0);
+            float[] stereoSamples = reader.ReadMonoFromSource(url, sampleRate, secondsToRead * 2 /*for stereo request twice as much data as for mono*/, startAtSecond: 0, resamplerQuality: DefaultResamplerQuality);
             return ConvertStereoSamplesToMono(stereoSamples);
         }
 

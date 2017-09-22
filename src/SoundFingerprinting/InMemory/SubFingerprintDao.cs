@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -56,29 +57,10 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprints(long[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
         {
-            int table = 0;
-            var hashTables = storage.HashTables;
-            var subFingeprintCount = new Dictionary<IModelReference, int>();
-            foreach (var hashBin in hashes)
-            {
-                if (hashTables[table].ContainsKey(hashBin))
-                {
-                    foreach (var subFingerprintId in hashTables[table][hashBin])
-                    {
-                        if (!subFingeprintCount.ContainsKey(subFingerprintId))
-                        {
-                            subFingeprintCount[subFingerprintId] = 0;
-                        }
-
-                        subFingeprintCount[subFingerprintId]++;
-                    }
-                }
-
-                table++;
-            }
-
+            var subFingeprintCount = CountSubFingerprintMatches(hashes);
             var subFingerprints = subFingeprintCount.Where(pair => pair.Value >= thresholdVotes)
                                                     .Select(pair => storage.SubFingerprints[pair.Key]);
+
             var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
             if (clusters.Any())
             {
@@ -90,33 +72,66 @@
 
         public ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, int threshold, IEnumerable<string> assignedClusters)
         {
-            var allCandidates = new HashSet<SubFingerprintData>();
-            foreach (var hashedFingerprint in hashes)
+            var allCandidates = new ConcurrentDictionary<SubFingerprintData, byte>();
+            Parallel.ForEach(
+                hashes,
+                hashedFingerprint =>
+                    {
+                        var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
+                        foreach (var subFingerprint in subFingerprints)
+                        {
+                            allCandidates.AddOrUpdate(subFingerprint, 0, (data, b) => 0);
+                        }
+                    });
+
+            return new HashSet<SubFingerprintData>(allCandidates.Keys.ToList());
+        }
+
+        private Dictionary<IModelReference, int> CountSubFingerprintMatches(long[] hashes)
+        {
+            var hashTables = this.storage.HashTables;
+            var subFingeprintCount = new Dictionary<IModelReference, int>();
+
+            for (int table = 0; table < hashes.Length; ++table)
             {
-                var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
-                foreach (var subFingerprint in subFingerprints)
+                var hashBin = hashes[table];
+                if (hashTables[table].ContainsKey(hashBin))
                 {
-                    allCandidates.Add(subFingerprint);
+                    foreach (var subFingerprintId in hashTables[table][hashBin])
+                    {
+                        IncrementSubFingerprintCount(subFingeprintCount, subFingerprintId);
+                    }
                 }
             }
 
-            return allCandidates;
+            return subFingeprintCount;
+        }
+
+        private void IncrementSubFingerprintCount(IDictionary<IModelReference, int> subFingeprintCount, IModelReference subFingerprintId)
+        {
+            if (!subFingeprintCount.ContainsKey(subFingerprintId))
+            {
+                subFingeprintCount[subFingerprintId] = 0;
+            }
+
+            subFingeprintCount[subFingerprintId]++;
         }
 
         private void InsertHashes(long[] hashBins, IModelReference subFingerprintReference)
         {
-            int table = 0;
             lock (((ICollection)storage.HashTables).SyncRoot)
             {
-                foreach (var hashTable in storage.HashTables)
+                for (int table = 0; table < hashBins.Length; ++table)
                 {
-                    if (!hashTable.ContainsKey(hashBins[table]))
+                    var hashTable = storage.HashTables[table];
+                    long value = hashBins[table];
+
+                    if (!hashTable.ContainsKey(value))
                     {
-                        hashTable[hashBins[table]] = new List<IModelReference>();
+                        hashTable[value] = new List<IModelReference>();
                     }
 
-                    hashTable[hashBins[table]].Add(subFingerprintReference);
-                    table++;
+                    hashTable[value].Add(subFingerprintReference);
                 }
             }
         }

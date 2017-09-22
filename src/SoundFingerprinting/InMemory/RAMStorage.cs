@@ -1,12 +1,17 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
 
     using DAO;
     using DAO.Data;
     using Data;
 
+    [Serializable]
     internal class RAMStorage : IRAMStorage
     {
         public RAMStorage(int numberOfHashTables)
@@ -31,6 +36,33 @@
         public void Reset(int numberOfHashTables)
         {
             Initialize(numberOfHashTables);
+        }
+
+        public void InitializeFromFile(string path)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                RAMStorage obj = (RAMStorage)formatter.Deserialize(stream);
+                this.NumberOfHashTables = obj.NumberOfHashTables;
+                this.SubFingerprints = obj.SubFingerprints;
+                this.Tracks = obj.Tracks;
+                this.TracksHashes = obj.TracksHashes;
+                this.HashTables = obj.HashTables;
+                this.Fingerprints = obj.Fingerprints;
+                this.SpectralImages = obj.SpectralImages;
+                stream.Close();
+            }
+        }
+
+        public void Snapshot(string path)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            using (Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                formatter.Serialize(stream, this);
+                stream.Close();
+            }
         }
 
         private void Initialize(int numberOfHashTables)

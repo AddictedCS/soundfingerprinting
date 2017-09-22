@@ -16,7 +16,7 @@
         [SetUp]
         public void SetUp()
         {
-            naudioService = new NAudioService(sourceReader.Object);
+            naudioService = new NAudioService(25, sourceReader.Object);
         }
 
         [TearDown]
@@ -40,7 +40,7 @@
             const int SecondsToRead = 10;
             const int StartAt = 10;
             float[] samples = new float[1024];
-            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-audio-file", 5512, SecondsToRead, StartAt)).Returns(samples);
+            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-audio-file", 5512, SecondsToRead, StartAt, 25)).Returns(samples);
 
             var result = naudioService.ReadMonoSamplesFromFile("path-to-audio-file", 5512, SecondsToRead, StartAt);
 

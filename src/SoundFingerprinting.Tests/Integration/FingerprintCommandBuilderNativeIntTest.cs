@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using Audio;
     using Audio.NAudio;
@@ -35,7 +36,7 @@
 
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
 
-            var querySamples = GetQuerySamples(audioSamples, StartAtSecond, SecondsToProcess);
+            var querySamples = GetQuerySamples(GetAudioSamples(), StartAtSecond, SecondsToProcess);
 
             var queryResult = queryCommandBuilder.BuildQueryCommand()
                     .From(new AudioSamples(querySamples, string.Empty, audioSamples.SampleRate))
@@ -50,6 +51,34 @@
             Assert.IsTrue(bestMatch.QueryMatchLength > SecondsToProcess - 3, string.Format("QueryMatchLength:{0}", bestMatch.QueryLength));
             Assert.AreEqual(StartAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, string.Format("Confidence:{0}", bestMatch.Confidence));
+        }
+
+        [Test]
+        public async Task ShouldCreateSameFingerprintsDuringDifferentParallelRuns()
+        {
+            var hashDatas1 = await fingerprintCommandBuilder.BuildFingerprintCommand()
+                    .From(GetAudioSamples())
+                    .UsingServices(audioService)
+                    .Hash();
+
+            var hashDatas2 = await fingerprintCommandBuilder.BuildFingerprintCommand()
+                .From(GetAudioSamples())
+                .UsingServices(audioService)
+                .Hash();
+
+            var hashDatas3 = await fingerprintCommandBuilder.BuildFingerprintCommand()
+                .From(GetAudioSamples())
+                .UsingServices(audioService)
+                .Hash();
+
+            var hashDatas4 = await fingerprintCommandBuilder.BuildFingerprintCommand()
+                .From(GetAudioSamples())
+                .UsingServices(audioService)
+                .Hash();
+
+            AssertHashDatasAreTheSame(hashDatas1, hashDatas2);
+            AssertHashDatasAreTheSame(hashDatas2, hashDatas3);
+            AssertHashDatasAreTheSame(hashDatas3, hashDatas4);
         }
 
         private static float[] GetQuerySamples(AudioSamples audioSamples, int startAtSecond, int secondsToProcess)

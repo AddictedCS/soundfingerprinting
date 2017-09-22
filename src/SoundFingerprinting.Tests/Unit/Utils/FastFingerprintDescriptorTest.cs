@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -73,7 +74,7 @@
         }
 
         [Test]
-        public void ShouldCreateExactlyTheSameFingerprints()
+        public async Task ShouldCreateExactlyTheSameFingerprints()
         {
             var fcb0 =
                 new FingerprintCommandBuilder(
@@ -94,21 +95,19 @@
                     new LocalitySensitiveHashingAlgorithm(
                         new MinHashService(new DefaultPermutations()), new HashConverter()));
 
-            var fingerprints0 = fcb0.BuildFingerprintCommand()
+            var fingerprints0 = await fcb0.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new NAudioService())
-                .Hash()
-                .Result;
+                .Hash();
 
             fingerprints0.Sort(
                 (fingerprint, hashedFingerprint) =>
                 fingerprint.SequenceNumber.CompareTo(hashedFingerprint.SequenceNumber));
-                
-            var fingerprints1 = fcb1.BuildFingerprintCommand()
+
+            var fingerprints1 = await fcb1.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new NAudioService())
-                .Hash()
-                .Result;
+                .Hash();
 
             fingerprints1.Sort(
                 (fingerprint, hashedFingerprint) =>

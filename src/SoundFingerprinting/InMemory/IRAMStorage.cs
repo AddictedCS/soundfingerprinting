@@ -23,5 +23,9 @@ namespace SoundFingerprinting.InMemory
         int NumberOfHashTables { get; }
 
         void Reset(int numberOfHashTables);
+
+        void InitializeFromFile(string path);
+
+        void Snapshot(string path);
     }
 }
