@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -9,6 +10,8 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
@@ -20,61 +23,8 @@
     [TestFixture]
     public class FastFingerprintDescriptorTest : IntegrationWithSampleFilesTest
     {
-        private readonly Random random = new Random((int)DateTime.Now.Ticks << 4);
-
         [Test]
-        public void ShouldFindTop200Element()
-        {
-            var descriptor = new FastFingerprintDescriptor();
-
-            const int Count = 4096;
-            float[] floats = Enumerable.Range(0, Count).Select(elem => elem % 2 == 0 ? (float)elem : (float)-elem).ToArray();
-            const int TopWavelets = 200;
-            int[] indexes = Enumerable.Range(0, Count).ToArray();
-            int kth = descriptor.Find(
-                TopWavelets - 1,
-                floats,
-                indexes,
-                0,
-                4095);
-
-            Assert.AreEqual(TopWavelets - 1, kth);
-            for (int i = 1; i < TopWavelets; ++i)
-            {
-                Assert.IsTrue(Math.Abs(floats[TopWavelets - i]).CompareTo(floats[TopWavelets + i - 1]) > 0);
-                Assert.IsTrue(indexes[i - 1] > Count - TopWavelets);
-            }
-        }
-
-        [Test]
-        public void ShouldFindTop200BoundaryTest()
-        {
-            var descriptor = new FastFingerprintDescriptor();
-            const int TopWavelets = 200;
-
-            float[] topElements =
-                Enumerable.Repeat(1, TopWavelets).Select(elem => (float)elem).ToList().Concat(
-                    Enumerable.Repeat(0, 3896).Select(elem => (float)elem)).ToArray();
-
-            float[] randomized = topElements.OrderBy(x => random.Next(0, topElements.Length)).ToArray();
-
-            int kth = descriptor.Find(
-                TopWavelets - 1,
-                randomized,
-                Enumerable.Range(0, randomized.Length).ToArray(),
-                0,
-                randomized.Length - 1);
-
-            Assert.AreEqual(TopWavelets - 1, kth);
-
-            for (int i = 0; i < TopWavelets; i++)
-            {
-                Assert.AreEqual(1, randomized[i]);
-            }
-        }
-
-        [Test]
-        public async Task ShouldCreateExactlyTheSameFingerprints()
+        public void ShouldCreateExactlyTheSameFingerprints()
         {
             var fcb0 =
                 new FingerprintCommandBuilder(
@@ -90,32 +40,73 @@
                     new FingerprintService(
                         new SpectrumService(new LomontFFT()),
                         new StandardHaarWaveletDecomposition(),
-                        new FastFingerprintDescriptor(), 
+                        new FastFingerprintDescriptor(),
                         new AudioSamplesNormalizer()),
                     new LocalitySensitiveHashingAlgorithm(
                         new MinHashService(new DefaultPermutations()), new HashConverter()));
 
-            var fingerprints0 = await fcb0.BuildFingerprintCommand()
-                .From(GetAudioSamples())
-                .UsingServices(new NAudioService())
-                .Hash();
+            var audioService = new NAudioService();
 
-            fingerprints0.Sort(
-                (fingerprint, hashedFingerprint) =>
-                fingerprint.SequenceNumber.CompareTo(hashedFingerprint.SequenceNumber));
+            int sequenceNumber = 334, stride = 1536;
+            float[] samples = GetAudioSamples().Samples;
+            int start = sequenceNumber * 1536;
 
-            var fingerprints1 = await fcb1.BuildFingerprintCommand()
-                .From(GetAudioSamples())
-                .UsingServices(new NAudioService())
-                .Hash();
+            float[] troubledPart = new float[8192 + 2048];
+            Array.Copy(samples, start, troubledPart, 0, 8192 + 2048);
+            var audioSamples = new AudioSamples(troubledPart, "test", 5512);
 
-            fingerprints1.Sort(
-                (fingerprint, hashedFingerprint) =>
-                fingerprint.SequenceNumber.CompareTo(hashedFingerprint.SequenceNumber));
-
-            for (int i = 0; i < fingerprints0.Count; ++i)
+            int testRuns = 2;
+            for (int i = 0; i < testRuns; ++i)
             {
-                CollectionAssert.AreEqual(fingerprints0[i].SubFingerprint, fingerprints1[i].SubFingerprint);
+                var hashDatas0 = fcb0.BuildFingerprintCommand()
+                    .From(audioSamples)
+                    .UsingServices(audioService)
+                    .Hash()
+                    .Result;
+
+                var hashDatas1 = fcb1.BuildFingerprintCommand()
+                    .From(audioSamples)
+                    .UsingServices(audioService)
+                    .Hash()
+                    .Result;
+
+                AssertHashDatasAreTheSame(hashDatas0, hashDatas1);
+            }
+        }
+
+        [Test]
+        public void ShouldRunCorrectlyForSpecificUseCase()
+        {
+            int sequenceNumber = 334, stride = 1536;
+            float[] samples = GetAudioSamples().Samples;
+            int start = sequenceNumber * 1536;
+
+            float[] troubledPart = new float[8192 + 2048];
+            Array.Copy(samples, start, troubledPart, 0, 8192 + 2048);
+            var audioSamples = new AudioSamples(troubledPart, "test", 5512);
+
+            var fingerprintService = new FingerprintService(
+                new SpectrumService(new LomontFFT()),
+                new StandardHaarWaveletDecomposition(),
+                new FingerprintDescriptor(),
+                new AudioSamplesNormalizer());
+
+            var fastFingerprintService = new FingerprintService(
+                new SpectrumService(new LomontFFT()),
+                new StandardHaarWaveletDecomposition(),
+                new FastFingerprintDescriptor(),
+                new AudioSamplesNormalizer());
+
+            int runs = 1;
+            for(int i = 0; i < runs; ++i)
+            {
+                var x = fingerprintService.CreateFingerprints(audioSamples, new DefaultFingerprintConfiguration());
+                var y = fastFingerprintService.CreateFingerprints(audioSamples, new DefaultFingerprintConfiguration());
+
+                for(int j = 0; j < x.Count; ++j)
+                {
+                    CollectionAssert.AreEqual(x[j].Signature, y[j].Signature);
+                }
             }
         }
     }

@@ -118,6 +118,7 @@
     <Compile Include="Unit\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />
     <Compile Include="Unit\Utils\AbsComparatorTest.cs" />
+    <Compile Include="Unit\Utils\QuickSelectAlgorithmTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerScenarioValidatorTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerUtilsTest.cs" />
     <Compile Include="Unit\Wavelets\StandardHaarWaveletDecompositionTest.cs" />
