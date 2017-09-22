@@ -1,7 +1,5 @@
 ﻿namespace SoundFingerprinting.Utils
 {
-    using System;
-
     public class QuickSelectAlgorithm
     {
         public int Find(int kth, float[] list, int[] indexes, int lo, int hi)
@@ -34,12 +32,12 @@
 
         private int Partition(float[] list, int[] indexes, int pivotIndex, int lo, int hi)
         {
-            float pivotValue = Math.Abs(list[pivotIndex]);
+            float pivotValue = Abs(list[pivotIndex]);
             Swap(list, indexes, pivotIndex, hi);
             int storeIndex = lo;
             for (int i = lo; i < hi; ++i)
             {
-                if (Math.Abs(list[i]).CompareTo(pivotValue) > 0)
+                if (Abs(list[i]) > pivotValue)
                 {
                     Swap(list, indexes, storeIndex, i);
                     storeIndex++;
@@ -65,11 +63,21 @@
         {
             if (a != b)
             {
-                if (Math.Abs(list[a]).CompareTo(Math.Abs(list[b])) > 0)
+                if (Abs(list[a]) > Abs(list[b]))
                 {
-                    this.Swap(list, indexes, a, b);
+                    Swap(list, indexes, a, b);
                 }
             }
+        }
+
+        private float Abs(float x)
+        {
+            if (x < 0)
+            {
+                return x * -1;
+            }
+
+            return x;
         }
     }
 }
