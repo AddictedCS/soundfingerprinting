@@ -1,7 +1,5 @@
 ﻿namespace SoundFingerprinting.Wavelets
 {
-    using System;
-
     /// <summary>
     ///   Standart Haar wavelet decomposition algorithm.
     /// </summary>

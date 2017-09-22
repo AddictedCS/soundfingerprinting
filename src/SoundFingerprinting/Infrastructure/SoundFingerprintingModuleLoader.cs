@@ -4,7 +4,6 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LCS;
