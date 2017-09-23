@@ -35,6 +35,6 @@ namespace SoundFingerprinting.Utils
         ///   Positive Numbers = 10
         ///   Zeros            = 00
         /// </remarks>
-        bool[] ExtractTopWavelets(float[][] frames, int topWavelets);
+        bool[] ExtractTopWavelets(float[] frames, int topWavelets);
     }
 }

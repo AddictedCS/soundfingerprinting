@@ -66,7 +66,8 @@
             float[][] frames = new float[width][];
             int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
             float[] window = configuration.Window.GetWindow(configuration.WdftSize);
-            Parallel.For(0, width, i => {
+            Parallel.For(0, width, i => 
+            {
                 float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize, window);
                 frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins, configuration.WdftSize);
             });
@@ -87,14 +88,14 @@
             int sequenceNumber = 0;
             while (index + fingerprintImageLength <= width)
             {
-                float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
+                float[] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
                 for (int i = 0; i < fingerprintImageLength; i++)
                 {
-                    Buffer.BlockCopy(logarithmizedSpectrum[index + i], 0, spectralImage[i], 0, numberOfLogBins * sizeof(float));
+                    Buffer.BlockCopy(logarithmizedSpectrum[index + i], 0, spectralImage, (i * numberOfLogBins) * sizeof(float), numberOfLogBins * sizeof(float));
                 }
 
                 var startsAt = index * ((double)overlap / sampleRate);
-                spectralImages.Add(new SpectralImage(spectralImage, startsAt, sequenceNumber));
+                spectralImages.Add(new SpectralImage(spectralImage, fingerprintImageLength, numberOfLogBins, startsAt, sequenceNumber));
                 index += fingerprintImageLength + GetFrequencyIndexLocationOfAudioSamples(strideBetweenConsecutiveImages.NextStride, overlap);
                 sequenceNumber++;
             }
@@ -130,15 +131,9 @@
             return (int)((float)audioSamples / overlap);
         }
 
-        private float[][] AllocateMemoryForFingerprintImage(int fingerprintLength, int logBins)
+        private float[] AllocateMemoryForFingerprintImage(int fingerprintLength, int logBins)
         {
-            float[][] frames = new float[fingerprintLength][];
-            for (int i = 0; i < fingerprintLength; i++)
-            {
-                frames[i] = new float[logBins];
-            }
-
-            return frames;
+            return new float[fingerprintLength * logBins];
         }
     }
 }

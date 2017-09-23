@@ -44,8 +44,8 @@
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.WdftSize, result[0].Image.Length);
-            Assert.AreEqual(32, result[0].Image[0].Length);
+            Assert.AreEqual(configuration.WdftSize, result[0].Rows);
+            Assert.AreEqual(32, result[0].Cols);
         }
 
         [Test]
@@ -59,7 +59,7 @@
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.ImageLength, result[0].Image.Length);
+            Assert.AreEqual(configuration.ImageLength, result[0].Rows);
         }
 
         [Test]

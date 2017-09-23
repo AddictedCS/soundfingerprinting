@@ -37,12 +37,11 @@ namespace SoundFingerprinting.Utils
         ///   Positive Numbers = 10
         ///   Zeros            = 00
         /// </remarks>
-        public virtual bool[] ExtractTopWavelets(float[][] frames, int topWavelets)
+        public virtual bool[] ExtractTopWavelets(float[] frames, int topWavelets)
         {
-            float[] concatenated = ConcatenateFrames(frames);
-            int[] indexes = Enumerable.Range(0, concatenated.Length).ToArray();
-            Array.Sort(concatenated, indexes, absComparator);
-            bool[] result = EncodeFingerprint(concatenated, indexes, topWavelets);
+            int[] indexes = Enumerable.Range(0, frames.Length).ToArray();
+            Array.Sort(frames, indexes, absComparator);
+            bool[] result = EncodeFingerprint(frames, indexes, topWavelets);
             return result;
         }
 

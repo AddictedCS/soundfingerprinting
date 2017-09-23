@@ -4,12 +4,11 @@
     {
         private readonly QuickSelectAlgorithm quickSelect = new QuickSelectAlgorithm();
 
-        public override bool[] ExtractTopWavelets(float[][] frames, int topWavelets)
+        public override bool[] ExtractTopWavelets(float[] frames, int topWavelets)
         {
-            float[] concatenated = ConcatenateFrames(frames);
-            int[] indexes = GetRange(concatenated.Length); 
-            quickSelect.Find(topWavelets - 1, concatenated, indexes, 0, concatenated.Length - 1);
-            bool[] result = EncodeFingerprint(concatenated, indexes, topWavelets);
+            int[] indexes = GetRange(frames.Length); 
+            quickSelect.Find(topWavelets - 1, frames, indexes, 0, frames.Length - 1);
+            bool[] result = EncodeFingerprint(frames, indexes, topWavelets);
             return result;
         }
 

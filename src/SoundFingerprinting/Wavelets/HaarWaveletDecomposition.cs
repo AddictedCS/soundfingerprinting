@@ -13,6 +13,8 @@
 
         public abstract void DecomposeImageInPlace(float[][] image);
 
+        public abstract void DecomposeImageInPlace(float[] image, int rows, int cols);
+
         protected void DecompositionStep(float[] array, int h)
         {
             float[] temp = new float[h];

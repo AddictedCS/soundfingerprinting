@@ -18,5 +18,7 @@
         /// </summary>
         /// <param name = "image">Frame to be decomposed</param>
         void DecomposeImageInPlace(float[][] image);
+
+        void DecomposeImageInPlace(float[] image, int rows, int cols);
     }
 }
