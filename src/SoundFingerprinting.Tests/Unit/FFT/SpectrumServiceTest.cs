@@ -168,18 +168,6 @@
             Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
         }
 
-        [Test]
-        public void ShouldExtractLogarithmicBandsCorrectly()
-        {
-            var utility = new LogUtility();
-            int[] indexes = utility.GenerateLogFrequenciesRanges(5512, new DefaultSpectrogramConfig { UseDynamicLogBase = true });
-            float[] spectrum = Enumerable.Range(0, 2048).Select(item => (float)item).ToArray();
-
-            float[] bands = spectrumService.ExtractLogBins(spectrum, indexes, 32, 2048);
-
-            Assert.AreEqual(32, bands.Length);
-        }
-
         private void SetupFftService(DefaultSpectrogramConfig configuration, AudioSamples samples)
         {
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration))
@@ -192,14 +180,9 @@
                 .Returns(TestUtilities.GenerateRandomFloatArray(2048));
         }
 
-        private float[][] GetLogSpectrum(int logSpectrumLength)
+        private float[] GetLogSpectrum(int logSpectrumLength)
         {
-            var logSpectrum = new float[logSpectrumLength][];
-            for (int i = 0; i < logSpectrumLength; i++)
-            {
-                logSpectrum[i] = new float[32];
-            }
-
+            var logSpectrum = new float[logSpectrumLength * 32];
             return logSpectrum;
         }
     }
