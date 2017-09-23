@@ -113,6 +113,7 @@
     <Compile Include="Unit\Strides\IncrementalRandomStrideTest.cs" />
     <Compile Include="Unit\Utils\ArrayUtilsTest.cs" />
     <Compile Include="Unit\Utils\FastFingerprintDescriptorTest.cs" />
+    <Compile Include="Unit\Utils\FingerprintDescriptorBenchmark.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
     <Compile Include="Unit\FingerprintServiceTest.cs" />

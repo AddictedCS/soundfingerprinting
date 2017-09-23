@@ -1,9 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -11,7 +8,6 @@
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
@@ -46,16 +42,9 @@
                         new MinHashService(new DefaultPermutations()), new HashConverter()));
 
             var audioService = new NAudioService();
+            var audioSamples = GetAudioSamples();
 
-            int sequenceNumber = 334, stride = 1536;
-            float[] samples = GetAudioSamples().Samples;
-            int start = sequenceNumber * 1536;
-
-            float[] troubledPart = new float[8192 + 2048];
-            Array.Copy(samples, start, troubledPart, 0, 8192 + 2048);
-            var audioSamples = new AudioSamples(troubledPart, "test", 5512);
-
-            int testRuns = 2;
+            int testRuns = 5;
             for (int i = 0; i < testRuns; ++i)
             {
                 var hashDatas0 = fcb0.BuildFingerprintCommand()
@@ -97,13 +86,13 @@
                 new FastFingerprintDescriptor(),
                 new AudioSamplesNormalizer());
 
-            int runs = 1;
-            for(int i = 0; i < runs; ++i)
+            int runs = 10;
+            for (int i = 0; i < runs; ++i)
             {
                 var x = fingerprintService.CreateFingerprints(audioSamples, new DefaultFingerprintConfiguration());
                 var y = fastFingerprintService.CreateFingerprints(audioSamples, new DefaultFingerprintConfiguration());
 
-                for(int j = 0; j < x.Count; ++j)
+                for (int j = 0; j < x.Count; ++j)
                 {
                     CollectionAssert.AreEqual(x[j].Signature, y[j].Signature);
                 }
