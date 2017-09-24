@@ -330,6 +330,11 @@
             return toTransform;
         }
 
+        public void FFTForwardInPlace(float[] data)
+        {
+            RealFFT(data, true);
+        }
+
         private void Window(float[] toTransform, float[] window)
         {
             for (int i = 0; i < window.Length; ++i)

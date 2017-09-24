@@ -66,11 +66,18 @@
             float[] frames = new float[width * configuration.LogBins];
             int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
             float[] window = configuration.Window.GetWindow(configuration.WdftSize);
-            Parallel.For(0, width, i => 
+            float[] samples = audioSamples.Samples;
+            Parallel.For(0, width, () => new float[configuration.WdftSize], (i, loop, fftArray) =>
             {
-                float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize, window);
-                ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins, configuration.WdftSize, frames, i);
-            });
+                for (int j = 0; j < window.Length; ++j)
+                {
+                    fftArray[j] = samples[(i * configuration.Overlap) + j] * window[j];
+                }
+
+                fftService.FFTForwardInPlace(fftArray);
+                ExtractLogBins(fftArray, logFrequenciesIndexes, configuration.LogBins, configuration.WdftSize, frames, i);
+                return fftArray;
+            }, fftArray => { });
 
             return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
         }

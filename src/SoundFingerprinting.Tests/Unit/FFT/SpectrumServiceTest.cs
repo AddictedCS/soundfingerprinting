@@ -176,8 +176,7 @@
                             118, 125, 133, 141, 149, 158, 167, 177, 187, 198, 210, 223, 236, 250, 264, 280, 297, 314,
                             333, 352, 373, 395, 419, 443, 470, 497, 527, 558, 591, 626, 663, 702, 744,
                         });
-            fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize, It.IsAny<float[]>()))
-                .Returns(TestUtilities.GenerateRandomFloatArray(2048));
+            fftService.Setup(service => service.FFTForwardInPlace(It.IsAny<float[]>())).Verifiable();
         }
 
         private float[] GetLogSpectrum(int logSpectrumLength)
