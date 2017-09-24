@@ -51,11 +51,11 @@
         private void DecomposeImage(float[] image, int rows, int cols)
         {
             float[] temp = new float[rows > cols ? rows : cols];
+            float[] column = new float[rows]; /*Length of each column is equal to number of rows*/
 
             // The order of decomposition is reversed because the image is 128x32 but we consider it reversed 32x128
             for (int col = 0; col < cols /*32*/; col++)
             {
-                float[] column = new float[rows]; /*Length of each column is equal to number of rows*/
                 for (int colIndex = 0; colIndex < rows; colIndex++)
                 {
                     column[colIndex] = image[col + (colIndex * cols)]; /*Copying Column vector*/
