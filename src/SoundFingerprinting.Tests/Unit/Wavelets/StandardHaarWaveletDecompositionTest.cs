@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Wavelets
 {
     using System;
-    using System.Linq;
 
     using NUnit.Framework;
 

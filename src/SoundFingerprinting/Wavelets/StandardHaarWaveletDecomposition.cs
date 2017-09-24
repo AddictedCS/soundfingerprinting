@@ -9,46 +9,36 @@
     /// Implemented according to the algorithm found here http://grail.cs.washington.edu/projects/wavelets/article/wavelet1.pdf
     /// According to Fast Multi-Resolution Image Query paper, Haar wavelet decomposition with standard basis function works better in image querying
     /// </remarks>
-    internal class StandardHaarWaveletDecomposition : HaarWaveletDecomposition
+    internal class StandardHaarWaveletDecomposition : IWaveletDecomposition
     {
-        /// <summary>
-        ///   Apply Haar Wavelet decomposition on the image
-        /// </summary>
-        /// <param name = "image">Image to be decomposed</param>
-        public override void DecomposeImageInPlace(float[][] image)
-        {
-           // DecomposeImage(image);
-        }
-
-        public override void DecomposeImageInPlace(float[] image, int rows, int cols)
+        public void DecomposeImageInPlace(float[] image, int rows, int cols)
         {
             DecomposeImage(image, rows, cols);
         }
 
-        private void Decomposition(float[] array)
+        private void DecompositionArray(float[] array, float[] temp)
         {
             int h = array.Length;
             while (h > 1)
             {
-                DecompositionStep(array, h);
+                DecompositionStep(array, h, 0, temp);
                 h /= 2;
             }
         }
 
-        private void Decomposition(float[] array, int row, int rows, int cols, float[] temp)
+        private void DecompositionRow(float[] array, int row, int cols, float[] temp)
         {
-            int h = cols; // array.Length;
+            int h = cols;
             while (h > 1)
             {
-                DecompositionStep(array, h, row, rows, cols, temp);
+                DecompositionStep(array, h, row * cols, temp);
                 h /= 2;
             }
         }
 
-        private void DecompositionStep(float[] array, int h, int row, int rows, int cols, float[] temp)
+        private void DecompositionStep(float[] array, int h, int prefix, float[] temp)
         {
             h /= 2;
-            int prefix = row * cols; // row * (length of the row)
             for (int i = 0, j = 0; i < h; ++i, j = 2 * i)
             {
                 temp[i] = array[prefix + j] + array[prefix + j + 1];
@@ -60,6 +50,8 @@
 
         private void DecomposeImage(float[] image, int rows, int cols)
         {
+            float[] temp = new float[rows > cols ? rows : cols];
+
             // The order of decomposition is reversed because the image is 128x32 but we consider it reversed 32x128
             for (int col = 0; col < cols /*32*/; col++)
             {
@@ -69,17 +61,16 @@
                     column[colIndex] = image[col + (colIndex * cols)]; /*Copying Column vector*/
                 }
 
-                Decomposition(column); /*Decomposition of each row*/
+                DecompositionArray(column, temp); /*Decomposition of each row*/
                 for (int colIndex = 0; colIndex < rows; colIndex++)
                 {
                     image[col  + (cols * colIndex)] = column[colIndex];
                 }
             }
 
-            float [] temp = new float[cols];
             for (int row = 0; row < rows /*128*/; row++)
             {
-                Decomposition(image, row, rows, cols, temp); /*Decomposition of each row*/
+                DecompositionRow(image, row, cols, temp); /*Decomposition of each row*/
             }
         }
     }
