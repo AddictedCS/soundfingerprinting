@@ -130,6 +130,7 @@
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
     <Compile Include="Utils\ITestRunnerUtils.cs" />
     <Compile Include="Utils\QuickSelectAlgorithm.cs" />
+    <Compile Include="Utils\RangeUtils.cs" />
     <Compile Include="Utils\TestRunner.cs" />
     <Compile Include="Utils\TestRunnerConfig.cs" />
     <Compile Include="Utils\TestRunnerEventArgs.cs" />

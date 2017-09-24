@@ -39,10 +39,9 @@ namespace SoundFingerprinting.Utils
         /// </remarks>
         public virtual bool[] ExtractTopWavelets(float[] frames, int topWavelets)
         {
-            int[] indexes = Enumerable.Range(0, frames.Length).ToArray();
+            int[] indexes = RangeUtils.GetRange(frames.Length); 
             Array.Sort(frames, indexes, absComparator);
-            bool[] result = EncodeFingerprint(frames, indexes, topWavelets);
-            return result;
+            return EncodeFingerprint(frames, indexes, topWavelets);
         }
 
         /// <summary>
