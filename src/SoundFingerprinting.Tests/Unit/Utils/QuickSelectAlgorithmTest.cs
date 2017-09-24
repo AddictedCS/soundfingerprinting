@@ -35,8 +35,8 @@
                 float[] a = GenerateRandomArray(Count);
                 float[] b = (float[])a.Clone();
 
-                int[] x = Enumerable.Range(0, Count).ToArray();
-                int[] y = (int[])x.Clone();
+                ushort[] x = Enumerable.Range(0, Count).Select(i => (ushort)i).ToArray();
+                ushort[] y = (ushort[])x.Clone();
 
                 int akth = algorithm.Find(TopWavelets - 1, a, x, 0, a.Length - 1);
                 int bkth = algorithm.Find(TopWavelets - 1, b, y, 0, b.Length - 1);
@@ -67,7 +67,7 @@
             for (int run = 0; run < 10; ++run)
             {
                 float[] floats = GenerateRandomArray(Count);
-                int[] indexes = Enumerable.Range(0, Count).ToArray();
+                ushort[] indexes = Enumerable.Range(0, Count).Select(i => (ushort)i).ToArray();
 
                 int kth = algorithm.Find(TopWavelets - 1, floats, indexes, 0, floats.Length - 1);
 
@@ -91,7 +91,7 @@
             for (int i = 0; i < 10; ++i)
             {
                 float[] values = new float[] { 3, 4, 5, 1, 6, 7, 8, 9, 2, 0 };
-                int value = algorithm.Find(i, values, Enumerable.Range(0, 10).ToArray(), 0, values.Length - 1);
+                int value = algorithm.Find(i, values, Enumerable.Range(0, 10).Select(k => (ushort)k).ToArray(), 0, values.Length - 1);
 
                 Assert.AreEqual(value, i);
             }

@@ -9,7 +9,7 @@ namespace SoundFingerprinting.Utils
         /// <param name = "indexes">Sorted indexes with the first one with the highest value in array</param>
         /// <param name = "topWavelets">Number of top wavelets to encode</param>
         /// <returns>Encoded fingerprint</returns>
-        bool[] EncodeFingerprint(float[] concatenated, int[] indexes, int topWavelets);
+        bool[] EncodeFingerprint(float[] concatenated, ushort[] indexes, int topWavelets);
 
         /// <summary>
         ///   Decode the signature of the fingerprint

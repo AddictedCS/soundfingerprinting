@@ -52,7 +52,7 @@
         public void EncodeFingerprintWorksAsExpected()
         {
             float[] framesSpectrumPowers = new float[] { 2, 4, 8, 9, 1, 3, 5 };
-            int[] indexes = new[] { 3, 2, 6, 1, 5, 0, 4 };
+            ushort[] indexes = new[] { (ushort)3, (ushort)2, (ushort)6, (ushort)1, (ushort)5, (ushort)0, (ushort)4 };
             bool[] expected = new[] { false, false, false, false, true, false, true, false, false, false, false, false, false, false };
 
             bool[] encodedFingerprint = fingerprintDescriptor.EncodeFingerprint(framesSpectrumPowers, indexes, 2);
