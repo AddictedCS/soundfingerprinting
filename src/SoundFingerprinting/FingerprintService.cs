@@ -51,26 +51,21 @@ namespace SoundFingerprinting
         private List<Fingerprint> CreateFingerprintsFromLogSpectrum(List<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
-            Parallel.ForEach(
-                spectralImages,
-                spectralImage =>
-                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols));
-
             var till = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
-            Parallel.ForEach(
-                spectralImages,
-                () => new ushort[till],
-                (spectralImage, loop, cachedIndexes) =>
-                    {
-                        RangeUtils.PopulateIndexes(till, cachedIndexes);
-                        var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
-                        if (!image.IsSilence())
-                        {
-                            fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
-                        }
 
-                        return cachedIndexes;
-                    },
+            Parallel.ForEach(spectralImages, () => new ushort[till],
+                (spectralImage, loop, cachedIndexes) =>
+                {
+                    waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols);
+                    RangeUtils.PopulateIndexes(till, cachedIndexes);
+                    var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
+                    if (!image.IsSilence())
+                    {
+                        fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
+                    }
+
+                    return cachedIndexes;
+                }, 
                 cachedIndexes => { });
 
             return fingerprints.ToList();

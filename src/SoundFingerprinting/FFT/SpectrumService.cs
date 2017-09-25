@@ -121,7 +121,7 @@
                     targetArray[(targetIndex * logBins) + i] += (float)((re * re) + (img * img));
                 }
 
-                targetArray[(targetIndex * logBins) + i] = targetArray[(targetIndex * logBins) + i] / (higherBound - lowBound);
+                targetArray[(targetIndex * logBins) + i] /= (higherBound - lowBound);
             }
         }
 
