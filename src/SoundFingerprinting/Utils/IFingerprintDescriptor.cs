@@ -12,13 +12,16 @@ namespace SoundFingerprinting.Utils
         IEncodedFingerprintSchema EncodeFingerprint(float[] concatenated, ushort[] indexes, int topWavelets);
 
         /// <summary>
-        /// Sets all other wavelet values to 0 except whose which make part of Top Wavelet [top wavelet &gt; 0 ? 1 : -1]
+        ///  Sets all other wavelet values to 0 except whose which make part of Top Wavelet [top wavelet &gt; 0 ? 1 : -1]
         /// </summary>
         /// <param name="frames">
-        /// Frames with 32 logarithmically spaced frequency bins
+        ///  Frames with 32 logarithmically spaced frequency bins
         /// </param>
         /// <param name="topWavelets">
-        /// The top Wavelets.
+        ///  The top Wavelets.
+        /// </param>
+        /// <param name="indexes">
+        ///  Cached indexes
         /// </param>
         /// <returns>
         /// Signature signature. Array of encoded Boolean elements (wavelet signature)
@@ -28,6 +31,6 @@ namespace SoundFingerprinting.Utils
         ///   Positive Numbers = 10
         ///   Zeros            = 00
         /// </remarks>
-        IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets);
+        IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets, ushort[] indexes);
     }
 }

@@ -19,26 +19,8 @@ namespace SoundFingerprinting.Utils
             absComparator = new AbsComparator();
         }
 
-        /// <summary>
-        /// Sets all other wavelet values to 0 except whose which make part of Top Wavelet [top wavelet &gt; 0 ? 1 : -1]
-        /// </summary>
-        /// <param name="frames">
-        /// Frames with 32 logarithmically spaced frequency bins
-        /// </param>
-        /// <param name="topWavelets">
-        /// The top Wavelets.
-        /// </param>
-        /// <returns>
-        /// Signature signature. Array of encoded Boolean elements (wavelet signature)
-        /// </returns>
-        /// <remarks>
-        ///   Negative Numbers = 01
-        ///   Positive Numbers = 10
-        ///   Zeros            = 00
-        /// </remarks>
-        public virtual IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets)
+        public virtual IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets, ushort[] indexes)
         {
-            ushort[] indexes = RangeUtils.GetRange(frames.Length);
             Array.Sort(frames, indexes, absComparator);
             return EncodeFingerprint(frames, indexes, topWavelets);
         }

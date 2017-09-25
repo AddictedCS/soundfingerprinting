@@ -59,7 +59,7 @@
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32));
-            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets)).Returns(new EncodedFingerprintSchema(8192).SetTrueAt(0 , 1));
+            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new EncodedFingerprintSchema(8192).SetTrueAt(0 , 1));
 
             var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)
@@ -81,7 +81,7 @@
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32));
-            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets)).Returns(new EncodedFingerprintSchema(8192));
+            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new EncodedFingerprintSchema(8192));
 
             audioSamplesNormalizer.Setup(normalizer => normalizer.NormalizeInPlace(samples.Samples));
 
@@ -99,7 +99,7 @@
 
             waveletDecomposition.Setup(decomposition => decomposition.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32));
             fingerprintDescriptor.Setup(
-                descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), configuration.TopWavelets)).Returns(
+                descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), configuration.TopWavelets, It.IsAny<ushort[]>())).Returns(
                     new EncodedFingerprintSchema(1024));
 
             var rawFingerprints = fingerprintService.CreateFingerprints(samples, configuration);

@@ -48,27 +48,34 @@ namespace SoundFingerprinting
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);
         }
 
-        private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        private List<Fingerprint> CreateFingerprintsFromLogSpectrum(List<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
-            Parallel.ForEach(spectralImages, spectralImage => 
-            {
-                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols);
-                var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
-                if (!image.IsSilence())
-                {
-                    fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
-                }
-            });
+            Parallel.ForEach(
+                spectralImages,
+                spectralImage =>
+                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols));
+
+            var till = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
+            Parallel.ForEach(
+                spectralImages,
+                () => new ushort[till],
+                (spectralImage, loop, cachedIndexes) =>
+                    {
+                        RangeUtils.PopulateIndexes(till, cachedIndexes);
+                        var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
+                        if (!image.IsSilence())
+                        {
+                            fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
+                        }
+
+                        return cachedIndexes;
+                    },
+                cachedIndexes => { });
 
             return fingerprints.ToList();
         }
 
-        private bool IsSilence(IEnumerable<bool> image)
-        {
-            return image.All(b => b == false);
-        }
- 
         private void NormalizeAudioIfNecessary(AudioSamples samples, FingerprintConfiguration configuration)
         {
             if (configuration.NormalizeSignal)
