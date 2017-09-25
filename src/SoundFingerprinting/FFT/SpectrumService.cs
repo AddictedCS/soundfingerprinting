@@ -55,9 +55,10 @@
             return frames;
         }
 
-        public List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples,  SpectrogramConfig configuration)
+        public List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration)
         {
-            int width = (audioSamples.Samples.Length - configuration.WdftSize) / configuration.Overlap;
+            int wdftSize = configuration.WdftSize;
+            int width = (audioSamples.Samples.Length - wdftSize) / configuration.Overlap;
             if (width < 1)
             {
                 return new List<SpectralImage>();
@@ -65,19 +66,17 @@
 
             float[] frames = new float[width * configuration.LogBins];
             int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
-            float[] window = configuration.Window.GetWindow(configuration.WdftSize);
+            float[] window = configuration.Window.GetWindow(wdftSize);
             float[] samples = audioSamples.Samples;
-            Parallel.For(0, width, () => new float[configuration.WdftSize], (i, loop, fftArray) =>
-            {
-                for (int j = 0; j < window.Length; ++j)
+            Parallel.For(0, width, () => new float[wdftSize],
+                (index, loop, fftArray) =>
                 {
-                    fftArray[j] = samples[(i * configuration.Overlap) + j] * window[j];
-                }
-
-                fftService.FFTForwardInPlace(fftArray);
-                ExtractLogBins(fftArray, logFrequenciesIndexes, configuration.LogBins, configuration.WdftSize, frames, i);
-                return fftArray;
-            }, fftArray => { });
+                    CopyAndWindow(fftArray, samples, index * configuration.Overlap, window);
+                    fftService.FFTForwardInPlace(fftArray);
+                    ExtractLogBins(fftArray, logFrequenciesIndexes, configuration.LogBins, wdftSize, frames, index);
+                    return fftArray;
+                },
+                fftArray => { });
 
             return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
         }
@@ -119,10 +118,10 @@
                 {
                     double re = spectrum[2 * k] / width;
                     double img = spectrum[(2 * k) + 1] / width;
-                    targetArray[targetIndex * logBins + i] += (float)((re * re) + (img * img));
+                    targetArray[(targetIndex * logBins) + i] += (float)((re * re) + (img * img));
                 }
 
-                targetArray[targetIndex * logBins + i] = targetArray[targetIndex * logBins + i] / (higherBound - lowBound);
+                targetArray[(targetIndex * logBins) + i] = targetArray[(targetIndex * logBins) + i] / (higherBound - lowBound);
             }
         }
 
@@ -130,6 +129,14 @@
         {
             // There are 64 audio samples in 1 unit of spectrum due to FFT window overlap (which is 64)
             return (int)((float)audioSamples / overlap);
+        }
+
+        private void CopyAndWindow(float[] fftArray, float[] samples, int prefix, float[] window)
+        {
+            for (int j = 0; j < window.Length; ++j)
+            {
+                fftArray[j] = samples[prefix + j] * window[j];
+            }
         }
     }
 }
