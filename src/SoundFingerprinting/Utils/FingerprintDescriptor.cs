@@ -57,7 +57,7 @@ namespace SoundFingerprinting.Utils
             for (int i = 0; i < topWavelets; i++)
             {
                 int index = indexes[i];
-                double value = concatenated[i];
+                float value = concatenated[i];
                 if (value > 0)
                 {
                     // positive wavelet
