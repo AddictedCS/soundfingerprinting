@@ -50,7 +50,7 @@
             const int TopWavelets = 200;
             foreach (var floats in pool)
             {
-                bool[] encoded = descriptor.ExtractTopWavelets(floats, TopWavelets);
+                descriptor.ExtractTopWavelets(floats, TopWavelets);
             }
         }
 

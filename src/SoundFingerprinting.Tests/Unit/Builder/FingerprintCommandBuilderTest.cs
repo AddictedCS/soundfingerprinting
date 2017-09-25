@@ -13,6 +13,7 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
+    using SoundFingerprinting.Utils;
 
     [TestFixture]
     public class FingerprintCommandBuilderTest : AbstractTest
@@ -174,7 +175,7 @@
             var list = new List<Fingerprint>();
             for (int i = 0; i < count; i++)
             {
-                list.Add(new Fingerprint(GenericFingerprint(), i * 0.928, i));
+                list.Add(new Fingerprint(new EncodedFingerprintSchema(8192), i * 0.928, i));
             }
 
             return list;

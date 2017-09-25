@@ -4,7 +4,7 @@
     {
         private readonly QuickSelectAlgorithm quickSelect = new QuickSelectAlgorithm();
 
-        public override bool[] ExtractTopWavelets(float[] frames, int topWavelets)
+        public override IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets)
         {
             ushort[] indexes = RangeUtils.GetRange(frames.Length);
             quickSelect.Find(topWavelets - 1, frames, indexes, 0, frames.Length - 1);

@@ -3,6 +3,7 @@
     using System;
 
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Utils;
 
     internal class MinHashService : IMinHashService
     {
@@ -26,7 +27,7 @@
             }
         }
 
-        public byte[] Hash(bool[] fingerprint, int n)
+        public byte[] Hash(IEncodedFingerprintSchema fingerprint, int n)
         {
             return ComputeMinHashSignature(fingerprint, n);
         }
@@ -48,14 +49,13 @@
         /// column c(i) compute its hash value h(c(i)) as the index of the first row under the permutation that has a 1 in that column.
         /// I.e. http://infolab.stanford.edu/~ullman/mmds/book.pdf s.3.3.4
         /// </remarks>
-        private byte[] ComputeMinHashSignature(bool[] fingerprint, int n)
+        private byte[] ComputeMinHashSignature(IEncodedFingerprintSchema fingerprint, int n)
         {
             if (n > PermutationsCount)
             {
                 throw new ArgumentException("n should not exceed number of available hash functions: " + PermutationsCount);
             }
 
-            bool[] signature = fingerprint;
             int[][] perms = permutations.GetPermutations();
             byte[] minHash = new byte[n]; /*100*/
             for (int i = 0; i < n; i++)
@@ -63,7 +63,8 @@
                 minHash[i] = 255; /*The probability of occurrence of 1 after position 255 is very insignificant*/
                 for (int j = 0; j < perms[i].Length /*256*/; j++)
                 {
-                    if (signature[perms[i][j]])
+                    int indexAt = perms[i][j];
+                    if (fingerprint.IsTrueAt(indexAt))
                     {
                         minHash[i] = (byte)j; /*Looking for first occurrence of '1'*/
                         break;

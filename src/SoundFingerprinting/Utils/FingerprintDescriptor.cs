@@ -36,7 +36,7 @@ namespace SoundFingerprinting.Utils
         ///   Positive Numbers = 10
         ///   Zeros            = 00
         /// </remarks>
-        public virtual bool[] ExtractTopWavelets(float[] frames, int topWavelets)
+        public virtual IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets)
         {
             ushort[] indexes = RangeUtils.GetRange(frames.Length); 
             Array.Sort(frames, indexes, absComparator);
@@ -50,26 +50,24 @@ namespace SoundFingerprinting.Utils
         /// <param name = "indexes">Sorted indexes with the first one with the highest value in array</param>
         /// <param name = "topWavelets">Number of top wavelets to encode</param>
         /// <returns>Encoded fingerprint</returns>
-        public bool[] EncodeFingerprint(float[] concatenated, ushort[] indexes, int topWavelets)
+        public IEncodedFingerprintSchema EncodeFingerprint(float[] concatenated, ushort[] indexes, int topWavelets)
         {
-            bool[] result = new bool[concatenated.Length * 2]; // Concatenated float array
+            var schema = new EncodedFingerprintSchema(concatenated.Length * 2);
             for (int i = 0; i < topWavelets; i++)
             {
                 int index = indexes[i];
                 float value = concatenated[i];
                 if (value > 0)
                 {
-                    // positive wavelet
-                    result[index * 2] = true;
+                    schema.SetTrueAt(index * 2);
                 }
                 else if (value < 0)
                 {
-                    // negative wavelet
-                    result[(index * 2) + 1] = true;
+                    schema.SetTrueAt((index * 2) + 1);
                 }
             }
 
-            return result;
+            return schema;
         }
 
         /// <summary>
