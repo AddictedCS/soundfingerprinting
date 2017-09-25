@@ -12,13 +12,6 @@ namespace SoundFingerprinting.Utils
         IEncodedFingerprintSchema EncodeFingerprint(float[] concatenated, ushort[] indexes, int topWavelets);
 
         /// <summary>
-        ///   Decode the signature of the fingerprint
-        /// </summary>
-        /// <param name = "signature">Signature to be decoded</param>
-        /// <returns>Array of doubles with positive [10], negatives [01], and zeros [00]</returns>
-        double[] DecodeFingerprint(bool[] signature);
-
-        /// <summary>
         /// Sets all other wavelet values to 0 except whose which make part of Top Wavelet [top wavelet &gt; 0 ? 1 : -1]
         /// </summary>
         /// <param name="frames">

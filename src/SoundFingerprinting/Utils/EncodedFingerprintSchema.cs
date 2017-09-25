@@ -4,17 +4,11 @@
 
     public class EncodedFingerprintSchema : IEncodedFingerprintSchema
     {
-        //       private readonly HashSet<int> topWaveletsAtIndexes = new HashSet<int>();
-
         private readonly BitArray bitArray;
-
-        private readonly int length;
-
         private bool isSilence = true;
 
         public EncodedFingerprintSchema(int length)
         {
-            this.length = length;
             bitArray = new BitArray(length);
         }
 
@@ -23,10 +17,9 @@
             return bitArray[index];
         }
 
-
         public bool[] ToBools()
         {
-            bool[] concatenated = new bool[length];
+            bool[] concatenated = new bool[bitArray.Length];
             bitArray.CopyTo(concatenated, 0);
             return concatenated;
         }
@@ -34,6 +27,12 @@
         public bool IsSilence()
         {
             return isSilence;
+        }
+
+        public void SetTrueAt(int index)
+        {
+            isSilence = false;
+            bitArray[index] = true;
         }
 
         public EncodedFingerprintSchema SetTrueAt(params int[] indexes)
@@ -73,14 +72,5 @@
 
             return count;
         }
-    }
-
-    public interface IEncodedFingerprintSchema
-    {
-        bool IsTrueAt(int index);
-
-        bool IsSilence();
-
-        bool[] ToBools();
     }
 }

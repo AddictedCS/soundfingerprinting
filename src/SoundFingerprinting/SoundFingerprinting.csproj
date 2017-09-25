@@ -128,6 +128,7 @@
     <Compile Include="IFingerprintService.cs" />
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
+    <Compile Include="Utils\IEncodedFingerprintSchema.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
     <Compile Include="Utils\ITestRunnerUtils.cs" />
     <Compile Include="Utils\QuickSelectAlgorithm.cs" />

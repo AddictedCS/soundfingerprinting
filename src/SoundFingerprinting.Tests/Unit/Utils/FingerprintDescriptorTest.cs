@@ -60,16 +60,6 @@
             CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
-        [Test]
-        public void DecodeFingerprintWorksAsExpected()
-        {
-            double[] expected = new double[] { 0, 0, 1, -1, 0, 0, 0 };
-
-            double[] decoded = fingerprintDescriptor.DecodeFingerprint(new[] { false, false, false, false, true, false, false, true, false, false, false, false, false, false });
-
-            CollectionAssert.AreEqual(expected, decoded);
-        }
-
         private bool[] ExtractTopWaveletsTested(float[] frames, int topWavelets)
         {
             var query = frames.Select((value, index) => new KeyValuePair<int, float>(index, value))

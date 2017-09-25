@@ -38,7 +38,7 @@ namespace SoundFingerprinting.Utils
         /// </remarks>
         public virtual IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets)
         {
-            ushort[] indexes = RangeUtils.GetRange(frames.Length); 
+            ushort[] indexes = RangeUtils.GetRange(frames.Length);
             Array.Sort(frames, indexes, absComparator);
             return EncodeFingerprint(frames, indexes, topWavelets);
         }
@@ -68,34 +68,6 @@ namespace SoundFingerprinting.Utils
             }
 
             return schema;
-        }
-
-        /// <summary>
-        ///   Decode the signature of the fingerprint
-        /// </summary>
-        /// <param name = "signature">Signature to be decoded</param>
-        /// <returns>Array of doubles with positive [10], negatives [01], and zeros [00]</returns>
-        public double[] DecodeFingerprint(bool[] signature)
-        {
-            int len = signature.Length / 2;
-            double[] result = new double[len];
-            for (int i = 0; i < len * 2; i += 2)
-            {
-                if (signature[i])
-                {
-                    // positive if first is true
-                    result[i / 2] = 1;
-                }
-                else if (signature[i + 1])
-                {
-                    // negative if second is true
-                    result[i / 2] = -1;
-                }
-
-                // otherwise '0'
-            }
-
-            return result;
         }
     }
 }
