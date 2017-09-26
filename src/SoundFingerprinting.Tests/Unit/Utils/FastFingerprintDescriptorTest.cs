@@ -66,7 +66,7 @@
         [Test]
         public void ShouldRunCorrectlyForSpecificUseCase()
         {
-            int sequenceNumber = 334, stride = 1536;
+            int sequenceNumber = 334;
             float[] samples = GetAudioSamples().Samples;
             int start = sequenceNumber * 1536;
 
