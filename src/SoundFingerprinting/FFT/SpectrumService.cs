@@ -65,10 +65,11 @@
             }
 
             float[] frames = new float[width * configuration.LogBins];
-            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
+            ushort[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
             float[] window = configuration.Window.GetWindow(wdftSize);
             float[] samples = audioSamples.Samples;
-            Parallel.For(0, width, () => new float[wdftSize],
+            Parallel.For(0, width, 
+                () => new float[wdftSize],
                 (index, loop, fftArray) =>
                 {
                     CopyAndWindow(fftArray, samples, index * configuration.Overlap, window);
@@ -97,7 +98,7 @@
             {
                 float[] spectralImage = new float[fingerprintImageLength * numberOfLogBins]; 
                 Buffer.BlockCopy(logarithmizedSpectrum, sizeof(float) * index * numberOfLogBins, spectralImage,  0, fullLength * sizeof(float));
-                float startsAt = (float)(index * ((double)overlap / sampleRate));
+                float startsAt = index * ((float)overlap / sampleRate);
                 spectralImages.Add(new SpectralImage(spectralImage, fingerprintImageLength, (ushort)numberOfLogBins, startsAt, sequenceNumber));
                 index += fingerprintImageLength + GetFrequencyIndexLocationOfAudioSamples(strideBetweenConsecutiveImages.NextStride, overlap);
                 sequenceNumber++;
@@ -106,7 +107,7 @@
             return spectralImages;
         }
 
-        public void ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
+        public void ExtractLogBins(float[] spectrum, ushort[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
         {
             int width = wdftSize / 2; /* 1024 */
             for (int i = 0; i < logBins; i++)

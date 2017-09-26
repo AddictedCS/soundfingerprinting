@@ -51,13 +51,15 @@ namespace SoundFingerprinting
         private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
-            var till = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
+            var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
 
-            Parallel.ForEach(spectralImages, () => new ushort[till],
+            Parallel.ForEach(
+                spectralImages, 
+                () => new ushort[spectrumLength],
                 (spectralImage, loop, cachedIndexes) =>
                 {
                     waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols);
-                    RangeUtils.PopulateIndexes(till, cachedIndexes);
+                    RangeUtils.PopulateIndexes(spectrumLength, cachedIndexes);
                     var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
                     if (!image.IsSilence())
                     {

@@ -6,7 +6,7 @@ namespace SoundFingerprinting.FFT
 
     internal class LogUtility : ILogUtility
     {
-        public int[] GenerateLogFrequenciesRanges(int sampleRate, SpectrogramConfig configuration)
+        public ushort[] GenerateLogFrequenciesRanges(int sampleRate, SpectrogramConfig configuration)
         {
             if (configuration.UseDynamicLogBase)
             {
@@ -29,35 +29,35 @@ namespace SoundFingerprinting.FFT
         ///   N points in time domain correspond to N/2 + 1 points in frequency domain
         ///   E.g. 300 Hz applies to 112'th element in the array
         /// </remarks>
-        public int FrequencyToSpectrumIndex(float frequency, int sampleRate, int spectrumLength)
+        public ushort FrequencyToSpectrumIndex(float frequency, int sampleRate, int spectrumLength)
         {
             float fraction = frequency / ((float)sampleRate / 2); // N sampled points in time correspond to [0, N/2] frequency range
             int index = (int)Math.Round(((spectrumLength / 2) + 1) * fraction); // DFT N points defines [N/2 + 1] frequency points
-            return index;
+            return (ushort)index;
         }
 
-        private int[] GenerateLogFrequenciesDynamicBase(int sampleRate, SpectrogramConfig configuration)
+        private ushort[] GenerateLogFrequenciesDynamicBase(int sampleRate, SpectrogramConfig configuration)
         {
             double logBase = Math.Exp(Math.Log((float)configuration.FrequencyRange.Max / configuration.FrequencyRange.Min) / configuration.LogBins);
             double mincoef = (float)configuration.WdftSize / sampleRate * configuration.FrequencyRange.Min;
-            int[] indexes = new int[configuration.LogBins + 1];
+            ushort[] indexes = new ushort[configuration.LogBins + 1];
             for (int j = 0; j < configuration.LogBins + 1; j++)
             {
                 int start = (int)((Math.Pow(logBase, j) - 1.0) * mincoef);
-                indexes[j] = start + (int)mincoef;
+                indexes[j] = (ushort)(start + (int)mincoef);
             }
 
             return indexes;
         }
 
-        private int[] GenerateStaticLogFrequencies(int sampleRate, SpectrogramConfig configuration)
+        private ushort[] GenerateStaticLogFrequencies(int sampleRate, SpectrogramConfig configuration)
         {
             double logMin = Math.Log(configuration.FrequencyRange.Min, configuration.LogBase);
             double logMax = Math.Log(configuration.FrequencyRange.Max, configuration.LogBase);
 
             double delta = (logMax - logMin) / configuration.LogBins;
 
-            int[] indexes = new int[configuration.LogBins + 1];
+            ushort[] indexes = new ushort[configuration.LogBins + 1];
             double accDelta = 0;
             for (int i = 0; i <= configuration.LogBins; ++i)
             {

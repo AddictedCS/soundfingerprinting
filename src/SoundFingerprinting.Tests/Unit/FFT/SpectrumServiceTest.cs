@@ -166,7 +166,7 @@
         private void SetupFftService(DefaultSpectrogramConfig configuration)
         {
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration))
-                .Returns(new[]
+                .Returns(new ushort[]
                         {
                             118, 125, 133, 141, 149, 158, 167, 177, 187, 198, 210, 223, 236, 250, 264, 280, 297, 314,
                             333, 352, 373, 395, 419, 443, 470, 497, 527, 558, 591, 626, 663, 702, 744,

@@ -4,8 +4,8 @@
 
     internal interface ILogUtility
     {
-        int[] GenerateLogFrequenciesRanges(int sampleRate, SpectrogramConfig config);
+        ushort[] GenerateLogFrequenciesRanges(int sampleRate, SpectrogramConfig config);
 
-        int FrequencyToSpectrumIndex(float frequency, int sampleRate, int spectrumLength);
+        ushort FrequencyToSpectrumIndex(float frequency, int sampleRate, int spectrumLength);
     }
 }
