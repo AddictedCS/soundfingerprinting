@@ -1,7 +1,5 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.FFT
 {
-    using System.Linq;
-
     using Moq;
 
     using NUnit.Framework;
@@ -44,14 +42,14 @@
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.WdftSize, result[0].Rows);
-            Assert.AreEqual(32, result[0].Cols);
+            Assert.AreEqual(configuration.ImageLength, result[0].Rows);
+            Assert.AreEqual(configuration.LogBins, result[0].Cols);
         }
 
         [Test]
         public void CreateLogSpectrogramFromMinimalSamplesLengthTest()
         {
-            var configuration = new DefaultSpectrogramConfig { NormalizeSignal = false };
+            var configuration = new DefaultSpectrogramConfig();
             var samples = TestUtilities.GenerateRandomAudioSamples(new DefaultFingerprintConfiguration().SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
             SetupFftService(configuration, samples);
 
@@ -66,13 +64,13 @@
         public void ShouldCreateCorrectNumberOfSubFingerprints()
         {
             var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0) };
-            var tenMinutes = 10 * 60;
-            var samples = TestUtilities.GenerateRandomAudioSamples(tenMinutes * SampleRate);
+            const int TenMinutes = 10 * 60;
+            var samples = TestUtilities.GenerateRandomAudioSamples(TenMinutes * SampleRate);
             SetupFftService(configuration, samples);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            Assert.AreEqual((tenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
+            Assert.AreEqual((TenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
         }
 
         [Test]
@@ -89,8 +87,7 @@
         [Test]
         public void CutLogarithmizedSpectrumTest()
         {
-            var stride = new StaticStride(0, 0);
-            var configuration = new DefaultSpectrogramConfig { Stride = stride };
+            var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0, 0) };
             const int LogSpectrumLength = 1024;
             var logSpectrum = GetLogSpectrum(LogSpectrumLength);
 
@@ -181,8 +178,7 @@
 
         private float[] GetLogSpectrum(int logSpectrumLength)
         {
-            var logSpectrum = new float[logSpectrumLength * 32];
-            return logSpectrum;
+            return new float[logSpectrumLength * 32];
         }
     }
 }

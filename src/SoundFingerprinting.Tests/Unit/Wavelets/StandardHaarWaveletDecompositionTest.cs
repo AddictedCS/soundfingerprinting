@@ -26,7 +26,7 @@
             float[] concatenated = new float[Rows * Cols];
             for (int i = 0; i < Rows; i++)
             {
-                frames[i] = TestUtilities.GenerateRandomDoubleArray(Cols);
+                frames[i] = TestUtilities.GenerateRandomSingleArray(Cols);
                 Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * Cols, sizeof(float) * Cols);
             }
 
@@ -47,7 +47,7 @@
             }
         }
 
-        private void DecomposeArrayLocal(float[] array)
+        private void DecomposeArray(float[] array)
         {
             int h = array.Length;
             float[] temp = new float[h];
@@ -61,10 +61,7 @@
                     temp[h + i] = array[2 * i] - array[(2 * i) + 1];
                 }
 
-                for (int i = 0; i < 2 * h; i++)
-                {
-                    array[i] = temp[i];
-                }
+                Buffer.BlockCopy(temp, 0, array, 0, sizeof(float) * (h * 2));
             }
         }
 
@@ -74,18 +71,18 @@
             int cols = array[0].Length;
             for (int i = 0; i < rows; i++)
             {
-                DecomposeArrayLocal(array[i]);
+                DecomposeArray(array[i]);
             }
 
             for (int i = 0; i < cols; i++)
             {
-                float[] temp = new float[rows]; // each column has the size of
+                float[] temp = new float[rows];
                 for (int j = 0; j < rows; j++)
                 {
                     temp[j] = array[j][i];
                 }
 
-                DecomposeArrayLocal(temp);
+                DecomposeArray(temp);
                 for (int j = 0; j < rows; j++)
                 {
                     array[j][i] = temp[j];

@@ -19,7 +19,7 @@
         public void WindowInPlaceTest()
         {
             const int Length = 128 * 64;
-            float[] outerspace = TestUtilities.GenerateRandomDoubleArray(Length);
+            float[] outerspace = TestUtilities.GenerateRandomSingleArray(Length);
             float[] outerspaceCopy = new float[outerspace.Length];
             outerspace.CopyTo(outerspaceCopy, 0);
 
