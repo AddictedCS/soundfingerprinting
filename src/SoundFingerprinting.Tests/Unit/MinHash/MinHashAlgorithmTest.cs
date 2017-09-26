@@ -120,12 +120,12 @@
             return x.Where((t, i) => t == y[i]).Count();
         }
 
-        private Tuple<EncodedFingerprintSchema, EncodedFingerprintSchema> GenerateVectors(double similarityIndex, int topWavelets, int length)
+        private Tuple<TinyFingerprintSchema, TinyFingerprintSchema> GenerateVectors(double similarityIndex, int topWavelets, int length)
         {
             var random = new Random();
 
-            var first = new EncodedFingerprintSchema(length);
-            var second = new EncodedFingerprintSchema(length);
+            var first = new TinyFingerprintSchema(length);
+            var second = new TinyFingerprintSchema(length);
             var unique = new HashSet<int>();
             for (int i = 0; i < topWavelets; ++i)
             {
@@ -153,19 +153,19 @@
             return Tuple.Create(first, second);
         }
 
-        private void Agree(float value, EncodedFingerprintSchema first, int index, EncodedFingerprintSchema second)
+        private void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
         {
             this.EncodeWavelet(value, first, index);
             this.EncodeWavelet(value, second, index);
         }
 
-        private void Disagree(float value, EncodedFingerprintSchema first, int index, EncodedFingerprintSchema second)
+        private void Disagree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
         {
             this.EncodeWavelet(value, first, index);
             this.EncodeWavelet(-1 * value, second, index);
         }
 
-        private void EncodeWavelet(float value, EncodedFingerprintSchema array, int index)
+        private void EncodeWavelet(float value, TinyFingerprintSchema array, int index)
         {
             if (value > 0)
             {

@@ -15,10 +15,13 @@
 
         private IFingerprintDescriptor fingerprintDescriptor;
 
+        private IFingerprintEncoder fingerprintEncoder;
+
         [SetUp]
         public void SetUp()
         {
             fingerprintDescriptor = new FingerprintDescriptor();
+            fingerprintEncoder = new FingerprintEncoder();
         }
 
         [Test]
@@ -55,7 +58,7 @@
             ushort[] indexes = new[] { (ushort)3, (ushort)2, (ushort)6, (ushort)1, (ushort)5, (ushort)0, (ushort)4 };
             bool[] expected = new[] { false, false, false, false, true, false, true, false, false, false, false, false, false, false };
 
-            bool[] encodedFingerprint = fingerprintDescriptor.EncodeFingerprint(framesSpectrumPowers, indexes, 2).ToBools();
+            bool[] encodedFingerprint = fingerprintEncoder.EncodeFingerprint(framesSpectrumPowers, indexes, 2).ToBools();
 
             CollectionAssert.AreEqual(expected, encodedFingerprint);
         }

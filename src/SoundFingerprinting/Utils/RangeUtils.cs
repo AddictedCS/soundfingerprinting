@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Utils
 {
-    public static class RangeUtils
+    internal static class RangeUtils
     {
         public static ushort[] GetRange(int till)
         {

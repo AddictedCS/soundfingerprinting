@@ -175,7 +175,7 @@
             var list = new List<Fingerprint>();
             for (int i = 0; i < count; i++)
             {
-                list.Add(new Fingerprint(new EncodedFingerprintSchema(8192), i * 0.928, i));
+                list.Add(new Fingerprint(new TinyFingerprintSchema(8192), i * 0.928, i));
             }
 
             return list;

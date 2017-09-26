@@ -52,7 +52,7 @@
             int[][] perms = new[] { new[] { 1, 4, 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };
             permutations.Setup(perm => perm.GetPermutations()).Returns(perms);
 
-            byte[] hashed = minHashService.Hash(new EncodedFingerprintSchema(10).SetTrueAt(2, 4, 6), perms.Length);
+            byte[] hashed = minHashService.Hash(new TinyFingerprintSchema(10).SetTrueAt(2, 4, 6), perms.Length);
 
             Assert.AreEqual(1, hashed[0]);
             Assert.AreEqual(0, hashed[1]);

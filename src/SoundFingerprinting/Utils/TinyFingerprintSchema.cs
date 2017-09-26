@@ -2,12 +2,12 @@
 {
     using System.Collections;
 
-    public class EncodedFingerprintSchema : IEncodedFingerprintSchema
+    internal class TinyFingerprintSchema : IEncodedFingerprintSchema
     {
         private readonly BitArray bitArray;
         private bool isSilence = true;
 
-        public EncodedFingerprintSchema(int length)
+        public TinyFingerprintSchema(int length)
         {
             bitArray = new BitArray(length);
         }
@@ -29,13 +29,14 @@
             return isSilence;
         }
 
-        public void SetTrueAt(int index)
+        public TinyFingerprintSchema SetTrueAt(int index)
         {
             isSilence = false;
             bitArray[index] = true;
+            return this;
         }
 
-        public EncodedFingerprintSchema SetTrueAt(params int[] indexes)
+        public TinyFingerprintSchema SetTrueAt(params int[] indexes)
         {
             isSilence = false;
             foreach (int index in indexes)
@@ -46,17 +47,16 @@
             return this;
         }
 
-        public int AgreeOn(EncodedFingerprintSchema other)
+        public int AgreeOn(TinyFingerprintSchema other)
         {
-            BitArray copy = (BitArray)this.bitArray.Clone();
+            BitArray copy = (BitArray)bitArray.Clone();
             var result = copy.And(other.bitArray);
             return TrueCounts(result);
         }
 
-
         public int TrueCounts()
         {
-            return TrueCounts(this.bitArray);
+            return TrueCounts(bitArray);
         }
 
         private int TrueCounts(BitArray result)

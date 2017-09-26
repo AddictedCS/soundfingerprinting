@@ -48,7 +48,7 @@ namespace SoundFingerprinting
             return CreateFingerprintsFromLogSpectrum(spectrum, configuration);
         }
 
-        private List<Fingerprint> CreateFingerprintsFromLogSpectrum(List<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var till = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;

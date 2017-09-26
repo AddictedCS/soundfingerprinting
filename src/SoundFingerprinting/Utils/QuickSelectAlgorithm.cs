@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Utils
 {
-    public class QuickSelectAlgorithm
+    internal class QuickSelectAlgorithm
     {
         public int Find(int kth, float[] list, ushort[] indexes, int lo, int hi)
         {
