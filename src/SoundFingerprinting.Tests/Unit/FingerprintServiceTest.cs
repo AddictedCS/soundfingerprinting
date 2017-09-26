@@ -59,7 +59,7 @@
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32));
-            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192).SetTrueAt(0 , 1));
+            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192).SetTrueAt(0, 1));
 
             var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)
@@ -110,9 +110,9 @@
         private List<SpectralImage> GetDividedLogSpectrum()
         {
             var dividedLogSpectrum = new List<SpectralImage>();
-            for (int index = 0; index < 4; index++)
+            for (uint index = 0; index < 4; index++)
             {
-                dividedLogSpectrum.Add(new SpectralImage(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928 * index, index));
+                dividedLogSpectrum.Add(new SpectralImage(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928f * index, index));
             }
 
             return dividedLogSpectrum;

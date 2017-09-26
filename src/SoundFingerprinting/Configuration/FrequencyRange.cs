@@ -2,8 +2,8 @@ namespace SoundFingerprinting.Configuration
 {
     internal class FrequencyRange
     {
-        public int Min { get; set; }
+        public ushort Min { get; set; }
 
-        public int Max { get; set; }
+        public ushort Max { get; set; }
     }
 }

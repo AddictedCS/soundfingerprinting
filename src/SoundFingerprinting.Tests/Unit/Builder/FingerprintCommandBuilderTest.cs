@@ -80,7 +80,7 @@
                 service => service.CreateFingerprints(samples, It.IsAny<DefaultFingerprintConfiguration>())).Returns(
                     rawFingerprints);
             byte[] genericSignature = GenericSignature();
-            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(genericSignature, GenericHashBuckets(), 0, 0.928, Enumerable.Empty<string>()));
+            lshAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), NumberOfHashTables, NumberOfHashKeysPerTable, It.IsAny<IEnumerable<string>>())).Returns(new HashedFingerprint(genericSignature, GenericHashBuckets(), 0, 0.928f, Enumerable.Empty<string>()));
 
             var hashDatas = fingerprintCommandBuilder.BuildFingerprintCommand()
                                                      .From(PathToAudioFile)
@@ -173,9 +173,9 @@
         private List<Fingerprint> GetGenericFingerprints(int count)
         {
             var list = new List<Fingerprint>();
-            for (int i = 0; i < count; i++)
+            for (uint i = 0; i < count; i++)
             {
-                list.Add(new Fingerprint(new TinyFingerprintSchema(8192), i * 0.928, i));
+                list.Add(new Fingerprint(new TinyFingerprintSchema(8192), i * 0.928f, i));
             }
 
             return list;

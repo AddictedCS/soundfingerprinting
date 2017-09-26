@@ -9,7 +9,7 @@
     [Serializable]
     public class SubFingerprintData
     {
-        public SubFingerprintData(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
+        public SubFingerprintData(long[] hashes, uint sequenceNumber, float sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
         {
             Hashes = hashes;
             SubFingerprintReference = subFingerprintReference;
@@ -18,7 +18,6 @@
             SequenceAt = sequenceAt;
         }
 
-        [Obsolete]
         public SubFingerprintData()
         {
             Clusters = Enumerable.Empty<string>();
@@ -27,9 +26,9 @@
         [IgnoreBinding]
         public long[] Hashes { get; internal set; }
 
-        public int SequenceNumber { get; internal set; }
+        public uint SequenceNumber { get; internal set; }
 
-        public double SequenceAt { get; internal set; }
+        public float SequenceAt { get; internal set; }
 
         [IgnoreBinding]
         public IEnumerable<string> Clusters { get; internal set; }

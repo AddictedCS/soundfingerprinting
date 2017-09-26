@@ -4,7 +4,6 @@
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
@@ -36,7 +35,7 @@
         {
             var configuration = new DefaultSpectrogramConfig { ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
-            SetupFftService(configuration, samples);
+            this.SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
@@ -51,7 +50,7 @@
         {
             var configuration = new DefaultSpectrogramConfig();
             var samples = TestUtilities.GenerateRandomAudioSamples(new DefaultFingerprintConfiguration().SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
-            SetupFftService(configuration, samples);
+            this.SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
@@ -66,7 +65,7 @@
             var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0) };
             const int TenMinutes = 10 * 60;
             var samples = TestUtilities.GenerateRandomAudioSamples(TenMinutes * SampleRate);
-            SetupFftService(configuration, samples);
+            this.SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
@@ -97,8 +96,7 @@
             double lengthOfOneFingerprint = (double)configuration.ImageLength * configuration.Overlap / SampleRate;
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(
-                    System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint)) < Epsilon);
+                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint)) < Epsilon);
             }
         }
         
@@ -165,7 +163,7 @@
             Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
         }
 
-        private void SetupFftService(DefaultSpectrogramConfig configuration, AudioSamples samples)
+        private void SetupFftService(DefaultSpectrogramConfig configuration)
         {
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration))
                 .Returns(new[]

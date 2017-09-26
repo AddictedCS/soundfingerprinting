@@ -4,7 +4,7 @@
 
     internal class Fingerprint
     {
-        public Fingerprint(IEncodedFingerprintSchema signature, double startAt, int sequenceNumber)
+        public Fingerprint(IEncodedFingerprintSchema signature, float startAt, uint sequenceNumber)
         {
             Signature = signature;
             StartsAt = startAt;
@@ -13,8 +13,8 @@
 
         public IEncodedFingerprintSchema Signature { get; private set; }
 
-        public int SequenceNumber { get; private set; }
+        public uint SequenceNumber { get; private set; }
 
-        public double StartsAt { get; private set; }
+        public float StartsAt { get; private set; }
     }
 }
