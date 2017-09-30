@@ -1,8 +1,10 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Utils
+﻿namespace SoundFingerprinting.Tests.Unit.Benchmarks
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
+
+    using BenchmarkDotNet.Attributes;
+    using BenchmarkDotNet.Running;
 
     using NUnit.Framework;
 
@@ -17,32 +19,28 @@
         private readonly FastFingerprintDescriptor fastFingerprintDescriptor  = new FastFingerprintDescriptor();
 
         [Test]
-        public void ShouldFindTopWaveletsFaster()
+        public void RunBenchmark()
         {
-            // Warm-Up
-            RunTest(GetPoolOfFingerprints(1000, 128, 32), fingerprintDescriptor);
-
-            long a = BenchMark(10000, fingerprintDescriptor);
-
-            // Warm-Up
-            RunTest(GetPoolOfFingerprints(1000, 128, 32), fastFingerprintDescriptor);
-
-            long b = BenchMark(10000, fastFingerprintDescriptor);
-
-            Console.WriteLine("Fingerprint Descriptor Runs: {0} ms", a);
-            Console.WriteLine("Fast Fingerprint Descriptor Runs: {0} ms", b);
-            Console.WriteLine("Ratio: {0}x", (double)a / b);
-
-            Assert.IsTrue(a > b);
+            var summary = BenchmarkRunner.Run<FingerprintDescriptorBenchmark>();
+            Console.WriteLine(summary.ToString());
         }
 
-        private long BenchMark(int runs, FingerprintDescriptor descriptor)
+        [Benchmark]
+        public void NaiveFingerprintDescriptor()
         {
-            var pool = GetPoolOfFingerprints(runs, 128, 32);
-            var stopWatch = Stopwatch.StartNew();
-            RunTest(pool, descriptor);
-            stopWatch.Stop();
-            return stopWatch.ElapsedMilliseconds;
+            this.RunMultipleTimes(10, this.fingerprintDescriptor);
+        }
+
+        [Benchmark]
+        public void FastFingerprintDescriptor()
+        {
+            this.RunMultipleTimes(10, this.fastFingerprintDescriptor);
+        }
+
+        private void RunMultipleTimes(int runs, FingerprintDescriptor descriptor)
+        {
+            var pool = this.GetPoolOfFingerprints(runs, 128, 32);
+            this.RunTest(pool, descriptor);
         }
 
         private void RunTest(IEnumerable<float[][]> pool, FingerprintDescriptor descriptor)
@@ -50,7 +48,7 @@
             const int TopWavelets = 200;
             foreach (var floats in pool)
             {
-                bool[] encoded = descriptor.ExtractTopWavelets(floats, TopWavelets);
+                descriptor.ExtractTopWavelets(floats, TopWavelets);
             }
         }
 
@@ -65,7 +63,7 @@
                     fingerprint[j] = new float[cols];
                     for (int k = 0; k < cols; ++k)
                     {
-                        fingerprint[j][k] = (float)random.NextDouble();
+                        fingerprint[j][k] = (float)this.random.NextDouble();
                     }
                 }
 
