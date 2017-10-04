@@ -15,9 +15,6 @@
     internal class RAMStorage : IRAMStorage
     {
         [NonSerialized]
-        private IDictionary<IModelReference, SubFingerprintData> subFingerprints;
-
-        [NonSerialized]
         private IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> tracksHashes;
 
         [NonSerialized]
@@ -29,12 +26,6 @@
         public RAMStorage(int numberOfHashTables)
         {
             Initialize(numberOfHashTables);
-        }
-
-        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints
-        {
-            get => subFingerprints;
-            private set => subFingerprints = value;
         }
 
 
@@ -77,6 +68,8 @@
         public IDictionary<IModelReference, TrackData> Tracks { get; private set; }
 
         public IDictionary<long, List<IModelReference>>[] HashTables { get; private set; }
+
+        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints { get; private set; }
 
         public int NumberOfHashTables { get; private set; }
 
