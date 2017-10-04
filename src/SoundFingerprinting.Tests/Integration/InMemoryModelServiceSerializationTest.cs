@@ -47,7 +47,7 @@
 
             Assert.IsTrue(queryResult.ContainsMatches);
             AssertTracksAreEqual(trackData, queryResult.BestMatch.Track);
-            Assert.IsTrue(queryResult.BestMatch.Confidence > 0.8);
+            Assert.IsTrue(queryResult.BestMatch.Confidence > 0.9);
        }
     }
 }

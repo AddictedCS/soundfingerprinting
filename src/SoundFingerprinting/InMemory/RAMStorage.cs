@@ -14,20 +14,49 @@
     [Serializable]
     internal class RAMStorage : IRAMStorage
     {
+        [NonSerialized]
+        private IDictionary<IModelReference, SubFingerprintData> subFingerprints;
+
+        [NonSerialized]
+        private IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> tracksHashes;
+
+        [NonSerialized]
+        private IDictionary<IModelReference, List<FingerprintData>> fingerprints;
+
+        [NonSerialized]
+        private IDictionary<IModelReference, List<SpectralImageData>> spectralImages;
+
         public RAMStorage(int numberOfHashTables)
         {
             Initialize(numberOfHashTables);
         }
 
-        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints { get; private set; }
+        public IDictionary<IModelReference, SubFingerprintData> SubFingerprints
+        {
+            get => subFingerprints;
+            private set => subFingerprints = value;
+        }
+
+
+        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes
+        {
+            get => tracksHashes;
+            private set => tracksHashes = value;
+        }
+
+        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints
+        {
+            get => fingerprints;
+            private set => fingerprints = value;
+        }
+
+        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages
+        {
+            get => spectralImages;
+            private set => spectralImages = value;
+        }
 
         public IDictionary<IModelReference, TrackData> Tracks { get; private set; }
-
-        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes { get; private set; }
-
-        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; private set; }
-
-        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; private set; }
 
         public IDictionary<long, List<IModelReference>>[] HashTables { get; private set; }
 
@@ -45,12 +74,8 @@
             {
                 RAMStorage obj = (RAMStorage)formatter.Deserialize(stream);
                 NumberOfHashTables = obj.NumberOfHashTables;
-                SubFingerprints = obj.SubFingerprints;
                 Tracks = obj.Tracks;
-                TracksHashes = obj.TracksHashes;
                 HashTables = obj.HashTables;
-                Fingerprints = obj.Fingerprints;
-                SpectralImages = obj.SpectralImages;
                 stream.Close();
             }
         }
