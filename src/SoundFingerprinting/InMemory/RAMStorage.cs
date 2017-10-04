@@ -87,6 +87,11 @@
                 NumberOfHashTables = obj.NumberOfHashTables;
                 Tracks = obj.Tracks;
                 HashTables = obj.HashTables;
+                SubFingerprints = obj.SubFingerprints;
+
+                Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
+                SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
+                TracksHashes = new ConcurrentDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
                 stream.Close();
             }
         }
