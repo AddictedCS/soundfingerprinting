@@ -40,20 +40,38 @@
 
         public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes
         {
-            get => tracksHashes;
-            private set => tracksHashes = value;
+            get
+            {
+                return tracksHashes;
+            }
+            private set
+            {
+                tracksHashes = value;
+            }
         }
 
         public IDictionary<IModelReference, List<FingerprintData>> Fingerprints
         {
-            get => fingerprints;
-            private set => fingerprints = value;
+            get
+            {
+                return fingerprints;
+            }
+            private set
+            {
+                fingerprints = value;
+            }
         }
 
         public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages
         {
-            get => spectralImages;
-            private set => spectralImages = value;
+            get
+            {
+                return spectralImages;
+            }
+            private set
+            {
+                spectralImages = value;
+            }
         }
 
         public IDictionary<IModelReference, TrackData> Tracks { get; private set; }
