@@ -44,13 +44,13 @@
             using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 RAMStorage obj = (RAMStorage)formatter.Deserialize(stream);
-                this.NumberOfHashTables = obj.NumberOfHashTables;
-                this.SubFingerprints = obj.SubFingerprints;
-                this.Tracks = obj.Tracks;
-                this.TracksHashes = obj.TracksHashes;
-                this.HashTables = obj.HashTables;
-                this.Fingerprints = obj.Fingerprints;
-                this.SpectralImages = obj.SpectralImages;
+                NumberOfHashTables = obj.NumberOfHashTables;
+                SubFingerprints = obj.SubFingerprints;
+                Tracks = obj.Tracks;
+                TracksHashes = obj.TracksHashes;
+                HashTables = obj.HashTables;
+                Fingerprints = obj.Fingerprints;
+                SpectralImages = obj.SpectralImages;
                 stream.Close();
             }
         }

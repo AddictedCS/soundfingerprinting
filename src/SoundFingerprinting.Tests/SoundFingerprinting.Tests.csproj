@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="Integration\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Integration\FingerprintCommandBuilderNativeIntTest.cs" />
+    <Compile Include="Integration\InMemoryModelServiceSerializationTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
