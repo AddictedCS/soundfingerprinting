@@ -11,5 +11,7 @@
         /// <param name="window">Windowing function to run on input</param>
         /// <returns>Real FFT</returns>
         float[] FFTForward(float[] data, int startIndex, int length, float[] window);
+
+        void FFTForwardInPlace(float[] data);
     }
 }

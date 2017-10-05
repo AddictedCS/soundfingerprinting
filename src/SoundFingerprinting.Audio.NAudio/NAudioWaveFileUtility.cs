@@ -25,11 +25,11 @@ namespace SoundFingerprinting.Audio.NAudio
             }
         }
 
-        public void RecodeFileToMonoWave(string source, string destination, int sampleRate)
+        public void RecodeFileToMonoWave(string source, string destination, int sampleRate, int resamplerQuality)
         {
             using (var stream = factory.GetStream(source))
             {
-                using (var resampler = factory.GetResampler(stream, sampleRate, Mono))
+                using (var resampler = factory.GetResampler(stream, sampleRate, Mono, resamplerQuality))
                 {
                     factory.CreateWaveFile(destination, resampler);
                 }

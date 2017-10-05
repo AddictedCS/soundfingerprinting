@@ -1,18 +1,20 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using SoundFingerprinting.Utils;
+
     internal class Fingerprint
     {
-        public Fingerprint(bool[] signature, double startAt, int sequenceNumber)
+        public Fingerprint(IEncodedFingerprintSchema signature, float startAt, uint sequenceNumber)
         {
             Signature = signature;
             StartsAt = startAt;
             SequenceNumber = sequenceNumber;
         }
 
-        public bool[] Signature { get; private set; }
+        public IEncodedFingerprintSchema Signature { get; private set; }
 
-        public int SequenceNumber { get; private set; }
+        public uint SequenceNumber { get; private set; }
 
-        public double StartsAt { get; private set; }
+        public float StartsAt { get; private set; }
     }
 }

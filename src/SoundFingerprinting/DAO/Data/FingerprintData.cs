@@ -20,7 +20,6 @@
             TrackReference = trackReference;
         }
 
-        [Obsolete]
         public FingerprintData()
         {
             // no op

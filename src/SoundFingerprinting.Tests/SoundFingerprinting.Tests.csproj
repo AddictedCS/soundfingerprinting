@@ -104,6 +104,7 @@
     <Compile Include="Unit\Math\HammingDistanceResultStatisticsTest.cs" />
     <Compile Include="Unit\Math\HashConverterTest.cs" />
     <Compile Include="Unit\MinHash\CachedPermutationsTest.cs" />
+    <Compile Include="Unit\MinHash\MinHashAlgorithmTest.cs" />
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
     <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
@@ -113,11 +114,13 @@
     <Compile Include="Unit\Strides\IncrementalRandomStrideTest.cs" />
     <Compile Include="Unit\Utils\ArrayUtilsTest.cs" />
     <Compile Include="Unit\Utils\FastFingerprintDescriptorTest.cs" />
+    <Compile Include="Unit\Utils\FingerprintDescriptorBenchmark.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
     <Compile Include="Unit\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />
     <Compile Include="Unit\Utils\AbsComparatorTest.cs" />
+    <Compile Include="Unit\Utils\QuickSelectAlgorithmTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerScenarioValidatorTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerUtilsTest.cs" />
     <Compile Include="Unit\Wavelets\StandardHaarWaveletDecompositionTest.cs" />

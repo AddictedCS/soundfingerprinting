@@ -12,7 +12,7 @@
     [ProtoContract]
     public class SubFingerprintData
     {
-        public SubFingerprintData(long[] hashes, int sequenceNumber, double sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
+        public SubFingerprintData(long[] hashes, uint sequenceNumber, float sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
         {
             Hashes = hashes;
             SubFingerprintReference = subFingerprintReference;
@@ -21,7 +21,6 @@
             SequenceAt = sequenceAt;
         }
 
-        [Obsolete]
         public SubFingerprintData()
         {
             Clusters = Enumerable.Empty<string>();
@@ -31,11 +30,11 @@
         [ProtoMember(1)]
         public long[] Hashes { get; internal set; }
 
-        [ProtoMember(2)]
-        public int SequenceNumber { get; internal set; }
+        [ProtoMember(2)] 
+        public uint SequenceNumber { get; internal set; }
 
         [ProtoMember(3)]
-        public double SequenceAt { get; internal set; }
+        public float SequenceAt { get; internal set; }
 
         [IgnoreBinding]
         [ProtoMember(4)]

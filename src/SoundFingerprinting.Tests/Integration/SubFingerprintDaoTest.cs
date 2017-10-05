@@ -13,7 +13,6 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Math;
-    using SoundFingerprinting.Strides;
 
     [TestFixture]
     [Category("RequiresWindowsDLL")]
@@ -46,8 +45,8 @@
                             new HashedFingerprint(
                                 GenericSignature(),
                                 genericHashBuckets,
-                                sequenceNumber,
-                                sequenceNumber * 0.928,
+                                (uint)sequenceNumber,
+                                sequenceNumber * 0.928f,
                                 Enumerable.Empty<string>()));
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
@@ -98,7 +97,8 @@
                 .WithFingerprintConfig(config =>
                 {
                     config.Clusters = new[] { "first-group-id" };
-                }).UsingServices(audioService)
+                })
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -110,7 +110,8 @@
                .WithFingerprintConfig(config =>
                {
                    config.Clusters = new[] { "second-group-id" };
-               }).UsingServices(audioService)
+               })
+               .UsingServices(audioService)
                .Hash()
                .Result;
             InsertHashedFingerprintsForTrack(hashedFingerprintsForSecondTrack, secondTrackReference);

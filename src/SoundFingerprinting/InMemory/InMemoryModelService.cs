@@ -7,7 +7,7 @@
     {
         private readonly IRAMStorage ramStorage;
 
-        public InMemoryModelService(): this(new TrackDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao(), DependencyResolver.Current.Get<IRAMStorage>())
+        public InMemoryModelService() : this(new TrackDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao(), DependencyResolver.Current.Get<IRAMStorage>())
         {
             // no op
         }

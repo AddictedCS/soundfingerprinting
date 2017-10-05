@@ -38,7 +38,6 @@
             TrackReference = trackReference;
         }
 
-        [Obsolete]
         public TrackData()
         {
             // this public parameterless constructor is left here to allow datastorages that leverage reflection to instantiate objects
