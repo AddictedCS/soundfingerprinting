@@ -134,7 +134,12 @@
 
         public IEnumerable<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
         {
-            return HashTables[table].ContainsKey(hash) ? HashTables[table][hash] : Enumerable.Empty<ulong>();
+            if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
+            {
+                return subFingerprintIds;
+            }
+
+            return Enumerable.Empty<ulong>();
         }
 
         public SubFingerprintData ReadSubFingerprintById(ulong id)
