@@ -134,7 +134,8 @@
 
         public IEnumerable<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
         {
-            if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
+            List<ulong> subFingerprintIds;
+            if (HashTables[table].TryGetValue(hash, out subFingerprintIds))
             {
                 return subFingerprintIds;
             }
@@ -206,18 +207,17 @@
 
         private void InsertHashes(long[] hashBins, ulong subFingerprintId)
         {
-            int table = 0;
             lock ((HashTables as ICollection).SyncRoot) // don't touch this lock
             {
-                foreach (var hashTable in HashTables)
+                for (int table = 0; table < hashBins.Length; ++table)
                 {
+                    var hashTable = HashTables[table];
                     if (!hashTable.ContainsKey(hashBins[table]))
                     {
                         hashTable[hashBins[table]] = new List<ulong>();
                     }
 
                     hashTable[hashBins[table]].Add(subFingerprintId);
-                    table++;
                 }
             }
         }
