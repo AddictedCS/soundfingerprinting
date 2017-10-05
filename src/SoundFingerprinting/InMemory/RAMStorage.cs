@@ -1,10 +1,12 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
     using System;
+    using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
 
     using DAO;
     using DAO.Data;
@@ -16,18 +18,17 @@
     [ProtoContract]
     internal class RAMStorage : IRAMStorage
     {
-        [NonSerialized]
-        private IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> tracksHashes;
+        [ProtoMember(1)]
+        private long subFingerprintReferenceCounter;
 
-        [NonSerialized]
-        private IDictionary<IModelReference, List<FingerprintData>> fingerprints;
+        [ProtoMember(2)]
+        private int trackReferenceCounter;
 
-        [NonSerialized]
-        private IDictionary<IModelReference, List<SpectralImageData>> spectralImages;
+        private IDictionary<ulong, SubFingerprintData> subFingerprints;
 
         public RAMStorage()
         {
-            
+            // no op
         }
 
         public RAMStorage(int numberOfHashTables)
@@ -35,83 +36,116 @@
             Initialize(numberOfHashTables);
         }
 
-        public IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes
-        {
-            get
-            {
-                return tracksHashes;
-            }
-            private set
-            {
-                tracksHashes = value;
-            }
-        }
+        [ProtoMember(3)]
+        public int NumberOfHashTables { get; private set; }
 
-        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints
-        {
-            get
-            {
-                return fingerprints;
-            }
-            private set
-            {
-                fingerprints = value;
-            }
-        }
-
-        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages
-        {
-            get
-            {
-                return spectralImages;
-            }
-            private set
-            {
-                spectralImages = value;
-            }
-        }
-
-        [ProtoMember(1)]
+        [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        public IDictionary<long, List<ulong>>[] HashTables { get; private set; }
+        private ConcurrentDictionary<long, List<ulong>>[] HashTables { get; set; }
 
-        [ProtoMember(2)]
-        private Table[] InnerHashTables
+        [ProtoMember(5)]
+        private IDictionary<ulong, SubFingerprintData> SubFingerprints
         {
             get
             {
-                if (HashTables == null)
-                {
-                    return new Table[0];
-                }
-
-                return HashTables.Select(
-                    (table, index) =>
-                    {
-                        var hashes = table.Select(pair => new HashedBin { Hash = pair.Key, References = pair.Value }).ToArray();
-                        return new Table { HashedBins = hashes };
-                    }).ToArray();
+                return subFingerprints;
             }
             set
             {
-                HashTables = new IDictionary<long, List<ulong>>[value.Length];
-                for (int index = 0; index < value.Length; ++index)
+                if (value == null) return;
+
+                subFingerprints = value;
+                InitializeHashTablesIfNeedBe(NumberOfHashTables);
+                foreach (var pair in value)
                 {
-                    HashTables[index] = new ConcurrentDictionary<long, List<ulong>>();
-                    foreach (var hashBin in value[index].HashedBins)
-                    {
-                        HashTables[index].Add(hashBin.Hash, hashBin.References);
-                    }
+                    InsertHashes(pair.Value.Hashes, pair.Key);
                 }
             }
         }
 
-        [ProtoMember(3)]
-        public IDictionary<ulong, SubFingerprintData> SubFingerprints { get; private set; }
+        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; private set; }
 
-        [ProtoMember(4)]
-        public int NumberOfHashTables { get; private set; }
+        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; private set; }
+
+        public void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
+        {
+            var subFingerprintReference = new ModelReference<ulong>((ulong)Interlocked.Increment(ref subFingerprintReferenceCounter));
+            var subFingerprintData = new SubFingerprintData(
+                                             hashedFingerprint.HashBins,
+                                             hashedFingerprint.SequenceNumber,
+                                             hashedFingerprint.StartsAt,
+                                             subFingerprintReference,
+                                             trackReference)
+                                         {
+                                             Clusters = hashedFingerprint.Clusters
+                                         };
+
+            SubFingerprints[(ulong)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
+            InsertHashes(hashedFingerprint.HashBins, subFingerprintReference.Id);
+        }
+
+        public IModelReference AddTrack(TrackData track)
+        {
+            var trackReference = new ModelReference<int>(Interlocked.Increment(ref trackReferenceCounter));
+            Tracks[trackReference.Id] = track;
+            return track.TrackReference = trackReference;
+        }
+
+        public int DeleteTrack(IModelReference trackReference)
+        {
+            int count = 0;
+            int trackId = (int)trackReference.Id;
+            if (Tracks.Remove(trackId))
+            {
+                count++;
+                if (Fingerprints.ContainsKey(trackReference))
+                {
+                    count += Fingerprints[trackReference].Count;
+                    Fingerprints.Remove(trackReference);
+                }
+
+                var subFingerprintReferences = SubFingerprints
+                    .Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Key).ToList();
+
+                count += subFingerprintReferences.Count;
+                foreach (var subFingerprintReference in subFingerprintReferences)
+                {
+                    SubFingerprints.Remove(subFingerprintReference);
+                }
+
+                foreach (var hashTable in HashTables)
+                {
+                    foreach (var hashBins in hashTable)
+                    {
+                        foreach (var subFingerprintReference in subFingerprintReferences)
+                        {
+                            if (hashBins.Value.Remove(subFingerprintReference))
+                            {
+                                count++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        public IEnumerable<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
+        {
+            return HashTables[table].ContainsKey(hash) ? HashTables[table][hash] : Enumerable.Empty<ulong>();
+        }
+
+        public SubFingerprintData ReadSubFingerprintById(ulong id)
+        {
+            return SubFingerprints[id];
+        }
+
+        public IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference)
+        {
+            return SubFingerprints.Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Value).ToList();
+        }
 
         public void Reset(int numberOfHashTables)
         {
@@ -123,14 +157,14 @@
             using (var file = File.OpenRead(path))
             {
                 RAMStorage obj = Serializer.Deserialize<RAMStorage>(file);
+                trackReferenceCounter = obj.trackReferenceCounter;
+                subFingerprintReferenceCounter = obj.subFingerprintReferenceCounter;
                 NumberOfHashTables = obj.NumberOfHashTables;
                 Tracks = obj.Tracks;
-                HashTables = obj.HashTables;
                 SubFingerprints = obj.SubFingerprints;
 
                 Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
                 SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
-                TracksHashes = new ConcurrentDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
             }
         }
 
@@ -145,35 +179,44 @@
         private void Initialize(int numberOfHashTables)
         {
             NumberOfHashTables = numberOfHashTables;
-            SubFingerprints = new ConcurrentDictionary<ulong, SubFingerprintData>();
+            trackReferenceCounter = 0;
+            subFingerprintReferenceCounter = 0;
             Tracks = new ConcurrentDictionary<int, TrackData>();
-            TracksHashes = new ConcurrentDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>>();
-            HashTables = new ConcurrentDictionary<long, List<ulong>>[NumberOfHashTables];
             Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
             SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
+            SubFingerprints = new ConcurrentDictionary<ulong, SubFingerprintData>();
+        }
 
-            for (int table = 0; table < numberOfHashTables; table++)
+        private void InitializeHashTablesIfNeedBe(int numberOfHashTables)
+        {
+            lock (this)
             {
-                HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
+                if (HashTables == null)
+                {
+                    HashTables = new ConcurrentDictionary<long, List<ulong>>[numberOfHashTables];
+                    for (int table = 0; table < numberOfHashTables; table++)
+                    {
+                        HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
+                    }
+                }
             }
         }
-    }
 
-    [ProtoContract]
-    internal class HashedBin   // The intermediate type
-    {
-        [ProtoMember(1)]
-        public long Hash { get; set; }
-
-        [ProtoMember(2)]
-        public List<ulong> References { get; set; }
-
-    }
-
-    [ProtoContract]
-    internal class Table
-    {
-        [ProtoMember(1)]
-        public HashedBin[] HashedBins { get; set; }
+        private void InsertHashes(long[] hashBins, ulong subFingerprintId)
+        {
+            for (int table = 0; table < HashTables.Length; ++table)
+            {
+                var hashTable = HashTables[table];
+                long key = hashBins[table];
+                hashTable.AddOrUpdate(
+                    key,
+                    new List<ulong>(),
+                    (keyTo, list) =>
+                    {
+                        list.Add(subFingerprintId);
+                        return list;
+                    });
+            }
+        }
     }
 }

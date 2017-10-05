@@ -9,6 +9,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
 
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
@@ -24,7 +25,7 @@
             var ramStorage = new RAMStorage(25);
             var modelService = new InMemoryModelService(
                 new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage),
+                new SubFingerprintDao(ramStorage, new HashConverter()),
                 new FingerprintDao(ramStorage),
                 new SpectralImageDao(ramStorage),
                 ramStorage);
@@ -55,5 +56,30 @@
             AssertTracksAreEqual(trackData, queryResult.BestMatch.Track);
             Assert.IsTrue(queryResult.BestMatch.Confidence > 0.9);
        }
+
+        [Test]
+        public void ShouldSerializeAndIncrementNextIdCorrectly()
+        {
+            var ramStorage = new RAMStorage(25);
+            var modelService = new InMemoryModelService(
+                new TrackDao(ramStorage),
+                new SubFingerprintDao(ramStorage, new HashConverter()), 
+                new FingerprintDao(ramStorage),
+                new SpectralImageDao(ramStorage),
+                ramStorage);
+
+            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
+            var trackReferences = modelService.InsertTrack(trackData);
+
+            var tempFile = Path.GetTempFileName();
+            modelService.Snapshot(tempFile);
+
+            var fromFileService = new InMemoryModelService(tempFile);
+
+            var newTrackReference = fromFileService.InsertTrack(trackData);
+
+            File.Delete(tempFile);
+            Assert.AreNotEqual(trackReferences, newTrackReference);
+        }
     }
 }
