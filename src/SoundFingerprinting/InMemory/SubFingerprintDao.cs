@@ -29,9 +29,9 @@
 
         public SubFingerprintData ReadSubFingerprint(IModelReference subFingerprintReference)
         {
-            if (storage.SubFingerprints.ContainsKey(subFingerprintReference))
+            if (storage.SubFingerprints.ContainsKey((ulong)subFingerprintReference.Id))
             {
-                return storage.SubFingerprints[subFingerprintReference];
+                return storage.SubFingerprints[(ulong)subFingerprintReference.Id];
             }
 
             return null;
@@ -87,10 +87,10 @@
             return new HashSet<SubFingerprintData>(allCandidates.Keys.ToList());
         }
 
-        private Dictionary<IModelReference, int> CountSubFingerprintMatches(long[] hashes)
+        private Dictionary<ulong, int> CountSubFingerprintMatches(long[] hashes)
         {
             var hashTables = this.storage.HashTables;
-            var subFingeprintCount = new Dictionary<IModelReference, int>();
+            var subFingeprintCount = new Dictionary<ulong, int>();
 
             for (int table = 0; table < hashes.Length; ++table)
             {
@@ -107,7 +107,7 @@
             return subFingeprintCount;
         }
 
-        private void IncrementSubFingerprintCount(IDictionary<IModelReference, int> subFingeprintCount, IModelReference subFingerprintId)
+        private void IncrementSubFingerprintCount(IDictionary<ulong, int> subFingeprintCount, ulong subFingerprintId)
         {
             if (!subFingeprintCount.ContainsKey(subFingerprintId))
             {
@@ -126,10 +126,10 @@
                 {
                     if (!hashTable.ContainsKey(hashBins[table]))
                     {
-                        hashTable[hashBins[table]] = new List<IModelReference>();
+                        hashTable[hashBins[table]] = new List<ulong>();
                     }
 
-                    hashTable[hashBins[table]].Add(subFingerprintReference);
+                    hashTable[hashBins[table]].Add((ulong)subFingerprintReference.Id);
                     table++;
                 }
             }
@@ -137,8 +137,8 @@
 
         private void InsertSubFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
         {
-            var subFingerprintReference = new ModelReference<long>(Interlocked.Increment(ref counter));
-            storage.SubFingerprints[subFingerprintReference] = new SubFingerprintData(
+            var subFingerprintReference = new ModelReference<ulong>((ulong)Interlocked.Increment(ref counter));
+            storage.SubFingerprints[subFingerprintReference.Id] = new SubFingerprintData(
                 hashedFingerprint.HashBins,
                 hashedFingerprint.SequenceNumber,
                 hashedFingerprint.StartsAt,

@@ -21,7 +21,13 @@
         [Test]
         public void ShouldSerializeAndDeserialize()
         {
-            var modelService = new InMemoryModelService();
+            var ramStorage = new RAMStorage(25);
+            var modelService = new InMemoryModelService(
+                new TrackDao(ramStorage),
+                new SubFingerprintDao(ramStorage),
+                new FingerprintDao(ramStorage),
+                new SpectralImageDao(ramStorage),
+                ramStorage);
 
             var hashedFingerprints = fcb.BuildFingerprintCommand()
                 .From(GetAudioSamples())

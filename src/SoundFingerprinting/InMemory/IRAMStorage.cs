@@ -8,9 +8,9 @@ namespace SoundFingerprinting.InMemory
 
     internal interface IRAMStorage
     {
-        IDictionary<IModelReference, SubFingerprintData> SubFingerprints { get; }       // key: sub fingerprint reference
+        IDictionary<ulong, SubFingerprintData> SubFingerprints { get; }       // key: sub fingerprint reference
 
-        IDictionary<IModelReference, TrackData> Tracks { get; }                         // key: track reference
+        IDictionary<int, TrackData> Tracks { get; }                         // key: track reference
 
         IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes { get; } // key: track reference, value: key - sub-fingerprint-id
 
@@ -18,7 +18,7 @@ namespace SoundFingerprinting.InMemory
 
         IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; }   // key: track reference
 
-        IDictionary<long, List<IModelReference>>[] HashTables { get; }                  // value: list of sub-fingerprints
+        IDictionary<long, List<ulong>>[] HashTables { get; }                  // value: list of sub-fingerprints
 
         int NumberOfHashTables { get; }
 

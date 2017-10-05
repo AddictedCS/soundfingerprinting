@@ -28,7 +28,7 @@
         public IModelReference InsertTrack(TrackData track)
         {
             var trackReference = new ModelReference<int>(Interlocked.Increment(ref counter));
-            storage.Tracks[trackReference] = track;
+            storage.Tracks[trackReference.Id] = track;
             return track.TrackReference = trackReference;
         }
 
@@ -51,9 +51,9 @@
 
         public TrackData ReadTrack(IModelReference trackReference)
         {
-            if (storage.Tracks.ContainsKey(trackReference))
+            if (storage.Tracks.ContainsKey((int)trackReference.Id))
             {
-                return storage.Tracks[trackReference];
+                return storage.Tracks[(int)trackReference.Id];
             }
 
             return null;
@@ -62,7 +62,8 @@
         public int DeleteTrack(IModelReference trackReference)
         {
             int count = 0;
-            if (storage.Tracks.Remove(trackReference))
+            int trackId = (int)trackReference.Id;
+            if (storage.Tracks.Remove(trackId))
             {
                 count++;
                 if (storage.Fingerprints.ContainsKey(trackReference))
