@@ -189,33 +189,31 @@
 
         private void InitializeHashTablesIfNeedBe(int numberOfHashTables)
         {
-            lock (this)
+            if (HashTables == null)
             {
-                if (HashTables == null)
+                HashTables = new ConcurrentDictionary<long, List<ulong>>[numberOfHashTables];
+                for (int table = 0; table < numberOfHashTables; table++)
                 {
-                    HashTables = new ConcurrentDictionary<long, List<ulong>>[numberOfHashTables];
-                    for (int table = 0; table < numberOfHashTables; table++)
-                    {
-                        HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
-                    }
+                    HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
                 }
             }
         }
 
         private void InsertHashes(long[] hashBins, ulong subFingerprintId)
         {
-            for (int table = 0; table < HashTables.Length; ++table)
+            int table = 0;
+            lock ((HashTables as ICollection).SyncRoot) // don't touch this lock
             {
-                var hashTable = HashTables[table];
-                long key = hashBins[table];
-                hashTable.AddOrUpdate(
-                    key,
-                    new List<ulong>(),
-                    (keyTo, list) =>
+                foreach (var hashTable in HashTables)
+                {
+                    if (!hashTable.ContainsKey(hashBins[table]))
                     {
-                        list.Add(subFingerprintId);
-                        return list;
-                    });
+                        hashTable[hashBins[table]] = new List<ulong>();
+                    }
+
+                    hashTable[hashBins[table]].Add(subFingerprintId);
+                    table++;
+                }
             }
         }
     }
