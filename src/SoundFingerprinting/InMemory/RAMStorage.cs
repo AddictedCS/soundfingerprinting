@@ -42,7 +42,7 @@
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        private ConcurrentDictionary<long, List<ulong>>[] HashTables { get; set; }
+        private Dictionary<long, List<ulong>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private IDictionary<ulong, SubFingerprintData> SubFingerprints
@@ -132,14 +132,14 @@
             return count;
         }
 
-        public IEnumerable<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
+        public List<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
         {
             if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
             {
                 return subFingerprintIds;
             }
 
-            return Enumerable.Empty<ulong>();
+            return Enumerable.Empty<ulong>().ToList();
         }
 
         public SubFingerprintData ReadSubFingerprintById(ulong id)
@@ -196,10 +196,10 @@
         {
             if (HashTables == null)
             {
-                HashTables = new ConcurrentDictionary<long, List<ulong>>[numberOfHashTables];
+                HashTables = new Dictionary<long, List<ulong>>[numberOfHashTables];
                 for (int table = 0; table < numberOfHashTables; table++)
                 {
-                    HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
+                    HashTables[table] = new Dictionary<long, List<ulong>>();
                 }
             }
         }

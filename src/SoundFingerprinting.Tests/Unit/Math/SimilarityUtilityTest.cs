@@ -18,6 +18,27 @@
     public class SimilarityUtilityTest : AbstractTest
     {
         private readonly ISimilarityUtility similarityUtility = new SimilarityUtility();
+        private readonly IHashConverter hashConverter = new HashConverter();
+
+        [Test]
+        public void ShouldCorrectlyCalculateHammingDistanceBetweenLongs()
+        {
+            var length = 50000;
+
+            for (int run = 0; run < 1000; run++)
+            {
+                var x = GenerateByteArray(length);
+                var a = hashConverter.ToLongs(x, length / 4);
+
+                var y = GenerateByteArray(length);
+                var b = hashConverter.ToLongs(y, length / 4);
+
+                var byteSimilarity = similarityUtility.CalculateHammingSimilarity(x, y);
+                var longSimilarity = similarityUtility.CalculateHammingSimilarity(a, b, 4);
+
+                Assert.AreEqual(byteSimilarity, longSimilarity);
+            }
+        }
 
         [Test]
         public void ShouldSumUpHammingDistanceAccrossTracks()
@@ -177,6 +198,15 @@
 
             subFingerprints.Add(new SubFingerprintData(GenericHashBuckets(), candidatesCount - 1, OneFingerprintLength * candidatesCount, new ModelReference<int>(candidatesCount), trackReference));
             return subFingerprints;
+        }
+
+        private byte[] GenerateByteArray(int length)
+        {
+            Random ran = new Random();
+            byte[] random = new byte[length];
+            ran.NextBytes(random);
+
+            return random;
         }
     }
 }
