@@ -14,6 +14,8 @@ namespace SoundFingerprinting.Math
 
         int CalculateHammingSimilarity(byte[] a, byte[] b);
 
+        int CalculateHammingSimilarity(long[] expected, long[] actual, int setBytesPerLong);
+
         /// <summary>
         ///   Calculate similarity between 2 fingerprints.
         /// </summary>

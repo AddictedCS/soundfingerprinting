@@ -16,7 +16,7 @@ namespace SoundFingerprinting.InMemory
 
         void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
 
-        IEnumerable<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash);
+        List<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash);
 
         int NumberOfHashTables { get; }
 

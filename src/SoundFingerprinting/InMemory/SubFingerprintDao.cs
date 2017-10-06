@@ -85,11 +85,18 @@
 
         private Dictionary<ulong, int> CountSubFingerprintMatches(long[] hashes)
         {
-            var subFingeprintCount = new Dictionary<ulong, int>();
+            var results = new List<ulong>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
             {
                 var hashBin = hashes[table];
-                foreach (var subFingerprintId in storage.GetSubFingerprintsByHashTableAndHash(table, hashBin))
+                results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
+            }
+
+            int length = results.Select(entry => entry.Count).Sum();
+            var subFingeprintCount = new Dictionary<ulong, int>(length);
+            for (int table = 0; table < hashes.Length; ++table)
+            {
+                foreach (var subFingerprintId in results[table])
                 {
                     IncrementSubFingerprintCount(subFingeprintCount, subFingerprintId);
                 }
@@ -100,12 +107,9 @@
 
         private void IncrementSubFingerprintCount(IDictionary<ulong, int> subFingeprintCount, ulong subFingerprintId)
         {
-            if (!subFingeprintCount.ContainsKey(subFingerprintId))
-            {
-                subFingeprintCount[subFingerprintId] = 0;
-            }
-
-            subFingeprintCount[subFingerprintId]++;
+            int count;
+            subFingeprintCount.TryGetValue(subFingerprintId, out count);
+            subFingeprintCount[subFingerprintId] = ++count;
         }
     }
 }
