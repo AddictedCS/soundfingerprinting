@@ -56,10 +56,10 @@
         {
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
 
-            Parallel.ForEach(queryFingerprints, queryFingerprint => { 
+            foreach(var queryFingerprint in queryFingerprints) { 
                 var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
-            });
+            }
 
             return hammingSimilarities;
         }
