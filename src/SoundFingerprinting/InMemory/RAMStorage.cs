@@ -42,7 +42,7 @@
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        private Dictionary<long, List<ulong>>[] HashTables { get; set; }
+        private ConcurrentDictionary<long, List<ulong>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private IDictionary<ulong, SubFingerprintData> SubFingerprints
@@ -196,10 +196,10 @@
         {
             if (HashTables == null)
             {
-                HashTables = new Dictionary<long, List<ulong>>[numberOfHashTables];
+                HashTables = new ConcurrentDictionary<long, List<ulong>>[numberOfHashTables];
                 for (int table = 0; table < numberOfHashTables; table++)
                 {
-                    HashTables[table] = new Dictionary<long, List<ulong>>();
+                    HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
                 }
             }
         }

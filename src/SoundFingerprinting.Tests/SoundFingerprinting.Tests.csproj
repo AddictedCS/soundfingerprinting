@@ -110,6 +110,7 @@
     <Compile Include="Unit\Query\ConfidenceCalculatorTest.cs" />
     <Compile Include="Unit\Query\MatchedPairTest.cs" />
     <Compile Include="Unit\Query\QueryMathTest.cs" />
+    <Compile Include="Unit\Query\ResultEntryAccumulatorTest.cs" />
     <Compile Include="Unit\Strides\IncrementalRandomStrideTest.cs" />
     <Compile Include="Unit\Utils\ArrayUtilsTest.cs" />
     <Compile Include="Unit\Utils\FastFingerprintDescriptorTest.cs" />
