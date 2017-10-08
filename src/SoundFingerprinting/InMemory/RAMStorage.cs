@@ -134,7 +134,8 @@
 
         public List<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
         {
-            if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
+            List<ulong> subFingerprintIds;
+            if (HashTables[table].TryGetValue(hash, out subFingerprintIds))
             {
                 return subFingerprintIds;
             }
