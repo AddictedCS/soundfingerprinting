@@ -1,6 +1,7 @@
 <Project DefaultTargets="All" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 <PropertyGroup>
   <Configuration Condition="$(Configuration) == ''">Release</Configuration>
+  <Configuration Condition="$(Platform) == ''">AnyCPU</Configuration>
   <SolutionFile>..\src\SoundFingerprinting.sln</SolutionFile>
   <NugetExecutable>..\src\.nuget\NuGet.exe</NugetExecutable>
   <NUnitVersion>3.5.0</NUnitVersion>
