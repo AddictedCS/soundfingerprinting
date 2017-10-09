@@ -87,6 +87,7 @@
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\InMemoryModelServiceTest.cs" />
     <Compile Include="Unit\Audio\TagInfoTest.cs" />
+    <Compile Include="Unit\Builder\QueryCommandBenchmark.cs" />
     <Compile Include="Unit\Configuration\FingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\QueryConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\SpectrogramConfigTest.cs" />

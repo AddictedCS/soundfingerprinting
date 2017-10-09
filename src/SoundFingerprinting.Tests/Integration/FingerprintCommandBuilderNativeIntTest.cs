@@ -48,9 +48,9 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
-            Assert.IsTrue(bestMatch.QueryMatchLength > SecondsToProcess - 3, string.Format("QueryMatchLength:{0}", bestMatch.QueryLength));
+            Assert.IsTrue(bestMatch.QueryMatchLength > SecondsToProcess - 3, $"QueryMatchLength:{bestMatch.QueryLength}");
             Assert.AreEqual(StartAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
-            Assert.IsTrue(bestMatch.Confidence > 0.7, string.Format("Confidence:{0}", bestMatch.Confidence));
+            Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
         }
 
         [Test]
