@@ -49,7 +49,9 @@
             }
 
             var resultEntries = queryMath.GetBestCandidates(queryFingerprints, hammingSimilarities, configuration.MaxTracksToReturn, modelService, configuration.FingerprintConfiguration);
-            return QueryResult.NonEmptyResult(resultEntries);
+            int totalTracksAnalyzed = hammingSimilarities.Count;
+            int totalSubFingerprintsAnalyzed = hammingSimilarities.Values.Select(entry => entry.Matches.Count).Sum();
+            return QueryResult.NonEmptyResult(resultEntries, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
         }
 
         private ConcurrentDictionary<IModelReference, ResultEntryAccumulator> GetSimilaritiesUsingNonBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
