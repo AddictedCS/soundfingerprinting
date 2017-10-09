@@ -28,5 +28,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.DuplicatesDetector")]
 
-[assembly: AssemblyVersion("3.1.3")]
-[assembly: AssemblyInformationalVersion("3.1.3-beta2")]
+[assembly: AssemblyVersion("3.1.2")]
+[assembly: AssemblyInformationalVersion("3.1.3-beta3")]

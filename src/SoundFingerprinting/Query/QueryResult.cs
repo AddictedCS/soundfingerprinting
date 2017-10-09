@@ -46,7 +46,17 @@
                 return null;
             }
         }
-        
+
+        /// <summary>
+        ///  Time in milliseconds spent querying the data-source
+        /// </summary>
+        public long QueryTime { get; internal set; }
+
+        /// <summary>
+        ///  Time in milliseconds spent in generating fingerprints, before querying the data-source
+        /// </summary>
+        public long FingerprintingTime { get; internal set; }
+
         internal static QueryResult EmptyResult()
         {
             return new QueryResult(Enumerable.Empty<ResultEntry>());

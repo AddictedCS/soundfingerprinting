@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Command
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -99,15 +100,25 @@
         public Task<QueryResult> Query()
         {
             QueryConfiguration.FingerprintConfiguration = FingerprintConfiguration;
-            return createFingerprintMethod()
+
+            var fingerprintingStopwatch = Stopwatch.StartNew();
+            Task<QueryResult> resultingTask = createFingerprintMethod()
                                      .Hash()
                                      .ContinueWith(
                                         task =>
-                                            {
-                                                var hashes = task.Result;
-                                                return queryFingerprintService.Query(hashes, this.QueryConfiguration, this.modelService);
-                                            },
+                                        {
+                                            long fingerprintingTime = fingerprintingStopwatch.ElapsedMilliseconds;
+                                            var hashes = task.Result;
+                                            var queryStopwatch = Stopwatch.StartNew();
+                                            QueryResult queryResult = queryFingerprintService.Query(hashes, QueryConfiguration, modelService);
+                                            long queryingTime = queryStopwatch.ElapsedMilliseconds;
+                                            queryResult.FingerprintingTime = fingerprintingTime;
+                                            queryResult.QueryTime = queryingTime;
+                                            return queryResult;
+                                        },
                                         TaskContinuationOptions.ExecuteSynchronously);
+
+            return resultingTask;
         }
     }
 }
