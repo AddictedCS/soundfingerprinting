@@ -84,10 +84,9 @@
         {
             foreach (var subFingerprint in candidates)
             {
-                byte[] signature = hashConverter.ToBytes(subFingerprint.Hashes, expected.SubFingerprint.Length);
                 int hammingSimilarity = CalculateHammingSimilarity(
-                    expected.SubFingerprint,
-                    signature); 
+                    expected.HashBins,
+                    subFingerprint.Hashes, expected.SubFingerprint.Length / expected.HashBins.Length); 
 
                 SubFingerprintData fingerprint = subFingerprint;
                 accumulator.AddOrUpdate(
