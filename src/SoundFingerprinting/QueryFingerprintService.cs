@@ -3,6 +3,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
@@ -57,10 +58,10 @@
         {
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
 
-            foreach(var queryFingerprint in queryFingerprints) { 
+            Parallel.ForEach(queryFingerprints, queryFingerprint => { 
                 var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
-            }
+            });
 
             return hammingSimilarities;
         }
