@@ -9,6 +9,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
 
     [TestFixture]
     public class QueryCommandBenchmark
@@ -23,7 +24,7 @@
             var ramStorage = new RAMStorage(50);
             var modelService = new InMemoryModelService(
                 new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage),
+                new SubFingerprintDao(ramStorage, new HashConverter()),
                 new FingerprintDao(ramStorage),
                 new SpectralImageDao(ramStorage),
                 ramStorage);
