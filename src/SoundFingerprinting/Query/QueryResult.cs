@@ -5,6 +5,11 @@
 
     public class QueryResult
     {
+        public static QueryResult Empty()
+        {
+            return EmptyResult();
+        }
+
         internal QueryResult(IEnumerable<ResultEntry> results)
         {
             ResultEntries = results;

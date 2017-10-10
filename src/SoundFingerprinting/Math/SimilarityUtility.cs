@@ -84,14 +84,41 @@
         {
             foreach (var subFingerprint in candidates)
             {
-                byte[] signature = hashConverter.ToBytes(subFingerprint.Hashes, expected.SubFingerprint.Length);
-                int hammingSimilarity = CalculateHammingSimilarity(expected.SubFingerprint, signature);
+                int hammingSimilarity = CalculateHammingSimilarity(
+                    expected.HashBins,
+                    subFingerprint.Hashes, expected.SubFingerprint.Length / expected.HashBins.Length); 
+
                 SubFingerprintData fingerprint = subFingerprint;
                 accumulator.AddOrUpdate(
                     subFingerprint.TrackReference,
                     reference => new ResultEntryAccumulator(expected, fingerprint, hammingSimilarity),
                     (reference, entryAccumulator) => entryAccumulator.Add(expected, fingerprint, hammingSimilarity));
             }
+        }
+
+        public int CalculateHammingSimilarity(long[] expected, long[] actual, int setBytesPerLong)
+        {
+            int mask = 0xFF;
+            int sameBytes = 0;
+
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                long a = expected[i];
+                long b = actual[i];
+
+                for (int j = 0; j < setBytesPerLong; ++j)
+                {
+                    if ((a & mask) == (b & mask))
+                    {
+                        sameBytes++;
+                    }
+
+                    a = a >> 8;
+                    b = b >> 8;
+                }
+            }
+
+            return sameBytes;
         }
     }
 }
