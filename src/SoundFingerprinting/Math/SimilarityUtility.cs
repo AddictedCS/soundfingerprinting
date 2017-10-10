@@ -84,12 +84,9 @@
         {
             foreach (var subFingerprint in candidates)
             {
-                var expectedHashBins = expected.HashBins;
-                var actualHashBins = subFingerprint.Hashes;
                 int hammingSimilarity = CalculateHammingSimilarity(
-                    expectedHashBins,
-                    actualHashBins,
-                    expected.SubFingerprint.Length / expected.HashBins.Length); 
+                    expected.HashBins,
+                    subFingerprint.Hashes, expected.SubFingerprint.Length / expected.HashBins.Length); 
 
                 SubFingerprintData fingerprint = subFingerprint;
                 accumulator.AddOrUpdate(

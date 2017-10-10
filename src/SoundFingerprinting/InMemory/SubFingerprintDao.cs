@@ -10,6 +10,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
+    using SoundFingerprinting.Utils;
 
     internal class SubFingerprintDao : ISubFingerprintDao
     {
@@ -92,24 +93,7 @@
                 results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
             }
 
-            int length = results.Select(entry => entry.Count).Sum();
-            var subFingeprintCount = new Dictionary<ulong, int>(length);
-            for (int table = 0; table < hashes.Length; ++table)
-            {
-                foreach (var subFingerprintId in results[table])
-                {
-                    IncrementSubFingerprintCount(subFingeprintCount, subFingerprintId);
-                }
-            }
-
-            return subFingeprintCount;
-        }
-
-        private void IncrementSubFingerprintCount(IDictionary<ulong, int> subFingeprintCount, ulong subFingerprintId)
-        {
-            int count;
-            subFingeprintCount.TryGetValue(subFingerprintId, out count);
-            subFingeprintCount[subFingerprintId] = ++count;
+            return SubFingerprintGroupingCounter.GroupByAndCount(results);
         }
     }
 }

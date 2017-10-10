@@ -29,4 +29,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.DuplicatesDetector")]
 
 [assembly: AssemblyVersion("4.0.0")]
-[assembly: AssemblyInformationalVersion("4.0.0-alpha6")]
+[assembly: AssemblyInformationalVersion("4.0.0-beta")]

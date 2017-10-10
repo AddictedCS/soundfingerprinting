@@ -42,7 +42,7 @@
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        private Dictionary<long, List<ulong>>[] HashTables { get; set; }
+        private ConcurrentDictionary<long, List<ulong>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private IDictionary<ulong, SubFingerprintData> SubFingerprints
@@ -134,8 +134,7 @@
 
         public List<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
         {
-            List<ulong> subFingerprintIds;
-            if (HashTables[table].TryGetValue(hash, out subFingerprintIds))
+            if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
             {
                 return subFingerprintIds;
             }
@@ -197,27 +196,33 @@
         {
             if (HashTables == null)
             {
-                HashTables = new Dictionary<long, List<ulong>>[numberOfHashTables];
+                HashTables = new ConcurrentDictionary<long, List<ulong>>[numberOfHashTables];
                 for (int table = 0; table < numberOfHashTables; table++)
                 {
-                    HashTables[table] = new Dictionary<long, List<ulong>>();
+                    HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
                 }
             }
         }
 
         private void InsertHashes(long[] hashBins, ulong subFingerprintId)
         {
+            int table = 0;
             lock ((HashTables as ICollection).SyncRoot) // don't touch this lock
             {
-                for (int table = 0; table < hashBins.Length; ++table)
+                foreach (var hashBin in hashBins)
                 {
                     var hashTable = HashTables[table];
-                    if (!hashTable.ContainsKey(hashBins[table]))
+
+                    if (hashTable.TryGetValue(hashBin, out var subFingerprintsList))
                     {
-                        hashTable[hashBins[table]] = new List<ulong>();
+                        subFingerprintsList.Add(subFingerprintId);
+                    }
+                    else
+                    {
+                        hashTable[hashBin] = new List<ulong> { subFingerprintId };
                     }
 
-                    hashTable[hashBins[table]].Add(subFingerprintId);
+                    table++;
                 }
             }
         }

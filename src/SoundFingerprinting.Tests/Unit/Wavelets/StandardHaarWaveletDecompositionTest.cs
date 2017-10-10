@@ -51,7 +51,6 @@
         {
             int h = array.Length;
             float[] temp = new float[h];
-
             while (h > 1)
             {
                 h /= 2;

@@ -46,15 +46,54 @@
                 return null;
             }
         }
-        
+
+        /// <summary>
+        ///  Query statistics
+        /// </summary>
+        public QueryStats Stats { get; internal set; } = new QueryStats();
+
         internal static QueryResult EmptyResult()
         {
             return new QueryResult(Enumerable.Empty<ResultEntry>());
         }
 
-        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results)
+        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, int totalTracksCandidates, int totalSubFingerprintCandidates)
         {
-            return new QueryResult(results);
+            var queryResults = new QueryResult(results)
+                               {
+                                   Stats =
+                                   {
+                                       TotalTracksAnalyzed = totalTracksCandidates,
+                                       TotalSubFingerprintsAnalyzed = totalSubFingerprintCandidates
+                                   }
+                               };
+            return queryResults;
+        }
+
+        /// <summary>
+        ///  Query statistics
+        /// </summary>
+        public class QueryStats
+        {
+            /// <summary>
+            ///  Time in milliseconds spent querying the data-source
+            /// </summary>
+            public long QueryTime { get; internal set; }
+
+            /// <summary>
+            ///  Time in milliseconds spent in generating fingerprints, before querying the data-source
+            /// </summary>
+            public long FingerprintingTime { get; internal set; }
+
+            /// <summary>
+            ///  Number of total tracks analyzed during querying
+            /// </summary>
+            public int TotalTracksAnalyzed { get; internal set; }
+
+            /// <summary>
+            ///  Number of total subfingerprints analyzed during querying. Consider fine-tuning your query/fingerprint algorithm if this number exceeds 100.
+            /// </summary>
+            public int TotalSubFingerprintsAnalyzed { get; internal set; }
         }
     }
 }

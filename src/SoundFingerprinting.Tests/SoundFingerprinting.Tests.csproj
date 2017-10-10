@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -88,6 +88,7 @@
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\InMemoryModelServiceTest.cs" />
     <Compile Include="Unit\Audio\TagInfoTest.cs" />
+    <Compile Include="Unit\Builder\QueryCommandBenchmark.cs" />
     <Compile Include="Unit\Configuration\FingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\QueryConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\SpectrogramConfigTest.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
     <Compile Include="Unit\FFT\LomontFFTTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
+    <Compile Include="Unit\InMemory\RAMStorageTest.cs" />
     <Compile Include="Unit\LCS\QueryResultCoverageCalculatorTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Math\FScoreTest.cs" />
@@ -111,6 +113,7 @@
     <Compile Include="Unit\Query\ConfidenceCalculatorTest.cs" />
     <Compile Include="Unit\Query\MatchedPairTest.cs" />
     <Compile Include="Unit\Query\QueryMathTest.cs" />
+    <Compile Include="Unit\Query\ResultEntryAccumulatorTest.cs" />
     <Compile Include="Unit\Strides\IncrementalRandomStrideTest.cs" />
     <Compile Include="Unit\Utils\ArrayUtilsTest.cs" />
     <Compile Include="Unit\Utils\FastFingerprintDescriptorTest.cs" />
@@ -121,6 +124,7 @@
     <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />
     <Compile Include="Unit\Utils\AbsComparatorTest.cs" />
     <Compile Include="Unit\Utils\QuickSelectAlgorithmTest.cs" />
+    <Compile Include="Unit\Utils\SubFingerprintGroupingCounterTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerScenarioValidatorTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerUtilsTest.cs" />
     <Compile Include="Unit\Wavelets\StandardHaarWaveletDecompositionTest.cs" />
