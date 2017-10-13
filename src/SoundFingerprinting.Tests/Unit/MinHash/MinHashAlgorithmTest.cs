@@ -25,7 +25,7 @@
             var similarityUtility = new SimilarityUtility(new HashConverter());
 
             double similarity = 0;
-            int simulationRuns = 10000, aggreeOn = 0;
+            int simulationRuns = 20000, aggreeOn = 0;
             for (int i = 0; i < simulationRuns; ++i)
             {
                 var arrays = this.GenerateVectors(howSimilarAreVectors, topWavelets, vectorLength);
