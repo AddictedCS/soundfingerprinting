@@ -108,14 +108,10 @@
 
             QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
                                    .From(PathToFile, SecondsToQuery, StartAtSecond)
-                                   .WithConfigs(
+                                   .WithQueryConfig(
                                     config =>
                                        {
-                                           config.SpectrogramConfig.LogBase = 64;
-                                           return config;
-                                       },
-                                    config =>
-                                       {
+                                           config.FingerprintConfiguration.SpectrogramConfig.LogBase = 64;
                                            config.ThresholdVotes = 20;
                                            return config;
                                        })
@@ -143,14 +139,10 @@
         {
             var command = queryCommandBuilder.BuildQueryCommand()
                                              .From("path-to-file", 10, 0)
-                                             .WithConfigs(
-                                                 config =>
-                                                     {
-                                                         config.SpectrogramConfig.ImageLength = 1024;
-                                                         return config;
-                                                     },
+                                             .WithQueryConfig(
                                                  config => 
                                                      {
+                                                         config.FingerprintConfiguration.SpectrogramConfig.ImageLength = 1024;
                                                          config.ThresholdVotes = 256;
                                                          return config;
                                                      })
@@ -166,7 +158,11 @@
             var customConfig = new DefaultFingerprintConfiguration();
             var command = queryCommandBuilder.BuildQueryCommand()
                                              .From("path-to-file", 10, 0)
-                                             .WithFingerprintConfig(customConfig)
+                                             .WithQueryConfig(config=>
+                                             {
+                                                 config.FingerprintConfiguration = customConfig;
+                                                 return config;
+                                             })
                                              .UsingServices(modelService.Object, audioService.Object);
 
             Assert.AreSame(command.FingerprintConfiguration, customConfig);
@@ -190,10 +186,11 @@
         {
             var customQueryConfig = new DefaultQueryConfiguration();
             var customFingerprintConfig = new DefaultFingerprintConfiguration();
+            customQueryConfig.FingerprintConfiguration = customFingerprintConfig;
 
             var command = queryCommandBuilder.BuildQueryCommand()
                                              .From("path-to-file")
-                                             .WithConfigs(customFingerprintConfig, customQueryConfig)
+                                             .WithQueryConfig(customQueryConfig)
                                              .UsingServices(modelService.Object, audioService.Object);
 
             Assert.AreSame(command.QueryConfiguration, customQueryConfig);

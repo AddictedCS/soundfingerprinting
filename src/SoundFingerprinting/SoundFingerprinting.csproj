@@ -169,7 +169,7 @@
     <Compile Include="Command\IQueryCommand.cs" />
     <Compile Include="Builder\IQueryCommandBuilder.cs" />
     <Compile Include="Command\IQuerySource.cs" />
-    <Compile Include="Command\IWithQueryAndFingerprintConfiguration.cs" />
+    <Compile Include="Command\IWithQueryConfiguration.cs" />
     <Compile Include="Configuration\QueryConfiguration.cs" />
     <Compile Include="IQueryFingerprintService.cs" />
     <Compile Include="QueryFingerprintService.cs" />

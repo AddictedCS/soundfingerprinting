@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Generic;
 
+    using SoundFingerprinting.Strides;
+
     /// <summary>
-    ///    Configuration options used during querying the data source
+    ///   Configuration options used during querying the data source
     /// </summary>
     public abstract class QueryConfiguration
     {
@@ -50,6 +52,37 @@
                 }
 
                 maxTracksToReturn = value;
+            }
+        }
+
+        /// <summary>
+        ///  Gets or sets stride between 2 consecutive fingerprints used during querying
+        /// </summary>
+        public IStride Stride
+        {
+            get
+            {
+                return FingerprintConfiguration.SpectrogramConfig.Stride;
+            }
+
+            set
+            {
+                FingerprintConfiguration.SpectrogramConfig.Stride = value;
+            }
+        }
+
+        /// <summary>
+        ///   Gets or sets Haar Wavelet norm. The universaly recognized norm is sqrt(2), though for acoustic fingerprinting 1 works very well for noisy scenarious
+        /// </summary>
+        public double HaarWaveletNorm
+        {
+            get
+            {
+                return FingerprintConfiguration.HaarWaveletNorm;
+            }
+            set
+            {
+                FingerprintConfiguration.HaarWaveletNorm = value;
             }
         }
 

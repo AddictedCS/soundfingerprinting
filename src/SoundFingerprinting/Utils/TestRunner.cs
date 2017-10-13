@@ -313,12 +313,11 @@
         {
             return qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
-                .WithConfigs(
-                    fingerprintConfig =>
+                .WithQueryConfig(queryConfig =>
                     {
-                        fingerprintConfig.Stride = queryStride;
-                        return fingerprintConfig;
-                    }, queryConfig => queryConfig)
+                        queryConfig.Stride = queryStride;
+                        return queryConfig;
+                    })
                 .UsingServices(modelService, audioService)
                 .Query();
         }
