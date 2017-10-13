@@ -89,8 +89,8 @@
                                             var queryStopwatch = Stopwatch.StartNew();
                                             QueryResult queryResult = queryFingerprintService.Query(hashes, QueryConfiguration, modelService);
                                             long queryingTime = queryStopwatch.ElapsedMilliseconds;
-                                            queryResult.Stats.FingerprintingTime = fingerprintingTime;
-                                            queryResult.Stats.QueryTime = queryingTime;
+                                            queryResult.Stats.FingerprintingDuration = fingerprintingTime;
+                                            queryResult.Stats.QueryDuration = queryingTime;
                                             return queryResult;
                                         },
                                         TaskContinuationOptions.ExecuteSynchronously);

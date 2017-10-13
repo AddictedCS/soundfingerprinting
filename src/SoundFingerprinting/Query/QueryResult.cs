@@ -64,7 +64,7 @@
                                    Stats =
                                    {
                                        TotalTracksAnalyzed = totalTracksCandidates,
-                                       TotalSubFingerprintsAnalyzed = totalSubFingerprintCandidates
+                                       TotalFingerprintsAnalyzed = totalSubFingerprintCandidates
                                    }
                                };
             return queryResults;
@@ -78,12 +78,12 @@
             /// <summary>
             ///  Time in milliseconds spent querying the data-source
             /// </summary>
-            public long QueryTime { get; internal set; }
+            public long QueryDuration { get; internal set; }
 
             /// <summary>
             ///  Time in milliseconds spent in generating fingerprints, before querying the data-source
             /// </summary>
-            public long FingerprintingTime { get; internal set; }
+            public long FingerprintingDuration { get; internal set; }
 
             /// <summary>
             ///  Number of total tracks analyzed during querying
@@ -93,7 +93,7 @@
             /// <summary>
             ///  Number of total subfingerprints analyzed during querying. Consider fine-tuning your query/fingerprint algorithm if this number exceeds 100.
             /// </summary>
-            public int TotalSubFingerprintsAnalyzed { get; internal set; }
+            public int TotalFingerprintsAnalyzed { get; internal set; }
         }
     }
 }

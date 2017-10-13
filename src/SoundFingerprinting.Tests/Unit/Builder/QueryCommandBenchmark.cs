@@ -54,9 +54,9 @@
                     .Query()
                     .Result;
 
-                Console.WriteLine("{0,10}ms{1,15}ms{2,15}", queryResult.Stats.FingerprintingTime, queryResult.Stats.QueryTime, queryResult.Stats.TotalSubFingerprintsAnalyzed);
-                avgFingerprinting += queryResult.Stats.FingerprintingTime;
-                avgQuery += queryResult.Stats.QueryTime;
+                Console.WriteLine("{0,10}ms{1,15}ms{2,15}", queryResult.Stats.FingerprintingDuration, queryResult.Stats.QueryDuration, queryResult.Stats.TotalFingerprintsAnalyzed);
+                avgFingerprinting += queryResult.Stats.FingerprintingDuration;
+                avgQuery += queryResult.Stats.QueryDuration;
             }
 
             Console.WriteLine("Avg. Fingerprinting: {0,0:000}ms, Avg. Query: {1, 0:000}ms", avgFingerprinting / totalRuns, avgQuery/ totalRuns);
