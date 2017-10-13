@@ -61,7 +61,7 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     return queryResult.BestMatch.Track; // successful match has been found
 }
 ```
-### QueryResult details
+### Query result details
 Every `ResultEntry` object will contain the following information:
 - `Track` - matched track from the datastore
 - `QueryMatchLength` - returns how many query seconds matched the resulting track
