@@ -38,8 +38,8 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
 ```
 The default storage, which comes bundled with _soundfingerprinting_ package, is a plain RAM storage, managed by <code>InMemoryModelService</code>. The following list of persistent storages is available for general use: 
 - Starting with v3.2.0 <code>InMemoryModelService</code> can be serialized to filesystem, and reloaded on application startup. Useful for scenarious when you don't want to introduce external data storages.
-- Solr, highly efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). Considered as the default option for production scenarious which require high number of fingerprinted tracks, highly optimized for both query and insertion.
-- MSSQL, [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql).
+- ***Solr*** highly efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). Considered as the default option for production scenarious which require high number of fingerprinted tracks, highly optimized for both query and insertion.
+- ***MSSQL** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql).
 
 Once you've inserted the fingerprints into the datastore, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 
@@ -61,7 +61,7 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
     return queryResult.BestMatch.Track; // successful match has been found
 }
 ```
-
+### QueryResult details
 Every `ResultEntry` object will contain the following information:
 - `Track` - matched track from the datastore
 - `QueryMatchLength` - returns how many query seconds matched the resulting track
@@ -71,7 +71,7 @@ Every `ResultEntry` object will contain the following information:
 - `Coverage` - returns a value between [0, 1], informing how much the query covered the resulting track (i.e. a 2 minutes query found a 30 seconds track within it, starting at 100th second, coverage will be equal to (120 - 100)/30 ~= 0.66)
 - `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
 
-`QueryResult.Stats` contains useful statistics information for fine-tuning the algorithm:
+`Stats` contains useful statistics information for fine-tuning the algorithm:
 - `QueryDuration` - time in milliseconds spend just querying the fingerprints datasource.
 - `FingerprintingDuration` - time in milliseconds spent generating the acousting fingerprints from the media file.
 - `TotalTracksAnalyzed` - total # of tracks analyzed during query time. If this number exceeds 50, try optimizing your configuration.
@@ -156,4 +156,4 @@ Special thanks to [JetBrains](https://www.jetbrains.com/) for providing this pro
 
 ![JetBrains](http://blog.jetbrains.com/webide/files/2012/12/logo_JB_tagline-300x108.png)
 
-&copy; Soundfingerprinting, 2010-2016, ciumac.sergiu@gmail.com
+&copy; Soundfingerprinting, 2010-2017, ciumac.sergiu@gmail.com
