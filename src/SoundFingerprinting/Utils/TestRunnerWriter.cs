@@ -96,7 +96,6 @@
             using (var writer = new StreamWriter(absolutePath))
             {
                 writer.Write(sb.ToString());
-                writer.Close();
             }
         }
     }

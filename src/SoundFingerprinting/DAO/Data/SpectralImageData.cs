@@ -19,7 +19,6 @@
             SpectralImageReference = spectralImageReference;
         }
 
-        [Obsolete]
         public SpectralImageData()
         {
         }

@@ -21,7 +21,6 @@
             SequenceAt = sequenceAt;
         }
 
-        [Obsolete]
         public SubFingerprintData()
         {
             Clusters = Enumerable.Empty<string>();
