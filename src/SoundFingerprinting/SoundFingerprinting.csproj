@@ -63,8 +63,8 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
-    <Compile Include="Configuration\AggressiveFingerprintConfiguration.cs" />
-    <Compile Include="Configuration\AggressiveQueryConfiguration.cs" />
+    <Compile Include="Configuration\HighPrecisionFingerprintConfiguration.cs" />
+    <Compile Include="Configuration\HighPrecisionQueryConfiguration.cs" />
     <Compile Include="Configuration\LowLatencyFingerprintConfiguration.cs" />
     <Compile Include="Configuration\LowLatencyQueryConfiguration.cs" />
     <Compile Include="Configuration\QueryStrides.cs" />
@@ -78,6 +78,7 @@
     <Compile Include="Math\HashConverter.cs" />
     <Compile Include="Math\IHashConverter.cs" />
     <Compile Include="MinHash\NewDefaultPermutations.cs" />
+    <Compile Include="Query\QueryStats.cs" />
     <Compile Include="Query\SubFingerprintsToSeconds.cs" />
     <Compile Include="Query\ConfidenceCalculator.cs" />
     <Compile Include="Query\IConfidenceCalculator.cs" />
