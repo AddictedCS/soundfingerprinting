@@ -6,7 +6,7 @@ _soundfingerprinting_ is a C# framework designed for developers, enthusiasts, re
 
 [![Build Status](https://travis-ci.org/AddictedCS/soundfingerprinting.png)](https://travis-ci.org/AddictedCS/soundfingerprinting)
 
-Donate 5$ to SoundFingerprinting via [Paypal](https://www.paypal.me/AddictedCS/5).
+Donate 5$ to _soundfingerprinting_ via [Paypal](https://www.paypal.me/AddictedCS/5).
 
 ## Documentation
 
