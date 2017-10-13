@@ -63,6 +63,11 @@
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="Configuration\AggressiveFingerprintConfiguration.cs" />
+    <Compile Include="Configuration\AggressiveQueryConfiguration.cs" />
+    <Compile Include="Configuration\LowLatencyFingerprintConfiguration.cs" />
+    <Compile Include="Configuration\LowLatencyQueryConfiguration.cs" />
+    <Compile Include="Configuration\QueryStrides.cs" />
     <Compile Include="FFT\LomontFFT.cs" />
     <Compile Include="IAdvancedModelService.cs" />
     <Compile Include="AdvancedModelService.cs" />
@@ -80,7 +85,6 @@
     <Compile Include="Query\MatchedPair.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
     <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
-    <Compile Include="Configuration\EfficientFingerprintConfigurationForQuerying.cs" />
     <Compile Include="Configuration\FrequencyRange.cs" />
     <Compile Include="Configuration\HashingConfig.cs" />
     <Compile Include="Configuration\SpectrogramConfig.cs" />

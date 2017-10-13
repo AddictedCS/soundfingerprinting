@@ -23,7 +23,7 @@
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
-            QueryConfiguration = new DefaultQueryConfiguration { FingerprintConfiguration = new EfficientFingerprintConfigurationForQuerying() };
+            QueryConfiguration = new DefaultQueryConfiguration();
         }
 
         public FingerprintConfiguration FingerprintConfiguration
