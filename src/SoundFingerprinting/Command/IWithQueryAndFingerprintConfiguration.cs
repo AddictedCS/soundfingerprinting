@@ -21,7 +21,7 @@
         /// </summary>
         /// <param name="amendFingerprintConfigFunctor">Amender</param>
         /// <returns>Query services selector</returns>
-        IUsingQueryServices WithFingerprintConfig(Action<FingerprintConfiguration> amendFingerprintConfigFunctor);
+        IUsingQueryServices WithFingerprintConfig(Func<FingerprintConfiguration, FingerprintConfiguration> amendFingerprintConfigFunctor);
 
         /// <summary>
         ///   Sets query configuration
@@ -35,7 +35,7 @@
         /// </summary>
         /// <param name="amendQueryConfigFunctor">Amender</param>
         /// <returns>Query services selector</returns>
-        IUsingQueryServices WithQueryConfig(Action<QueryConfiguration> amendQueryConfigFunctor);
+        IUsingQueryServices WithQueryConfig(Func<QueryConfiguration, QueryConfiguration> amendQueryConfigFunctor);
 
         /// <summary>
         ///   Sets fingerprint and query configuration object
@@ -51,6 +51,6 @@
         /// <param name="amendFingerprintFunctor">Fingerprint configuration amender</param>
         /// <param name="amendQueryConfigFunctor">Query configuration amender</param>
         /// <returns>Query services selector</returns>
-        IUsingQueryServices WithConfigs(Action<FingerprintConfiguration> amendFingerprintFunctor, Action<QueryConfiguration> amendQueryConfigFunctor);
+        IUsingQueryServices WithConfigs(Func<FingerprintConfiguration, FingerprintConfiguration> amendFingerprintFunctor, Func<QueryConfiguration, QueryConfiguration> amendQueryConfigFunctor);
     }
 }

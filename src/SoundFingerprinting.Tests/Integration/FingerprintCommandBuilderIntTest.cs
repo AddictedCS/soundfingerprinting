@@ -45,6 +45,7 @@
                                         .WithFingerprintConfig(cnf =>
                                             {
                                                 cnf.Stride = new IncrementalStaticStride(StaticStride);
+                                                return cnf;
                                             })
                                         .UsingServices(audioService);
 
@@ -124,11 +125,16 @@
             long fileSize = new FileInfo(tempFile).Length;
 
             var list = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                      .From(PathToMp3)
-                                      .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0))
-                                      .UsingServices(audioService)
-                                      .Hash()
-                                      .Result;
+                .From(PathToMp3)
+                .WithFingerprintConfig(
+                      customConfiguration =>
+                      {
+                          customConfiguration.Stride = new StaticStride(0);
+                          return customConfiguration;
+                      })
+                .UsingServices(audioService)
+                .Hash()
+                .Result;
 
             long expected = fileSize / (config.SamplesPerFingerprint * sizeof(float)); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
             Assert.AreEqual(expected, list.Count);

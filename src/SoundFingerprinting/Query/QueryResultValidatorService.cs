@@ -40,10 +40,12 @@
                                                        {
                                                            config.Stride = validationStride;
                                                            config.TopWavelets = topWavelets;
+                                                           return config;
                                                        },
-                                                   queryConfig =>
+                                                   queryConfig => 
                                                        {
                                                            queryConfig.ThresholdVotes = thresholdVotes;
+                                                           return queryConfig;
                                                        })
                                                .UsingServices(modelService, audioService)
                                                .Query()

@@ -70,15 +70,15 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig(Action<FingerprintConfiguration> amendFunctor)
+        public IUsingFingerprintServices WithFingerprintConfig(Func<FingerprintConfiguration, FingerprintConfiguration> amendFunctor)
         {
-            amendFunctor(FingerprintConfiguration);
+            FingerprintConfiguration = amendFunctor(FingerprintConfiguration);
             return this;
         }
 
         public IFingerprintCommand UsingServices(IAudioService audioServiceToUse)
         {
-            this.audioService = audioServiceToUse;
+            audioService = audioServiceToUse;
             return this;
         }
 
@@ -90,8 +90,7 @@ namespace SoundFingerprinting.Command
         private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints)
         {
             var hashedFingerprints = new ConcurrentBag<HashedFingerprint>();
-            Parallel.ForEach(
-                fingerprints,
+            Parallel.ForEach(fingerprints,
                 (fingerprint, state, index) =>
                     {
                         var hashedFingerprint = lshAlgorithm.Hash(

@@ -112,10 +112,12 @@
                                     config =>
                                        {
                                            config.SpectrogramConfig.LogBase = 64;
+                                           return config;
                                        },
                                     config =>
                                        {
                                            config.ThresholdVotes = 20;
+                                           return config;
                                        })
                                    .UsingServices(modelService.Object, audioService.Object)
                                    .Query()
@@ -145,10 +147,12 @@
                                                  config =>
                                                      {
                                                          config.SpectrogramConfig.ImageLength = 1024;
+                                                         return config;
                                                      },
                                                  config => 
                                                      {
                                                          config.ThresholdVotes = 256;
+                                                         return config;
                                                      })
                                              .UsingServices(modelService.Object, audioService.Object);
 
@@ -199,10 +203,16 @@
         [Test]
         public void QueryCommandIsBuildWithQueryConfigAmmender()
         {
-            var command = queryCommandBuilder.BuildQueryCommand()
-                                             .From("path-to-audio-file")
-                                             .WithQueryConfig(config => config.Clusters = new[] { "CA", "WA" })
-                                             .UsingServices(modelService.Object, audioService.Object);
+            var command = queryCommandBuilder
+                .BuildQueryCommand()
+                .From("path-to-audio-file")
+                .WithQueryConfig(
+                    config =>
+                    {
+                        config.Clusters = new[] { "CA", "WA" };
+                        return config;
+                    })
+                .UsingServices(modelService.Object, audioService.Object);
 
             CollectionAssert.AreEqual(new[] { "CA", "WA" }, command.QueryConfiguration.Clusters);
         }

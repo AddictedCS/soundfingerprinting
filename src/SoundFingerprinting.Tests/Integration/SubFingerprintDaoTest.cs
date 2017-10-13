@@ -98,6 +98,7 @@
                 .WithFingerprintConfig(config =>
                 {
                     config.Clusters = new[] { "first-group-id" };
+                    return config;
                 })
                 .UsingServices(audioService)
                 .Hash()
@@ -111,6 +112,7 @@
                .WithFingerprintConfig(config =>
                {
                    config.Clusters = new[] { "second-group-id" };
+                   return config;
                })
                .UsingServices(audioService)
                .Hash()

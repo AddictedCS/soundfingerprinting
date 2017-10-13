@@ -39,7 +39,7 @@
         {
             get
             {
-                return this.maxTracksToReturn;
+                return maxTracksToReturn;
             }
 
             set
@@ -49,7 +49,7 @@
                     throw new ArgumentException("MaxTracksToReturn cannot be less or equal to 0", "value");
                 }
 
-                this.maxTracksToReturn = value;
+                maxTracksToReturn = value;
             }
         }
 
