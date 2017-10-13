@@ -39,7 +39,7 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
 The default storage, which comes bundled with _soundfingerprinting_ package, is a plain RAM storage, managed by <code>InMemoryModelService</code>. The following list of persistent storages is available for general use: 
 - Starting with v3.2.0 <code>InMemoryModelService</code> can be serialized to filesystem, and reloaded on application startup. Useful for scenarious when you don't want to introduce external data storages.
 - ***Solr*** highly efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). Considered as the default option for production scenarious which require high number of fingerprinted tracks, highly optimized for both query and insertion.
-- ***MSSQL** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql).
+- ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql).
 
 Once you've inserted the fingerprints into the datastore, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 
