@@ -58,7 +58,7 @@
             var fingerprintConfig = new DefaultFingerprintConfiguration();
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
-            waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>()));
+            waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>(), It.IsAny<double>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets))
                 .Returns(GenericFingerprint);
 
@@ -82,7 +82,7 @@
             var fingerprintConfig = new DefaultFingerprintConfiguration { NormalizeSignal = true };
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
-            waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>()));
+            waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[][]>(), It.IsAny<double>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), fingerprintConfig.TopWavelets))
                 .Returns(GenericFingerprint);
             audioSamplesNormalizer.Setup(normalizer => normalizer.NormalizeInPlace(samples.Samples));
@@ -99,7 +99,7 @@
 
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
 
-            waveletDecomposition.Setup(decomposition => decomposition.DecomposeImageInPlace(It.IsAny<float[][]>()));
+            waveletDecomposition.Setup(decomposition => decomposition.DecomposeImageInPlace(It.IsAny<float[][]>(), It.IsAny<double>()));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[][]>(), configuration.TopWavelets)).Returns(
                     new[] { false, false, false, false, false, false, false, false });
 

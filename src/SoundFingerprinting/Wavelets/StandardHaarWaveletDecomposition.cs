@@ -13,17 +13,18 @@
         ///   Apply Haar Wavelet decomposition on the image
         /// </summary>
         /// <param name = "image">Image to be decomposed</param>
-        public override void DecomposeImageInPlace(float[][] image)
+        /// <param name="waveletNorm">Wavelet norm</param>
+        public override void DecomposeImageInPlace(float[][] image, double waveletNorm)
         {
-            DecomposeImage(image);
+            DecomposeImage(image, waveletNorm);
         }
 
-        private void Decomposition(float[] array)
+        private void Decomposition(float[] array, double waveletNorm)
         {
             int h = array.Length;
             while (h > 1)
             {
-                DecompositionStep(array, h);
+                DecompositionStep(array, h, waveletNorm);
                 h /= 2;
             }
         }
@@ -32,7 +33,8 @@
         ///   The standard 2-dimensional Haar wavelet decomposition involves one-dimensional decomposition of each row followed by a one-dimensional decomposition of each column of the result.
         /// </summary>
         /// <param name = "image">Image to be decomposed</param>
-        private void DecomposeImage(float[][] image)
+        /// <param name="waveletNorm">Haar wavelet norm</param>
+        private void DecomposeImage(float[][] image, double waveletNorm)
         {
             int rows = image.Length; /*128*/
             int cols = image[0].Length; /*32*/
@@ -46,7 +48,7 @@
                     column[row] = image[row][col]; /*Copying Column vector*/
                 }
 
-                Decomposition(column); /*Decomposition of each row*/
+                Decomposition(column, waveletNorm); /*Decomposition of each row*/
                 for (int row = 0; row < rows; row++)
                 {
                     image[row][col] = column[row];
@@ -55,7 +57,7 @@
 
             for (int row = 0; row < rows /*128*/; row++)
             {
-                Decomposition(image[row]); /*Decomposition of each row*/
+                Decomposition(image[row], waveletNorm); /*Decomposition of each row*/
             }
         }
     }

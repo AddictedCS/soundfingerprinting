@@ -28,6 +28,11 @@ namespace SoundFingerprinting.Configuration
         public IEnumerable<string> Clusters { get; set; }
 
         /// <summary>
+        ///   Gets or sets Haar Wavelet norm. The universaly recognized norm is sqrt(2), though for acoustic fingerprinting 1 works very well for noisy scenarious
+        /// </summary>
+        public double HaarWaveletNorm { get; set; }
+
+        /// <summary>
         ///  Gets or sets a value indicating whether the algorithm has to normalize the audio signal
         /// </summary>
         internal bool NormalizeSignal { get; set; }

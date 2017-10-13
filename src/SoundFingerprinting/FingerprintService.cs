@@ -53,7 +53,7 @@ namespace SoundFingerprinting
             var fingerprints = new ConcurrentBag<Fingerprint>();
             Parallel.ForEach(spectralImages, spectralImage => 
             {
-                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image);
+                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, configuration.HaarWaveletNorm);
                 bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
                 if (!IsSilence(image))
                 {

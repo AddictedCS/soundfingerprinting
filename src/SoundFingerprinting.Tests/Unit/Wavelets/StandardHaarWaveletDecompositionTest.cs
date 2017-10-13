@@ -40,8 +40,8 @@
                 }
             }
 
-            waveletDecomposition.DecomposeImageInPlace(frames);
-            DecomposeImageLocal(framesLocal);
+            waveletDecomposition.DecomposeImageInPlace(frames, Math.Sqrt(2));
+            DecomposeImageLocal(framesLocal, Math.Sqrt(2));
 
             for (int i = 0; i < Rows; i++)
             {
@@ -57,7 +57,7 @@
             Assert.AreEqual(sumFrames, sumFrameLocal, 0.1);
         }
 
-        private void DecomposeArrayLocal(float[] array)
+        private void DecomposeArrayLocal(float[] array, double waveletNorm)
         {
             int h = array.Length;
             float[] temp = new float[h];
@@ -66,8 +66,8 @@
                 h /= 2;
                 for (int i = 0; i < h; i++)
                 {
-                    temp[i] = array[2 * i] + array[(2 * i) + 1];
-                    temp[h + i] = array[2 * i] - array[(2 * i) + 1]; 
+                    temp[i] = (float)((array[2 * i] + array[(2 * i) + 1]) / waveletNorm);
+                    temp[h + i] = (float)((array[2 * i] - array[(2 * i) + 1]) / waveletNorm); 
                 }
 
                 for (int i = 0; i < 2 * h; i++)
@@ -77,13 +77,13 @@
             }
         }
 
-        private void DecomposeImageLocal(float[][] array)
+        private void DecomposeImageLocal(float[][] array, double waveletNorm)
         {
             int rows = array.GetLength(0);
             int cols = array[0].Length;
             for (int i = 0; i < rows; i++)
             {
-                DecomposeArrayLocal(array[i]);
+                DecomposeArrayLocal(array[i], waveletNorm);
             }
 
             for (int i = 0; i < cols; i++)
@@ -94,7 +94,7 @@
                     temp[j] = array[j][i];
                 }
 
-                DecomposeArrayLocal(temp);
+                DecomposeArrayLocal(temp, waveletNorm);
                 for (int j = 0; j < rows; j++)
                 {
                     array[j][i] = temp[j];
