@@ -77,6 +77,7 @@
     <Compile Include="Integration\InMemoryModelServiceSerializationTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\NAudioServiceIntTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TestRunnerTest.cs" />

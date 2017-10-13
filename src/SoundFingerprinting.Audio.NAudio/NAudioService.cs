@@ -29,7 +29,7 @@
         {
             using (var mediaFoundationReader = new MediaFoundationReader(pathToSourceFile))
             {
-                return (float)mediaFoundationReader.TotalTime.Milliseconds / 1000;
+                return (float)mediaFoundationReader.TotalTime.TotalSeconds;
             }
         }
 
