@@ -7,7 +7,7 @@
         public EfficientFingerprintConfigurationForQuerying()
         {
             // Empirically determined as a good value for creating the fingerprints for querying
-            SpectrogramConfig.Stride = new IncrementalRandomStride(256, 512);
+            SpectrogramConfig.Stride = new IncrementalRandomStride(768, 1024);
         }
     }
 }

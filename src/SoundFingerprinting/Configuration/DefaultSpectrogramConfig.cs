@@ -15,7 +15,7 @@ namespace SoundFingerprinting.Configuration
             ImageLength = 128;
             UseDynamicLogBase = true;
             NormalizeSignal = false;
-            Stride = new IncrementalStaticStride(1024);
+            Stride = new IncrementalStaticStride(1536);
             Window = new HanningWindow();
         }
     }
