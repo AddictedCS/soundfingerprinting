@@ -6,6 +6,8 @@ _soundfingerprinting_ is a C# framework designed for developers, enthusiasts, re
 
 [![Build Status](https://travis-ci.org/AddictedCS/soundfingerprinting.png)](https://travis-ci.org/AddictedCS/soundfingerprinting)
 
+Donate 5$ to SoundFingerprinting via [Paypal](https://www.paypal.me/AddictedCS/5).
+
 ## Documentation
 
 Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, 2 terms are used interchangeably) will be stored in a configurable backend. The interfaces for fingerprinting and querying audio files are implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html).
