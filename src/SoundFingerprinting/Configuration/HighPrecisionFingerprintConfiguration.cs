@@ -2,9 +2,9 @@
 {
     using SoundFingerprinting.Strides;
 
-    public class AggressiveFingerprintConfiguration : DefaultFingerprintConfiguration
+    public class HighPrecisionFingerprintConfiguration : DefaultFingerprintConfiguration
     {
-        public AggressiveFingerprintConfiguration()
+        public HighPrecisionFingerprintConfiguration()
         {
             Stride = new IncrementalStaticStride(512);
         }
