@@ -69,6 +69,7 @@
 
         public IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; private set; }
 
+        [ProtoMember(7)]
         private IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; set; }
 
         public void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
@@ -236,7 +237,7 @@
             var dtos = spectralImages.Select(spectralImage => new SpectralImageData(
                                 spectralImage,
                                 orderNumber++,
-                                new ModelReference<long>(Interlocked.Increment(ref spectralImagesCounter)),
+                                new ModelReference<ulong>((ulong)Interlocked.Increment(ref spectralImagesCounter)),
                                 trackReference))
                             .ToList();
 

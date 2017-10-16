@@ -1,15 +1,21 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
+    using System;
     using System.IO;
+    using System.Linq;
 
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Math;
+    using SoundFingerprinting.Tests.Unit.FFT;
 
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
@@ -80,6 +86,44 @@
 
             File.Delete(tempFile);
             Assert.AreNotEqual(trackReferences, newTrackReference);
+        }
+
+        [Test]
+        public void ShouldSerializeSpectralImages()
+        {
+            var spectrumService = new SpectrumService();
+
+            var spectrums = spectrumService.CreateLogSpectrogram(GetAudioSamples(), new DefaultSpectrogramConfig())
+                .Select(spectrum =>
+                {
+                    float[] fullLength = new float[spectrum.Image.Length * spectrum.Image[0].Length];
+                    for (int index = 0; index < spectrum.Image.Length; ++index)
+                    {
+                        Buffer.BlockCopy(spectrum.Image[index], 0,
+                            fullLength,
+                            index * spectrum.Image[index].Length * sizeof(float),
+                            spectrum.Image[index].Length * sizeof(float));
+                    }
+
+                    return fullLength;
+                })
+                .ToList();
+
+            var modelService = new InMemoryModelService();
+            var trackReference = new ModelReference<int>(10);
+            modelService.InsertSpectralImages(spectrums, trackReference);
+
+            var tempFile = Path.GetTempFileName();
+            modelService.Snapshot(tempFile);
+
+
+            var fromFileService = new InMemoryModelService(tempFile);
+
+            File.Delete(tempFile);
+
+            var allSpectrums = fromFileService.GetSpectralImagesByTrackReference(trackReference).ToList();
+
+            Assert.AreEqual(spectrums.Count, allSpectrums.Count);
         }
     }
 }
