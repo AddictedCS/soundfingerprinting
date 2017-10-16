@@ -13,13 +13,14 @@
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.Utils;
 
     [TestFixture]
     [Category("RequiresWindowsDLL")]
     public class TestRunnerTest : IntegrationWithSampleFilesTest
     {
-        private readonly IModelService modelService = new InMemoryModelService();
+        private IModelService modelService;
         private readonly IAudioService audioService = new NAudioService();
         private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
         private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
@@ -35,6 +36,14 @@
         [SetUp]
         public void SetUp()
         {
+            var ramStorage = new RAMStorage(50);
+            modelService = new InMemoryModelService(
+                new TrackDao(ramStorage),
+                new SubFingerprintDao(ramStorage, new HashConverter()),
+                new FingerprintDao(ramStorage),
+                new SpectralImageDao(ramStorage),
+                ramStorage);
+
             tagService.Setup(service => service.GetTagInfo(It.IsAny<string>())).Returns(
                 new TagInfo
                     {

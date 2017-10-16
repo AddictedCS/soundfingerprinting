@@ -32,7 +32,7 @@
 
             Assert.AreEqual(3, spectralImageDao.GetSpectralImagesByTrackReference(trackReference).Count());
             var ids = spectralImageDao.GetSpectralImagesByTrackReference(trackReference)
-                    .Select(dto => (long)dto.SpectralImageReference.Id)
+                    .Select(dto => (ulong)dto.SpectralImageReference.Id)
                     .ToList();
             CollectionAssert.AreEqual(Enumerable.Range(1, 3), ids);
         }

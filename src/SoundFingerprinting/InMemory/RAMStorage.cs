@@ -171,7 +171,7 @@
                 NumberOfHashTables = obj.NumberOfHashTables;
                 Tracks = obj.Tracks;
                 SubFingerprints = obj.SubFingerprints;
-                SpectralImages = obj.SpectralImages;
+                SpectralImages = obj.SpectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
 
                 Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
             }
