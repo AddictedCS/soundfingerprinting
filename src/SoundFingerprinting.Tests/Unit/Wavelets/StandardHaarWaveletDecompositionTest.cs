@@ -54,7 +54,7 @@
 
             double sumFrames = frames.Sum(target => target.Sum(d => Math.Abs(d)));
             double sumFrameLocal = framesLocal.Sum(target => target.Sum(d => Math.Abs(d)));
-            Assert.AreEqual(sumFrames, sumFrameLocal, 0.1);
+            Assert.AreEqual(sumFrames, sumFrameLocal, 0.5);
         }
 
         private void DecomposeArrayLocal(float[] array, double waveletNorm)
