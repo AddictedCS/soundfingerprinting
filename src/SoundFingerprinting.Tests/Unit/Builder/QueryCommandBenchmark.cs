@@ -9,25 +9,18 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Math;
 
     [TestFixture]
     public class QueryCommandBenchmark
     {
-        private FingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
-        private QueryCommandBuilder qcb = new QueryCommandBuilder();
-        private IAudioService audioService = new NAudioService();
+        private readonly FingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
+        private readonly QueryCommandBuilder qcb = new QueryCommandBuilder();
+        private readonly IAudioService audioService = new NAudioService();
 
         [Test]
         public void ShouldFingerprintAndQuerySuccessfully()
         {
-            var ramStorage = new RAMStorage(50);
-            var modelService = new InMemoryModelService(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, new HashConverter()),
-                new FingerprintDao(ramStorage),
-                new SpectralImageDao(ramStorage),
-                ramStorage);
+            var modelService = new InMemoryModelService();
 
             for (int i = 0; i < 30; ++i)
             {

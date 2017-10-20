@@ -9,7 +9,6 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Math;
 
     [TestFixture]
     public class InMemoryModelServiceTest : AbstractTest
@@ -19,12 +18,7 @@
         [SetUp]
         public void SetUp()
         {
-            var ramStorage = new RAMStorage(NumberOfHashTables);
-            modelService = new InMemoryModelService(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, new HashConverter()),
-                new FingerprintDao(ramStorage),
-                new SpectralImageDao(), ramStorage);
+            modelService = new InMemoryModelService();
         }
 
         [Test]

@@ -2,22 +2,37 @@
 {
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.Math;
 
     public class InMemoryModelService : AdvancedModelService
     {
         private readonly IRAMStorage ramStorage;
 
-        public InMemoryModelService(): this(new TrackDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao(), DependencyResolver.Current.Get<IRAMStorage>())
+        public InMemoryModelService(): this(new RAMStorage(50))
         {
-            // no op
         }
 
-        public InMemoryModelService(string loadFrom): this(new TrackDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao(), DependencyResolver.Current.Get<IRAMStorage>())
+        public InMemoryModelService(string loadFrom): this(new RAMStorage(50))
         {
             ramStorage.InitializeFromFile(loadFrom);
         }
 
-        internal InMemoryModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao, IFingerprintDao fingerprintDao, ISpectralImageDao spectralImageDao, IRAMStorage ramStorage)
+        internal InMemoryModelService(IRAMStorage ramStorage)
+            : this(
+                new TrackDao(ramStorage),
+                new SubFingerprintDao(ramStorage, DependencyResolver.Current.Get<IHashConverter>()),
+                new FingerprintDao(ramStorage),
+                new SpectralImageDao(ramStorage),
+                ramStorage)
+        {
+        }
+
+        private InMemoryModelService(
+            ITrackDao trackDao,
+            ISubFingerprintDao subFingerprintDao,
+            IFingerprintDao fingerprintDao,
+            ISpectralImageDao spectralImageDao,
+            IRAMStorage ramStorage)
             : base(trackDao, subFingerprintDao, fingerprintDao, spectralImageDao)
         {
             this.ramStorage = ramStorage;

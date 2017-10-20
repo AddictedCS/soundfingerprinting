@@ -10,7 +10,6 @@
     using Builder;
     using Configuration;
     using DAO.Data;
-    using Infrastructure;
     using InMemory;
     using NUnit.Framework;
     using Strides;
@@ -27,13 +26,6 @@
         private readonly IAudioService audioService = new NAudioService();
         private readonly ITagService tagService = new NAudioTagService();
         private readonly IWaveFileUtility waveUtility = new NAudioWaveFileUtility();
-
-        [TearDown]
-        public void TearDown()
-        {
-            var ramStorage = (RAMStorage)DependencyResolver.Current.Get<IRAMStorage>();
-            ramStorage.Reset(config.HashingConfig.NumberOfLSHTables);
-        }
 
         [Test]
         public void CreateFingerprintsFromFileAndAssertNumberOfFingerprints()

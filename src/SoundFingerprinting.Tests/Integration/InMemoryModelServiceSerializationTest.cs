@@ -14,8 +14,6 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Math;
-    using SoundFingerprinting.Tests.Unit.FFT;
 
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
@@ -28,13 +26,7 @@
         [Test]
         public void ShouldSerializeAndDeserialize()
         {
-            var ramStorage = new RAMStorage(25);
-            var modelService = new InMemoryModelService(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, new HashConverter()),
-                new FingerprintDao(ramStorage),
-                new SpectralImageDao(ramStorage),
-                ramStorage);
+            var modelService = new InMemoryModelService();
 
             var hashedFingerprints = fcb.BuildFingerprintCommand()
                 .From(GetAudioSamples())
@@ -66,13 +58,7 @@
         [Test]
         public void ShouldSerializeAndIncrementNextIdCorrectly()
         {
-            var ramStorage = new RAMStorage(25);
-            var modelService = new InMemoryModelService(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, new HashConverter()), 
-                new FingerprintDao(ramStorage),
-                new SpectralImageDao(ramStorage),
-                ramStorage);
+            var modelService = new InMemoryModelService();
 
             var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
             var trackReferences = modelService.InsertTrack(trackData);

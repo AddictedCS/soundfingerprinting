@@ -13,7 +13,6 @@
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.Utils;
 
     [TestFixture]
@@ -36,13 +35,7 @@
         [SetUp]
         public void SetUp()
         {
-            var ramStorage = new RAMStorage(50);
-            modelService = new InMemoryModelService(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, new HashConverter()),
-                new FingerprintDao(ramStorage),
-                new SpectralImageDao(ramStorage),
-                ramStorage);
+            modelService = new InMemoryModelService();
 
             tagService.Setup(service => service.GetTagInfo(It.IsAny<string>())).Returns(
                 new TagInfo
