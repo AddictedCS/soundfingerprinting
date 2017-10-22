@@ -77,7 +77,6 @@
     <Compile Include="NAudioSamplesProviderAdapterTest.cs" />
     <Compile Include="NAudioServiceTest.cs" />
     <Compile Include="NAudioSoundCaptureServiceTest.cs" />
-    <Compile Include="NAudioSourceReaderTest.cs" />
     <Compile Include="NAudioStreamUrlReaderTest.cs" />
     <Compile Include="NAudioWaveFileUtilityTest.cs" />
     <Compile Include="Play\NAudioPlayAudioFileServiceTest.cs" />
