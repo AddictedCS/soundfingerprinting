@@ -10,7 +10,6 @@
     using Builder;
     using Configuration;
     using DAO.Data;
-    using Infrastructure;
     using InMemory;
     using NUnit.Framework;
     using Strides;
@@ -28,13 +27,6 @@
         private readonly ITagService tagService = new NAudioTagService();
         private readonly IWaveFileUtility waveUtility = new NAudioWaveFileUtility();
 
-        [TearDown]
-        public void TearDown()
-        {
-            var ramStorage = (RAMStorage)DependencyResolver.Current.Get<IRAMStorage>();
-            ramStorage.Reset(config.HashingConfig.NumberOfLSHTables);
-        }
-
         [Test]
         public void CreateFingerprintsFromFileAndAssertNumberOfFingerprints()
         {
@@ -45,6 +37,7 @@
                                         .WithFingerprintConfig(cnf =>
                                             {
                                                 cnf.Stride = new IncrementalStaticStride(StaticStride);
+                                                return cnf;
                                             })
                                         .UsingServices(audioService);
 
@@ -124,11 +117,16 @@
             long fileSize = new FileInfo(tempFile).Length;
 
             var list = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                      .From(PathToMp3)
-                                      .WithFingerprintConfig(customConfiguration => customConfiguration.Stride = new StaticStride(0))
-                                      .UsingServices(audioService)
-                                      .Hash()
-                                      .Result;
+                .From(PathToMp3)
+                .WithFingerprintConfig(
+                      customConfiguration =>
+                      {
+                          customConfiguration.Stride = new StaticStride(0);
+                          return customConfiguration;
+                      })
+                .UsingServices(audioService)
+                .Hash()
+                .Result;
 
             long expected = fileSize / (config.SamplesPerFingerprint * sizeof(float)); // One fingerprint corresponds to a granularity of 8192 samples which is 16384 bytes
             Assert.AreEqual(expected, list.Count);

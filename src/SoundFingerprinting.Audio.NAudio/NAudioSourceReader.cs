@@ -14,7 +14,6 @@ namespace SoundFingerprinting.Audio.NAudio
  
         private readonly INAudioFactory naudioFactory;
         private readonly ISamplesAggregator samplesAggregator;
-        private readonly int resamplerQuality;
 
         public NAudioSourceReader()
             : this(

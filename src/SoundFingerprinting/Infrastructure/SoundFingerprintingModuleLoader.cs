@@ -5,7 +5,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
@@ -38,10 +37,6 @@
             kernel.Bind<IFingerprintCommandBuilder>().To<FingerprintCommandBuilder>().InSingletonScope();
             kernel.Bind<IQueryFingerprintService>().To<QueryFingerprintService>().InSingletonScope();
             kernel.Bind<IQueryCommandBuilder>().To<QueryCommandBuilder>().InSingletonScope();
-
-            kernel.Bind<IRAMStorage>().To<RAMStorage>()
-                                      .InSingletonScope()
-                                      .WithConstructorArgument("numberOfHashTables", 50);
         }
     }
 }

@@ -77,6 +77,7 @@
     <Compile Include="Integration\InMemoryModelServiceSerializationTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
     <Compile Include="Integration\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\NAudioServiceIntTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TestRunnerTest.cs" />
@@ -89,7 +90,6 @@
     <Compile Include="Integration\InMemoryModelServiceTest.cs" />
     <Compile Include="Unit\Audio\TagInfoTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBenchmark.cs" />
-    <Compile Include="Unit\Configuration\FingerprintConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\QueryConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\SpectrogramConfigTest.cs" />
     <Compile Include="Unit\DAO\Data\FingerprintDataTest.cs" />

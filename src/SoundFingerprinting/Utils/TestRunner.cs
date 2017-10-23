@@ -313,7 +313,11 @@
         {
             return qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
-                .WithFingerprintConfig(fingerprintConfig => { fingerprintConfig.Stride = queryStride; })
+                .WithQueryConfig(queryConfig =>
+                    {
+                        queryConfig.Stride = queryStride;
+                        return queryConfig;
+                    })
                 .UsingServices(modelService, audioService)
                 .Query();
         }
@@ -341,7 +345,12 @@
                         var track = InsertTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
                                         .From(file)
-                                        .WithFingerprintConfig(config => { config.Stride = stride; })
+                                        .WithFingerprintConfig(
+                                            config =>
+                                            {
+                                                config.Stride = stride;
+                                                return config;
+                                            })
                                         .UsingServices(audioService)
                                         .Hash()
                                         .Result;

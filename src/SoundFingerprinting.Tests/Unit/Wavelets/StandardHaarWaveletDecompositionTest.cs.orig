@@ -30,11 +30,24 @@
                 Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * Cols, sizeof(float) * Cols);
             }
 
+<<<<<<< HEAD
             AssertAreSame(Rows, Cols, frames, concatenated);
-            waveletDecomposition.DecomposeImageInPlace(concatenated, Rows, Cols, 1d);
-            DecomposeImageLocal(frames, 1d);
+            waveletDecomposition.DecomposeImageInPlace(concatenated, Rows, Cols);
+            DecomposeImageLocal(frames);
             AssertAreSame(Rows, Cols, frames, concatenated);
         }
+=======
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    Assert.AreEqual(frames[i][j], framesLocal[i][j], 0.00001);
+                }
+            }
+
+            waveletDecomposition.DecomposeImageInPlace(frames, Math.Sqrt(2));
+            DecomposeImageLocal(framesLocal, Math.Sqrt(2));
+>>>>>>> origin/develop
 
         private void AssertAreSame(int rows, int cols, float[][] frames, float[] concatenated)
         {
@@ -45,9 +58,20 @@
                     Assert.AreEqual(frames[i][j], concatenated[(i * cols) + j], 0.5);
                 }
             }
+<<<<<<< HEAD
         }
 
         private void DecomposeArray(float[] array)
+=======
+
+
+            double sumFrames = frames.Sum(target => target.Sum(d => Math.Abs(d)));
+            double sumFrameLocal = framesLocal.Sum(target => target.Sum(d => Math.Abs(d)));
+            Assert.AreEqual(sumFrames, sumFrameLocal, 5);
+        }
+
+        private void DecomposeArrayLocal(float[] array, double waveletNorm)
+>>>>>>> origin/develop
         {
             int h = array.Length;
             float[] temp = new float[h];
@@ -56,8 +80,13 @@
                 h /= 2;
                 for (int i = 0; i < h; i++)
                 {
+<<<<<<< HEAD
                     temp[i] = array[2 * i] + array[(2 * i) + 1];
                     temp[h + i] = array[2 * i] - array[(2 * i) + 1];
+=======
+                    temp[i] = (float)((array[2 * i] + array[(2 * i) + 1]) / waveletNorm);
+                    temp[h + i] = (float)((array[2 * i] - array[(2 * i) + 1]) / waveletNorm); 
+>>>>>>> origin/develop
                 }
 
                 Buffer.BlockCopy(temp, 0, array, 0, sizeof(float) * (h * 2));
@@ -70,7 +99,11 @@
             int cols = array[0].Length;
             for (int i = 0; i < rows; i++)
             {
+<<<<<<< HEAD
                 DecomposeArray(array[i]);
+=======
+                DecomposeArrayLocal(array[i], waveletNorm);
+>>>>>>> origin/develop
             }
 
             for (int i = 0; i < cols; i++)
@@ -81,7 +114,11 @@
                     temp[j] = array[j][i];
                 }
 
+<<<<<<< HEAD
                 DecomposeArray(temp);
+=======
+                DecomposeArrayLocal(temp, waveletNorm);
+>>>>>>> origin/develop
                 for (int j = 0; j < rows; j++)
                 {
                     array[j][i] = temp[j];

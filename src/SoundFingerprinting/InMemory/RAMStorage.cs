@@ -24,6 +24,9 @@
         [ProtoMember(2)]
         private int trackReferenceCounter;
 
+        [ProtoMember(6)]
+        private long spectralImagesCounter;
+
         private IDictionary<ulong, SubFingerprintData> subFingerprints;
 
         public RAMStorage()
@@ -66,7 +69,8 @@
 
         public IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; private set; }
 
-        public IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; private set; }
+        [ProtoMember(7)]
+        private IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; set; }
 
         public void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
         {
@@ -167,9 +171,9 @@
                 NumberOfHashTables = obj.NumberOfHashTables;
                 Tracks = obj.Tracks;
                 SubFingerprints = obj.SubFingerprints;
+                SpectralImages = obj.SpectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
 
                 Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
-                SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
             }
         }
 
@@ -225,6 +229,42 @@
                     table++;
                 }
             }
+        }
+
+        public void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
+        {
+            int orderNumber = 0;
+            var dtos = spectralImages.Select(spectralImage => new SpectralImageData(
+                                spectralImage,
+                                orderNumber++,
+                                new ModelReference<ulong>((ulong)Interlocked.Increment(ref spectralImagesCounter)),
+                                trackReference))
+                            .ToList();
+
+            lock (SpectralImages)
+            {
+                if (SpectralImages.TryGetValue(trackReference, out var existing))
+                {
+                    foreach (var dto in dtos)
+                    {
+                        existing.Add(dto);
+                    }
+                }
+                else
+                {
+                    SpectralImages[trackReference] = dtos;
+                }
+            }
+        }
+
+        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
+        {
+            if (SpectralImages.TryGetValue(trackReference, out var spectralImageDatas))
+            {
+                return spectralImageDatas;
+            }
+
+            return Enumerable.Empty<SpectralImageData>().ToList();
         }
     }
 }

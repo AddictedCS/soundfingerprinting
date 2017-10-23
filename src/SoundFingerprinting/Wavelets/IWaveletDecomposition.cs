@@ -5,6 +5,6 @@
     /// </summary>
     internal interface IWaveletDecomposition
     {
-        void DecomposeImageInPlace(float[] image, int rows, int cols);
+        void DecomposeImageInPlace(float[] image, int rows, int cols, double waveletNorm);
     }
 }

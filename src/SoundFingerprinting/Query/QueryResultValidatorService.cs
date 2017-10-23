@@ -35,16 +35,15 @@
             }
 
             var newResult = queryCommandBuilder.BuildQueryCommand()
-                                               .From(pathToAudioFile, length, startAt).WithConfigs(
-                                                   config =>
-                                                       {
-                                                           config.Stride = validationStride;
-                                                           config.TopWavelets = topWavelets;
-                                                       },
+                                               .From(pathToAudioFile, length, startAt)
+                                               .WithQueryConfig(
                                                    queryConfig =>
-                                                       {
-                                                           queryConfig.ThresholdVotes = thresholdVotes;
-                                                       })
+                                                   {
+                                                       queryConfig.FingerprintConfiguration.TopWavelets = topWavelets;
+                                                       queryConfig.Stride = validationStride;
+                                                       queryConfig.ThresholdVotes = thresholdVotes;
+                                                       return queryConfig;
+                                                    })
                                                .UsingServices(modelService, audioService)
                                                .Query()
                                                .Result;

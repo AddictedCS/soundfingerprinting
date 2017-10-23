@@ -8,7 +8,11 @@
     {
         private readonly IRAMStorage ramStorage;
 
+<<<<<<< HEAD
+        public InMemoryModelService() : this(new TrackDao(), new SubFingerprintDao(), new FingerprintDao(), new SpectralImageDao(), DependencyResolver.Current.Get<IRAMStorage>())
+=======
         public InMemoryModelService(): this(new RAMStorage(50))
+>>>>>>> origin/develop
         {
         }
 

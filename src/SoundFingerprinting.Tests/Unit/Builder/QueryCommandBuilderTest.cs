@@ -70,7 +70,7 @@
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(PathToFile)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<EfficientFingerprintConfigurationForQuerying>())).Returns(usingFingerprintServices.Object);
+            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(command => command.Hash()).Returns(Task.Factory.StartNew(() => hashedFingerprints));
             queryFingerprintService.Setup(service => service.Query(hashedFingerprints, It.IsAny<DefaultQueryConfiguration>(), this.modelService.Object)).Returns(dummyResult);
@@ -108,14 +108,12 @@
 
             QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
                                    .From(PathToFile, SecondsToQuery, StartAtSecond)
-                                   .WithConfigs(
+                                   .WithQueryConfig(
                                     config =>
                                        {
-                                           config.SpectrogramConfig.LogBase = 64;
-                                       },
-                                    config =>
-                                       {
+                                           config.FingerprintConfiguration.SpectrogramConfig.LogBase = 64;
                                            config.ThresholdVotes = 20;
+                                           return config;
                                        })
                                    .UsingServices(modelService.Object, audioService.Object)
                                    .Query()
@@ -132,7 +130,7 @@
                                .From("path-to-file", 10, 0)
                                .UsingServices(modelService.Object, audioService.Object);
 
-            Assert.IsInstanceOf<EfficientFingerprintConfigurationForQuerying>(command.FingerprintConfiguration);
+            Assert.IsInstanceOf<DefaultFingerprintConfiguration>(command.FingerprintConfiguration);
             Assert.IsInstanceOf<DefaultQueryConfiguration>(command.QueryConfiguration);
         }
 
@@ -141,14 +139,12 @@
         {
             var command = queryCommandBuilder.BuildQueryCommand()
                                              .From("path-to-file", 10, 0)
-                                             .WithConfigs(
-                                                 config =>
-                                                     {
-                                                         config.SpectrogramConfig.ImageLength = 1024;
-                                                     },
+                                             .WithQueryConfig(
                                                  config => 
                                                      {
+                                                         config.FingerprintConfiguration.SpectrogramConfig.ImageLength = 1024;
                                                          config.ThresholdVotes = 256;
+                                                         return config;
                                                      })
                                              .UsingServices(modelService.Object, audioService.Object);
 
@@ -162,7 +158,11 @@
             var customConfig = new DefaultFingerprintConfiguration();
             var command = queryCommandBuilder.BuildQueryCommand()
                                              .From("path-to-file", 10, 0)
-                                             .WithFingerprintConfig(customConfig)
+                                             .WithQueryConfig(config=>
+                                             {
+                                                 config.FingerprintConfiguration = customConfig;
+                                                 return config;
+                                             })
                                              .UsingServices(modelService.Object, audioService.Object);
 
             Assert.AreSame(command.FingerprintConfiguration, customConfig);
@@ -186,10 +186,11 @@
         {
             var customQueryConfig = new DefaultQueryConfiguration();
             var customFingerprintConfig = new DefaultFingerprintConfiguration();
+            customQueryConfig.FingerprintConfiguration = customFingerprintConfig;
 
             var command = queryCommandBuilder.BuildQueryCommand()
                                              .From("path-to-file")
-                                             .WithConfigs(customFingerprintConfig, customQueryConfig)
+                                             .WithQueryConfig(customQueryConfig)
                                              .UsingServices(modelService.Object, audioService.Object);
 
             Assert.AreSame(command.QueryConfiguration, customQueryConfig);
@@ -199,10 +200,16 @@
         [Test]
         public void QueryCommandIsBuildWithQueryConfigAmmender()
         {
-            var command = queryCommandBuilder.BuildQueryCommand()
-                                             .From("path-to-audio-file")
-                                             .WithQueryConfig(config => config.Clusters = new[] { "CA", "WA" })
-                                             .UsingServices(modelService.Object, audioService.Object);
+            var command = queryCommandBuilder
+                .BuildQueryCommand()
+                .From("path-to-audio-file")
+                .WithQueryConfig(
+                    config =>
+                    {
+                        config.Clusters = new[] { "CA", "WA" };
+                        return config;
+                    })
+                .UsingServices(modelService.Object, audioService.Object);
 
             CollectionAssert.AreEqual(new[] { "CA", "WA" }, command.QueryConfiguration.Clusters);
         }

@@ -170,6 +170,7 @@
                 .WithFingerprintConfig(config =>
                     {
                         config.Stride = new StaticStride(0);
+                        return config;
                     })
                 .UsingServices(audioService)
                 .Hash()

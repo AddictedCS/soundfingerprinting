@@ -25,15 +25,14 @@
         [Test]
         public void ShouldInsertSpectralImages()
         {
-            var images = new List<float[]>() { new float[0], new float[0], new float[0] };
+            var images = new List<float[]> { new float[0], new float[0], new float[0] };
             var trackReference = new ModelReference<int>(10);
 
             spectralImageDao.InsertSpectralImages(images, trackReference);
 
             Assert.AreEqual(3, spectralImageDao.GetSpectralImagesByTrackReference(trackReference).Count());
-            var ids =
-                spectralImageDao.GetSpectralImagesByTrackReference(trackReference)
-                    .Select(dto => (int)dto.SpectralImageReference.Id)
+            var ids = spectralImageDao.GetSpectralImagesByTrackReference(trackReference)
+                    .Select(dto => (ulong)dto.SpectralImageReference.Id)
                     .ToList();
             CollectionAssert.AreEqual(Enumerable.Range(1, 3), ids);
         }

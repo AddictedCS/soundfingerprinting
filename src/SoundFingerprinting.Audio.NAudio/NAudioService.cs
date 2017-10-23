@@ -2,6 +2,8 @@
 {
     using System.Collections.Generic;
 
+    using global::NAudio.Wave;
+
     using SoundFingerprinting.Infrastructure;
 
     public class NAudioService : AudioService
@@ -21,6 +23,14 @@
         {
             this.sourceReader = sourceReader;
             this.resamplerQuality = resamplerQuality;
+        }
+
+        public override float GetLengthInSeconds(string pathToSourceFile)
+        {
+            using (var mediaFoundationReader = new MediaFoundationReader(pathToSourceFile))
+            {
+                return (float)mediaFoundationReader.TotalTime.TotalSeconds;
+            }
         }
 
         public override IReadOnlyCollection<string> SupportedFormats

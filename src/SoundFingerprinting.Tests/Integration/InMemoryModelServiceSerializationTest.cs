@@ -1,15 +1,19 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
+    using System;
     using System.IO;
+    using System.Linq;
 
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Math;
 
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
@@ -22,13 +26,7 @@
         [Test]
         public void ShouldSerializeAndDeserialize()
         {
-            var ramStorage = new RAMStorage(25);
-            var modelService = new InMemoryModelService(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, new HashConverter()),
-                new FingerprintDao(ramStorage),
-                new SpectralImageDao(ramStorage),
-                ramStorage);
+            var modelService = new InMemoryModelService();
 
             var hashedFingerprints = fcb.BuildFingerprintCommand()
                 .From(GetAudioSamples())
@@ -60,13 +58,7 @@
         [Test]
         public void ShouldSerializeAndIncrementNextIdCorrectly()
         {
-            var ramStorage = new RAMStorage(25);
-            var modelService = new InMemoryModelService(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, new HashConverter()), 
-                new FingerprintDao(ramStorage),
-                new SpectralImageDao(ramStorage),
-                ramStorage);
+            var modelService = new InMemoryModelService();
 
             var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
             var trackReferences = modelService.InsertTrack(trackData);
@@ -80,6 +72,32 @@
 
             File.Delete(tempFile);
             Assert.AreNotEqual(trackReferences, newTrackReference);
+        }
+
+        [Test]
+        public void ShouldSerializeSpectralImages()
+        {
+            var spectrumService = new SpectrumService();
+
+            var spectrums = spectrumService.CreateLogSpectrogram(GetAudioSamples(), new DefaultSpectrogramConfig())
+                .Select(spectrum => spectrum.Image)
+                .ToList();
+
+            var modelService = new InMemoryModelService();
+            var trackReference = new ModelReference<int>(10);
+            modelService.InsertSpectralImages(spectrums, trackReference);
+
+            var tempFile = Path.GetTempFileName();
+            modelService.Snapshot(tempFile);
+
+
+            var fromFileService = new InMemoryModelService(tempFile);
+
+            File.Delete(tempFile);
+
+            var allSpectrums = fromFileService.GetSpectralImagesByTrackReference(trackReference).ToList();
+
+            Assert.AreEqual(spectrums.Count, allSpectrums.Count);
         }
     }
 }
