@@ -6,7 +6,7 @@
     {
         public LowLatencyFingerprintConfiguration()
         {
-            Stride = new IncrementalStaticStride(5115);
+            Stride = new IncrementalStaticStride(2048);
         }
     }
 }

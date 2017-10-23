@@ -23,9 +23,9 @@
         {
             var hashedFingerprints = new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(null, null, 1, 3d, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 0, 1d, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 3, 9.142235, Enumerable.Empty<string>())
+                    new HashedFingerprint(null, null, 1, 3, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 0, 1, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 3, 9.142235f, Enumerable.Empty<string>())
                 };
 
             double snippetLength = queryMath.CalculateExactQueryLength(hashedFingerprints, new DefaultFingerprintConfiguration());
@@ -45,14 +45,14 @@
 
             var query = new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(null, null, 1, 0d, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 1, 4d, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 1, 8d, Enumerable.Empty<string>())
+                    new HashedFingerprint(null, null, 1, 0, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 1, 4, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, null, 1, 8, Enumerable.Empty<string>())
                 };
 
-            var first = new ResultEntryAccumulator(query[0], new SubFingerprintData(null, 1, 0d, null, null), 100);
-            var second = new ResultEntryAccumulator(query[1], new SubFingerprintData(null, 1, 4d, null, null), 99);
-            var third = new ResultEntryAccumulator(query[2], new SubFingerprintData(null, 1, 8d, null, null), 101);
+            var first = new ResultEntryAccumulator(query[0], new SubFingerprintData(null, 1, 0, null, null), 100);
+            var second = new ResultEntryAccumulator(query[1], new SubFingerprintData(null, 1, 4, null, null), 99);
+            var third = new ResultEntryAccumulator(query[2], new SubFingerprintData(null, 1, 8, null, null), 101);
             var hammingSimilarties = new Dictionary<IModelReference, ResultEntryAccumulator>
                 {
                     { new ModelReference<int>(1), first },
@@ -78,8 +78,8 @@
         public void ShouldFilterExactMatches0()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d, Enumerable.Empty<string>()),
-                new SubFingerprintData(new long[] { 1, 2, 3, 7, 8 }, 0, 0d, null, null),
+                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new long[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsTrue(result);
@@ -89,8 +89,8 @@
         public void ShouldFilterExactMatches1()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0d, Enumerable.Empty<string>()),
-                new SubFingerprintData(new long[] { 1, 2, 4, 7, 8 }, 0, 0d, null, null),
+                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new long[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsFalse(result);

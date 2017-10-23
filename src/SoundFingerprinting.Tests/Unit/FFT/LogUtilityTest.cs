@@ -31,7 +31,7 @@
                     2000f
                 };
 
-            int[] indexes = logUtility.GenerateLogFrequenciesRanges(defaultFingerprintConfiguration.SampleRate, defaultConfig);
+            ushort[] indexes = logUtility.GenerateLogFrequenciesRanges(defaultFingerprintConfiguration.SampleRate, defaultConfig);
 
             for (int i = 0; i < logSpacedFrequencies.Length; i++)
             {

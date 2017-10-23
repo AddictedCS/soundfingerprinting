@@ -1,8 +1,8 @@
 ﻿namespace SoundFingerprinting.Utils
 {
-    public class QuickSelectAlgorithm
+    internal class QuickSelectAlgorithm
     {
-        public int Find(int kth, float[] list, int[] indexes, int lo, int hi)
+        public int Find(int kth, float[] list, ushort[] indexes, int lo, int hi)
         {
             while (lo != hi)
             {
@@ -30,7 +30,7 @@
             return lo;
         }
 
-        private int Partition(float[] list, int[] indexes, int pivotIndex, int lo, int hi)
+        private int Partition(float[] list, ushort[] indexes, int pivotIndex, int lo, int hi)
         {
             float pivotValue = Abs(list[pivotIndex]);
             Swap(list, indexes, pivotIndex, hi);
@@ -48,18 +48,18 @@
             return storeIndex;
         }
 
-        private void Swap(float[] list, int[] indexes, int i, int j)
+        private void Swap(float[] list, ushort[] indexes, int i, int j)
         {
             float tmp = list[i];
             list[i] = list[j];
             list[j] = tmp;
 
-            int indexTmp = indexes[i];
+            ushort indexTmp = indexes[i];
             indexes[i] = indexes[j];
             indexes[j] = indexTmp;
         }
 
-        private void SwapIfGreater(float[] list, int[] indexes, int a, int b)
+        private void SwapIfGreater(float[] list, ushort[] indexes, int a, int b)
         {
             if (a != b)
             {
@@ -72,12 +72,7 @@
 
         private float Abs(float x)
         {
-            if (x < 0)
-            {
-                return x * -1;
-            }
-
-            return x;
+            return System.Math.Abs(x);
         }
     }
 }

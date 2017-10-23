@@ -1,12 +1,9 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.FFT
 {
-    using System.Linq;
-
     using Moq;
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
@@ -38,41 +35,41 @@
         {
             var configuration = new DefaultSpectrogramConfig { ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
-            SetupFftService(configuration, samples);
+            this.SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.WdftSize, result[0].Image.Length);
-            Assert.AreEqual(32, result[0].Image[0].Length);
+            Assert.AreEqual(configuration.ImageLength, result[0].Rows);
+            Assert.AreEqual(configuration.LogBins, result[0].Cols);
         }
 
         [Test]
         public void CreateLogSpectrogramFromMinimalSamplesLengthTest()
         {
-            var configuration = new DefaultSpectrogramConfig { NormalizeSignal = false };
+            var configuration = new DefaultSpectrogramConfig();
             var samples = TestUtilities.GenerateRandomAudioSamples(new DefaultFingerprintConfiguration().SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
-            SetupFftService(configuration, samples);
+            this.SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.ImageLength, result[0].Image.Length);
+            Assert.AreEqual(configuration.ImageLength, result[0].Rows);
         }
 
         [Test]
         public void ShouldCreateCorrectNumberOfSubFingerprints()
         {
             var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0) };
-            var tenMinutes = 10 * 60;
-            var samples = TestUtilities.GenerateRandomAudioSamples(tenMinutes * SampleRate);
-            SetupFftService(configuration, samples);
+            const int TenMinutes = 10 * 60;
+            var samples = TestUtilities.GenerateRandomAudioSamples(TenMinutes * SampleRate);
+            this.SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            Assert.AreEqual((tenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
+            Assert.AreEqual((TenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
         }
 
         [Test]
@@ -89,8 +86,7 @@
         [Test]
         public void CutLogarithmizedSpectrumTest()
         {
-            var stride = new StaticStride(0, 0);
-            var configuration = new DefaultSpectrogramConfig { Stride = stride };
+            var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0, 0) };
             const int LogSpectrumLength = 1024;
             var logSpectrum = GetLogSpectrum(LogSpectrumLength);
 
@@ -100,8 +96,7 @@
             double lengthOfOneFingerprint = (double)configuration.ImageLength * configuration.Overlap / SampleRate;
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(
-                    System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint)) < Epsilon);
+                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint)) < Epsilon);
             }
         }
         
@@ -168,39 +163,20 @@
             Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
         }
 
-        [Test]
-        public void ShouldExtractLogarithmicBandsCorrectly()
-        {
-            var utility = new LogUtility();
-            int[] indexes = utility.GenerateLogFrequenciesRanges(5512, new DefaultSpectrogramConfig { UseDynamicLogBase = true });
-            float[] spectrum = Enumerable.Range(0, 2048).Select(item => (float)item).ToArray();
-
-            float[] bands = spectrumService.ExtractLogBins(spectrum, indexes, 32, 2048);
-
-            Assert.AreEqual(32, bands.Length);
-        }
-
-        private void SetupFftService(DefaultSpectrogramConfig configuration, AudioSamples samples)
+        private void SetupFftService(DefaultSpectrogramConfig configuration)
         {
             logUtility.Setup(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration))
-                .Returns(new[]
+                .Returns(new ushort[]
                         {
                             118, 125, 133, 141, 149, 158, 167, 177, 187, 198, 210, 223, 236, 250, 264, 280, 297, 314,
                             333, 352, 373, 395, 419, 443, 470, 497, 527, 558, 591, 626, 663, 702, 744,
                         });
-            fftService.Setup(service => service.FFTForward(samples.Samples, It.IsAny<int>(), configuration.WdftSize, It.IsAny<float[]>()))
-                .Returns(TestUtilities.GenerateRandomFloatArray(2048));
+            fftService.Setup(service => service.FFTForwardInPlace(It.IsAny<float[]>())).Verifiable();
         }
 
-        private float[][] GetLogSpectrum(int logSpectrumLength)
+        private float[] GetLogSpectrum(int logSpectrumLength)
         {
-            var logSpectrum = new float[logSpectrumLength][];
-            for (int i = 0; i < logSpectrumLength; i++)
-            {
-                logSpectrum[i] = new float[32];
-            }
-
-            return logSpectrum;
+            return new float[logSpectrumLength * 32];
         }
     }
 }

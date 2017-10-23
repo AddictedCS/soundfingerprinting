@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Wavelets
 {
     using System;
-    using System.Linq;
 
     using NUnit.Framework;
 
@@ -24,40 +23,31 @@
             const int Rows = 128;
             const int Cols = 32;
             float[][] frames = new float[Rows][];
-            float[][] framesLocal = new float[Rows][];
+            float[] concatenated = new float[Rows * Cols];
             for (int i = 0; i < Rows; i++)
             {
-                frames[i] = TestUtilities.GenerateRandomDoubleArray(Cols);
-                framesLocal[i] = new float[Cols];
-                frames[i].CopyTo(framesLocal[i], 0);
+                frames[i] = TestUtilities.GenerateRandomSingleArray(Cols);
+                Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * Cols, sizeof(float) * Cols);
             }
 
-            for (int i = 0; i < Rows; i++)
-            {
-                for (int j = 0; j < Cols; j++)
-                {
-                    Assert.AreEqual(frames[i][j], framesLocal[i][j], 0.00001);
-                }
-            }
-
-            waveletDecomposition.DecomposeImageInPlace(frames, Math.Sqrt(2));
-            DecomposeImageLocal(framesLocal, Math.Sqrt(2));
-
-            for (int i = 0; i < Rows; i++)
-            {
-                for (var j = 0; j < Cols; j++)
-                {
-                    Assert.AreEqual(frames[i][j], framesLocal[i][j], 0.5);
-                }
-            }
-
-
-            double sumFrames = frames.Sum(target => target.Sum(d => Math.Abs(d)));
-            double sumFrameLocal = framesLocal.Sum(target => target.Sum(d => Math.Abs(d)));
-            Assert.AreEqual(sumFrames, sumFrameLocal, 5);
+            AssertAreSame(Rows, Cols, frames, concatenated);
+            waveletDecomposition.DecomposeImageInPlace(concatenated, Rows, Cols, 1d);
+            DecomposeImageLocal(frames, 1d);
+            AssertAreSame(Rows, Cols, frames, concatenated);
         }
 
-        private void DecomposeArrayLocal(float[] array, double waveletNorm)
+        private void AssertAreSame(int rows, int cols, float[][] frames, float[] concatenated)
+        {
+            for (int i = 0; i < rows; i++)
+            {
+                for (var j = 0; j < cols; j++)
+                {
+                    Assert.AreEqual(frames[i][j], concatenated[(i * cols) + j], 0.5);
+                }
+            }
+        }
+
+        private void DecomposeArray(float[] array)
         {
             int h = array.Length;
             float[] temp = new float[h];
@@ -66,14 +56,11 @@
                 h /= 2;
                 for (int i = 0; i < h; i++)
                 {
-                    temp[i] = (float)((array[2 * i] + array[(2 * i) + 1]) / waveletNorm);
-                    temp[h + i] = (float)((array[2 * i] - array[(2 * i) + 1]) / waveletNorm); 
+                    temp[i] = array[2 * i] + array[(2 * i) + 1];
+                    temp[h + i] = array[2 * i] - array[(2 * i) + 1];
                 }
 
-                for (int i = 0; i < 2 * h; i++)
-                {
-                    array[i] = temp[i];
-                }
+                Buffer.BlockCopy(temp, 0, array, 0, sizeof(float) * (h * 2));
             }
         }
 
@@ -83,18 +70,18 @@
             int cols = array[0].Length;
             for (int i = 0; i < rows; i++)
             {
-                DecomposeArrayLocal(array[i], waveletNorm);
+                DecomposeArray(array[i]);
             }
 
             for (int i = 0; i < cols; i++)
             {
-                float[] temp = new float[rows]; // each column has the size of
+                float[] temp = new float[rows];
                 for (int j = 0; j < rows; j++)
                 {
                     temp[j] = array[j][i];
                 }
 
-                DecomposeArrayLocal(temp, waveletNorm);
+                DecomposeArray(temp);
                 for (int j = 0; j < rows; j++)
                 {
                     array[j][i] = temp[j];

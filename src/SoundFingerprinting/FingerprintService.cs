@@ -51,24 +51,28 @@ namespace SoundFingerprinting
         private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
-            Parallel.ForEach(spectralImages, spectralImage => 
-            {
-                waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, configuration.HaarWaveletNorm);
-                bool[] image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets);
-                if (!IsSilence(image))
+            var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
+
+            Parallel.ForEach(
+                spectralImages, 
+                () => new ushort[spectrumLength],
+                (spectralImage, loop, cachedIndexes) =>
                 {
-                    fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
-                }
-            });
+                    waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols, configuration.HaarWaveletNorm);
+                    RangeUtils.PopulateIndexes(spectrumLength, cachedIndexes);
+                    var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
+                    if (!image.IsSilence())
+                    {
+                        fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
+                    }
+
+                    return cachedIndexes;
+                }, 
+                cachedIndexes => { });
 
             return fingerprints.ToList();
         }
 
-        private bool IsSilence(IEnumerable<bool> image)
-        {
-            return image.All(b => b == false);
-        }
- 
         private void NormalizeAudioIfNecessary(AudioSamples samples, FingerprintConfiguration configuration)
         {
             if (configuration.NormalizeSignal)

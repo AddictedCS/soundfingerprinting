@@ -17,7 +17,7 @@
         private readonly IRAMStorage storage;
         private readonly IHashConverter hashConverter;
 
-        public SubFingerprintDao(): this(DependencyResolver.Current.Get<IRAMStorage>(), DependencyResolver.Current.Get<IHashConverter>())
+        public SubFingerprintDao(IRAMStorage ramStorage): this(ramStorage, DependencyResolver.Current.Get<IHashConverter>())
         {
         }
 
@@ -86,14 +86,14 @@
 
         private Dictionary<ulong, int> CountSubFingerprintMatches(long[] hashes)
         {
-            var perTableResults = new List<ulong>[hashes.Length];
+            var results = new List<ulong>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
             {
                 var hashBin = hashes[table];
-                perTableResults[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
+                results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
             }
 
-            return SubFingerprintGroupingCounter.GroupByAndCount(perTableResults);
+            return SubFingerprintGroupingCounter.GroupByAndCount(results);
         }
     }
 }

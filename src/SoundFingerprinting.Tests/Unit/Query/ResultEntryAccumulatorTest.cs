@@ -50,7 +50,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             for (int i = 0; i < totalCount; ++i)
             {
                 int trackId = i % tracksCount;
-                var subFingerprint = new SubFingerprintData(new long[25], i, i * 1.48f, new ModelReference<ulong>((ulong)i), new ModelReference<int>(trackId));
+                var subFingerprint = new SubFingerprintData(new long[25], (uint)i, i * 1.48f, new ModelReference<ulong>((ulong)i), new ModelReference<int>(trackId));
                 subFingerprints.Add(subFingerprint);
             }
 

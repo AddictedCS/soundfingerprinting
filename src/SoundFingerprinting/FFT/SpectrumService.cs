@@ -55,26 +55,34 @@
             return frames;
         }
 
-        public List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples,  SpectrogramConfig configuration)
+        public List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration)
         {
-            int width = (audioSamples.Samples.Length - configuration.WdftSize) / configuration.Overlap;
+            int wdftSize = configuration.WdftSize;
+            int width = (audioSamples.Samples.Length - wdftSize) / configuration.Overlap;
             if (width < 1)
             {
                 return new List<SpectralImage>();
             }
 
-            float[][] frames = new float[width][];
-            int[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
-            float[] window = configuration.Window.GetWindow(configuration.WdftSize);
-            Parallel.For(0, width, i => {
-                float[] complexSignal = fftService.FFTForward(audioSamples.Samples, i * configuration.Overlap, configuration.WdftSize, window);
-                frames[i] = ExtractLogBins(complexSignal, logFrequenciesIndexes, configuration.LogBins, configuration.WdftSize);
-            });
+            float[] frames = new float[width * configuration.LogBins];
+            ushort[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
+            float[] window = configuration.Window.GetWindow(wdftSize);
+            float[] samples = audioSamples.Samples;
+            Parallel.For(0, width, 
+                () => new float[wdftSize],
+                (index, loop, fftArray) =>
+                {
+                    CopyAndWindow(fftArray, samples, index * configuration.Overlap, window);
+                    fftService.FFTForwardInPlace(fftArray);
+                    ExtractLogBins(fftArray, logFrequenciesIndexes, configuration.LogBins, wdftSize, frames, index);
+                    return fftArray;
+                },
+                fftArray => { });
 
             return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
         }
 
-        public List<SpectralImage> CutLogarithmizedSpectrum(float[][] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
+        public List<SpectralImage> CutLogarithmizedSpectrum(float[] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
         {
             var strideBetweenConsecutiveImages = configuration.Stride;
             int overlap = configuration.Overlap;
@@ -82,19 +90,16 @@
             int numberOfLogBins = configuration.LogBins;
             var spectralImages = new List<SpectralImage>();
 
-            int width = logarithmizedSpectrum.GetLength(0);
-            int fingerprintImageLength = configuration.ImageLength;
-            int sequenceNumber = 0;
+            int width = logarithmizedSpectrum.Length / numberOfLogBins;
+            ushort fingerprintImageLength = configuration.ImageLength;
+            int fullLength = configuration.ImageLength * numberOfLogBins;
+            uint sequenceNumber = 0;
             while (index + fingerprintImageLength <= width)
             {
-                float[][] spectralImage = AllocateMemoryForFingerprintImage(fingerprintImageLength, numberOfLogBins);
-                for (int i = 0; i < fingerprintImageLength; i++)
-                {
-                    Buffer.BlockCopy(logarithmizedSpectrum[index + i], 0, spectralImage[i], 0, numberOfLogBins * sizeof(float));
-                }
-
-                var startsAt = index * ((double)overlap / sampleRate);
-                spectralImages.Add(new SpectralImage(spectralImage, startsAt, sequenceNumber));
+                float[] spectralImage = new float[fingerprintImageLength * numberOfLogBins]; 
+                Buffer.BlockCopy(logarithmizedSpectrum, sizeof(float) * index * numberOfLogBins, spectralImage,  0, fullLength * sizeof(float));
+                float startsAt = index * ((float)overlap / sampleRate);
+                spectralImages.Add(new SpectralImage(spectralImage, fingerprintImageLength, (ushort)numberOfLogBins, startsAt, sequenceNumber));
                 index += fingerprintImageLength + GetFrequencyIndexLocationOfAudioSamples(strideBetweenConsecutiveImages.NextStride, overlap);
                 sequenceNumber++;
             }
@@ -102,10 +107,9 @@
             return spectralImages;
         }
 
-        public float[] ExtractLogBins(float[] spectrum, int[] logFrequenciesIndex, int logBins, int wdftSize)
+        public void ExtractLogBins(float[] spectrum, ushort[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
         {
             int width = wdftSize / 2; /* 1024 */
-            float[] sumFreq = new float[logBins]; /*32*/
             for (int i = 0; i < logBins; i++)
             {
                 int lowBound = logFrequenciesIndex[i];
@@ -115,13 +119,11 @@
                 {
                     double re = spectrum[2 * k] / width;
                     double img = spectrum[(2 * k) + 1] / width;
-                    sumFreq[i] += (float)((re * re) + (img * img));
+                    targetArray[(targetIndex * logBins) + i] += (float)((re * re) + (img * img));
                 }
 
-                sumFreq[i] = sumFreq[i] / (higherBound - lowBound);
+                targetArray[(targetIndex * logBins) + i] /= (higherBound - lowBound);
             }
-
-            return sumFreq;
         }
 
         private int GetFrequencyIndexLocationOfAudioSamples(int audioSamples, int overlap)
@@ -130,15 +132,12 @@
             return (int)((float)audioSamples / overlap);
         }
 
-        private float[][] AllocateMemoryForFingerprintImage(int fingerprintLength, int logBins)
+        private void CopyAndWindow(float[] fftArray, float[] samples, int prefix, float[] window)
         {
-            float[][] frames = new float[fingerprintLength][];
-            for (int i = 0; i < fingerprintLength; i++)
+            for (int j = 0; j < window.Length; ++j)
             {
-                frames[i] = new float[logBins];
+                fftArray[j] = samples[prefix + j] * window[j];
             }
-
-            return frames;
         }
     }
 }

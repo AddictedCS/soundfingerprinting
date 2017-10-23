@@ -94,7 +94,7 @@
 
                 for (int j = 0; j < x.Count; ++j)
                 {
-                    CollectionAssert.AreEqual(x[j].Signature, y[j].Signature);
+                    CollectionAssert.AreEqual(x[j].Signature.ToBools(), y[j].Signature.ToBools());
                 }
             }
         }

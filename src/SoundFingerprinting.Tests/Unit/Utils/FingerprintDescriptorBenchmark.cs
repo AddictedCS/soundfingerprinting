@@ -45,28 +45,24 @@
             return stopWatch.ElapsedMilliseconds;
         }
 
-        private void RunTest(IEnumerable<float[][]> pool, FingerprintDescriptor descriptor)
+        private void RunTest(IEnumerable<float[]> pool, FingerprintDescriptor descriptor)
         {
             const int TopWavelets = 200;
             foreach (var floats in pool)
             {
-                bool[] encoded = descriptor.ExtractTopWavelets(floats, TopWavelets);
+                descriptor.ExtractTopWavelets(floats, TopWavelets, RangeUtils.GetRange(floats.Length));
             }
         }
 
-        private IEnumerable<float[][]> GetPoolOfFingerprints(int count, int rows, int cols)
+        private IEnumerable<float[]> GetPoolOfFingerprints(int count, int rows, int cols)
         {
-            var pool = new List<float[][]>();
+            var pool = new List<float[]>();
             for (int i = 0; i < count; i++)
             {
-                float[][] fingerprint = new float[rows][];
-                for (int j = 0; j < rows; ++j)
+                float[] fingerprint = new float[rows * cols];
+                for (int j = 0; j < rows * cols; ++j)
                 {
-                    fingerprint[j] = new float[cols];
-                    for (int k = 0; k < cols; ++k)
-                    {
-                        fingerprint[j][k] = (float)random.NextDouble();
-                    }
+                    fingerprint[j] = (float)random.NextDouble();
                 }
 
                 pool.Add(fingerprint);

@@ -7,55 +7,19 @@ namespace SoundFingerprinting.Configuration
 
     internal abstract class SpectrogramConfig
     {
-        private int overlap;
-        private int wdftSize;
         private FrequencyRange frequencyRange;
         private double logBase;
-        private int logBins;
-        private int imageLength;
 
         /// <summary>
         ///   Gets or sets overlap between the consecutively computed spectrum images 
         /// </summary>
         /// <remarks>64 at 5512 sample rate is aproximatelly 11.6ms</remarks>
-        public int Overlap
-        {
-            get
-            {
-                return overlap;
-            }
-
-            set
-            {
-                if (value <= 0)
-                {
-                    throw new ArgumentException("Overlap can't be negative", "value");
-                }
-
-                overlap = value;
-            }
-        }
+        public ushort Overlap { get; set; }
 
         /// <summary>
         ///   Gets or sets size of the WDFT block, 371 ms
         /// </summary>
-        public int WdftSize
-        {
-            get
-            {
-                return wdftSize;
-            }
-
-            set
-            {
-                if (value <= 0)
-                {
-                    throw new ArgumentException("WdftSize can't be negative", "value");
-                }
-
-                wdftSize = value;
-            }
-        }
+        public ushort WdftSize { get; set; }
 
         /// <summary>
         ///  Gets or sets the frequency range to be taken into account 
@@ -112,44 +76,12 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets number of logarithmically spaced bins between the frequency components computed by Fast Fourier Transform.
         /// </summary>
-        public int LogBins
-        {
-            get
-            {
-                return logBins;
-            }
-
-            set
-            {
-                if (value <= 0)
-                {
-                    throw new ArgumentException("LogBins can't be negative or equal to 0", "value");
-                }
-
-                logBins = value;
-            }
-        }
+        public byte LogBins { get; set; }
 
         /// <summary>
         ///   Gets or sets signature's length
         /// </summary>
-        public int ImageLength
-        {
-            get
-            {
-                return imageLength;
-            }
-
-            set
-            {
-                if (value <= 0)
-                {
-                    throw new ArgumentException("ImageLength can't be negative or equal to 0", "value");
-                }
-
-                imageLength = value;
-            }
-        }
+        public ushort ImageLength { get; set; }
 
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static

@@ -80,19 +80,7 @@
             var spectrumService = new SpectrumService();
 
             var spectrums = spectrumService.CreateLogSpectrogram(GetAudioSamples(), new DefaultSpectrogramConfig())
-                .Select(spectrum =>
-                {
-                    float[] fullLength = new float[spectrum.Image.Length * spectrum.Image[0].Length];
-                    for (int index = 0; index < spectrum.Image.Length; ++index)
-                    {
-                        Buffer.BlockCopy(spectrum.Image[index], 0,
-                            fullLength,
-                            index * spectrum.Image[index].Length * sizeof(float),
-                            spectrum.Image[index].Length * sizeof(float));
-                    }
-
-                    return fullLength;
-                })
+                .Select(spectrum => spectrum.Image)
                 .ToList();
 
             var modelService = new InMemoryModelService();

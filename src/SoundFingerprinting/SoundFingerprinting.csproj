@@ -132,14 +132,19 @@
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
     <Compile Include="FFT\IFFTService.cs" />
+    <Compile Include="Utils\IFingerprintEncoder.cs" />
+    <Compile Include="Utils\TinyFingerprintSchema.cs" />
     <Compile Include="Utils\FastFingerprintDescriptor.cs" />
     <Compile Include="Utils\FingerprintDescriptor.cs" />
     <Compile Include="IFingerprintService.cs" />
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
+    <Compile Include="Utils\FingerprintEncoder.cs" />
+    <Compile Include="Utils\IEncodedFingerprintSchema.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
     <Compile Include="Utils\ITestRunnerUtils.cs" />
     <Compile Include="Utils\QuickSelectAlgorithm.cs" />
+    <Compile Include="Utils\RangeUtils.cs" />
     <Compile Include="Utils\SubFingerprintGroupingCounter.cs" />
     <Compile Include="Utils\TestRunner.cs" />
     <Compile Include="Utils\TestRunnerConfig.cs" />
@@ -149,7 +154,6 @@
     <Compile Include="Utils\TestRunnerUtils.cs" />
     <Compile Include="Utils\TestRunnerWriter.cs" />
     <Compile Include="Utils\TestScenariousValidationResult.cs" />
-    <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />
     <Compile Include="FFT\SpectrumService.cs" />
     <Compile Include="Command\FingerprintCommand.cs" />

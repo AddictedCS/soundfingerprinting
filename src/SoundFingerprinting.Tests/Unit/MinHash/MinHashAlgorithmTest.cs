@@ -11,6 +11,7 @@
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
+    using SoundFingerprinting.Utils;
 
     [TestFixture]
     public class MinHashAlgorithmTest
@@ -29,10 +30,10 @@
             for (int i = 0; i < simulationRuns; ++i)
             {
                 var arrays = this.GenerateVectors(howSimilarAreVectors, topWavelets, vectorLength);
-                Assert.AreEqual(topWavelets, this.CountTrues(arrays.Item1));
-                Assert.AreEqual(topWavelets, this.CountTrues(arrays.Item2));
-                aggreeOn += this.AgreeOn(arrays.Item1, arrays.Item2);
-                similarity += similarityUtility.CalculateJaccardSimilarity(arrays.Item1, arrays.Item2);
+                Assert.AreEqual(topWavelets, arrays.Item1.TrueCounts());
+                Assert.AreEqual(topWavelets, arrays.Item2.TrueCounts());
+                aggreeOn += arrays.Item1.AgreeOn(arrays.Item2);
+                similarity += similarityUtility.CalculateJaccardSimilarity(arrays.Item1.ToBools(), arrays.Item2.ToBools());
             }
 
             double averageSimilarityOnTrueBits = (double)aggreeOn / simulationRuns;
@@ -119,22 +120,12 @@
             return x.Where((t, i) => t == y[i]).Count();
         }
 
-        private int AgreeOn(bool[] x, bool[] y)
-        {
-            return x.Where((t, i) => t && y[i]).Count();
-        }
-
-        private int CountTrues(bool[] array)
-        {
-            return array.Count(t => t);
-        }
-
-        private Tuple<bool[], bool[]> GenerateVectors(double similarityIndex, int topWavelets, int length)
+        private Tuple<TinyFingerprintSchema, TinyFingerprintSchema> GenerateVectors(double similarityIndex, int topWavelets, int length)
         {
             var random = new Random();
 
-            bool[] first = new bool[length];
-            bool[] second = new bool[length];
+            var first = new TinyFingerprintSchema(length);
+            var second = new TinyFingerprintSchema(length);
             var unique = new HashSet<int>();
             for (int i = 0; i < topWavelets; ++i)
             {
@@ -162,27 +153,27 @@
             return Tuple.Create(first, second);
         }
 
-        private void Agree(float value, bool[] first, int index, bool[] second)
+        private void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
         {
             this.EncodeWavelet(value, first, index);
             this.EncodeWavelet(value, second, index);
         }
 
-        private void Disagree(float value, bool[] first, int index, bool[] second)
+        private void Disagree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
         {
             this.EncodeWavelet(value, first, index);
             this.EncodeWavelet(-1 * value, second, index);
         }
 
-        private void EncodeWavelet(float value, bool[] array, int index)
+        private void EncodeWavelet(float value, TinyFingerprintSchema array, int index)
         {
             if (value > 0)
             {
-                array[index * 2] = true;
+                array.SetTrueAt(index * 2);
             }
             else if (value < 0)
             {
-                array[(index * 2) + 1] = true;
+                array.SetTrueAt((index * 2) + 1);
             }
         }
     }

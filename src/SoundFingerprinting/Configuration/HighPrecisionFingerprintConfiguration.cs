@@ -6,7 +6,7 @@
     {
         public HighPrecisionFingerprintConfiguration()
         {
-            Stride = new IncrementalStaticStride(512);
+            Stride = new IncrementalStaticStride(1024);
         }
     }
 }

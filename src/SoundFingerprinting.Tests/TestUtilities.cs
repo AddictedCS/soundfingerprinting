@@ -24,7 +24,7 @@ namespace SoundFingerprinting.Tests
             return result;
         }
 
-        public static float[] GenerateRandomDoubleArray(int length)
+        public static float[] GenerateRandomSingleArray(int length)
         {
             float[] d = new float[length];
             for (int i = 0; i < length; i++)
