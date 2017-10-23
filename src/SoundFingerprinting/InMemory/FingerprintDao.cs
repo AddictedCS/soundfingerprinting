@@ -6,19 +6,12 @@
 
     using DAO;
     using DAO.Data;
-    using Infrastructure;
 
     internal class FingerprintDao : IFingerprintDao
     {
         private static int counter;
 
         private readonly IRAMStorage storage;
-
-        public FingerprintDao()
-            : this(DependencyResolver.Current.Get<IRAMStorage>())
-        {
-            // no op   
-        }
 
         public FingerprintDao(IRAMStorage storage)
         {

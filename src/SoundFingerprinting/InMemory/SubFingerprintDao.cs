@@ -17,7 +17,7 @@
         private readonly IRAMStorage storage;
         private readonly IHashConverter hashConverter;
 
-        public SubFingerprintDao(): this(DependencyResolver.Current.Get<IRAMStorage>(), DependencyResolver.Current.Get<IHashConverter>())
+        public SubFingerprintDao(IRAMStorage ramStorage): this(ramStorage, DependencyResolver.Current.Get<IHashConverter>())
         {
         }
 

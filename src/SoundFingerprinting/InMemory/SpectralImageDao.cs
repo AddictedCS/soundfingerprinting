@@ -10,11 +10,7 @@
     {
         private readonly IRAMStorage ramStorage;
 
-        public SpectralImageDao() : this(DependencyResolver.Current.Get<IRAMStorage>())
-        {
-        }
-
-        internal SpectralImageDao(IRAMStorage ramStorage)
+        public SpectralImageDao(IRAMStorage ramStorage)
         {
             this.ramStorage = ramStorage;
         }

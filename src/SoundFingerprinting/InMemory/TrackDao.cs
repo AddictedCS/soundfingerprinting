@@ -5,17 +5,10 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Infrastructure;
 
     internal class TrackDao : ITrackDao
     {
         private readonly IRAMStorage storage;
-
-        public TrackDao()
-            : this(DependencyResolver.Current.Get<IRAMStorage>())
-        {
-            // no op   
-        }
 
         public TrackDao(IRAMStorage storage)
         {
