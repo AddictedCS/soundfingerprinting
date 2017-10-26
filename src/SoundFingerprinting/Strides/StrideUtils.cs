@@ -11,7 +11,7 @@
                 case "Static":
                     return new StaticStride(max);
                 case "Random":
-                    return new RandomStride(min, max);
+                    return new RandomStride(min, max, 0);
                 case "IncrementalStatic":
                     return new IncrementalStaticStride(max);
                 case "IncrementalRandom":
