@@ -22,24 +22,25 @@
         [Test]
         public void ShouldCreateExactlyTheSameFingerprints()
         {
-            var fcb0 =
-                new FingerprintCommandBuilder(
-                    new FingerprintService(
-                        new SpectrumService(new LomontFFT()),
-                        new StandardHaarWaveletDecomposition(),
-                        new FingerprintDescriptor(),
-                        new AudioSamplesNormalizer()),
+            var fcb0 = new FingerprintCommandBuilder(
+                new FingerprintService(
+                    new SpectrumService(new LomontFFT()),
                     new LocalitySensitiveHashingAlgorithm(
-                        new MinHashService(new DefaultPermutations()), new HashConverter()));
+                        new MinHashService(new DefaultPermutations()),
+                        new HashConverter()),
+                    new StandardHaarWaveletDecomposition(),
+                    new FingerprintDescriptor(),
+                    new AudioSamplesNormalizer()));
 
             var fcb1 = new FingerprintCommandBuilder(
-                    new FingerprintService(
-                        new SpectrumService(new LomontFFT()),
-                        new StandardHaarWaveletDecomposition(),
-                        new FastFingerprintDescriptor(),
-                        new AudioSamplesNormalizer()),
+                new FingerprintService(
+                    new SpectrumService(new LomontFFT()),
                     new LocalitySensitiveHashingAlgorithm(
-                        new MinHashService(new DefaultPermutations()), new HashConverter()));
+                        new MinHashService(new DefaultPermutations()),
+                        new HashConverter()),
+                    new StandardHaarWaveletDecomposition(),
+                    new FastFingerprintDescriptor(),
+                    new AudioSamplesNormalizer()));
 
             var audioService = new NAudioService();
             var audioSamples = GetAudioSamples();
@@ -76,12 +77,16 @@
 
             var fingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT()),
+                new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()), new HashConverter()), 
                 new StandardHaarWaveletDecomposition(),
                 new FingerprintDescriptor(),
                 new AudioSamplesNormalizer());
 
             var fastFingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT()),
+                new LocalitySensitiveHashingAlgorithm(
+                    new MinHashService(new DefaultPermutations()),
+                    new HashConverter()),
                 new StandardHaarWaveletDecomposition(),
                 new FastFingerprintDescriptor(),
                 new AudioSamplesNormalizer());
@@ -94,7 +99,7 @@
 
                 for (int j = 0; j < x.Count; ++j)
                 {
-                    CollectionAssert.AreEqual(x[j].Signature.ToBools(), y[j].Signature.ToBools());
+                    CollectionAssert.AreEqual(x[j].HashBins, y[j].HashBins);
                 }
             }
         }

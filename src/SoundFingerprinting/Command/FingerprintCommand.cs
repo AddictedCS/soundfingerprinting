@@ -1,39 +1,32 @@
 namespace SoundFingerprinting.Command
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.LSH;
 
     public sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
     {
-        private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
         private readonly IFingerprintService fingerprintService;
 
-        private Func<List<Fingerprint>> createFingerprintsMethod;
+        private Func<List<HashedFingerprint>> createFingerprintsMethod;
 
         private IAudioService audioService;
 
-        internal FingerprintCommand(IFingerprintService fingerprintService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
+        internal FingerprintCommand(IFingerprintService fingerprintService)
         {
             this.fingerprintService = fingerprintService;
-            this.lshAlgorithm = lshAlgorithm;
             FingerprintConfiguration = new DefaultFingerprintConfiguration();
         }
 
         public FingerprintConfiguration FingerprintConfiguration { get; private set; }
 
-                public Task<List<HashedFingerprint>> Hash()
+        public Task<List<HashedFingerprint>> Hash()
         {
-            return Task.Factory
-                .StartNew(createFingerprintsMethod)
-                .ContinueWith(fingerprintsResult => HashFingerprints(fingerprintsResult.Result), TaskContinuationOptions.ExecuteSynchronously);
+            return Task.Factory.StartNew(createFingerprintsMethod);
         }
 
         public IWithFingerprintConfiguration From(string pathToAudioFile)
@@ -80,28 +73,6 @@ namespace SoundFingerprinting.Command
         {
             audioService = audioServiceToUse;
             return this;
-        }
-
-        internal Task<List<Fingerprint>> Fingerprint()
-        {
-            return Task.Factory.StartNew(createFingerprintsMethod);
-        }
-
-        private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints)
-        {
-            var hashedFingerprints = new ConcurrentBag<HashedFingerprint>();
-            Parallel.ForEach(fingerprints,
-                (fingerprint, state, index) =>
-                    {
-                        var hashedFingerprint = lshAlgorithm.Hash(
-                            fingerprint,
-                            FingerprintConfiguration.HashingConfig.NumberOfLSHTables,
-                            FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable,
-                            FingerprintConfiguration.Clusters);
-                        hashedFingerprints.Add(hashedFingerprint);
-                    });
-
-            return hashedFingerprints.ToList();
         }
     }
 }

@@ -2,29 +2,23 @@ namespace SoundFingerprinting.Builder
 {
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.LSH;
 
     public class FingerprintCommandBuilder : IFingerprintCommandBuilder
     {
         private readonly IFingerprintService fingerprintService;
-        private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
 
-        public FingerprintCommandBuilder()
-            : this(
-                DependencyResolver.Current.Get<IFingerprintService>(),
-                DependencyResolver.Current.Get<ILocalitySensitiveHashingAlgorithm>())
+        public FingerprintCommandBuilder() : this(DependencyResolver.Current.Get<IFingerprintService>())
         {
         }
 
-        internal FingerprintCommandBuilder(IFingerprintService fingerprintService, ILocalitySensitiveHashingAlgorithm lshAlgorithm)
+        internal FingerprintCommandBuilder(IFingerprintService fingerprintService)
         {
             this.fingerprintService = fingerprintService;
-            this.lshAlgorithm = lshAlgorithm;
         }
 
         public ISourceFrom BuildFingerprintCommand()
         {
-            return new FingerprintCommand(fingerprintService, lshAlgorithm);
+            return new FingerprintCommand(fingerprintService);
         }
     }
 }
