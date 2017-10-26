@@ -76,15 +76,15 @@
                 hammingSimilarities, 4);
 
             Assert.AreEqual(2, hammingSimilarities.Count);
-            Assert.AreEqual(49, hammingSimilarities[new ModelReference<int>(1)].HammingSimilaritySum);
-            Assert.AreEqual(100, hammingSimilarities[new ModelReference<int>(2)].HammingSimilaritySum);
+            Assert.AreEqual(99, hammingSimilarities[new ModelReference<int>(1)].HammingSimilaritySum);
+            Assert.AreEqual(200, hammingSimilarities[new ModelReference<int>(2)].HammingSimilaritySum);
         }
 
         [Test]
         public void CalculateHammingDistanceCorrect()
         {
-            byte[] first = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            byte[] second = new byte[] { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
+            byte[] first = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            byte[] second = { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
 
             var result = similarityUtility.CalculateHammingDistance(first, second);
 
@@ -94,8 +94,8 @@
         [Test]
         public void CalculateHammingSimilarityCorrect()
         {
-            byte[] first = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            byte[] second = new byte[] { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
+            byte[] first = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            byte[] second = { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
 
             var result = similarityUtility.CalculateHammingSimilarity(first, second);
 
@@ -119,11 +119,12 @@
             const int CandidatesCount = 5;
             var trackReference = new ModelReference<int>(0);
             var subFingerprints = GetSubFingerprintsForTrack(trackReference, CandidatesCount);
-            var acumulator = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>(); 
+            var acumulator = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
+            var keysPerHash = 4;
 
-            similarityUtility.AccumulateHammingSimilarity(subFingerprints, new HashedFingerprint(GenericHashBuckets(), 1, 0f, Enumerable.Empty<string>()), acumulator, 4);
+            similarityUtility.AccumulateHammingSimilarity(subFingerprints, new HashedFingerprint(GenericHashBuckets(), 1, 0f, Enumerable.Empty<string>()), acumulator, keysPerHash);
 
-            int expectedHammingSimilaritySum = (GenericSignature().Length * CandidatesCount) - CandidatesCount + 1;
+            int expectedHammingSimilaritySum = (keysPerHash * GenericHashBuckets().Length * CandidatesCount) - CandidatesCount + 1;
             Assert.AreEqual(expectedHammingSimilaritySum, acumulator[trackReference].HammingSimilaritySum);
             Assert.AreEqual(CandidatesCount, acumulator[trackReference].BestMatch.SubFingerprint.SubFingerprintReference.Id);
         }
@@ -142,6 +143,7 @@
 
             var allSubs = subFingerprints0.Concat(subFingerprints1).Concat(subFingerprints2);
             var acumulator = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
+            var keysPerHash = 4;
 
             Parallel.ForEach(
                 allSubs,
@@ -150,9 +152,9 @@
                 similarityUtility.AccumulateHammingSimilarity(
                     new List<SubFingerprintData> { sub },
                     new HashedFingerprint(GenericHashBuckets(), 1, 0, Enumerable.Empty<string>()),
-                    acumulator, 4));
+                    acumulator, keysPerHash));
 
-            int expectedHammingSimilarity = (GenericSignature().Length * CandidatesCount) - CandidatesCount + 1;
+            int expectedHammingSimilarity = (keysPerHash * GenericHashBuckets().Length * CandidatesCount) - CandidatesCount + 1;
             Assert.AreEqual(expectedHammingSimilarity, acumulator[trackReference0].HammingSimilaritySum);
             Assert.AreEqual(expectedHammingSimilarity, acumulator[trackReference1].HammingSimilaritySum);
             Assert.AreEqual(expectedHammingSimilarity, acumulator[trackReference2].HammingSimilaritySum);
@@ -191,8 +193,12 @@
             const double OneFingerprintLength = 0.256;
             for (uint i = 0; i < candidatesCount - 1; ++i)
             {
-                var sub = new SubFingerprintData(GenericHashBuckets(), i, (float)(OneFingerprintLength * i), new ModelReference<int>((int)i), trackReference);
-                sub.Hashes[0] = 0;
+                var sub = new SubFingerprintData(
+                              GenericHashBuckets(),
+                              i,
+                              (float)(OneFingerprintLength * i),
+                              new ModelReference<int>((int)i),
+                              trackReference) { Hashes = { [0] = 0 } };
                 subFingerprints.Add(sub);
             }
 
