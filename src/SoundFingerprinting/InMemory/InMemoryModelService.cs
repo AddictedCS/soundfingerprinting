@@ -1,8 +1,6 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Math;
 
     public class InMemoryModelService : AdvancedModelService
     {
@@ -20,7 +18,7 @@
         internal InMemoryModelService(IRAMStorage ramStorage)
             : this(
                 new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage, DependencyResolver.Current.Get<IHashConverter>()),
+                new SubFingerprintDao(ramStorage),
                 new FingerprintDao(ramStorage),
                 new SpectralImageDao(ramStorage),
                 ramStorage)

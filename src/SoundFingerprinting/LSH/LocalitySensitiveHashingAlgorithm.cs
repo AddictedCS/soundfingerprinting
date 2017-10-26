@@ -27,7 +27,6 @@
         {
             byte[] subFingerprint = minHashService.Hash(fingerprint.Signature, numberOfHashTables * numberOfHashKeysPerTable);
             return new HashedFingerprint(
-                subFingerprint,
                 GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable),
                 fingerprint.SequenceNumber,
                 fingerprint.StartsAt,

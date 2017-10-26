@@ -23,9 +23,9 @@
         {
             var hashedFingerprints = new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(null, null, 1, 3, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 0, 1, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 3, 9.142235f, Enumerable.Empty<string>())
+                    new HashedFingerprint(null, 1, 3, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, 0, 1, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, 3, 9.142235f, Enumerable.Empty<string>())
                 };
 
             double snippetLength = queryMath.CalculateExactQueryLength(hashedFingerprints, new DefaultFingerprintConfiguration());
@@ -45,9 +45,9 @@
 
             var query = new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(null, null, 1, 0, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 1, 4, Enumerable.Empty<string>()),
-                    new HashedFingerprint(null, null, 1, 8, Enumerable.Empty<string>())
+                    new HashedFingerprint(null, 1, 0, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, 1, 4, Enumerable.Empty<string>()),
+                    new HashedFingerprint(null, 1, 8, Enumerable.Empty<string>())
                 };
 
             var first = new ResultEntryAccumulator(query[0], new SubFingerprintData(null, 1, 0, null, null), 100);
@@ -78,7 +78,7 @@
         public void ShouldFilterExactMatches0()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new HashedFingerprint(new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
                 new SubFingerprintData(new long[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
                 3);
 
@@ -89,7 +89,7 @@
         public void ShouldFilterExactMatches1()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(null, new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new HashedFingerprint(new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
                 new SubFingerprintData(new long[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
                 3);
 

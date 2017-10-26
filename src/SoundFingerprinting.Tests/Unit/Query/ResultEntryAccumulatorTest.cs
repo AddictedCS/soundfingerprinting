@@ -27,7 +27,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var countPerTrack = 10;
             var tracksCount = totalCount / countPerTrack;
             var subFingerprints = GetSubFingerprints(totalCount, countPerTrack);
-            var queryFingerprint = new HashedFingerprint(new byte[100], new long[25], 0,0, Enumerable.Empty<string>());
+            var queryFingerprint = new HashedFingerprint(new long[25], 0,0, Enumerable.Empty<string>());
 
             Parallel.ForEach(subFingerprints, subFingerprint => { 
                 var toCompare = new List<SubFingerprintData>(new[] { subFingerprint });

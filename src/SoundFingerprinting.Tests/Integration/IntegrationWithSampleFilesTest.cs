@@ -20,14 +20,13 @@
             Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);
          
             // hashes are not ordered as parallel computation is involved
-            firstHashDatas = this.SortHashesBySequenceNumber(firstHashDatas);
-            secondHashDatas = this.SortHashesBySequenceNumber(secondHashDatas);
+            firstHashDatas = SortHashesBySequenceNumber(firstHashDatas);
+            secondHashDatas = SortHashesBySequenceNumber(secondHashDatas);
 
             for (int i = 0; i < firstHashDatas.Count; i++)
             {
                 Assert.AreEqual(firstHashDatas[i].SequenceNumber, secondHashDatas[i].SequenceNumber);
                 Assert.AreEqual(firstHashDatas[i].StartsAt, secondHashDatas[i].StartsAt, Epsilon);
-                CollectionAssert.AreEqual(firstHashDatas[i].SubFingerprint, secondHashDatas[i].SubFingerprint, "Values don't match at index: " + i + ", SequenceNumber: " + secondHashDatas[i].SequenceNumber);
                 CollectionAssert.AreEqual(firstHashDatas[i].HashBins, secondHashDatas[i].HashBins);
             }
         }

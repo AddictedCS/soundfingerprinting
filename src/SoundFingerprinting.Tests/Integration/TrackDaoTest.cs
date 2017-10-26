@@ -13,7 +13,6 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.Strides;
 
     [TestFixture]
@@ -29,7 +28,7 @@
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
             trackDao = new TrackDao(ramStorage);
-            subFingerprintDao = new SubFingerprintDao(ramStorage, new HashConverter());
+            subFingerprintDao = new SubFingerprintDao((IRAMStorage)ramStorage);
         }
 
         [Test]

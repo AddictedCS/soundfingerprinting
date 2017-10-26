@@ -8,23 +8,15 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.Utils;
 
     internal class SubFingerprintDao : ISubFingerprintDao
     {
         private readonly IRAMStorage storage;
-        private readonly IHashConverter hashConverter;
 
-        public SubFingerprintDao(IRAMStorage ramStorage): this(ramStorage, DependencyResolver.Current.Get<IHashConverter>())
-        {
-        }
-
-        public SubFingerprintDao(IRAMStorage storage, IHashConverter hashConverter)
+        public SubFingerprintDao(IRAMStorage storage)
         {
             this.storage = storage;
-            this.hashConverter = hashConverter;
         }
 
         public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
@@ -39,17 +31,12 @@
         {
             var subFingerprints = storage.ReadSubFingerprintByTrackReference(trackReference);
 
-            return subFingerprints.Select(
-                data =>
-                {
-                    var byteArray = hashConverter.ToBytes(data.Hashes, 100);
-                    return new HashedFingerprint(
-                        byteArray,
-                        data.Hashes,
-                        data.SequenceNumber,
-                        data.SequenceAt,
-                        data.Clusters);
-                }).ToList();
+            return subFingerprints.Select(data => new HashedFingerprint(
+                    data.Hashes,
+                    data.SequenceNumber,
+                    data.SequenceAt,
+                    data.Clusters))
+                .ToList();
         }
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprints(long[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
@@ -70,8 +57,7 @@
         public ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, int threshold, IEnumerable<string> assignedClusters)
         {
             var allCandidates = new ConcurrentDictionary<SubFingerprintData, byte>();
-            Parallel.ForEach(
-                hashes,
+            Parallel.ForEach(hashes,
                 hashedFingerprint =>
                     {
                         var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
