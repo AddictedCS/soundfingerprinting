@@ -27,7 +27,7 @@
         [ProtoMember(6)]
         private long spectralImagesCounter;
 
-        private IDictionary<ulong, SubFingerprintData> subFingerprints;
+        public IDictionary<ulong, SubFingerprintData> subFingerprints;
 
         public RAMStorage()
         {
@@ -45,7 +45,7 @@
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        private ConcurrentDictionary<long, List<ulong>>[] HashTables { get; set; }
+        public ConcurrentDictionary<long, List<ulong>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private IDictionary<ulong, SubFingerprintData> SubFingerprints
