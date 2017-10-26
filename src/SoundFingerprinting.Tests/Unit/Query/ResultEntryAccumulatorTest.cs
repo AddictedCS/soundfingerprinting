@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class ResultEntryAccumulatorTest
     {
-        private readonly ISimilarityUtility similarityUtility = new SimilarityUtility(new HashConverter());
+        private readonly ISimilarityUtility similarityUtility = new SimilarityUtility();
 
         [Test]
         public void ShouldCalculateSimilaritiesCorrectly()
@@ -31,7 +31,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             Parallel.ForEach(subFingerprints, subFingerprint => { 
                 var toCompare = new List<SubFingerprintData>(new[] { subFingerprint });
-                similarityUtility.AccumulateHammingSimilarity(toCompare, queryFingerprint, hammingSimilarities);
+                similarityUtility.AccumulateHammingSimilarity(toCompare, queryFingerprint, hammingSimilarities, 4);
             });
 
             Assert.AreEqual(tracksCount, hammingSimilarities.Count);

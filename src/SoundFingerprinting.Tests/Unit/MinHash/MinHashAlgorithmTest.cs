@@ -23,7 +23,7 @@
         {
             double howSimilarAreVectors = 0.4;
             int topWavelets = 200, vectorLength = 8192;
-            var similarityUtility = new SimilarityUtility(new HashConverter());
+            var similarityUtility = new SimilarityUtility();
 
             double similarity = 0;
             int simulationRuns = 20000, aggreeOn = 0;
