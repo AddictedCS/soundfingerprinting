@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.MinHash
 {
-    internal class NewDefaultPermutations : IPermutations
+    internal class RandomPermutations : IPermutations
     {
         private readonly int[][] permutations = new[]
             {
