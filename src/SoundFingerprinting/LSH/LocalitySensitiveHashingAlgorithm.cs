@@ -43,19 +43,6 @@
         /// <returns>Collection of Pairs with Key = Hash table index, Value = Hash bin</returns>
         protected virtual long[] GroupIntoHashTables(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable)
         {
-            // Create an accumulator for each stage
-           /* long[] hash = new long[numberOfHashTables];
-
-            // Number of rows per stage
-            int rows = numberOfHashesPerTable;
-
-            for (int i = 0; i < minHashes.Length; i++)
-            {
-                int stage = System.Math.Min(i / rows, numberOfHashTables - 1);
-                hash[stage] = ((hash[stage] + (long)minHashes[i] * 433494437) % 1000000);
-            }
-
-            return hash; */
             return hashConverter.ToLongs(minHashes, numberOfHashTables);
         }
     }
