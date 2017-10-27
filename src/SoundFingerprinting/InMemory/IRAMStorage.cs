@@ -10,8 +10,6 @@ namespace SoundFingerprinting.InMemory
     {
         IDictionary<int, TrackData> Tracks { get; }                         // key: track reference
 
-        IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; }       // key: track reference
-
         void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
 
         List<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash);

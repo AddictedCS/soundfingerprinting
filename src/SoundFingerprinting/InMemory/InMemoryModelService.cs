@@ -19,7 +19,6 @@
             : this(
                 new TrackDao(ramStorage),
                 new SubFingerprintDao(ramStorage),
-                new FingerprintDao(ramStorage),
                 new SpectralImageDao(ramStorage),
                 ramStorage)
         {
@@ -28,10 +27,9 @@
         private InMemoryModelService(
             ITrackDao trackDao,
             ISubFingerprintDao subFingerprintDao,
-            IFingerprintDao fingerprintDao,
             ISpectralImageDao spectralImageDao,
             IRAMStorage ramStorage)
-            : base(trackDao, subFingerprintDao, fingerprintDao, spectralImageDao)
+            : base(trackDao, subFingerprintDao, spectralImageDao)
         {
             this.ramStorage = ramStorage;
         }

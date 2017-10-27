@@ -90,7 +90,6 @@
     <Compile Include="Configuration\FrequencyRange.cs" />
     <Compile Include="Configuration\HashingConfig.cs" />
     <Compile Include="Configuration\SpectrogramConfig.cs" />
-    <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="DAO\ISpectralImageDao.cs" />
     <Compile Include="DAO\Data\IgnoreBindingAttribute.cs" />
     <Compile Include="DAO\Data\SpectralImageData.cs" />
@@ -99,7 +98,6 @@
     <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
-    <Compile Include="InMemory\FingerprintDao.cs" />
     <Compile Include="InMemory\RAMStorage.cs" />
     <Compile Include="InMemory\SpectralImageDao.cs" />
     <Compile Include="InMemory\SubFingerprintDao.cs" />

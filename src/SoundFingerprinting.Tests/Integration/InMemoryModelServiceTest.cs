@@ -184,33 +184,5 @@
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
-
-        [Test]
-        public void InsertFingerprintTest()
-        {
-            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = modelService.InsertTrack(track);
-            var fingerprint = new FingerprintData(GenericFingerprint(), trackReference);
-
-            modelService.InsertFingerprint(fingerprint);
-
-            AssertModelReferenceIsInitialized(fingerprint.FingerprintReference);
-        }
-
-        [Test]
-        public void ReadFingerprintsByTrackReferenceTest()
-        {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
-            var trackReference = modelService.InsertTrack(track);
-            FingerprintData fingerprint = new FingerprintData(GenericFingerprint(), trackReference);
-            modelService.InsertFingerprint(fingerprint);
-
-            var fingerprints = modelService.ReadFingerprintsByTrackReference(trackReference);
-
-            Assert.AreEqual(1, fingerprints.Count);
-            Assert.AreEqual(fingerprint.FingerprintReference, fingerprints[0].FingerprintReference);
-            Assert.AreEqual(trackReference, fingerprints[0].TrackReference);
-            CollectionAssert.AreEqual(GenericFingerprint(), fingerprints[0].Signature);
-        }
     }
 }

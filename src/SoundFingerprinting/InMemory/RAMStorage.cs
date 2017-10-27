@@ -67,8 +67,6 @@
             }
         }
 
-        public IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; private set; }
-
         [ProtoMember(7)]
         private IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; set; }
 
@@ -103,12 +101,6 @@
             if (Tracks.Remove(trackId))
             {
                 count++;
-                if (Fingerprints.ContainsKey(trackReference))
-                {
-                    count += Fingerprints[trackReference].Count;
-                    Fingerprints.Remove(trackReference);
-                }
-
                 var subFingerprintReferences = SubFingerprints
                     .Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Key).ToList();
 
@@ -172,8 +164,6 @@
                 Tracks = obj.Tracks;
                 SubFingerprints = obj.SubFingerprints;
                 SpectralImages = obj.SpectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
-
-                Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
             }
         }
 
@@ -191,7 +181,6 @@
             trackReferenceCounter = 0;
             subFingerprintReferenceCounter = 0;
             Tracks = new ConcurrentDictionary<int, TrackData>();
-            Fingerprints = new ConcurrentDictionary<IModelReference, List<FingerprintData>>();
             SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
             SubFingerprints = new ConcurrentDictionary<ulong, SubFingerprintData>();
         }

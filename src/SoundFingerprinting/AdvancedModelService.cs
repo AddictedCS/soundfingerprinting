@@ -7,39 +7,25 @@
 
     public abstract class AdvancedModelService : ModelService, IAdvancedModelService 
     {
-        private readonly IFingerprintDao fingerprintDao;
-
         private readonly ISpectralImageDao spectralImageDao;
 
         protected AdvancedModelService(
             ITrackDao trackDao,
             ISubFingerprintDao subFingerprintDao,
-            IFingerprintDao fingerprintDao,
             ISpectralImageDao spectralImageDao)
             : base(trackDao, subFingerprintDao)
         {
-            this.fingerprintDao = fingerprintDao;
             this.spectralImageDao = spectralImageDao;
         }
 
         public virtual void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
         {
-            this.spectralImageDao.InsertSpectralImages(spectralImages, trackReference);
+            spectralImageDao.InsertSpectralImages(spectralImages, trackReference);
         }
 
         public virtual IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
         {
-            return this.spectralImageDao.GetSpectralImagesByTrackReference(trackReference);
-        }
-
-        public virtual IModelReference InsertFingerprint(FingerprintData fingerprint)
-        {
-            return this.fingerprintDao.InsertFingerprint(fingerprint);
-        }
-
-        public virtual IList<FingerprintData> ReadFingerprintsByTrackReference(IModelReference trackReference)
-        {
-            return this.fingerprintDao.ReadFingerprintsByTrackReference(trackReference);
+            return spectralImageDao.GetSpectralImagesByTrackReference(trackReference);
         }
     }
 }
