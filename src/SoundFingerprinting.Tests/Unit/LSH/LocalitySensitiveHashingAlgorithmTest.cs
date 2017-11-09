@@ -6,6 +6,7 @@
 
     using NUnit.Framework;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
@@ -41,7 +42,10 @@
             hashConverter.Setup(converter => converter.ToLongs(bytes, 4)).Returns(new long[4]);
             minHashService.Setup(service => service.Hash(It.IsAny<IEncodedFingerprintSchema>(), 16)).Returns(bytes);
 
-            var hash = lshAlgorithm.Hash(new Fingerprint(new TinyFingerprintSchema(8192), 5 * 0.928f, 5), 4, 4, Enumerable.Empty<string>());
+            var hash = lshAlgorithm.Hash(
+                new Fingerprint(new TinyFingerprintSchema(8192), 5 * 0.928f, 5),
+                new DefaultHashingConfig(){NumberOfLSHTables = 4, HashBuckets = 4}, 
+                Enumerable.Empty<string>());
 
             Assert.AreEqual(5, hash.SequenceNumber);
             Assert.AreEqual(5 * 0.928, hash.StartsAt, Epsilon);

@@ -6,6 +6,7 @@ namespace SoundFingerprinting.Configuration
         {
             NumberOfLSHTables = 25;
             NumberOfMinHashesPerTable = 4;
+            HashBuckets = 1000000;
         }
     }
 }

@@ -2,10 +2,11 @@
 {
     using System.Collections.Generic;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
 
     internal interface ILocalitySensitiveHashingAlgorithm
     {
-        HashedFingerprint Hash(Fingerprint fingerprint, int numberOfHashTables, int numberOfHashKeysPerTable, IEnumerable<string> clusters);
+        HashedFingerprint Hash(Fingerprint fingerprint, HashingConfig hashingConfig, IEnumerable<string> clusters);
     }
 }
