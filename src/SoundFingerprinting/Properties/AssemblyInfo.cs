@@ -34,4 +34,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("CrompAudioFingerprintingMaster")]
 
 [assembly: AssemblyVersion("4.1.0")]
-[assembly: AssemblyInformationalVersion("4.1.0-beta")]
+[assembly: AssemblyInformationalVersion("4.2.0-alpha1")]

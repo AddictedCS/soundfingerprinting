@@ -54,7 +54,7 @@
 
             for (int i = 0; i < hashes.Length; ++i)
             {
-                hashes[i] = (uint) (hashes[i] * LargePrime) % hashBuckets;
+                hashes[i] = System.Math.Abs(hashes[i] * LargePrime % hashBuckets);
             }
 
             return hashes;
