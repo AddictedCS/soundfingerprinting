@@ -6,7 +6,7 @@
     [Serializable]
     public class HashedFingerprint 
     {
-        public HashedFingerprint(long[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters)
+        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters)
         {
             HashBins = hashBins;
             SequenceNumber = sequenceNumber;
@@ -14,7 +14,7 @@
             Clusters = clusters;
         }
 
-        public long[] HashBins { get; }
+        public int[] HashBins { get; }
 
         public uint SequenceNumber { get; }
 

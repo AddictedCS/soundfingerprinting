@@ -45,7 +45,7 @@
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        public ConcurrentDictionary<long, List<ulong>>[] HashTables { get; set; }
+        public ConcurrentDictionary<int, List<ulong>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private IDictionary<ulong, SubFingerprintData> SubFingerprints
@@ -128,7 +128,7 @@
             return count;
         }
 
-        public List<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash)
+        public List<ulong> GetSubFingerprintsByHashTableAndHash(int table, int hash)
         {
             if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
             {
@@ -189,15 +189,15 @@
         {
             if (HashTables == null)
             {
-                HashTables = new ConcurrentDictionary<long, List<ulong>>[numberOfHashTables];
+                HashTables = new ConcurrentDictionary<int, List<ulong>>[numberOfHashTables];
                 for (int table = 0; table < numberOfHashTables; table++)
                 {
-                    HashTables[table] = new ConcurrentDictionary<long, List<ulong>>();
+                    HashTables[table] = new ConcurrentDictionary<int, List<ulong>>();
                 }
             }
         }
 
-        private void InsertHashes(long[] hashBins, ulong subFingerprintId)
+        private void InsertHashes(int[] hashBins, ulong subFingerprintId)
         {
             int table = 0;
             lock ((HashTables as ICollection).SyncRoot) // don't touch this lock

@@ -12,7 +12,7 @@ namespace SoundFingerprinting.InMemory
 
         void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
 
-        List<ulong> GetSubFingerprintsByHashTableAndHash(int table, long hash);
+        List<ulong> GetSubFingerprintsByHashTableAndHash(int table, int hash);
 
         void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 

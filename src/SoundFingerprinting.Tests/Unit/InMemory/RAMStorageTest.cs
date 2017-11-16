@@ -21,7 +21,7 @@
             var hashConverter = new HashConverter();
 
             var hashes = Enumerable.Range(0, 100).Select(b => (byte)b).ToArray();
-            var longs = hashConverter.ToLongs(hashes, 25);
+            var longs = hashConverter.ToInts(hashes, 25);
 
             int tracksCount = 520;
             int subFingerprintsPerTrack = 33;

@@ -67,7 +67,7 @@
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, fingerprintConfig.HaarWaveletNorm));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192).SetTrueAt(0, 1));
             localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig, It.IsAny<IEnumerable<string>>()))
-                .Returns(new HashedFingerprint(new long[0], 1, 0f, Enumerable.Empty<string>()));
+                .Returns(new HashedFingerprint(new int[0], 1, 0f, Enumerable.Empty<string>()));
 
             var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)

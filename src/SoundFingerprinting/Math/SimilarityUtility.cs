@@ -89,7 +89,7 @@
             }
         }
 
-        public int CalculateHammingSimilarity(long[] expected, long[] actual, int setBytesPerLong)
+        public int CalculateHammingSimilarity(int[] expected, int[] actual, int setBytesPerLong)
         {
             int mask = 0xFF;
             int sameBytes = 0;

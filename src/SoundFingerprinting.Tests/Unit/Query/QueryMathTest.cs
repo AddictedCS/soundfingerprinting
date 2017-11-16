@@ -78,8 +78,8 @@
         public void ShouldFilterExactMatches0()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new long[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
+                new HashedFingerprint(new int[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new int[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsTrue(result);
@@ -89,8 +89,8 @@
         public void ShouldFilterExactMatches1()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new long[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
+                new HashedFingerprint(new int[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new int[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsFalse(result);

@@ -48,9 +48,9 @@
         /// <param name = "numberOfHashesPerTable">Number of min hashes per key [N = 4]</param>
         /// <param name = "hashBuckets">Max number of hash buckets per hash table</param>
         /// <returns>Collection of Pairs with Key = Hash table index, Value = Hash bin</returns>
-        protected virtual long[] GroupIntoHashTables(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable, int hashBuckets)
+        protected virtual int[] GroupIntoHashTables(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable, int hashBuckets)
         {
-            long[] hashes = hashConverter.ToLongs(minHashes, numberOfHashTables);
+            int[] hashes = hashConverter.ToInts(minHashes, numberOfHashTables);
 
             for (int i = 0; i < hashes.Length; ++i)
             {

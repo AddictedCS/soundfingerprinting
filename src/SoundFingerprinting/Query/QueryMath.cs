@@ -44,8 +44,8 @@
 
         public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
         {
-            long[] query = queryFingerprint.HashBins;
-            long[] result = candidate.Hashes;
+            int[] query = queryFingerprint.HashBins;
+            int[] result = candidate.Hashes;
             int count = 0;
             for (int i = 0; i < query.Length; ++i)
             {

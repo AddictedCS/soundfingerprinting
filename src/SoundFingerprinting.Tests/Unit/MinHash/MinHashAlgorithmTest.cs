@@ -113,7 +113,7 @@
             }
         }
 
-        private int AgreeOn(long[] x, long[] y)
+        private int AgreeOn(int[] x, int[] y)
         {
             return x.Where((t, i) => t == y[i]).Count();
         }
