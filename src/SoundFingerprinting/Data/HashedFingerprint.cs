@@ -3,7 +3,10 @@
     using System;
     using System.Collections.Generic;
 
+    using ProtoBuf;
+
     [Serializable]
+    [ProtoContract]
     public class HashedFingerprint 
     {
         public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters)
@@ -14,12 +17,22 @@
             Clusters = clusters;
         }
 
-        public int[] HashBins { get; }
+        private HashedFingerprint()
+        {
+            // Used only by protobuf
+            // Similarly private setters are only used by protobuf as well
+        }
 
-        public uint SequenceNumber { get; }
+        [ProtoMember(1)]
+        public int[] HashBins { get; private set; }
 
-        public float StartsAt { get; }
+        [ProtoMember(2)]
+        public uint SequenceNumber { get; private set; }
 
-        public IEnumerable<string> Clusters { get; }
+        [ProtoMember(3)]
+        public float StartsAt { get; private set; }
+
+        [ProtoMember(4)]
+        public IEnumerable<string> Clusters { get; private set; }
     }
 }
