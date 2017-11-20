@@ -68,10 +68,13 @@
             modelService.Setup(
                 service => service.ReadSubFingerprints(It.IsAny<int[]>(), customQueryConfiguration)).Returns(
                     new List<SubFingerprintData> { firstResult, secondResult, thirdResult });
-            modelService.Setup(service => service.ReadTrackByReference(firstTrackReference)).Returns(
-                new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
-            modelService.Setup(service => service.ReadTrackByReference(secondTrackReference)).Returns(
-               new TrackData { ISRC = "isrc_1", TrackReference = secondTrackReference });
+            modelService
+                .Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference, secondTrackReference }))
+                .Returns(new List<TrackData>
+                    {
+                        new TrackData { ISRC = "isrc", TrackReference = firstTrackReference },
+                        new TrackData { ISRC = "isrc_1", TrackReference = secondTrackReference }
+                    });
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
 
@@ -115,8 +118,8 @@
             modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
             modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<int[]>(), defaultQueryConfiguration))
                         .Returns(new List<SubFingerprintData> { firstResult, secondResult });
-            modelService.Setup(service => service.ReadTrackByReference(firstTrackReference))
-                        .Returns(new TrackData { ISRC = "isrc", TrackReference = firstTrackReference });
+            modelService.Setup(service => service.ReadTracksByReferences(new [] { firstTrackReference }))
+                        .Returns(new List<TrackData>{ new TrackData { ISRC = "isrc", TrackReference = firstTrackReference }});
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, modelService.Object);
 

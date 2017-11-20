@@ -38,8 +38,7 @@
         {
             var modelService = new Mock<IModelService>(MockBehavior.Strict);
             var trackReference = new ModelReference<int>(3);
-            modelService.Setup(s => s.ReadTrackByReference(trackReference)).Returns(
-                new TrackData { ISRC = "isrc-1234-1234" });
+            modelService.Setup(service => service.ReadTracksByReferences(new[] { trackReference })).Returns(new List<TrackData> { new TrackData { ISRC = "isrc-1234-1234", TrackReference = trackReference } });
 
             var queryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1 };
 

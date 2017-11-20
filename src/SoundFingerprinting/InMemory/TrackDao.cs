@@ -50,9 +50,9 @@
         public List<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
         {
             var result = new List<TrackData>();
-            foreach (var modelReference in ids)
+            foreach (var id in ids)
             {
-                result.Add(ReadTrack(modelReference));
+                result.Add(ReadTrack(id));
             }
 
             return result;

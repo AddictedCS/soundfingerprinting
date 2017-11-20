@@ -36,17 +36,15 @@
             FingerprintConfiguration fingerprintConfiguration)
         {
             double queryLength = CalculateExactQueryLength(hashedFingerprints, fingerprintConfiguration);
-            var accumulators = hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
+            var trackIds = hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
                                      .Take(maxNumberOfMatchesToReturn)
-                                     .ToDictionary(p => p.Key, p => p.Value);
+                                     .Select(p => p.Key)
+                                     .ToList();
 
-            var trackIds = accumulators.Select(pair => pair.Key);
             var tracks = modelService.ReadTracksByReferences(trackIds);
-
-            var trackAccs = tracks.Select(t => new KeyValuePair<TrackData, ResultEntryAccumulator>(t, accumulators[t.TrackReference]))
+            return tracks
+                .Select(track => GetResultEntry(fingerprintConfiguration, track, hammingSimilarites[track.TrackReference], queryLength))
                 .ToList();
-                                     
-            return trackAccs.Select(pair => GetResultEntry(fingerprintConfiguration, pair.Key, pair.Value, queryLength)).ToList();
         }
 
         public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
