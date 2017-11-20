@@ -41,9 +41,8 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
         {
-            var subFingeprintCount = CountSubFingerprintMatches(hashes);
-            var subFingerprints = subFingeprintCount.Where(pair => pair.Value >= thresholdVotes)
-                                                    .Select(pair => storage.ReadSubFingerprintById(pair.Key));
+            var subFingeprintCount = CountSubFingerprintMatches(hashes, thresholdVotes);
+            var subFingerprints = subFingeprintCount.Select(id => storage.ReadSubFingerprintById(id));
 
             var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
             if (clusters.Any())
@@ -69,7 +68,7 @@
             return new HashSet<SubFingerprintData>(allSubs);
         }
 
-        private Dictionary<ulong, int> CountSubFingerprintMatches(int[] hashes)
+        private IEnumerable<ulong> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
         {
             var results = new List<ulong>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
@@ -78,7 +77,7 @@
                 results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
             }
 
-            return SubFingerprintGroupingCounter.GroupByAndCount(results);
+            return SubFingerprintGroupingCounter.GroupByAndCount(results, thresholdVotes);
         }
     }
 }
