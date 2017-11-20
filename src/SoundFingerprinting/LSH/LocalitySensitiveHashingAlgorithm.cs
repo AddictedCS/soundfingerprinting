@@ -46,20 +46,20 @@
         /// <param name = "minHashes">Min Hashes gathered from every fingerprint [N = 100]</param>
         /// <param name = "numberOfHashTables">Number of hash tables [L = 25]</param>
         /// <param name = "numberOfHashesPerTable">Number of min hashes per key [N = 4]</param>
-        /// <param name = "hashBuckets">Max number of hash buckets per hash table</param>
+        /// <param name = "hashBucketsCount">Max number of hash buckets per hash table</param>
         /// <returns>Collection of Pairs with Key = Hash table index, Value = Hash bin</returns>
-        protected virtual int[] GroupIntoHashTables(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable, int hashBuckets)
+        protected virtual int[] GroupIntoHashTables(byte[] minHashes, int numberOfHashTables, int numberOfHashesPerTable, int hashBucketsCount)
         {
             int[] hashes = hashConverter.ToInts(minHashes, numberOfHashTables);
 
-            if (hashBuckets == 0)
+            if (hashBucketsCount == 0)
             {
                 return hashes;
             }
 
             for (int i = 0; i < hashes.Length; ++i)
             {
-                hashes[i] = System.Math.Abs(hashes[i] * LargePrime % hashBuckets);
+                hashes[i] = System.Math.Abs(hashes[i] * LargePrime % hashBucketsCount);
             }
 
             return hashes;
