@@ -52,6 +52,11 @@
         {
             int[] hashes = hashConverter.ToInts(minHashes, numberOfHashTables);
 
+            if (hashBuckets == 0)
+            {
+                return hashes;
+            }
+
             for (int i = 0; i < hashes.Length; ++i)
             {
                 hashes[i] = System.Math.Abs(hashes[i] * LargePrime % hashBuckets);
