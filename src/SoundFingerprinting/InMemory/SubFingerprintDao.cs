@@ -56,18 +56,17 @@
 
         public ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, int threshold, IEnumerable<string> assignedClusters)
         {
-            var allCandidates = new ConcurrentDictionary<SubFingerprintData, byte>();
-            Parallel.ForEach(hashes,
-                hashedFingerprint =>
-                    {
-                        var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
-                        foreach (var subFingerprint in subFingerprints)
-                        {
-                            allCandidates.AddOrUpdate(subFingerprint, 0, (data, b) => 0);
-                        }
-                    });
+            var allSubs = new ConcurrentBag<SubFingerprintData>();
+            Parallel.ForEach(hashes, hashedFingerprint =>
+            {
+                var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
+                foreach (var subFingerprint in subFingerprints)
+                {
+                    allSubs.Add(subFingerprint);
+                }
+            });
 
-            return new HashSet<SubFingerprintData>(allCandidates.Keys.ToList());
+            return new HashSet<SubFingerprintData>(allSubs);
         }
 
         private Dictionary<ulong, int> CountSubFingerprintMatches(int[] hashes)
