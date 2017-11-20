@@ -27,6 +27,8 @@ namespace SoundFingerprinting
 
         TrackData ReadTrackByISRC(string isrc);
 
+        List<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> ids);
+
         int DeleteTrack(IModelReference trackReference);
 
         bool ContainsTrack(string isrc, string artist, string title);

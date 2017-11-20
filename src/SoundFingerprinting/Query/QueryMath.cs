@@ -36,10 +36,17 @@
             FingerprintConfiguration fingerprintConfiguration)
         {
             double queryLength = CalculateExactQueryLength(hashedFingerprints, fingerprintConfiguration);
-            return hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
+            var accumulators = hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
                                      .Take(maxNumberOfMatchesToReturn)
-                                     .Select(e => GetResultEntry(modelService, fingerprintConfiguration, e, queryLength))
-                                     .ToList();
+                                     .ToDictionary(p => p.Key, p => p.Value);
+
+            var trackIds = accumulators.Select(pair => pair.Key);
+            var tracks = modelService.ReadTracksByReferences(trackIds);
+
+            var trackAccs = tracks.Select(t => new KeyValuePair<TrackData, ResultEntryAccumulator>(t, accumulators[t.TrackReference]))
+                .ToList();
+                                     
+            return trackAccs.Select(pair => GetResultEntry(fingerprintConfiguration, pair.Key, pair.Value, queryLength)).ToList();
         }
 
         public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
@@ -75,11 +82,10 @@
             return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
         }
 
-        private ResultEntry GetResultEntry(IModelService modelService, FingerprintConfiguration configuration, KeyValuePair<IModelReference, ResultEntryAccumulator> pair, double queryLength)
+        private ResultEntry GetResultEntry(FingerprintConfiguration configuration, TrackData track, ResultEntryAccumulator acc, double queryLength)
         {
-            var track = modelService.ReadTrackByReference(pair.Key);
             var coverage = queryResultCoverageCalculator.GetCoverage(
-                pair.Value.Matches,
+                acc.Matches,
                 queryLength,
                 configuration);
 
@@ -95,11 +101,11 @@
                 coverage.SourceMatchStartsAt,
                 coverage.SourceMatchLength,
                 coverage.OriginMatchStartsAt,
-                GetTrackStartsAt(pair.Value.BestMatch),
+                GetTrackStartsAt(acc.BestMatch),
                 confidence,
-                pair.Value.HammingSimilaritySum,
+                acc.HammingSimilaritySum,
                 queryLength,
-                pair.Value.BestMatch);
+                acc.BestMatch);
         }
 
         private double GetTrackStartsAt(MatchedPair bestMatch)

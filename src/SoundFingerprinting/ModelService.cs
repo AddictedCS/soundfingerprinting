@@ -71,6 +71,11 @@
             return trackDao.ReadTrack(trackReference);
         }
 
+        public virtual List<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> ids)
+        {
+            return trackDao.ReadTracks(ids);
+        }
+
         public virtual TrackData ReadTrackByISRC(string isrc)
         {
             return trackDao.ReadTrackByISRC(isrc);

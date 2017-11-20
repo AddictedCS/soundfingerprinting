@@ -47,6 +47,17 @@
             return null;
         }
 
+        public List<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
+        {
+            var result = new List<TrackData>();
+            foreach (var modelReference in ids)
+            {
+                result.Add(ReadTrack(modelReference));
+            }
+
+            return result;
+        }
+
         public int DeleteTrack(IModelReference trackReference)
         {
             return storage.DeleteTrack(trackReference);
