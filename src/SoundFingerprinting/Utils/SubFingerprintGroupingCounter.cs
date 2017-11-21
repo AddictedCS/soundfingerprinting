@@ -2,10 +2,9 @@
 
 namespace SoundFingerprinting.Utils
 {
-    using System;
     using System.Linq;
 
-    public static class SubFingerprintGroupingCounter
+    internal static class SubFingerprintGroupingCounter
     {
         public static unsafe IEnumerable<ulong> GroupByAndCount(List<ulong>[] subFingerprints, int threshold)
         {

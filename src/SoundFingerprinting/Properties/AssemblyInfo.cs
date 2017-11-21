@@ -28,10 +28,11 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.DuplicatesDetector")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Storage")]
 [assembly: InternalsVisibleTo("AdDetectionTests")]
 [assembly: InternalsVisibleTo("HashCreationFromLocalProfiles")]
 [assembly: InternalsVisibleTo("CrompAudioFingerprinting")]
 [assembly: InternalsVisibleTo("CrompAudioFingerprintingMaster")]
 
-[assembly: AssemblyVersion("4.4.0")]
-[assembly: AssemblyInformationalVersion("4.4.0-alpha")]
+[assembly: AssemblyVersion("4.1.0")]
+[assembly: AssemblyInformationalVersion("4.1.0-beta")]
