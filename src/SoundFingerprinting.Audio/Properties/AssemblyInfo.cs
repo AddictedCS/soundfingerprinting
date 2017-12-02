@@ -15,5 +15,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("4.1.0")]
 [assembly: AssemblyInformationalVersion("4.1.0")]
 [assembly: InternalsVisibleTo("SoundFingerprinting")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Audio.NAudio")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
