@@ -19,7 +19,6 @@ namespace SoundFingerprinting
         private readonly ISpectrumService spectrumService;
         private readonly IWaveletDecomposition waveletDecomposition;
         private readonly IFingerprintDescriptor fingerprintDescriptor;
-        private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
 
         public FingerprintService()
@@ -27,8 +26,7 @@ namespace SoundFingerprinting
                 DependencyResolver.Current.Get<ISpectrumService>(),
                 DependencyResolver.Current.Get<ILocalitySensitiveHashingAlgorithm>(),
                 DependencyResolver.Current.Get<IWaveletDecomposition>(),
-                DependencyResolver.Current.Get<IFingerprintDescriptor>(),
-                DependencyResolver.Current.Get<IAudioSamplesNormalizer>())
+                DependencyResolver.Current.Get<IFingerprintDescriptor>())
         {
         }
 
@@ -36,19 +34,16 @@ namespace SoundFingerprinting
             ISpectrumService spectrumService,
             ILocalitySensitiveHashingAlgorithm lshAlgorithm,
             IWaveletDecomposition waveletDecomposition,
-            IFingerprintDescriptor fingerprintDescriptor,
-            IAudioSamplesNormalizer audioSamplesNormalizer)
+            IFingerprintDescriptor fingerprintDescriptor)
         {
             this.lshAlgorithm = lshAlgorithm;
             this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
-            this.audioSamplesNormalizer = audioSamplesNormalizer;
         }
 
         public List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
         { 
-            NormalizeAudioIfNecessary(samples, configuration);
             var spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             var fingerprints = CreateFingerprintsFromLogSpectrum(spectrum, configuration);
             return HashFingerprints(fingerprints, configuration);
@@ -76,14 +71,6 @@ namespace SoundFingerprinting
                 cachedIndexes => { });
 
             return fingerprints.ToList();
-        }
-
-        private void NormalizeAudioIfNecessary(AudioSamples samples, FingerprintConfiguration configuration)
-        {
-            if (configuration.NormalizeSignal)
-            {
-                audioSamplesNormalizer.NormalizeInPlace(samples.Samples);
-            }
         }
 
         private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints, FingerprintConfiguration configuration)

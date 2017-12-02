@@ -33,11 +33,6 @@ namespace SoundFingerprinting.Configuration
         public double HaarWaveletNorm { get; set; }
 
         /// <summary>
-        ///  Gets or sets a value indicating whether the algorithm has to normalize the audio signal
-        /// </summary>
-        internal bool NormalizeSignal { get; set; }
-
-        /// <summary>
         ///  Gets or sets spectrogram creation configuration parameters
         /// </summary>
         internal SpectrogramConfig SpectrogramConfig { get; set; }
