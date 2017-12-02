@@ -11,12 +11,15 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
     [TestFixture]
     public class QueryMathTest
     {
-        private readonly QueryMath queryMath = new QueryMath();
+        private readonly QueryMath queryMath = new QueryMath(
+            new QueryResultCoverageCalculator(),
+            new ConfidenceCalculator());
 
         [Test]
         public void ShoulCalculateSnippetLengthCorrectly()

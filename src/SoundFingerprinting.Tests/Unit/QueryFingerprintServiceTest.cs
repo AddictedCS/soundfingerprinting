@@ -15,7 +15,7 @@
     [TestFixture]
     public class QueryFingerprintServiceTest : AbstractTest
     {
-        private readonly QueryFingerprintService queryFingerprintService = new QueryFingerprintService();
+        private readonly QueryFingerprintService queryFingerprintService = QueryFingerprintService.Instance;
 
         private Mock<IModelService> modelService;
 

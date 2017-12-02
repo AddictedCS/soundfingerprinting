@@ -7,7 +7,6 @@
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
@@ -19,15 +18,9 @@
     public class FingerprintServiceTest : AbstractTest
     {
         private FingerprintService fingerprintService;
-
         private Mock<IFingerprintDescriptor> fingerprintDescriptor;
-
         private Mock<ISpectrumService> spectrumService;
-
         private Mock<IWaveletDecomposition> waveletDecomposition;
-
-        private Mock<IAudioSamplesNormalizer> audioSamplesNormalizer;
-
         private Mock<ILocalitySensitiveHashingAlgorithm> localitySensitiveHashingAlgorithm;
 
 
@@ -37,14 +30,12 @@
             fingerprintDescriptor = new Mock<IFingerprintDescriptor>(MockBehavior.Strict);
             spectrumService = new Mock<ISpectrumService>(MockBehavior.Strict);
             waveletDecomposition = new Mock<IWaveletDecomposition>(MockBehavior.Strict);
-            audioSamplesNormalizer = new Mock<IAudioSamplesNormalizer>(MockBehavior.Strict);
             localitySensitiveHashingAlgorithm = new Mock<ILocalitySensitiveHashingAlgorithm>(MockBehavior.Strict);
             fingerprintService = new FingerprintService(
                 spectrumService.Object,
                 localitySensitiveHashingAlgorithm.Object,
                 waveletDecomposition.Object,
-                fingerprintDescriptor.Object,
-                audioSamplesNormalizer.Object);
+                fingerprintDescriptor.Object);
         }
 
         [TearDown]
@@ -53,7 +44,6 @@
             fingerprintDescriptor.VerifyAll();
             spectrumService.VerifyAll();
             waveletDecomposition.VerifyAll();
-            audioSamplesNormalizer.VerifyAll();
         }
 
         [Test]
@@ -74,22 +64,6 @@
                                                  .ToList();
 
             Assert.AreEqual(dividedLogSpectrum.Count, fingerprints.Count);
-        }
-
-        [Test]
-        public void AudioSamplesAreNormalized()
-        {
-            const int TenSeconds = 5512 * 10;
-            var samples = TestUtilities.GenerateRandomAudioSamples(TenSeconds);
-            var fingerprintConfig = new DefaultFingerprintConfiguration { NormalizeSignal = true };
-            var dividedLogSpectrum = GetDividedLogSpectrum();
-            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
-            waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, fingerprintConfig.HaarWaveletNorm));
-            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192));
-
-            audioSamplesNormalizer.Setup(normalizer => normalizer.NormalizeInPlace(samples.Samples));
-
-            fingerprintService.CreateFingerprints(samples, fingerprintConfig);
         }
 
         [Test]
