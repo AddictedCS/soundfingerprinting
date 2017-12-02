@@ -4,8 +4,6 @@
 
     using global::NAudio.Wave;
 
-    using SoundFingerprinting.Infrastructure;
-
     public class NAudioService : AudioService
     {
         private static readonly IReadOnlyCollection<string> NAudioSupportedFormats = new[] { ".mp3", ".wav" };
@@ -18,10 +16,11 @@
         private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
 
         public NAudioService(int resamplerQuality = 25, bool normalizeSamples = false)
-            : this(resamplerQuality, 
-                  normalizeSamples,
-                  DependencyResolver.Current.Get<IAudioSamplesNormalizer>(),
-                  DependencyResolver.Current.Get<INAudioSourceReader>())
+            : this(
+                resamplerQuality,
+                normalizeSamples,
+                new AudioSamplesNormalizer(),
+                new NAudioSourceReader(new SamplesAggregator(), new NAudioFactory()))
         {
             // no op
         }

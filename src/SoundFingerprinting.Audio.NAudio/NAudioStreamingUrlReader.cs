@@ -1,13 +1,11 @@
 namespace SoundFingerprinting.Audio.NAudio
 {
-    using SoundFingerprinting.Infrastructure;
-
     public class NAudioStreamingUrlReader : IStreamingUrlReader
     {
         private const int DefaultResamplerQuality = 25;
         private readonly INAudioSourceReader reader;
 
-        public NAudioStreamingUrlReader() : this(DependencyResolver.Current.Get<INAudioSourceReader>())
+        public NAudioStreamingUrlReader() : this(new NAudioSourceReader(new SamplesAggregator(), new NAudioFactory()))
         {
             // no op
         }

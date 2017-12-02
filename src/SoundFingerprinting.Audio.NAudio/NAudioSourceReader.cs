@@ -6,21 +6,12 @@ namespace SoundFingerprinting.Audio.NAudio
 
     using global::NAudio.Wave.SampleProviders;
 
-    using SoundFingerprinting.Infrastructure;
-
     internal class NAudioSourceReader : INAudioSourceReader
     {
         private const int Mono = 1;
  
         private readonly INAudioFactory naudioFactory;
         private readonly ISamplesAggregator samplesAggregator;
-
-        public NAudioSourceReader()
-            : this(
-                DependencyResolver.Current.Get<ISamplesAggregator>(),
-                DependencyResolver.Current.Get<INAudioFactory>())
-        {
-        }
 
         internal NAudioSourceReader(ISamplesAggregator samplesAggregator, INAudioFactory naudioFactory)
         {
