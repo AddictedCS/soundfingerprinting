@@ -9,10 +9,11 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
     using SoundFingerprinting.LSH;
+    using SoundFingerprinting.Math;
+    using SoundFingerprinting.MinHash;
 
     internal class FingerprintService : IFingerprintService
     {
@@ -21,13 +22,21 @@ namespace SoundFingerprinting
         private readonly IFingerprintDescriptor fingerprintDescriptor;
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
 
-        public FingerprintService()
-            : this(
-                DependencyResolver.Current.Get<ISpectrumService>(),
-                DependencyResolver.Current.Get<ILocalitySensitiveHashingAlgorithm>(),
-                DependencyResolver.Current.Get<IWaveletDecomposition>(),
-                DependencyResolver.Current.Get<IFingerprintDescriptor>())
+        private static readonly FingerprintService Singleton = new FingerprintService(
+            new SpectrumService(new LomontFFT(), new LogUtility()),
+            new LocalitySensitiveHashingAlgorithm(
+                new MinHashService(new MaxEntropyPermutations()),
+                new HashConverter()),
+            new StandardHaarWaveletDecomposition(),
+            new FastFingerprintDescriptor());
+
+
+        public static FingerprintService Instance
         {
+            get
+            {
+                return Singleton;
+            }
         }
 
         internal FingerprintService(
