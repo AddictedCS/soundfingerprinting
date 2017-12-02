@@ -3,7 +3,6 @@
     using System.Collections.Generic;
 
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
 
@@ -11,11 +10,6 @@
     {
         private readonly IMinHashService minHashService;
         private readonly IHashConverter hashConverter;
-
-        public LocalitySensitiveHashingAlgorithm()
-            : this(DependencyResolver.Current.Get<IMinHashService>(), DependencyResolver.Current.Get<IHashConverter>())
-        {
-        }
 
         internal LocalitySensitiveHashingAlgorithm(IMinHashService minHashService, IHashConverter hashConverter)
         {

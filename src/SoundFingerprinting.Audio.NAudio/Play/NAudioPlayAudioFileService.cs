@@ -1,13 +1,11 @@
 ﻿namespace SoundFingerprinting.Audio.NAudio.Play
 {
-    using SoundFingerprinting.Infrastructure;
-
     public class NAudioPlayAudioFileService : IPlayAudioFileService
     {
         private readonly INAudioPlayAudioFactory audioFactory;
 
         public NAudioPlayAudioFileService()
-            : this(DependencyResolver.Current.Get<INAudioPlayAudioFactory>())
+            : this(new NAudioPlayAudioFactory())
         {
         }
 

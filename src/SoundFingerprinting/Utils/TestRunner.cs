@@ -14,7 +14,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
@@ -44,7 +43,7 @@
             IFingerprintCommandBuilder fcb,
             IQueryCommandBuilder qcb,
             string pathToResultsFolder)
-            : this(DependencyResolver.Current.Get<ITestRunnerUtils>())
+            : this(new TestRunnerUtils())
         {
             this.scenarious = scenarious;
             this.modelService = modelService;

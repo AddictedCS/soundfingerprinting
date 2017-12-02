@@ -24,23 +24,21 @@
         {
             var fcb0 = new FingerprintCommandBuilder(
                 new FingerprintService(
-                    new SpectrumService(new LomontFFT()),
+                    new SpectrumService(new LomontFFT(), new LogUtility()),
                     new LocalitySensitiveHashingAlgorithm(
                         new MinHashService(new DefaultPermutations()),
                         new HashConverter()),
                     new StandardHaarWaveletDecomposition(),
-                    new FingerprintDescriptor(),
-                    new AudioSamplesNormalizer()));
+                    new FingerprintDescriptor()));
 
             var fcb1 = new FingerprintCommandBuilder(
                 new FingerprintService(
-                    new SpectrumService(new LomontFFT()),
+                    new SpectrumService(new LomontFFT(), new LogUtility()),
                     new LocalitySensitiveHashingAlgorithm(
                         new MinHashService(new DefaultPermutations()),
                         new HashConverter()),
                     new StandardHaarWaveletDecomposition(),
-                    new FastFingerprintDescriptor(),
-                    new AudioSamplesNormalizer()));
+                    new FastFingerprintDescriptor()));
 
             var audioService = new NAudioService();
             var audioSamples = GetAudioSamples();
@@ -76,20 +74,20 @@
             var audioSamples = new AudioSamples(troubledPart, "test", 5512);
 
             var fingerprintService = new FingerprintService(
-                new SpectrumService(new LomontFFT()),
-                new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()), new HashConverter()), 
-                new StandardHaarWaveletDecomposition(),
-                new FingerprintDescriptor(),
-                new AudioSamplesNormalizer());
-
-            var fastFingerprintService = new FingerprintService(
-                new SpectrumService(new LomontFFT()),
+                new SpectrumService(new LomontFFT(), new LogUtility()),
                 new LocalitySensitiveHashingAlgorithm(
                     new MinHashService(new DefaultPermutations()),
                     new HashConverter()),
                 new StandardHaarWaveletDecomposition(),
-                new FastFingerprintDescriptor(),
-                new AudioSamplesNormalizer());
+                new FingerprintDescriptor());
+
+            var fastFingerprintService = new FingerprintService(
+                new SpectrumService(new LomontFFT(), new LogUtility()),
+                new LocalitySensitiveHashingAlgorithm(
+                    new MinHashService(new DefaultPermutations()),
+                    new HashConverter()),
+                new StandardHaarWaveletDecomposition(),
+                new FastFingerprintDescriptor());
 
             int runs = 10;
             for (int i = 0; i < runs; ++i)

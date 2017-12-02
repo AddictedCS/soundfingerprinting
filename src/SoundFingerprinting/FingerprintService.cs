@@ -9,46 +9,50 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
     using SoundFingerprinting.LSH;
+    using SoundFingerprinting.Math;
+    using SoundFingerprinting.MinHash;
 
     internal class FingerprintService : IFingerprintService
     {
         private readonly ISpectrumService spectrumService;
         private readonly IWaveletDecomposition waveletDecomposition;
         private readonly IFingerprintDescriptor fingerprintDescriptor;
-        private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
 
-        public FingerprintService()
-            : this(
-                DependencyResolver.Current.Get<ISpectrumService>(),
-                DependencyResolver.Current.Get<ILocalitySensitiveHashingAlgorithm>(),
-                DependencyResolver.Current.Get<IWaveletDecomposition>(),
-                DependencyResolver.Current.Get<IFingerprintDescriptor>(),
-                DependencyResolver.Current.Get<IAudioSamplesNormalizer>())
+        private static readonly FingerprintService Singleton = new FingerprintService(
+            new SpectrumService(new LomontFFT(), new LogUtility()),
+            new LocalitySensitiveHashingAlgorithm(
+                new MinHashService(new MaxEntropyPermutations()),
+                new HashConverter()),
+            new StandardHaarWaveletDecomposition(),
+            new FastFingerprintDescriptor());
+
+
+        public static FingerprintService Instance
         {
+            get
+            {
+                return Singleton;
+            }
         }
 
         internal FingerprintService(
             ISpectrumService spectrumService,
             ILocalitySensitiveHashingAlgorithm lshAlgorithm,
             IWaveletDecomposition waveletDecomposition,
-            IFingerprintDescriptor fingerprintDescriptor,
-            IAudioSamplesNormalizer audioSamplesNormalizer)
+            IFingerprintDescriptor fingerprintDescriptor)
         {
             this.lshAlgorithm = lshAlgorithm;
             this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
-            this.audioSamplesNormalizer = audioSamplesNormalizer;
         }
 
         public List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
         { 
-            NormalizeAudioIfNecessary(samples, configuration);
             var spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             var fingerprints = CreateFingerprintsFromLogSpectrum(spectrum, configuration);
             return HashFingerprints(fingerprints, configuration);
@@ -76,14 +80,6 @@ namespace SoundFingerprinting
                 cachedIndexes => { });
 
             return fingerprints.ToList();
-        }
-
-        private void NormalizeAudioIfNecessary(AudioSamples samples, FingerprintConfiguration configuration)
-        {
-            if (configuration.NormalizeSignal)
-            {
-                audioSamplesNormalizer.NormalizeInPlace(samples.Samples);
-            }
         }
 
         private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints, FingerprintConfiguration configuration)

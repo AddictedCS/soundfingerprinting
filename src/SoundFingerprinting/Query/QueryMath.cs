@@ -7,20 +7,12 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.LCS;
 
     internal class QueryMath : IQueryMath
     {
         private readonly IQueryResultCoverageCalculator queryResultCoverageCalculator;
         private readonly IConfidenceCalculator confidenceCalculator;
-
-        public QueryMath()
-            : this(
-                DependencyResolver.Current.Get<IQueryResultCoverageCalculator>(),
-                DependencyResolver.Current.Get<IConfidenceCalculator>())
-        {
-        }
 
         internal QueryMath(IQueryResultCoverageCalculator queryResultCoverageCalculator, IConfidenceCalculator confidenceCalculator)
         {

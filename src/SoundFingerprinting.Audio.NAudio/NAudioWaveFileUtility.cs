@@ -1,13 +1,11 @@
 namespace SoundFingerprinting.Audio.NAudio
 {
-    using SoundFingerprinting.Infrastructure;
-
     public class NAudioWaveFileUtility : IWaveFileUtility
     {
         private const int Mono = 1;
         private readonly INAudioFactory factory;
 
-        public NAudioWaveFileUtility() : this(DependencyResolver.Current.Get<INAudioFactory>())
+        public NAudioWaveFileUtility() : this(new NAudioFactory())
         {
             // no op
         }

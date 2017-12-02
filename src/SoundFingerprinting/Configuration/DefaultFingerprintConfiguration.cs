@@ -11,7 +11,6 @@ namespace SoundFingerprinting.Configuration
             TopWavelets = 200;
             SampleRate = 5512;
             HaarWaveletNorm = 1;
-            NormalizeSignal = false;
             Clusters = Enumerable.Empty<string>();
         }
     }

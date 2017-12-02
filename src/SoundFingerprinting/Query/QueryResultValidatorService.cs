@@ -2,14 +2,13 @@
 {
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     public class QueryResultValidatorService
     {
         private readonly IQueryCommandBuilder queryCommandBuilder;
 
-        public QueryResultValidatorService() : this(DependencyResolver.Current.Get<IQueryCommandBuilder>())
+        public QueryResultValidatorService() : this(new QueryCommandBuilder())
         {
         }
 

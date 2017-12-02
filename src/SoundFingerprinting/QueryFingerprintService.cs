@@ -8,21 +8,25 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     internal class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly ISimilarityUtility similarityUtility;
-
         private readonly IQueryMath queryMath;
 
-        public QueryFingerprintService()
-            : this(
-                DependencyResolver.Current.Get<ISimilarityUtility>(),
-                DependencyResolver.Current.Get<IQueryMath>())
+        private static readonly QueryFingerprintService Singleton = new QueryFingerprintService(
+            new SimilarityUtility(),
+            new QueryMath(new QueryResultCoverageCalculator(), new ConfidenceCalculator()));
+
+        public static QueryFingerprintService Instance
         {
+            get
+            {
+                return Singleton;
+            }
         }
 
         internal QueryFingerprintService(ISimilarityUtility similarityUtility, IQueryMath queryMath)

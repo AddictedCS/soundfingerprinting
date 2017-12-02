@@ -2,8 +2,6 @@ namespace SoundFingerprinting.Audio.NAudio
 {
     using System.Collections.Concurrent;
 
-    using SoundFingerprinting.Infrastructure;
-
     public class NAudioSoundCaptureService : ISoundCaptureService
     {
         private const int Mono = 1;
@@ -11,7 +9,8 @@ namespace SoundFingerprinting.Audio.NAudio
         private readonly INAudioFactory naudioFactory;
         private readonly ISamplesAggregator samplesAggregator;
 
-        public NAudioSoundCaptureService() : this(DependencyResolver.Current.Get<ISamplesAggregator>(), DependencyResolver.Current.Get<INAudioFactory>())
+        public NAudioSoundCaptureService() : 
+            this(new SamplesAggregator(), new NAudioFactory())
         {
             // no op
         }
