@@ -157,7 +157,7 @@
         {
             using (var file = File.OpenRead(path))
             {
-                RAMStorage obj = Serializer.Deserialize<RAMStorage>(file);
+                var obj = Serializer.Deserialize<RAMStorage>(file);
                 trackReferenceCounter = obj.trackReferenceCounter;
                 subFingerprintReferenceCounter = obj.subFingerprintReferenceCounter;
                 NumberOfHashTables = obj.NumberOfHashTables;

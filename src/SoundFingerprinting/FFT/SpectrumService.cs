@@ -7,20 +7,11 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
 
     internal class SpectrumService : ISpectrumService
     {
         private readonly IFFTService fftService;
         private readonly ILogUtility logUtility;
-
-        public SpectrumService() : this(DependencyResolver.Current.Get<IFFTService>())
-        {
-        }
-
-        public SpectrumService(IFFTService fftService) : this(fftService, DependencyResolver.Current.Get<ILogUtility>())
-        {
-        }
 
         internal SpectrumService(IFFTService fftService, ILogUtility logUtility)
         {
