@@ -31,7 +31,7 @@
             using (var stream = new MemoryStream())
             {
                 const int Mono = 1;
-                var writer = new Mock<WaveFileWriter>(MockBehavior.Strict, stream, WaveFormat.CreateIeeeFloatWaveFormat(5512, Mono));
+                var writer = new Mock<WaveFileWriter>(MockBehavior.Loose, stream, WaveFormat.CreateIeeeFloatWaveFormat(5512, Mono));
                 naudioFactory.Setup(factory => factory.GetWriter("path-to-audio-file", 5512, Mono))
                                                       .Returns(writer.Object);
                 const int SongLengthInFloats = 16;
