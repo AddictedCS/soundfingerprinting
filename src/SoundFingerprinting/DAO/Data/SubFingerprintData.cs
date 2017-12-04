@@ -12,7 +12,7 @@
     [ProtoContract]
     public class SubFingerprintData
     {
-        public SubFingerprintData(long[] hashes, uint sequenceNumber, float sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
+        public SubFingerprintData(int[] hashes, uint sequenceNumber, float sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) : this()
         {
             Hashes = hashes;
             SubFingerprintReference = subFingerprintReference;
@@ -28,7 +28,7 @@
 
         [IgnoreBinding]
         [ProtoMember(1)]
-        public long[] Hashes { get; internal set; }
+        public int[] Hashes { get; internal set; }
 
         [ProtoMember(2)] 
         public uint SequenceNumber { get; internal set; }

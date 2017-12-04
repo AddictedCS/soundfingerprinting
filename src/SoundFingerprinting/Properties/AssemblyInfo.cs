@@ -28,6 +28,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.DuplicatesDetector")]
+[assembly: InternalsVisibleTo("SoundFingerprinting.Storage")]
 [assembly: InternalsVisibleTo("AdDetectionTests")]
 [assembly: InternalsVisibleTo("HashCreationFromLocalProfiles")]
 [assembly: InternalsVisibleTo("CrompAudioFingerprinting")]

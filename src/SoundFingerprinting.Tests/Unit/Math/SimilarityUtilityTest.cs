@@ -28,10 +28,10 @@
             for (int run = 0; run < 1000; run++)
             {
                 var x = GenerateByteArray(length);
-                var a = hashConverter.ToLongs(x, length / 4);
+                var a = hashConverter.ToInts(x, length / 4);
 
                 var y = GenerateByteArray(length);
-                var b = hashConverter.ToLongs(y, length / 4);
+                var b = hashConverter.ToInts(y, length / 4);
 
                 var byteSimilarity = similarityUtility.CalculateHammingSimilarity(x, y);
                 var longSimilarity = similarityUtility.CalculateHammingSimilarity(a, b, 4);
@@ -45,10 +45,10 @@
         {
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
 
-            long[] hashes1 = GenericHashBuckets();
+            int[] hashes1 = GenericHashBuckets();
             hashes1[0] = 0;
-            long[] hashes2 = GenericHashBuckets();
-            long[] hashes3 = GenericHashBuckets();
+            int[] hashes2 = GenericHashBuckets();
+            int[] hashes3 = GenericHashBuckets();
 
             similarityUtility.AccumulateHammingSimilarity(
                 new List<SubFingerprintData>

@@ -41,8 +41,7 @@
         {
             var modelService = new Mock<IModelService>(MockBehavior.Strict);
             var trackReference = new ModelReference<int>(3);
-            modelService.Setup(s => s.ReadTrackByReference(trackReference)).Returns(
-                new TrackData { ISRC = "isrc-1234-1234" });
+            modelService.Setup(service => service.ReadTracksByReferences(new[] { trackReference })).Returns(new List<TrackData> { new TrackData { ISRC = "isrc-1234-1234", TrackReference = trackReference } });
 
             var queryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1 };
 
@@ -81,8 +80,8 @@
         public void ShouldFilterExactMatches0()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new long[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
+                new HashedFingerprint(new int[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new int[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsTrue(result);
@@ -92,8 +91,8 @@
         public void ShouldFilterExactMatches1()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(new long[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new long[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
+                new HashedFingerprint(new int[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new int[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsFalse(result);

@@ -21,13 +21,9 @@ namespace SoundFingerprinting.Tests.Unit.Utils
                 lists[i] = Enumerable.Range(0, count).ToList().Select(entry => (ulong)entry).ToList();
             }
 
-            var groupingResult = SubFingerprintGroupingCounter.GroupByAndCount(lists);
+            var groupingResult = SubFingerprintGroupingCounter.GroupByAndCount(lists, 5).ToList();
 
             Assert.AreEqual(count, groupingResult.Count);
-            foreach (var pair in groupingResult)
-            {
-                Assert.AreEqual(tablesCount, pair.Value);
-            }
         }
     }
 }

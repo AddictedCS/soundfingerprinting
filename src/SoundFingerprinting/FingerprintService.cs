@@ -90,8 +90,7 @@ namespace SoundFingerprinting
                 {
                     var hashedFingerprint = lshAlgorithm.Hash(
                         fingerprint,
-                        configuration.HashingConfig.NumberOfLSHTables,
-                        configuration.HashingConfig.NumberOfMinHashesPerTable,
+                        configuration.HashingConfig,
                         configuration.Clusters);
                     hashedFingerprints.Add(hashedFingerprint);
                 });
