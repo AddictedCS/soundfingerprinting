@@ -12,7 +12,6 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Math;
 
     [TestFixture]
     [Category("RequiresWindowsDLL")]
@@ -27,7 +26,7 @@
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
-            subFingerprintDao = new SubFingerprintDao(ramStorage, new HashConverter());
+            subFingerprintDao = new SubFingerprintDao((IRAMStorage)ramStorage);
             trackDao = new TrackDao(ramStorage);
         }
 
@@ -43,7 +42,6 @@
                     .Select(
                         sequenceNumber =>
                             new HashedFingerprint(
-                                GenericSignature(),
                                 genericHashBuckets,
                                 (uint)sequenceNumber,
                                 sequenceNumber * 0.928f,

@@ -14,7 +14,7 @@ namespace SoundFingerprinting.Math
 
         int CalculateHammingSimilarity(byte[] a, byte[] b);
 
-        int CalculateHammingSimilarity(long[] expected, long[] actual, int setBytesPerLong);
+        int CalculateHammingSimilarity(int[] expected, int[] actual, int setBytesPerLong);
 
         /// <summary>
         ///   Calculate similarity between 2 fingerprints.
@@ -32,6 +32,6 @@ namespace SoundFingerprinting.Math
         /// </remarks>
         double CalculateJaccardSimilarity(bool[] x, bool[] y);
 
-        void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator);
+        void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator, int keysPerHash);
     }
 }

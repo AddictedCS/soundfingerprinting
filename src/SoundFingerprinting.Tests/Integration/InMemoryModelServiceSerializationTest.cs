@@ -77,7 +77,7 @@
         [Test]
         public void ShouldSerializeSpectralImages()
         {
-            var spectrumService = new SpectrumService();
+            var spectrumService = new SpectrumService(new LomontFFT(), new LogUtility());
 
             var spectrums = spectrumService.CreateLogSpectrogram(GetAudioSamples(), new DefaultSpectrogramConfig())
                 .Select(spectrum => spectrum.Image)

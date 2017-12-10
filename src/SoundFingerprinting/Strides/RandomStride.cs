@@ -7,7 +7,7 @@
     /// </summary>
     public class RandomStride : IStride
     {
-        protected static readonly Random Random = new Random(unchecked((int)DateTime.Now.Ticks));
+        protected readonly Random Random;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref="RandomStride"/> class. 
@@ -18,7 +18,10 @@
         /// <param name="maxStride">
         ///   Exclusive max value used for generating a random stride
         /// </param>
-        public RandomStride(int minStride, int maxStride)
+        /// <param name="seed">
+        ///   Seed used when generating next random stride. Don't specify if you want to use program generated seed.
+        /// </param>
+        public RandomStride(int minStride, int maxStride, int seed)
         {
             if (minStride > maxStride)
             {
@@ -27,20 +30,21 @@
 
             Min = minStride;
             Max = maxStride;
+            Random = seed == 0 ? new Random() : new Random(seed);
+
             FirstStride = Random.Next(minStride, maxStride);
         }
 
-        public RandomStride(int minStride, int maxStride, int firstStride)
-            : this(minStride, maxStride)
+        public RandomStride(int minStride, int maxStride, int firstStride, int seed): this(minStride, maxStride, seed)
         {
             FirstStride = firstStride;
         }
 
-        public int Min { get; private set; }
+        public int Min { get; }
 
-        public int Max { get; private set; }
+        public int Max { get; }
 
-        public int FirstStride { get; private set; }
+        public int FirstStride { get; }
 
         public virtual int NextStride
         {
@@ -52,7 +56,7 @@
 
         public override string ToString()
         {
-            return string.Format("RandomStride{0}-{1}", Min, Max);
+            return $"RandomStride{Min}-{Max}";
         }
     }
 }

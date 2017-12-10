@@ -9,10 +9,10 @@
             OriginMatchStartsAt = originMatchStartsAt;
         }
 
-        public double SourceMatchStartsAt { get; private set; }
+        public double SourceMatchStartsAt { get; }
 
-        public double SourceMatchLength { get; private set; }
+        public double SourceMatchLength { get; }
 
-        public double OriginMatchStartsAt { get; private set; }
+        public double OriginMatchStartsAt { get; }
     }
 }

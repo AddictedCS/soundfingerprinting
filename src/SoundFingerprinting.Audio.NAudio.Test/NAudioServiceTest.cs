@@ -16,7 +16,7 @@
         [SetUp]
         public void SetUp()
         {
-            naudioService = new NAudioService(25, sourceReader.Object);
+            naudioService = new NAudioService(25, false, null, sourceReader.Object);
         }
 
         [TearDown]

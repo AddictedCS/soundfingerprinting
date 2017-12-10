@@ -2,17 +2,11 @@
 {
     using System;
 
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Utils;
 
     internal class MinHashService : IMinHashService
     {
         private readonly IPermutations permutations;
-
-        public MinHashService()
-            : this(DependencyResolver.Current.Get<IPermutations>())
-        {
-        }
 
         internal MinHashService(IPermutations permutations)
         {
@@ -61,12 +55,12 @@
             for (int i = 0; i < n; i++)
             {
                 minHash[i] = 255; /*The probability of occurrence of 1 after position 255 is very insignificant*/
-                for (int j = 0; j < perms[i].Length /*256*/; j++)
+                for (byte j = 0; j < perms[i].Length /*256*/; j++)
                 {
                     int indexAt = perms[i][j];
                     if (fingerprint.IsTrueAt(indexAt))
                     {
-                        minHash[i] = (byte)j; /*Looking for first occurrence of '1'*/
+                        minHash[i] = j; /*Looking for first occurrence of '1'*/
                         break;
                     }
                 }

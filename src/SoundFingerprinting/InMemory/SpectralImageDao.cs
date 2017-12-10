@@ -4,7 +4,6 @@
 
     using DAO;
     using DAO.Data;
-    using Infrastructure;
 
     internal class SpectralImageDao : ISpectralImageDao
     {

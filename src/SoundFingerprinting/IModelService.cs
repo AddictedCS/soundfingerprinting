@@ -9,9 +9,9 @@ namespace SoundFingerprinting
 
     public interface IModelService
     {
-        IList<SubFingerprintData> ReadSubFingerprints(long[] hashBins, QueryConfiguration config);
+        IList<SubFingerprintData> ReadSubFingerprints(int[] hashBins, QueryConfiguration config);
 
-        ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, QueryConfiguration config);
+        ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config);
 
         IModelReference InsertTrack(TrackData track);
 
@@ -26,6 +26,8 @@ namespace SoundFingerprinting
         TrackData ReadTrackByReference(IModelReference trackReference);
 
         TrackData ReadTrackByISRC(string isrc);
+
+        List<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> ids);
 
         int DeleteTrack(IModelReference trackReference);
 

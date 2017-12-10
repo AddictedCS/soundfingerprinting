@@ -14,11 +14,11 @@
             HammingSimilarity = hammingSimilarity;
         }
 
-        public SubFingerprintData SubFingerprint { get; private set; }
+        public SubFingerprintData SubFingerprint { get; }
 
-        public HashedFingerprint HashedFingerprint { get; private set; }
+        public HashedFingerprint HashedFingerprint { get; }
 
-        public int HammingSimilarity { get; private set; }
+        public int HammingSimilarity { get; }
 
         public int CompareTo(MatchedPair other)
         {

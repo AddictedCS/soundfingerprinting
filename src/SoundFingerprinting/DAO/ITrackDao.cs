@@ -10,6 +10,8 @@ namespace SoundFingerprinting.DAO
 
         TrackData ReadTrack(IModelReference trackReference);
 
+        List<TrackData> ReadTracks(IEnumerable<IModelReference> ids);
+
         int DeleteTrack(IModelReference trackReference);
 
         IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);

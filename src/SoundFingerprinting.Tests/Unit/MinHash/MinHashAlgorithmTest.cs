@@ -7,6 +7,7 @@
 
     using NUnit.Framework;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
@@ -16,14 +17,14 @@
     [TestFixture]
     public class MinHashAlgorithmTest
     {
-        private LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()), new HashConverter());
+        private readonly LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()), new HashConverter());
 
         [Test]
         public void ShouldBeAbleToGenerateMultipleTimesDifferentSignatures()
         {
             double howSimilarAreVectors = 0.4;
             int topWavelets = 200, vectorLength = 8192;
-            var similarityUtility = new SimilarityUtility(new HashConverter());
+            var similarityUtility = new SimilarityUtility();
 
             double similarity = 0;
             int simulationRuns = 20000, aggreeOn = 0;
@@ -56,7 +57,9 @@
             int topWavelets = 200;
             int vectorLength = 8192;
 
-            double[] howSimilars = new[] { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
+            var hashingConfig = new DefaultHashingConfig();
+
+            double[] howSimilars = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
             double[] avgCandidatesFound = new double[howSimilars.Length];
             double[] probabilityOfAMatch = new double[howSimilars.Length];
             double[] atLeastOneCandidateFounds = new double[howSimilars.Length];
@@ -64,7 +67,7 @@
             Parallel.For(0, howSimilars.Length, i =>
             {
                 double howSimilar = howSimilars[i];
-                double jaccardSimilarity = (howSimilar * topWavelets) / ((2 * topWavelets) - (howSimilar * topWavelets));
+                double jaccardSimilarity = howSimilar * topWavelets / (2 * topWavelets - howSimilar * topWavelets);
                 probabilityOfAMatch[i] = Math.Round(1 - Math.Pow(1 - Math.Pow(jaccardSimilarity, rows), bands), 4);
 
                 int simulationRuns = 50000;
@@ -72,9 +75,9 @@
                 int atLeastOneCandidateFound = 0;
                 for (int j = 0; j < simulationRuns; ++j)
                 {
-                    var arrays = this.GenerateVectors(howSimilar, topWavelets, vectorLength);
-                    var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), bands, rows, new List<string>());
-                    var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), bands, rows, new List<string>());
+                    var arrays = GenerateVectors(howSimilar, topWavelets, vectorLength);
+                    var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), hashingConfig, new List<string>());
+                    var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), hashingConfig, new List<string>());
                     int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
                     if (agreeCount > 0)
                     {
@@ -90,12 +93,7 @@
 
             Console.WriteLine("Bands {0}, Rows {1}, Top Wavelets {2}", bands, rows, topWavelets);
 
-            string header = String.Format(
-                "{0,5}{1,19}{2,18}{3,25}",
-                "Actual Similarity",
-                "Th. At Least One",
-                "Pr. At Least One",
-                "Avg. Candidates Found");
+            string header = $"{"Actual Similarity",5}{"Th. At Least One",19}{"Pr. At Least One",18}{"Avg. Candidates Found",25}";
 
             Console.WriteLine(header);
 
@@ -115,7 +113,7 @@
             }
         }
 
-        private int AgreeOn(long[] x, long[] y)
+        private int AgreeOn(int[] x, int[] y)
         {
             return x.Where((t, i) => t == y[i]).Count();
         }
@@ -142,11 +140,11 @@
                 float value = random.NextDouble() > 0.5 ? -1 : 1;
                 if (random.NextDouble() > similarityIndex)
                 {
-                    this.Disagree(value, first, index, second);
+                    Disagree(value, first, index, second);
                 }
                 else
                 {
-                    this.Agree(value, first, index, second);
+                    Agree(value, first, index, second);
                 }
             }
 
@@ -155,14 +153,14 @@
 
         private void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
         {
-            this.EncodeWavelet(value, first, index);
-            this.EncodeWavelet(value, second, index);
+            EncodeWavelet(value, first, index);
+            EncodeWavelet(value, second, index);
         }
 
         private void Disagree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
         {
-            this.EncodeWavelet(value, first, index);
-            this.EncodeWavelet(-1 * value, second, index);
+            EncodeWavelet(value, first, index);
+            EncodeWavelet(-1 * value, second, index);
         }
 
         private void EncodeWavelet(float value, TinyFingerprintSchema array, int index)

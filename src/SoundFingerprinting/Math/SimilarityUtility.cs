@@ -6,22 +6,10 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
 
     internal class SimilarityUtility : ISimilarityUtility
     {
-        private readonly IHashConverter hashConverter;
-
-        public SimilarityUtility() : this(DependencyResolver.Current.Get<IHashConverter>())
-        {
-        }
-
-        internal SimilarityUtility(IHashConverter hashConverter)
-        {
-            this.hashConverter = hashConverter;
-        }
-
         public int CalculateHammingDistance(byte[] a, byte[] b)
         {
             int distance = 0;
@@ -80,13 +68,18 @@
             return (double)a / (a + b);
         }
 
-        public void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator)
+        public void AccumulateHammingSimilarity(
+            IEnumerable<SubFingerprintData> candidates,
+            HashedFingerprint expected,
+            ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator,
+            int keysPerHash)
         {
             foreach (var subFingerprint in candidates)
             {
                 int hammingSimilarity = CalculateHammingSimilarity(
                     expected.HashBins,
-                    subFingerprint.Hashes, expected.SubFingerprint.Length / expected.HashBins.Length); 
+                    subFingerprint.Hashes,
+                    keysPerHash);
 
                 SubFingerprintData fingerprint = subFingerprint;
                 accumulator.AddOrUpdate(
@@ -96,7 +89,7 @@
             }
         }
 
-        public int CalculateHammingSimilarity(long[] expected, long[] actual, int setBytesPerLong)
+        public int CalculateHammingSimilarity(int[] expected, int[] actual, int setBytesPerLong)
         {
             int mask = 0xFF;
             int sameBytes = 0;

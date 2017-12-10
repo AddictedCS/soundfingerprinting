@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class ResultEntryAccumulatorTest
     {
-        private readonly ISimilarityUtility similarityUtility = new SimilarityUtility(new HashConverter());
+        private readonly ISimilarityUtility similarityUtility = new SimilarityUtility();
 
         [Test]
         public void ShouldCalculateSimilaritiesCorrectly()
@@ -27,11 +27,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var countPerTrack = 10;
             var tracksCount = totalCount / countPerTrack;
             var subFingerprints = GetSubFingerprints(totalCount, countPerTrack);
-            var queryFingerprint = new HashedFingerprint(new byte[100], new long[25], 0,0, Enumerable.Empty<string>());
+            var queryFingerprint = new HashedFingerprint(new int[25], 0,0, Enumerable.Empty<string>());
 
             Parallel.ForEach(subFingerprints, subFingerprint => { 
                 var toCompare = new List<SubFingerprintData>(new[] { subFingerprint });
-                similarityUtility.AccumulateHammingSimilarity(toCompare, queryFingerprint, hammingSimilarities);
+                similarityUtility.AccumulateHammingSimilarity(toCompare, queryFingerprint, hammingSimilarities, 4);
             });
 
             Assert.AreEqual(tracksCount, hammingSimilarities.Count);
@@ -50,7 +50,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             for (int i = 0; i < totalCount; ++i)
             {
                 int trackId = i % tracksCount;
-                var subFingerprint = new SubFingerprintData(new long[25], (uint)i, i * 1.48f, new ModelReference<ulong>((ulong)i), new ModelReference<int>(trackId));
+                var subFingerprint = new SubFingerprintData(new int[25], (uint)i, i * 1.48f, new ModelReference<ulong>((ulong)i), new ModelReference<int>(trackId));
                 subFingerprints.Add(subFingerprint);
             }
 

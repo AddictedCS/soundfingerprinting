@@ -1,17 +1,13 @@
 ﻿namespace SoundFingerprinting.Builder
 {
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.Infrastructure;
 
     public class QueryCommandBuilder : IQueryCommandBuilder
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
 
-        public QueryCommandBuilder()
-            : this(
-                DependencyResolver.Current.Get<IFingerprintCommandBuilder>(),
-                DependencyResolver.Current.Get<IQueryFingerprintService>())
+        public QueryCommandBuilder(): this(new FingerprintCommandBuilder(), QueryFingerprintService.Instance)
         {
         }
 

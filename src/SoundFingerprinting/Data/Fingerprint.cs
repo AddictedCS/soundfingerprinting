@@ -11,10 +11,10 @@
             SequenceNumber = sequenceNumber;
         }
 
-        public IEncodedFingerprintSchema Signature { get; private set; }
+        public IEncodedFingerprintSchema Signature { get; }
 
-        public uint SequenceNumber { get; private set; }
+        public uint SequenceNumber { get; }
 
-        public float StartsAt { get; private set; }
+        public float StartsAt { get; }
     }
 }

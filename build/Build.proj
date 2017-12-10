@@ -17,8 +17,7 @@
 	<Message Text="Copying Tests files to output directories" />
 	<MakeDir Directories="$(UnitTestsOutputDir)" Condition="!Exists('$(UnitTestsOutputDir)')" />
 	
-	<CreateItem Include="..\src\SoundFingerprinting.Tests\bin\$(Configuration)\**\*.*;
-	..\src\SoundFingerprinting.Audio.NAudio.Test\bin\$(Configuration)\**\*.*">
+	<CreateItem Include="..\src\SoundFingerprinting.Tests\bin\$(Configuration)\**\*.*; ..\src\SoundFingerprinting.Audio.NAudio.Test\bin\$(Configuration)\**\*.*">
     	<Output TaskParameter="Include" ItemName="UnitTestFiles" />
     </CreateItem>
 	

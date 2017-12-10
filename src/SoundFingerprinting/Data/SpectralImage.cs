@@ -11,14 +11,14 @@
             SequenceNumber = sequenceNumber;
         }
 
-        public float[] Image { get; private set; }
+        public float[] Image { get; }
 
-        public ushort Rows { get; private set; }
+        public ushort Rows { get; }
 
-        public ushort Cols { get; private set; }
+        public ushort Cols { get; }
 
-        public uint SequenceNumber { get; private set; }
+        public uint SequenceNumber { get; }
 
-        public float StartsAt { get; private set; }
+        public float StartsAt { get; }
     }
 }

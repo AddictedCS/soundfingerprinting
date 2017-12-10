@@ -27,6 +27,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <LangVersion>default</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,6 +38,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoUnitTests|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -48,16 +50,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
-    </Reference>
     <Reference Include="protobuf-net, Version=2.3.2.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <HintPath>..\packages\protobuf-net.2.3.2\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -77,7 +74,8 @@
     <Compile Include="Math\FScore.cs" />
     <Compile Include="Math\HashConverter.cs" />
     <Compile Include="Math\IHashConverter.cs" />
-    <Compile Include="MinHash\NewDefaultPermutations.cs" />
+    <Compile Include="MinHash\MaxEntropyPermutations.cs" />
+    <Compile Include="MinHash\RandomPermutations.cs" />
     <Compile Include="Query\QueryStats.cs" />
     <Compile Include="Query\SubFingerprintsToSeconds.cs" />
     <Compile Include="Query\ConfidenceCalculator.cs" />
@@ -89,16 +87,13 @@
     <Compile Include="Configuration\FrequencyRange.cs" />
     <Compile Include="Configuration\HashingConfig.cs" />
     <Compile Include="Configuration\SpectrogramConfig.cs" />
-    <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="DAO\ISpectralImageDao.cs" />
     <Compile Include="DAO\Data\IgnoreBindingAttribute.cs" />
     <Compile Include="DAO\Data\SpectralImageData.cs" />
     <Compile Include="Data\Fingerprint.cs" />
     <Compile Include="Data\SpectralImage.cs" />
-    <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
-    <Compile Include="InMemory\FingerprintDao.cs" />
     <Compile Include="InMemory\RAMStorage.cs" />
     <Compile Include="InMemory\SpectralImageDao.cs" />
     <Compile Include="InMemory\SubFingerprintDao.cs" />
@@ -187,17 +182,9 @@
     <Compile Include="Windows\IWindowFunction.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
-      <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
-      <Name>SoundFingerprinting.Audio.NAudio</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
       <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
       <Name>SoundFingerprinting.Audio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
-      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
-      <Name>SoundFingerprinting.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -28,14 +28,6 @@
         }
 
         [Test]
-        public void DependencyResolverTest()
-        {
-            var instance = new MinHashService();
-
-            Assert.IsNotNull(instance);
-        }
-
-        [Test]
         public void PermutationsCountTest()
         {
             int[][] perms = new[] { new int[] { }, new int[] { }, new int[] { } };

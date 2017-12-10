@@ -4,14 +4,12 @@
     using System.IO;
     using System.Linq;
 
-    using SoundFingerprinting.Infrastructure;
-
     internal class TestRunnerScenarioValidator
     {
         private readonly ITestRunnerUtils utils;
         private readonly TestRunnerConfig testRunnerConfig = new TestRunnerConfig();
 
-        public TestRunnerScenarioValidator() : this(DependencyResolver.Current.Get<ITestRunnerUtils>())
+        public TestRunnerScenarioValidator() : this(new TestRunnerUtils())
         {
         }
 

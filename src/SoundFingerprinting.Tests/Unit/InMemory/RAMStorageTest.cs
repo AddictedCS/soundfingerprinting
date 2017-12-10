@@ -21,7 +21,7 @@
             var hashConverter = new HashConverter();
 
             var hashes = Enumerable.Range(0, 100).Select(b => (byte)b).ToArray();
-            var longs = hashConverter.ToLongs(hashes, 25);
+            var longs = hashConverter.ToInts(hashes, 25);
 
             int tracksCount = 520;
             int subFingerprintsPerTrack = 33;
@@ -30,7 +30,7 @@
                 var trackReference = new ModelReference<int>(i);
                 for (int j = 0; j < subFingerprintsPerTrack; ++j)
                 {
-                    var hashed = new HashedFingerprint(hashes, longs, (uint)j, j * 1.48f, Enumerable.Empty<string>());
+                    var hashed = new HashedFingerprint(longs, (uint)j, j * 1.48f, Enumerable.Empty<string>());
                     storage.AddSubfingerprint(hashed, trackReference);
                 }
             });

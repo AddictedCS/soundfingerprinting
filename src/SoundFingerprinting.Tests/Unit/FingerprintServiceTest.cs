@@ -7,10 +7,10 @@
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.LSH;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
@@ -18,14 +18,11 @@
     public class FingerprintServiceTest : AbstractTest
     {
         private FingerprintService fingerprintService;
-
         private Mock<IFingerprintDescriptor> fingerprintDescriptor;
-
         private Mock<ISpectrumService> spectrumService;
-
         private Mock<IWaveletDecomposition> waveletDecomposition;
+        private Mock<ILocalitySensitiveHashingAlgorithm> localitySensitiveHashingAlgorithm;
 
-        private Mock<IAudioSamplesNormalizer> audioSamplesNormalizer;
 
         [SetUp]
         public void SetUp()
@@ -33,12 +30,12 @@
             fingerprintDescriptor = new Mock<IFingerprintDescriptor>(MockBehavior.Strict);
             spectrumService = new Mock<ISpectrumService>(MockBehavior.Strict);
             waveletDecomposition = new Mock<IWaveletDecomposition>(MockBehavior.Strict);
-            audioSamplesNormalizer = new Mock<IAudioSamplesNormalizer>(MockBehavior.Strict);
+            localitySensitiveHashingAlgorithm = new Mock<ILocalitySensitiveHashingAlgorithm>(MockBehavior.Strict);
             fingerprintService = new FingerprintService(
                 spectrumService.Object,
+                localitySensitiveHashingAlgorithm.Object,
                 waveletDecomposition.Object,
-                fingerprintDescriptor.Object,
-                audioSamplesNormalizer.Object);
+                fingerprintDescriptor.Object);
         }
 
         [TearDown]
@@ -47,7 +44,6 @@
             fingerprintDescriptor.VerifyAll();
             spectrumService.VerifyAll();
             waveletDecomposition.VerifyAll();
-            audioSamplesNormalizer.VerifyAll();
         }
 
         [Test]
@@ -60,32 +56,14 @@
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, fingerprintConfig.HaarWaveletNorm));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192).SetTrueAt(0, 1));
+            localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig, It.IsAny<IEnumerable<string>>()))
+                .Returns(new HashedFingerprint(new int[0], 1, 0f, Enumerable.Empty<string>()));
 
             var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)
                                                  .ToList();
 
             Assert.AreEqual(dividedLogSpectrum.Count, fingerprints.Count);
-            for (int index = 0; index < fingerprints.Count; index++)
-            {
-                Assert.AreEqual(dividedLogSpectrum[index].StartsAt, fingerprints[index].StartsAt, Epsilon);
-            }
-        }
-
-        [Test]
-        public void AudioSamplesAreNormalized()
-        {
-            const int TenSeconds = 5512 * 10;
-            var samples = TestUtilities.GenerateRandomAudioSamples(TenSeconds);
-            var fingerprintConfig = new DefaultFingerprintConfiguration { NormalizeSignal = true };
-            var dividedLogSpectrum = GetDividedLogSpectrum();
-            spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
-            waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, fingerprintConfig.HaarWaveletNorm));
-            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192));
-
-            audioSamplesNormalizer.Setup(normalizer => normalizer.NormalizeInPlace(samples.Samples));
-
-            fingerprintService.CreateFingerprints(samples, fingerprintConfig);
         }
 
         [Test]
