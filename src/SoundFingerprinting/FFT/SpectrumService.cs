@@ -10,40 +10,13 @@
 
     internal class SpectrumService : ISpectrumService
     {
-        private readonly IFFTService fftService;
+        private readonly IFFTServiceUnsafe fftServiceUnsafe;
         private readonly ILogUtility logUtility;
 
-        internal SpectrumService(IFFTService fftService, ILogUtility logUtility)
+        internal SpectrumService(IFFTServiceUnsafe fftServiceUnsafe, ILogUtility logUtility)
         {
-            this.fftService = fftService;
+            this.fftServiceUnsafe = fftServiceUnsafe;
             this.logUtility = logUtility;
-        }
-
-        public float[][] CreateSpectrogram(AudioSamples audioSamples, int overlap, int wdftSize)
-        {
-            float[] window = new DefaultSpectrogramConfig().Window.GetWindow(wdftSize);
-            float[] samples = audioSamples.Samples;
-            int width = (samples.Length - wdftSize) / overlap;
-            float[][] frames = new float[width][];
-            for (int i = 0; i < width; i++)
-            {
-                float[] complexSignal = fftService.FFTForward(samples, i * overlap, wdftSize, window);
-                float[] band = new float[(wdftSize / 2) + 1];
-                for (int j = 0; j < wdftSize / 2; j++)
-                {
-                    double re = complexSignal[2 * j];
-                    double img = complexSignal[(2 * j) + 1];
-
-                    re /= (float)wdftSize / 2;
-                    img /= (float)wdftSize / 2;
-
-                    band[j] = (float)((re * re) + (img * img));
-                }
-
-                frames[i] = band;
-            }
-
-            return frames;
         }
 
         public List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration)
@@ -59,16 +32,17 @@
             ushort[] logFrequenciesIndexes = logUtility.GenerateLogFrequenciesRanges(audioSamples.SampleRate, configuration);
             float[] window = configuration.Window.GetWindow(wdftSize);
             float[] samples = audioSamples.Samples;
-            Parallel.For(0, width, 
-                () => new float[wdftSize],
-                (index, loop, fftArray) =>
+
+            unsafe
+            {
+                Parallel.For(0, width, index =>
                 {
+                    float* fftArray = stackalloc float[wdftSize];
                     CopyAndWindow(fftArray, samples, index * configuration.Overlap, window);
-                    fftService.FFTForwardInPlace(fftArray);
+                    fftServiceUnsafe.FFTForwardInPlace(fftArray, wdftSize);
                     ExtractLogBins(fftArray, logFrequenciesIndexes, configuration.LogBins, wdftSize, frames, index);
-                    return fftArray;
-                },
-                fftArray => { });
+                });
+            }
 
             return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
         }
@@ -98,7 +72,7 @@
             return spectralImages;
         }
 
-        public void ExtractLogBins(float[] spectrum, ushort[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
+        private unsafe void ExtractLogBins(float* spectrum, ushort[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
         {
             int width = wdftSize / 2; /* 1024 */
             for (int i = 0; i < logBins; i++)
@@ -123,7 +97,7 @@
             return (int)((float)audioSamples / overlap);
         }
 
-        private void CopyAndWindow(float[] fftArray, float[] samples, int prefix, float[] window)
+        private unsafe void CopyAndWindow(float* fftArray, float[] samples, int prefix, float[] window)
         {
             for (int j = 0; j < window.Length; ++j)
             {
