@@ -62,7 +62,8 @@
         {
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
 
-            Parallel.ForEach(queryFingerprints, queryFingerprint => { 
+            Parallel.ForEach(queryFingerprints, queryFingerprint => 
+            { 
                 var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities, configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
             });
@@ -75,7 +76,8 @@
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
             var allCandidates = modelService.ReadSubFingerprints(hashedFingerprints.Select(querySubfingerprint => querySubfingerprint.HashBins), configuration);
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
-            Parallel.ForEach(hashedFingerprints, queryFingerprint => {
+            Parallel.ForEach(hashedFingerprints, queryFingerprint => 
+            {
                 var subFingerprints = allCandidates.Where(candidate => queryMath.IsCandidatePassingThresholdVotes(queryFingerprint, candidate, configuration.ThresholdVotes));
                 similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities, configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
             });

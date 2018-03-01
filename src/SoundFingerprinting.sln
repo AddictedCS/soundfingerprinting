@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Tests", "SoundFingerprinting.Tests\SoundFingerprinting.Tests.csproj", "{987DA38D-5157-4D83-9B1D-83A0A62D0E94}"
 EndProject
@@ -21,8 +21,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio.NAudio.Test", "SoundFingerprinting.Audio.NAudio.Test\SoundFingerprinting.Audio.NAudio.Test.csproj", "{AE1865DB-C8D2-48E8-BB00-551D9D858C37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Audio", "SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj", "{0F94F031-1D0B-429A-A41D-956C1EAE435B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundFingerprinting.Infrastructure", "SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj", "{A265E08A-870F-406D-8751-4F6F6D69E91A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,10 +48,6 @@ Global
 		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F94F031-1D0B-429A-A41D-956C1EAE435B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A265E08A-870F-406D-8751-4F6F6D69E91A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
