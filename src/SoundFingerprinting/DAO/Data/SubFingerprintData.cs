@@ -23,7 +23,7 @@
 
         public SubFingerprintData()
         {
-            Clusters = Enumerable.Empty<string>();
+            Clusters = new List<string>();
         }
 
         [IgnoreBinding]

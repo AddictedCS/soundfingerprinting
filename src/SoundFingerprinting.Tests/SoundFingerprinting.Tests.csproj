@@ -60,6 +60,9 @@
     <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="protobuf-net, Version=2.3.2.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.3.2\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
@@ -104,6 +107,7 @@
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
     <Compile Include="Unit\FFT\LomontFFTTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
+    <Compile Include="Unit\InMemory\ProtoSerializerTest.cs" />
     <Compile Include="Unit\InMemory\RAMStorageTest.cs" />
     <Compile Include="Unit\LCS\QueryResultCoverageCalculatorTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
