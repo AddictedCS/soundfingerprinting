@@ -65,7 +65,9 @@
     <Compile Include="Configuration\LowLatencyFingerprintConfiguration.cs" />
     <Compile Include="Configuration\LowLatencyQueryConfiguration.cs" />
     <Compile Include="Configuration\QueryStrides.cs" />
+    <Compile Include="FFT\ISimpleSpectrumService.cs" />
     <Compile Include="FFT\LomontFFT.cs" />
+    <Compile Include="FFT\SimpleSpectrumService.cs" />
     <Compile Include="IAdvancedModelService.cs" />
     <Compile Include="AdvancedModelService.cs" />
     <Compile Include="LCS\Coverage.cs" />
