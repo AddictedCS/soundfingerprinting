@@ -22,22 +22,11 @@ namespace SoundFingerprinting
         private readonly IFingerprintDescriptor fingerprintDescriptor;
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
 
-        private static readonly FingerprintService Singleton = new FingerprintService(
+        public static FingerprintService Instance { get; } = new FingerprintService(
             new SpectrumService(new LomontFFT(), new LogUtility()),
-            new LocalitySensitiveHashingAlgorithm(
-                new MinHashService(new MaxEntropyPermutations()),
-                new HashConverter()),
+            new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()), new HashConverter()),
             new StandardHaarWaveletDecomposition(),
             new FastFingerprintDescriptor());
-
-
-        public static FingerprintService Instance
-        {
-            get
-            {
-                return Singleton;
-            }
-        }
 
         internal FingerprintService(
             ISpectrumService spectrumService,
@@ -63,21 +52,19 @@ namespace SoundFingerprinting
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
 
-            Parallel.ForEach(spectralImages, 
-                () => new ushort[spectrumLength],
-                (spectralImage, loop, cachedIndexes) =>
-                {
-                    waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols, configuration.HaarWaveletNorm);
-                    RangeUtils.PopulateIndexes(spectrumLength, cachedIndexes);
-                    var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
-                    if (!image.IsSilence())
-                    {
-                        fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
-                    }
+            Parallel.ForEach(spectralImages, () => new ushort[spectrumLength], (spectralImage, loop, cachedIndexes) =>
+            {
+                 waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols, configuration.HaarWaveletNorm);
+                 RangeUtils.PopulateIndexes(spectrumLength, cachedIndexes);
+                 var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
+                 if (!image.IsSilence())
+                 {
+                     fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
+                 }
 
-                    return cachedIndexes;
-                }, 
-                cachedIndexes => { });
+                 return cachedIndexes;
+            }, 
+            cachedIndexes => { });
 
             return fingerprints.ToList();
         }
@@ -85,7 +72,8 @@ namespace SoundFingerprinting
         private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints, FingerprintConfiguration configuration)
         {
             var hashedFingerprints = new ConcurrentBag<HashedFingerprint>();
-            Parallel.ForEach(fingerprints,
+            Parallel.ForEach(
+                fingerprints,
                 (fingerprint, state, index) =>
                 {
                     var hashedFingerprint = lshAlgorithm.Hash(
