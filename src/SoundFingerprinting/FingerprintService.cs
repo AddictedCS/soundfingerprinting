@@ -73,7 +73,7 @@ namespace SoundFingerprinting
         {
             var hashedFingerprints = new ConcurrentBag<HashedFingerprint>();
             Parallel.ForEach(fingerprints, (fingerprint, state, index) =>
-            {
+            { 
                 var hashedFingerprint = lshAlgorithm.Hash(fingerprint, configuration.HashingConfig, configuration.Clusters);
                 hashedFingerprints.Add(hashedFingerprint);
             });
