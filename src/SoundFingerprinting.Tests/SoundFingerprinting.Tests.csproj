@@ -90,6 +90,7 @@
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TestRunnerTest.cs" />
     <Compile Include="Integration\TrackDaoTest.cs" />
+    <Compile Include="Integration\WaveFormatTest.cs" />
     <Compile Include="Unit\Audio\ContinuousStreamSamplesProviderTest.cs" />
     <Compile Include="Unit\Audio\QueueSamplesProvider.cs" />
     <Compile Include="Unit\Audio\SamplesAggregatorTest.cs" />
@@ -143,6 +144,9 @@
     <Compile Include="Unit\Windows\HanningWindowTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestEnvironment\chopin_short.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
