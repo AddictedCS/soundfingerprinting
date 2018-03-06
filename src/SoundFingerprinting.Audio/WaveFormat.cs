@@ -12,11 +12,11 @@
 
         public int Length { get; private set; }
 
-        public double LengthInSeconds
+        public float LengthInSeconds
         {
             get
             {
-                return (double)Length / (SampleRate * (BitsPerSample / 8) * Channels);
+                return (float)Length / (SampleRate * (BitsPerSample / 8) * Channels);
             }
         }
 
@@ -39,6 +39,11 @@
                            Length = bytes
                        };
             }
+        }
+
+        public override string ToString()
+        {
+            return $"Format: SampleRate ${SampleRate}, Channels ${Channels}, BitsPerSample ${BitsPerSample}, Length ${Length}";
         }
     }
 }

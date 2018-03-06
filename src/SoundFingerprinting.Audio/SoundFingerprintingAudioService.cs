@@ -1,27 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SoundFingerprinting.Audio
+﻿namespace SoundFingerprinting.Audio
 {
+    using System.IO;
+    using System;
+    using System.Collections.Generic;
+
     public class SoundFingerprintingAudioService : AudioService
     {
+        private static HashSet<int> acceptedSampleRates = new HashSet<int> { 5512, 11025, 22050, 44100 };
+        private static HashSet<int> acceptedBitsPerSample = new HashSet<int> { 8, 16, 24, 32 };
+        private static HashSet<int> acceptedChannels = new HashSet<int> { 1, 2 };
+
         public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt)
         {
             var format = WaveFormat.FromFile(pathToSourceFile);
-
-            if(format.SampleRate < 5512)
-                throw new ArgumentException($"Supplied file format sample rate is less than accepted range [5512, 44100]");
-            if(format.BitsPerSample < 8)
-                throw new ArgumentException($"Supplied file format bits per sample is less than accepted range [8, 32]");
-            if(format.Channels < 0 || format.Channels > 2)
-                throw new ArgumentException($"Supplied file format channels is not in the accepted range [1, 2]");
-
-            return null;
+            CheckInputFileFormat(format);
+            float[] samples = ToSamples(pathToSourceFile, format);
+            float[] monoSamples = ToMonoSamples(samples, format);
+            float[] downsampled = ToTargetSampleRate(monoSamples, format, sampleRate);
+            return new AudioSamples(downsampled, pathToSourceFile, sampleRate);
         }
 
         public override float GetLengthInSeconds(string pathToSourceFile)
         {
-            throw new NotImplementedException();
+            var format = WaveFormat.FromFile(pathToSourceFile);
+            CheckInputFileFormat(format);
+            return format.LengthInSeconds;
         }
 
         public override IReadOnlyCollection<string> SupportedFormats
@@ -30,6 +33,92 @@ namespace SoundFingerprinting.Audio
             {
                 return new[] { ".wav" };
             }
+        }
+
+
+        private static void CheckInputFileFormat(WaveFormat format)
+        {
+            if (!acceptedSampleRates.Contains(format.SampleRate))
+                throw new ArgumentException($"Sample rate of the given file is not supported {format}. Supported sample rates (5512, 11025, 22050, 44100). "
+                                            + $"Submit a github request if you need a different sample rate to be supported.");
+            if (!acceptedBitsPerSample.Contains(format.BitsPerSample))
+                throw new ArgumentException($"Bad file format {format}. Bits per sample ({format.BitsPerSample}) is less than accepted range.");
+            if (!acceptedChannels.Contains(format.Channels))
+                throw new ArgumentException($"Bad file format {format}. Number of channels is not in the accepted range.");
+        }
+        
+        private float[] ToSamples(string pathToFile, WaveFormat format)
+        {
+            using (var stream = new FileStream(pathToFile, FileMode.Open))
+            {
+                stream.Seek(44, SeekOrigin.Begin);
+                return GetInts(stream, format);
+            }
+        }
+
+        private float[] ToMonoSamples(float[] samples, WaveFormat format)
+        {
+            if (format.Channels == 1) return samples;
+
+            float[] mono = new float[samples.Length / 2];
+            for (int i = 0, k = 0; i < samples.Length; i += 2, k++)
+            {
+                int left = i;
+                int right = i + 1;
+                mono[k] = (samples[left] + samples[right]) / 2;
+            }
+
+            return mono;
+        }
+
+        private float[] ToTargetSampleRate(float[] monoSamples, WaveFormat format, int sampleRate)
+        {
+            return Downsampler.Downsample(monoSamples, format.SampleRate, sampleRate);
+        }
+
+        private float[] GetInts(Stream reader, WaveFormat format)
+        {
+
+            int bytesPerSample = format.BitsPerSample / 8;
+            int samplesCount = format.Length / bytesPerSample;
+
+            byte[] buffer = new byte[bytesPerSample];
+
+            int normalizer = bytesPerSample == 1 ? 127 : bytesPerSample == 2 ? Int16.MaxValue : 
+                bytesPerSample == 3 ? (int)Math.Pow(2, 24) / 2 - 1 : Int32.MaxValue;
+
+            int samplesOffset = 0;
+            float[] samples = new float[samplesCount];
+            while (reader.CanRead && samplesOffset < samplesCount)
+            {
+                int read = reader.Read(buffer, 0, bytesPerSample);
+                if (read != bytesPerSample) return samples;
+
+                if (bytesPerSample == 1)
+                {
+                    samples[samplesOffset] = (float) (buffer[0]) / normalizer;
+                }
+                else if (bytesPerSample == 2)
+                {
+                    short sample = (short)(buffer[0] | buffer[1] << 8);
+                    samples[samplesOffset] = (float)(sample) / normalizer;
+                }
+                else if (bytesPerSample == 3)
+                {
+                    int sample = buffer[0] | buffer[1] << 8 | buffer[2] << 16;
+                    samples[samplesOffset] = (float)(sample) / normalizer;
+                }
+                else
+                {
+                    int sample = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24;
+                    samples[samplesOffset] = (float)(sample) / normalizer;
+                }
+
+                samples[samplesOffset] = Math.Min(1, samples[samplesOffset]);
+                samplesOffset++;
+            }
+
+            return samples;
         }
     }
 }

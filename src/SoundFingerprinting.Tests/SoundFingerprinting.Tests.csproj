@@ -86,6 +86,7 @@
     <Compile Include="Integration\InMemoryModelServiceSerializationTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
     <Compile Include="Integration\NAudioServiceIntTest.cs" />
+    <Compile Include="Integration\SoundFingeprintingAudioServiceTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TestRunnerTest.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Unit\Windows\HanningWindowTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestEnvironment\chirp_44.1khz.wav" />
     <Content Include="TestEnvironment\chopin_short.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
