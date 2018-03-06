@@ -74,7 +74,7 @@
             if (format.Channels == 1) return samples;
 
             float[] mono = new float[samples.Length / 2];
-            for (int i = 0, k = 0; i < samples.Length; i += 2, k++)
+            for (int i = 0, k = 0; i < samples.Length - 1; i += 2, k++)
             {
                 int left = i;
                 int right = i + 1;
@@ -91,9 +91,8 @@
 
         private float[] GetInts(Stream reader, WaveFormat format)
         {
-
             int bytesPerSample = format.BitsPerSample / 8;
-            int samplesCount = format.Length / bytesPerSample;
+            long samplesCount = format.Length / bytesPerSample;
 
             byte[] buffer = new byte[bytesPerSample];
 

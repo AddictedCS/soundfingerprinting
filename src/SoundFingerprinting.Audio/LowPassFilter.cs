@@ -52,11 +52,11 @@ namespace SoundFingerprinting.Audio
             switch (sourceSampleRate)
             {
                 case 44100:
-                    return Resample(samples, samples.Length / 8 - 3, 8, lp_filter44);
+                    return Resample(samples, samples.Length / 8 - 31, 8, lp_filter44);
                 case 22050:
-                    return Resample(samples, samples.Length / 4 - 3, 4, lp_filter22);
+                    return Resample(samples, samples.Length / 4 - 31, 4, lp_filter22);
                 case 11025:
-                    return Resample(samples, samples.Length / 2 - 3, 2, lp_filter11);
+                    return Resample(samples, samples.Length / 2 - 31, 2, lp_filter11);
                 case 5512:
                     return samples;
             }
