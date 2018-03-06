@@ -13,17 +13,14 @@
         private IAudioService service = new SoundFingerprintingAudioService();
 
         private IAudioService audioService = new NAudioService();
+        private NAudioWaveFileUtility nAudioWaveFileUtility = new NAudioWaveFileUtility();
 
         [Test]
         public void ShouldConvert()
         {
-            var samples = service.ReadMonoSamplesFromFile(PathToChirp, 5512);
-            NAudioWaveFileUtility nAudioWaveFileUtility = new NAudioWaveFileUtility();
-            nAudioWaveFileUtility.WriteSamplesToFile(samples.Samples, 5512, @"c:\hui.wav");
-
-
-            var samples2 = audioService.ReadMonoSamplesFromFile(PathToChirp, 5512);
-            nAudioWaveFileUtility.WriteSamplesToFile(samples2.Samples, 5512, @"c:\hui2.wav");
+            nAudioWaveFileUtility.WriteSamplesToFile(service.ReadMonoSamplesFromFile(PathToChirp, 5512).Samples, 5512, @"c:\chirp_44_5512.wav");
+            nAudioWaveFileUtility.WriteSamplesToFile(service.ReadMonoSamplesFromFile(PathToChirp22, 5512).Samples, 5512, @"c:\chirp_22_5512.wav");
+            nAudioWaveFileUtility.WriteSamplesToFile(service.ReadMonoSamplesFromFile(PathToChirp11, 5512).Samples, 5512, @"c:\chirp_11_5512.wav");
         }
     }
 }

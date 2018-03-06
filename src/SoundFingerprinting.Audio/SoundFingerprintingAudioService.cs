@@ -6,9 +6,22 @@
 
     public class SoundFingerprintingAudioService : AudioService
     {
-        private static HashSet<int> acceptedSampleRates = new HashSet<int> { 5512, 11025, 22050, 44100 };
-        private static HashSet<int> acceptedBitsPerSample = new HashSet<int> { 8, 16, 24, 32 };
-        private static HashSet<int> acceptedChannels = new HashSet<int> { 1, 2 };
+        private static readonly HashSet<int> AcceptedSampleRates = new HashSet<int> { 5512, 11025, 22050, 44100 };
+        private static readonly HashSet<int> AcceptedBitsPerSample = new HashSet<int> { 8, 16, 24, 32 };
+        private static readonly HashSet<int> AcceptedChannels = new HashSet<int> { 1, 2 };
+
+        private static int waveHeaderLength = 44;
+
+        private readonly ILowPassFilter lowPassFilter;
+
+        public SoundFingerprintingAudioService(): this(new LowPassFilter())
+        {
+        }
+
+        internal SoundFingerprintingAudioService(LowPassFilter lowPassFilter)
+        {
+            this.lowPassFilter = lowPassFilter;
+        }
 
         public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt)
         {
@@ -38,12 +51,12 @@
 
         private static void CheckInputFileFormat(WaveFormat format)
         {
-            if (!acceptedSampleRates.Contains(format.SampleRate))
+            if (!AcceptedSampleRates.Contains(format.SampleRate))
                 throw new ArgumentException($"Sample rate of the given file is not supported {format}. Supported sample rates (5512, 11025, 22050, 44100). "
                                             + $"Submit a github request if you need a different sample rate to be supported.");
-            if (!acceptedBitsPerSample.Contains(format.BitsPerSample))
+            if (!AcceptedBitsPerSample.Contains(format.BitsPerSample))
                 throw new ArgumentException($"Bad file format {format}. Bits per sample ({format.BitsPerSample}) is less than accepted range.");
-            if (!acceptedChannels.Contains(format.Channels))
+            if (!AcceptedChannels.Contains(format.Channels))
                 throw new ArgumentException($"Bad file format {format}. Number of channels is not in the accepted range.");
         }
         
@@ -51,7 +64,7 @@
         {
             using (var stream = new FileStream(pathToFile, FileMode.Open))
             {
-                stream.Seek(44, SeekOrigin.Begin);
+                stream.Seek(waveHeaderLength, SeekOrigin.Begin);
                 return GetInts(stream, format);
             }
         }
@@ -73,7 +86,7 @@
 
         private float[] ToTargetSampleRate(float[] monoSamples, WaveFormat format, int sampleRate)
         {
-            return Downsampler.Downsample(monoSamples, format.SampleRate, sampleRate);
+            return lowPassFilter.FilterAndDownsample(monoSamples, format.SampleRate, sampleRate);
         }
 
         private float[] GetInts(Stream reader, WaveFormat format)
@@ -84,8 +97,7 @@
 
             byte[] buffer = new byte[bytesPerSample];
 
-            int normalizer = bytesPerSample == 1 ? 127 : bytesPerSample == 2 ? Int16.MaxValue : 
-                bytesPerSample == 3 ? (int)Math.Pow(2, 24) / 2 - 1 : Int32.MaxValue;
+            int normalizer = bytesPerSample == 1 ? 127 : bytesPerSample == 2 ? Int16.MaxValue : bytesPerSample == 3 ? (int)Math.Pow(2, 24) / 2 - 1 : Int32.MaxValue;
 
             int samplesOffset = 0;
             float[] samples = new float[samplesCount];
@@ -96,22 +108,22 @@
 
                 if (bytesPerSample == 1)
                 {
-                    samples[samplesOffset] = (float) (buffer[0]) / normalizer;
+                    samples[samplesOffset] = (float) buffer[0] / normalizer;
                 }
                 else if (bytesPerSample == 2)
                 {
                     short sample = (short)(buffer[0] | buffer[1] << 8);
-                    samples[samplesOffset] = (float)(sample) / normalizer;
+                    samples[samplesOffset] = (float)sample / normalizer;
                 }
                 else if (bytesPerSample == 3)
                 {
                     int sample = buffer[0] | buffer[1] << 8 | buffer[2] << 16;
-                    samples[samplesOffset] = (float)(sample) / normalizer;
+                    samples[samplesOffset] = (float)sample / normalizer;
                 }
                 else
                 {
                     int sample = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24;
-                    samples[samplesOffset] = (float)(sample) / normalizer;
+                    samples[samplesOffset] = (float)sample / normalizer;
                 }
 
                 samples[samplesOffset] = Math.Min(1, samples[samplesOffset]);

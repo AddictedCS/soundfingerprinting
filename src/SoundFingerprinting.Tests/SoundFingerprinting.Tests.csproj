@@ -145,6 +145,12 @@
     <Compile Include="Unit\Windows\HanningWindowTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestEnvironment\chirp_11025hz_16bit.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestEnvironment\chirp_22.05khz_24bit.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestEnvironment\chirp_44.1khz.wav" />
     <Content Include="TestEnvironment\chopin_short.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

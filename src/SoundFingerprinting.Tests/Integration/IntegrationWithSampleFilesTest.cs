@@ -16,6 +16,8 @@
         protected readonly string PathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
         protected readonly string PathToWav = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopin_short.wav");
         protected readonly string PathToChirp = Path.Combine(TestContext.CurrentContext.TestDirectory, "chirp_44.1khz.wav");
+        protected readonly string PathToChirp22 = Path.Combine(TestContext.CurrentContext.TestDirectory, "chirp_22.05khz_24bit.wav");
+        protected readonly string PathToChirp11 = Path.Combine(TestContext.CurrentContext.TestDirectory, "chirp_11025hz_16bit.wav");
 
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
