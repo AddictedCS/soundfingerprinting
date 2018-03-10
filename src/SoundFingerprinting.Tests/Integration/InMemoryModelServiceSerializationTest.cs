@@ -1,13 +1,11 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
-    using System;
     using System.IO;
     using System.Linq;
 
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
@@ -20,8 +18,7 @@
     {
         private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
         private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
-
-        private readonly IAudioService audioService = new NAudioService();
+        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
         [Test]
         public void ShouldSerializeAndDeserialize()

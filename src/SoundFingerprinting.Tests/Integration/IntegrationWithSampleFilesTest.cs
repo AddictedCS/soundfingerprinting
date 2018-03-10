@@ -41,14 +41,14 @@
             {
                 Album = "Album",
                 AlbumArtist = "AlbumArtist",
-                Artist = "Artist",
+                Artist = "Chopin",
                 Composer = "Composer",
-                Duration = 100.2,
+                Duration = 10.0d,
                 Genre = "Genre",
                 IsEmpty = false,
                 ISRC = "ISRC",
-                Title = "Title",
-                Year = 1986
+                Title = "Nocture",
+                Year = 1857
             };
         }
 

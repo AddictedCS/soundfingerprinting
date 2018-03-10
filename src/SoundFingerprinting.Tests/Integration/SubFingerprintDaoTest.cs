@@ -6,7 +6,6 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -14,11 +13,10 @@
     using SoundFingerprinting.InMemory;
 
     [TestFixture]
-    [Category("RequiresWindowsDLL")]
     public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
     {
         private readonly FingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
-        private readonly IAudioService audioService = new NAudioService();
+        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
         private ISubFingerprintDao subFingerprintDao;
         private ITrackDao trackDao;
 
@@ -26,7 +24,7 @@
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
-            subFingerprintDao = new SubFingerprintDao((IRAMStorage)ramStorage);
+            subFingerprintDao = new SubFingerprintDao(ramStorage);
             trackDao = new TrackDao(ramStorage);
         }
 

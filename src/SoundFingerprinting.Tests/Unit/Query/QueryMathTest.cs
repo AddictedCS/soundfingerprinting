@@ -1,8 +1,10 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.IO;
+    using System;
 
     using Moq;
 
@@ -108,48 +110,58 @@
             var fingerprint = new HashedFingerprint(new[] { 1, 2, 3, 4, 5 }, 1, 1f, Enumerable.Empty<string>());
             var hashedFingerprints = new List<HashedFingerprint> { fingerprint };
 
-            var hammingSimilarities =
-                new Dictionary<IModelReference, ResultEntryAccumulator>
-                {
-                    {
-                        new ModelReference<int>(0),
-                        new ResultEntryAccumulator(
-                            fingerprint,
-                            new SubFingerprintData(),
-                            100)
-                    }
-                };
+            var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
+            hammingSimilarities.AddOrUpdate(
+                new ModelReference<int>(0),
+                new ResultEntryAccumulator(fingerprint, new SubFingerprintData(), 100),
+                (a, b) => b);
 
             modelService.Setup(s => s.ReadTracksByReferences(It.IsAny<IEnumerable<IModelReference>>()))
                 .Returns(new List<TrackData> { new TrackData() });
 
-            var resultEntries = queryMath.GetBestCandidates(
-                hashedFingerprints,
-                hammingSimilarities,
-                5,
-                modelService.Object,
-                new DefaultFingerprintConfiguration());
-
-            Assert.IsNotNull(resultEntries);
-            CollectionAssert.IsEmpty(resultEntries);
+            Assert.Throws<ArgumentNullException>(
+                () =>
+                {
+                    queryMath.GetBestCandidates(
+                        hashedFingerprints,
+                        hammingSimilarities,
+                        5,
+                        modelService.Object,
+                        new DefaultFingerprintConfiguration());
+                });
         }
 
         [Test]
         public void ShouldFailDeserialization()
         {
-
             using (var memory = new MemoryStream())
             {
                 var track = new TrackData("asdf", "asdf", "asdf", "asdf", 1986, 1d, new ModelReference<int>(0));
                 Serializer.SerializeWithLengthPrefix(memory, new List<TrackData> { track, track }, PrefixStyle.Fixed32);
 
                 byte[] buffer = memory.GetBuffer();
-                byte[] corrupted = new byte[buffer.Length];
-                System.Array.Copy(buffer, 0, corrupted, 0, 46);
-                using (var toRead = new MemoryStream(corrupted))
+
+                for (int i = 1; i < buffer.Length; ++i)
                 {
-                    var result = Serializer.DeserializeWithLengthPrefix<List<TrackData>>(toRead, PrefixStyle.Fixed32);
-                    CollectionAssert.IsEmpty(result);
+                    byte[] corrupted = new byte[i];
+                    Array.Copy(buffer, 0, corrupted, 0, i);
+                    using (var toRead = new MemoryStream(corrupted))
+                    {
+                        try
+                        {
+                            var result = Serializer.DeserializeWithLengthPrefix<List<TrackData>>(toRead, PrefixStyle.Fixed32);
+                            CollectionAssert.IsNotEmpty(result);
+                            Assert.IsNotNull(result[0].TrackReference);
+                            if (result.Count > 1)
+                            {
+                                Assert.IsNotNull(result[1].TrackReference);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+                    }
                 }
             }
         }
