@@ -135,6 +135,8 @@
             long numberOfFingerprints = numberOfDownsampledSamples / config.SamplesPerFingerprint;
             Assert.AreEqual(numberOfFingerprints, list.Count);
         }
+
+        [Test]
         public void CreateFingerprintsWithTheSameFingerprintCommandTest()
         {
             const int SecondsToProcess = 8;
