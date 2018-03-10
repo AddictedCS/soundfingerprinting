@@ -5,7 +5,6 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
@@ -15,7 +14,7 @@
     {
         private readonly FingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
         private readonly QueryCommandBuilder qcb = new QueryCommandBuilder();
-        private readonly IAudioService audioService = new NAudioService();
+        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
         [Test]
         public void ShouldFingerprintAndQuerySuccessfully()

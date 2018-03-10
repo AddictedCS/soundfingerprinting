@@ -85,7 +85,6 @@
     <Compile Include="Integration\InMemoryModelServiceSerializationTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
     <Compile Include="Integration\SoundFingerprintingAudioServiceIntTest.cs" />
-    <Compile Include="Integration\SoundFingeprintingAudioServiceTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TestRunnerTest.cs" />
@@ -144,16 +143,7 @@
     <Compile Include="Unit\Windows\HanningWindowTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestEnvironment\chirp_11025hz_16bit.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestEnvironment\chirp_22.05khz_24bit.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestEnvironment\chirp_44.1khz.wav" />
-    <Content Include="TestEnvironment\chopin_short.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="TestEnvironment\chopin_short.wav" />
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
@@ -161,10 +151,6 @@
     <Content Include="TestEnvironment\chopinsamples.bin" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
-      <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
-      <Name>SoundFingerprinting.Audio.NAudio</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
       <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
       <Name>SoundFingerprinting.Audio</Name>
@@ -173,9 +159,6 @@
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>
       <Name>SoundFingerprinting</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="TestEnvironment\Chopin.mp3" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

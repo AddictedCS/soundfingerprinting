@@ -8,7 +8,6 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -19,7 +18,7 @@
     public class TrackDaoTest : IntegrationWithSampleFilesTest
     {
         private readonly FingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
-        private readonly IAudioService audioService = new NAudioService();
+        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
         private ITrackDao trackDao;
         private ISubFingerprintDao subFingerprintDao;
 

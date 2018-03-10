@@ -5,7 +5,6 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
@@ -40,7 +39,7 @@
                     new StandardHaarWaveletDecomposition(),
                     new FastFingerprintDescriptor()));
 
-            var audioService = new NAudioService();
+            var audioService = new SoundFingerprintingAudioService();
             var audioSamples = GetAudioSamples();
 
             int testRuns = 5;
