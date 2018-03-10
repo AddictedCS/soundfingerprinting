@@ -16,6 +16,7 @@
 
         public SoundFingerprintingAudioService(): this(new LowPassFilter())
         {
+            // no op
         }
 
         internal SoundFingerprintingAudioService(LowPassFilter lowPassFilter)
@@ -26,17 +27,17 @@
         public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt)
         {
             var format = WaveFormat.FromFile(pathToSourceFile);
-            CheckInputFileFormat(format);
-            float[] samples = ToSamples(pathToSourceFile, format);
+            CheckInputFileFormat(format, startAt);
+            float[] samples = ToSamples(pathToSourceFile, format, seconds, startAt);
             float[] monoSamples = ToMonoSamples(samples, format);
-            float[] downsampled = ToTargetSampleRate(monoSamples, format, sampleRate);
+            float[] downsampled = ToTargetSampleRate(monoSamples, format.SampleRate, sampleRate);
             return new AudioSamples(downsampled, pathToSourceFile, sampleRate);
         }
 
         public override float GetLengthInSeconds(string pathToSourceFile)
         {
             var format = WaveFormat.FromFile(pathToSourceFile);
-            CheckInputFileFormat(format);
+            CheckInputFileFormat(format, 0);
             return format.LengthInSeconds;
         }
 
@@ -49,7 +50,7 @@
         }
 
 
-        private static void CheckInputFileFormat(WaveFormat format)
+        private static void CheckInputFileFormat(WaveFormat format, double startsAt)
         {
             if (!AcceptedSampleRates.Contains(format.SampleRate))
                 throw new ArgumentException($"Sample rate of the given file is not supported {format}. Supported sample rates (5512, 11025, 22050, 44100). "
@@ -58,14 +59,19 @@
                 throw new ArgumentException($"Bad file format {format}. Bits per sample ({format.BitsPerSample}) is less than accepted range.");
             if (!AcceptedChannels.Contains(format.Channels))
                 throw new ArgumentException($"Bad file format {format}. Number of channels is not in the accepted range.");
+            if (startsAt > format.LengthInSeconds)
+                throw new ArgumentException($"Could not start reading from {startsAt} second, since input file is shorter {format.LengthInSeconds}");
         }
         
-        private float[] ToSamples(string pathToFile, WaveFormat format)
+        private float[] ToSamples(string pathToFile, WaveFormat format, double seconds, double startsAt)
         {
             using (var stream = new FileStream(pathToFile, FileMode.Open))
             {
                 stream.Seek(waveHeaderLength, SeekOrigin.Begin);
-                return GetInts(stream, format);
+                int samplesToSeek = (int)(startsAt * format.SampleRate * format.Channels);
+                int bytesPerSample = format.BitsPerSample / 8;
+                stream.Seek(bytesPerSample * samplesToSeek, SeekOrigin.Current);
+                return GetInts(stream, format, seconds, startsAt);
             }
         }
 
@@ -84,15 +90,15 @@
             return mono;
         }
 
-        private float[] ToTargetSampleRate(float[] monoSamples, WaveFormat format, int sampleRate)
+        private float[] ToTargetSampleRate(float[] monoSamples, int sourceSampleRate, int sampleRate)
         {
-            return lowPassFilter.FilterAndDownsample(monoSamples, format.SampleRate, sampleRate);
+            return lowPassFilter.FilterAndDownsample(monoSamples, sourceSampleRate, sampleRate);
         }
 
-        private float[] GetInts(Stream reader, WaveFormat format)
+        private float[] GetInts(Stream reader, WaveFormat format, double seconds, double startsAt)
         {
             int bytesPerSample = format.BitsPerSample / 8;
-            long samplesCount = format.Length / bytesPerSample;
+            long samplesCount = GetSamplesToRead(format, seconds, startsAt);
 
             byte[] buffer = new byte[bytesPerSample];
 
@@ -130,6 +136,21 @@
             }
 
             return samples;
+        }
+
+        private long GetSamplesToRead(WaveFormat format, double seconds, double startsAt)
+        {
+            int samplesPerSecond = format.SampleRate * format.Channels;
+            int requestedSamples = Math.Abs(seconds) < 0.001 ? int.MaxValue : (int)seconds * samplesPerSecond;
+            int bytesPerSample = format.BitsPerSample / 8;
+            int samplesInInput = (int)format.Length / bytesPerSample - (int)startsAt * samplesPerSecond;
+
+            if (samplesInInput > requestedSamples)
+            {
+                return requestedSamples;
+            }
+
+            return samplesInInput;
         }
     }
 }
