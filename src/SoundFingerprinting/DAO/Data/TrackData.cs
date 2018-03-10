@@ -40,7 +40,7 @@
 
         public TrackData()
         {
-            // this public parameterless constructor is left here to allow datastorages that leverage reflection to instantiate objects
+            // this internal parameterless constructor is left here to allow datastorages that leverage reflection to instantiate objects
             // nontheless it is going to be removed in future versions
         }
 
