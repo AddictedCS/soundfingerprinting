@@ -84,7 +84,7 @@
     <Compile Include="Integration\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Integration\InMemoryModelServiceSerializationTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
-    <Compile Include="Integration\NAudioServiceIntTest.cs" />
+    <Compile Include="Integration\SoundFingerprintingAudioServiceIntTest.cs" />
     <Compile Include="Integration\SoundFingeprintingAudioServiceTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
