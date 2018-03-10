@@ -3,13 +3,12 @@ mono: 3.12.0
 dotnet: 2.0.0
 solution: src/SoundFingerprinting.sln
 install:
-  - nuget restore src/SoundFingerprinting.sln
   - nuget install NUnit.Runners -Version 3.9.0 -OutputDirectory build/testrunner
 script:
-  - xbuild /p:Configuration=Release src/SoundFingerprinting.sln
-  - mono build/testrunner/NUnit.ConsoleRunner.3.9.0/tools/nunit3-console.exe src/SoundFingerprinting.Tests/bin/Release/SoundFingerprinting.Tests.dll
   - dotnet restore
   - dotnet test ./src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -f netcoreapp2.0
+  - xbuild /p:Configuration=Release src/SoundFingerprinting.sln
+  - mono build/testrunner/NUnit.ConsoleRunner.3.9.0/tools/nunit3-console.exe src/SoundFingerprinting.Tests/bin/Release/SoundFingerprinting.Tests.dll
 notifications:
   webhooks:
     urls:
