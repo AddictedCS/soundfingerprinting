@@ -2,6 +2,13 @@
   <PropertyGroup>
     <TargetFrameworks>net45</TargetFrameworks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<Authors>Sergiu Ciumac</Authors>
+	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+	<PackageProjectUrl>https://github.com/AddictedCS/soundfingerprinting</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
+	<PackageReleaseNotes>Since version 5.0.0 NAudio extension library comes in a separate package. SoundFingerprinting.5.0.0 supports .NET standard 2.0, thus NAudio extension is now released separately.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="1.7.3" />
