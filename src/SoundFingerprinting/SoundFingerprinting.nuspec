@@ -14,16 +14,15 @@
     <copyright>Copyright 2018 Sergiu Ciumac</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
 	<dependencies>
-	   <dependency id="NAudio" version="1.7.3" />
-	   <dependency id="protobuf-net" version="2.3.2" />
+	  <group targetFramework=".NETFramework4.5">
+		<dependency id="protobuf-net" version="2.3.2" exclude="Build,Analyzers" />
+	  </group>
+	  <group targetFramework=".NETCoreApp2.0">
+		<dependency id="protobuf-net" version="2.3.2" exclude="Build,Analyzers" />
+	  </group>
+	  <group targetFramework=".NETStandard2.0">
+		<dependency id="protobuf-net" version="2.3.2" exclude="Build,Analyzers" />
+	  </group>
 	</dependencies>
   </metadata>
-  <files>
-		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net35" />
-		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net40" />
-		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net45" />
-		<file src="..\SoundFingerprinting.Audio.NAudio\bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net35" />
-		<file src="..\SoundFingerprinting.Audio.NAudio\bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net40" />
-		<file src="..\SoundFingerprinting.Audio.NAudio\bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net45" />
-   </files>
 </package>

@@ -5,8 +5,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="1.7.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj" />
+    <PackageReference Include="SoundFingerprinting" Version="5.0.0-alpha" />
   </ItemGroup>
 </Project>
