@@ -7,6 +7,7 @@ install:
 script:
   - dotnet restore ./src/SoundFingerprinting.sln
   - dotnet test ./src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -f netcoreapp2.0
+  - dotnet test ./src/SoundFingerprinting.Audio.NAudio.Test/SoundFingerprinting.Audio.NAudio.Test.csproj -c Release -f net45
   - export FrameworkPathOverride=/usr/lib/mono/4.5/
   - dotnet build ./src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -f net45
   - mono build/testrunner/NUnit.ConsoleRunner.3.5.0/tools/nunit3-console.exe src/SoundFingerprinting.Tests/bin/Release/net45/SoundFingerprinting.Tests.dll
