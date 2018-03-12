@@ -9,7 +9,7 @@
             ThresholdVotes = 5;
             MaxTracksToReturn = 25;
             Clusters = Enumerable.Empty<string>();
-            FingerprintConfiguration = new DefaultFingerprintConfiguration();
+            FingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = QueryStrides.DefaultStride };
         }
     }
 }

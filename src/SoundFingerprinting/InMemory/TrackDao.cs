@@ -2,23 +2,13 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Infrastructure;
 
     internal class TrackDao : ITrackDao
     {
-        private static int counter;
-
         private readonly IRAMStorage storage;
-
-        public TrackDao()
-            : this(DependencyResolver.Current.Get<IRAMStorage>())
-        {
-            // no op   
-        }
 
         public TrackDao(IRAMStorage storage)
         {
@@ -27,9 +17,7 @@
 
         public IModelReference InsertTrack(TrackData track)
         {
-            var trackReference = new ModelReference<int>(Interlocked.Increment(ref counter));
-            storage.Tracks[trackReference] = track;
-            return track.TrackReference = trackReference;
+            return storage.AddTrack(track);
         }
 
         public TrackData ReadTrackByISRC(string isrc)
@@ -51,58 +39,28 @@
 
         public TrackData ReadTrack(IModelReference trackReference)
         {
-            if (storage.Tracks.ContainsKey(trackReference))
+            if (storage.Tracks.ContainsKey((int)trackReference.Id))
             {
-                return storage.Tracks[trackReference];
+                return storage.Tracks[(int)trackReference.Id];
             }
 
             return null;
         }
 
-        public int DeleteTrack(IModelReference trackReference)
+        public List<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
         {
-            int count = 0;
-            if (storage.Tracks.Remove(trackReference))
+            var result = new List<TrackData>();
+            foreach (var id in ids)
             {
-                count++;
-                if (storage.Fingerprints.ContainsKey(trackReference))
-                {
-                    count += storage.Fingerprints[trackReference].Count;
-                    storage.Fingerprints.Remove(trackReference);
-                }
-
-                var subFingerprintReferences = storage.SubFingerprints
-                                 .Where(pair => pair.Value.TrackReference.Equals(trackReference))
-                                 .Select(pair => pair.Key)
-                                 .ToList();
-
-                count += subFingerprintReferences.Count;
-                foreach (var subFingerprintReference in subFingerprintReferences)
-                {
-                    storage.SubFingerprints.Remove(subFingerprintReference);
-                }
-
-                foreach (var hashTable in storage.HashTables)
-                {
-                    foreach (var hashBins in hashTable)
-                    {
-                        foreach (var subFingerprintReference in subFingerprintReferences)
-                        {
-                            if (hashBins.Value.Remove(subFingerprintReference))
-                            {
-                                count++;
-                            }
-                        }
-                    }
-                }
-
-                if (storage.TracksHashes.ContainsKey(trackReference))
-                {
-                    storage.TracksHashes.Remove(trackReference);
-                }
+                result.Add(ReadTrack(id));
             }
 
-            return count;
+            return result;
+        }
+
+        public int DeleteTrack(IModelReference trackReference)
+        {
+            return storage.DeleteTrack(trackReference);
         }
     }
 }

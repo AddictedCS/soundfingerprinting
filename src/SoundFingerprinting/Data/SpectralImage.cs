@@ -2,17 +2,23 @@
 {
     internal class SpectralImage
     {
-        public SpectralImage(float[][] image, double startsAt, int sequenceNumber)
+        public SpectralImage(float[] image, ushort rows, ushort cols, float startsAt, uint sequenceNumber)
         {
             Image = image;
+            Rows = rows;
+            Cols = cols;
             StartsAt = startsAt;
             SequenceNumber = sequenceNumber;
         }
 
-        public float[][] Image { get; private set; }
+        public float[] Image { get; }
 
-        public int SequenceNumber { get; private set; }
+        public ushort Rows { get; }
 
-        public double StartsAt { get; private set; }
+        public ushort Cols { get; }
+
+        public uint SequenceNumber { get; }
+
+        public float StartsAt { get; }
     }
 }

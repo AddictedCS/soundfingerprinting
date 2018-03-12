@@ -7,20 +7,12 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.LCS;
 
     internal class QueryMath : IQueryMath
     {
         private readonly IQueryResultCoverageCalculator queryResultCoverageCalculator;
         private readonly IConfidenceCalculator confidenceCalculator;
-
-        public QueryMath()
-            : this(
-                DependencyResolver.Current.Get<IQueryResultCoverageCalculator>(),
-                DependencyResolver.Current.Get<IConfidenceCalculator>())
-        {
-        }
 
         internal QueryMath(IQueryResultCoverageCalculator queryResultCoverageCalculator, IConfidenceCalculator confidenceCalculator)
         {
@@ -36,16 +28,21 @@
             FingerprintConfiguration fingerprintConfiguration)
         {
             double queryLength = CalculateExactQueryLength(hashedFingerprints, fingerprintConfiguration);
-            return hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
+            var trackIds = hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
                                      .Take(maxNumberOfMatchesToReturn)
-                                     .Select(e => GetResultEntry(modelService, fingerprintConfiguration, e, queryLength))
+                                     .Select(p => p.Key)
                                      .ToList();
+
+            var tracks = modelService.ReadTracksByReferences(trackIds);
+            return tracks
+                .Select(track => GetResultEntry(fingerprintConfiguration, track, hammingSimilarites[track.TrackReference], queryLength))
+                .ToList();
         }
 
         public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
         {
-            long[] query = queryFingerprint.HashBins;
-            long[] result = candidate.Hashes;
+            int[] query = queryFingerprint.HashBins;
+            int[] result = candidate.Hashes;
             int count = 0;
             for (int i = 0; i < query.Length; ++i)
             {
@@ -75,11 +72,10 @@
             return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
         }
 
-        private ResultEntry GetResultEntry(IModelService modelService, FingerprintConfiguration configuration, KeyValuePair<IModelReference, ResultEntryAccumulator> pair, double queryLength)
+        private ResultEntry GetResultEntry(FingerprintConfiguration configuration, TrackData track, ResultEntryAccumulator acc, double queryLength)
         {
-            var track = modelService.ReadTrackByReference(pair.Key);
             var coverage = queryResultCoverageCalculator.GetCoverage(
-                pair.Value.Matches,
+                acc.Matches,
                 queryLength,
                 configuration);
 
@@ -95,11 +91,11 @@
                 coverage.SourceMatchStartsAt,
                 coverage.SourceMatchLength,
                 coverage.OriginMatchStartsAt,
-                GetTrackStartsAt(pair.Value.BestMatch),
+                GetTrackStartsAt(acc.BestMatch),
                 confidence,
-                pair.Value.HammingSimilaritySum,
+                acc.HammingSimilaritySum,
                 queryLength,
-                pair.Value.BestMatch);
+                acc.BestMatch);
         }
 
         private double GetTrackStartsAt(MatchedPair bestMatch)

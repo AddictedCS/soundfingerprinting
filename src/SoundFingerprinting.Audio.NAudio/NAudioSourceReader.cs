@@ -6,8 +6,6 @@ namespace SoundFingerprinting.Audio.NAudio
 
     using global::NAudio.Wave.SampleProviders;
 
-    using SoundFingerprinting.Infrastructure;
-
     internal class NAudioSourceReader : INAudioSourceReader
     {
         private const int Mono = 1;
@@ -15,25 +13,18 @@ namespace SoundFingerprinting.Audio.NAudio
         private readonly INAudioFactory naudioFactory;
         private readonly ISamplesAggregator samplesAggregator;
 
-        public NAudioSourceReader()
-            : this(
-                DependencyResolver.Current.Get<ISamplesAggregator>(), DependencyResolver.Current.Get<INAudioFactory>())
-        {
-            // no op
-        }
-
         internal NAudioSourceReader(ISamplesAggregator samplesAggregator, INAudioFactory naudioFactory)
         {
             this.samplesAggregator = samplesAggregator;
             this.naudioFactory = naudioFactory;
         }
 
-        public float[] ReadMonoFromSource(string source, int sampleRate, double secondsToRead, double startAtSecond)
+        public float[] ReadMonoFromSource(string source, int sampleRate, double secondsToRead, double startAtSecond, int resamplerQuality)
         {
             using (var stream = naudioFactory.GetStream(source))
             {
                 SeekToSecondInCaseIfRequired(startAtSecond, stream);
-                using (var resampler = naudioFactory.GetResampler(stream, sampleRate, Mono))
+                using (var resampler = naudioFactory.GetResampler(stream, sampleRate, Mono, resamplerQuality))
                 {
                     var waveToSampleProvider = new WaveToSampleProvider(resampler);
                     return samplesAggregator.ReadSamplesFromSource(new NAudioSamplesProviderAdapter(waveToSampleProvider), secondsToRead, sampleRate);

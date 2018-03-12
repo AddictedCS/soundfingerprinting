@@ -7,21 +7,42 @@
     // as this header is left in place.                                                                              
     // Version 1.1, Sept 2011 
     using System;
-    using System.Diagnostics.CodeAnalysis;
 
     using SoundFingerprinting.Configuration;
 
-    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1407:ArithmeticExpressionsMustDeclarePrecedence", Justification = "Reviewed. Suppression is OK here.")]
-    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1515:SingleLineCommentMustBePrecededByBlankLine", Justification = "Reviewed. Suppression is OK here.")]
-    [SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1503:CurlyBracketsMustNotBeOmitted", Justification = "Reviewed. Suppression is OK here.")]
-    public class LomontFFT : IFFTService
+    public unsafe class LomontFFT : IFFTService, IFFTServiceUnsafe
     {
         public LomontFFT()
         {
-            A = 0;
+            A = 1;
             B = 1;
             var config = new DefaultSpectrogramConfig();
             Initialize(config.WdftSize);
+        }
+
+        public float[] FFTForward(float[] data, int startIndex, int length, float[] window)
+        {
+            float* toTransform = stackalloc float[length];
+            for (int i = startIndex, j = 0; i < startIndex + length; ++i, ++j)
+            {
+                toTransform[j] = data[i];
+            }
+
+            Window(toTransform, window);
+            RealFFT(toTransform, true, length);
+
+            float[] transformed = new float[length];
+            for (int i = 0; i < length; ++i)
+            {
+                transformed[i] = toTransform[i];
+            }
+
+            return transformed;
+        }
+
+        public void FFTForwardInPlace(float* data, int length)
+        {
+            RealFFT(data, true, length);
         }
 
         /// <summary>                                                                                            
@@ -35,9 +56,9 @@
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
         /// inverse transform</param>                                                                            
-        public void TableFFT(float[] data, bool forward)
+        private void TableFFT(float* data, bool forward, int length)
         {
-            var n = data.Length;
+            var n = length;
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
                 throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
@@ -72,7 +93,7 @@
 
 
             // perform data scaling as needed                                                                    
-            Scale(data, n, forward);
+            Scale(data, n, forward, length);
         }
 
         /// <summary>                                                                                            
@@ -88,9 +109,9 @@
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
         /// inverse transform</param>                                                                            
-        public void RealFFT(float[] data, bool forward)
+        internal void RealFFT(float* data, bool forward, int length)
         {
-            var n = data.Length; // # of real inputs, 1/2 the complex length                                     
+            var n = length; // # of real inputs, 1/2 the complex length                                     
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
                 throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
@@ -98,13 +119,13 @@
             float sign = -1.0f; // assume inverse FFT, this controls how algebra below works                        
             if (forward)
             { // do packed FFT. This can be changed to FFT to save memory                                        
-                TableFFT(data, true);
+                TableFFT(data, true, length);
                 sign = 1.0f;
                 // scaling - divide by scaling for N/2, then mult by scaling for N                               
                 if (A != 1)
                 {
                     var scale = (float)Math.Pow(2.0, (A - 1) / 2.0);
-                    for (var i = 0; i < data.Length; ++i)
+                    for (var i = 0; i < length; ++i)
                         data[i] *= scale;
                 }
             }
@@ -157,12 +178,12 @@
                 data[0] = 0.5f * (temp + data[1]);
                 data[1] = 0.5f * (temp - data[1]);
                 // do packed inverse (table based) FFT. This can be changed to regular inverse FFT to save memory
-                TableFFT(data, false);
+                TableFFT(data, false, length);
                 // scaling - divide by scaling for N, then mult by scaling for N/2                               
                 //if (A != -1) // todo - off by factor of 2? this works, but something seems weird               
                 {
                     var scale = (float)Math.Pow(2.0, -(A + 1) / 2.0) * 2;
-                    for (var i = 0; i < data.Length; ++i)
+                    for (var i = 0; i < length; ++i)
                         data[i] *= scale;
                 }
             }
@@ -178,7 +199,7 @@
         ///     ( 1,-1)  - data processing                                                                     
         /// Usual values for A are 1, 0, or -1                                                                   
         /// </summary>                                                                                           
-        public int A { get; set; }
+        private int A { get; set; }
 
         /// <summary>                                                                                            
         /// Determine how phase works on the forward and inverse transforms.                                     
@@ -193,7 +214,7 @@
         /// output data.                                                                                         
         /// Usual values for B are 1 or -1.                                                                      
         /// </summary>                                                                                           
-        public int B { get; set; }
+        private int B { get; set; }
 
                 #region Internals
 
@@ -203,13 +224,13 @@
         /// <param name="data"></param>                                                                          
         /// <param name="n"></param>                                                                             
         /// <param name="forward"></param>                                                                       
-        void Scale(float[] data, int n, bool forward)
+        private void Scale(float* data, int n, bool forward, int length)
         {
             // forward scaling if needed                                                                         
             if ((forward) && (A != 1))
             {
                 var scale = (float)Math.Pow(n, (A - 1) / 2.0);
-                for (var i = 0; i < data.Length; ++i)
+                for (var i = 0; i < length; ++i)
                     data[i] *= scale;
             }
 
@@ -217,7 +238,7 @@
             if ((!forward) && (A != -1))
             {
                 var scale = (float)Math.Pow(n, -(A + 1) / 2.0);
-                for (var i = 0; i < data.Length; ++i)
+                for (var i = 0; i < length; ++i)
                     data[i] *= scale;
             }
         }
@@ -227,7 +248,7 @@
         /// Fills in tables for speed. Done automatically in TableFFT                                            
         /// </summary>                                                                                           
         /// <param name="size">The size of the FFT in samples</param>                                            
-        void Initialize(int size)
+        private void Initialize(int size)
         {
             // NOTE: if you port to non garbage collected languages                                              
             // like C# or Java be sure to free these correctly                                                   
@@ -265,7 +286,7 @@
         /// </summary>                                                                                           
         /// <param name="data"></param>                                                                          
         /// <param name="n"></param>                                                                             
-        static void Reverse(float[] data, int n)
+        static void Reverse(float* data, int n)
         {
             // bit reverse the indices. This is exercise 5 in section                                            
             // 7.2.1.1 of Knuth's TAOCP the idea is a binary counter                                             
@@ -316,26 +337,17 @@
         /// <summary>                                                                                            
         /// Pre-computed sine/cosine tables for speed                                                            
         /// </summary>                                                                                           
-        float[] cosTable;
-        float[] sinTable;
+        private float[] cosTable;
+        private float[] sinTable;
 
         #endregion
 
-        public float[] FFTForward(float[] data, int startIndex, int length, float[] window)
-        {
-            float[] toTransform = new float[length];
-            Array.Copy(data, startIndex, toTransform, 0, length);
-            Window(toTransform, window);
-            RealFFT(toTransform, true);
-            return toTransform;
-        }
-
-        private void Window(float[] toTransform, float[] window)
+        private void Window(float* toTransform, float[] window)
         {
             for (int i = 0; i < window.Length; ++i)
             {
                 toTransform[i] = toTransform[i] * window[i];
             }
         }
-    }                                       
+   }                                       
 }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -28,6 +28,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,6 +39,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoUnitTests|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -49,21 +51,28 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Castle.Core.3.3.3\lib\net45\Castle.Core.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.4.2.1\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Moq, Version=4.2.1402.2112, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.2.1402.2112\lib\net40\Moq.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Moq, Version=4.8.0.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.8.2\lib\net45\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.3.2.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.3.2\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.3.0\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -74,8 +83,9 @@
   <ItemGroup>
     <Compile Include="Integration\FingerprintCommandBuilderIntTest.cs" />
     <Compile Include="Integration\FingerprintCommandBuilderNativeIntTest.cs" />
+    <Compile Include="Integration\InMemoryModelServiceSerializationTest.cs" />
     <Compile Include="Integration\IntegrationWithSampleFilesTest.cs" />
-    <Compile Include="Integration\FingerprintDaoTest.cs" />
+    <Compile Include="Integration\NAudioServiceIntTest.cs" />
     <Compile Include="Integration\SpectralImageDaoTest.cs" />
     <Compile Include="Integration\SubFingerprintDaoTest.cs" />
     <Compile Include="Integration\TestRunnerTest.cs" />
@@ -87,7 +97,7 @@
     <Compile Include="AbstractTest.cs" />
     <Compile Include="Integration\InMemoryModelServiceTest.cs" />
     <Compile Include="Unit\Audio\TagInfoTest.cs" />
-    <Compile Include="Unit\Configuration\FingerprintConfigurationTest.cs" />
+    <Compile Include="Unit\Builder\QueryCommandBenchmark.cs" />
     <Compile Include="Unit\Configuration\QueryConfigurationTest.cs" />
     <Compile Include="Unit\Configuration\SpectrogramConfigTest.cs" />
     <Compile Include="Unit\DAO\Data\FingerprintDataTest.cs" />
@@ -95,27 +105,35 @@
     <Compile Include="Unit\DAO\Data\SubFingerprintDataTest.cs" />
     <Compile Include="Unit\DAO\Data\TrackDataTest.cs" />
     <Compile Include="Unit\FFT\LogUtilityTest.cs" />
+    <Compile Include="Unit\FFT\LomontFFTTest.cs" />
     <Compile Include="Unit\FFT\SpectrumServiceTest.cs" />
+    <Compile Include="Unit\InMemory\ProtoSerializerTest.cs" />
+    <Compile Include="Unit\InMemory\RAMStorageTest.cs" />
     <Compile Include="Unit\LCS\QueryResultCoverageCalculatorTest.cs" />
     <Compile Include="Unit\LSH\LocalitySensitiveHashingAlgorithmTest.cs" />
     <Compile Include="Unit\Math\FScoreTest.cs" />
     <Compile Include="Unit\Math\HammingDistanceResultStatisticsTest.cs" />
     <Compile Include="Unit\Math\HashConverterTest.cs" />
     <Compile Include="Unit\MinHash\CachedPermutationsTest.cs" />
+    <Compile Include="Unit\MinHash\MinHashAlgorithmTest.cs" />
     <Compile Include="Unit\MinHash\MinHashServiceTest.cs" />
     <Compile Include="Unit\Math\SimilarityUtilityTest.cs" />
     <Compile Include="Unit\QueryFingerprintServiceTest.cs" />
     <Compile Include="Unit\Query\ConfidenceCalculatorTest.cs" />
     <Compile Include="Unit\Query\MatchedPairTest.cs" />
     <Compile Include="Unit\Query\QueryMathTest.cs" />
+    <Compile Include="Unit\Query\ResultEntryAccumulatorTest.cs" />
     <Compile Include="Unit\Strides\IncrementalRandomStrideTest.cs" />
     <Compile Include="Unit\Utils\ArrayUtilsTest.cs" />
     <Compile Include="Unit\Utils\FastFingerprintDescriptorTest.cs" />
+    <Compile Include="Unit\Utils\FingerprintDescriptorBenchmark.cs" />
     <Compile Include="Unit\Utils\FingerprintDescriptorTest.cs" />
     <Compile Include="Unit\Builder\QueryCommandBuilderTest.cs" />
     <Compile Include="Unit\FingerprintServiceTest.cs" />
     <Compile Include="Unit\Builder\FingerprintCommandBuilderTest.cs" />
     <Compile Include="Unit\Utils\AbsComparatorTest.cs" />
+    <Compile Include="Unit\Utils\QuickSelectAlgorithmTest.cs" />
+    <Compile Include="Unit\Utils\SubFingerprintGroupingCounterTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerScenarioValidatorTest.cs" />
     <Compile Include="Unit\Utils\TestRunnerUtilsTest.cs" />
     <Compile Include="Unit\Wavelets\StandardHaarWaveletDecompositionTest.cs" />
@@ -139,10 +157,6 @@
     <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
       <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
       <Name>SoundFingerprinting.Audio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
-      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
-      <Name>SoundFingerprinting.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj">
       <Project>{56eb1986-589c-4da9-b961-5833bb4a7816}</Project>

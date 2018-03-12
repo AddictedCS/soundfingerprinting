@@ -1,5 +1,6 @@
 release/
 debug/
+src/.vs/
 msbuild.log
 *.suo
 *.user

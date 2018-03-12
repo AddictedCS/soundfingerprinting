@@ -31,9 +31,13 @@
         }
 
         [Test]
-        public void ShouldThrowAnException()
+        public void ShouldConvertBackAndFourthForNonStandard()
         {
-            Assert.Throws<ArgumentException>(() => ShouldConvertBackAndFourth(120, 20));
+            ShouldConvertBackAndFourth(20, 20);
+            ShouldConvertBackAndFourth(60, 20);
+            ShouldConvertBackAndFourth(100, 20);
+            ShouldConvertBackAndFourth(120, 20);
+            ShouldConvertBackAndFourth(140, 20);
         }
 
         private void ShouldConvertBackAndFourth(int byteArrayLength, int longArrayLength)

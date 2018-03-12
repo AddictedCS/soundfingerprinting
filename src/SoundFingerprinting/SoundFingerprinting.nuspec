@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package >
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
@@ -10,22 +10,20 @@
     <projectUrl>https://github.com/AddictedCS/soundfingerprinting</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Version 3.0.0 comes with a long list of improvements. The framwork provides better precision / recall / processing speed when creating and querying the datasource for the matches. Result entries do contain Coverage, Confidence, TrackStartsAt properties, providing users with information about the resulting match. All users of 2.x are encouraged to migrate to 3.0.x, and re-insert all the fingerprints in the datasource since the signature of the fingerprints has changed. Check Solr datasource for a fast persistent storage for fingerprints https://github.com/AddictedCS/soundfingerprinting.solr</releaseNotes>
-    <copyright>Copyright 2016 Sergiu Ciumac</copyright>
+    <releaseNotes>4.2.1 comes with a bugfix related to fingerprints serialization. In 4.2.0 FFT is running on arrays allocated on the stack rather than on RAM, yielding to faster fingerprinting. Version 4.1.0 comes without Ninject dependency. Fingerprints signature has changed to Int32[] instead of Int64[], which allows better memory management. MaxEntropyPermutations are now used as default permutations for locality sensitive hashing. Version 4.0.0 comes with a list of improvements. New Haar wavelet transformation normalization factor is now set-up as the default one. It yields better recall and accuracy. Re-index fingerprints if you are migrating from v3.x. Most important update in v4 is an improved fingerprinting speed (2 mins of audio are fingerprinted in ~300 ms), with fever bytes used throughout the process. Similarly to v3.2.0  the InMemoryModelService can now be serialized to file system, and reloaded on application startup (useful for scenarios when you don't want to add external data storages). QueryResult now contains Stats information about the number of candidates analyzed during the query, as well as segregated query duration information: QueryDuration and FingerprintingDuration. Fingerprinting and Query configurations are simplified with various profiles available for choice: LowLatency, Default and HighPrecision configurations. Choose one that corresponds to your scenario. Check Solr data source for fast persistent storage for fingerprints https://github.com/AddictedCS/soundfingerprinting.solr. Contact me for early access to specially designed fingerprinting storage that outperforms Solr</releaseNotes>
+    <copyright>Copyright 2018 Sergiu Ciumac</copyright>
     <tags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound</tags>
 	<dependencies>
 	   <dependency id="NAudio" version="1.7.3" />
+	   <dependency id="protobuf-net" version="2.3.2" />
 	</dependencies>
   </metadata>
   <files>
 		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net35" />
 		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net40" />
 		<file src="bin\Release\SoundFingerprinting.Audio.dll" target="lib\net45" />
-		<file src="bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net35" />
-		<file src="bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net40" />
-		<file src="bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net45" />
-		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net35" />
-		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net40" />
-		<file src="bin\Release\SoundFingerprinting.Infrastructure.dll" target="lib\net45" />
+		<file src="..\SoundFingerprinting.Audio.NAudio\bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net35" />
+		<file src="..\SoundFingerprinting.Audio.NAudio\bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net40" />
+		<file src="..\SoundFingerprinting.Audio.NAudio\bin\Release\SoundFingerprinting.Audio.NAudio.dll" target="lib\net45" />
    </files>
 </package>

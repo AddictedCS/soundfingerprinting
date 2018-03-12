@@ -19,7 +19,7 @@
     [Category("RequiresWindowsDLL")]
     public class TestRunnerTest : IntegrationWithSampleFilesTest
     {
-        private readonly IModelService modelService = new InMemoryModelService();
+        private IModelService modelService;
         private readonly IAudioService audioService = new NAudioService();
         private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
         private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
@@ -35,6 +35,8 @@
         [SetUp]
         public void SetUp()
         {
+            modelService = new InMemoryModelService();
+
             tagService.Setup(service => service.GetTagInfo(It.IsAny<string>())).Returns(
                 new TagInfo
                     {

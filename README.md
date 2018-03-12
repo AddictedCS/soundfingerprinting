@@ -35,9 +35,10 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
 }
 ```
 The default storage, which comes bundled with _soundfingerprinting_ package, is a plain RAM storage, managed by <code>InMemoryModelService</code>. The following list of persistent storages is available for general use: 
-- Solr, highly efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). Considered as the default option, highly optimized for both query and insertion.
-- MSSQL, [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql).
-- MongoDB, (still in development) [soundfingerprinting.mongodb](https://github.com/AddictedCS/soundfingerprinting.mongodb). Not ready for use, developers are welcome to contribute.
+- Starting with v3.2.0 <code>InMemoryModelService</code> can be serialized to filesystem, and reloaded on application startup. Useful for scenarious when you don't want to introduce external data storages.
+- ***Emy*** contact me for early access to a specialized fingerprinting storage that is both super fast and resilient.
+- ***Solr*** efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr).
+- ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql) [deprecated].
 
 Once you've inserted the fingerprints into the datastore, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 
@@ -55,15 +56,11 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
                                          .UsingServices(modelService, audioService)
                                          .Query()
                                          .Result;
-    if(queryResult.ContainsMatches)
-    {
-        return queryResult.BestMatch.Track; // successful match has been found
-    }
-	
-    return null; // no match has been found
+    
+    return queryResult.BestMatch.Track; // successful match has been found
 }
 ```
-
+### Query result details
 Every `ResultEntry` object will contain the following information:
 - `Track` - matched track from the datastore
 - `QueryMatchLength` - returns how many query seconds matched the resulting track
@@ -73,9 +70,14 @@ Every `ResultEntry` object will contain the following information:
 - `Coverage` - returns a value between [0, 1], informing how much the query covered the resulting track (i.e. a 2 minutes query found a 30 seconds track within it, starting at 100th second, coverage will be equal to (120 - 100)/30 ~= 0.66)
 - `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
 
+`Stats` contains useful statistics information for fine-tuning the algorithm:
+- `QueryDuration` - time in milliseconds spend just querying the fingerprints datasource.
+- `FingerprintingDuration` - time in milliseconds spent generating the acousting fingerprints from the media file.
+- `TotalTracksAnalyzed` - total # of tracks analyzed during query time. If this number exceeds 50, try optimizing your configuration.
+- `TotalFingerprintsAnalyzed` - total # of fingerprints analyzed during query time. If this number exceeds 500, try optimizing your configuration.
 
-### Upgrade from 2.x to 3.x
-All users of _soundfingerprinting_ are encouraged to migrate to v3.x due to all sorts of important bug-fixes and improvements. Version 3.0.0 is faster, more accurate, and provides an intuitive response interface with additional information about the query and the match. When migrating make sure to re-insert the fingerprints into the datasource, since their internal signature changed slightly.
+### Upgrade from 2.x to 4.x
+All users of _soundfingerprinting_ are encouraged to migrate to v3.x due to all sorts of important bug-fixes and improvements. Version 3.2.0 is faster, more accurate, and provides an intuitive response interface with additional information about the query and the match. When migrating make sure to re-insert the fingerprints into the datasource, since their internal signature changed slightly. Version v4.x provides a faster fingerprinting algorithm with new Haar Wavelet norm which yields better recall and recognition.
 
 ### List of additional soundfingerprinting integrations
 - [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) - Bass.Net audio library integration, comes as a replacement for NAudio default service. Works faster, more accurate resampling, supports multiple audio formats, independent upon target OS. [Bass](http://www.un4seen.com) is free for non-comercial use.
@@ -88,16 +90,22 @@ Fingerprinting and Querying algorithms can be easily parametrized with correspon
  var hashDatas = fingerprintCommandBuilder
                            .BuildFingerprintCommand()
                            .From(samples)
-                           .WithFingerprintConfig(
-	                            config =>
-	                            {
-	                                config.Stride = new IncrementalRandomStride(256, 512); // more agressive stride for noisy environments
-	                            })
+                           .WithFingerprintConfig(new HighPrecisionFingerprintConfiguration())
                            .UsingServices(audioService)
                            .Hash()
                            .Result;
 ```
-Each and every configuration parameter can influence the recognition rate, required storage, computational cost, etc. Stick with the defaults, unless you would like to experiment. 
+Similarly during query time you can specify a more high precision query configuration in case if you are trying to detect audio in noisy environments.
+
+```csharp
+QueryResult queryResult = queryCommandBuilder.BuildQueryCommand()
+                                   .From(PathToFile)
+                                   .WithQueryConfig(new HighPrecisionQueryConfiguration())
+                                   .UsingServices(modelService, audioService)
+                                   .Query()
+                                   .Result;
+```
+There are 3 pre-built configurations to choose from: `LowLatency`, `Default`, `HighPrecision`. Nevertheless you are not limited to use just these 3. You can ammed each particular configuration property by your own via overloads. 
 
 The most sensitive parameter (which directly affects precision/recall rate) is <code>Stride</code> parameter. Empirically it was determined that using a smaller stride during querying gives a better recall rate, at the expense of execution time.
 
@@ -108,6 +116,7 @@ Links to the third party libraries used by _soundfingerprinting_ project.
 * [NAudio](http://naudio.codeplex.com)
 * [Ninject](http://www.ninject.org)
 * [LomontFFT](http://www.lomont.org/Software/Misc/FFT/LomontFFT.html)
+* [ProtobufNet](https://github.com/mgravell/protobuf-net)
 
 ### FAQ
 - Can I apply this algorithm for speech recognition purposes?
@@ -117,9 +126,11 @@ Links to the third party libraries used by _soundfingerprinting_ project.
 - Can I use **SoundFingerprinting** to detect ads in radio streams?
 > Yes.
 - Will **SoundFingerprinting** match tracks with samples captured in noisy environment?
-Yes, but you will have to play around with `Stride` (decreasing it on both insertion and query) and `ThresholdVotes` query parameter (decreasing it as well).
+> Yes, try out `HighPrecision` configurations.
 - Can I use **SoundFingerprinting** framework on **Mono**?
-Yes. SoundFingerprinting can be used in cross-platform applications. Just keep in mind that the default audio service **NAudio**, requires Windows native DLLs. Since these are not available in Unix, you can use the override method which asks for `AudioSamples` as the source for fingerprinting and querying. It's the responsability of the caller to provide mono audio samples at 5512 frequency rate. If this condition is met, the algorithm will not invoke any methods from NAudio.
+> Yes. SoundFingerprinting can be used in cross-platform applications. Just keep in mind that the default audio service **NAudio**, requires Windows native DLLs. Since these are not available in Unix, you can use the override method which asks for `AudioSamples` as the source for fingerprinting and querying. It's the responsability of the caller to provide mono audio samples at 5512 frequency rate. If this condition is met, the algorithm will not invoke any methods from NAudio.
+- How many tracks can I store in `InMemoryModelService`?
+> 100 hours of content with `HighPrecision` fingerprinting configuration will yeild in ~5GB or RAM usage.
 
 ### Binaries
 
@@ -144,4 +155,4 @@ Special thanks to [JetBrains](https://www.jetbrains.com/) for providing this pro
 
 ![JetBrains](http://blog.jetbrains.com/webide/files/2012/12/logo_JB_tagline-300x108.png)
 
-&copy; Soundfingerprinting, 2010-2016, ciumac.sergiu@gmail.com
+&copy; Soundfingerprinting, 2010-2017, ciumac.sergiu@gmail.com

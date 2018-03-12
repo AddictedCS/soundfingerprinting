@@ -3,25 +3,30 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     internal class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly ISimilarityUtility similarityUtility;
-
         private readonly IQueryMath queryMath;
 
-        public QueryFingerprintService()
-            : this(
-                DependencyResolver.Current.Get<ISimilarityUtility>(),
-                DependencyResolver.Current.Get<IQueryMath>())
+        private static readonly QueryFingerprintService Singleton = new QueryFingerprintService(
+            new SimilarityUtility(),
+            new QueryMath(new QueryResultCoverageCalculator(), new ConfidenceCalculator()));
+
+        public static QueryFingerprintService Instance
         {
+            get
+            {
+                return Singleton;
+            }
         }
 
         internal QueryFingerprintService(ISimilarityUtility similarityUtility, IQueryMath queryMath)
@@ -48,17 +53,20 @@
             }
 
             var resultEntries = queryMath.GetBestCandidates(queryFingerprints, hammingSimilarities, configuration.MaxTracksToReturn, modelService, configuration.FingerprintConfiguration);
-            return QueryResult.NonEmptyResult(resultEntries);
+            int totalTracksAnalyzed = hammingSimilarities.Count;
+            int totalSubFingerprintsAnalyzed = hammingSimilarities.Values.Select(entry => entry.Matches.Count).Sum();
+            return QueryResult.NonEmptyResult(resultEntries, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
         }
 
         private ConcurrentDictionary<IModelReference, ResultEntryAccumulator> GetSimilaritiesUsingNonBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
-            foreach (var queryFingerprint in queryFingerprints)
-            {
+
+            Parallel.ForEach(queryFingerprints, queryFingerprint => 
+            { 
                 var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
-            }
+                similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities, configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
+            });
 
             return hammingSimilarities;
         }
@@ -68,12 +76,11 @@
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
             var allCandidates = modelService.ReadSubFingerprints(hashedFingerprints.Select(querySubfingerprint => querySubfingerprint.HashBins), configuration);
             var hammingSimilarities = new ConcurrentDictionary<IModelReference, ResultEntryAccumulator>();
-            foreach (var hashedFingerprint in hashedFingerprints)
+            Parallel.ForEach(hashedFingerprints, queryFingerprint => 
             {
-                HashedFingerprint queryFingerprint = hashedFingerprint;
                 var subFingerprints = allCandidates.Where(candidate => queryMath.IsCandidatePassingThresholdVotes(queryFingerprint, candidate, configuration.ThresholdVotes));
-                similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities);
-            }
+                similarityUtility.AccumulateHammingSimilarity(subFingerprints, queryFingerprint, hammingSimilarities, configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable);
+            });
 
             return hammingSimilarities;
         }

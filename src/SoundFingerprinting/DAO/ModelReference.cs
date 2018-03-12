@@ -1,12 +1,24 @@
 ﻿namespace SoundFingerprinting.DAO
 {
+    using System;
+
+    using ProtoBuf;
+
+    [Serializable]
+    [ProtoContract]
     public class ModelReference<T> : IModelReference<T>
     {
+        public ModelReference()
+        {
+            
+        }
+
         public ModelReference(T id)
         {
             Id = id;
         }
 
+        [ProtoMember(1)]
         public T Id { get; private set; }
 
         object IModelReference.Id

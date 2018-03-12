@@ -14,7 +14,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
@@ -44,7 +43,7 @@
             IFingerprintCommandBuilder fcb,
             IQueryCommandBuilder qcb,
             string pathToResultsFolder)
-            : this(DependencyResolver.Current.Get<ITestRunnerUtils>())
+            : this(new TestRunnerUtils())
         {
             this.scenarious = scenarious;
             this.modelService = modelService;
@@ -313,7 +312,11 @@
         {
             return qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
-                .WithFingerprintConfig(fingerprintConfig => { fingerprintConfig.Stride = queryStride; })
+                .WithQueryConfig(queryConfig =>
+                    {
+                        queryConfig.Stride = queryStride;
+                        return queryConfig;
+                    })
                 .UsingServices(modelService, audioService)
                 .Query();
         }
@@ -341,7 +344,12 @@
                         var track = InsertTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
                                         .From(file)
-                                        .WithFingerprintConfig(config => { config.Stride = stride; })
+                                        .WithFingerprintConfig(
+                                            config =>
+                                            {
+                                                config.Stride = stride;
+                                                return config;
+                                            })
                                         .UsingServices(audioService)
                                         .Hash()
                                         .Result;

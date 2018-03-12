@@ -31,7 +31,7 @@
             using (var stream = new MemoryStream())
             {
                 const int Mono = 1;
-                var writer = new Mock<WaveFileWriter>(MockBehavior.Strict, stream, WaveFormat.CreateIeeeFloatWaveFormat(5512, Mono));
+                var writer = new Mock<WaveFileWriter>(MockBehavior.Loose, stream, WaveFormat.CreateIeeeFloatWaveFormat(5512, Mono));
                 naudioFactory.Setup(factory => factory.GetWriter("path-to-audio-file", 5512, Mono))
                                                       .Returns(writer.Object);
                 const int SongLengthInFloats = 16;
@@ -57,10 +57,10 @@
             Mock<MediaFoundationTransform> resampler = new Mock<MediaFoundationTransform>(
                 MockBehavior.Strict, new object[] { waveStream.Object, waveFormat });
             resampler.Protected().Setup("Dispose", new object[] { true });
-            naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, 5512, Mono)).Returns(resampler.Object);
+            naudioFactory.Setup(factory => factory.GetResampler(waveStream.Object, 5512, Mono, 25)).Returns(resampler.Object);
             naudioFactory.Setup(factory => factory.CreateWaveFile("path-to-recoded-file", resampler.Object));
 
-            waveFileUtility.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", 5512);
+            waveFileUtility.RecodeFileToMonoWave("path-to-audio-file", "path-to-recoded-file", 5512, 25);
         }
 
         private float[] GetWrittenSamplesInStream(MemoryStream memoryStream, int length)

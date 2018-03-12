@@ -4,6 +4,8 @@ namespace SoundFingerprinting.Audio
 
     public abstract class AudioService : IAudioService
     {
+        public abstract float GetLengthInSeconds(string pathToSourceFile);
+
         public abstract IReadOnlyCollection<string> SupportedFormats { get; }
 
         public abstract AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt);

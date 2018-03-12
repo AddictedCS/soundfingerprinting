@@ -8,20 +8,30 @@ namespace SoundFingerprinting.InMemory
 
     internal interface IRAMStorage
     {
-        IDictionary<IModelReference, SubFingerprintData> SubFingerprints { get; }       // key: sub fingerprint reference
+        IDictionary<int, TrackData> Tracks { get; }                         // key: track reference
 
-        IDictionary<IModelReference, TrackData> Tracks { get; }                         // key: track reference
+        void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
 
-        IDictionary<IModelReference, IDictionary<IModelReference, HashedFingerprint>> TracksHashes { get; } // key: track reference, value: key - sub-fingerprint-id
+        List<ulong> GetSubFingerprintsByHashTableAndHash(int table, int hash);
 
-        IDictionary<IModelReference, List<FingerprintData>> Fingerprints { get; }       // key: track reference
+        void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 
-        IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; }   // key: track reference
-
-        IDictionary<long, List<IModelReference>>[] HashTables { get; }                  // value: list of sub-fingerprints
+        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
 
         int NumberOfHashTables { get; }
 
         void Reset(int numberOfHashTables);
+
+        void InitializeFromFile(string path);
+
+        void Snapshot(string path);
+
+        IModelReference AddTrack(TrackData track);
+
+        int DeleteTrack(IModelReference trackReference);
+
+        SubFingerprintData ReadSubFingerprintById(ulong id);
+
+        IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference);
     }
 }

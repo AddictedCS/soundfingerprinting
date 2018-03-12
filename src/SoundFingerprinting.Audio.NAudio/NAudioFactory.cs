@@ -22,9 +22,12 @@
             return WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, numberOfChannels);
         }
 
-        public MediaFoundationTransform GetResampler(WaveStream streamToResample, int sampleRate, int numberOfChannels)
+        public MediaFoundationTransform GetResampler(WaveStream streamToResample, int sampleRate, int numberOfChannels, int resamplerQuality)
         {
-            return new MediaFoundationResampler(streamToResample, GetWaveFormat(sampleRate, numberOfChannels));
+            return new MediaFoundationResampler(streamToResample, GetWaveFormat(sampleRate, numberOfChannels))
+                {
+                    ResamplerQuality = resamplerQuality
+                };
         }
 
         public WaveInEvent GetWaveInEvent(int sampleRate, int numberOfChannels)

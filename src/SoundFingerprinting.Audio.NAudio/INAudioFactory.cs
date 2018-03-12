@@ -11,7 +11,7 @@
 
         WaveFormat GetWaveFormat(int sampleRate, int numberOfChannels);
 
-        MediaFoundationTransform GetResampler(WaveStream streamToResample, int sampleRate, int numberOfChannels);
+        MediaFoundationTransform GetResampler(WaveStream streamToResample, int sampleRate, int numberOfChannels, int resamplerQuality);
 
         WaveInEvent GetWaveInEvent(int sampleRate, int numberOfChannels);
 

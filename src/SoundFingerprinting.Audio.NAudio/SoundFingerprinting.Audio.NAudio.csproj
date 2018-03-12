@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -45,9 +45,6 @@
       <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Ninject">
-      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -55,7 +52,6 @@
     <Compile Include="BlockingQueueSamplesProvider.cs" />
     <Compile Include="INAudioFactory.cs" />
     <Compile Include="INAudioSourceReader.cs" />
-    <Compile Include="Infrastructure\NAudioModuleLoader.cs" />
     <Compile Include="NAudioFactory.cs" />
     <Compile Include="NAudioSoundCaptureService.cs" />
     <Compile Include="NAudioSourceReader.cs" />
@@ -77,10 +73,6 @@
     <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
       <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
       <Name>SoundFingerprinting.Audio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
-      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
-      <Name>SoundFingerprinting.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

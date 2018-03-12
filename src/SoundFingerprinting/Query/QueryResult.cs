@@ -5,6 +5,15 @@
 
     public class QueryResult
     {
+        /// <summary>
+        ///  Returns an empty query result object
+        /// </summary>
+        /// <returns></returns>
+        public static QueryResult Empty()
+        {
+            return EmptyResult();
+        }
+
         internal QueryResult(IEnumerable<ResultEntry> results)
         {
             ResultEntries = results;
@@ -41,15 +50,28 @@
                 return null;
             }
         }
-        
+
+        /// <summary>
+        ///  Query statistics
+        /// </summary>
+        public QueryStats Stats { get; internal set; } = new QueryStats();
+
         internal static QueryResult EmptyResult()
         {
             return new QueryResult(Enumerable.Empty<ResultEntry>());
         }
 
-        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results)
+        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, int totalTracksCandidates, int totalSubFingerprintCandidates)
         {
-            return new QueryResult(results);
+            var queryResults = new QueryResult(results)
+                               {
+                                   Stats =
+                                   {
+                                       TotalTracksAnalyzed = totalTracksCandidates,
+                                       TotalFingerprintsAnalyzed = totalSubFingerprintCandidates
+                                   }
+                               };
+            return queryResults;
         }
     }
 }

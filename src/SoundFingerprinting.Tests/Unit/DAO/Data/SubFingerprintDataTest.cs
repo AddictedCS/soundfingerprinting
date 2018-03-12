@@ -11,9 +11,9 @@
         [Test]
         public void ShouldIdentifyAsEqual()
         {
-            var dto0 = new SubFingerprintData(new long[0], 0, 0d, new ModelReference<int>(1), new ModelReference<int>(0));
+            var dto0 = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
-            var dto1 = new SubFingerprintData(new long[0], 0, 0d, new ModelReference<int>(1), new ModelReference<int>(0));
+            var dto1 = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
             Assert.AreEqual(dto0, dto1);
         }
@@ -21,7 +21,7 @@
         [Test]
         public void ShouldNotBeEqualToNull()
         {
-            var dto = new SubFingerprintData(new long[0], 0, 0d, new ModelReference<int>(1), new ModelReference<int>(0));
+            var dto = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
             Assert.IsFalse(dto.Equals(null));
         }

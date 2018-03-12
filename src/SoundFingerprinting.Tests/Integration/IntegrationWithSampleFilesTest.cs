@@ -20,15 +20,14 @@
             Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);
          
             // hashes are not ordered as parallel computation is involved
-            firstHashDatas = SortHashesByFirstValueOfHashBin(firstHashDatas);
-            secondHashDatas = SortHashesByFirstValueOfHashBin(secondHashDatas);
+            firstHashDatas = SortHashesBySequenceNumber(firstHashDatas);
+            secondHashDatas = SortHashesBySequenceNumber(secondHashDatas);
 
             for (int i = 0; i < firstHashDatas.Count; i++)
             {
-                CollectionAssert.AreEqual(firstHashDatas[i].SubFingerprint, secondHashDatas[i].SubFingerprint);
-                CollectionAssert.AreEqual(firstHashDatas[i].HashBins, secondHashDatas[i].HashBins);
                 Assert.AreEqual(firstHashDatas[i].SequenceNumber, secondHashDatas[i].SequenceNumber);
                 Assert.AreEqual(firstHashDatas[i].StartsAt, secondHashDatas[i].StartsAt, Epsilon);
+                CollectionAssert.AreEqual(firstHashDatas[i].HashBins, secondHashDatas[i].HashBins);
             }
         }
 
@@ -51,15 +50,17 @@
 
         protected AudioSamples GetAudioSamples()
         {
-            var serializer = new BinaryFormatter();
-
-            using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
+            lock (this)
             {
-                return (AudioSamples)serializer.Deserialize(stream);
+                var serializer = new BinaryFormatter();
+                using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
+                {
+                    return (AudioSamples)serializer.Deserialize(stream);
+                }
             }
         }
 
-        private List<HashedFingerprint> SortHashesByFirstValueOfHashBin(IEnumerable<HashedFingerprint> hashDatasFromFile)
+        private List<HashedFingerprint> SortHashesBySequenceNumber(IEnumerable<HashedFingerprint> hashDatasFromFile)
         {
             return hashDatasFromFile.OrderBy(hashData => hashData.SequenceNumber).ToList();
         }

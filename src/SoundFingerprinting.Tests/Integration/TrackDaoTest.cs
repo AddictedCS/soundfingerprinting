@@ -28,7 +28,7 @@
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
             trackDao = new TrackDao(ramStorage);
-            subFingerprintDao = new SubFingerprintDao(ramStorage);
+            subFingerprintDao = new SubFingerprintDao((IRAMStorage)ramStorage);
         }
 
         [Test]
@@ -169,6 +169,7 @@
                 .WithFingerprintConfig(config =>
                     {
                         config.Stride = new StaticStride(0);
+                        return config;
                     })
                 .UsingServices(audioService)
                 .Hash()

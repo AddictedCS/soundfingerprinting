@@ -2,14 +2,13 @@
 {
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Strides;
 
     public class QueryResultValidatorService
     {
         private readonly IQueryCommandBuilder queryCommandBuilder;
 
-        public QueryResultValidatorService() : this(DependencyResolver.Current.Get<IQueryCommandBuilder>())
+        public QueryResultValidatorService() : this(new QueryCommandBuilder())
         {
         }
 
@@ -23,7 +22,9 @@
             IStride validationStride,
             string pathToAudioFile,
             IModelService modelService,
-            IAudioService audioService)
+            IAudioService audioService,
+            int topWavelets,
+            int thresholdVotes)
         {
             double startAt = result.TrackStartsAt, length = result.QueryLength - result.TrackStartsAt;
 
@@ -34,7 +35,14 @@
 
             var newResult = queryCommandBuilder.BuildQueryCommand()
                                                .From(pathToAudioFile, length, startAt)
-                                               .WithFingerprintConfig(config => config.Stride = validationStride)
+                                               .WithQueryConfig(
+                                                   queryConfig =>
+                                                   {
+                                                       queryConfig.FingerprintConfiguration.TopWavelets = topWavelets;
+                                                       queryConfig.Stride = validationStride;
+                                                       queryConfig.ThresholdVotes = thresholdVotes;
+                                                       return queryConfig;
+                                                    })
                                                .UsingServices(modelService, audioService)
                                                .Query()
                                                .Result;

@@ -12,7 +12,6 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Strides;
 
     [TestFixture]
     [Category("RequiresWindowsDLL")]
@@ -27,7 +26,7 @@
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
-            subFingerprintDao = new SubFingerprintDao(ramStorage);
+            subFingerprintDao = new SubFingerprintDao((IRAMStorage)ramStorage);
             trackDao = new TrackDao(ramStorage);
         }
 
@@ -43,10 +42,9 @@
                     .Select(
                         sequenceNumber =>
                             new HashedFingerprint(
-                                GenericSignature(),
                                 genericHashBuckets,
-                                sequenceNumber,
-                                sequenceNumber * 0.928,
+                                (uint)sequenceNumber,
+                                sequenceNumber * 0.928f,
                                 Enumerable.Empty<string>()));
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
@@ -97,7 +95,9 @@
                 .WithFingerprintConfig(config =>
                 {
                     config.Clusters = new[] { "first-group-id" };
-                }).UsingServices(audioService)
+                    return config;
+                })
+                .UsingServices(audioService)
                 .Hash()
                 .Result;
 
@@ -109,7 +109,9 @@
                .WithFingerprintConfig(config =>
                {
                    config.Clusters = new[] { "second-group-id" };
-               }).UsingServices(audioService)
+                   return config;
+               })
+               .UsingServices(audioService)
                .Hash()
                .Result;
             InsertHashedFingerprintsForTrack(hashedFingerprintsForSecondTrack, secondTrackReference);

@@ -28,7 +28,7 @@ namespace SoundFingerprinting.Audio.NAudio.Test
         {
             const int SecondsToRead = 10;
             float[] samples = new float[1024];
-            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-streaming-url", 5512, SecondsToRead * 2, 0)).Returns(samples);
+            sourceReader.Setup(r => r.ReadMonoFromSource("path-to-streaming-url", 5512, SecondsToRead * 2, 0, 25)).Returns(samples);
 
             var result = reader.ReadMonoSamples("path-to-streaming-url", 5512, SecondsToRead);
 

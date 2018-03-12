@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -26,6 +26,8 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>default</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,6 +38,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoUnitTests|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -47,18 +50,24 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+    <Reference Include="protobuf-net, Version=2.3.2.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.3.2\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\IUsingFingerprintServices.cs" />
     <Compile Include="Command\IUsingQueryServices.cs" />
+    <Compile Include="Configuration\HighPrecisionFingerprintConfiguration.cs" />
+    <Compile Include="Configuration\HighPrecisionQueryConfiguration.cs" />
+    <Compile Include="Configuration\LowLatencyFingerprintConfiguration.cs" />
+    <Compile Include="Configuration\LowLatencyQueryConfiguration.cs" />
+    <Compile Include="Configuration\QueryStrides.cs" />
+    <Compile Include="FFT\ISimpleSpectrumService.cs" />
     <Compile Include="FFT\LomontFFT.cs" />
+    <Compile Include="FFT\SimpleSpectrumService.cs" />
     <Compile Include="IAdvancedModelService.cs" />
     <Compile Include="AdvancedModelService.cs" />
     <Compile Include="LCS\Coverage.cs" />
@@ -67,6 +76,8 @@
     <Compile Include="Math\FScore.cs" />
     <Compile Include="Math\HashConverter.cs" />
     <Compile Include="Math\IHashConverter.cs" />
+    <Compile Include="MinHash\MaxEntropyPermutations.cs" />
+    <Compile Include="Query\QueryStats.cs" />
     <Compile Include="Query\SubFingerprintsToSeconds.cs" />
     <Compile Include="Query\ConfidenceCalculator.cs" />
     <Compile Include="Query\IConfidenceCalculator.cs" />
@@ -74,20 +85,16 @@
     <Compile Include="Query\MatchedPair.cs" />
     <Compile Include="Configuration\DefaultHashingConfig.cs" />
     <Compile Include="Configuration\DefaultSpectrogramConfig.cs" />
-    <Compile Include="Configuration\EfficientFingerprintConfigurationForQuerying.cs" />
     <Compile Include="Configuration\FrequencyRange.cs" />
     <Compile Include="Configuration\HashingConfig.cs" />
     <Compile Include="Configuration\SpectrogramConfig.cs" />
-    <Compile Include="DAO\IFingerprintDao.cs" />
     <Compile Include="DAO\ISpectralImageDao.cs" />
     <Compile Include="DAO\Data\IgnoreBindingAttribute.cs" />
     <Compile Include="DAO\Data\SpectralImageData.cs" />
     <Compile Include="Data\Fingerprint.cs" />
     <Compile Include="Data\SpectralImage.cs" />
-    <Compile Include="Infrastructure\SoundFingerprintingModuleLoader.cs" />
     <Compile Include="InMemory\InMemoryModelService.cs" />
     <Compile Include="InMemory\IRAMStorage.cs" />
-    <Compile Include="InMemory\FingerprintDao.cs" />
     <Compile Include="InMemory\RAMStorage.cs" />
     <Compile Include="InMemory\SpectralImageDao.cs" />
     <Compile Include="InMemory\SubFingerprintDao.cs" />
@@ -121,13 +128,20 @@
     <Compile Include="Utils\AbsComparator.cs" />
     <Compile Include="Configuration\DefaultFingerprintConfiguration.cs" />
     <Compile Include="FFT\IFFTService.cs" />
+    <Compile Include="Utils\IFingerprintEncoder.cs" />
+    <Compile Include="Utils\TinyFingerprintSchema.cs" />
     <Compile Include="Utils\FastFingerprintDescriptor.cs" />
     <Compile Include="Utils\FingerprintDescriptor.cs" />
     <Compile Include="IFingerprintService.cs" />
     <Compile Include="Configuration\FingerprintConfiguration.cs" />
     <Compile Include="FingerprintService.cs" />
+    <Compile Include="Utils\FingerprintEncoder.cs" />
+    <Compile Include="Utils\IEncodedFingerprintSchema.cs" />
     <Compile Include="Utils\IFingerprintDescriptor.cs" />
     <Compile Include="Utils\ITestRunnerUtils.cs" />
+    <Compile Include="Utils\QuickSelectAlgorithm.cs" />
+    <Compile Include="Utils\RangeUtils.cs" />
+    <Compile Include="Utils\SubFingerprintGroupingCounter.cs" />
     <Compile Include="Utils\TestRunner.cs" />
     <Compile Include="Utils\TestRunnerConfig.cs" />
     <Compile Include="Utils\TestRunnerEventArgs.cs" />
@@ -136,7 +150,6 @@
     <Compile Include="Utils\TestRunnerUtils.cs" />
     <Compile Include="Utils\TestRunnerWriter.cs" />
     <Compile Include="Utils\TestScenariousValidationResult.cs" />
-    <Compile Include="Wavelets\HaarWaveletDecomposition.cs" />
     <Compile Include="FFT\ISpectrumService.cs" />
     <Compile Include="FFT\SpectrumService.cs" />
     <Compile Include="Command\FingerprintCommand.cs" />
@@ -161,7 +174,7 @@
     <Compile Include="Command\IQueryCommand.cs" />
     <Compile Include="Builder\IQueryCommandBuilder.cs" />
     <Compile Include="Command\IQuerySource.cs" />
-    <Compile Include="Command\IWithQueryAndFingerprintConfiguration.cs" />
+    <Compile Include="Command\IWithQueryConfiguration.cs" />
     <Compile Include="Configuration\QueryConfiguration.cs" />
     <Compile Include="IQueryFingerprintService.cs" />
     <Compile Include="QueryFingerprintService.cs" />
@@ -170,17 +183,9 @@
     <Compile Include="Windows\IWindowFunction.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Audio.NAudio\SoundFingerprinting.Audio.NAudio.csproj">
-      <Project>{73a3fee8-13ee-4eeb-9db2-e52a30c8467a}</Project>
-      <Name>SoundFingerprinting.Audio.NAudio</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
       <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
       <Name>SoundFingerprinting.Audio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SoundFingerprinting.Infrastructure\SoundFingerprinting.Infrastructure.csproj">
-      <Project>{a265e08a-870f-406d-8751-4f6f6d69e91a}</Project>
-      <Name>SoundFingerprinting.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

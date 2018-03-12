@@ -21,12 +21,12 @@
 
         public abstract bool SupportsBatchedSubFingerprintQuery { get; }
 
-        public virtual IList<SubFingerprintData> ReadSubFingerprints(long[] hashBins, QueryConfiguration config)
+        public virtual IList<SubFingerprintData> ReadSubFingerprints(int[] hashBins, QueryConfiguration config)
         {
             return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes, config.Clusters).ToList();
         }
 
-        public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<long[]> hashes, QueryConfiguration config)
+        public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
         {
             return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes, config.Clusters);
         }
@@ -69,6 +69,11 @@
         public virtual TrackData ReadTrackByReference(IModelReference trackReference)
         {
             return trackDao.ReadTrack(trackReference);
+        }
+
+        public virtual List<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> ids)
+        {
+            return trackDao.ReadTracks(ids);
         }
 
         public virtual TrackData ReadTrackByISRC(string isrc)

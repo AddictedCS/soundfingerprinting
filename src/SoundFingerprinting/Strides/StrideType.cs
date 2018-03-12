@@ -3,7 +3,7 @@
     /// <summary>
     ///   Types of strides
     /// </summary>
-    public enum StrideType
+    internal enum StrideType
     {
         /// <summary>
         ///   Static stride between 2 consecutive fingerprints

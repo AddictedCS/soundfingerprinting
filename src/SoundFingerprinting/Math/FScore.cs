@@ -41,7 +41,7 @@
 
         public override string ToString()
         {
-            return string.Format("Precision: {0}, Recall: {1}, F1: {2}", Precision, Recall, F1);
+            return $"Precision: {Precision}, Recall: {Recall}, F1: {F1}";
         }
     }
 }

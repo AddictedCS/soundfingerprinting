@@ -29,7 +29,7 @@
         {
             const int Min = 0;
             const int Max = 253;
-            RandomStride randomStride = new RandomStride(Min, Max);
+            RandomStride randomStride = new RandomStride(Min, Max, 0);
             const int Count = 1024;
             for (int i = 0; i < Count; i++)
             {
@@ -42,7 +42,7 @@
         [Test]
         public void RandomStrideClassBadMinMaxTest()
         {
-            Assert.Throws<ArgumentException>(() => new RandomStride(253, 0));
+            Assert.Throws<ArgumentException>(() => new RandomStride(253, 0, 0));
         }
     }
 }

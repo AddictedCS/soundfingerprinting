@@ -10,7 +10,7 @@ namespace SoundFingerprinting.Configuration
             HashingConfig = new DefaultHashingConfig();
             TopWavelets = 200;
             SampleRate = 5512;
-            NormalizeSignal = false;
+            HaarWaveletNorm = 1;
             Clusters = Enumerable.Empty<string>();
         }
     }

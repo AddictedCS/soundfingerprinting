@@ -6,22 +6,10 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Infrastructure;
     using SoundFingerprinting.Query;
 
     internal class SimilarityUtility : ISimilarityUtility
     {
-        private readonly IHashConverter hashConverter;
-
-        public SimilarityUtility() : this(DependencyResolver.Current.Get<IHashConverter>())
-        {
-        }
-
-        internal SimilarityUtility(IHashConverter hashConverter)
-        {
-            this.hashConverter = hashConverter;
-        }
-
         public int CalculateHammingDistance(byte[] a, byte[] b)
         {
             int distance = 0;
@@ -65,7 +53,7 @@
                     // 1 1
                     a++;
                 }
-                else if ((x[i] && !y[i]) || (!x[i] && y[i])) 
+                else if (x[i] | y[i]) 
                 {
                     // 1 0 || 0 1 
                     b++;
@@ -80,18 +68,50 @@
             return (double)a / (a + b);
         }
 
-        public void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator)
+        public void AccumulateHammingSimilarity(
+            IEnumerable<SubFingerprintData> candidates,
+            HashedFingerprint expected,
+            ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator,
+            int keysPerHash)
         {
             foreach (var subFingerprint in candidates)
             {
-                byte[] signature = hashConverter.ToBytes(subFingerprint.Hashes, expected.SubFingerprint.Length);
-                int hammingSimilarity = CalculateHammingSimilarity(expected.SubFingerprint, signature);
+                int hammingSimilarity = CalculateHammingSimilarity(
+                    expected.HashBins,
+                    subFingerprint.Hashes,
+                    keysPerHash);
+
                 SubFingerprintData fingerprint = subFingerprint;
                 accumulator.AddOrUpdate(
                     subFingerprint.TrackReference,
                     reference => new ResultEntryAccumulator(expected, fingerprint, hammingSimilarity),
                     (reference, entryAccumulator) => entryAccumulator.Add(expected, fingerprint, hammingSimilarity));
             }
+        }
+
+        public int CalculateHammingSimilarity(int[] expected, int[] actual, int setBytesPerLong)
+        {
+            int mask = 0xFF;
+            int sameBytes = 0;
+
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                long a = expected[i];
+                long b = actual[i];
+
+                for (int j = 0; j < setBytesPerLong; ++j)
+                {
+                    if ((a & mask) == (b & mask))
+                    {
+                        sameBytes++;
+                    }
+
+                    a = a >> 8;
+                    b = b >> 8;
+                }
+            }
+
+            return sameBytes;
         }
     }
 }
