@@ -12,7 +12,7 @@
         {
             get
             {
-                return new List<string> { "*.mp3" };
+                return new List<string> { "*.wav" };
             }
         }
 

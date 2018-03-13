@@ -10,7 +10,6 @@
     {
         public ModelReference()
         {
-            
         }
 
         public ModelReference(T id)

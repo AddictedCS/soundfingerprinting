@@ -20,7 +20,7 @@
         [Test]
         public void ShouldNotBeEqualToNull()
         {
-            var dto = new TrackData();
+            var dto = new TrackData(string.Empty, string.Empty, string.Empty, string.Empty, 1990, 0d, new ModelReference<int>(0));
 
             Assert.IsFalse(dto.Equals(null));
         }

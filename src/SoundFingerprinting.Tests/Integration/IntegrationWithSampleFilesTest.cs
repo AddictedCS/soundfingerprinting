@@ -12,8 +12,8 @@
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        protected readonly string PathToMp3 = Path.Combine(TestContext.CurrentContext.TestDirectory, "Chopin.mp3");
         protected readonly string PathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
+        protected readonly string PathToWav = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopin_short.wav");
 
         protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
         {
@@ -37,14 +37,14 @@
             {
                 Album = "Album",
                 AlbumArtist = "AlbumArtist",
-                Artist = "Artist",
+                Artist = "Chopin",
                 Composer = "Composer",
-                Duration = 100.2,
+                Duration = 10.0d,
                 Genre = "Genre",
                 IsEmpty = false,
                 ISRC = "ISRC",
-                Title = "Title",
-                Year = 1986
+                Title = "Nocture",
+                Year = 1857
             };
         }
 

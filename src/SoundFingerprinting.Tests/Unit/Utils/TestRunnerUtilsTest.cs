@@ -21,12 +21,12 @@
         {
             string path = TestContext.CurrentContext.TestDirectory;
 
-            var files = testRunnerUtils.ListFiles(path, new List<string> { "*.mp3" });
+            var files = testRunnerUtils.ListFiles(path, new List<string> { "*.wav" });
 
             var filenames = files.Select(Path.GetFileNameWithoutExtension).ToList();
             var unique = new HashSet<string>(filenames);
             Assert.AreEqual(1, unique.Count);
-            Assert.IsTrue(unique.Contains(Path.GetFileNameWithoutExtension(PathToMp3)));
+            Assert.IsTrue(unique.Contains(Path.GetFileNameWithoutExtension(PathToWav)));
         }
 
         [Test]

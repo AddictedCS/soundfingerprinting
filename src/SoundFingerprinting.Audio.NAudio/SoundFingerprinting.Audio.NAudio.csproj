@@ -1,87 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{73A3FEE8-13EE-4EEB-9DB2-E52A30C8467A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SoundFingerprinting.Audio.NAudio</RootNamespace>
-    <AssemblyName>SoundFingerprinting.Audio.NAudio</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NoUnitTests|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\NoUnitTests\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetFrameworks>net45</TargetFrameworks>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<Authors>Sergiu Ciumac</Authors>
+	<PackageVersion>5.0.0</PackageVersion>
+	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+	<PackageProjectUrl>https://github.com/AddictedCS/soundfingerprinting</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageDescription>NAudio extension library for SoundFingerprinting framework. SoundFingerprinting default library is designed to read only raw wave files. This extension provides the ability to read all files supported by NAudio media foundation framework. Since NAudio depends on Windows native calls, this extension can execute only in Windows environment.</PackageDescription>
+	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
+	<PackageReleaseNotes>Since version 5.0.0 NAudio extension library comes in a separate package. SoundFingerprinting.5.0.0 supports .NET standard 2.0, thus NAudio extension is now released separately.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <PackageReference Include="NAudio" Version="1.7.3" />
+    <PackageReference Include="SoundFingerprinting" Version="5.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BlockingQueueSamplesProvider.cs" />
-    <Compile Include="INAudioFactory.cs" />
-    <Compile Include="INAudioSourceReader.cs" />
-    <Compile Include="NAudioFactory.cs" />
-    <Compile Include="NAudioSoundCaptureService.cs" />
-    <Compile Include="NAudioSourceReader.cs" />
-    <Compile Include="NAudioStreamingUrlReader.cs" />
-    <Compile Include="NAudioTagService.cs" />
-    <Compile Include="NAudioWaveFileUtility.cs" />
-    <Compile Include="Play\INAudioPlayAudioFactory.cs" />
-    <Compile Include="Play\NAudioPlayAudioFactory.cs" />
-    <Compile Include="Play\NAudioPlayAudioFileService.cs" />
-    <Compile Include="NAudioSamplesProviderAdapter.cs" />
-    <Compile Include="NAudioService.cs" />
-    <Compile Include="PlayFileAttributes.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SoundFingerprinting.Audio\SoundFingerprinting.Audio.csproj">
-      <Project>{0f94f031-1d0b-429a-a41d-956c1eae435b}</Project>
-      <Name>SoundFingerprinting.Audio</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
