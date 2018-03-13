@@ -7,7 +7,7 @@
 	<PackageVersion>5.0.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
-	<PackageProjectUrl>https://github.com/AddictedCS/soundfingerprinting</PackageProjectUrl>
+	<PackageProjectUrl>https://addictedcs.github.io/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>Version 5.0.0 supports .NET Standard 2.0 as well as .NET Core apps. Default audio service is now SoundFingerprintingAudioService that supports only raw wave files in the input. If you want to process mp3 or flac files please use SoundFingerprinting extension packages with NAudio or Bass. 
