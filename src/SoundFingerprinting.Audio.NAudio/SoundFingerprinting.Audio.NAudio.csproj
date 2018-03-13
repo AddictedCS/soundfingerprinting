@@ -3,7 +3,7 @@
     <TargetFrameworks>net45</TargetFrameworks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Authors>Sergiu Ciumac</Authors>
-	<PackageVersion>5.0.0-alpha</PackageVersion>
+	<PackageVersion>5.0.0</PackageVersion>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
 	<PackageProjectUrl>https://github.com/AddictedCS/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
@@ -14,6 +14,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="1.7.3" />
-    <PackageReference Include="SoundFingerprinting" Version="5.0.0-alpha" />
+    <PackageReference Include="SoundFingerprinting" Version="5.0.0" />
   </ItemGroup>
 </Project>
