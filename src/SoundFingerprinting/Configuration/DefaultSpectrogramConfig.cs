@@ -17,6 +17,13 @@ namespace SoundFingerprinting.Configuration
             NormalizeSignal = false;
             Stride = new IncrementalStaticStride(1536);
             Window = new HanningWindow();
+            ScalingFunction = (value, max) =>
+            {
+                float scaled = System.Math.Min(value / max, 1); // scaled [0, 1]
+                int domain = 255;
+                float c = (float)(1 / System.Math.Log(1 + domain));
+                return (float)(c * System.Math.Log(1 + scaled * domain));
+            };
         }
     }
 }

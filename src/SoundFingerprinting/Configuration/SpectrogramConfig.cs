@@ -102,5 +102,10 @@ namespace SoundFingerprinting.Configuration
         ///  Gets or sets window function to apply before FFT-ing
         /// </summary>
         public IWindowFunction Window { get; set; }
+
+        /// <summary>
+        ///  Gets or sets scaling function for Spectrogram Image generation
+        /// </summary>
+        public Func<float, float, float> ScalingFunction { get; set; }
     }
 }

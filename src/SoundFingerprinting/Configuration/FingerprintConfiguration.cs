@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Configuration
 {
+    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Strides;
@@ -33,6 +34,21 @@ namespace SoundFingerprinting.Configuration
         public double HaarWaveletNorm { get; set; }
 
         /// <summary>
+        ///  Spectral Image scaling function
+        /// </summary>
+        public Func<float, float, float> ScalingFunction
+        {
+            get
+            {
+                return SpectrogramConfig.ScalingFunction;
+            }
+            set
+            {
+                SpectrogramConfig.ScalingFunction = value;
+            } 
+        }
+
+        /// <summary>
         ///  Gets or sets spectrogram creation configuration parameters
         /// </summary>
         internal SpectrogramConfig SpectrogramConfig { get; set; }
@@ -51,7 +67,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets number of top wavelets to consider during wavelet transformation
         /// </summary>
-        internal int TopWavelets { get; set; }
+        public int TopWavelets { get; set; }
 
         /// <summary>
         ///   Gets or sets sample rate used during generation of acoustic fingerprints
