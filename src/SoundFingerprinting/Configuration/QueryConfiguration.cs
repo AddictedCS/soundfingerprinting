@@ -87,6 +87,21 @@
         }
 
         /// <summary>
+        ///  Scaling function used in spectral image creation
+        /// </summary>
+        public Func<float, float, float> ScalingFunction
+        {
+            get
+            {
+                return FingerprintConfiguration.ScalingFunction;
+            }
+            set
+            {
+                FingerprintConfiguration.ScalingFunction = value;
+            }
+        }
+
+        /// <summary>
         ///  Gets or sets list of clusters to consider when querying the datasource for potential candidates
         /// </summary>
         public IEnumerable<string> Clusters { get; set; }

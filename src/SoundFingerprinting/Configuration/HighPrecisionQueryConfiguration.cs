@@ -5,6 +5,7 @@
         public HighPrecisionQueryConfiguration()
         {
             FingerprintConfiguration.Stride = QueryStrides.HighPrecisionStride;
+            ThresholdVotes = 2;
         }
     }
 }
