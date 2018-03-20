@@ -21,5 +21,7 @@
         {
             return new QueryCommand(fingerprintCommandBuilder, queryFingerprintService);
         }
+
+        public static IQueryCommandBuilder Instance { get; } = new QueryCommandBuilder();
     }
 }
