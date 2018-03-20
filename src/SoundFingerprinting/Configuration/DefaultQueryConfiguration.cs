@@ -6,11 +6,14 @@
     {
         public DefaultQueryConfiguration()
         {
-            FrequencyRange = Configs.FrequencyRanges.Default;
             ThresholdVotes = Configs.Threshold.Default;
             MaxTracksToReturn = 25;
             Clusters = Enumerable.Empty<string>();
-            FingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = Configs.QueryStrides.DefaultStride };
+            FingerprintConfiguration = new DefaultFingerprintConfiguration
+                                       {
+                                           Stride = Configs.QueryStrides.DefaultStride,
+                                           FrequencyRange = Configs.FrequencyRanges.Default
+                                       };
         }
     }
 }
