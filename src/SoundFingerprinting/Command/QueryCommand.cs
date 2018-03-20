@@ -19,22 +19,14 @@
         private Func<IWithFingerprintConfiguration> fingerprintingMethodFromSelector;
         private Func<IFingerprintCommand> createFingerprintMethod;
 
+        private QueryConfiguration queryConfiguration;
+
         internal QueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
-            QueryConfiguration = new DefaultQueryConfiguration();
+            queryConfiguration = new DefaultQueryConfiguration();
         }
-
-        public FingerprintConfiguration FingerprintConfiguration
-        {
-            get
-            {
-                return QueryConfiguration.FingerprintConfiguration;
-            }
-        }
-
-        public QueryConfiguration QueryConfiguration { get; private set; }
 
         public IWithQueryConfiguration From(string pathToAudioFile)
         {
@@ -57,13 +49,13 @@
 
         public IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration)
         {
-            QueryConfiguration = queryConfiguration;
+            this.queryConfiguration = queryConfiguration;
             return this;
         }
 
         public IUsingQueryServices WithQueryConfig(Func<QueryConfiguration, QueryConfiguration> amendQueryConfigFunctor)
         {
-            QueryConfiguration = amendQueryConfigFunctor(QueryConfiguration);
+            queryConfiguration = amendQueryConfigFunctor(queryConfiguration);
             return this;
         }
 
@@ -71,7 +63,7 @@
         {
             this.modelService = modelService;
             createFingerprintMethod = () => fingerprintingMethodFromSelector()
-                                                .WithFingerprintConfig(FingerprintConfiguration)
+                                                .WithFingerprintConfig(queryConfiguration.FingerprintConfiguration)
                                                 .UsingServices(audioService);
             return this;
         }
@@ -87,7 +79,7 @@
                                             long fingerprintingTime = fingerprintingStopwatch.ElapsedMilliseconds;
                                             var hashes = task.Result;
                                             var queryStopwatch = Stopwatch.StartNew();
-                                            QueryResult queryResult = queryFingerprintService.Query(hashes, QueryConfiguration, modelService);
+                                            QueryResult queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
                                             long queryingTime = queryStopwatch.ElapsedMilliseconds;
                                             queryResult.Stats.FingerprintingDuration = fingerprintingTime;
                                             queryResult.Stats.QueryDuration = queryingTime;
