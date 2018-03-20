@@ -30,21 +30,5 @@
             fingerprintService.VerifyAll();
             audioService.VerifyAll();
         }
-
-        [Test]
-        public void ShoudUseCorrectFingerprintConfigurationIsUsedWithInstanceConfig()
-        {
-            const string PathToAudioFile = "path-to-audio-file";
-
-            var configuration = new DefaultFingerprintConfiguration { SpectrogramConfig = new DefaultSpectrogramConfig { ImageLength = 1234 } };
-             
-            var fingerprintCommand = fingerprintCommandBuilder.BuildFingerprintCommand()
-                                                              .From(PathToAudioFile)
-                                                              .WithFingerprintConfig(configuration)
-                                                              .UsingServices(audioService.Object);
-
-            Assert.AreSame(configuration, fingerprintCommand.FingerprintConfiguration);
-            Assert.AreEqual(configuration.SpectrogramConfig.ImageLength, fingerprintCommand.FingerprintConfiguration.SpectrogramConfig.ImageLength);
-        }
     }
 }
