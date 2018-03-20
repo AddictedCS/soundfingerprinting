@@ -4,7 +4,9 @@
     {
         public LowLatencyQueryConfiguration()
         {
-            FingerprintConfiguration.Stride = QueryStrides.LowLatency;
+            FrequencyRange = Configs.FrequencyRanges.LowLatency;
+            ThresholdVotes = Configs.Threshold.LowLatency;
+            FingerprintConfiguration.Stride = Configs.QueryStrides.LowLatency;
         }
     }
 }

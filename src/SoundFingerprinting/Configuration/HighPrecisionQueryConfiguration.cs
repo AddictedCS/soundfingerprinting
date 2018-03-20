@@ -4,8 +4,9 @@
     {
         public HighPrecisionQueryConfiguration()
         {
-            FingerprintConfiguration.Stride = QueryStrides.HighPrecisionStride;
-            ThresholdVotes = 2;
+            FrequencyRange = Configs.FrequencyRanges.HighPrecision;
+            FingerprintConfiguration.Stride = Configs.QueryStrides.HighPrecisionStride;
+            ThresholdVotes = Configs.Threshold.HighPrecision;
         }
     }
 }

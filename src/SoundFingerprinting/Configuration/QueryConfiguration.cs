@@ -102,6 +102,36 @@
         }
 
         /// <summary>
+        ///  Number of top wavelets to analyze
+        /// </summary>
+        public int TopWavelets
+        {
+            get
+            {
+                return FingerprintConfiguration.TopWavelets;
+            }
+            set
+            {
+                FingerprintConfiguration.TopWavelets = value;
+            }
+        }
+
+        /// <summary>
+        ///  Frequency range to analyze when creating the fingerprint
+        /// </summary>
+        public FrequencyRange FrequencyRange
+        {
+            get
+            {
+                return FingerprintConfiguration.FrequencyRange;
+            }
+            set
+            {
+                FingerprintConfiguration.FrequencyRange = value;
+            }
+        }
+
+        /// <summary>
         ///  Gets or sets list of clusters to consider when querying the datasource for potential candidates
         /// </summary>
         public IEnumerable<string> Clusters { get; set; }

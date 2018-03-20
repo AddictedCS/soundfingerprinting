@@ -1,12 +1,11 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
-    using SoundFingerprinting.Strides;
-
     public class HighPrecisionFingerprintConfiguration : DefaultFingerprintConfiguration
     {
         public HighPrecisionFingerprintConfiguration()
         {
-            Stride = new IncrementalStaticStride(512);
+            FrequencyRange = Configs.FrequencyRanges.HighPrecision;
+            Stride = Configs.FingerprintStrides.HighPrecision;
         }
     }
 }

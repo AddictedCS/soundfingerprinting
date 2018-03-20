@@ -49,6 +49,21 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
+        ///  Frequency range to analyze when creating the fingerprints
+        /// </summary>
+        public FrequencyRange FrequencyRange
+        {
+            get
+            {
+                return SpectrogramConfig.FrequencyRange;
+            }
+            set
+            {
+                SpectrogramConfig.FrequencyRange = value;
+            }
+        }
+
+        /// <summary>
         ///  Gets or sets spectrogram creation configuration parameters
         /// </summary>
         internal SpectrogramConfig SpectrogramConfig { get; set; }

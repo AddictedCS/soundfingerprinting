@@ -30,5 +30,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.DuplicatesDetector")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Storage")]
 
-[assembly: AssemblyVersion("5.0.0")]
-[assembly: AssemblyInformationalVersion("5.0.0")]
+[assembly: AssemblyVersion("5.1.0")]
+[assembly: AssemblyInformationalVersion("5.1.0")]

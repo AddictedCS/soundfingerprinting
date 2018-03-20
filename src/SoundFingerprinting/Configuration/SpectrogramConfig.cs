@@ -89,11 +89,6 @@ namespace SoundFingerprinting.Configuration
         public bool UseDynamicLogBase { get; set; }
 
         /// <summary>
-        ///  Gets or sets a value indicating whether audio signal has to be normalized before its spectrum is built
-        /// </summary>
-        public bool NormalizeSignal { get; set; }
-
-        /// <summary>
         ///  Gets or sets stride between 2 consecutive spectrogram images
         /// </summary>
         public IStride Stride { get; set; }
