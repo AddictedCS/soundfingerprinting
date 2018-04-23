@@ -20,20 +20,14 @@
         {
             var matches = groupedQueryResults.GetOrderedMatchesForTrack(trackData.TrackReference);
             var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);
-            var filtered = FilterOverlappingSequences(sequences);
+            var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences);
             return filtered.Select(matchedSequence => GetCoverage(matchedSequence, configuration));
         }
 
-        private List<MatchedWith[]> FilterOverlappingSequences(List<MatchedWith[]> sequences)
-        {
-            // TODO is this possible?
-            return null;
-        }
-
-        public Coverage GetCoverage(MatchedWith[] sortedMatches, FingerprintConfiguration configuration)
+        public Coverage GetCoverage(List<MatchedWith> sortedMatches, FingerprintConfiguration configuration)
         {
             double notCovered = 0d;
-            for (int i = 1; i < sortedMatches.Length; ++i)
+            for (int i = 1; i < sortedMatches.Count; ++i)
             {
                 if (sortedMatches[i].ResultAt - sortedMatches[i - 1].ResultAt > configuration.FingerprintLengthInSeconds)
                 {
@@ -42,7 +36,7 @@
             }
 
             double sourceMatchLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(
-                    sortedMatches[sortedMatches.Length - 1].ResultAt,
+                    sortedMatches[sortedMatches.Count - 1].ResultAt,
                     sortedMatches[0].ResultAt,
                     configuration) - notCovered;
 

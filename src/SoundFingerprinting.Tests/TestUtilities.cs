@@ -1,10 +1,13 @@
 namespace SoundFingerprinting.Tests
 {
     using System;
+    using System.Collections.Generic;
 
     using Audio;
 
-    public static class TestUtilities
+    using SoundFingerprinting.Query;
+
+    internal static class TestUtilities
     {
         private static readonly Random Rand = new Random();
 
@@ -33,6 +36,14 @@ namespace SoundFingerprinting.Tests
             }
 
             return d;
+        }
+
+        public static IEnumerable<MatchedWith> GetMatchedWith(float[] queryAt, float[] resultAt)
+        {
+            for (int i = 0; i < queryAt.Length; ++i)
+            {
+                yield return new MatchedWith(queryAt[i], resultAt[i], 100);
+            }
         }
     }
 }

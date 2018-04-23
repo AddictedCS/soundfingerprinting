@@ -30,9 +30,8 @@
             double queryLength = CalculateExactQueryLength(hashedFingerprints, fingerprintConfiguration);
             var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
-            return tracks
-                .SelectMany(track => BuildResultEntries(fingerprintConfiguration, track, groupedQueryResults, queryLength))
-                .ToList();
+            return tracks.SelectMany(track => BuildResultEntries(fingerprintConfiguration, track, groupedQueryResults, queryLength))
+                         .ToList();
         }
 
         public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
