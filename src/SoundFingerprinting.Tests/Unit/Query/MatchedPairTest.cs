@@ -13,15 +13,6 @@
     public class MatchedPairTest
     {
         [Test]
-        public void ShouldCompare2MatchedPairsBySequenceAt()
-        {
-            var match0 = new MatchedPair(null, new SubFingerprintData(new int[0], 0, 1, null, null), 100);
-            var match1 = new MatchedPair(null, new SubFingerprintData(new int[0], 0, 2, null, null), 100);
-
-            Assert.AreEqual(-1, match0.CompareTo(match1));
-        }
-
-        [Test]
         public void ShouldNotRemoveCompetingCandidates()
         {
             var query = new HashedFingerprint(new int[0], 0, 0f, new string[0]);

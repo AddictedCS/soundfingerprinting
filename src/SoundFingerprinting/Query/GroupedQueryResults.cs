@@ -82,6 +82,21 @@
             }
         }
 
+        public int GetHammingSimilaritySumForTrack(IModelReference trackReference)
+        {
+            if (similaritySumPerTrack.TryGetValue(trackReference, out int sum))
+            {
+                return sum;
+            }
+
+            return 0;
+        }
+
+        public MatchedWith GetBestMatchForTrack(IModelReference trackReference)
+        {
+            return GetOrderedMatchesForTrack(trackReference).OrderByDescending(matchedWith => matchedWith.HammingSimilarity).FirstOrDefault();
+        }
+
         public IEnumerable<MatchedWith> GetOrderedMatchesForTrack(IModelReference trackReference)
         {
             foreach (var match in matches)

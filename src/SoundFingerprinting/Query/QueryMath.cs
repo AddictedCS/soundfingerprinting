@@ -31,7 +31,7 @@
             var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
             return tracks
-                .Select(track => GetResultEntry(fingerprintConfiguration, track, groupedQueryResults, queryLength))
+                .SelectMany(track => BuildResultEntries(fingerprintConfiguration, track, groupedQueryResults, queryLength))
                 .ToList();
         }
 
@@ -68,36 +68,34 @@
             return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
         }
 
-        private ResultEntry GetResultEntry(FingerprintConfiguration configuration, TrackData track, GroupedQueryResults groupedQueryResults, double queryLength)
+        private IEnumerable<ResultEntry> BuildResultEntries(FingerprintConfiguration configuration, TrackData track, GroupedQueryResults groupedQueryResults, double queryLength)
         {
-            var coverage = queryResultCoverageCalculator.GetCoverage(
-                track,
-                groupedQueryResults,
-                queryLength,
-                configuration);
+            var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
+            return coverages.Select(
+                coverage =>
+                {
+                    double confidence = confidenceCalculator.CalculateConfidence(
+                        coverage.SourceMatchStartsAt,
+                        coverage.SourceMatchLength,
+                        queryLength,
+                        coverage.OriginMatchStartsAt,
+                        track.Length);
 
-            double confidence = confidenceCalculator.CalculateConfidence(
-                coverage.SourceMatchStartsAt,
-                coverage.SourceMatchLength,
-                queryLength,
-                coverage.OriginMatchStartsAt,
-                track.Length);
-
-            return new ResultEntry(
-                track,
-                coverage.SourceMatchStartsAt,
-                coverage.SourceMatchLength,
-                coverage.OriginMatchStartsAt,
-                GetTrackStartsAt(acc.BestMatch),
-                confidence,
-                acc.HammingSimilaritySum,
-                queryLength,
-                acc.BestMatch);
+                    return new ResultEntry(
+                        track,
+                        coverage.SourceMatchStartsAt,
+                        coverage.SourceMatchLength,
+                        coverage.OriginMatchStartsAt,
+                        GetTrackStartsAt(groupedQueryResults.GetBestMatchForTrack(track.TrackReference)),
+                        confidence,
+                        groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
+                        queryLength);
+                });
         }
 
-        private double GetTrackStartsAt(MatchedPair bestMatch)
+        private double GetTrackStartsAt(MatchedWith bestMatch)
         {
-            return bestMatch.HashedFingerprint.StartsAt - bestMatch.Matches.SequenceAt;
+            return bestMatch.QueryAt - bestMatch.ResultAt;
         }
     }
 }

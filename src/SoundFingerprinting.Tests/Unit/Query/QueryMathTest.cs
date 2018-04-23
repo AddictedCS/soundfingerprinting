@@ -20,7 +20,7 @@
 
     [TestFixture]
     public class QueryMathTest
-    {
+    {/*
         private Mock<IModelService> modelService = new Mock<IModelService>(MockBehavior.Strict);
 
         private readonly QueryMath queryMath = new QueryMath(
@@ -164,6 +164,6 @@
                     }
                 }
             }
-        }
+        } */
     }
 }

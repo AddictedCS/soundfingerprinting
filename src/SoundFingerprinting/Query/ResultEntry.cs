@@ -7,7 +7,7 @@ namespace SoundFingerprinting.Query
     /// </summary>
     public class ResultEntry
     {
-        internal ResultEntry(TrackData track, double queryMatchStartsAt, double queryMatchLength, double originStartsAt, double trackStartsAt, double confidence, int hammingSimilaritySum, double queryLength, MatchedPair bestMatch)
+        internal ResultEntry(TrackData track, double queryMatchStartsAt, double queryMatchLength, double originStartsAt, double trackStartsAt, double confidence, int hammingSimilaritySum, double queryLength)
         {
             Track = track;
             QueryMatchStartsAt = queryMatchStartsAt;
@@ -17,7 +17,6 @@ namespace SoundFingerprinting.Query
             HammingSimilaritySum = hammingSimilaritySum;
             TrackStartsAt = trackStartsAt;
             QueryLength = queryLength;
-            BestMatch = bestMatch;
         }
 
         /// <summary>
@@ -71,11 +70,6 @@ namespace SoundFingerprinting.Query
         public double Confidence { get; private set; }
 
         /// <summary>
-        ///  Gets best matched pair
-        /// </summary>
-        internal MatchedPair BestMatch { get; private set; }
-
-                /// <summary>
         ///  Gets similarity count between query match and track
         /// </summary>
         internal int HammingSimilaritySum { get; private set; }
