@@ -4,55 +4,51 @@
     using System.Linq;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Query;
 
     internal class QueryResultCoverageCalculator : IQueryResultCoverageCalculator
     {
-        public Coverage GetCoverage(SortedSet<MatchedPair> matches, double queryLength, FingerprintConfiguration configuration)
+        private readonly ILongestIncreasingTrackSequence longestIncreasingTrackSequence;
+
+        public QueryResultCoverageCalculator(ILongestIncreasingTrackSequence longestIncreasingTrackSequence)
         {
-            int minI = 0, maxI = 0, curMinI = 0, maxLength = 0;
-            var sortedMatches = matches.ToList();
-            for (int i = 1; i < sortedMatches.Count; ++i)
-            {
-                if (ConsecutiveMatchesAreLongerThanTheQuery(queryLength, sortedMatches, i, configuration))
-                {
-                    // potentialy a new start of best matched sequence
-                    curMinI = i;
-                }
+            this.longestIncreasingTrackSequence = longestIncreasingTrackSequence;
+        }
 
-                if (i - curMinI > maxLength)
-                {
-                    maxLength = i - curMinI;
-                    maxI = i;
-                    minI = curMinI;
-                }
-            }
+        public IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, FingerprintConfiguration configuration)
+        {
+            var matches = groupedQueryResults.GetOrderedMatchesForTrack(trackData.TrackReference);
+            var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            var filtered = FilterOverlappingSequences(sequences);
+            return filtered.Select(matchedSequence => GetCoverage(matchedSequence, configuration));
+        }
 
+        private List<MatchedWith[]> FilterOverlappingSequences(List<MatchedWith[]> sequences)
+        {
+            // TODO is this possible?
+            return null;
+        }
+
+        public Coverage GetCoverage(MatchedWith[] sortedMatches, FingerprintConfiguration configuration)
+        {
             double notCovered = 0d;
-            for (int i = minI + 1; i <= maxI; ++i)
+            for (int i = 1; i < sortedMatches.Length; ++i)
             {
-                if (sortedMatches[i].SubFingerprint.SequenceAt - sortedMatches[i - 1].SubFingerprint.SequenceAt > configuration.FingerprintLengthInSeconds)
+                if (sortedMatches[i].ResultAt - sortedMatches[i - 1].ResultAt > configuration.FingerprintLengthInSeconds)
                 {
-                    notCovered += sortedMatches[i].SubFingerprint.SequenceAt - (sortedMatches[i - 1].SubFingerprint.SequenceAt + configuration.FingerprintLengthInSeconds);
+                    notCovered += sortedMatches[i].ResultAt - (sortedMatches[i - 1].ResultAt + configuration.FingerprintLengthInSeconds);
                 }
             }
 
             double sourceMatchLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(
-                    sortedMatches[maxI].SubFingerprint.SequenceAt,
-                    sortedMatches[minI].SubFingerprint.SequenceAt,
+                    sortedMatches[sortedMatches.Length - 1].ResultAt,
+                    sortedMatches[0].ResultAt,
                     configuration) - notCovered;
 
-            double sourceMatchStartsAt = sortedMatches[minI].HashedFingerprint.StartsAt;
-            double originMatchStartsAt = sortedMatches[minI].SubFingerprint.SequenceAt;
+            double sourceMatchStartsAt = sortedMatches[0].QueryAt;
+            double originMatchStartsAt = sortedMatches[0].ResultAt;
             return new Coverage(sourceMatchStartsAt, sourceMatchLength, originMatchStartsAt);
-        }
-
-        private bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, List<MatchedPair> sortedMatches, int index, FingerprintConfiguration config)
-        {
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(
-                sortedMatches[index].SubFingerprint.SequenceAt,
-                sortedMatches[index - 1].SubFingerprint.SequenceAt,
-                config) > queryLength;
         }
     }
 }

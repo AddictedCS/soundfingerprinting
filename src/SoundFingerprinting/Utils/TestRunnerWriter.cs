@@ -10,9 +10,7 @@
     internal class TestRunnerWriter
     {
         private const string Header = "Query Track,Result Track,Match,Hamming Distance,Confidence,Coverage,Query Match Length, Starts At";
-
         private const string HeaderFinalResult = "Inserted As,Query Stride,Query Seconds,Start At,Precision,Recall,F1, TP, TP Percetile, FN, FN Percentile, FP, FP Percentile,Elapsed Time (sec)";
-
         private const string InsertHeader = "Inserted Tracks, Time (sec)";
 
         public static StringBuilder StartSuite()

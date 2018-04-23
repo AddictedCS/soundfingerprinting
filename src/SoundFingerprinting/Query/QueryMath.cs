@@ -22,20 +22,16 @@
 
         public List<ResultEntry> GetBestCandidates(
             List<HashedFingerprint> hashedFingerprints,
-            IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites,
+            GroupedQueryResults groupedQueryResults,
             int maxNumberOfMatchesToReturn,
             IModelService modelService,
             FingerprintConfiguration fingerprintConfiguration)
         {
             double queryLength = CalculateExactQueryLength(hashedFingerprints, fingerprintConfiguration);
-            var trackIds = hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
-                                     .Take(maxNumberOfMatchesToReturn)
-                                     .Select(p => p.Key)
-                                     .ToList();
-
+            var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
             return tracks
-                .Select(track => GetResultEntry(fingerprintConfiguration, track, hammingSimilarites[track.TrackReference], queryLength))
+                .Select(track => GetResultEntry(fingerprintConfiguration, track, groupedQueryResults, queryLength))
                 .ToList();
         }
 
@@ -72,10 +68,11 @@
             return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
         }
 
-        private ResultEntry GetResultEntry(FingerprintConfiguration configuration, TrackData track, ResultEntryAccumulator acc, double queryLength)
+        private ResultEntry GetResultEntry(FingerprintConfiguration configuration, TrackData track, GroupedQueryResults groupedQueryResults, double queryLength)
         {
             var coverage = queryResultCoverageCalculator.GetCoverage(
-                acc.Matches,
+                track,
+                groupedQueryResults,
                 queryLength,
                 configuration);
 
@@ -100,7 +97,7 @@
 
         private double GetTrackStartsAt(MatchedPair bestMatch)
         {
-            return bestMatch.HashedFingerprint.StartsAt - bestMatch.SubFingerprint.SequenceAt;
+            return bestMatch.HashedFingerprint.StartsAt - bestMatch.Matches.SequenceAt;
         }
     }
 }
