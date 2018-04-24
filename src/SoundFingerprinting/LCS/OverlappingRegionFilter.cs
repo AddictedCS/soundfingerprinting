@@ -42,5 +42,23 @@
                 }
             }
         }
+
+        private static List<MatchedWith> Concatenate(List<MatchedWith> a, List<MatchedWith> b)
+        {
+            var concatenated = new List<MatchedWith>();
+            int ai = 0, bi = 0;
+            while (ai < a.Count || bi < b.Count)
+            {
+                if (ai >= a.Count)
+                    concatenated.Add(b[bi++]);
+                else if (bi >= b.Count)
+                    concatenated.Add(a[ai++]);
+                else if (a[ai].QueryAt < b[bi].QueryAt)
+                    concatenated.Add(a[ai++]);
+                else concatenated.Add(b[bi++]);
+            }
+
+            return concatenated;
+        }
     }
 }

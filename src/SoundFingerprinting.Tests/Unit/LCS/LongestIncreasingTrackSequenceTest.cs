@@ -28,8 +28,8 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
 
             Assert.AreEqual(2, result.Count);
-            CollectionAssert.AreEqual(new float[] { 0, 1, 2, 3, 5, 6, 7, 9 }, result[0].Select(with => with.ResultAt));
-            CollectionAssert.AreEqual(new float[] { 4, 8 }, result[1].Select(with => with.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 0, 1, 2, 3, 4, 6, 7, 9 }, result[0].Select(with => with.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 5, 8 }, result[1].Select(with => with.ResultAt));
         }
 
         [Test]
@@ -51,8 +51,34 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
 
             Assert.AreEqual(2, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[0].Select(pair => pair.ResultAt));
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.ResultAt));
+        }
+
+        [Test]
+        public void ShouldFindLongestIncreasingSequenceComplex()
+        {
+            var matches = TestUtilities.GetMatchedWith(new float[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, new float[] { 1, 2, 3, 1, 2, 3, 4, 1, 2, 3 });
+
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+
+            Assert.AreEqual(3, result.Count);
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.ResultAt));
+        }
+
+        [Test]
+        public void ShouldFindLongestIncreasingSequenceComplex2()
+        {
+            var matches = TestUtilities.GetMatchedWith(new float[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16, 17, 18 }, new float[] { 1, 2, 3, 4, 1, 2, 3, 4, 5, 1, 2, 3 });
+
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+
+            Assert.AreEqual(3, result.Count);
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[1].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.ResultAt));
         }
     }
 }

@@ -11,12 +11,12 @@
 
     internal class GroupedQueryResults
     {
-        private readonly ConcurrentDictionary<int, MatchedPair> matches;
+        private readonly SortedDictionary<int, MatchedPair> matches;
         private readonly ConcurrentDictionary<IModelReference, int> similaritySumPerTrack;
 
         public GroupedQueryResults()
         {
-            matches = new ConcurrentDictionary<int, MatchedPair>();
+            matches = new SortedDictionary<int, MatchedPair>();
             similaritySumPerTrack = new ConcurrentDictionary<IModelReference, int>();
         }
 
@@ -24,23 +24,26 @@
         public void Add(HashedFingerprint hashedFingerprint, SubFingerprintData subFingerprintData, int hammingSimilarity)
         {
             similaritySumPerTrack.AddOrUpdate(subFingerprintData.TrackReference, hammingSimilarity, (key, oldHamming) => oldHamming + hammingSimilarity);
-            matches.AddOrUpdate((int)hashedFingerprint.SequenceNumber, seq => new MatchedPair(hashedFingerprint, subFingerprintData, hammingSimilarity),
-                (seq, matched) =>
-                {
-                    var trackReference = subFingerprintData.TrackReference;
-                    matched.Matches.AddOrUpdate(trackReference, reference => new MatchedWith(hashedFingerprint.StartsAt, subFingerprintData.SequenceAt, hammingSimilarity),
-                        (reference, matchedWith) =>
+
+            if (!matches.ContainsKey((int)hashedFingerprint.SequenceNumber))
+            {
+                matches.Add((int)hashedFingerprint.SequenceNumber, new MatchedPair(hashedFingerprint, subFingerprintData, hammingSimilarity));
+            }
+            else
+            {
+                var matched = matches[(int)hashedFingerprint.SequenceNumber];
+                var trackReference = subFingerprintData.TrackReference;
+                matched.Matches.AddOrUpdate(trackReference, reference => new MatchedWith(hashedFingerprint.StartsAt, subFingerprintData.SequenceAt, hammingSimilarity),
+                    (reference, matchedWith) =>
+                    {
+                        if (matchedWith.HammingSimilarity > hammingSimilarity)
                         {
-                            if (matchedWith.HammingSimilarity > hammingSimilarity)
-                            {
-                                return matchedWith;
-                            }
+                            return matchedWith;
+                        }
 
-                            return new MatchedWith(hashedFingerprint.StartsAt, subFingerprintData.SequenceAt, hammingSimilarity);
-                        });
-
-                    return matched;
-                });
+                        return new MatchedWith(hashedFingerprint.StartsAt, subFingerprintData.SequenceAt, hammingSimilarity);
+                    });
+            }
         }
 
         public bool ContainsMatches
