@@ -21,18 +21,22 @@
             var matches = groupedQueryResults.GetOrderedMatchesForTrack(trackData.TrackReference);
             var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);
             var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences);
-            return filtered.Select(matchedSequence => GetCoverage(matchedSequence, configuration));
+            return filtered.Select(matchedSequence => GetCoverage(matchedSequence.OrderBy(m => m.ResultAt).ToList(), configuration));
         }
 
         public Coverage GetCoverage(List<MatchedWith> sortedMatches, FingerprintConfiguration configuration)
         {
             double notCovered = 0d;
+            var bestMatch = sortedMatches[0];
             for (int i = 1; i < sortedMatches.Count; ++i)
             {
                 if (sortedMatches[i].ResultAt - sortedMatches[i - 1].ResultAt > configuration.FingerprintLengthInSeconds)
                 {
                     notCovered += sortedMatches[i].ResultAt - (sortedMatches[i - 1].ResultAt + configuration.FingerprintLengthInSeconds);
                 }
+
+                if (bestMatch.HammingSimilarity < sortedMatches[i].HammingSimilarity)
+                    bestMatch = sortedMatches[i];
             }
 
             double sourceMatchLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(
@@ -42,7 +46,12 @@
 
             double sourceMatchStartsAt = sortedMatches[0].QueryAt;
             double originMatchStartsAt = sortedMatches[0].ResultAt;
-            return new Coverage(sourceMatchStartsAt, sourceMatchLength, originMatchStartsAt);
+            return new Coverage(sourceMatchStartsAt, sourceMatchLength, originMatchStartsAt, GetTrackStartsAt(bestMatch));
+        }
+
+        private double GetTrackStartsAt(MatchedWith bestMatch)
+        {
+            return bestMatch.QueryAt - bestMatch.ResultAt;
         }
     }
 }

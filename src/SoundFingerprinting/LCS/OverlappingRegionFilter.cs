@@ -10,37 +10,31 @@
     {
         public static IEnumerable<List<MatchedWith>> FilterOverlappingSequences(List<List<MatchedWith>> sequences)
         {
-            for (int i = 1; i < sequences.Count; ++i)
-                if (sequences[i].Count > sequences[i - 1].Count)
-                    throw new ArgumentException($"{nameof(sequences)} should be sorted by length with longest sequences comming first");
-
-            yield return sequences[0];
-
-            for (int i = 1; i < sequences.Count; ++i)
+            for (int i = 0; i < sequences.Count; ++i)
             {
-                bool yield = true;
-                for (int j = 0; j <= i - 1; ++j)
+                var a = sequences[i];
+                for (int j = i + 1; j < sequences.Count; ++j)
                 {
-                    var current = sequences[i];
-                    float start = current.First().QueryAt;
-                    float end = current.Last().QueryAt;
+                    var b = sequences[j];
+                    float start = b.First().QueryAt;
+                    float end = b.Last().QueryAt;
 
-                    var previous = sequences[j];
+                    var previous = a;
                     float prevStart = previous.First().QueryAt;
                     float prevEnd = previous.Last().QueryAt;
 
-                    if ((prevStart < end && end < prevEnd) || (prevStart < start && start < prevEnd))
+                    if (prevStart < end && end < prevEnd || prevStart < start && start < prevEnd || start < prevStart && prevEnd < end)
                     {
-                        yield = false;
-                        break;
+                        a = Concatenate(a, b);
+                        sequences.RemoveAt(j);
+                        sequences.RemoveAt(i);
+                        sequences.Add(a);
+                        return FilterOverlappingSequences(sequences);
                     }
                 }
-
-                if (yield)
-                {
-                    yield return sequences[i];
-                }
             }
+
+            return sequences;
         }
 
         private static List<MatchedWith> Concatenate(List<MatchedWith> a, List<MatchedWith> b)

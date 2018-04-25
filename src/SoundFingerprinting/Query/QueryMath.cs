@@ -85,16 +85,13 @@
                         coverage.SourceMatchStartsAt,
                         coverage.SourceMatchLength,
                         coverage.OriginMatchStartsAt,
-                        GetTrackStartsAt(groupedQueryResults.GetBestMatchForTrack(track.TrackReference)),
+                        coverage.TrackStartsAt,
                         confidence,
                         groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
                         queryLength);
                 });
         }
 
-        private double GetTrackStartsAt(MatchedWith bestMatch)
-        {
-            return bestMatch.QueryAt - bestMatch.ResultAt;
-        }
+       
     }
 }
