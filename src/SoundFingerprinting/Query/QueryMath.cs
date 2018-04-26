@@ -4,7 +4,6 @@
     using System.Linq;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
@@ -84,6 +83,7 @@
                         track,
                         coverage.SourceMatchStartsAt,
                         coverage.SourceMatchLength,
+                        coverage.SourceCoverageLength,
                         coverage.OriginMatchStartsAt,
                         coverage.TrackStartsAt,
                         confidence,
@@ -91,7 +91,5 @@
                         queryLength);
                 });
         }
-
-       
     }
 }
