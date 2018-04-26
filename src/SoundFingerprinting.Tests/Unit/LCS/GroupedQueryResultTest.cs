@@ -50,9 +50,31 @@
 
             for (int i = 0; i < references.Length; ++i)
             {
-                var matchedWith = groupedQueryResults.GetOrderedMatchesForTrack(references[i]).ToList();
+                var matchedWith = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(references[i]).ToList();
                 Assert.AreEqual(runs / references.Length, matchedWith.Count);
             }
+        }
+
+        [Test]
+        public void MatchesShouldBeOrderedByQueryAt()
+        {
+            int runs = 1000;
+
+            var groupedQueryResults = new GroupedQueryResults();
+            var reference = new ModelReference<int>(1);
+
+            Parallel.For(0, runs, i =>
+            {
+                var hashed = new HashedFingerprint(new int[0], (uint)i, i, new string[0]);
+                var candidate = new SubFingerprintData(new int[0], (uint)i, runs - i, new ModelReference<uint>((uint)i), reference);
+                groupedQueryResults.Add(hashed, candidate, i);
+            });
+
+            var matchedWith = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(reference);
+
+            var ordered = matchedWith.Select(with => (int)with.QueryAt).ToList();
+
+            CollectionAssert.AreEqual(Enumerable.Range(0, runs), ordered);
         }
     }
 }
