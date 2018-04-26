@@ -18,7 +18,7 @@
 
         public IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, FingerprintConfiguration configuration)
         {
-            var matches = groupedQueryResults.GetOrderedMatchesForTrack(trackData.TrackReference);
+            var matches = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(trackData.TrackReference);
             /* if (false)
             {
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);
@@ -46,8 +46,7 @@
                 }
             }
 
-            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(
-                sortedMatches[sortedMatches.Count - 1].ResultAt,
+            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(sortedMatches[sortedMatches.Count - 1].ResultAt,
                 sortedMatches[0].ResultAt,
                 configuration);
 
