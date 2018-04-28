@@ -16,6 +16,14 @@ namespace SoundFingerprinting.Audio
          * All filters are interpolating around 32 points
          */
 
+        private static float[] lp_filter48 =
+        {
+            -0.0012990f, -0.0019311f, -0.0029319f, -0.0041300f, -0.0049453f, -0.0044366f, -0.0014823f, 0.0049420f,
+            0.0154518f, 0.0299911f, 0.0476932f, 0.0669171f, 0.0854657f, 0.1009527f, 0.1112388f, 0.1148437f, 0.1112388f,
+            0.1009527f, 0.0854657f, 0.0669171f, 0.0476932f, 0.0299911f, 0.0154518f, 0.0049420f, -0.0014823f,
+            -0.0044366f, -0.0049453f, -0.0041300f, -0.0029319f, -0.0019311f, -0.0012990f
+        };
+
         /*Low pass from 44100 to 5512*/
         private static float[] lp_filter44 =
         {
@@ -51,6 +59,8 @@ namespace SoundFingerprinting.Audio
 
             switch (sourceSampleRate)
             {
+                case 48000:
+                    return Resample(samples, (int)(samples.Length / 8.7082728d) - 31, 8.7082728d, lp_filter48);
                 case 44100:
                     return Resample(samples, samples.Length / 8 - 31, 8, lp_filter44);
                 case 22050:
@@ -64,12 +74,12 @@ namespace SoundFingerprinting.Audio
             throw new ArgumentException($"Not supported sample rate {sourceSampleRate}");
         }
 
-        private float[] Resample(float[] samples, int newSamplesCount, int mult, float[] filter)
+        private float[] Resample(float[] samples, int newSamplesCount, double mult, float[] filter)
         {
             float[] resampled = new float[newSamplesCount];
             for (int i = 0; i < newSamplesCount; i++)
             {
-                resampled[i] = Convolve(samples, mult * i, filter, filter.Length);
+                resampled[i] = Convolve(samples, (int)(mult * i), filter, filter.Length);
             }
             return resampled;
         }
@@ -84,10 +94,5 @@ namespace SoundFingerprinting.Audio
 
             return sum;
         }
-    }
-
-    internal interface ILowPassFilter
-    {
-        float[] FilterAndDownsample(float[] samples, int sourceSampleRate, int targetSampleRate);
     }
 }
