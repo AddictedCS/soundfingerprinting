@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting.LCS
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -18,18 +17,18 @@
                     var b = sequences[j];
                     float start = b.First().QueryAt;
                     float end = b.Last().QueryAt;
-
                     var previous = a;
+
                     float prevStart = previous.First().QueryAt;
                     float prevEnd = previous.Last().QueryAt;
 
-                    if (prevStart < end && end < prevEnd || prevStart < start && start < prevEnd || start < prevStart && prevEnd < end)
+                    if (prevStart < end && end <= prevEnd || prevStart < start && start <= prevEnd || start < prevStart && prevEnd <= end)
                     {
                         a = Concatenate(a, b);
                         sequences.RemoveAt(j);
                         sequences.RemoveAt(i);
                         sequences.Add(a);
-                        return FilterOverlappingSequences(sequences);
+                        return FilterOverlappingSequences(sequences.OrderByDescending(seq => seq.Count).ToList());
                     }
                 }
             }
