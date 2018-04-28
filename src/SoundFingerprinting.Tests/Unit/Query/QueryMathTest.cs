@@ -41,7 +41,7 @@
 
             Assert.AreEqual(9.6284d, snippetLength, 0.0001);
         }
-
+          
         [Test]
         public void ShouldGetBestCandidatesByHammingDistance()
         {

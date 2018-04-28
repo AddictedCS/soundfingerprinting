@@ -26,38 +26,52 @@
                 return filtered.Select(matchedSequence => GetCoverage(matchedSequence.OrderBy(m => m.ResultAt).ToList(), configuration));
             } */
 
-            yield return GetCoverage(matches.OrderBy(with => with.ResultAt).ToList(), configuration);
+            yield return GetCoverage(matches, groupedQueryResults.GetQueryLength(configuration), configuration);
         }
 
-        private Coverage GetCoverage(List<MatchedWith> sortedMatches, FingerprintConfiguration configuration)
+        public Coverage GetCoverage(IEnumerable<MatchedWith> matches, double queryLength, FingerprintConfiguration configuration)
+        {
+            var orderedByResultAt = matches.OrderBy(with => with.ResultAt).ToList();
+
+            var trackRegion = CoverageEstimator.EstimateTrackCoverage(orderedByResultAt, queryLength, configuration);
+
+            var notCovered = GetNotCoveredLength(orderedByResultAt, trackRegion, configuration, out var bestMatch);
+
+            // optimistic coverage length
+            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[orderedByResultAt.Count - 1].ResultAt, orderedByResultAt[0].ResultAt, configuration);
+
+            // calculated coverage length
+            double calculated = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, configuration);
+
+            double sourceMatchLength = calculated - notCovered; // exact length of matched fingerprints
+
+            double sourceMatchStartsAt = orderedByResultAt[trackRegion.StartAt].QueryAt;
+            double originMatchStartsAt = orderedByResultAt[trackRegion.StartAt].ResultAt;
+
+            return new Coverage(sourceMatchStartsAt, sourceMatchLength, sourceCoverageLength, originMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
+        }
+
+        private static double GetNotCoveredLength(List<MatchedWith> orderedByResultAt, TrackRegion trackRegion, FingerprintConfiguration configuration, out MatchedWith bestMatch)
         {
             double notCovered = 0d;
-            var bestMatch = sortedMatches[0];
-            for (int i = 1; i < sortedMatches.Count; ++i)
+            bestMatch = orderedByResultAt[trackRegion.StartAt];
+            for (int i = trackRegion.StartAt + 1; i <= trackRegion.EndAt; ++i)
             {
-                if (sortedMatches[i].ResultAt - sortedMatches[i - 1].ResultAt > configuration.FingerprintLengthInSeconds)
+                if (orderedByResultAt[i].ResultAt - orderedByResultAt[i - 1].ResultAt > configuration.FingerprintLengthInSeconds)
                 {
-                    notCovered += sortedMatches[i].ResultAt - (sortedMatches[i - 1].ResultAt + configuration.FingerprintLengthInSeconds);
+                    notCovered += orderedByResultAt[i].ResultAt - (orderedByResultAt[i - 1].ResultAt + configuration.FingerprintLengthInSeconds);
                 }
 
-                if (bestMatch.HammingSimilarity < sortedMatches[i].HammingSimilarity)
+                if (bestMatch.HammingSimilarity < orderedByResultAt[i].HammingSimilarity)
                 {
-                    bestMatch = sortedMatches[i];
+                    bestMatch = orderedByResultAt[i];
                 }
             }
 
-            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(sortedMatches[sortedMatches.Count - 1].ResultAt,
-                sortedMatches[0].ResultAt,
-                configuration);
-
-            double sourceMatchLength = sourceCoverageLength - notCovered;
-
-            double sourceMatchStartsAt = sortedMatches[0].QueryAt;
-            double originMatchStartsAt = sortedMatches[0].ResultAt;
-            return new Coverage(sourceMatchStartsAt, sourceMatchLength, sourceCoverageLength, originMatchStartsAt, GetTrackStartsAt(bestMatch));
+            return notCovered;
         }
 
-        private double GetTrackStartsAt(MatchedWith bestMatch)
+        private static double GetTrackStartsAt(MatchedWith bestMatch)
         {
             return bestMatch.QueryAt - bestMatch.ResultAt;
         }
