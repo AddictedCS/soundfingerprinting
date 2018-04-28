@@ -1,10 +1,12 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading.Tasks;
 
     using NUnit.Framework;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -53,6 +55,26 @@
                 var matchedWith = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(references[i]).ToList();
                 Assert.AreEqual(runs / references.Length, matchedWith.Count);
             }
+        }
+
+        [Test]
+        public void ShouldCalculateQueryLengthCorrectly()
+        {
+            var configuration = new DefaultFingerprintConfiguration();
+            float delta = 0.05f;
+            int runs = 1000;
+            var bag = new ConcurrentBag<HashedFingerprint>();
+            Parallel.For(0, runs, i =>
+            {
+                var hashed = new HashedFingerprint(new int[0], (uint)i, i * delta, new string[0]);
+                bag.Add(hashed);
+            });
+
+            var groupedQueryResult = new GroupedQueryResults(bag);
+
+            double length = groupedQueryResult.GetQueryLength(configuration);
+
+            Assert.AreEqual(length, delta * (runs - 1) + configuration.FingerprintLengthInSeconds, 0.0001);
         }
 
         [Test]

@@ -8,10 +8,8 @@ namespace SoundFingerprinting.Query
 
     internal interface IQueryMath
     {
-        List<ResultEntry> GetBestCandidates(List<HashedFingerprint> hashedFingerprints, GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, FingerprintConfiguration fingerprintConfiguration);
+        List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, FingerprintConfiguration fingerprintConfiguration);
 
         bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes);
-
-        double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration);
     }
 }
