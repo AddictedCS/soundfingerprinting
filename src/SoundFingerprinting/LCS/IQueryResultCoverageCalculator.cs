@@ -8,6 +8,6 @@ namespace SoundFingerprinting.LCS
 
     internal interface IQueryResultCoverageCalculator
     {
-        IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, FingerprintConfiguration configuration);
+        IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration);
     }
 }

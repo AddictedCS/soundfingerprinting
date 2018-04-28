@@ -21,11 +21,11 @@
 
         public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn,
             IModelService modelService,
-            FingerprintConfiguration fingerprintConfiguration)
+            QueryConfiguration queryConfiguration)
         {
             var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
-            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, fingerprintConfiguration)).ToList();
+            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration)).ToList();
         }
 
         public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
@@ -49,7 +49,7 @@
             return false;
         }
 
-        private IEnumerable<ResultEntry> BuildResultEntries(TrackData track, GroupedQueryResults groupedQueryResults, FingerprintConfiguration configuration)
+        private IEnumerable<ResultEntry> BuildResultEntries(TrackData track, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
             return coverages.Select(

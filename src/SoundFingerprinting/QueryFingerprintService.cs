@@ -49,7 +49,7 @@
                 return QueryResult.EmptyResult();
             }
 
-            var resultEntries = queryMath.GetBestCandidates(queryFingerprints, groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration.FingerprintConfiguration);
+            var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount; 
             return QueryResult.NonEmptyResult(resultEntries, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
@@ -58,7 +58,7 @@
         private GroupedQueryResults GetSimilaritiesUsingNonBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hashedFingerprints = queryFingerprints.ToList();
-            var groupedResults = new GroupedQueryResults();
+            var groupedResults = new GroupedQueryResults(hashedFingerprints);
             int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
             Parallel.ForEach(hashedFingerprints, queryFingerprint => 
             { 
@@ -77,7 +77,7 @@
         {
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
             var allCandidates = modelService.ReadSubFingerprints(hashedFingerprints.Select(querySubfingerprint => querySubfingerprint.HashBins), configuration);
-            var groupedResults = new GroupedQueryResults();
+            var groupedResults = new GroupedQueryResults(hashedFingerprints);
             int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
             Parallel.ForEach(hashedFingerprints, queryFingerprint => 
             {

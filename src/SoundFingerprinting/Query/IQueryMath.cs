@@ -8,7 +8,7 @@ namespace SoundFingerprinting.Query
 
     internal interface IQueryMath
     {
-        List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, FingerprintConfiguration fingerprintConfiguration);
+        List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration);
 
         bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes);
     }

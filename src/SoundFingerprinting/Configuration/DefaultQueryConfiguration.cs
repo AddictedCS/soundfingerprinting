@@ -9,6 +9,7 @@
             ThresholdVotes = Configs.Threshold.Default;
             MaxTracksToReturn = 25;
             Clusters = Enumerable.Empty<string>();
+            AllowMultipleMatchesOfTheSameTrackInQuery = false;
             FingerprintConfiguration = new DefaultFingerprintConfiguration
                                        {
                                            Stride = Configs.QueryStrides.DefaultStride,
