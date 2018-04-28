@@ -18,7 +18,7 @@
         {
             int runs = 1000;
 
-            var groupedQueryResults = new GroupedQueryResults();
+            var groupedQueryResults = new GroupedQueryResults(Enumerable.Empty<HashedFingerprint>());
             var references = new[] { 1, 2, 3, 4, 5 }.Select(id => new ModelReference<int>(id)).ToArray();
 
             Parallel.For(0, runs, i =>
@@ -60,7 +60,7 @@
         {
             int runs = 1000;
 
-            var groupedQueryResults = new GroupedQueryResults();
+            var groupedQueryResults = new GroupedQueryResults(Enumerable.Empty<HashedFingerprint>());
             var reference = new ModelReference<int>(1);
 
             Parallel.For(0, runs, i =>
