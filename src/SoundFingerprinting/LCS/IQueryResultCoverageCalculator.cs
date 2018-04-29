@@ -3,10 +3,11 @@ namespace SoundFingerprinting.LCS
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Query;
 
     internal interface IQueryResultCoverageCalculator
     {
-        Coverage GetCoverage(SortedSet<MatchedPair> matches, double queryLength, FingerprintConfiguration configuration);
+        IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration);
     }
 }

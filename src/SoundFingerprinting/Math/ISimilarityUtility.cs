@@ -31,7 +31,5 @@ namespace SoundFingerprinting.Math
         ///   0 = 00
         /// </remarks>
         double CalculateJaccardSimilarity(bool[] x, bool[] y);
-
-        void AccumulateHammingSimilarity(IEnumerable<SubFingerprintData> candidates, HashedFingerprint expected, ConcurrentDictionary<IModelReference, ResultEntryAccumulator> accumulator, int keysPerHash);
     }
 }

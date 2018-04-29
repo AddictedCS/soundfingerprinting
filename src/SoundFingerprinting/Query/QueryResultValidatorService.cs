@@ -59,12 +59,12 @@
                     newEntry.Track,
                     newEntry.QueryMatchStartsAt,
                     newEntry.QueryMatchLength,
+                    newEntry.QueryCoverageLength,
                     newEntry.TrackMatchStartsAt,
                     newEntry.TrackStartsAt + result.TrackStartsAt,
                     newEntry.Confidence,
                     newEntry.HammingSimilaritySum,
-                    newEntry.QueryLength,
-                    newEntry.BestMatch);
+                    newEntry.QueryLength);
             }
 
             return result;

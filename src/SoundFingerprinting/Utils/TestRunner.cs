@@ -60,15 +60,10 @@
         }
 
         public event TestRunnerEvent PositiveNotFoundEvent;
-
         public event TestRunnerEvent PositiveFoundEvent;
-
         public event TestRunnerEvent NegativeNotFoundEvent;
-
         public event TestRunnerEvent NegativeFoundEvent;
-
         public event TestRunnerEvent TestIterationFinishedEvent;
-
         public event TestRunnerEvent OngoingActionEvent;
         
         public void Run()
@@ -116,17 +111,9 @@
             var negatives = AllFiles(folderWithNegatives);
             for (int iteration = 0; iteration < iterations; ++iteration)
             {
-                OnTestRunnerEvent(
-                    OngoingActionEvent,
-                    new TestRunnerOngoingEventArgs
+                OnTestRunnerEvent(OngoingActionEvent, new TestRunnerOngoingEventArgs
                         {
-                            Message =
-                                string.Format(
-                                    "Iteration {0} out of {1} with {2}, query seconds {3}",
-                                    iteration + 1,
-                                    iterations,
-                                    queryStride,
-                                    seconds)
+                            Message = $"Iteration {iteration + 1} out of {iterations} with {queryStride}, query seconds {seconds}"
                         });
 
                 var stopwatch = new Stopwatch();
@@ -399,10 +386,7 @@
             var tags = tagService.GetTagInfo(path);
             if (tags == null || !tags.IsTrackUniquelyIdentifiable())
             {
-                throw new Exception(
-                    string.Format(
-                        "Could not extract tags from file {0}. Track does not contain enought data to be identified as unique. Currate your input data!",
-                        path));
+                throw new Exception($"Could not extract tags from file {path}. Track does not contain enought data to be identified as unique. Currate your input data!");
             }
 
             return tags;
@@ -410,11 +394,7 @@
 
         private void OnTestRunnerEvent(TestRunnerEvent runnerEvent, EventArgs args)
         {
-            var handler = runnerEvent;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+            runnerEvent?.Invoke(this, args);
         }
     }
 }

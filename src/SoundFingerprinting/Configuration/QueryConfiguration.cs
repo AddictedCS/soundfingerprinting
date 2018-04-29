@@ -137,6 +137,12 @@
         public IEnumerable<string> Clusters { get; set; }
 
         /// <summary>
+        ///  Allows multiple matches of the same track to be found in the query. Useful when you have a long query which may contain same track multiple times.
+        ///  Use cautiously, since aligning same track on a single query multiple times may result in a performance penalty. Default false.
+        /// </summary>
+        public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
+
+        /// <summary>
         /// Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
         /// It doesnt have to be exposed to the outside framework users.
         /// </summary>

@@ -4,7 +4,6 @@
     using System.Linq;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
@@ -20,23 +19,13 @@
             this.confidenceCalculator = confidenceCalculator;
         }
 
-        public List<ResultEntry> GetBestCandidates(
-            List<HashedFingerprint> hashedFingerprints,
-            IDictionary<IModelReference, ResultEntryAccumulator> hammingSimilarites,
-            int maxNumberOfMatchesToReturn,
+        public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn,
             IModelService modelService,
-            FingerprintConfiguration fingerprintConfiguration)
+            QueryConfiguration queryConfiguration)
         {
-            double queryLength = CalculateExactQueryLength(hashedFingerprints, fingerprintConfiguration);
-            var trackIds = hammingSimilarites.OrderByDescending(e => e.Value.HammingSimilaritySum)
-                                     .Take(maxNumberOfMatchesToReturn)
-                                     .Select(p => p.Key)
-                                     .ToList();
-
+            var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
-            return tracks
-                .Select(track => GetResultEntry(fingerprintConfiguration, track, hammingSimilarites[track.TrackReference], queryLength))
-                .ToList();
+            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration)).ToList();
         }
 
         public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
@@ -60,47 +49,30 @@
             return false;
         }
 
-        public double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
+        private IEnumerable<ResultEntry> BuildResultEntries(TrackData track, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
-            double startsAt = double.MaxValue, endsAt = double.MinValue;
-            foreach (var hashedFingerprint in hashedFingerprints)
-            {
-                startsAt = System.Math.Min(startsAt, hashedFingerprint.StartsAt);
-                endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
-            }
+            var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
+            return coverages.Select(
+                coverage =>
+                {
+                    double confidence = confidenceCalculator.CalculateConfidence(
+                        coverage.SourceMatchStartsAt,
+                        coverage.SourceMatchLength,
+                        coverage.QueryLength,
+                        coverage.OriginMatchStartsAt,
+                        track.Length);
 
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
-        }
-
-        private ResultEntry GetResultEntry(FingerprintConfiguration configuration, TrackData track, ResultEntryAccumulator acc, double queryLength)
-        {
-            var coverage = queryResultCoverageCalculator.GetCoverage(
-                acc.Matches,
-                queryLength,
-                configuration);
-
-            double confidence = confidenceCalculator.CalculateConfidence(
-                coverage.SourceMatchStartsAt,
-                coverage.SourceMatchLength,
-                queryLength,
-                coverage.OriginMatchStartsAt,
-                track.Length);
-
-            return new ResultEntry(
-                track,
-                coverage.SourceMatchStartsAt,
-                coverage.SourceMatchLength,
-                coverage.OriginMatchStartsAt,
-                GetTrackStartsAt(acc.BestMatch),
-                confidence,
-                acc.HammingSimilaritySum,
-                queryLength,
-                acc.BestMatch);
-        }
-
-        private double GetTrackStartsAt(MatchedPair bestMatch)
-        {
-            return bestMatch.HashedFingerprint.StartsAt - bestMatch.SubFingerprint.SequenceAt;
+                    return new ResultEntry(
+                        track,
+                        coverage.SourceMatchStartsAt,
+                        coverage.SourceMatchLength,
+                        coverage.SourceCoverageLength,
+                        coverage.OriginMatchStartsAt,
+                        coverage.TrackStartsAt,
+                        confidence,
+                        groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
+                        coverage.QueryLength);
+                });
         }
     }
 }
