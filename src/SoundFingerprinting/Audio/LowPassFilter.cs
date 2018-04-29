@@ -16,7 +16,7 @@ namespace SoundFingerprinting.Audio
          * All filters are interpolating around 32 points
          */
 
-        private static float[] lp_filter336KHz128 =
+        private static readonly float[] LpFilter336KHz128 =
         {
             -4.2580e-05f, -2.2325e-05f, -1.0539e-06f, 2.2162e-05f, 4.8302e-05f, 7.8386e-05f, 1.1347e-04f, 1.5463e-04f,
             2.0296e-04f, 2.5957e-04f, 3.2554e-04f, 4.0195e-04f, 4.8987e-04f, 5.9031e-04f, 7.0424e-04f, 8.3258e-04f,
@@ -36,7 +36,7 @@ namespace SoundFingerprinting.Audio
             1.1347e-04f, 7.8386e-05f, 4.8302e-05f, 2.2162e-05f, -1.0539e-06f, -2.2325e-05f, -4.2580e-05f
         };
 
-        private static float[] lp_filter336Khz32 =
+        private static float[] lpFilter336Khz32 =
         {
             0.0011856f, 0.0013525f, 0.0018212f, 0.0025816f, 0.0036087f, 0.0048637f, 0.0062957f, 0.0078438f, 0.0094403f,
             0.0110140f, 0.0124934f, 0.0138109f, 0.0149054f, 0.0157259f, 0.0162341f, 0.0164063f, 0.0162341f, 0.0157259f,
@@ -44,7 +44,7 @@ namespace SoundFingerprinting.Audio
             0.0025816f, 0.0018212f, 0.0013525f, 0.0011856f
         };
 
-        private static float[] lp_filter336Khz64 =
+        private static float[] lpFilter336Khz64 =
         {
             8.2115e-04f, 8.7360e-04f, 9.7861e-04f, 1.1399e-03f, 1.3605e-03f, 1.6423e-03f, 1.9865e-03f, 2.3930e-03f,
             2.8609e-03f, 3.3880e-03f, 3.9711e-03f, 4.6062e-03f, 5.2879e-03f, 6.0103e-03f, 6.7664e-03f, 7.5484e-03f,
@@ -57,7 +57,7 @@ namespace SoundFingerprinting.Audio
         };
 
         /*Low pass from 44100 to 5512*/
-        private static float[] lp_filter44 =
+        private static readonly float[] LpFilter44 =
         {
             -6.4966e-04f, -1.4478e-03f, -2.7094e-03f, -4.4524e-03f, -6.2078e-03f, -6.9775e-03f, -5.3848e-03f,
             2.3970e-18f, 1.0234e-02f, 2.5590e-02f, 4.5288e-02f, 6.7466e-02f, 8.9415e-02f, 1.0806e-01f, 1.2059e-01f,
@@ -67,7 +67,7 @@ namespace SoundFingerprinting.Audio
         };
 
         /*Low pass from 22050 to 5512*/
-        private static float[] lp_filter22 =
+        private static readonly float[] LpFilter22 =
         {
             -1.2004e-03f, -2.0475e-03f, -2.0737e-03f, 1.6358e-18f, 4.7512e-03f, 9.8676e-03f, 9.9498e-03f, -4.7939e-18f,
             -1.8909e-02f, -3.6189e-02f, -3.4662e-02f, 8.2622e-18f, 6.8435e-02f, 1.5283e-01f, 2.2282e-01f, 2.5000e-01f,
@@ -76,7 +76,7 @@ namespace SoundFingerprinting.Audio
         };
 
         /*Low pass from 11025 to 5512*/
-        private static float[] lp_filter11 =
+        private static readonly float[] LpFilter11 =
         {
             -1.6977e-03f, 1.7552e-18f, 2.9326e-03f, -3.2716e-18f, -6.7192e-03f, 6.0422e-18f, 1.4071e-02f, -9.5879e-18f,
             -2.6742e-02f, 1.3296e-17f, 4.9020e-02f, -1.6524e-17f, -9.6782e-02f, 1.8716e-17f, 3.1511e-01f, 5.0000e-01f,
@@ -92,13 +92,14 @@ namespace SoundFingerprinting.Audio
             switch (sourceSampleRate)
             {
                 case 48000:
-                    return ResampleNonIntegerFactor(samples, 7 , 61, lp_filter336KHz128);
+                    // 48000 * 7 / 61 is almost 5512
+                    return ResampleNonIntegerFactor(samples, 7 , 61, LpFilter336KHz128);
                 case 44100:
-                    return Resample(samples, samples.Length / 8 - 31, 8, lp_filter44);
+                    return Resample(samples, samples.Length / 8, 8, LpFilter44);
                 case 22050:
-                    return Resample(samples, samples.Length / 4 - 31, 4, lp_filter22);
+                    return Resample(samples, samples.Length / 4, 4, LpFilter22);
                 case 11025:
-                    return Resample(samples, samples.Length / 2 - 31, 2, lp_filter11);
+                    return Resample(samples, samples.Length / 2, 2, LpFilter11);
                 case 5512:
                     return samples;
             }
@@ -115,17 +116,6 @@ namespace SoundFingerprinting.Audio
             }
 
             return Resample(buffer, buffer.Length / q - filter.Length, q, filter);
-        }
-
-        private static float Avg(float[] samples, int p, int i)
-        {
-            float sum = 0f;
-            for (int j = (i + 1) * p - 16; j < (i + 1) * p + 16 && j < samples.Length; ++j)
-            {
-                sum += samples[j];
-            }
-
-            return sum / 32;
         }
 
         private float[] Resample(float[] samples, int newSamplesCount, int mult, float[] filter)
