@@ -16,20 +16,44 @@ namespace SoundFingerprinting.Audio
          * All filters are interpolating around 32 points
          */
 
-        private static float[] lp_filter49to48Khz =
+        private static float[] lp_filter336KHz128 =
         {
-            0.0016977f, 0.0020362f, 0.0028684f, -0.0042343f, 0.0061380f, -0.0085451f, 0.0113830f, -0.0145443f,
-            0.0178923f, -0.0212695f, 0.0245076f, -0.0274382f, 0.0299043f, -0.0317711f, 0.0329347f, 0.9666700f,
-            0.0329347f, -0.0317711f, 0.0299043f, -0.0274382f, 0.0245076f, -0.0212695f, 0.0178923f, -0.0145443f,
-            0.0113830f, -0.0085451f, 0.0061380f, -0.0042343f, 0.0028684f, -0.0020362f, 0.0016977f
+            -4.2580e-05f, -2.2325e-05f, -1.0539e-06f, 2.2162e-05f, 4.8302e-05f, 7.8386e-05f, 1.1347e-04f, 1.5463e-04f,
+            2.0296e-04f, 2.5957e-04f, 3.2554e-04f, 4.0195e-04f, 4.8987e-04f, 5.9031e-04f, 7.0424e-04f, 8.3258e-04f,
+            9.7618e-04f, 1.1358e-03f, 1.3122e-03f, 1.5059e-03f, 1.7174e-03f, 1.9470e-03f, 2.1952e-03f, 2.4620e-03f,
+            2.7474e-03f, 3.0514e-03f, 3.3737e-03f, 3.7138e-03f, 4.0714e-03f, 4.4457e-03f, 4.8359e-03f, 5.2412e-03f,
+            5.6604e-03f, 6.0925e-03f, 6.5360e-03f, 6.9896e-03f, 7.4517e-03f, 7.9207e-03f, 8.3950e-03f, 8.8726e-03f,
+            9.3517e-03f, 9.8304e-03f, 1.0307e-02f, 1.0779e-02f, 1.1244e-02f, 1.1701e-02f, 1.2147e-02f, 1.2581e-02f,
+            1.3000e-02f, 1.3403e-02f, 1.3787e-02f, 1.4151e-02f, 1.4492e-02f, 1.4811e-02f, 1.5103e-02f, 1.5369e-02f,
+            1.5607e-02f, 1.5816e-02f, 1.5994e-02f, 1.6142e-02f, 1.6257e-02f, 1.6340e-02f, 1.6390e-02f, 1.6406e-02f,
+            1.6390e-02f, 1.6340e-02f, 1.6257e-02f, 1.6142e-02f, 1.5994e-02f, 1.5816e-02f, 1.5607e-02f, 1.5369e-02f,
+            1.5103e-02f, 1.4811e-02f, 1.4492e-02f, 1.4151e-02f, 1.3787e-02f, 1.3403e-02f, 1.3000e-02f, 1.2581e-02f,
+            1.2147e-02f, 1.1701e-02f, 1.1244e-02f, 1.0779e-02f, 1.0307e-02f, 9.8304e-03f, 9.3517e-03f, 8.8726e-03f,
+            8.3950e-03f, 7.9207e-03f, 7.4517e-03f, 6.9896e-03f, 6.5360e-03f, 6.0925e-03f, 5.6604e-03f, 5.2412e-03f,
+            4.8359e-03f, 4.4457e-03f, 4.0714e-03f, 3.7138e-03f, 3.3737e-03f, 3.0514e-03f, 2.7474e-03f, 2.4620e-03f,
+            2.1952e-03f, 1.9470e-03f, 1.7174e-03f, 1.5059e-03f, 1.3122e-03f, 1.1358e-03f, 9.7618e-04f, 8.3258e-04f,
+            7.0424e-04f, 5.9031e-04f, 4.8987e-04f, 4.0195e-04f, 3.2554e-04f, 2.5957e-04f, 2.0296e-04f, 1.5463e-04f,
+            1.1347e-04f, 7.8386e-05f, 4.8302e-05f, 2.2162e-05f, -1.0539e-06f, -2.2325e-05f, -4.2580e-05f
         };
 
-        private static float[] lp_filter49Khz =
+        private static float[] lp_filter336Khz32 =
         {
-            -1.4702e-03f, -2.0164e-03f, -2.8880e-03f, -3.8559e-03f, -4.3190e-03f, -3.3748e-03f, 1.7805e-07f,
-            6.6945e-03f, 1.7190e-02f, 3.1341e-02f, 4.8275e-02f, 6.6441e-02f, 8.3815e-02f, 9.8234e-02f, 1.0777e-01f,
-            1.1111e-01f, 1.0777e-01f, 9.8234e-02f, 8.3815e-02f, 6.6441e-02f, 4.8275e-02f, 3.1341e-02f, 1.7190e-02f,
-            6.6945e-03f, 1.7805e-07f, -3.3748e-03f, -4.3190e-03f, -3.8559e-03f, -2.8880e-03f, -2.0164e-03f, -1.4702e-03f
+            0.0011856f, 0.0013525f, 0.0018212f, 0.0025816f, 0.0036087f, 0.0048637f, 0.0062957f, 0.0078438f, 0.0094403f,
+            0.0110140f, 0.0124934f, 0.0138109f, 0.0149054f, 0.0157259f, 0.0162341f, 0.0164063f, 0.0162341f, 0.0157259f,
+            0.0149054f, 0.0138109f, 0.0124934f, 0.0110140f, 0.0094403f, 0.0078438f, 0.0062957f, 0.0048637f, 0.0036087f,
+            0.0025816f, 0.0018212f, 0.0013525f, 0.0011856f
+        };
+
+        private static float[] lp_filter336Khz64 =
+        {
+            8.2115e-04f, 8.7360e-04f, 9.7861e-04f, 1.1399e-03f, 1.3605e-03f, 1.6423e-03f, 1.9865e-03f, 2.3930e-03f,
+            2.8609e-03f, 3.3880e-03f, 3.9711e-03f, 4.6062e-03f, 5.2879e-03f, 6.0103e-03f, 6.7664e-03f, 7.5484e-03f,
+            8.3481e-03f, 9.1565e-03f, 9.9644e-03f, 1.0762e-02f, 1.1541e-02f, 1.2290e-02f, 1.3001e-02f, 1.3664e-02f,
+            1.4271e-02f, 1.4815e-02f, 1.5287e-02f, 1.5683e-02f, 1.5996e-02f, 1.6223e-02f, 1.6360e-02f, 1.6406e-02f,
+            1.6360e-02f, 1.6223e-02f, 1.5996e-02f, 1.5683e-02f, 1.5287e-02f, 1.4815e-02f, 1.4271e-02f, 1.3664e-02f,
+            1.3001e-02f, 1.2290e-02f, 1.1541e-02f, 1.0762e-02f, 9.9644e-03f, 9.1565e-03f, 8.3481e-03f, 7.5484e-03f,
+            6.7664e-03f, 6.0103e-03f, 5.2879e-03f, 4.6062e-03f, 3.9711e-03f, 3.3880e-03f, 2.8609e-03f, 2.3930e-03f,
+            1.9865e-03f, 1.6423e-03f, 1.3605e-03f, 1.1399e-03f, 9.7861e-04f, 8.7360e-04f, 8.2115e-04f
         };
 
         /*Low pass from 44100 to 5512*/
@@ -68,7 +92,7 @@ namespace SoundFingerprinting.Audio
             switch (sourceSampleRate)
             {
                 case 48000:
-                    return ResampleNonIntegerFactor(samples, 29, 9, lp_filter49Khz);
+                    return ResampleNonIntegerFactor(samples, 7 , 61, lp_filter336KHz128);
                 case 44100:
                     return Resample(samples, samples.Length / 8 - 31, 8, lp_filter44);
                 case 22050:
@@ -84,18 +108,13 @@ namespace SoundFingerprinting.Audio
 
         private float[] ResampleNonIntegerFactor(float[] samples, int p, int q, float[] filter)
         {
-            int zeros = samples.Length / p; // number of zeros to add
-
-            float[] buffer = new float[samples.Length + zeros];
-
-            for (int i = 0; i < zeros; ++i)
+            float[] buffer = new float[samples.Length * p];
+            for (int i = 0; i < buffer.Length; i += p)
             {
-                Buffer.BlockCopy(samples, i * p * sizeof(float), buffer, i * (p + 1) * sizeof(float), p * sizeof(float));
-                var sum = Convolve(samples, (i + 1) * p - 16, lp_filter49to48Khz, lp_filter49to48Khz.Length);
-                buffer[(i + 1) * (p + 1) - 1] = sum;
+                buffer[i] = samples[i / p];
             }
 
-            return Resample(buffer, buffer.Length / q - 31, q, filter);
+            return Resample(buffer, buffer.Length / q - filter.Length, q, filter);
         }
 
         private static float Avg(float[] samples, int p, int i)
