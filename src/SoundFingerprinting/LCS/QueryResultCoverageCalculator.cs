@@ -19,7 +19,9 @@
         public IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var fingerprintConfiguration = configuration.FingerprintConfiguration;
+
             var matches = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(trackData.TrackReference);
+
             double queryLength = groupedQueryResults.GetQueryLength(fingerprintConfiguration);
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
