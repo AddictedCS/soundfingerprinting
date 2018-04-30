@@ -50,9 +50,8 @@
         private IEnumerable<ResultEntry> BuildResultEntries(TrackData track, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
-            return coverages.Select(
-                coverage =>
-                {
+            return coverages.Select(coverage =>
+               {
                     double confidence = confidenceCalculator.CalculateConfidence(
                         coverage.SourceMatchStartsAt,
                         coverage.SourceMatchLength,
@@ -70,7 +69,7 @@
                         confidence,
                         groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
                         coverage.QueryLength);
-                });
+               });
         }
     }
 }

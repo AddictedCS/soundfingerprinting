@@ -4,7 +4,6 @@ namespace SoundFingerprinting.LCS
 {
     using System.Linq;
 
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
 
     internal class LongestIncreasingTrackSequence : ILongestIncreasingTrackSequence

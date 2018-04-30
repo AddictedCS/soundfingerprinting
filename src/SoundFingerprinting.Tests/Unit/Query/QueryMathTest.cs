@@ -5,8 +5,6 @@
     using System.IO;
     using System;
 
-    using Moq;
-
     using NUnit.Framework;
 
     using SoundFingerprinting.DAO;
@@ -19,8 +17,6 @@
     [TestFixture]
     public class QueryMathTest
     {
-        private readonly Mock<IModelService> modelService = new Mock<IModelService>(MockBehavior.Strict);
-
         private readonly QueryMath queryMath = new QueryMath(
             new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()),
             new ConfidenceCalculator());
@@ -29,8 +25,8 @@
         public void ShouldFilterExactMatches0()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(new int[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new int[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
+                new HashedFingerprint(new[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsTrue(result);
@@ -40,8 +36,8 @@
         public void ShouldFilterExactMatches1()
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
-                new HashedFingerprint(new int[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new int[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
+                new HashedFingerprint(new[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
+                new SubFingerprintData(new[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
                 3);
 
             Assert.IsFalse(result);

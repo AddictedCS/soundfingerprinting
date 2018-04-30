@@ -53,7 +53,7 @@
         private static void CheckInputFileFormat(WaveFormat format, double startsAt)
         {
             if (!AcceptedSampleRates.Contains(format.SampleRate))
-                throw new ArgumentException($"Sample rate of the given file is not supported {format}. Supported sample rates (5512, 11025, 22050, 44100). "
+                throw new ArgumentException($"Sample rate of the given file is not supported {format}. Supported sample rates {string.Join(",", AcceptedSampleRates)}. "
                                             + $"Submit a github request if you need a different sample rate to be supported.");
             if (!AcceptedBitsPerSample.Contains(format.BitsPerSample))
                 throw new ArgumentException($"Bad file format {format}. Bits per sample ({format.BitsPerSample}) is less than accepted range.");
