@@ -49,7 +49,6 @@
             }
         }
 
-
         private static void CheckInputFileFormat(WaveFormat format, double startsAt)
         {
             if (!AcceptedSampleRates.Contains(format.SampleRate))

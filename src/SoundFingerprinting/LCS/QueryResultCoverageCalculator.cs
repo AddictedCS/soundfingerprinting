@@ -22,6 +22,7 @@
             var matches = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(trackData.TrackReference);
 
             double queryLength = groupedQueryResults.GetQueryLength(fingerprintConfiguration);
+
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);

@@ -27,7 +27,9 @@
 
             var coverage = qrc.GetCoverage(matches, 5d, new DefaultFingerprintConfiguration());
 
-            Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.001);
+            Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.01);
+            Assert.AreEqual(12.48, coverage.SourceCoverageLength, 0.01);
+            Assert.AreEqual(-6, coverage.TrackStartsAt);
         }
     }
 }
