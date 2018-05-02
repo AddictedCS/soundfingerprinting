@@ -74,6 +74,9 @@ Every `ResultEntry` object will contain the following information:
 - `TotalTracksAnalyzed` - total # of tracks analyzed during query time. If this number exceeds 50, try optimizing your configuration.
 - `TotalFingerprintsAnalyzed` - total # of fingerprints analyzed during query time. If this number exceeds 500, try optimizing your configuration.
 
+### Version 5.2.0
+Version 5.2.0 provides a query configuration option `AllowMultipleMatchesOfTheSameTrackInQuery` which will instruct the framework to consider the scenario of having the same track matched multiple times within the same query. This is handy for long queries that can contain same match scattered across the query. Default value is `false`.
+
 ### Version 5.1.0
 Starting from version 5.1.0 the fingerprints signature has changed to be more resilient to noise. You can try `HighPrecisionFingerprintConfiguration` in case your audio samples come from recordings that contain ambient noise. All users that migrate to 5.1.x have to re-index the data, since fingerprint signatures from 5.x version are not compatible.
 
@@ -115,7 +118,7 @@ In case you need directions for fine-tunning the algorithm for your particular u
 Please fingerprinting configuration counterpart during query (i.e. `HighPrecisionFingerprintConfiguration` with `HighPrecisionQueryConfiguration`). Different configuration analyze different spectrum ranges, thus they have to be used in pair.
 
 ### Substituting audio or model services
-Most important parts of the `SoundFingerprinting` framework are interchangeable with extensions. If you want to use NAudio as the underlying audio processing library just install `SoundFingerprinting.Audio.NAudio` package and substitute `IAudioService` with `NAudioService`. Same holds for model services. Install the extensions which you want to use (i.e. `SoundFingerprinting.Solr`) and provide `SolrModelService` where needed. 
+Most critical parts of the _soundfingerprinting_ framework are interchangeable with extensions. If you want to use `NAudio` as the underlying audio processing library just install `SoundFingerprinting.Audio.NAudio` package and substitute `IAudioService` with `NAudioService`. Same holds for database storages. Install the extensions which you want to use (i.e. `SoundFingerprinting.Solr`) and provide new `ModelService` where needed. 
 
 ### Third party dependencies
 Links to the third party libraries used by _soundfingerprinting_ project.
@@ -145,6 +148,13 @@ In order to build latest version of the **SoundFingerprinting** assembly run the
 ### Get it on NuGet
 
     Install-Package SoundFingerprinting
+### How it works
+_soundfingerprinting_ employs computer vision techniques to generate audio fingerprints. The fingerprints are generated from spectrogram images taken every *N* samples. Below is a 30 seconds long non-overlaping spectrogram cut at 318-2000Hz frequency range.
+
+![Spectrums](https://i.imgur.com/yuOY9Jh.png)
+
+After a list of subsequent transformations these are converted into hashes, which are stored and used at query time. The fingerprints are robust to degradations to a certain degree. The `DefaultFingerprintConfiguration` class can be successfully used for radio stream monitoring. It handles well different audio formats, aliased signals and sampling differences accross tracks. Ambient noise is a different beast and you will probably need `HighPrecisionFingerprintConfiguration` to deal with it.
+    
 ### Demo
 My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting)
 The demo project is a Audio File Duplicates Detector. Its latest source code can be found [here](src/SoundFingerprinting.DuplicatesDetector). Its a WPF MVVM project that uses the algorithm to detect what files are perceptually very similar.
