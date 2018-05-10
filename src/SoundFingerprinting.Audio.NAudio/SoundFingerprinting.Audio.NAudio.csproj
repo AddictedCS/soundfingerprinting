@@ -3,7 +3,7 @@
     <TargetFrameworks>net45</TargetFrameworks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Authors>Sergiu Ciumac</Authors>
-	<PackageVersion>5.2.0</PackageVersion>
+	<PackageVersion>5.2.1</PackageVersion>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
 	<PackageProjectUrl>https://github.com/AddictedCS/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
