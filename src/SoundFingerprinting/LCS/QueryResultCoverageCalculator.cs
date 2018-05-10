@@ -45,7 +45,7 @@
             var notCovered = GetNotCoveredLength(orderedByResultAt, trackRegion, configuration, out var bestMatch);
 
             // optimistic coverage length
-            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[orderedByResultAt.Count - 1].ResultAt, orderedByResultAt[0].ResultAt, configuration);
+            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, configuration);
 
             // calculated coverage length
             double calculated = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, configuration);

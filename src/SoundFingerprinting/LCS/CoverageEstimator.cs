@@ -44,10 +44,7 @@
 
         private static bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, List<MatchedWith> sortedMatches, int index, FingerprintConfiguration config)
         {
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(
-                       sortedMatches[index].ResultAt,
-                       sortedMatches[index - 1].ResultAt,
-                       config) > queryLength;
+            return SubFingerprintsToSeconds.AdjustLengthToSeconds(sortedMatches[index].ResultAt, sortedMatches[index - 1].ResultAt, config) > queryLength;
         }
     }
 }
