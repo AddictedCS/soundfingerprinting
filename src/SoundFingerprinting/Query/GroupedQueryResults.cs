@@ -116,7 +116,7 @@
                 endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
             }
 
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration);
+            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration.FingerprintLengthInSeconds);
         }
     }
 }

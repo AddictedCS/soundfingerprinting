@@ -27,28 +27,28 @@
             {
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);
                 var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences);
-                return filtered.Select(matchedSequence => GetCoverage(matchedSequence, queryLength, fingerprintConfiguration));
+                return filtered.Select(matchedSequence => GetCoverage(matchedSequence, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds));
             }
 
             return new List<Coverage>
                    {
-                       GetCoverage(matches, queryLength, fingerprintConfiguration)
+                       GetCoverage(matches, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds)
                    };
         }
 
-        public Coverage GetCoverage(IEnumerable<MatchedWith> matches, double queryLength, FingerprintConfiguration configuration)
+        public Coverage GetCoverage(IEnumerable<MatchedWith> matches, double queryLength, double fingerprintLengthIsSeconds)
         {
             var orderedByResultAt = matches.OrderBy(with => with.ResultAt).ToList();
 
-            var trackRegion = CoverageEstimator.EstimateTrackCoverage(orderedByResultAt, queryLength, configuration);
+            var trackRegion = CoverageEstimator.EstimateTrackCoverage(orderedByResultAt, queryLength, fingerprintLengthIsSeconds);
 
-            var notCovered = GetNotCoveredLength(orderedByResultAt, trackRegion, configuration, out var bestMatch);
+            var notCovered = GetNotCoveredLength(orderedByResultAt, trackRegion, fingerprintLengthIsSeconds, out var bestMatch);
 
             // optimistic coverage length
-            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, configuration);
+            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, fingerprintLengthIsSeconds);
 
             // calculated coverage length
-            double calculated = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, configuration);
+            double calculated = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, fingerprintLengthIsSeconds);
 
             double sourceMatchLength = calculated - notCovered; // exact length of matched fingerprints
 
@@ -58,15 +58,15 @@
             return new Coverage(sourceMatchStartsAt, sourceMatchLength, sourceCoverageLength, originMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
         }
 
-        private static double GetNotCoveredLength(List<MatchedWith> orderedByResultAt, TrackRegion trackRegion, FingerprintConfiguration configuration, out MatchedWith bestMatch)
+        private static double GetNotCoveredLength(List<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
         {
             double notCovered = 0d;
             bestMatch = orderedByResultAt[trackRegion.StartAt];
             for (int i = trackRegion.StartAt + 1; i <= trackRegion.EndAt; ++i)
             {
-                if (orderedByResultAt[i].ResultAt - orderedByResultAt[i - 1].ResultAt > configuration.FingerprintLengthInSeconds)
+                if (orderedByResultAt[i].ResultAt - orderedByResultAt[i - 1].ResultAt > fingerprintLengthInSeconds)
                 {
-                    notCovered += orderedByResultAt[i].ResultAt - (orderedByResultAt[i - 1].ResultAt + configuration.FingerprintLengthInSeconds);
+                    notCovered += orderedByResultAt[i].ResultAt - (orderedByResultAt[i - 1].ResultAt + fingerprintLengthInSeconds);
                 }
 
                 if (bestMatch.HammingSimilarity < orderedByResultAt[i].HammingSimilarity)

@@ -4,8 +4,6 @@
 
     using System.Collections.Generic;
 
-    using SoundFingerprinting.Configuration;
-
     internal static class CoverageEstimator
     {
         /// <summary>
@@ -18,14 +16,14 @@
         /// </summary>
         /// <param name="matches">Ordered matches by ResultAt</param>
         /// <param name="queryLength">Length of the query</param>
-        /// <param name="configuration">Fingerprinting configuration used in the process</param>
+        /// <param name="fingerprintLengthInSeconds">Fingerprint length in seconds</param>
         /// <returns>Longest track region</returns>
-        public static TrackRegion EstimateTrackCoverage(List<MatchedWith> matches, double queryLength, FingerprintConfiguration configuration)
+        public static TrackRegion EstimateTrackCoverage(List<MatchedWith> matches, double queryLength, double fingerprintLengthInSeconds)
         {
             int minI = 0, maxI = 0, curMinI = 0, maxLength = 0;
             for (int i = 1; i < matches.Count; ++i)
             {
-                if (ConsecutiveMatchesAreLongerThanTheQuery(queryLength, matches, i, configuration))
+                if (ConsecutiveMatchesAreLongerThanTheQuery(queryLength, matches, i, fingerprintLengthInSeconds))
                 {
                     // potentialy a new start of best matched sequence
                     curMinI = i;
@@ -42,9 +40,9 @@
             return new TrackRegion(minI, maxI);
         }
 
-        private static bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, List<MatchedWith> sortedMatches, int index, FingerprintConfiguration config)
+        private static bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, List<MatchedWith> sortedMatches, int index, double fingerprintLengthInSeconds)
         {
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(sortedMatches[index].ResultAt, sortedMatches[index - 1].ResultAt, config) > queryLength;
+            return SubFingerprintsToSeconds.AdjustLengthToSeconds(sortedMatches[index].ResultAt, sortedMatches[index - 1].ResultAt, fingerprintLengthInSeconds) > queryLength;
         }
     }
 }
