@@ -13,15 +13,17 @@
         private static int waveHeaderLength = 44;
 
         private readonly ILowPassFilter lowPassFilter;
+        private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
 
-        public SoundFingerprintingAudioService(): this(new LowPassFilter())
+        public SoundFingerprintingAudioService(): this(new LowPassFilter(), new AudioSamplesNormalizer())
         {
             // no op
         }
 
-        internal SoundFingerprintingAudioService(LowPassFilter lowPassFilter)
+        internal SoundFingerprintingAudioService(ILowPassFilter lowPassFilter, IAudioSamplesNormalizer audioSamplesNormalizer)
         {
             this.lowPassFilter = lowPassFilter;
+            this.audioSamplesNormalizer = audioSamplesNormalizer;
         }
 
         public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt)
@@ -31,6 +33,7 @@
             float[] samples = ToSamples(pathToSourceFile, format, seconds, startAt);
             float[] monoSamples = ToMonoSamples(samples, format);
             float[] downsampled = ToTargetSampleRate(monoSamples, format.SampleRate, sampleRate);
+            audioSamplesNormalizer.NormalizeInPlace(downsampled);
             return new AudioSamples(downsampled, pathToSourceFile, sampleRate);
         }
 
