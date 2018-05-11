@@ -19,8 +19,6 @@
     {
         private IModelService modelService;
         private readonly IAudioService audioService = new SoundFingerprintingAudioService();
-        private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
-        private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
 
         private readonly Mock<TestRunnerEvent> nfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
         private readonly Mock<TestRunnerEvent> nnfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
@@ -88,18 +86,18 @@
 
             string path = TestContext.CurrentContext.TestDirectory;
             
-            string scenario1 = string.Format("Insert,{0},IncrementalStatic,0,5115", path);
-            string scenario2 = string.Format("Run,{0},{1},IncrementalRandom,256,512,7,0|1|2", path, path);
-            string scenario3 = string.Format("Insert,{0},IncrementalStatic,0,2048", path);
-            string scenario4 = string.Format("Run,{0},{1},IncrementalRandom,256,512,7,0|1|2", path, path);
+            string scenario1 = $"Insert,{path},IncrementalStatic,0,5115";
+            string scenario2 = $"Run,{path},{path},IncrementalRandom,256,512,7,0|1|2";
+            string scenario3 = $"Insert,{path},IncrementalStatic,0,2048";
+            string scenario4 = $"Run,{path},{path},IncrementalRandom,256,512,7,0|1|2";
 
             var testRunner = new TestRunner(
                 new List<string> { scenario1, scenario2, scenario3, scenario4 }.ToArray(),
                 modelService,
                 audioService,
                 tagService.Object,
-                fcb,
-                qcb,
+                FingerprintCommandBuilder.Instance,
+                QueryCommandBuilder.Instance,
                 results);
 
             AttachEventHandlers(testRunner);

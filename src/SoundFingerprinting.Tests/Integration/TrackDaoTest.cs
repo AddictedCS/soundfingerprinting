@@ -17,7 +17,6 @@
     [TestFixture]
     public class TrackDaoTest : IntegrationWithSampleFilesTest
     {
-        private readonly FingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
         private readonly IAudioService audioService = new SoundFingerprintingAudioService();
         private ITrackDao trackDao;
         private ISubFingerprintDao subFingerprintDao;
@@ -27,7 +26,7 @@
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
             trackDao = new TrackDao(ramStorage);
-            subFingerprintDao = new SubFingerprintDao((IRAMStorage)ramStorage);
+            subFingerprintDao = new SubFingerprintDao(ramStorage);
         }
 
         [Test]
@@ -162,7 +161,7 @@
             int releaseYear = tagInfo.Year;
             var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = trackDao.InsertTrack(track);
-            var hashData = fingerprintCommandBuilder
+            var hashData = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .WithFingerprintConfig(config =>

@@ -25,7 +25,7 @@
 
             samplesProvider = new ContinuousStreamSamplesProvider(new QueueSamplesProvider(queue));
 
-            int[] expectedResults = new[] { 1024, 512, 256 };
+            int[] expectedResults = { 1024, 512, 256 };
             for (int i = 0; i < 3; i++)
             {
                 var result = samplesProvider.GetNextSamples(buffer);

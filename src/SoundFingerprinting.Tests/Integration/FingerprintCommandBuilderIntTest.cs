@@ -32,8 +32,7 @@
         {
             const int StaticStride = 5096;
 
-            var fingerprintConfiguration = new DefaultFingerprintConfiguration() { Stride = new IncrementalStaticStride(StaticStride) };
-
+            var fingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = new IncrementalStaticStride(StaticStride) };
 
             var command = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                                         .From(PathToWav)

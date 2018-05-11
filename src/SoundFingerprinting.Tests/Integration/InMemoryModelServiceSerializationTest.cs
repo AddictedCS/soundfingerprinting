@@ -16,8 +16,6 @@
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
     {
-        private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
-        private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
         private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
         [Test]
@@ -25,7 +23,7 @@
         {
             var modelService = new InMemoryModelService();
 
-            var hashedFingerprints = fcb.BuildFingerprintCommand()
+            var hashedFingerprints = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash()
@@ -39,7 +37,7 @@
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
 
-            var queryResult = qcb.BuildQueryCommand()
+            var queryResult = QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new InMemoryModelService(tempFile), audioService)
                 .Query()
