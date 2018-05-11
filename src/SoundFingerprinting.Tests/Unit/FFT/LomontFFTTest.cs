@@ -44,7 +44,7 @@
                 }
             }
 
-            CollectionAssert.AreEqual(new float[] { 0, 0.707f, 1, 0.707f, 0, -0.707f, -1, -0.707f }, sineWave, floatComparer);
+            CollectionAssert.AreEqual(new[] { 0, 0.707f, 1, 0.707f, 0, -0.707f, -1, -0.707f }, sineWave, floatComparer);
         }
 
         [Test]
@@ -67,7 +67,7 @@
                 }
             }
 
-            CollectionAssert.AreEqual(new float[] { 0, 0, 0, 4f, 0, 0, 0, 0 }, sineWave, floatComparer);
+            CollectionAssert.AreEqual(new[] { 0, 0, 0, 4f, 0, 0, 0, 0 }, sineWave, floatComparer);
         }
     }
 }

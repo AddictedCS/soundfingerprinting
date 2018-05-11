@@ -4,7 +4,6 @@
 
     using NUnit.Framework;
 
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
