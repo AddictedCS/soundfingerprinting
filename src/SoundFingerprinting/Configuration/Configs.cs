@@ -27,9 +27,9 @@
 
         internal static class QueryStrides
         {
-            public static IStride LowLatency = new IncrementalRandomStride(512, 768); // F 2048
-            public static IStride DefaultStride = new IncrementalRandomStride(256, 512); // F 1536
-            public static IStride HighPrecisionStride = new IncrementalRandomStride(256, 512); // F 512
+            public static IStride LowLatency = new IncrementalRandomStride(512, 768);
+            public static IStride DefaultStride = new IncrementalRandomStride(256, 512);
+            public static IStride HighPrecisionStride = new IncrementalRandomStride(256, 512);
         }
     }
 }
