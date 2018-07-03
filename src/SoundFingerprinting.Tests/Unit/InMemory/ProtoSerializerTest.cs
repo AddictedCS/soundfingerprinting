@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SoundFingerprinting.Tests.Unit.InMemory
+﻿namespace SoundFingerprinting.Tests.Unit.InMemory
 {
     using System.IO;
+
+    using System.Collections.Generic;
 
     using NUnit.Framework;
     using ProtoBuf;

@@ -1,10 +1,9 @@
 @echo Off
-set target=%1
-if "%target%" == "" (
-   set target=All
-)
-set config=%2
+set config=%1
 if "%config%" == "" (
    set config=Release
 )
-"%programfiles(x86)%\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\msbuild" build\Build.proj /t:"%target%" /p:Configuration="%config%" /m /fl /flp:LogFile=msbuild.log;Verbosity=Normal /nr:false
+
+dotnet restore .\src\SoundFingerprinting.sln
+dotnet test .\src\SoundFingerprinting.Tests\SoundFingerprinting.Tests.csproj -c %config%
+dotnet pack .\src\SoundFingerprinting\SoundFingerprinting.csproj -c %config% -o ..\..\build

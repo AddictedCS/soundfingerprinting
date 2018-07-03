@@ -19,5 +19,7 @@ namespace SoundFingerprinting.Builder
         {
             return new FingerprintCommand(fingerprintService);
         }
+
+        public static IFingerprintCommandBuilder Instance { get; } = new FingerprintCommandBuilder();
     }
 }

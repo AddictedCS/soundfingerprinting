@@ -1,13 +1,11 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
-    using System;
     using System.IO;
     using System.Linq;
 
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
@@ -18,17 +16,14 @@
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
     {
-        private readonly IFingerprintCommandBuilder fcb = new FingerprintCommandBuilder();
-        private readonly IQueryCommandBuilder qcb = new QueryCommandBuilder();
-
-        private readonly IAudioService audioService = new NAudioService();
+        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
         [Test]
         public void ShouldSerializeAndDeserialize()
         {
             var modelService = new InMemoryModelService();
 
-            var hashedFingerprints = fcb.BuildFingerprintCommand()
+            var hashedFingerprints = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash()
@@ -42,7 +37,7 @@
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
 
-            var queryResult = qcb.BuildQueryCommand()
+            var queryResult = QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new InMemoryModelService(tempFile), audioService)
                 .Query()

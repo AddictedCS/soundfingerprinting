@@ -6,7 +6,6 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
-    using SoundFingerprinting.Audio.NAudio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -14,11 +13,9 @@
     using SoundFingerprinting.InMemory;
 
     [TestFixture]
-    [Category("RequiresWindowsDLL")]
     public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
     {
-        private readonly FingerprintCommandBuilder fingerprintCommandBuilder = new FingerprintCommandBuilder();
-        private readonly IAudioService audioService = new NAudioService();
+        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
         private ISubFingerprintDao subFingerprintDao;
         private ITrackDao trackDao;
 
@@ -26,7 +23,7 @@
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
-            subFingerprintDao = new SubFingerprintDao((IRAMStorage)ramStorage);
+            subFingerprintDao = new SubFingerprintDao(ramStorage);
             trackDao = new TrackDao(ramStorage);
         }
 
@@ -62,7 +59,7 @@
         {
             var track = new TrackData(GetTagInfo());
             var trackReference = trackDao.InsertTrack(track);
-            var hashedFingerprints = fingerprintCommandBuilder
+            var hashedFingerprints = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
@@ -89,7 +86,7 @@
             var firstTrackReference = trackDao.InsertTrack(firstTrack);
             var secondTrackReference = trackDao.InsertTrack(secondTrack);
 
-            var hashedFingerprintsForFirstTrack = fingerprintCommandBuilder
+            var hashedFingerprintsForFirstTrack = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .WithFingerprintConfig(config =>
@@ -103,7 +100,7 @@
 
             InsertHashedFingerprintsForTrack(hashedFingerprintsForFirstTrack, firstTrackReference);
 
-            var hashedFingerprintsForSecondTrack = fingerprintCommandBuilder
+            var hashedFingerprintsForSecondTrack = FingerprintCommandBuilder.Instance
                .BuildFingerprintCommand()
                .From(GetAudioSamples())
                .WithFingerprintConfig(config =>
@@ -143,7 +140,7 @@
 
             var firstTrackReference = trackDao.InsertTrack(firstTrack);
 
-            var firstHashData = fingerprintCommandBuilder
+            var firstHashData = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
@@ -156,7 +153,7 @@
 
             var secondTrackReference = trackDao.InsertTrack(secondTrack);
 
-            var secondHashData = fingerprintCommandBuilder
+            var secondHashData = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)

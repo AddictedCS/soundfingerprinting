@@ -1,32 +1,24 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
-    using System.Collections.Generic;
-
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
-    using SoundFingerprinting.Query;
 
     [TestFixture]
     public class QueryResultCoverageCalculatorTest
     {
-        private readonly QueryResultCoverageCalculator qrc = new QueryResultCoverageCalculator();
+        private readonly QueryResultCoverageCalculator qrc = new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence());
+
+        private readonly double fingerprintLengthInSeconds = new DefaultFingerprintConfiguration().FingerprintLengthInSeconds;
 
         [Test]
         public void ShouldIdentifyLongestMatch()
         {
-            var matches = new SortedSet<MatchedPair> 
-                {
-                    new MatchedPair(new HashedFingerprint(null, 10, 5, new string[0]), new SubFingerprintData(null, 1, 0, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, 20, 9, new string[0]), new SubFingerprintData(null, 5, 5, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, 30, 11, new string[0]), new SubFingerprintData(null, 9, 9, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, 40, 14, new string[0]), new SubFingerprintData(null, 10, 10, null, null), 100)
-                };
+            const double QueryLength = 9d;
+            var matches = TestUtilities.GetMatchedWith(new float[] { 5, 9, 11, 14 }, new float[] { 0, 5, 9, 10 });
 
-            var coverage = qrc.GetCoverage(matches, 10d, new DefaultFingerprintConfiguration());
+            var coverage = qrc.GetCoverage(matches, QueryLength, fingerprintLengthInSeconds);
 
             Assert.AreEqual(5.4586, coverage.SourceMatchLength, 0.001);
         }
@@ -34,18 +26,26 @@
         [Test]
         public void ShouldSelectBestLongestMatch()
         {
-            var matches = new SortedSet<MatchedPair> 
-                {
-                    new MatchedPair(new HashedFingerprint(null, 10, 5, new string[0]), new SubFingerprintData(null, 1, 0, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, 20, 9, new string[0]), new SubFingerprintData(null, 2, 2, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, 30, 11, new string[0]), new SubFingerprintData(null, 9, 9, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, 40, 14, new string[0]), new SubFingerprintData(null, 10, 11, null, null), 100),
-                    new MatchedPair(new HashedFingerprint(null, 40, 14, new string[0]), new SubFingerprintData(null, 11, 12, null, null), 100)
-                };
+            const double QueryLength = 5d;
+            var matches = TestUtilities.GetMatchedWith(new float[] { 1, 2, 3, 4, 5 }, new float[] { 1, 2, 9, 11, 12 });
 
-            var coverage = qrc.GetCoverage(matches, 5d, new DefaultFingerprintConfiguration());
+            var coverage = qrc.GetCoverage(matches, QueryLength, fingerprintLengthInSeconds);
 
-            Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.001);
+            Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.01);
+            Assert.AreEqual(4.486, coverage.SourceCoverageLength, 0.01);
+            Assert.AreEqual(-6, coverage.TrackStartsAt);
+        }
+
+        [Test]
+        public void ShouldDisregardJingleSinceTheGapIsTooBig()
+        {
+            const double QueryLength = 5d;
+            var matches = TestUtilities.GetMatchedWith(new float[] { 1, 4, 5, 1, 2 }, new float[] { 1, 3, 4, 10, 11 });
+
+            var coverage = qrc.GetCoverage(matches, QueryLength, fingerprintLengthInSeconds);
+
+            Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.01);
+            Assert.AreEqual(4.486, coverage.SourceCoverageLength, 0.01);
         }
     }
 }

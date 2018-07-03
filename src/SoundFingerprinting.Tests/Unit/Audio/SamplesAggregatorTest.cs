@@ -10,14 +10,7 @@
     [TestFixture]
     public class SamplesAggregatorTest : AbstractTest
     {
-        private readonly Random random = new Random((int)(DateTime.Now.Ticks << 4));
-
-        private readonly ISamplesAggregator samplesAggregator;
-
-        public SamplesAggregatorTest()
-        {
-            samplesAggregator = new SamplesAggregator();
-        }
+        private readonly ISamplesAggregator samplesAggregator = new SamplesAggregator();
 
         [Test]
         public void TestLessDataThanRequestedIsReceivedFromSamplesProvider()
@@ -29,9 +22,9 @@
                 new Queue<float[]>(
                     new[]
                         {
-                            GetRandomFloatArray(20, SampleRate),
-                            GetRandomFloatArray(20, SampleRate),
-                            GetRandomFloatArray(10, SampleRate),
+                            TestUtilities.GenerateRandomFloatArray(20 * SampleRate),
+                            TestUtilities.GenerateRandomFloatArray(20 * SampleRate),
+                            TestUtilities.GenerateRandomFloatArray(10 * SampleRate),
                             new float[0]
                         });
             Assert.Throws<AudioServiceException>(
@@ -49,9 +42,9 @@
             var queueBytesRead = new Queue<float[]>(
                     new[]
                         {
-                            GetRandomFloatArray(20, SampleRate),
-                            GetRandomFloatArray(20, SampleRate),
-                            GetRandomFloatArray(10, SampleRate),
+                            TestUtilities.GenerateRandomFloatArray(20 * SampleRate),
+                            TestUtilities.GenerateRandomFloatArray(20 * SampleRate),
+                            TestUtilities.GenerateRandomFloatArray(10 * SampleRate),
                             new float[0]
                         });
 
@@ -68,8 +61,10 @@
             // 20 20 20 seconds
             var floats = new[]
                 {
-                    GetRandomFloatArray(20, SampleRate), GetRandomFloatArray(20, SampleRate),
-                    GetRandomFloatArray(20, SampleRate), GetRandomFloatArray(5.8, SampleRate), 
+                    TestUtilities.GenerateRandomFloatArray(20 * SampleRate),
+                    TestUtilities.GenerateRandomFloatArray(20 * SampleRate),
+                    TestUtilities.GenerateRandomFloatArray(20 * SampleRate),
+                    TestUtilities.GenerateRandomFloatArray((int)(5.8 * SampleRate) /  4 * 4),
                     new float[0]
                 };
 
@@ -86,17 +81,6 @@
                 CollectionAssert.AreEqual(floats[i], toCompare);
                 prevArrayLength += toCompare.Length;
             }
-        }
-
-        private float[] GetRandomFloatArray(double seconds, int sampleRate)
-        {
-            float[] array = new float[(int)(seconds * sampleRate) / 4 * 4];
-            for (int i = 0; i < array.Length; ++i)
-            {
-                array[i] = (float)random.NextDouble();
-            }
-
-            return array;
         }
     }
 }

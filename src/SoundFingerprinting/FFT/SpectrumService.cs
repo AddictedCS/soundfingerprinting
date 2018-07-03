@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -44,7 +45,27 @@
                 });
             }
 
-            return CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
+            var images = CutLogarithmizedSpectrum(frames, audioSamples.SampleRate, configuration);
+            ScaleFullSpectrum(images, configuration);
+            return images;
+        }
+
+        private void ScaleFullSpectrum(IEnumerable<SpectralImage> spectralImages, SpectrogramConfig configuration)
+        {
+            Parallel.ForEach(spectralImages, image =>
+            {
+                ScaleSpectrum(image, configuration.ScalingFunction);
+            });
+        }
+
+        private void ScaleSpectrum(SpectralImage spetralImage, Func<float, float, float> scalingFunction)
+        {
+            float max = spetralImage.Image.Max(f => Math.Abs(f));
+
+            for (int i = 0; i < spetralImage.Image.Length; ++i)
+            {
+                spetralImage.Image[i] = scalingFunction(spetralImage.Image[i], max);
+            }
         }
 
         public List<SpectralImage> CutLogarithmizedSpectrum(float[] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)

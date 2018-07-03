@@ -32,7 +32,7 @@
 
             AssertAreSame(Rows, Cols, frames, concatenated);
             waveletDecomposition.DecomposeImageInPlace(concatenated, Rows, Cols, 1d);
-            DecomposeImageLocal(frames, 1d);
+            DecomposeImageLocal(frames);
             AssertAreSame(Rows, Cols, frames, concatenated);
         }
 
@@ -64,7 +64,7 @@
             }
         }
 
-        private void DecomposeImageLocal(float[][] array, double waveletNorm)
+        private void DecomposeImageLocal(float[][] array)
         {
             int rows = array.GetLength(0);
             int cols = array[0].Length;

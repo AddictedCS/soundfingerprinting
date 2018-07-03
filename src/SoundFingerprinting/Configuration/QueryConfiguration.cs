@@ -87,9 +87,60 @@
         }
 
         /// <summary>
+        ///  Scaling function used in spectral image creation
+        /// </summary>
+        public Func<float, float, float> ScalingFunction
+        {
+            get
+            {
+                return FingerprintConfiguration.ScalingFunction;
+            }
+            set
+            {
+                FingerprintConfiguration.ScalingFunction = value;
+            }
+        }
+
+        /// <summary>
+        ///  Number of top wavelets to analyze
+        /// </summary>
+        public int TopWavelets
+        {
+            get
+            {
+                return FingerprintConfiguration.TopWavelets;
+            }
+            set
+            {
+                FingerprintConfiguration.TopWavelets = value;
+            }
+        }
+
+        /// <summary>
+        ///  Frequency range to analyze when creating the fingerprint
+        /// </summary>
+        public FrequencyRange FrequencyRange
+        {
+            get
+            {
+                return FingerprintConfiguration.FrequencyRange;
+            }
+            set
+            {
+                FingerprintConfiguration.FrequencyRange = value;
+            }
+        }
+
+        /// <summary>
         ///  Gets or sets list of clusters to consider when querying the datasource for potential candidates
         /// </summary>
         public IEnumerable<string> Clusters { get; set; }
+
+        /// <summary>
+        ///  Allows multiple matches of the same track to be found in the query. Useful when you have a long query which may contain same track multiple times.
+        ///  Use cautiously, since aligning same track on a single query multiple times may result in a performance penalty. Default false.
+        /// </summary>
+        public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
 
         /// <summary>
         /// Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 

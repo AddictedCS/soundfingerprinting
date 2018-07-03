@@ -89,11 +89,6 @@ namespace SoundFingerprinting.Configuration
         public bool UseDynamicLogBase { get; set; }
 
         /// <summary>
-        ///  Gets or sets a value indicating whether audio signal has to be normalized before its spectrum is built
-        /// </summary>
-        public bool NormalizeSignal { get; set; }
-
-        /// <summary>
         ///  Gets or sets stride between 2 consecutive spectrogram images
         /// </summary>
         public IStride Stride { get; set; }
@@ -102,5 +97,10 @@ namespace SoundFingerprinting.Configuration
         ///  Gets or sets window function to apply before FFT-ing
         /// </summary>
         public IWindowFunction Window { get; set; }
+
+        /// <summary>
+        ///  Gets or sets scaling function for Spectrogram Image generation
+        /// </summary>
+        public Func<float, float, float> ScalingFunction { get; set; }
     }
 }
