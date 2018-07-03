@@ -9,7 +9,7 @@ _soundfingerprinting_ is a C# framework designed for companies, enthusiasts, res
 
 ## Documentation
 
-Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, 2 terms are used interchangeably) will be stored in a configurable backend. The interfaces for fingerprinting and querying audio files are implemented as [Fluent Interfaces](http://martinfowler.com/bliki/FluentInterface.html).
+Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, two terms used interchangeably) will be stored in a configurable datastore.
 
 ```csharp
 private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM
@@ -34,11 +34,11 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
     modelService.InsertHashDataForTrack(hashedFingerprints, trackReference);
 }
 ```
-The default storage, which comes bundled with _soundfingerprinting_ package, is a plain RAM storage, managed by <code>InMemoryModelService</code>. The following list of persistent storages is available for general use: 
+There are four storages available for use. The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code>. Other storages that you can use are:
+- ***SoundFingerprinting.Emy*** contact me at ciumac.sergiu@gmail.com for early access to a enterprise fingerprinting storage that is both super fast and resilient.
+- ***Solr*** efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). MIT licensed, useful when the number of tracks does not exceed 1000 tracks.
+- ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql) [deprecated]. MIT licensed, still used, but not supported anymore due to it's inefficiency.
 - Starting with v3.2.0 <code>InMemoryModelService</code> can be serialized to filesystem, and reloaded on application startup. Useful for scenarious when you don't want to introduce external data storages.
-- ***SoundFingerprinting.Emy*** contact ciumac.sergiu@gmail.com for early access to a enterprise fingerprinting storage that is both super fast and resilient.
-- ***Solr*** efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). Useful for scenarious when you don't exceed 1000 tracks.
-- ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql) [deprecated].
 
 Once you've inserted the fingerprints into the datastore, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 
@@ -56,7 +56,7 @@ public TrackData GetBestMatchForSong(string queryAudioFile)
                                          .Query()
                                          .Result;
     
-    return queryResult.BestMatch.Track; // successful match has been found
+    return queryResult.BestMatch.Track;
 }
 ```
 ### Query result details
@@ -76,15 +76,16 @@ Every `ResultEntry` object will contain the following information:
 - `TotalFingerprintsAnalyzed` - total # of fingerprints analyzed during query time. If this number exceeds 500, try optimizing your configuration.
 
 ### Version 5.2.0
-Version 5.2.0 provides a query configuration option `AllowMultipleMatchesOfTheSameTrackInQuery` which will instruct the framework to consider the scenario of having the same track matched multiple times within the same query. This is handy for long queries that can contain same match scattered across the query. Default value is `false`.
+Version 5.2.0 provides a query configuration option `AllowMultipleMatchesOfTheSameTrackInQuery` which will instruct the framework to consider the use case of having the same track matched multiple times within the same query. This is handy for long queries that can contain same match scattered across the query. Default value is `false`.
 
 ### Version 5.1.0
-Starting from version 5.1.0 the fingerprints signature has changed to be more resilient to noise. You can try `HighPrecisionFingerprintConfiguration` in case your audio samples come from recordings that contain ambient noise. All users that migrate to 5.1.x have to re-index the data, since fingerprint signatures from 5.x version are not compatible.
+Starting from version 5.1.0 the fingerprints signature has changed to be more resilient to noise. You can try `HighPrecisionFingerprintConfiguration` in case your audio samples come from recordings that contain ambient noise. All users that migrate to 5.1.x have to re-index the data, since fingerprint signatures from <= 5.0.x version are not compatible.
 
 ### Version 5.0.0
 Starting from version 5.0.0 _soundfingerprinting_ library supports .NET Standard 2.0. You can run the application not only on Window environment but on any other .NET Standard [compliant](https://docs.microsoft.com/en-us/dotnet/standard/net-standard) runtime.
 
 ### List of additional soundfingerprinting integrations
+Default `SoundFingerprintingAudioService` supports only wave file at the input. If you would like to process other formats, consider using below extensions:
 - [SoundFingerprinting.Audio.NAudio](https://www.nuget.org/packages/SoundFingerprinting.Audio.NAudio) - replacement for default `SoundFingerprintingAudioService` audio service. Provides support for *.mp3* audio processing. Runs only on Windows as it uses [NAudio](https://github.com/naudio/NAudio) framework for underlying decoding and resampling.
 - [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) - Bass.Net audio library integration, comes as a replacement for default service. Works faster than the default or NAudio, more accurate resampling, supports multiple audio formats (*.wav*, *.ogg*, *.mp3*, *.flac*). [Bass](http://www.un4seen.com) is free for non-comercial use. Recommended for enterprise users.
 - All demo apps are now located in separate git repositories, [duplicates detector](https://github.com/AddictedCS/soundfingerprinting.duplicatesdetector), [sound tools](https://github.com/AddictedCS/soundfingerprinting.soundtools).
@@ -114,9 +115,9 @@ QueryResult queryResult = QueryCommandBuilder.Instances
 ```
 There are 3 pre-built configurations to choose from: `LowLatency`, `Default`, `HighPrecision`. Nevertheless you are not limited to use just these 3. You can ammed each particular configuration property by your own via overloads.
 
-In case you need directions for fine-tunning the algorithm for your particular use case do not hesitate to contact me. Specifically if you are trying to use it on mobile platforms `HighPrecisionFingerprintConfiguration` may not be enought.
+In case you need directions for fine-tunning the algorithm for your particular use case do not hesitate to contact me. Specifically if you are trying to use it on mobile platforms `HighPrecisionFingerprintConfiguration` may not be accurate enought.
 
-Please fingerprinting configuration counterpart during query (i.e. `HighPrecisionFingerprintConfiguration` with `HighPrecisionQueryConfiguration`). Different configuration analyze different spectrum ranges, thus they have to be used in pair.
+Please use fingerprinting configuration counterpart during query (i.e. `HighPrecisionFingerprintConfiguration` with `HighPrecisionQueryConfiguration`). Different configuration analyze different spectrum ranges, thus they have to be used in pair.
 
 ### Substituting audio or model services
 Most critical parts of the _soundfingerprinting_ framework are interchangeable with extensions. If you want to use `NAudio` as the underlying audio processing library just install `SoundFingerprinting.Audio.NAudio` package and substitute `IAudioService` with `NAudioService`. Same holds for database storages. Install the extensions which you want to use (i.e. `SoundFingerprinting.Solr`) and provide new `ModelService` where needed. 
@@ -132,11 +133,11 @@ Links to the third party libraries used by _soundfingerprinting_ project.
 - Can the algorithm detect exact query position in resulted track?
 > Yes.
 - Can I use **SoundFingerprinting** to detect ads in radio streams?
-> Yes.
+> Yes. Actually this is the most frequent use-case where SoundFingerprinting was successfully used.
 - Will **SoundFingerprinting** match tracks with samples captured in noisy environment?
-> Yes, try out `HighPrecision` configurations.
+> Yes, try out `HighPrecision` configurations, or contact me for additional guidance.
 - Can I use **SoundFingerprinting** framework on **Mono** or .NET Core app?
-> Yes. SoundFingerprinting can be used in cross-platform applications. Keep in mind though, cross platform audio service `SoundFingerprintingAudioService` supports only *.wav* files at it's input.
+> Yes. SoundFingerprinting can be used in cross-platform applications. Keep in mind though, cross platform audio service `SoundFingerprintingAudioService` supports only *.wav* files at it's input. 
 - How many tracks can I store in `InMemoryModelService`?
 > 100 hours of content with `HighPrecision` fingerprinting configuration will yeild in ~5GB or RAM usage.
 
@@ -157,7 +158,7 @@ _soundfingerprinting_ employs computer vision techniques to generate audio finge
 After a list of subsequent transformations these are converted into hashes, which are stored and used at query time. The fingerprints are robust to degradations to a certain degree. The `DefaultFingerprintConfiguration` class can be successfully used for radio stream monitoring. It handles well different audio formats, aliased signals and sampling differences accross tracks. Ambient noise is a different beast and you will probably need `HighPrecisionFingerprintConfiguration` to deal with it.
     
 ### Demo
-My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting)
+My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting). The article is from 2011, and may be outdated.
 The demo project is a Audio File Duplicates Detector. Its latest source code can be found [here](src/SoundFingerprinting.DuplicatesDetector). Its a WPF MVVM project that uses the algorithm to detect what files are perceptually very similar.
 
 ### Contribute
