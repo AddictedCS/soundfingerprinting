@@ -3,6 +3,7 @@
 [![Join the chat at https://gitter.im/soundfingerprinting/Lobby](https://badges.gitter.im/soundfingerprinting/Lobby.svg)](https://gitter.im/soundfingerprinting/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://img.shields.io/travis/AddictedCS/soundfingerprinting.svg)](https://travis-ci.org/AddictedCS/soundfingerprinting)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](license.txt)
+[![NuGet](https://img.shields.io/nuget/dt/SoundFingerprinting.svg)](https://www.nuget.org/packages/SoundFingerprinting)
 
 _soundfingerprinting_ is a C# framework designed for companies, enthusiasts, researchers in the fields of audio and digital signal processing, data mining and audio recognition. It implements an efficient algorithm which provides fast insert and retrieval of acoustic fingerprints with high precision and recall rate.
 
