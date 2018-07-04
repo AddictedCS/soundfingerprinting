@@ -15,7 +15,22 @@ namespace SoundFingerprinting.Audio
          * 
          * All filters are interpolating around 32 points
          */
+        
+        // L = 63, Fs = 72000
+        private static readonly float[] LpFilter72KHz64 =
+        {
+            7.5736e-04f, 7.0190e-04f, 6.2634e-04f, 5.0156e-04f, 2.8968e-04f, -4.9681e-05f, -5.5166e-04f, -1.2376e-03f,
+            -2.1067e-03f, -3.1292e-03f, -4.2414e-03f, -5.3443e-03f, -6.3058e-03f, -6.9665e-03f, -7.1501e-03f,
+            -6.6760e-03f, -5.3745e-03f, -3.1034e-03f, 2.3628e-04f, 4.6867e-03f, 1.0222e-02f, 1.6745e-02f, 2.4081e-02f,
+            3.1989e-02f, 4.0169e-02f, 4.8282e-02f, 5.5963e-02f, 6.2852e-02f, 6.8611e-02f, 7.2950e-02f, 7.5647e-02f,
+            7.6563e-02f, 7.5647e-02f, 7.2950e-02f, 6.8611e-02f, 6.2852e-02f, 5.5963e-02f, 4.8282e-02f, 4.0169e-02f,
+            3.1989e-02f, 2.4081e-02f, 1.6745e-02f, 1.0222e-02f, 4.6867e-03f, 2.3628e-04f, -3.1034e-03f, -5.3745e-03f,
+            -6.6760e-03f, -7.1501e-03f, -6.9665e-03f, -6.3058e-03f, -5.3443e-03f, -4.2414e-03f, -3.1292e-03f,
+            -2.1067e-03f - 1.2376e-03f, -5.5166e-04f, -4.9681e-05f, 2.8968e-04f, 5.0156e-04f, 6.2634e-04f, 7.0190e-04f,
+            7.5736e-04f
+        };
 
+        // L = 127
         private static readonly float[] LpFilter336KHz128 =
         {
             -4.2580e-05f, -2.2325e-05f, -1.0539e-06f, 2.2162e-05f, 4.8302e-05f, 7.8386e-05f, 1.1347e-04f, 1.5463e-04f,
@@ -36,6 +51,7 @@ namespace SoundFingerprinting.Audio
             1.1347e-04f, 7.8386e-05f, 4.8302e-05f, 2.2162e-05f, -1.0539e-06f, -2.2325e-05f, -4.2580e-05f
         };
 
+        // L = 31
         private static float[] lpFilter336Khz32 =
         {
             0.0011856f, 0.0013525f, 0.0018212f, 0.0025816f, 0.0036087f, 0.0048637f, 0.0062957f, 0.0078438f, 0.0094403f,
@@ -44,6 +60,7 @@ namespace SoundFingerprinting.Audio
             0.0025816f, 0.0018212f, 0.0013525f, 0.0011856f
         };
 
+        // L = 63
         private static float[] lpFilter336Khz64 =
         {
             8.2115e-04f, 8.7360e-04f, 9.7861e-04f, 1.1399e-03f, 1.3605e-03f, 1.6423e-03f, 1.9865e-03f, 2.3930e-03f,
@@ -98,8 +115,14 @@ namespace SoundFingerprinting.Audio
                     return Resample(samples, samples.Length / 8, 8, LpFilter44);
                 case 22050:
                     return Resample(samples, samples.Length / 4, 4, LpFilter22);
+                case 16000:
+                    // 16000 * 21 / 61 is almost 5512
+                    return ResampleNonIntegerFactor(samples, 21, 61, LpFilter336KHz128);
                 case 11025:
                     return Resample(samples, samples.Length / 2, 2, LpFilter11);
+                case 8000:
+                    // 8000 * 9 / 13 is almost 5512
+                    return ResampleNonIntegerFactor(samples, 9, 13, LpFilter72KHz64);
                 case 5512:
                     return samples;
             }
