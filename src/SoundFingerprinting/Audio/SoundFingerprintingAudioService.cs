@@ -6,7 +6,7 @@
 
     public class SoundFingerprintingAudioService : AudioService
     {
-        private static readonly HashSet<int> AcceptedSampleRates = new HashSet<int> { 5512, 11025, 22050, 44100, 48000 };
+        private static readonly HashSet<int> AcceptedSampleRates = new HashSet<int> { 5512, 8000, 11025, 16000, 22050, 44100, 48000 };
         private static readonly HashSet<int> AcceptedBitsPerSample = new HashSet<int> { 8, 16, 24, 32 };
         private static readonly HashSet<int> AcceptedChannels = new HashSet<int> { 1, 2 };
 
