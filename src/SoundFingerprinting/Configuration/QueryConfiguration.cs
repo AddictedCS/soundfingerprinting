@@ -6,7 +6,7 @@
     using SoundFingerprinting.Strides;
 
     /// <summary>
-    ///   Configuration options used during querying the data source
+    ///   Configuration options used when querying the ModelService
     /// </summary>
     public abstract class QueryConfiguration
     {
@@ -25,9 +25,9 @@
 
             set
             {
-                if (value < 0)
+                if (value < 1)
                 {
-                    throw new ArgumentException("ThresholdVotes cannot be less than 0", "value");
+                    throw new ArgumentException("ThresholdVotes cannot be less than 1", nameof(value));
                 }
 
                 thresholdVotes = value;
@@ -48,7 +48,7 @@
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentException("MaxTracksToReturn cannot be less or equal to 0", "value");
+                    throw new ArgumentException("MaxTracksToReturn cannot be less or equal to 0", nameof(value));
                 }
 
                 maxTracksToReturn = value;
@@ -72,7 +72,7 @@
         }
 
         /// <summary>
-        ///   Gets or sets Haar Wavelet norm. The universaly recognized norm is sqrt(2), though for acoustic fingerprinting 1 works very well for noisy scenarious
+        ///   Gets or sets Haar Wavelet norm.
         /// </summary>
         public double HaarWaveletNorm
         {
@@ -80,6 +80,7 @@
             {
                 return FingerprintConfiguration.HaarWaveletNorm;
             }
+
             set
             {
                 FingerprintConfiguration.HaarWaveletNorm = value;
@@ -87,7 +88,7 @@
         }
 
         /// <summary>
-        ///  Scaling function used in spectral image creation
+        ///  Gets or sets the scaling function used in spectral image creation
         /// </summary>
         public Func<float, float, float> ScalingFunction
         {
@@ -95,6 +96,7 @@
             {
                 return FingerprintConfiguration.ScalingFunction;
             }
+
             set
             {
                 FingerprintConfiguration.ScalingFunction = value;
@@ -102,7 +104,7 @@
         }
 
         /// <summary>
-        ///  Number of top wavelets to analyze
+        ///  Gets or sets the number of top wavelets to analyze
         /// </summary>
         public int TopWavelets
         {
@@ -110,6 +112,7 @@
             {
                 return FingerprintConfiguration.TopWavelets;
             }
+
             set
             {
                 FingerprintConfiguration.TopWavelets = value;
@@ -117,7 +120,7 @@
         }
 
         /// <summary>
-        ///  Frequency range to analyze when creating the fingerprint
+        ///  Gets or sets frequency range to analyze when creating the fingerprint
         /// </summary>
         public FrequencyRange FrequencyRange
         {
@@ -125,6 +128,7 @@
             {
                 return FingerprintConfiguration.FrequencyRange;
             }
+
             set
             {
                 FingerprintConfiguration.FrequencyRange = value;
@@ -137,14 +141,19 @@
         public IEnumerable<string> Clusters { get; set; }
 
         /// <summary>
-        ///  Allows multiple matches of the same track to be found in the query. Useful when you have a long query which may contain same track multiple times.
-        ///  Use cautiously, since aligning same track on a single query multiple times may result in a performance penalty. Default false.
+        ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 
+        ///  Useful when you have a long query which may contain same track multiple times scatered across the query.
+        ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
         public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
 
         /// <summary>
-        /// Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
-        /// It doesnt have to be exposed to the outside framework users.
+        ///  Gets or sets meta fields that are passed to the storage when querying. Useful for statistics gathering and such.
+        /// </summary>
+        public IDictionary<string, string> MetaFields { get; set; }
+
+        /// <summary>
+        ///  Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
         /// </summary>
         internal FingerprintConfiguration FingerprintConfiguration { get; set; }
     }

@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     public class DefaultQueryConfiguration : QueryConfiguration
@@ -15,6 +16,7 @@
                                            Stride = Configs.QueryStrides.DefaultStride,
                                            FrequencyRange = Configs.FrequencyRanges.Default
                                        };
+            MetaFields = new Dictionary<string, string>();
         }
     }
 }
