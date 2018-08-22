@@ -5,6 +5,7 @@
 
     using ProtoBuf;
 
+    // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
     [Serializable]
     [ProtoContract]
     public class HashedFingerprint 

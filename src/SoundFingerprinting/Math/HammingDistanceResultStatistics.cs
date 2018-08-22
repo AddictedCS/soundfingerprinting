@@ -38,7 +38,7 @@
         {
             get
             {
-                return string.Format("Avg {0:0.00}  Min {1} Max {2}", TruePositivesAvg, TruePositiveMin, TruePositiveMax);
+                return $"Avg {TruePositivesAvg:0.00}  Min {TruePositiveMin} Max {TruePositiveMax}";
             }
         }
 
@@ -46,7 +46,7 @@
         {
             get
             {
-                return string.Format("Avg {0:0.00} Min {1} Max {2}", FalseNegativesAvg, FalseNegativesMin, FalseNegativesMax);
+                return $"Avg {FalseNegativesAvg:0.00} Min {FalseNegativesMin} Max {FalseNegativesMax}";
             }
         }
 
@@ -54,7 +54,7 @@
         {
             get
             {
-                return string.Format("Avg {0:0.00} Min {1} Max {2}", FalsePositiveAvg, FalsePositiveMin, FalsePositiveMax);
+                return $"Avg {FalsePositiveAvg:0.00} Min {FalsePositiveMin} Max {FalsePositiveMax}";
             }
         }
 
@@ -62,7 +62,7 @@
         {
             get
             {
-                return string.Join(" ", TruePositivePercentile.Select(p => string.Format("{0:0.00}", p)).ToList());
+                return string.Join(" ", TruePositivePercentile.Select(p => $"{p:0.00}").ToList());
             }
         }
 
@@ -70,7 +70,7 @@
         {
             get
             {
-                return string.Join(" ", FalseNegativePercentile.Select(p => string.Format("{0:0.00}", p)).ToList());
+                return string.Join(" ", FalseNegativePercentile.Select(p => $"{p:0.00}").ToList());
             }
         }
 
@@ -78,22 +78,15 @@
         {
             get
             {
-                return string.Join(" ", FalsePositivePercentile.Select(p => string.Format("{0:0.00}", p)).ToList());
+                return string.Join(" ", FalsePositivePercentile.Select(p => $"{p:0.00}").ToList());
             }
         }
 
         public override string ToString()
         {
             return
-                string.Format(
-                    "True Positives: [{0}], False Negatives: [{1}], False Positives: [{2}], True Positives(0.8, 0.9, 0.95, 0.98): [{3}], "
-                    + "False Negatives(0.8, 0.9, 0.95, 0.98): [{4}], False Positives(0.8, 0.9, 0.95, 0.98): [{5}]",
-                    TruePositiveInfo,
-                    FalseNegativesInfo,
-                    FalsePositivesInfo,
-                    TruePositivePercentileInfo,
-                    FalseNegativesPercentileInfo,
-                    FalsePositivesPercentileInfo);
+                $"True Positives: [{TruePositiveInfo}], False Negatives: [{FalseNegativesInfo}], False Positives: [{FalsePositivesInfo}], True Positives(0.8, 0.9, 0.95, 0.98): [{TruePositivePercentileInfo}], "
+                + $"False Negatives(0.8, 0.9, 0.95, 0.98): [{FalseNegativesPercentileInfo}], False Positives(0.8, 0.9, 0.95, 0.98): [{FalsePositivesPercentileInfo}]";
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]

@@ -1,13 +1,5 @@
 namespace SoundFingerprinting.Math
 {
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
-    using SoundFingerprinting.Query;
-
     internal interface ISimilarityUtility
     {
         int CalculateHammingDistance(byte[] a, byte[] b);

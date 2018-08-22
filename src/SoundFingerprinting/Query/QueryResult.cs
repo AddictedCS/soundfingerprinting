@@ -5,15 +5,6 @@
 
     public class QueryResult
     {
-        /// <summary>
-        ///  Returns an empty query result object
-        /// </summary>
-        /// <returns></returns>
-        public static QueryResult Empty()
-        {
-            return EmptyResult();
-        }
-
         internal QueryResult(IEnumerable<ResultEntry> results)
         {
             ResultEntries = results;
@@ -31,9 +22,9 @@
         }
 
         /// <summary>
-        ///   Gets the list of potential matches, sorted from the most probable to the least probable
+        ///   Gets the list of matches, sorted from the most probable to the least probable
         /// </summary>
-        public IEnumerable<ResultEntry> ResultEntries { get; private set; }
+        public IEnumerable<ResultEntry> ResultEntries { get; }
 
         /// <summary>
         ///  Gets best match if result entries are not empty
@@ -52,9 +43,14 @@
         }
 
         /// <summary>
-        ///  Query statistics
+        ///  Gets query statistics
         /// </summary>
         public QueryStats Stats { get; internal set; } = new QueryStats();
+
+        public static QueryResult Empty()
+        {
+            return EmptyResult();
+        }
 
         internal static QueryResult EmptyResult()
         {

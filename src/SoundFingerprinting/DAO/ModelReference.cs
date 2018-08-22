@@ -4,6 +4,7 @@
 
     using ProtoBuf;
 
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
     [Serializable]
     [ProtoContract]
     public class ModelReference<T> : IModelReference<T>

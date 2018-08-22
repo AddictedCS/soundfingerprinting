@@ -16,22 +16,17 @@
         private readonly ISimilarityUtility similarityUtility;
         private readonly IQueryMath queryMath;
 
-        private static readonly QueryFingerprintService Singleton = new QueryFingerprintService(new SimilarityUtility(),
-            new QueryMath(new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()), new ConfidenceCalculator()));
-
-        public static QueryFingerprintService Instance
-        {
-            get
-            {
-                return Singleton;
-            }
-        }
-
         internal QueryFingerprintService(ISimilarityUtility similarityUtility, IQueryMath queryMath)
         {
             this.similarityUtility = similarityUtility;
             this.queryMath = queryMath;
         }
+
+        public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(
+            new SimilarityUtility(),
+            new QueryMath(
+                new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()),
+                new ConfidenceCalculator()));
     
         public QueryResult Query(List<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {

@@ -263,9 +263,9 @@
                 var istep = 2 * mmax;
                 var theta = Math.PI / mmax;
                 float wr = 1, wi = 0;
-                var wpi = (float) Math.Sin(theta);
+                var wpi = (float)Math.Sin(theta);
                 // compute in a slightly slower yet more accurate manner                                         
-                var wpr = (float)System.Math.Sin(theta / 2);
+                var wpr = (float)Math.Sin(theta / 2);
                 wpr = -2 * wpr * wpr;
                 for (var m = 0; m < istep; m += 2)
                 {

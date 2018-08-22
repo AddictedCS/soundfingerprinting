@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace SoundFingerprinting.Audio
+﻿namespace SoundFingerprinting.Audio
 {
+    using System;
+
     internal class LowPassFilter : ILowPassFilter
     {
         /*
@@ -51,29 +51,7 @@ namespace SoundFingerprinting.Audio
             1.1347e-04f, 7.8386e-05f, 4.8302e-05f, 2.2162e-05f, -1.0539e-06f, -2.2325e-05f, -4.2580e-05f
         };
 
-        // L = 31
-        private static float[] lpFilter336Khz32 =
-        {
-            0.0011856f, 0.0013525f, 0.0018212f, 0.0025816f, 0.0036087f, 0.0048637f, 0.0062957f, 0.0078438f, 0.0094403f,
-            0.0110140f, 0.0124934f, 0.0138109f, 0.0149054f, 0.0157259f, 0.0162341f, 0.0164063f, 0.0162341f, 0.0157259f,
-            0.0149054f, 0.0138109f, 0.0124934f, 0.0110140f, 0.0094403f, 0.0078438f, 0.0062957f, 0.0048637f, 0.0036087f,
-            0.0025816f, 0.0018212f, 0.0013525f, 0.0011856f
-        };
-
-        // L = 63
-        private static float[] lpFilter336Khz64 =
-        {
-            8.2115e-04f, 8.7360e-04f, 9.7861e-04f, 1.1399e-03f, 1.3605e-03f, 1.6423e-03f, 1.9865e-03f, 2.3930e-03f,
-            2.8609e-03f, 3.3880e-03f, 3.9711e-03f, 4.6062e-03f, 5.2879e-03f, 6.0103e-03f, 6.7664e-03f, 7.5484e-03f,
-            8.3481e-03f, 9.1565e-03f, 9.9644e-03f, 1.0762e-02f, 1.1541e-02f, 1.2290e-02f, 1.3001e-02f, 1.3664e-02f,
-            1.4271e-02f, 1.4815e-02f, 1.5287e-02f, 1.5683e-02f, 1.5996e-02f, 1.6223e-02f, 1.6360e-02f, 1.6406e-02f,
-            1.6360e-02f, 1.6223e-02f, 1.5996e-02f, 1.5683e-02f, 1.5287e-02f, 1.4815e-02f, 1.4271e-02f, 1.3664e-02f,
-            1.3001e-02f, 1.2290e-02f, 1.1541e-02f, 1.0762e-02f, 9.9644e-03f, 9.1565e-03f, 8.3481e-03f, 7.5484e-03f,
-            6.7664e-03f, 6.0103e-03f, 5.2879e-03f, 4.6062e-03f, 3.9711e-03f, 3.3880e-03f, 2.8609e-03f, 2.3930e-03f,
-            1.9865e-03f, 1.6423e-03f, 1.3605e-03f, 1.1399e-03f, 9.7861e-04f, 8.7360e-04f, 8.2115e-04f
-        };
-
-        /*Low pass from 44100 to 5512*/
+        // Low pass from 44100 to 5512
         private static readonly float[] LpFilter44 =
         {
             -6.4966e-04f, -1.4478e-03f, -2.7094e-03f, -4.4524e-03f, -6.2078e-03f, -6.9775e-03f, -5.3848e-03f,
@@ -83,7 +61,7 @@ namespace SoundFingerprinting.Audio
             -6.4966e-04f
         };
 
-        /*Low pass from 22050 to 5512*/
+        // Low pass from 22050 to 5512
         private static readonly float[] LpFilter22 =
         {
             -1.2004e-03f, -2.0475e-03f, -2.0737e-03f, 1.6358e-18f, 4.7512e-03f, 9.8676e-03f, 9.9498e-03f, -4.7939e-18f,
@@ -92,7 +70,7 @@ namespace SoundFingerprinting.Audio
             9.9498e-03f, 9.8676e-03f, 4.7512e-03f, 1.6358e-18f, -2.0737e-03f, -2.0475e-03f, -1.2004e-03f
         };
 
-        /*Low pass from 11025 to 5512*/
+        // Low pass from 11025 to 5512
         private static readonly float[] LpFilter11 =
         {
             -1.6977e-03f, 1.7552e-18f, 2.9326e-03f, -3.2716e-18f, -6.7192e-03f, 6.0422e-18f, 1.4071e-02f, -9.5879e-18f,
@@ -104,7 +82,9 @@ namespace SoundFingerprinting.Audio
         public float[] FilterAndDownsample(float[] samples, int sourceSampleRate, int targetSampleRate)
         {
             if (targetSampleRate != 5512)
+            {
                 throw new ArgumentException($"Target sample {targetSampleRate} rate not supported!");
+            }
 
             switch (sourceSampleRate)
             {

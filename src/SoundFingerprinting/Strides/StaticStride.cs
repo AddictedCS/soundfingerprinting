@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Strides
 {
+    /// <inheritdoc />
     /// <summary>
     ///   Static stride class
     /// </summary>
@@ -22,13 +23,13 @@
             FirstStride = firstStride;
         }
 
-        public int FirstStride { get; private set; }
+        public int FirstStride { get; }
 
-        public int NextStride { get; private set; }
+        public int NextStride { get; }
 
         public override string ToString()
         {
-            return string.Format("StaticStride{0}", NextStride);
+            return $"StaticStride{NextStride}";
         }
     }
 }

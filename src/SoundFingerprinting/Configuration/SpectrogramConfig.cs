@@ -35,17 +35,17 @@ namespace SoundFingerprinting.Configuration
             {
                 if (value.Min <= 0)
                 {
-                    throw new ArgumentException("Min frequency can't be negative", "value");
+                    throw new ArgumentException("Min frequency can't be negative", nameof(value));
                 }
 
                 if (value.Max <= 0)
                 {
-                    throw new ArgumentException("Max frequency can't be negative", "value");
+                    throw new ArgumentException("Max frequency can't be negative", nameof(value));
                 }
 
                 if (value.Min > value.Max)
                 {
-                    throw new ArgumentException("Min boundary cannot be bigger than Max boundary", "value");
+                    throw new ArgumentException("Min boundary cannot be bigger than Max boundary", nameof(value));
                 }
 
                 frequencyRange = value;
@@ -66,7 +66,7 @@ namespace SoundFingerprinting.Configuration
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentException("LogBase can't be negative or equal to 0", "value");
+                    throw new ArgumentException("LogBase can't be negative or equal to 0", nameof(value));
                 }
 
                 logBase = value;
