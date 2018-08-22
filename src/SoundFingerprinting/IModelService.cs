@@ -1,5 +1,6 @@
 namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
@@ -9,7 +10,7 @@ namespace SoundFingerprinting
 
     public interface IModelService
     {
-        IList<SubFingerprintData> ReadSubFingerprints(int[] hashBins, QueryConfiguration config);
+        bool SupportsBatchedSubFingerprintQuery { get; }
 
         ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config);
 
@@ -17,6 +18,7 @@ namespace SoundFingerprinting
 
         void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference);
 
+        [Obsolete]
         IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference);
             
         IList<TrackData> ReadAllTracks();
@@ -32,7 +34,5 @@ namespace SoundFingerprinting
         int DeleteTrack(IModelReference trackReference);
 
         bool ContainsTrack(string isrc, string artist, string title);
-
-        bool SupportsBatchedSubFingerprintQuery { get; }
     }
 }

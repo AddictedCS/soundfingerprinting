@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.DAO
 {
+    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO.Data;
@@ -9,10 +10,13 @@ namespace SoundFingerprinting.DAO
     {
         void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference);
 
+        [Obsolete]
         IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference);
 
-        IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters);
-
-        ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, int threshold, IEnumerable<string> assignedClusters);
+        ISet<SubFingerprintData> ReadSubFingerprints(
+            IEnumerable<int[]> hashes,
+            int threshold,
+            IEnumerable<string> assignedClusters,
+            IDictionary<string, string> metaFields);
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -21,14 +22,9 @@
 
         public abstract bool SupportsBatchedSubFingerprintQuery { get; }
 
-        public virtual IList<SubFingerprintData> ReadSubFingerprints(int[] hashBins, QueryConfiguration config)
-        {
-            return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes, config.Clusters).ToList();
-        }
-
         public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
         {
-            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes, config.Clusters);
+            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes, config.Clusters, config.MetaFields);
         }
 
         public virtual bool ContainsTrack(string isrc, string artist, string title)
@@ -51,6 +47,7 @@
             subFingerprintDao.InsertHashDataForTrack(hashes, trackReference);
         }
 
+        [Obsolete]
         public virtual IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
         {
             return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);

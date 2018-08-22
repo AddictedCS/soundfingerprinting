@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -55,6 +56,7 @@
             return QueryResult.NonEmptyResult(resultEntries, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
         }
 
+        [Obsolete("Used only by SqlModelService which has been deprecated")]
         private GroupedQueryResults GetSimilaritiesUsingNonBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hashedFingerprints = queryFingerprints.ToList();
@@ -62,7 +64,7 @@
             int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
             Parallel.ForEach(hashedFingerprints, queryFingerprint => 
             { 
-                var subFingerprints = modelService.ReadSubFingerprints(queryFingerprint.HashBins, configuration);
+                var subFingerprints = modelService.ReadSubFingerprints(new[] { queryFingerprint.HashBins }, configuration);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     int hammingSimilarity = similarityUtility.CalculateHammingSimilarity(queryFingerprint.HashBins, subFingerprint.Hashes, hashesPerTable);

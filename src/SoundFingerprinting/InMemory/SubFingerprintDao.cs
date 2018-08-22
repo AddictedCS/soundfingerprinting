@@ -39,21 +39,7 @@
                 .ToList();
         }
 
-        public IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
-        {
-            var subFingeprintCount = CountSubFingerprintMatches(hashes, thresholdVotes);
-            var subFingerprints = subFingeprintCount.Select(id => storage.ReadSubFingerprintById(id));
-
-            var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
-            if (clusters.Any())
-            {
-                return subFingerprints.Where(subFingerprint => subFingerprint.Clusters.Intersect(clusters).Any());
-            }
-
-            return subFingerprints;
-        }
-
-        public ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, int threshold, IEnumerable<string> assignedClusters)
+        public ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, int threshold, IEnumerable<string> assignedClusters, IDictionary<string, string> metaFields)
         {
             var allSubs = new ConcurrentBag<SubFingerprintData>();
             Parallel.ForEach(hashes, hashedFingerprint =>
@@ -66,6 +52,20 @@
             });
 
             return new HashSet<SubFingerprintData>(allSubs);
+        }
+
+        private IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
+        {
+            var subFingeprintCount = CountSubFingerprintMatches(hashes, thresholdVotes);
+            var subFingerprints = subFingeprintCount.Select(id => storage.ReadSubFingerprintById(id));
+
+            var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
+            if (clusters.Any())
+            {
+                return subFingerprints.Where(subFingerprint => subFingerprint.Clusters.Intersect(clusters).Any());
+            }
+
+            return subFingerprints;
         }
 
         private IEnumerable<ulong> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
