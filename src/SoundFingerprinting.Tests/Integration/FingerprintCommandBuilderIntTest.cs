@@ -56,13 +56,12 @@
             var track = new TrackData(GetTagInfo());
             var trackReference = modelService.InsertTrack(track);
 
-            var hashDatas = FingerprintCommandBuilder.Instance
+            var hashDatas = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
                                             .From(PathToWav)
                                             .WithFingerprintConfig(new HighPrecisionFingerprintConfiguration())
                                             .UsingServices(audioService)
-                                            .Hash()
-                                            .Result;
+                                            .Hash();
 
             modelService.InsertHashDataForTrack(hashDatas, trackReference);
 

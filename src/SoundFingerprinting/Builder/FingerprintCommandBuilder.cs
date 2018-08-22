@@ -6,7 +6,8 @@ namespace SoundFingerprinting.Builder
     {
         private readonly IFingerprintService fingerprintService;
 
-        public FingerprintCommandBuilder(): this(FingerprintService.Instance)
+        public FingerprintCommandBuilder()
+            : this(FingerprintService.Instance)
         {
         }
 
@@ -15,11 +16,11 @@ namespace SoundFingerprinting.Builder
             this.fingerprintService = fingerprintService;
         }
 
+        public static IFingerprintCommandBuilder Instance { get; } = new FingerprintCommandBuilder();
+
         public ISourceFrom BuildFingerprintCommand()
         {
             return new FingerprintCommand(fingerprintService);
         }
-
-        public static IFingerprintCommandBuilder Instance { get; } = new FingerprintCommandBuilder();
     }
 }

@@ -1,18 +1,19 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Query
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.IO;
     using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
 
     using NUnit.Framework;
+
+    using ProtoBuf;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
-    using ProtoBuf;
 
     [TestFixture]
     public class QueryMathTest

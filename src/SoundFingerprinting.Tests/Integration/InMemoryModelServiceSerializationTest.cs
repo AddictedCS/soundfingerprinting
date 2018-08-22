@@ -2,6 +2,7 @@
 {
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -19,15 +20,14 @@
         private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
         [Test]
-        public void ShouldSerializeAndDeserialize()
+        public async Task ShouldSerializeAndDeserialize()
         {
             var modelService = new InMemoryModelService();
 
-            var hashedFingerprints = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var hashedFingerprints = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
-                .Hash()
-                .Result;
+                .Hash();
 
             var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
             var trackReferences = modelService.InsertTrack(trackData);
@@ -37,11 +37,10 @@
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
 
-            var queryResult = QueryCommandBuilder.Instance.BuildQueryCommand()
+            var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new InMemoryModelService(tempFile), audioService)
-                .Query()
-                .Result;
+                .Query();
 
             File.Delete(tempFile);
 

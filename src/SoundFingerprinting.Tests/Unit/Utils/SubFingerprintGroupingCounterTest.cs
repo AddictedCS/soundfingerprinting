@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace SoundFingerprinting.Tests.Unit.Utils
+﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;

@@ -79,7 +79,7 @@
                         Assert.AreEqual(
                             1,
                             Math.Abs(floats[i]).CompareTo(floats[j]),
-                            string.Format("{0} < {1} at i:{2}, j:{3}", floats[i], floats[j], i, j));
+                            $"{floats[i]} < {floats[j]} at i:{i}, j:{j}");
                     }
                 }
             }
@@ -90,7 +90,7 @@
         {
             for (int i = 0; i < 10; ++i)
             {
-                float[] values = new float[] { 3, 4, 5, 1, 6, 7, 8, 9, 2, 0 };
+                float[] values = { 3, 4, 5, 1, 6, 7, 8, 9, 2, 0 };
                 int value = algorithm.Find(i, values, Enumerable.Range(0, 10).Select(k => (ushort)k).ToArray(), 0, values.Length - 1);
 
                 Assert.AreEqual(value, i);

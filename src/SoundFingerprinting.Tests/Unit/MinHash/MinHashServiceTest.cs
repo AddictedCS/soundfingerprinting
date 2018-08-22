@@ -30,7 +30,7 @@
         [Test]
         public void PermutationsCountTest()
         {
-            int[][] perms = new[] { new int[] { }, new int[] { }, new int[] { } };
+            int[][] perms = { new int[] { }, new int[] { }, new int[] { } };
             permutations.Setup(perm => perm.GetPermutations()).Returns(perms);
 
             int count = minHashService.PermutationsCount;
@@ -41,7 +41,7 @@
         [Test]
         public void ComputeHashTest()
         {
-            int[][] perms = new[] { new[] { 1, 4, 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };
+            int[][] perms = { new[] { 1, 4, 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };
             permutations.Setup(perm => perm.GetPermutations()).Returns(perms);
 
             byte[] hashed = minHashService.Hash(new TinyFingerprintSchema(10).SetTrueAt(2, 4, 6), perms.Length);

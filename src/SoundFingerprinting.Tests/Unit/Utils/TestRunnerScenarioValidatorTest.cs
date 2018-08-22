@@ -15,7 +15,7 @@
         [Test]
         public void ShouldNotValidateSinceNoSuchAction()
         {
-            string scenario = $"Action,{"C:\\"},IncrementalStatic,0,5115";
+            string scenario = "Action,C:\\,IncrementalStatic,0,5115";
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 

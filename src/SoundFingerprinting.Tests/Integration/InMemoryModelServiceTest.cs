@@ -72,7 +72,7 @@
             var allTracks = new HashSet<TrackData>();
             for (int i = 0; i < NumberOfTracks; i++)
             {
-                TrackData track = new TrackData("isrc" + i, "artist", "title", "album", 1986, 200);
+                var track = new TrackData("isrc" + i, "artist", "title", "album", 1986, 200);
                 modelService.InsertTrack(track);
                 if (!allTracks.Add(track))
                 {
@@ -88,7 +88,7 @@
         [Test]
         public void DeleteTrackTest()
         {
-            TrackData track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(track);
             var hashedFingerprints = new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>());
             modelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
@@ -97,14 +97,14 @@
 
             var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration()).ToList();
             Assert.IsTrue(subFingerprints.Any() == false);
-            TrackData actualTrack = modelService.ReadTrackByReference(trackReference);
+            var actualTrack = modelService.ReadTrackByReference(trackReference);
             Assert.IsNull(actualTrack);
         }
 
         [Test]
         public void InsertHashDataTest()
         {
-            TrackData expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
             var trackReference = modelService.InsertTrack(expectedTrack);
             var hashedFingerprints = new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>());
             modelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
@@ -179,7 +179,7 @@
                     3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 
                 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(new [] { queryBuckets }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } }).ToList();
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { queryBuckets }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } }).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);

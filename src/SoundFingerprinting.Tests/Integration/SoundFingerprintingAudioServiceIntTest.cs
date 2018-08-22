@@ -12,7 +12,7 @@
         [Test]
         public void ShouldEstimateLengthCorrectly()
         {
-            float duration = audioService.GetLengthInSeconds(PathToWav);
+            var duration = audioService.GetLengthInSeconds(PathToWav);
 
             Assert.AreEqual(10.0f, duration, 0.1);
         }

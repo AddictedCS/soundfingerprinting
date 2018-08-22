@@ -38,13 +38,14 @@
         [Test]
         public void ExtractTopWaveletWorksCorrectly()
         {
-            float[] frames = new float[] { 5, 6, 1, 8, 9, 2, 0, -4, 6, -10, 7, 3, 1, 0, 2, 5, -11, 0, 5, 13, 7, 6, 3, 2 };
-            bool[] expected = new[]
-                                  {
-                                      false, false, false, false, false, false, true, false, true, false, false, false, false, false, false, false, false, false, false,
-                                      true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false,
-                                      true, false, false, false, false, false, false, false, false, false
-                                  };
+            float[] frames = { 5, 6, 1, 8, 9, 2, 0, -4, 6, -10, 7, 3, 1, 0, 2, 5, -11, 0, 5, 13, 7, 6, 3, 2 };
+            bool[] expected =
+                {
+                    false, false, false, false, false, false, true, false, true, false, false, false, false, false,
+                    false, false, false, false, false, true, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, true, false, false, false, false, true, false, false, false,
+                    false, false, false, false, false, false
+                };
 
             bool[] encodedFingerprint = fingerprintDescriptor.ExtractTopWavelets(frames, 5, RangeUtils.GetRange(frames.Length)).ToBools();
 
@@ -54,9 +55,9 @@
         [Test]
         public void EncodeFingerprintWorksAsExpected()
         {
-            float[] framesSpectrumPowers = new float[] { 2, 4, 8, 9, 1, 3, 5 };
-            ushort[] indexes = new[] { (ushort)3, (ushort)2, (ushort)6, (ushort)1, (ushort)5, (ushort)0, (ushort)4 };
-            bool[] expected = new[] { false, false, false, false, true, false, true, false, false, false, false, false, false, false };
+            float[] framesSpectrumPowers = { 2, 4, 8, 9, 1, 3, 5 };
+            ushort[] indexes = { 3, 2, 6, 1, 5, 0, 4 };
+            bool[] expected = { false, false, false, false, true, false, true, false, false, false, false, false, false, false };
 
             bool[] encodedFingerprint = fingerprintEncoder.EncodeFingerprint(framesSpectrumPowers, indexes, 2).ToBools();
 
