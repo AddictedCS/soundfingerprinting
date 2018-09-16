@@ -11,7 +11,7 @@
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
-    internal class QueryFingerprintService : IQueryFingerprintService
+    public class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly ISimilarityUtility similarityUtility;
         private readonly IQueryMath queryMath;

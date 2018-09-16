@@ -7,7 +7,7 @@ namespace SoundFingerprinting.Query
     /// </summary>
     public class ResultEntry
     {
-        internal ResultEntry(TrackData track, double queryMatchStartsAt, double queryMatchLength, double queryCoverageLength, double originStartsAt, double trackStartsAt, double confidence, int hammingSimilaritySum, double queryLength)
+        public ResultEntry(TrackData track, double queryMatchStartsAt, double queryMatchLength, double queryCoverageLength, double originStartsAt, double trackStartsAt, double confidence, int hammingSimilaritySum, double queryLength)
         {
             Track = track;
             QueryMatchStartsAt = queryMatchStartsAt;
