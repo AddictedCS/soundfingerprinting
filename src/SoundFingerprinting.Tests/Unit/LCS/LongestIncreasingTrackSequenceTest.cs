@@ -41,7 +41,7 @@
 
             Assert.AreEqual(2, result.Count);
             CollectionAssert.AreEqual(new float[] { 8, 9, 10, 11 }, result[0].Select(with => with.ResultAt));
-            CollectionAssert.AreEqual(new float[] {1, 2, 3}, result[1].Select(with => with.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(with => with.ResultAt));
         }
 
         [Test]
