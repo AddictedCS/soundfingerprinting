@@ -35,8 +35,7 @@
             var trackReference = trackDao.InsertTrack(track);
             const int NumberOfHashBins = 100;
             var genericHashBuckets = GenericHashBuckets();
-            var hashedFingerprints =
-                Enumerable.Range(0, NumberOfHashBins)
+            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins)
                     .Select(
                         sequenceNumber =>
                             new HashedFingerprint(
@@ -120,7 +119,7 @@
             foreach (var hashedFingerprint in hashedFingerprintsForFirstTrack)
             {
                 var subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                    new[] { new HashInfo(hashedFingerprint.HashBins, 0) },
+                    new[] { new HashInfo(hashedFingerprint.HashBins, (int)hashedFingerprint.SequenceNumber) },
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = ThresholdVotes,
@@ -131,7 +130,7 @@
                 Assert.AreEqual(firstTrackReference, subFingerprintData[0].TrackReference);
 
                 subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                    new[] { new HashInfo(hashedFingerprint.HashBins, 0) },
+                    new[] { new HashInfo(hashedFingerprint.HashBins, (int)hashedFingerprint.SequenceNumber) },
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = ThresholdVotes,
@@ -143,8 +142,9 @@
                 Assert.AreEqual(secondTrackReference, subFingerprintData[0].TrackReference);
 
                 subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                        new[] { new HashInfo(hashedFingerprint.HashBins, 0) },
-                        new DefaultQueryConfiguration()).SubFingerprints.Select(info => info.SubFingerprint).ToList();
+                        new[] { new HashInfo(hashedFingerprint.HashBins, (int)hashedFingerprint.SequenceNumber) },
+                        new DefaultQueryConfiguration { ThresholdVotes = ThresholdVotes }).SubFingerprints.Select(info => info.SubFingerprint).ToList();
+
                 Assert.AreEqual(2, subFingerprintData.Count);
             }
         }
