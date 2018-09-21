@@ -43,31 +43,26 @@
             const int SecondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
             var secondTrackReference = new ModelReference<int>(SecondTrackId);
-            var firstResult = new SubFingerprintData(
-                GenericHashBuckets(),
-                1,
-                0,
+            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0,
                 new ModelReference<int>(FirstSubFingerprintId),
                 firstTrackReference);
-            var secondResult = new SubFingerprintData(
-                GenericHashBuckets(),
-                2,
-                0.928f,
+            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f,
                 new ModelReference<int>(SecondSubFingerprintId),
                 secondTrackReference);
-            var thirdResult = new SubFingerprintData(
-                GenericHashBuckets(),
-                3,
-                0.928f * 2,
+            var thirdResult = new SubFingerprintData(GenericHashBuckets(), 3, 0.928f * 2,
                 new ModelReference<int>(SecondSubFingerprintId),
                 new ModelReference<int>(ThirdTrackId));
 
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 2, ThresholdVotes = DefaultThreshold };
-            
-            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
-            modelService.Setup(
-                service => service.ReadSubFingerprints(It.IsAny<IEnumerable<int[]>>(), customQueryConfiguration))
-                .Returns(new HashSet<SubFingerprintData> { firstResult, secondResult, thirdResult });
+
+            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<HashInfo>>(), customQueryConfiguration))
+                .Returns(new FingerprintsQueryResponse(new[]
+                            {
+                                new SubFingerprintInfo(firstResult, 1),
+                                new SubFingerprintInfo(secondResult, 1),
+                                new SubFingerprintInfo(thirdResult, 1)
+                            }));
+
             modelService
                 .Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference, secondTrackReference }))
                 .Returns(new List<TrackData>
@@ -91,10 +86,10 @@
         [Test]
         public void NoResultsReturnedFromUnderlyingStorageTest()
         {
-            var queryHash = new HashedFingerprint(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0, Enumerable.Empty<string>());
+            var queryHash = new HashedFingerprint(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0, Enumerable.Empty<string>());
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
-            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
-            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<int[]>>(), customQueryConfiguration)).Returns(new HashSet<SubFingerprintData>());
+            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<HashInfo>>(), customQueryConfiguration))
+                .Returns(new FingerprintsQueryResponse(new List<SubFingerprintInfo>()));
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
 
@@ -115,11 +110,16 @@
             var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
             var defaultQueryConfiguration = new DefaultQueryConfiguration();
 
-            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(false);
-            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<int[]>>(), defaultQueryConfiguration))
-                        .Returns(new HashSet<SubFingerprintData> { firstResult, secondResult });
+            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<HashInfo>>(), It.IsAny<QueryConfiguration>()))
+                .Returns(new FingerprintsQueryResponse(
+                            new[]
+                            {
+                                new SubFingerprintInfo(firstResult, 0),
+                                new SubFingerprintInfo(secondResult, 0)
+                            }));
+
             modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference }))
-                        .Returns(new List<TrackData> { new TrackData { ISRC = "isrc", TrackReference = firstTrackReference }});
+                        .Returns(new List<TrackData> { new TrackData { ISRC = "isrc", TrackReference = firstTrackReference } });
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, modelService.Object);
 
@@ -133,10 +133,8 @@
         [Test]
         public void ShouldSelectProperStrategyAccordingToModelServiceSupportingBatchedQuery()
         {
-            modelService.Setup(service => service.SupportsBatchedSubFingerprintQuery).Returns(true);
-            modelService.Setup(
-                service => service.ReadSubFingerprints(It.IsAny<IEnumerable<int[]>>(), It.IsAny<QueryConfiguration>()))
-                .Returns(new HashSet<SubFingerprintData>());
+            modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<HashInfo>>(), It.IsAny<QueryConfiguration>()))
+                .Returns(new FingerprintsQueryResponse(new List<SubFingerprintInfo>()));
 
             queryFingerprintService.Query(
                 new List<HashedFingerprint>

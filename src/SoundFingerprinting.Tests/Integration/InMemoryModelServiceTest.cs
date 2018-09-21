@@ -95,7 +95,8 @@
 
             modelService.DeleteTrack(trackReference);
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration()).ToList();
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { new HashInfo(GenericHashBuckets(), 0) }, new DefaultQueryConfiguration())
+                .SubFingerprints.Select(info => info.SubFingerprint).ToList();
             Assert.IsTrue(subFingerprints.Any() == false);
             var actualTrack = modelService.ReadTrackByReference(trackReference);
             Assert.IsNull(actualTrack);
@@ -109,7 +110,8 @@
             var hashedFingerprints = new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>());
             modelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration()).ToList();
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { new HashInfo(GenericHashBuckets(), 0) }, new DefaultQueryConfiguration())
+                .SubFingerprints.Select(info => info.SubFingerprint).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(trackReference, subFingerprints[0].TrackReference);
@@ -145,7 +147,8 @@
                     3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 
                 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { queryBuckets }, new LowLatencyQueryConfiguration()).ToList();
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { new HashInfo(queryBuckets, 0) }, new LowLatencyQueryConfiguration())
+                .SubFingerprints.Select(info => info.SubFingerprint).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
@@ -179,7 +182,8 @@
                     3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 
                 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { queryBuckets }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } }).ToList();
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { new HashInfo(queryBuckets, 0) }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } })
+                .SubFingerprints.Select(info => info.SubFingerprint).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);

@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -20,11 +19,17 @@
             this.subFingerprintDao = subFingerprintDao;
         }
 
-        public abstract bool SupportsBatchedSubFingerprintQuery { get; }
-
-        public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
+        public virtual TrackData Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints)
         {
-            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes, config.Clusters, config.MetaFields);
+            var track = new TrackData(trackInfo.Isrc, trackInfo.Artist, trackInfo.Title, string.Empty, 0, trackInfo.DurationInSeconds);
+            var trackReference = trackDao.InsertTrack(track);
+            subFingerprintDao.InsertHashDataForTrack(hashedFingerprints, trackReference);
+            return track;
+        }
+
+        public virtual FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<HashInfo> hashes, QueryConfiguration config)
+        {
+            return subFingerprintDao.ReadSubFingerprints(hashes, config);
         }
 
         public virtual bool ContainsTrack(string isrc, string artist, string title)
@@ -45,12 +50,6 @@
         public virtual void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
             subFingerprintDao.InsertHashDataForTrack(hashes, trackReference);
-        }
-
-        [Obsolete]
-        public virtual IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
-        {
-            return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);
         }
 
         public virtual IList<TrackData> ReadAllTracks()

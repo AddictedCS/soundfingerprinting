@@ -7,6 +7,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -113,20 +114,37 @@
                .Result;
             InsertHashedFingerprintsForTrack(hashedFingerprintsForSecondTrack, secondTrackReference);
 
+
             const int ThresholdVotes = 25;
+
             foreach (var hashedFingerprint in hashedFingerprintsForFirstTrack)
             {
-                var subFingerprintData = subFingerprintDao.ReadSubFingerprints(new[] { hashedFingerprint.HashBins }, ThresholdVotes, new[] { "first-group-id" }, new Dictionary<string, string>()).ToList();
+                var subFingerprintData = subFingerprintDao.ReadSubFingerprints(
+                    new[] { new HashInfo(hashedFingerprint.HashBins, 0) },
+                    new DefaultQueryConfiguration
+                        {
+                            ThresholdVotes = ThresholdVotes,
+                            Clusters = new[] { "first-group-id" }
+                        }).SubFingerprints.Select(info => info.SubFingerprint).ToList();
 
                 Assert.AreEqual(1, subFingerprintData.Count);
                 Assert.AreEqual(firstTrackReference, subFingerprintData[0].TrackReference);
 
-                subFingerprintData = subFingerprintDao.ReadSubFingerprints(new [] { hashedFingerprint.HashBins }, ThresholdVotes, new[] { "second-group-id" }, new Dictionary<string, string>()).ToList();
+                subFingerprintData = subFingerprintDao.ReadSubFingerprints(
+                    new[] { new HashInfo(hashedFingerprint.HashBins, 0) },
+                    new DefaultQueryConfiguration
+                        {
+                            ThresholdVotes = ThresholdVotes,
+                            Clusters = new[] { "second-group-id" }
+                        }).SubFingerprints.Select(info => info.SubFingerprint).ToList();
+
 
                 Assert.AreEqual(1, subFingerprintData.Count);
                 Assert.AreEqual(secondTrackReference, subFingerprintData[0].TrackReference);
 
-                subFingerprintData = subFingerprintDao.ReadSubFingerprints(new[] { hashedFingerprint.HashBins }, ThresholdVotes, Enumerable.Empty<string>(), new Dictionary<string, string>()).ToList();
+                subFingerprintData = subFingerprintDao.ReadSubFingerprints(
+                        new[] { new HashInfo(hashedFingerprint.HashBins, 0) },
+                        new DefaultQueryConfiguration()).SubFingerprints.Select(info => info.SubFingerprint).ToList();
                 Assert.AreEqual(2, subFingerprintData.Count);
             }
         }
