@@ -113,7 +113,6 @@
                .Result;
             InsertHashedFingerprintsForTrack(hashedFingerprintsForSecondTrack, secondTrackReference);
 
-
             const int ThresholdVotes = 25;
 
             foreach (var hashedFingerprint in hashedFingerprintsForFirstTrack)

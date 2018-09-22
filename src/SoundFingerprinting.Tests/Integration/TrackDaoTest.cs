@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -155,13 +156,13 @@
         }
 
         [Test]
-        public void DeleteHashBinsAndSubfingerprintsOnTrackDelete()
+        public async Task DeleteHashBinsAndSubFingerprintsOnTrackDelete()
         {
             TagInfo tagInfo = GetTagInfo();
             int releaseYear = tagInfo.Year;
             var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
             var trackReference = trackDao.InsertTrack(track);
-            var hashData = FingerprintCommandBuilder.Instance
+            var hashData = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .WithFingerprintConfig(config =>
@@ -170,8 +171,7 @@
                         return config;
                     })
                 .UsingServices(audioService)
-                .Hash()
-                .Result;
+                .Hash();
 
             subFingerprintDao.InsertHashDataForTrack(hashData, trackReference);
             var actualTrack = trackDao.ReadTrackByISRC(tagInfo.ISRC);
@@ -187,7 +187,7 @@
         }
 
         [Test]
-        public void InserTrackShouldAcceptEmptyEntriesCodes()
+        public void InsertTrackShouldAcceptEmptyEntriesCodes()
         {
             TrackData track = new TrackData(string.Empty, string.Empty, string.Empty, string.Empty, 1986, 200);
             var trackReference = trackDao.InsertTrack(track);

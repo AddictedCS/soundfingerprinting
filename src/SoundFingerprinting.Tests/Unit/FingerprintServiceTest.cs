@@ -23,7 +23,6 @@
         private Mock<IWaveletDecomposition> waveletDecomposition;
         private Mock<ILocalitySensitiveHashingAlgorithm> localitySensitiveHashingAlgorithm;
 
-
         [SetUp]
         public void SetUp()
         {
