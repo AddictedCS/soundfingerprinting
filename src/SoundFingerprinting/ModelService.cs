@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -27,7 +28,7 @@
             return track;
         }
 
-        public virtual FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<HashInfo> hashes, QueryConfiguration config)
+        public virtual FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration config)
         {
             return subFingerprintDao.ReadSubFingerprints(hashes, config);
         }
@@ -42,11 +43,13 @@
             return ReadTrackByArtistAndTitleName(artist, title).Any();
         }
 
+        [Obsolete("Consider using Insert method, which inserts both track info and fingerprints in one method call")]
         public virtual IModelReference InsertTrack(TrackData track)
         {
             return trackDao.InsertTrack(track);
         }
 
+        [Obsolete("Consider using Insert method, which inserts both track info and fingerprints in one method call")]
         public virtual void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
             subFingerprintDao.InsertHashDataForTrack(hashes, trackReference);

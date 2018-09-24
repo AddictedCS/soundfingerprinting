@@ -8,9 +8,9 @@
 
     [Serializable]
     [ProtoContract]
-    public class SubFingerprintInfo
+    public class QueryResponseMatch
     {
-        public SubFingerprintInfo(SubFingerprintData subFingerprint, int querySequenceNumber)
+        public QueryResponseMatch(SubFingerprintData subFingerprint, int querySequenceNumber)
         {
             SubFingerprint = subFingerprint;
             QuerySequenceNumber = querySequenceNumber;

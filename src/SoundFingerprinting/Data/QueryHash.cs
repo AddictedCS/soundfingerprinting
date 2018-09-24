@@ -6,9 +6,9 @@
 
     [Serializable]
     [ProtoContract]
-    public class HashInfo
+    public class QueryHash
     {
-        public HashInfo(int[] hashes, int sequenceNumber)
+        public QueryHash(int[] hashes, int sequenceNumber)
         {
             Hashes = hashes;
             SequenceNumber = sequenceNumber;

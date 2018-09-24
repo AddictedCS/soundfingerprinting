@@ -13,6 +13,6 @@ namespace SoundFingerprinting.DAO
         [Obsolete]
         IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference);
 
-        FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<HashInfo> hashes, QueryConfiguration queryConfiguration);
+        FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration queryConfiguration);
     }
 }

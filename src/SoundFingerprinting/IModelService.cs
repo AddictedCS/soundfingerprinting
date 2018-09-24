@@ -12,7 +12,7 @@ namespace SoundFingerprinting
     {
         TrackData Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints);
 
-        FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<HashInfo> hashes, QueryConfiguration config);
+        FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration config);
 
         IList<TrackData> ReadAllTracks();
 

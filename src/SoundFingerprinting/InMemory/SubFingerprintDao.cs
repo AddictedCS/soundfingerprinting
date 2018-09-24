@@ -34,9 +34,9 @@
             return subFingerprints.Select(data => new HashedFingerprint(data.Hashes, data.SequenceNumber, data.SequenceAt, data.Clusters)).ToList();
         }
 
-        public FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<HashInfo> hashes, QueryConfiguration queryConfiguration)
+        public FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration queryConfiguration)
         {
-            var allSubs = new ConcurrentBag<SubFingerprintInfo>();
+            var allSubs = new ConcurrentBag<QueryResponseMatch>();
             int threshold = queryConfiguration.ThresholdVotes;
             var assignedClusters = queryConfiguration.Clusters;
 
@@ -45,7 +45,7 @@
                 var subFingerprints = ReadSubFingerprints(hashedFingerprint.Hashes, threshold, assignedClusters);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    allSubs.Add(new SubFingerprintInfo(subFingerprint, hashedFingerprint.SequenceNumber));
+                    allSubs.Add(new QueryResponseMatch(subFingerprint, hashedFingerprint.SequenceNumber));
                 }
             });
 

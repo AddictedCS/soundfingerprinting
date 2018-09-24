@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using ProtoBuf;
 
@@ -9,12 +10,20 @@
     [ProtoContract]
     public class FingerprintsQueryResponse
     {
-        public FingerprintsQueryResponse(IEnumerable<SubFingerprintInfo> subFingerprints)
+        public FingerprintsQueryResponse(IEnumerable<QueryResponseMatch> matches)
         {
-            SubFingerprints = subFingerprints;
+            Matches = matches;
         }
 
         [ProtoMember(1)]
-        public IEnumerable<SubFingerprintInfo> SubFingerprints { get; }
+        public IEnumerable<QueryResponseMatch> Matches { get; }
+
+        public bool IsEmpty
+        {
+            get
+            {
+                return Matches == null || !Matches.Any();
+            }
+        }
     }
 }
