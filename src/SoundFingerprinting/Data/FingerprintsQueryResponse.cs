@@ -15,6 +15,8 @@
             Matches = matches;
         }
 
+        public static FingerprintsQueryResponse Empty { get; } = new FingerprintsQueryResponse(Enumerable.Empty<QueryResponseMatch>());
+
         [ProtoMember(1)]
         public IEnumerable<QueryResponseMatch> Matches { get; }
 
