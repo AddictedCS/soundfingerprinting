@@ -16,6 +16,11 @@
             QuerySequenceNumber = querySequenceNumber;
         }
 
+        private QueryResponseMatch()
+        {
+            // left for protobuf
+        }
+
         [ProtoMember(1)]
         public SubFingerprintData SubFingerprint { get; }
 

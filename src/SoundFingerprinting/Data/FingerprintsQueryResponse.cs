@@ -15,7 +15,7 @@
             Matches = matches;
         }
 
-        public FingerprintsQueryResponse()
+        private FingerprintsQueryResponse()
         {
             // left for protobuf
         }
