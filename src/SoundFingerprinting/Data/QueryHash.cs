@@ -8,16 +8,21 @@
     [ProtoContract]
     public class QueryHash
     {
-        public QueryHash(int[] hashes, int sequenceNumber)
+        public QueryHash(int[] hashes, uint sequenceNumber)
         {
             Hashes = hashes;
             SequenceNumber = sequenceNumber;
+        }
+
+        private QueryHash()
+        {
+            // left for protobuf
         }
 
         [ProtoMember(1)]
         public int[] Hashes { get; }
 
         [ProtoMember(2)]
-        public int SequenceNumber { get; }
+        public uint SequenceNumber { get; }
     }
 }

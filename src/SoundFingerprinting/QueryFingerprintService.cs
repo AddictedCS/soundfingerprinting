@@ -45,14 +45,14 @@
         private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
-            var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => new QueryHash(hashedFingerprint.HashBins, (int)hashedFingerprint.SequenceNumber)), configuration);
+            var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber)), configuration);
             var groupedResults = new GroupedQueryResults(hashedFingerprints);
             int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
 
             var allCandidates = result.Matches.ToList();
 
             var joined = from candidate in allCandidates
-                         join hashedFingerprint in hashedFingerprints on candidate.QuerySequenceNumber equals (int)hashedFingerprint.SequenceNumber
+                         join hashedFingerprint in hashedFingerprints on candidate.QuerySequenceNumber equals hashedFingerprint.SequenceNumber
                          select new { candidate.SubFingerprint, HashedFingerprint = hashedFingerprint };
 
             Parallel.ForEach(joined, pair =>

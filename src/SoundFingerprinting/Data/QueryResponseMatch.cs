@@ -10,7 +10,7 @@
     [ProtoContract]
     public class QueryResponseMatch
     {
-        public QueryResponseMatch(SubFingerprintData subFingerprint, int querySequenceNumber)
+        public QueryResponseMatch(SubFingerprintData subFingerprint, uint querySequenceNumber)
         {
             SubFingerprint = subFingerprint;
             QuerySequenceNumber = querySequenceNumber;
@@ -20,6 +20,6 @@
         public SubFingerprintData SubFingerprint { get; }
 
         [ProtoMember(2)]
-        public int QuerySequenceNumber { get; }
+        public uint QuerySequenceNumber { get; }
     }
 }

@@ -15,6 +15,11 @@
             Matches = matches;
         }
 
+        public FingerprintsQueryResponse()
+        {
+            // left for protobuf
+        }
+
         public static FingerprintsQueryResponse Empty { get; } = new FingerprintsQueryResponse(Enumerable.Empty<QueryResponseMatch>());
 
         [ProtoMember(1)]

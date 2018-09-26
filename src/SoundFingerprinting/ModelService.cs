@@ -22,7 +22,7 @@
 
         public virtual TrackData Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints)
         {
-            var track = new TrackData(trackInfo.Isrc, trackInfo.Artist, trackInfo.Title, string.Empty, 0, trackInfo.DurationInSeconds);
+            var track = new TrackData(trackInfo.Id, trackInfo.Artist, trackInfo.Title, string.Empty, 0, trackInfo.DurationInSeconds);
             var trackReference = trackDao.InsertTrack(track);
             subFingerprintDao.InsertHashDataForTrack(hashedFingerprints, trackReference);
             return track;

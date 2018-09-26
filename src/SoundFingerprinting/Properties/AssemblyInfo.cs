@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.Emy")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.Emy.Tests")]
 
-[assembly: AssemblyVersion("5.2.3")]
-[assembly: AssemblyInformationalVersion("5.2.3")]
+[assembly: AssemblyVersion("5.3.0")]
+[assembly: AssemblyInformationalVersion("5.3.0")]

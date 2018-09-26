@@ -118,7 +118,7 @@
             foreach (var hashedFingerprint in hashedFingerprintsForFirstTrack)
             {
                 var subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                    new[] { new QueryHash(hashedFingerprint.HashBins, (int)hashedFingerprint.SequenceNumber) },
+                    new[] { new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber) },
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = ThresholdVotes,
@@ -129,7 +129,7 @@
                 Assert.AreEqual(firstTrackReference, subFingerprintData[0].TrackReference);
 
                 subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                    new[] { new QueryHash(hashedFingerprint.HashBins, (int)hashedFingerprint.SequenceNumber) },
+                    new[] { new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber) },
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = ThresholdVotes,
@@ -141,7 +141,7 @@
                 Assert.AreEqual(secondTrackReference, subFingerprintData[0].TrackReference);
 
                 subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                        new[] { new QueryHash(hashedFingerprint.HashBins, (int)hashedFingerprint.SequenceNumber) },
+                        new[] { new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber) },
                         new DefaultQueryConfiguration { ThresholdVotes = ThresholdVotes }).Matches.Select(info => info.SubFingerprint).ToList();
 
                 Assert.AreEqual(2, subFingerprintData.Count);
