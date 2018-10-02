@@ -1,21 +1,22 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.Math;
 
     public class InMemoryModelService : AdvancedModelService
     {
         private readonly IRAMStorage ramStorage;
 
-        public InMemoryModelService() : this(new RAMStorage(50))
+        public InMemoryModelService() : this(new RAMStorage(50), new StandardGroupingCounter())
         {
         }
 
-        public InMemoryModelService(string loadFrom) : this(new RAMStorage(50))
+        public InMemoryModelService(string loadFrom) : this(new RAMStorage(50), new StandardGroupingCounter())
         {
             ramStorage.InitializeFromFile(loadFrom);
         }
 
-        internal InMemoryModelService(IRAMStorage ramStorage) : this(new TrackDao(ramStorage), new SubFingerprintDao(ramStorage), new SpectralImageDao(ramStorage), ramStorage)
+        internal InMemoryModelService(IRAMStorage ramStorage, IGroupingCounter groupingCounter) : this(new TrackDao(ramStorage), new SubFingerprintDao(ramStorage, groupingCounter), new SpectralImageDao(ramStorage), ramStorage)
         {
         }
 

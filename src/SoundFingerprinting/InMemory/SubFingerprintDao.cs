@@ -9,15 +9,17 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Utils;
+    using SoundFingerprinting.Math;
 
     internal class SubFingerprintDao : ISubFingerprintDao
     {
         private readonly IRAMStorage storage;
+        private readonly IGroupingCounter groupingCounter;
 
-        public SubFingerprintDao(IRAMStorage storage)
+        public SubFingerprintDao(IRAMStorage storage, IGroupingCounter groupingCounter)
         {
             this.storage = storage;
+            this.groupingCounter = groupingCounter;
         }
 
         public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
@@ -54,9 +56,7 @@
 
         private IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
         {
-            var subFingerprintMatches = CountSubFingerprintMatches(hashes, thresholdVotes);
-            var subFingerprints = subFingerprintMatches.Select(id => storage.ReadSubFingerprintById(id));
-
+            var subFingerprints = CountSubFingerprintMatches(hashes, thresholdVotes);
             var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
             if (clusters.Any())
             {
@@ -66,7 +66,7 @@
             return subFingerprints;
         }
 
-        private IEnumerable<ulong> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
+        private IEnumerable<SubFingerprintData> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
         {
             var results = new List<ulong>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
@@ -75,7 +75,7 @@
                 results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
             }
 
-            return SubFingerprintGroupingCounter.GroupByAndCount(results, thresholdVotes);
+            return groupingCounter.GroupByAndCount(results, thresholdVotes, id => storage.ReadSubFingerprintById(id));
         }
     }
 }

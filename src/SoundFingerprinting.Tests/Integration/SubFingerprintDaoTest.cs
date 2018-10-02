@@ -12,6 +12,7 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Math;
 
     [TestFixture]
     public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
@@ -24,7 +25,7 @@
         public void SetUp()
         {
             var ramStorage = new RAMStorage(NumberOfHashTables);
-            subFingerprintDao = new SubFingerprintDao(ramStorage);
+            subFingerprintDao = new SubFingerprintDao(ramStorage, new StandardGroupingCounter());
             trackDao = new TrackDao(ramStorage);
         }
 
