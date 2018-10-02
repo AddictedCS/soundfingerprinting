@@ -27,7 +27,7 @@
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
                 new HashedFingerprint(new[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new[] { 1, 2, 3, 7, 8 }, 0, 0, null, null),
+                new SubFingerprintData(new[] { 1, 2, 3, 7, 8 }, 0, 0, Enumerable.Empty<string>(), null, null),
                 3);
 
             Assert.IsTrue(result);
@@ -38,7 +38,7 @@
         {
             bool result = queryMath.IsCandidatePassingThresholdVotes(
                 new HashedFingerprint(new[] { 1, 2, 3, 4, 5 }, 0, 0, Enumerable.Empty<string>()),
-                new SubFingerprintData(new[] { 1, 2, 4, 7, 8 }, 0, 0, null, null),
+                new SubFingerprintData(new[] { 1, 2, 4, 7, 8 }, 0, 0, Enumerable.Empty<string>(), null, null),
                 3);
 
             Assert.IsFalse(result);

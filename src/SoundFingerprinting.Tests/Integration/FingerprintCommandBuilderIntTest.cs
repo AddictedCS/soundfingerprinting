@@ -11,6 +11,9 @@
     using DAO.Data;
     using InMemory;
     using NUnit.Framework;
+
+    using SoundFingerprinting.DAO;
+
     using Strides;
 
     [TestFixture]
@@ -53,7 +56,7 @@
         {
             const int SecondsToProcess = 8;
             const int StartAtSecond = 2;
-            var track = new TrackData(GetTagInfo());
+            var track = new TrackData("isrc", "artist", "title", "album", 2018, 200d, ModelReference<object>.Null);
             var trackReference = modelService.InsertTrack(track);
 
             var hashDatas = await FingerprintCommandBuilder.Instance
@@ -161,7 +164,7 @@
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
             var audioSamples = GetAudioSamples();
-            var track = new TrackData(string.Empty, audioSamples.Origin, audioSamples.Origin, string.Empty, 1986, audioSamples.Duration);
+            var track = new TrackData(string.Empty, audioSamples.Origin, audioSamples.Origin, string.Empty, 1986, audioSamples.Duration, ModelReference<object>.Null);
             var trackReference = modelService.InsertTrack(track);
             var hashDatas = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                     .From(audioSamples)

@@ -6,6 +6,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
 
@@ -27,7 +28,7 @@
                     .UsingServices(audioService)
                     .Hash()
                     .Result;
-                var track = new TrackData("${i}", "", "", "", 2017, 120);
+                var track = new TrackData("${i}", "", "", "", 2017, 120, ModelReference<object>.Null);
                 var trackReference = modelService.InsertTrack(track);
                 modelService.InsertHashDataForTrack(hashes, trackReference);
             }

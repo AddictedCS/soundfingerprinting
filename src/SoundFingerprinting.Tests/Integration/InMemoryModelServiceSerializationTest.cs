@@ -29,7 +29,7 @@
                 .UsingServices(audioService)
                 .Hash();
 
-            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
+            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200, ModelReference<object>.Null);
             var trackReferences = modelService.InsertTrack(trackData);
 
             modelService.InsertHashDataForTrack(hashedFingerprints, trackReferences);
@@ -54,7 +54,7 @@
         {
             var modelService = new InMemoryModelService();
 
-            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
+            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200, ModelReference<object>.Null);
             var trackReferences = modelService.InsertTrack(trackData);
 
             var tempFile = Path.GetTempFileName();

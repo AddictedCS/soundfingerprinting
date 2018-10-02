@@ -39,7 +39,6 @@
             var trackReference = trackDao.InsertTrack(track);
 
             AssertModelReferenceIsInitialized(trackReference);
-            AssertModelReferenceIsInitialized(track.TrackReference);
         }
 
         [Test]
@@ -48,7 +47,7 @@
             var modelReferences = new ConcurrentBag<IModelReference>();
             for (int i = 0; i < 1000; i++)
             {
-                var modelReference = trackDao.InsertTrack(new TrackData("isrc", "artist", "title", "album", 2012, 200));
+                var modelReference = trackDao.InsertTrack(new TrackData("isrc", "artist", "title", "album", 2012, 200, ModelReference<object>.Null));
 
                 Assert.IsFalse(modelReferences.Contains(modelReference));
                 modelReferences.Add(modelReference);
@@ -73,7 +72,7 @@
         [Test]
         public void ReadByIdTest()
         {
-            var track = new TrackData("isrc", "artist", "title", "album", 2012, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 2012, 200, ModelReference<object>.Null);
 
             var trackReference = trackDao.InsertTrack(track);
 
@@ -89,11 +88,6 @@
             var actualTracks = trackDao.ReadAll();
 
             Assert.AreEqual(tracks.Count, actualTracks.Count);
-            for (int i = 0; i < actualTracks.Count; i++)
-            {
-                AssertModelReferenceIsInitialized(actualTracks[i].TrackReference);
-                AssertTracksAreEqual(tracks[i], actualTracks.First(track => track.TrackReference.Equals(tracks[i].TrackReference)));
-            }
         }
 
         [Test]
@@ -137,7 +131,7 @@
             var allTracks = trackDao.ReadAll();
 
             Assert.IsTrue(allTracks.Count == NumberOfTracks);
-            foreach (var track in tracks)
+            foreach (var track in allTracks)
             {
                 trackDao.DeleteTrack(track.TrackReference);
             }
@@ -161,7 +155,7 @@
         {
             TagInfo tagInfo = GetTagInfo();
             int releaseYear = tagInfo.Year;
-            var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration);
+            var track = new TrackData(tagInfo.ISRC, tagInfo.Artist, tagInfo.Title, tagInfo.Album, releaseYear, (int)tagInfo.Duration, ModelReference<object>.Null);
             var trackReference = trackDao.InsertTrack(track);
             var hashData = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -190,7 +184,7 @@
         [Test]
         public void InsertTrackShouldAcceptEmptyEntriesCodes()
         {
-            TrackData track = new TrackData(string.Empty, string.Empty, string.Empty, string.Empty, 1986, 200);
+            TrackData track = new TrackData(string.Empty, string.Empty, string.Empty, string.Empty, 1986, 200, ModelReference<object>.Null);
             var trackReference = trackDao.InsertTrack(track);
 
             var actualTrack = trackDao.ReadTrack(trackReference);
@@ -214,7 +208,7 @@
 
         private TrackData GetTrack()
         {
-            return new TrackData(Guid.NewGuid().ToString(), "artist", "title", "album", 1986, 360);
+            return new TrackData(Guid.NewGuid().ToString(), "artist", "title", "album", 1986, 360, ModelReference<object>.Null);
         }
     }
 }

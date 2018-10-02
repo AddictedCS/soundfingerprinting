@@ -43,13 +43,13 @@
             const int SecondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
             var secondTrackReference = new ModelReference<int>(SecondTrackId);
-            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0,
+            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, Enumerable.Empty<string>(),
                 new ModelReference<int>(FirstSubFingerprintId),
                 firstTrackReference);
-            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f,
+            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, Enumerable.Empty<string>(),
                 new ModelReference<int>(SecondSubFingerprintId),
                 secondTrackReference);
-            var thirdResult = new SubFingerprintData(GenericHashBuckets(), 3, 0.928f * 2,
+            var thirdResult = new SubFingerprintData(GenericHashBuckets(), 3, 0.928f * 2, Enumerable.Empty<string>(),
                 new ModelReference<int>(SecondSubFingerprintId),
                 new ModelReference<int>(ThirdTrackId));
 
@@ -63,12 +63,11 @@
                                 new QueryResponseMatch(thirdResult, 1)
                             }));
 
-            modelService
-                .Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference, secondTrackReference }))
+            modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference, secondTrackReference }))
                 .Returns(new List<TrackData>
                     {
-                        new TrackData { ISRC = "isrc", TrackReference = firstTrackReference },
-                        new TrackData { ISRC = "isrc_1", TrackReference = secondTrackReference }
+                        new TrackData("isrc", string.Empty, string.Empty, string.Empty, 0, 0d, firstTrackReference),
+                        new TrackData("isrc_1", string.Empty, string.Empty, string.Empty, 0, 0d, secondTrackReference)
                     });
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
@@ -106,8 +105,8 @@
             const int FirstSubFingerprintId = 10;
             const int SecondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
-            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
+            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, Enumerable.Empty<string>(), new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
+            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, Enumerable.Empty<string>(), new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
             var defaultQueryConfiguration = new DefaultQueryConfiguration();
 
             modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<QueryHash>>(), It.IsAny<QueryConfiguration>()))
@@ -118,8 +117,18 @@
                                 new QueryResponseMatch(secondResult, 0)
                             }));
 
-            modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference }))
-                        .Returns(new List<TrackData> { new TrackData { ISRC = "isrc", TrackReference = firstTrackReference } });
+            modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference })).Returns(
+                new List<TrackData>
+                    {
+                        new TrackData(
+                            "isrc",
+                            string.Empty,
+                            string.Empty,
+                            string.Empty,
+                            0,
+                            0d,
+                            firstTrackReference)
+                    });
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, modelService.Object);
 

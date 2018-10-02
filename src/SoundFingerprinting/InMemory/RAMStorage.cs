@@ -74,14 +74,12 @@
         {
             var subFingerprintReference = new ModelReference<ulong>((ulong)Interlocked.Increment(ref subFingerprintReferenceCounter));
             var subFingerprintData = new SubFingerprintData(
-                                             hashedFingerprint.HashBins,
-                                             hashedFingerprint.SequenceNumber,
-                                             hashedFingerprint.StartsAt,
-                                             subFingerprintReference,
-                                             trackReference)
-                                         {
-                                             Clusters = hashedFingerprint.Clusters
-                                         };
+                hashedFingerprint.HashBins,
+                hashedFingerprint.SequenceNumber,
+                hashedFingerprint.StartsAt,
+                hashedFingerprint.Clusters,
+                subFingerprintReference,
+                trackReference);
 
             SubFingerprints[(ulong)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
             InsertHashes(hashedFingerprint.HashBins, subFingerprintReference.Id);
@@ -90,8 +88,8 @@
         public IModelReference AddTrack(TrackData track)
         {
             var trackReference = new ModelReference<int>(Interlocked.Increment(ref trackReferenceCounter));
-            Tracks[trackReference.Id] = track;
-            return track.TrackReference = trackReference;
+            Tracks[trackReference.Id] = new TrackData(track.ISRC, track.Artist, track.Title, track.Album, track.ReleaseYear, track.Length, trackReference);
+            return trackReference;
         }
 
         public int DeleteTrack(IModelReference trackReference)

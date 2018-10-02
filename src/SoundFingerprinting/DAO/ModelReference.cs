@@ -4,22 +4,24 @@
 
     using ProtoBuf;
 
-    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
     [Serializable]
     [ProtoContract]
     public class ModelReference<T> : IModelReference<T>
     {
-        public ModelReference()
-        {
-        }
-
         public ModelReference(T id)
         {
             Id = id;
         }
 
+        private ModelReference()
+        {
+            // left for protobuf
+        }
+
+        public static ModelReference<T> Null { get; } = new ModelReference<T>(default(T));
+
         [ProtoMember(1)]
-        public T Id { get; private set; }
+        public T Id { get; }
 
         object IModelReference.Id
         {

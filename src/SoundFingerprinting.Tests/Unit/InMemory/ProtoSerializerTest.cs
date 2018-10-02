@@ -2,8 +2,6 @@
 {
     using System.IO;
 
-    using System.Collections.Generic;
-
     using NUnit.Framework;
     using ProtoBuf;
     using SoundFingerprinting.DAO;
@@ -19,8 +17,9 @@
                           new[] { 1, 2, 3 },
                           1,
                           1f,
+                          new[] { "1", "2" },
                           new ModelReference<int>(1),
-                          new ModelReference<int>(2)) { Clusters = new List<string>() { "1", "2" } };
+                          new ModelReference<int>(2));
 
             using (var stream = new MemoryStream())
             {

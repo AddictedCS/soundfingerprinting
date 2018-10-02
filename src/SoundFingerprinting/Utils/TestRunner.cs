@@ -351,7 +351,7 @@
         private IModelReference InsertTrack(string file)
         {
             var tags = GetTagsFromFile(file);
-            var trackData = new TrackData(tags);
+            var trackData = new TrackData(tags.ISRC, tags.Artist, tags.Title, tags.Album, tags.Year, tags.Duration, ModelReference<object>.Null);
             return modelService.InsertTrack(trackData);
         }
 

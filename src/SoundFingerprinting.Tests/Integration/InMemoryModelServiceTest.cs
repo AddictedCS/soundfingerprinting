@@ -6,6 +6,7 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
@@ -24,7 +25,7 @@
         [Test]
         public void InsertTrackTest()
         {
-            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
 
             var trackReference = modelService.InsertTrack(track);
 
@@ -34,7 +35,7 @@
         [Test]
         public void ReadTrackByTrackReferenceTest()
         {
-            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             var trackReference = modelService.InsertTrack(expectedTrack);
 
             var actualTrack = modelService.ReadTrackByReference(trackReference);
@@ -45,7 +46,7 @@
         [Test]
         public void ReadTrackByISRCTest()
         {
-            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             modelService.InsertTrack(expectedTrack);
 
             var actualTrack = modelService.ReadTrackByISRC("isrc");
@@ -56,7 +57,7 @@
         [Test]
         public void ReadTrackByArtistAndTitleTest()
         {
-            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             modelService.InsertTrack(expectedTrack);
 
             var actualTracks = modelService.ReadTrackByArtistAndTitleName("artist", "title");
@@ -69,15 +70,10 @@
         public void ReadMultipleTracksTest()
         {
             const int NumberOfTracks = 100;
-            var allTracks = new HashSet<TrackData>();
             for (int i = 0; i < NumberOfTracks; i++)
             {
-                var track = new TrackData("isrc" + i, "artist", "title", "album", 1986, 200);
+                var track = new TrackData("isrc" + i, "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
                 modelService.InsertTrack(track);
-                if (!allTracks.Add(track))
-                {
-                    Assert.Fail("Same primary key identifier was returned after inserting a track to the collection.");
-                }
             }
 
             var actualTracks = modelService.ReadAllTracks();
@@ -88,7 +84,7 @@
         [Test]
         public void DeleteTrackTest()
         {
-            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             var trackReference = modelService.InsertTrack(track);
             var hashedFingerprints = new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>());
             modelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
@@ -105,7 +101,7 @@
         [Test]
         public void InsertHashDataTest()
         {
-            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200);
+            var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             var trackReference = modelService.InsertTrack(expectedTrack);
             var hashedFingerprints = new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>());
             modelService.InsertHashDataForTrack(new[] { hashedFingerprints }, trackReference);
@@ -122,9 +118,9 @@
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdTest()
         {
-            TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200);
+            TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             var firstTrackReference = modelService.InsertTrack(firstTrack);
-            TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200);
+            TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             var secondTrackReference = modelService.InsertTrack(secondTrack);
             Assert.IsFalse(firstTrackReference.Equals(secondTrackReference));
             int[] firstTrackBuckets = 
@@ -157,9 +153,9 @@
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdWithGroupIdTest()
         {
-            TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200);
+            TrackData firstTrack = new TrackData("isrc1", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             var firstTrackReference = modelService.InsertTrack(firstTrack);
-            TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200);
+            TrackData secondTrack = new TrackData("isrc2", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             var secondTrackReference = modelService.InsertTrack(secondTrack);
             Assert.IsFalse(firstTrackReference.Equals(secondTrackReference));
             int[] firstTrackBuckets = 
