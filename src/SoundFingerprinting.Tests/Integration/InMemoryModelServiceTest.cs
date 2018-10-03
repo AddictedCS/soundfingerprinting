@@ -59,7 +59,7 @@
             var expectedTrack = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
             modelService.InsertTrack(expectedTrack);
 
-            var actualTracks = modelService.ReadTrackByArtistAndTitleName("artist", "title");
+            var actualTracks = modelService.ReadTrackByArtistAndTitleName("artist", "title").ToList();
 
             Assert.IsTrue(actualTracks.Count == 1);
             AssertTracksAreEqual(expectedTrack, actualTracks[0]);
@@ -75,7 +75,7 @@
                 modelService.InsertTrack(track);
             }
 
-            var actualTracks = modelService.ReadAllTracks();
+            var actualTracks = modelService.ReadAllTracks().ToList();
 
             Assert.AreEqual(NumberOfTracks, actualTracks.Count);
         }

@@ -8,6 +8,10 @@ namespace SoundFingerprinting.DAO
 
     public interface ISubFingerprintDao
     {
+        int SubFingerprintsCount { get; }
+
+        IEnumerable<int> HashCountsPerTable { get; }
+
         void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference);
 
         [Obsolete]

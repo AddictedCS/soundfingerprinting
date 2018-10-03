@@ -27,7 +27,7 @@
         [ProtoMember(6)]
         private long spectralImagesCounter;
 
-        public IDictionary<uint, SubFingerprintData> subFingerprints;
+        private IDictionary<uint, SubFingerprintData> subFingerprints;
 
         public RAMStorage()
         {
@@ -39,13 +39,29 @@
             Initialize(numberOfHashTables);
         }
 
+        public IEnumerable<int> HashCountsPerTable
+        {
+            get
+            {
+                return HashTables.Select(table => table.Count);
+            }
+        }
+
         [ProtoMember(3)]
         public int NumberOfHashTables { get; private set; }
 
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        public ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
+        public int SubFingerprintsCount
+        {
+            get
+            {
+                return subFingerprints.Count;
+            }
+        }
+
+        private ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private IDictionary<uint, SubFingerprintData> SubFingerprints

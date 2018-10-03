@@ -1,6 +1,5 @@
 namespace SoundFingerprinting
 {
-    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
@@ -10,13 +9,15 @@ namespace SoundFingerprinting
 
     public interface IModelService
     {
+        ModelServiceInfo Info { get; }
+
         IModelReference Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints);
 
         FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration config);
 
-        IList<TrackData> ReadAllTracks();
+        IEnumerable<TrackData> ReadAllTracks();
 
-        IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
+        IEnumerable<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
         TrackData ReadTrackByReference(IModelReference trackReference);
 

@@ -22,6 +22,24 @@
             this.groupingCounter = groupingCounter;
         }
 
+        public int SubFingerprintsCount
+        {
+            get
+            {
+                {
+                    return storage.SubFingerprintsCount;
+                }
+            }
+        }
+
+        public IEnumerable<int> HashCountsPerTable
+        {
+            get
+            {
+                return storage.HashCountsPerTable;
+            }
+        }
+
         public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
             foreach (var hashedFingerprint in hashes)

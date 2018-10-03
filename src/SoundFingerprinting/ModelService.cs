@@ -20,6 +20,16 @@
             this.subFingerprintDao = subFingerprintDao;
         }
 
+        public ModelServiceInfo Info
+        {
+            get
+            {
+                return new ModelServiceInfo(trackDao.Count,
+                    subFingerprintDao.SubFingerprintsCount,
+                    subFingerprintDao.HashCountsPerTable.ToArray());
+            }
+        }
+
         public virtual IModelReference Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints)
         {
             var track = new TrackData(trackInfo.Id, trackInfo.Artist, trackInfo.Title, string.Empty, 0, trackInfo.DurationInSeconds, ModelReference<object>.Null);
@@ -55,12 +65,12 @@
             subFingerprintDao.InsertHashDataForTrack(hashes, trackReference);
         }
 
-        public virtual IList<TrackData> ReadAllTracks()
+        public virtual IEnumerable<TrackData> ReadAllTracks()
         {
             return trackDao.ReadAll();
         }
 
-        public virtual IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
+        public virtual IEnumerable<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
         {
             return trackDao.ReadTrackByArtistAndTitleName(artist, title);
         }

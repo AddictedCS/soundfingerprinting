@@ -15,6 +15,14 @@
             this.storage = storage;
         }
 
+        public int Count
+        {
+            get
+            {
+                return storage.Tracks.Count;
+            }
+        }
+
         public IModelReference InsertTrack(TrackData track)
         {
             return storage.AddTrack(track);

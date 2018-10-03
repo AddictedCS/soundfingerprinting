@@ -6,6 +6,8 @@ namespace SoundFingerprinting.DAO
 
     public interface ITrackDao
     {
+        int Count { get; }
+
         IModelReference InsertTrack(TrackData track);
 
         TrackData ReadTrack(IModelReference trackReference);
