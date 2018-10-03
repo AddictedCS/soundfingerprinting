@@ -10,15 +10,15 @@ namespace SoundFingerprinting.InMemory
     {
         IDictionary<int, TrackData> Tracks { get; }                         // key: track reference
 
+        int NumberOfHashTables { get; }
+
         void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
 
-        List<ulong> GetSubFingerprintsByHashTableAndHash(int table, int hash);
+        List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash);
 
         void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 
         IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
-
-        int NumberOfHashTables { get; }
 
         void Reset(int numberOfHashTables);
 
@@ -30,7 +30,7 @@ namespace SoundFingerprinting.InMemory
 
         int DeleteTrack(IModelReference trackReference);
 
-        SubFingerprintData ReadSubFingerprintById(ulong id);
+        SubFingerprintData ReadSubFingerprintById(uint id);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference);
     }

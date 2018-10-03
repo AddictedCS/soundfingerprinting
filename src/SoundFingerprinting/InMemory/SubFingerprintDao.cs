@@ -68,7 +68,7 @@
 
         private IEnumerable<SubFingerprintData> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
         {
-            var results = new List<ulong>[hashes.Length];
+            var results = new List<uint>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
             {
                 int hashBin = hashes[table];

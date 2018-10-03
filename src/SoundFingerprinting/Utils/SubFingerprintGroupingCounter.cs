@@ -5,14 +5,14 @@
 
     internal static class SubFingerprintGroupingCounter
     {
-        public static IEnumerable<ulong> GroupByAndCount(List<ulong>[] subFingerprints, int threshold)
+        public static IEnumerable<uint> GroupByAndCount(List<uint>[] subFingerprints, int threshold)
         {
-            var counter = new Dictionary<ulong, int>();
+            var counter = new Dictionary<uint, int>();
             for (int i = 0; i < subFingerprints.Length; ++i)
             {
                 for (int j = 0; j < subFingerprints[i].Count; ++j)
                 {
-                    ulong key = subFingerprints[i][j];
+                    uint key = subFingerprints[i][j];
                     counter.TryGetValue(key, out var count);
                     counter[key] = count + 1;
                 }

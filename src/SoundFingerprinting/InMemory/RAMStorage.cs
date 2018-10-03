@@ -27,7 +27,7 @@
         [ProtoMember(6)]
         private long spectralImagesCounter;
 
-        public IDictionary<ulong, SubFingerprintData> subFingerprints;
+        public IDictionary<uint, SubFingerprintData> subFingerprints;
 
         public RAMStorage()
         {
@@ -45,18 +45,22 @@
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        public ConcurrentDictionary<int, List<ulong>>[] HashTables { get; set; }
+        public ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
-        private IDictionary<ulong, SubFingerprintData> SubFingerprints
+        private IDictionary<uint, SubFingerprintData> SubFingerprints
         {
             get
             {
                 return subFingerprints;
             }
+
             set
             {
-                if (value == null) return;
+                if (value == null)
+                {
+                    return;
+                }
 
                 subFingerprints = value;
                 InitializeHashTablesIfNeedBe(NumberOfHashTables);
@@ -72,7 +76,8 @@
 
         public void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
         {
-            var subFingerprintReference = new ModelReference<ulong>((ulong)Interlocked.Increment(ref subFingerprintReferenceCounter));
+            var id = (uint)Interlocked.Increment(ref subFingerprintReferenceCounter);
+            var subFingerprintReference = new ModelReference<uint>(id);
             var subFingerprintData = new SubFingerprintData(
                 hashedFingerprint.HashBins,
                 hashedFingerprint.SequenceNumber,
@@ -81,7 +86,7 @@
                 subFingerprintReference,
                 trackReference);
 
-            SubFingerprints[(ulong)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
+            SubFingerprints[(uint)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
             InsertHashes(hashedFingerprint.HashBins, subFingerprintReference.Id);
         }
 
@@ -126,17 +131,17 @@
             return count;
         }
 
-        public List<ulong> GetSubFingerprintsByHashTableAndHash(int table, int hash)
+        public List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash)
         {
             if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
             {
                 return subFingerprintIds;
             }
 
-            return Enumerable.Empty<ulong>().ToList();
+            return Enumerable.Empty<uint>().ToList();
         }
 
-        public SubFingerprintData ReadSubFingerprintById(ulong id)
+        public SubFingerprintData ReadSubFingerprintById(uint id)
         {
             return SubFingerprints[id];
         }
@@ -180,22 +185,22 @@
             subFingerprintReferenceCounter = 0;
             Tracks = new ConcurrentDictionary<int, TrackData>();
             SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
-            SubFingerprints = new ConcurrentDictionary<ulong, SubFingerprintData>();
+            SubFingerprints = new ConcurrentDictionary<uint, SubFingerprintData>();
         }
 
         private void InitializeHashTablesIfNeedBe(int numberOfHashTables)
         {
             if (HashTables == null)
             {
-                HashTables = new ConcurrentDictionary<int, List<ulong>>[numberOfHashTables];
+                HashTables = new ConcurrentDictionary<int, List<uint>>[numberOfHashTables];
                 for (int table = 0; table < numberOfHashTables; table++)
                 {
-                    HashTables[table] = new ConcurrentDictionary<int, List<ulong>>();
+                    HashTables[table] = new ConcurrentDictionary<int, List<uint>>();
                 }
             }
         }
 
-        private void InsertHashes(int[] hashBins, ulong subFingerprintId)
+        private void InsertHashes(int[] hashBins, uint subFingerprintId)
         {
             int table = 0;
             lock ((HashTables as ICollection).SyncRoot) // don't touch this lock
@@ -210,7 +215,7 @@
                     }
                     else
                     {
-                        hashTable[hashBin] = new List<ulong> { subFingerprintId };
+                        hashTable[hashBin] = new List<uint> { subFingerprintId };
                     }
 
                     table++;

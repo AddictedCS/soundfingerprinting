@@ -9,7 +9,7 @@
 
     public class StandardGroupingCounter : IGroupingCounter
     {
-        public IEnumerable<SubFingerprintData> GroupByAndCount(List<ulong>[] results, int thresholdVotes, Func<ulong, SubFingerprintData> resolver)
+        public IEnumerable<SubFingerprintData> GroupByAndCount(List<uint>[] results, int thresholdVotes, Func<uint, SubFingerprintData> resolver)
         {
             var ids = SubFingerprintGroupingCounter.GroupByAndCount(results, thresholdVotes);
             return ids.Select(resolver);
