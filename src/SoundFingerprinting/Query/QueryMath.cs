@@ -22,7 +22,7 @@
         public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration)
         {
             var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
-            var tracks = modelService.ReadTracksByReferences(trackIds);
+            var tracks = modelService.ReadTracksByReferences(trackIds.ToArray());
             return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration)).ToList();
         }
 

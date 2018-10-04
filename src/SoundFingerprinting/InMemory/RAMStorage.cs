@@ -90,7 +90,7 @@
         [ProtoMember(7)]
         private IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; set; }
 
-        public void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
+        public SubFingerprintData AddHashedFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
         {
             var id = (uint)Interlocked.Increment(ref subFingerprintReferenceCounter);
             var subFingerprintReference = new ModelReference<uint>(id);
@@ -102,15 +102,27 @@
                 subFingerprintReference,
                 trackReference);
 
-            SubFingerprints[(uint)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
+            AddSubFingerprint(subFingerprintData);
             InsertHashes(hashedFingerprint.HashBins, subFingerprintReference.Id);
+            return subFingerprintData;
         }
 
-        public IModelReference AddTrack(TrackData track)
+        public void AddSubFingerprint(SubFingerprintData subFingerprintData)
+        {
+            SubFingerprints[(uint)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
+        }
+
+        public TrackData AddTrack(TrackInfo track)
         {
             var trackReference = new ModelReference<int>(Interlocked.Increment(ref trackReferenceCounter));
-            Tracks[trackReference.Id] = new TrackData(track.ISRC, track.Artist, track.Title, track.Album, track.ReleaseYear, track.Length, trackReference);
-            return trackReference;
+            var trackData = new TrackData(track.Id, track.Artist, track.Title, string.Empty, 0, track.DurationInSeconds, trackReference);
+            return AddTrack(trackData);
+        }
+
+        public TrackData AddTrack(TrackData track)
+        {
+            Tracks[((ModelReference<int>)track.TrackReference).Id] = track;
+            return track;
         }
 
         public int DeleteTrack(IModelReference trackReference)

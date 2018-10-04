@@ -9,7 +9,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Math;
@@ -32,8 +31,8 @@
         [Test]
         public void ShouldInsertAndReadSubFingerprints()
         {
-            var track = new TrackData("isrc", "artist", "title", "album", 1986, 200, ModelReference<object>.Null);
-            var trackReference = trackDao.InsertTrack(track);
+            var track = new TrackInfo("isrc", "artist", "title", 200);
+            var trackReference = trackDao.InsertTrack(track).TrackReference;
             const int NumberOfHashBins = 100;
             var genericHashBuckets = GenericHashBuckets();
             var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins)
@@ -58,8 +57,8 @@
         [Test]
         public void SameNumberOfHashBinsIsInsertedInAllTablesWhenFingerprintingEntireSongTest()
         {
-            var track = new TrackData("isrc", "artist", "title", "album", 2018, 120d, ModelReference<object>.Null);
-            var trackReference = trackDao.InsertTrack(track);
+            var track = new TrackInfo("isrc", "artist", "title", 120d);
+            var trackReference = trackDao.InsertTrack(track).TrackReference;
             var hashedFingerprints = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
@@ -80,11 +79,11 @@
         [Test]
         public void ReadByTrackGroupIdWorksAsExpectedTest()
         {
-            TrackData firstTrack = new TrackData("isrc", "artist", "title", "album", 2018, 120d, ModelReference<object>.Null);
-            TrackData secondTrack = new TrackData("isrc", "artist", "title", "album", 2018, 120d, ModelReference<object>.Null);
+            var firstTrack = new TrackInfo("isrc", "artist", "title", 120d);
+            var secondTrack = new TrackInfo("isrc", "artist", "title", 120d);
 
-            var firstTrackReference = trackDao.InsertTrack(firstTrack);
-            var secondTrackReference = trackDao.InsertTrack(secondTrack);
+            var firstTrackReference = trackDao.InsertTrack(firstTrack).TrackReference;
+            var secondTrackReference = trackDao.InsertTrack(secondTrack).TrackReference;
 
             var hashedFingerprintsForFirstTrack = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -151,9 +150,9 @@
         [Test]
         public void ReadHashDataByTrackTest()
         {
-            var firstTrack = new TrackData("isrc", "artist", "title", "album", 2012, 200, ModelReference<object>.Null);
+            var firstTrack = new TrackInfo("isrc", "artist", "title", 200);
 
-            var firstTrackReference = trackDao.InsertTrack(firstTrack);
+            var firstTrackReference = trackDao.InsertTrack(firstTrack).TrackReference;
 
             var firstHashData = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -164,9 +163,9 @@
 
             InsertHashedFingerprintsForTrack(firstHashData, firstTrackReference);
 
-            var secondTrack = new TrackData("isrc", "artist", "title", "album", 2012, 200, ModelReference<object>.Null);
+            var secondTrack = new TrackInfo("isrc", "artist", "title", 200);
 
-            var secondTrackReference = trackDao.InsertTrack(secondTrack);
+            var secondTrackReference = trackDao.InsertTrack(secondTrack).TrackReference;
 
             var secondHashData = FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()

@@ -5,6 +5,7 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
 
     internal class TrackDao : ITrackDao
     {
@@ -23,9 +24,14 @@
             }
         }
 
-        public IModelReference InsertTrack(TrackData track)
+        public TrackData InsertTrack(TrackInfo track)
         {
             return storage.AddTrack(track);
+        }
+
+        public void InsertTrack(TrackData track)
+        {
+            storage.AddTrack(track);
         }
 
         public TrackData ReadTrackByISRC(string isrc)
@@ -57,13 +63,7 @@
 
         public List<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
         {
-            var result = new List<TrackData>();
-            foreach (var id in ids)
-            {
-                result.Add(ReadTrack(id));
-            }
-
-            return result;
+            return ids.Select(ReadTrack).Where(track => track != null).ToList();
         }
 
         public int DeleteTrack(IModelReference trackReference)

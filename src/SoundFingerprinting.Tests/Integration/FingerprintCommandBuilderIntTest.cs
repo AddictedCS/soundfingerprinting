@@ -12,6 +12,7 @@
     using InMemory;
     using NUnit.Framework;
 
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
 
     using Strides;
@@ -56,17 +57,16 @@
         {
             const int SecondsToProcess = 8;
             const int StartAtSecond = 2;
-            var track = new TrackData("isrc", "artist", "title", "album", 2018, 200d, ModelReference<object>.Null);
-            var trackReference = modelService.InsertTrack(track);
+            var track = new TrackInfo("isrc", "artist", "title", 200d);
 
-            var hashDatas = await FingerprintCommandBuilder.Instance
+            var fingerprints = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
                                             .From(PathToWav)
                                             .WithFingerprintConfig(new HighPrecisionFingerprintConfiguration())
                                             .UsingServices(audioService)
                                             .Hash();
 
-            modelService.InsertHashDataForTrack(hashDatas, trackReference);
+            var trackReference = modelService.Insert(track, fingerprints);
 
             var queryResult = await QueryCommandBuilder.Instance
                                .BuildQueryCommand()
@@ -164,14 +164,14 @@
             const int SecondsToProcess = 10;
             const int StartAtSecond = 30;
             var audioSamples = GetAudioSamples();
-            var track = new TrackData(string.Empty, audioSamples.Origin, audioSamples.Origin, string.Empty, 1986, audioSamples.Duration, ModelReference<object>.Null);
-            var trackReference = modelService.InsertTrack(track);
-            var hashDatas = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var track = new TrackInfo(string.Empty, audioSamples.Origin, audioSamples.Origin, audioSamples.Duration);
+            var fingerprints = await FingerprintCommandBuilder.Instance
+                    .BuildFingerprintCommand()
                     .From(audioSamples)
                     .UsingServices(audioService)
                     .Hash();
 
-            modelService.InsertHashDataForTrack(hashDatas, trackReference);
+            var trackReference = modelService.Insert(track, fingerprints);
 
             var querySamples = GetQuerySamples(GetAudioSamples(), StartAtSecond, SecondsToProcess);
 

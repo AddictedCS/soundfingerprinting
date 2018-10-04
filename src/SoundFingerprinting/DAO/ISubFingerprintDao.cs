@@ -4,6 +4,7 @@ namespace SoundFingerprinting.DAO
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     public interface ISubFingerprintDao
@@ -12,7 +13,9 @@ namespace SoundFingerprinting.DAO
 
         IEnumerable<int> HashCountsPerTable { get; }
 
-        void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference);
+        IEnumerable<SubFingerprintData> InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashedFingerprints, IModelReference trackReference);
+
+        void InsertSubFingerprints(IEnumerable<SubFingerprintData> subFingerprints);
 
         [Obsolete]
         IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference);

@@ -40,11 +40,23 @@
             }
         }
 
-        public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
+        public IEnumerable<SubFingerprintData> InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
+            var subFingerprints = new List<SubFingerprintData>();
             foreach (var hashedFingerprint in hashes)
             {
-                storage.AddSubfingerprint(hashedFingerprint, trackReference);
+                var subFingerprint = storage.AddHashedFingerprint(hashedFingerprint, trackReference);
+                subFingerprints.Add(subFingerprint);
+            }
+
+            return subFingerprints;
+        }
+
+        public void InsertSubFingerprints(IEnumerable<SubFingerprintData> subFingerprints)
+        {
+            foreach (var subFingerprint in subFingerprints)
+            {
+                storage.AddSubFingerprint(subFingerprint);
             }
         }
 

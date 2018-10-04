@@ -12,6 +12,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Math;
@@ -328,7 +329,7 @@
                                             allFiles.Count,
                                             System.IO.Path.GetFileNameWithoutExtension(file))
                                 });
-                        var track = InsertTrack(file);
+                        var track = GetTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
                                         .From(file)
                                         .WithFingerprintConfig(
@@ -341,18 +342,17 @@
                                         .Hash()
                                         .Result;
 
-                        modelService.InsertHashDataForTrack(hashes, track);
+                        modelService.Insert(track, hashes);
                     });
  
             stopWatch.Stop();
-            sb.AppendLine(string.Format("{0},{1}", inserted, stopWatch.ElapsedMilliseconds / 1000));
+            sb.AppendLine($"{inserted},{stopWatch.ElapsedMilliseconds / 1000}");
         }
 
-        private IModelReference InsertTrack(string file)
+        private TrackInfo GetTrack(string file)
         {
             var tags = GetTagsFromFile(file);
-            var trackData = new TrackData(tags.ISRC, tags.Artist, tags.Title, tags.Album, tags.Year, tags.Duration, ModelReference<object>.Null);
-            return modelService.InsertTrack(trackData);
+            return new TrackInfo(tags.ISRC, tags.Artist, tags.Title, tags.Duration);
         }
 
         private void DeleteAll()

@@ -16,7 +16,9 @@ namespace SoundFingerprinting.InMemory
 
         int NumberOfHashTables { get; }
 
-        void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
+        SubFingerprintData AddHashedFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
+
+        void AddSubFingerprint(SubFingerprintData subFingerprintData);
 
         List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash);
 
@@ -30,7 +32,9 @@ namespace SoundFingerprinting.InMemory
 
         void Snapshot(string path);
 
-        IModelReference AddTrack(TrackData track);
+        TrackData AddTrack(TrackInfo track);
+
+        TrackData AddTrack(TrackData track);
 
         int DeleteTrack(IModelReference trackReference);
 

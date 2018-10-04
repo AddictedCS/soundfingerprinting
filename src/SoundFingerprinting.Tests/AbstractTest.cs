@@ -4,6 +4,7 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
 
     public abstract class AbstractTest
     {
@@ -38,16 +39,15 @@
 
         protected int[] GenericHashBuckets()
         {
-            return (int[]) genericHashBucketsArray.Clone();
+            return (int[])genericHashBucketsArray.Clone();
         }
 
-        protected void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
+        protected void AssertTracksAreEqual(TrackInfo expectedTrack, TrackData actualTrack)
         {
-            Assert.AreEqual(expectedTrack.Album, actualTrack.Album);
             Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
             Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
-            Assert.AreEqual(expectedTrack.Length, actualTrack.Length);
-            Assert.AreEqual(expectedTrack.ISRC, actualTrack.ISRC);
+            Assert.AreEqual(expectedTrack.DurationInSeconds, actualTrack.Length);
+            Assert.AreEqual(expectedTrack.Id, actualTrack.ISRC);
         }
 
         protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
