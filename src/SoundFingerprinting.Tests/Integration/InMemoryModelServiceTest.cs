@@ -54,7 +54,7 @@
 
             modelService.Insert(track, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
 
-            var actualTracks = modelService.ReadTrackByArtistAndTitleName("artist", "title").ToList();
+            var actualTracks = modelService.ReadTrackByTitle("title").ToList();
 
             Assert.IsTrue(actualTracks.Any());
             AssertTracksAreEqual(track, actualTracks[0]);

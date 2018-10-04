@@ -60,10 +60,9 @@
             }
         }
 
-        public IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
+        public IEnumerable<SubFingerprintData> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
         {
-            var subFingerprints = storage.ReadSubFingerprintByTrackReference(trackReference);
-            return subFingerprints.Select(data => new HashedFingerprint(data.Hashes, data.SequenceNumber, data.SequenceAt, data.Clusters)).ToList();
+            return storage.ReadSubFingerprintByTrackReference(trackReference);
         }
 
         public FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration queryConfiguration)

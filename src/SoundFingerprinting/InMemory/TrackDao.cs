@@ -39,16 +39,16 @@
             return storage.Tracks.FirstOrDefault(pair => pair.Value.ISRC == id).Value;
         }
 
-        public IList<TrackData> ReadAll()
+        public IEnumerable<TrackData> ReadAll()
         {
-            return storage.Tracks.Values.ToList();
+            return storage.Tracks.Values;
         }
 
-        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
+        public IEnumerable<TrackData> ReadTrackByTitle(string title)
         {
-            return storage.Tracks.Where(pair => pair.Value.Artist == artist && pair.Value.Title == title)
-                          .Select(pair => pair.Value)
-                          .ToList();
+            return storage.Tracks
+                .Where(pair => pair.Value.Title == title)
+                .Select(pair => pair.Value);
         }
 
         public TrackData ReadTrack(IModelReference trackReference)
@@ -61,9 +61,9 @@
             return null;
         }
 
-        public List<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
+        public IEnumerable<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
         {
-            return ids.Select(ReadTrack).Where(track => track != null).ToList();
+            return ids.Select(ReadTrack).Where(track => track != null);
         }
 
         public int DeleteTrack(IModelReference trackReference)

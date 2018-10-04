@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -34,7 +35,12 @@
 
         public IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
         {
-            return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);
+            return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference).Select(
+                subFingerprint => new HashedFingerprint(
+                    subFingerprint.Hashes,
+                    subFingerprint.SequenceNumber,
+                    subFingerprint.SequenceAt,
+                    subFingerprint.Clusters)).ToList();
         }
     }
 }

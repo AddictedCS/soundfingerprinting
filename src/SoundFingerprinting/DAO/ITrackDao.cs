@@ -15,14 +15,14 @@ namespace SoundFingerprinting.DAO
 
         TrackData ReadTrack(IModelReference trackReference);
 
-        List<TrackData> ReadTracks(IEnumerable<IModelReference> ids);
+        IEnumerable<TrackData> ReadTracks(IEnumerable<IModelReference> ids);
 
         int DeleteTrack(IModelReference trackReference);
 
-        IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
+        IEnumerable<TrackData> ReadTrackByTitle(string title);
 
         TrackData ReadTrackById(string id);
 
-        IList<TrackData> ReadAll();
+        IEnumerable<TrackData> ReadAll();
     }
 }

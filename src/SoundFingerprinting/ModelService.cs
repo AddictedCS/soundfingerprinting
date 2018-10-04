@@ -58,7 +58,7 @@
                 return ReadTrackById(isrc) != null;
             }
 
-            return ReadTrackByArtistAndTitleName(artist, title).Any();
+            return ReadTrackByTitle(title).Any();
         }
 
         public virtual IEnumerable<TrackData> ReadAllTracks()
@@ -66,9 +66,9 @@
             return TrackDao.ReadAll();
         }
 
-        public virtual IEnumerable<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
+        public virtual IEnumerable<TrackData> ReadTrackByTitle(string title)
         {
-            return TrackDao.ReadTrackByArtistAndTitleName(artist, title);
+            return TrackDao.ReadTrackByTitle(title);
         }
 
         public virtual IEnumerable<TrackData> ReadTracksByReferences(params IModelReference[] ids)

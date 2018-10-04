@@ -61,7 +61,7 @@
             const int TrackCount = 5;
             var expectedTracks = InsertTracks(TrackCount);
             
-            var tracks = trackDao.ReadAll();
+            var tracks = trackDao.ReadAll().ToList();
 
             Assert.AreEqual(TrackCount, tracks.Count);
             foreach (var expectedTrack in expectedTracks)
@@ -86,18 +86,18 @@
             const int TrackCount = 100;
             var tracks = InsertTracks(TrackCount);
 
-            var actualTracks = trackDao.ReadAll();
+            var actualTracks = trackDao.ReadAll().ToList();
 
             Assert.AreEqual(tracks.Count, actualTracks.Count);
         }
 
         [Test]
-        public void ReadTrackByArtistAndTitleTest()
+        public void ReadTrackByTitleTest()
         {
             var track = GetTrack();
             trackDao.InsertTrack(track);
 
-            var tracks = trackDao.ReadTrackByArtistAndTitleName(track.Artist, track.Title);
+            var tracks = trackDao.ReadTrackByTitle(track.Title).ToList();
 
             Assert.IsNotNull(tracks);
             Assert.IsTrue(tracks.Count == 1);
@@ -105,15 +105,15 @@
         }
 
         [Test]
-        public void ReadByNonExistentArtistAndTitleTest()
+        public void ReadByNonExistentTitleTest()
         {
-            var tracks = trackDao.ReadTrackByArtistAndTitleName("artist", "title");
+            var tracks = trackDao.ReadTrackByTitle("title");
 
-            Assert.IsTrue(tracks.Count == 0);
+            Assert.IsFalse(tracks.Any());
         }
 
         [Test]
-        public void ReadTrackByISRCTest()
+        public void ReadTrackByIdTest()
         {
             var expectedTrack = GetTrack();
             trackDao.InsertTrack(expectedTrack);
@@ -127,9 +127,9 @@
         public void DeleteCollectionOfTracksTest()
         {
             const int NumberOfTracks = 10;
-            var tracks = InsertTracks(NumberOfTracks);
+            InsertTracks(NumberOfTracks);
             
-            var allTracks = trackDao.ReadAll();
+            var allTracks = trackDao.ReadAll().ToList();
 
             Assert.IsTrue(allTracks.Count == NumberOfTracks);
             foreach (var track in allTracks)
@@ -137,7 +137,7 @@
                 trackDao.DeleteTrack(track.TrackReference);
             }
 
-            Assert.IsTrue(trackDao.ReadAll().Count == 0);
+            Assert.IsFalse(trackDao.ReadAll().Any());
         }
 
         [Test]
@@ -176,7 +176,7 @@
             int modifiedRows = trackDao.DeleteTrack(trackReference);
 
             Assert.IsNull(trackDao.ReadTrackById(tagInfo.ISRC));
-            Assert.AreEqual(0, subFingerprintDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Count);
+            Assert.IsFalse(subFingerprintDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Any());
             Assert.AreEqual(1 + hashData.Count + (25 * hashData.Count), modifiedRows);
         }
 

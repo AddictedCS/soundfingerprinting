@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -9,6 +10,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Math;
@@ -46,9 +48,11 @@
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
-            var hashedFingerprintss = subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);
-            Assert.AreEqual(NumberOfHashBins, hashedFingerprintss.Count);
-            foreach (var hashedFingerprint in hashedFingerprintss)
+            var fingerprints = subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference)
+                .Select(ToHashedFingerprint()).ToList();
+
+            Assert.AreEqual(NumberOfHashBins, fingerprints.Count);
+            foreach (var hashedFingerprint in fingerprints)
             {
                 CollectionAssert.AreEqual(genericHashBuckets, hashedFingerprint.HashBins);
             }
@@ -68,7 +72,8 @@
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
-            var hashes = subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);
+            var hashes = subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference)
+                .Select(ToHashedFingerprint()).ToList();
             Assert.AreEqual(hashedFingerprints.Count, hashes.Count);
             foreach (var data in hashes)
             {
@@ -176,11 +181,22 @@
 
             InsertHashedFingerprintsForTrack(secondHashData, secondTrackReference);
 
-            var resultFirstHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(firstTrackReference);
+            var resultFirstHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(firstTrackReference)
+                .Select(ToHashedFingerprint()).ToList();
             AssertHashDatasAreTheSame(firstHashData, resultFirstHashData);
 
-            var resultSecondHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(secondTrackReference);
+            var resultSecondHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(secondTrackReference)
+                .Select(ToHashedFingerprint()).ToList();
             AssertHashDatasAreTheSame(secondHashData, resultSecondHashData);
+        }
+
+        private static Func<SubFingerprintData, HashedFingerprint> ToHashedFingerprint()
+        {
+            return subFingerprint => new HashedFingerprint(
+                subFingerprint.Hashes,
+                subFingerprint.SequenceNumber,
+                subFingerprint.SequenceAt,
+                subFingerprint.Clusters);
         }
 
         private void InsertHashedFingerprintsForTrack(IEnumerable<HashedFingerprint> hashedFingerprints, IModelReference trackReference)

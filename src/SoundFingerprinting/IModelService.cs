@@ -18,7 +18,7 @@ namespace SoundFingerprinting
         IEnumerable<TrackData> ReadAllTracks();
 
         // TODO add a fuzzy search
-        IEnumerable<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
+        IEnumerable<TrackData> ReadTrackByTitle(string title);
 
         // TODO rename read by ID
         TrackData ReadTrackById(string id);

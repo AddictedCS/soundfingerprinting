@@ -121,8 +121,7 @@
 
         public TrackData AddTrack(TrackData track)
         {
-            Tracks[((ModelReference<int>)track.TrackReference).Id] = track;
-            return track;
+            return Tracks[((ModelReference<int>)track.TrackReference).Id] = track;
         }
 
         public int DeleteTrack(IModelReference trackReference)

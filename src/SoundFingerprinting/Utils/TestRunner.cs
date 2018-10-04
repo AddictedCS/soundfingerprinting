@@ -276,7 +276,7 @@
         {
             return !string.IsNullOrEmpty(tags.ISRC)
                        ? modelService.ReadTrackById(tags.ISRC)
-                       : modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title).FirstOrDefault();
+                       : modelService.ReadTrackByTitle(tags.Title).FirstOrDefault();
         }
 
         private object[] GetNotFoundLine(TagInfo tags)
