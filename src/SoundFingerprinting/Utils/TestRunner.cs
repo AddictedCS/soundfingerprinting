@@ -275,7 +275,7 @@
         private TrackData GetActualTrack(TagInfo tags)
         {
             return !string.IsNullOrEmpty(tags.ISRC)
-                       ? modelService.ReadTrackByISRC(tags.ISRC)
+                       ? modelService.ReadTrackById(tags.ISRC)
                        : modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title).FirstOrDefault();
         }
 

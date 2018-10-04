@@ -55,7 +55,7 @@
         {
             if (!string.IsNullOrEmpty(isrc))
             {
-                return ReadTrackByISRC(isrc) != null;
+                return ReadTrackById(isrc) != null;
             }
 
             return ReadTrackByArtistAndTitleName(artist, title).Any();
@@ -76,9 +76,9 @@
             return TrackDao.ReadTracks(ids);
         }
 
-        public virtual TrackData ReadTrackByISRC(string isrc)
+        public virtual TrackData ReadTrackById(string id)
         {
-            return TrackDao.ReadTrackByISRC(isrc);
+            return TrackDao.ReadTrackById(id);
         }
 
         public virtual int DeleteTrack(IModelReference trackReference)

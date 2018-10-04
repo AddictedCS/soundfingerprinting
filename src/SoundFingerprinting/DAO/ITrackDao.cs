@@ -21,7 +21,7 @@ namespace SoundFingerprinting.DAO
 
         IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
-        TrackData ReadTrackByISRC(string isrc);
+        TrackData ReadTrackById(string id);
 
         IList<TrackData> ReadAll();
     }

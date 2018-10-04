@@ -118,7 +118,7 @@
             var expectedTrack = GetTrack();
             trackDao.InsertTrack(expectedTrack);
 
-            TrackData actualTrack = trackDao.ReadTrackByISRC(expectedTrack.Id);
+            TrackData actualTrack = trackDao.ReadTrackById(expectedTrack.Id);
 
             AssertTracksAreEqual(expectedTrack, actualTrack);
         }
@@ -169,13 +169,13 @@
                 .Hash();
 
             subFingerprintDao.InsertHashDataForTrack(hashData, trackReference);
-            var actualTrack = trackDao.ReadTrackByISRC(tagInfo.ISRC);
+            var actualTrack = trackDao.ReadTrackById(tagInfo.ISRC);
             Assert.IsNotNull(actualTrack);
 
             // Act
             int modifiedRows = trackDao.DeleteTrack(trackReference);
 
-            Assert.IsNull(trackDao.ReadTrackByISRC(tagInfo.ISRC));
+            Assert.IsNull(trackDao.ReadTrackById(tagInfo.ISRC));
             Assert.AreEqual(0, subFingerprintDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Count);
             Assert.AreEqual(1 + hashData.Count + (25 * hashData.Count), modifiedRows);
         }

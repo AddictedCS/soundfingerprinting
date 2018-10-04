@@ -34,9 +34,9 @@
             storage.AddTrack(track);
         }
 
-        public TrackData ReadTrackByISRC(string isrc)
+        public TrackData ReadTrackById(string id)
         {
-            return storage.Tracks.FirstOrDefault(pair => pair.Value.ISRC == isrc).Value;
+            return storage.Tracks.FirstOrDefault(pair => pair.Value.ISRC == id).Value;
         }
 
         public IList<TrackData> ReadAll()

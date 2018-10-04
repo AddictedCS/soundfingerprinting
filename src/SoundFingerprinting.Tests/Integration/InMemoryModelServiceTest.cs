@@ -89,7 +89,7 @@
                                               .ToList();
 
             Assert.IsFalse(subFingerprints.Any());
-            var actualTrack = modelService.ReadTrackByISRC("isrc");
+            var actualTrack = modelService.ReadTrackById("isrc");
             Assert.IsNull(actualTrack);
         }
 

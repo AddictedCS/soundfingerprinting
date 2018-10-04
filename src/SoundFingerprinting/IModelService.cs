@@ -21,7 +21,7 @@ namespace SoundFingerprinting
         IEnumerable<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
 
         // TODO rename read by ID
-        TrackData ReadTrackByISRC(string isrc);
+        TrackData ReadTrackById(string id);
 
         IEnumerable<TrackData> ReadTracksByReferences(params IModelReference[] ids);
 
