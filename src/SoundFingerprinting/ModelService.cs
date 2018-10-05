@@ -51,14 +51,14 @@
             return SubFingerprintDao.ReadSubFingerprints(queryHashes, config);
         }
 
-        public virtual bool ContainsTrack(string isrc, string artist, string title)
+        public virtual bool ContainsTrack(string id)
         {
-            if (!string.IsNullOrEmpty(isrc))
+            if (!string.IsNullOrEmpty(id))
             {
-                return ReadTrackById(isrc) != null;
+                return ReadTrackById(id) != null;
             }
 
-            return ReadTrackByTitle(title).Any();
+            return false;
         }
 
         public virtual IEnumerable<TrackData> ReadAllTracks()
@@ -71,9 +71,14 @@
             return TrackDao.ReadTrackByTitle(title);
         }
 
-        public virtual IEnumerable<TrackData> ReadTracksByReferences(params IModelReference[] ids)
+        public virtual TrackData ReadTrackByReference(IModelReference ids)
         {
-            return TrackDao.ReadTracks(ids);
+            return TrackDao.ReadTrack(ids);
+        }
+
+        public virtual IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
+        {
+            return TrackDao.ReadTrackByReferences(references);
         }
 
         public virtual TrackData ReadTrackById(string id)

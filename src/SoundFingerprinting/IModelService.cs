@@ -17,16 +17,16 @@ namespace SoundFingerprinting
 
         IEnumerable<TrackData> ReadAllTracks();
 
-        // TODO add a fuzzy search
         IEnumerable<TrackData> ReadTrackByTitle(string title);
 
-        // TODO rename read by ID
         TrackData ReadTrackById(string id);
 
-        IEnumerable<TrackData> ReadTracksByReferences(params IModelReference[] ids);
+        TrackData ReadTrackByReference(IModelReference reference);
+
+        IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
 
         int DeleteTrack(IModelReference trackReference);
 
-        bool ContainsTrack(string isrc, string artist, string title);
+        bool ContainsTrack(string id);
     }
 }

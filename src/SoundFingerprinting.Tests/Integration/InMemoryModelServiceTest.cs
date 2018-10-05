@@ -36,15 +36,15 @@
 
             var trackReference = modelService.Insert(track, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
 
-            var first = modelService.ReadTracksByReferences(trackReference).First();
+            var first = modelService.ReadTrackByReference(trackReference);
 
             AssertTracksAreEqual(track, first);
 
             modelService.DeleteTrack(trackReference);
 
-            var tracks = modelService.ReadTracksByReferences(trackReference);
+            var result = modelService.ReadTrackByReference(trackReference);
 
-            Assert.IsFalse(tracks.Any());
+            Assert.IsTrue(result == null);
         }
 
         [Test]

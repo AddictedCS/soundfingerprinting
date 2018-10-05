@@ -61,6 +61,20 @@
             return null;
         }
 
+        public IEnumerable<TrackData> ReadTrackByReferences(IEnumerable<IModelReference> references)
+        {
+            return references.Select(reference =>
+                    {
+                        if (storage.Tracks.TryGetValue((int)reference.Id, out var track))
+                        {
+                            return track;
+                        }
+
+                        return null;
+                    })
+                .Where(track => track != null);
+        }
+
         public IEnumerable<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
         {
             return ids.Select(ReadTrack).Where(track => track != null);
