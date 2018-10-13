@@ -11,8 +11,6 @@
     {
         private readonly ISpectralImageDao spectralImageDao;
 
-        private readonly ISubFingerprintDao subFingerprintDao;
-
         protected AdvancedModelService(
             ITrackDao trackDao,
             ISubFingerprintDao subFingerprintDao,
@@ -20,7 +18,6 @@
             : base(trackDao, subFingerprintDao)
         {
             this.spectralImageDao = spectralImageDao;
-            this.subFingerprintDao = subFingerprintDao;
         }
 
         public virtual void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
@@ -35,7 +32,7 @@
 
         public IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
         {
-            return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference).Select(
+            return SubFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference).Select(
                 subFingerprint => new HashedFingerprint(
                     subFingerprint.Hashes,
                     subFingerprint.SequenceNumber,

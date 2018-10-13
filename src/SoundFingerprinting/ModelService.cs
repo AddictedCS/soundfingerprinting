@@ -10,22 +10,17 @@
 
     public abstract class ModelService : IModelService
     {
-        protected readonly ITrackDao TrackDao;
-        protected readonly ISubFingerprintDao SubFingerprintDao;
-
         protected ModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
         {
             TrackDao = trackDao;
             SubFingerprintDao = subFingerprintDao;
         }
 
-        public ModelServiceInfo Info
-        {
-            get
-            {
-                return new ModelServiceInfo(TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray());
-            }
-        }
+        protected ITrackDao TrackDao { get; }
+        
+        protected ISubFingerprintDao SubFingerprintDao { get; }
+
+        public virtual ModelServiceInfo Info => new ModelServiceInfo(TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray());
 
         public virtual IModelReference Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints)
         {
@@ -88,7 +83,9 @@
 
         public virtual int DeleteTrack(IModelReference trackReference)
         {
-            return TrackDao.DeleteTrack(trackReference);
+            int deletedSubFingerprints = SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference);
+            int deletedTrack = TrackDao.DeleteTrack(trackReference);
+            return deletedSubFingerprints + deletedTrack;
         }
     }
 }

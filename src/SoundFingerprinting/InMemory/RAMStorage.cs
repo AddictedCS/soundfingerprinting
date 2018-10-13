@@ -27,7 +27,7 @@
         [ProtoMember(6)]
         private long spectralImagesCounter;
 
-        private IDictionary<uint, SubFingerprintData> subFingerprints;
+        private ConcurrentDictionary<uint, SubFingerprintData> subFingerprints;
 
         public RAMStorage()
         {
@@ -64,7 +64,7 @@
         private ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
-        private IDictionary<uint, SubFingerprintData> SubFingerprints
+        private ConcurrentDictionary<uint, SubFingerprintData> SubFingerprints
         {
             get
             {
@@ -124,38 +124,43 @@
             return Tracks[((ModelReference<int>)track.TrackReference).Id] = track;
         }
 
+        public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
+        {
+            var all = from @ref in SubFingerprints.Values
+                where @ref.TrackReference.Equals(trackReference)
+                select (uint) @ref.SubFingerprintReference.Id;
+
+            var references = new HashSet<uint>(all);
+
+            lock ((HashTables as ICollection).SyncRoot)
+            {
+                foreach (var reference in references)
+                {
+                    SubFingerprints.TryRemove(reference, out _);
+                }
+
+                int totals = HashTables.AsParallel().Aggregate(0, (removed, hashTable) =>
+                {
+                    return removed + hashTable.Values.Aggregate(0,
+                               (accumulator, list) =>
+                               {
+                                   return accumulator + list.RemoveAll(id => references.Contains(id));
+                               });
+                });
+                
+                return totals + references.Count;
+            }
+        }
+
         public int DeleteTrack(IModelReference trackReference)
         {
-            int count = 0;
-            int trackId = (int)trackReference.Id;
+            int trackId = (int) trackReference.Id;
             if (Tracks.Remove(trackId))
             {
-                count++;
-                var subFingerprintReferences = SubFingerprints
-                    .Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Key).ToList();
-
-                count += subFingerprintReferences.Count;
-                foreach (var subFingerprintReference in subFingerprintReferences)
-                {
-                    SubFingerprints.Remove(subFingerprintReference);
-                }
-
-                foreach (var hashTable in HashTables)
-                {
-                    foreach (var hashBins in hashTable)
-                    {
-                        foreach (var subFingerprintReference in subFingerprintReferences)
-                        {
-                            if (hashBins.Value.Remove(subFingerprintReference))
-                            {
-                                count++;
-                            }
-                        }
-                    }
-                }
+                return 1;
             }
 
-            return count;
+            return 0;
         }
 
         public List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash)
@@ -230,7 +235,7 @@
         private void InsertHashes(int[] hashBins, uint subFingerprintId)
         {
             int table = 0;
-            lock ((HashTables as ICollection).SyncRoot) // don't touch this lock
+            lock ((HashTables as ICollection).SyncRoot)
             {
                 foreach (var hashBin in hashBins)
                 {

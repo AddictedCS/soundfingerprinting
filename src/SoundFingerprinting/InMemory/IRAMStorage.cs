@@ -41,5 +41,7 @@ namespace SoundFingerprinting.InMemory
         SubFingerprintData ReadSubFingerprintById(uint id);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference);
+        
+        int DeleteSubFingerprintsByTrackReference(IModelReference trackReference);
     }
 }

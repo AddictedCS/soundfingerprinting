@@ -22,23 +22,9 @@
             this.groupingCounter = groupingCounter;
         }
 
-        public int SubFingerprintsCount
-        {
-            get
-            {
-                {
-                    return storage.SubFingerprintsCount;
-                }
-            }
-        }
+        public int SubFingerprintsCount => storage.SubFingerprintsCount;
 
-        public IEnumerable<int> HashCountsPerTable
-        {
-            get
-            {
-                return storage.HashCountsPerTable;
-            }
-        }
+        public IEnumerable<int> HashCountsPerTable => storage.HashCountsPerTable;
 
         public IEnumerable<SubFingerprintData> InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
@@ -81,6 +67,11 @@
             });
 
             return new FingerprintsQueryResponse(allSubs);
+        }
+
+        public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
+        {
+            return storage.DeleteSubFingerprintsByTrackReference(trackReference);
         }
 
         private IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)

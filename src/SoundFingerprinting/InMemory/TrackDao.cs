@@ -16,13 +16,7 @@
             this.storage = storage;
         }
 
-        public int Count
-        {
-            get
-            {
-                return storage.Tracks.Count;
-            }
-        }
+        public int Count => storage.Tracks.Count;
 
         public TrackData InsertTrack(TrackInfo track)
         {
@@ -63,21 +57,15 @@
 
         public IEnumerable<TrackData> ReadTrackByReferences(IEnumerable<IModelReference> references)
         {
-            return references.Select(reference =>
-                    {
-                        if (storage.Tracks.TryGetValue((int)reference.Id, out var track))
-                        {
-                            return track;
-                        }
+            return references.Aggregate(new List<TrackData>(), (list, reference) =>
+            {
+                if (storage.Tracks.TryGetValue((int) reference.Id, out var track))
+                {
+                    list.Add(track);
+                }
 
-                        return null;
-                    })
-                .Where(track => track != null);
-        }
-
-        public IEnumerable<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
-        {
-            return ids.Select(ReadTrack).Where(track => track != null);
+                return list;
+            });
         }
 
         public int DeleteTrack(IModelReference trackReference)
