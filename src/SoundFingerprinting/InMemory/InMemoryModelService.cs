@@ -7,16 +7,20 @@
     {
         private readonly IRAMStorage ramStorage;
 
-        public InMemoryModelService() : this(new RAMStorage(50), new StandardGroupingCounter())
+        public InMemoryModelService() : this(new RAMStorage(25), new StandardGroupingCounter())
         {
         }
 
-        public InMemoryModelService(string loadFrom) : this(new RAMStorage(50), new StandardGroupingCounter())
+        public InMemoryModelService(string loadFrom) : this(new RAMStorage(25), new StandardGroupingCounter())
         {
             ramStorage.InitializeFromFile(loadFrom);
         }
 
-        internal InMemoryModelService(IRAMStorage ramStorage, IGroupingCounter groupingCounter) : this(new TrackDao(ramStorage), new SubFingerprintDao(ramStorage, groupingCounter), new SpectralImageDao(ramStorage), ramStorage)
+        public InMemoryModelService(IGroupingCounter groupingCounter): this (new RAMStorage(25), groupingCounter)
+        {
+        }
+
+        private InMemoryModelService(IRAMStorage ramStorage, IGroupingCounter groupingCounter) : this(new TrackDao(ramStorage), new SubFingerprintDao(ramStorage, groupingCounter), new SpectralImageDao(ramStorage), ramStorage)
         {
         }
 

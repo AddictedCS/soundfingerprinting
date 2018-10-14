@@ -21,7 +21,7 @@ namespace SoundFingerprinting.Query
         }
 
         /// <summary>
-        ///  Gets the resulting matched track from the datastore
+        ///  Gets the resulting matched track from the data store
         /// </summary>
         public TrackData Track { get; }
         
@@ -42,7 +42,7 @@ namespace SoundFingerprinting.Query
         ///  Gets best guess in seconds where does the result track starts in the query snippet. This value may be negative.
         /// </summary>
         /// <example>
-        ///   Resulting Track <c>A</c> in the datastore is of 30 sec. The query is of 10 seconds, with <code>TrackMatchStartsAt</code> at 15th second. <code>TrackStartsAt</code> will be equal to -15;
+        ///   Resulting Track <c>A</c> in the data store is of 30 sec. The query is of 10 seconds, with <code>TrackMatchStartsAt</code> at 15th second. <code>TrackStartsAt</code> will be equal to -15;
         /// </example>
         public double TrackStartsAt { get; }
 
@@ -50,31 +50,19 @@ namespace SoundFingerprinting.Query
         ///  Gets the time position in seconds where the origin track started to match the query
         /// </summary>
         /// <example>
-        ///  Resulting track <c>A</c> in the datastore is of 100 sec. The query started to match at 40th sec. <code>TrackMatchStartsAt</code> will be equal to 40.
+        ///  Resulting track <c>A</c> in the data store is of 100 sec. The query started to match at 40th sec. <code>TrackMatchStartsAt</code> will be equal to 40.
         /// </example>
         public double TrackMatchStartsAt { get; }
 
         /// <summary>
-        ///  Gets the percentange of how much the query match covered the original track
+        ///  Gets the percentage of how much the query match covered the original track
         /// </summary>
-        public double Coverage
-        {
-            get
-            {
-                return QueryMatchLength / Track.Length;
-            }
-        }
+        public double Coverage => QueryMatchLength / Track.Length;
 
         /// <summary>
         ///  Gets the estimated percentage of how much the resulting track got covered by the query
         /// </summary>
-        public double EstimatedCoverage
-        {
-            get
-            {
-                return QueryCoverageLength / Track.Length;
-            }
-        }
+        public double EstimatedCoverage => QueryCoverageLength / Track.Length;
 
         /// <summary>
         ///  Gets the value [0, 1) of how confident is the framework that query match corresponds to result track
@@ -82,18 +70,18 @@ namespace SoundFingerprinting.Query
         public double Confidence { get; }
 
         /// <summary>
-        ///  Gets similarity count between query match and track
-        /// </summary>
-        internal int HammingSimilaritySum { get; }
-
-        /// <summary>
         ///  Gets the exact query length used to generate this entry
         /// </summary>
-        internal double QueryLength { get; }
+        public double QueryLength { get; }
+        
+        /// <summary>
+        ///  Gets similarity count between query match and track
+        /// </summary>
+        public int HammingSimilaritySum { get; }
 
         /// <summary>
-        ///  Gets estimated track coverage infered from matching start and end of the resulting track in the query
+        ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query
         /// </summary>
-        internal double QueryCoverageLength { get; set; }
+        public double QueryCoverageLength { get; }
     }
 }
