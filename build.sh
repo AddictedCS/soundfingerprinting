@@ -8,7 +8,6 @@ fi
 
 dotnet test src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c $TARGET /p:TargetFrameworks=netcoreapp2.1
 
-echo Tests exit code is $?.
 if [ "$?" != "0" ]; then
 	echo Tests failed. Check logs for details.
 	exit 1
