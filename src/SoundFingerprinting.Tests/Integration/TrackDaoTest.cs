@@ -173,7 +173,8 @@
             Assert.IsNotNull(actualTrack);
 
             // Act
-            int modifiedRows = trackDao.DeleteTrack(trackReference);
+            int modifiedRows = trackDao.DeleteTrack(trackReference) +
+                               subFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference);
 
             Assert.IsNull(trackDao.ReadTrackById(tagInfo.ISRC));
             Assert.IsFalse(subFingerprintDao.ReadHashedFingerprintsByTrackReference(actualTrack.TrackReference).Any());

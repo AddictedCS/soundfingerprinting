@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
 
@@ -66,24 +67,28 @@
         [Test]
         public void ShouldNotValidateInsertSinceNoAudioFilesInInputFolder()
         {
-            string path = Path.GetTempPath();
+            var directory = Directory.CreateDirectory(Path.Combine(TestContext.CurrentContext.TestDirectory, Guid.NewGuid().ToString()));
+            string path = directory.FullName;
 
             string scenario = $"Insert,{path},IncrementalStatic,0,5115";
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
+            Directory.Delete(directory.FullName);
             Assert.IsFalse(result.IsValid);
         }
 
         [Test]
         public void ShouldNotValidateRunSinceNoAudioFilesInInputFolder()
         {
-            string path = Path.GetTempPath();
+            var directory = Directory.CreateDirectory(Path.Combine(TestContext.CurrentContext.TestDirectory, Guid.NewGuid().ToString()));
+            string path = directory.FullName;
 
             string scenario = $"Run,{path},{path},IncrementalRandom,256,512,10,10|30|50";
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
+            Directory.Delete(directory.FullName);
             Assert.IsFalse(result.IsValid);
         }
     }

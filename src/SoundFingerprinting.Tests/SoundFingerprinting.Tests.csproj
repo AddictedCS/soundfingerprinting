@@ -19,6 +19,6 @@
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(ProjectDir)TestEnvironment&quot; &quot;$(TargetDir)&quot; /e /y" Condition="'$(OS)' != 'Unix'" />
-	<Exec Command="cp -R $(ProjectDir)TestEnvironment/* $(TargetDir)" Condition="'$(OS)' == 'Unix'" />
+	  <Exec Command="cp -R $(ProjectDir)TestEnvironment/* $(TargetDir)" Condition="'$(OS)' == 'Unix'" />
   </Target>
 </Project>
