@@ -15,7 +15,7 @@
         private readonly ISimilarityUtility similarityUtility;
         private readonly IQueryMath queryMath;
 
-        internal QueryFingerprintService(ISimilarityUtility similarityUtility, IQueryMath queryMath)
+        private QueryFingerprintService(ISimilarityUtility similarityUtility, IQueryMath queryMath)
         {
             this.similarityUtility = similarityUtility;
             this.queryMath = queryMath;
@@ -27,7 +27,7 @@
                 new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()),
                 new ConfidenceCalculator()));
     
-        public QueryResult Query(List<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+        public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(queryFingerprints, configuration, modelService);
 
@@ -46,22 +46,18 @@
         {
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
             var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber)), configuration);
-            var groupedResults = new GroupedQueryResults(hashedFingerprints);
-            int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
 
-            var allCandidates = result.Matches.ToList();
-
-            var joined = from candidate in allCandidates
+            var joined = from candidate in result.Matches
                          join hashedFingerprint in hashedFingerprints on candidate.QuerySequenceNumber equals hashedFingerprint.SequenceNumber
                          select new { candidate.SubFingerprint, HashedFingerprint = hashedFingerprint };
 
-            Parallel.ForEach(joined, pair =>
+            int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
+            return joined.AsParallel().Aggregate(new GroupedQueryResults(hashedFingerprints), (accumulator, pair) =>
             {
                 int hammingSimilarity = similarityUtility.CalculateHammingSimilarity(pair.HashedFingerprint.HashBins, pair.SubFingerprint.Hashes, hashesPerTable);
-                groupedResults.Add(pair.HashedFingerprint, pair.SubFingerprint, hammingSimilarity);
+                accumulator.Add(pair.HashedFingerprint, pair.SubFingerprint, hammingSimilarity);
+                return accumulator;
             });
-
-            return groupedResults;
         }
     }
 }
