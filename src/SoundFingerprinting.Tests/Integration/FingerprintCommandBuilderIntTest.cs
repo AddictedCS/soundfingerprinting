@@ -8,13 +8,10 @@
 
     using Builder;
     using Configuration;
-    using DAO.Data;
     using InMemory;
     using NUnit.Framework;
 
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.DAO;
-
     using Strides;
 
     [TestFixture]
