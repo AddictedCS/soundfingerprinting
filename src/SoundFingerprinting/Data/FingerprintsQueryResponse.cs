@@ -25,12 +25,6 @@
         [ProtoMember(1)]
         public IEnumerable<QueryResponseMatch> Matches { get; }
 
-        public bool IsEmpty
-        {
-            get
-            {
-                return Matches == null || !Matches.Any();
-            }
-        }
+        public bool IsEmpty => Matches == null || !Matches.Any();
     }
 }

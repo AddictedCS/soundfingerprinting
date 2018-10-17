@@ -53,23 +53,14 @@
         [ProtoMember(4)]
         public IDictionary<int, TrackData> Tracks { get; private set; }
 
-        public int SubFingerprintsCount
-        {
-            get
-            {
-                return subFingerprints.Count;
-            }
-        }
+        public int SubFingerprintsCount => subFingerprints.Count;
 
         private ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private ConcurrentDictionary<uint, SubFingerprintData> SubFingerprints
         {
-            get
-            {
-                return subFingerprints;
-            }
+            get => subFingerprints;
 
             set
             {
