@@ -16,11 +16,7 @@
             ramStorage.InitializeFromFile(loadFrom);
         }
 
-        public InMemoryModelService(IGroupingCounter groupingCounter): this (new RAMStorage(25), groupingCounter)
-        {
-        }
-
-        private InMemoryModelService(IRAMStorage ramStorage, IGroupingCounter groupingCounter) : this(new TrackDao(ramStorage), new SubFingerprintDao(ramStorage, groupingCounter), new SpectralImageDao(ramStorage), ramStorage)
+        public InMemoryModelService(IRAMStorage ramStorage, IGroupingCounter groupingCounter) : this(new TrackDao(ramStorage), new SubFingerprintDao(ramStorage, groupingCounter), new SpectralImageDao(ramStorage), ramStorage)
         {
         }
 

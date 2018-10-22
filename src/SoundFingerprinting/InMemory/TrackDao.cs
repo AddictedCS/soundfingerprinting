@@ -47,9 +47,9 @@
 
         public TrackData ReadTrack(IModelReference trackReference)
         {
-            if (storage.Tracks.ContainsKey((int)trackReference.Id))
+            if (storage.Tracks.ContainsKey(trackReference))
             {
-                return storage.Tracks[(int)trackReference.Id];
+                return storage.Tracks[trackReference];
             }
 
             return null;
@@ -59,7 +59,7 @@
         {
             return references.Aggregate(new List<TrackData>(), (list, reference) =>
             {
-                if (storage.Tracks.TryGetValue((int) reference.Id, out var track))
+                if (storage.Tracks.TryGetValue(reference, out var track))
                 {
                     list.Add(track);
                 }

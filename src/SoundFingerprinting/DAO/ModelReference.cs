@@ -15,7 +15,7 @@
 
         private ModelReference()
         {
-            // left for protobuf
+            // left for proto-buf
         }
 
         public static ModelReference<T> Null { get; } = new ModelReference<T>(default(T));
@@ -23,13 +23,7 @@
         [ProtoMember(1)]
         public T Id { get; }
 
-        object IModelReference.Id
-        {
-            get
-            {
-                return Id;
-            }
-        }
+        object IModelReference.Id => Id;
 
         public override bool Equals(object obj)
         {

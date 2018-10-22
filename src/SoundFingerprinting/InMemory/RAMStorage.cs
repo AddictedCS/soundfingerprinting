@@ -6,8 +6,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Threading;
-
     using DAO;
     using DAO.Data;
     using Data;
@@ -16,27 +14,35 @@
 
     [Serializable]
     [ProtoContract]
-    internal class RAMStorage : IRAMStorage
+    public class RAMStorage : IRAMStorage
     {
         [ProtoMember(1)]
-        private long subFingerprintReferenceCounter;
+        private UIntModelReferenceProvider subFingerprintReferenceProvider;
 
         [ProtoMember(2)]
-        private int trackReferenceCounter;
+        private IModelReferenceProvider trackReferenceProvider;
 
         [ProtoMember(6)]
-        private long spectralImagesCounter;
+        private IModelReferenceProvider spectralReferenceProvider;
 
         private ConcurrentDictionary<uint, SubFingerprintData> subFingerprints;
 
-        public RAMStorage()
+        public RAMStorage(int numberOfHashTables, IModelReferenceProvider trackReferenceProvider)
         {
-            // no op
+            this.trackReferenceProvider = trackReferenceProvider;
+            subFingerprintReferenceProvider = new UIntModelReferenceProvider();
+            spectralReferenceProvider = new IntModelReferenceProvider();
+
+            Initialize(numberOfHashTables);
         }
 
-        public RAMStorage(int numberOfHashTables)
+        public RAMStorage(int numberOfHashTables) : this(numberOfHashTables, new IntModelReferenceProvider())
         {
-            Initialize(numberOfHashTables);
+        }
+        
+        private RAMStorage()
+        {
+            // left for proto-buf
         }
 
         public IEnumerable<int> HashCountsPerTable
@@ -47,11 +53,11 @@
             }
         }
 
-        [ProtoMember(3)]
-        public int NumberOfHashTables { get; private set; }
+        [ProtoMember(3)] 
+        private int NumberOfHashTables { get; set; }
 
         [ProtoMember(4)]
-        public IDictionary<int, TrackData> Tracks { get; private set; }
+        public IDictionary<IModelReference, TrackData> Tracks { get; private set; }
 
         public int SubFingerprintsCount => subFingerprints.Count;
 
@@ -83,8 +89,7 @@
 
         public SubFingerprintData AddHashedFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
         {
-            var id = (uint)Interlocked.Increment(ref subFingerprintReferenceCounter);
-            var subFingerprintReference = new ModelReference<uint>(id);
+            var subFingerprintReference = subFingerprintReferenceProvider.Next();
             var subFingerprintData = new SubFingerprintData(
                 hashedFingerprint.HashBins,
                 hashedFingerprint.SequenceNumber,
@@ -94,7 +99,7 @@
                 trackReference);
 
             AddSubFingerprint(subFingerprintData);
-            InsertHashes(hashedFingerprint.HashBins, subFingerprintReference.Id);
+            InsertHashes(hashedFingerprint.HashBins, (uint)subFingerprintReference.Id);
             return subFingerprintData;
         }
 
@@ -105,21 +110,21 @@
 
         public TrackData AddTrack(TrackInfo track)
         {
-            var trackReference = new ModelReference<int>(Interlocked.Increment(ref trackReferenceCounter));
+            var trackReference = trackReferenceProvider.Next();
             var trackData = new TrackData(track.Id, track.Artist, track.Title, string.Empty, 0, track.DurationInSeconds, trackReference);
             return AddTrack(trackData);
         }
 
         public TrackData AddTrack(TrackData track)
         {
-            return Tracks[((ModelReference<int>)track.TrackReference).Id] = track;
+            return Tracks[track.TrackReference] = track;
         }
 
         public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
         {
             var all = from @ref in SubFingerprints.Values
                 where @ref.TrackReference.Equals(trackReference)
-                select (uint) @ref.SubFingerprintReference.Id;
+                select (uint)@ref.SubFingerprintReference.Id;
 
             var references = new HashSet<uint>(all);
 
@@ -145,8 +150,7 @@
 
         public int DeleteTrack(IModelReference trackReference)
         {
-            int trackId = (int) trackReference.Id;
-            if (Tracks.Remove(trackId))
+            if (Tracks.Remove(trackReference))
             {
                 return 1;
             }
@@ -184,8 +188,9 @@
             using (var file = File.OpenRead(path))
             {
                 var obj = Serializer.Deserialize<RAMStorage>(file);
-                trackReferenceCounter = obj.trackReferenceCounter;
-                subFingerprintReferenceCounter = obj.subFingerprintReferenceCounter;
+                trackReferenceProvider = obj.trackReferenceProvider;
+                subFingerprintReferenceProvider = obj.subFingerprintReferenceProvider;
+                spectralReferenceProvider = obj.spectralReferenceProvider;
                 NumberOfHashTables = obj.NumberOfHashTables;
                 Tracks = obj.Tracks;
                 SubFingerprints = obj.SubFingerprints;
@@ -204,9 +209,7 @@
         private void Initialize(int numberOfHashTables)
         {
             NumberOfHashTables = numberOfHashTables;
-            trackReferenceCounter = 0;
-            subFingerprintReferenceCounter = 0;
-            Tracks = new ConcurrentDictionary<int, TrackData>();
+            Tracks = new ConcurrentDictionary<IModelReference, TrackData>();
             SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
             SubFingerprints = new ConcurrentDictionary<uint, SubFingerprintData>();
         }
@@ -252,7 +255,7 @@
             var dtos = spectralImages.Select(spectralImage => new SpectralImageData(
                                 spectralImage,
                                 orderNumber++,
-                                new ModelReference<ulong>((ulong)Interlocked.Increment(ref spectralImagesCounter)),
+                                spectralReferenceProvider.Next(),
                                 trackReference))
                             .ToList();
 

@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using SoundFingerprinting.DAO;
 
     internal static class SubFingerprintGroupingCounter
     {
@@ -12,7 +13,7 @@
             {
                 for (int j = 0; j < subFingerprints[i].Count; ++j)
                 {
-                    uint key = subFingerprints[i][j];
+                    var key = subFingerprints[i][j];
                     counter.TryGetValue(key, out var count);
                     counter[key] = count + 1;
                 }
