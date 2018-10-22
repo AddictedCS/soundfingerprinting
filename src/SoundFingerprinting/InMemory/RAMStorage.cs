@@ -31,7 +31,7 @@
         {
             this.trackReferenceProvider = trackReferenceProvider;
             subFingerprintReferenceProvider = new UIntModelReferenceProvider();
-            spectralReferenceProvider = new IntModelReferenceProvider();
+            spectralReferenceProvider = new UIntModelReferenceProvider();
 
             Initialize(numberOfHashTables);
         }
