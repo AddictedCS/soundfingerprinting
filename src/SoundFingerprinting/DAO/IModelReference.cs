@@ -4,7 +4,8 @@
 
     [ProtoContract, ProtoInclude(100, typeof(ModelReference<int>)), 
         ProtoInclude(101, typeof(ModelReference<ulong>)), 
-        ProtoInclude(102, typeof(ModelReference<uint>))]
+        ProtoInclude(102, typeof(ModelReference<uint>)),
+        ProtoInclude(103, typeof(CompoundModelReference))]
     public interface IModelReference
     {
         object Id { get; }
