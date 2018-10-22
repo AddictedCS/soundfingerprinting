@@ -32,5 +32,10 @@
 
         [ProtoMember(4)]
         public double DurationInSeconds { get; }
+
+        public override string ToString()
+        {
+            return $"TrackInfo[Id: {Id}, Title {Title}, Artist {Artist}, DurationInSeconds {DurationInSeconds}";
+        }
     }
 }

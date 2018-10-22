@@ -22,8 +22,15 @@ namespace SoundFingerprinting.DAO
             this.id = id;
         }
         
+        public static CompoundModelReference Null { get; } = new CompoundModelReference(string.Empty, 0);
+            
         object IModelReference.Id => Id;
 
         public string Id => $"{prefix}_{id}";
+
+        public override string ToString()
+        {
+            return $"CompoundModelReference [Id: {Id}";
+        }
     }
 }
