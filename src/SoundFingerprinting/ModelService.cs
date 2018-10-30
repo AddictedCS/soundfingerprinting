@@ -16,11 +16,11 @@
             SubFingerprintDao = subFingerprintDao;
         }
 
+        public virtual ModelServiceInfo Info => new ModelServiceInfo(TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray());
+
         protected ITrackDao TrackDao { get; }
         
         protected ISubFingerprintDao SubFingerprintDao { get; }
-
-        public virtual ModelServiceInfo Info => new ModelServiceInfo(TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray());
 
         public virtual IModelReference Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints)
         {
