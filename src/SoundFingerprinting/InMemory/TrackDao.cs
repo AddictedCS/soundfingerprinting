@@ -55,7 +55,7 @@
             return null;
         }
 
-        public IEnumerable<TrackData> ReadTrackByReferences(IEnumerable<IModelReference> references)
+        public IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
             return references.Aggregate(new List<TrackData>(), (list, reference) =>
             {

@@ -15,7 +15,7 @@ namespace SoundFingerprinting.DAO
 
         TrackData ReadTrack(IModelReference trackReference);
 
-        IEnumerable<TrackData> ReadTrackByReferences(IEnumerable<IModelReference> references);
+        IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
 
         int DeleteTrack(IModelReference trackReference);
 
