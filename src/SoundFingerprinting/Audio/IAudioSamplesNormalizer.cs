@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Audio
 {
-    internal interface IAudioSamplesNormalizer
+    public interface IAudioSamplesNormalizer
     {
         void NormalizeInPlace(float[] samples);
 
