@@ -35,9 +35,11 @@
         [ProtoMember(3)]
         public string ISRC { get; }
 
+        [Obsolete("Will be removed in upcoming versions")]
         [ProtoMember(4)]
         public string Album { get; }
 
+        [Obsolete("Will be removed in upcoming versions")]
         [ProtoMember(5)]
         public int ReleaseYear { get; }
 
