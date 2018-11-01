@@ -11,15 +11,27 @@
     public class ProtoSerializerTest
     {
         [Test]
+        public void ShouldSerializeModelReference()
+        {
+            var @ref = new ModelReference<int>(42);
+
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SerializeWithLengthPrefix<IModelReference>(stream, @ref, PrefixStyle.Fixed32);
+                byte[] serialized = stream.ToArray();
+                using (var deserializedStream = new MemoryStream(serialized))
+                {
+                    var reference = Serializer.DeserializeWithLengthPrefix<IModelReference>(deserializedStream, PrefixStyle.Fixed32);
+
+                    Assert.NotNull(reference);
+                }
+            }
+        }
+
+        [Test]
         public void ShouldSerialize()
         {
-            var sub = new SubFingerprintData(
-                          new[] { 1, 2, 3 },
-                          1,
-                          1f,
-                          new[] { "1", "2" },
-                          new ModelReference<int>(1),
-                          new ModelReference<int>(2));
+            var sub = new SubFingerprintData(new[] { 1, 2, 3 }, 1, 1f, new[] { "1", "2" }, new ModelReference<int>(1), new ModelReference<int>(2));
 
             using (var stream = new MemoryStream())
             {
