@@ -27,7 +27,7 @@
             var fingerprints = hashedFingerprints.ToList();
             if (!fingerprints.Any())
             {
-                return ModelReference<int>.Null;
+                return null;
             }
 
             var trackReference = TrackDao.InsertTrack(trackInfo).TrackReference;
@@ -44,16 +44,6 @@
             }
 
             return SubFingerprintDao.ReadSubFingerprints(queryHashes, config);
-        }
-
-        public virtual bool ContainsTrack(string id)
-        {
-            if (!string.IsNullOrEmpty(id))
-            {
-                return ReadTrackById(id) != null;
-            }
-
-            return false;
         }
 
         public virtual IEnumerable<TrackData> ReadAllTracks()

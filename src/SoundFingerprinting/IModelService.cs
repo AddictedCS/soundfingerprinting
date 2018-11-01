@@ -26,7 +26,5 @@ namespace SoundFingerprinting
         IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
 
         int DeleteTrack(IModelReference trackReference);
-
-        bool ContainsTrack(string id);
     }
 }

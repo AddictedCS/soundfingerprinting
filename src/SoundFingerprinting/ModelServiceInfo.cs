@@ -1,5 +1,11 @@
 ﻿namespace SoundFingerprinting
 {
+    using System;
+
+    using ProtoBuf;
+
+    [Serializable]
+    [ProtoContract]
     public class ModelServiceInfo
     {
         public ModelServiceInfo(int tracksCount, int subFingerprintsCount, int[] hashCountsInTables)
@@ -9,10 +15,18 @@
             HashCountsInTables = hashCountsInTables;
         }
 
+        private ModelServiceInfo()
+        {
+            // left for proto-buf
+        }
+
+        [ProtoMember(1)]
         public int TracksCount { get; }
 
+        [ProtoMember(2)]
         public int SubFingerprintsCount { get; }
 
+        [ProtoMember(3)]
         public int[] HashCountsInTables { get; }
 
         public override bool Equals(object obj)
