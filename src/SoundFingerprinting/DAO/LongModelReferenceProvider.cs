@@ -8,7 +8,7 @@ namespace SoundFingerprinting.DAO
     {
         [ProtoMember(1)]
         private long referenceCounter;
-        
+
         public IModelReference Next()
         {
             long next = Interlocked.Increment(ref referenceCounter);

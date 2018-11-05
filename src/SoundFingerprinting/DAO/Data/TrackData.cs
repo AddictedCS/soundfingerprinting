@@ -21,7 +21,7 @@
             TrackReference = trackReference;
         }
 
-        private TrackData()
+        public TrackData()
         {
             // left for protobuf
         }

@@ -13,7 +13,7 @@
             Id = id;
         }
 
-        private ModelReference()
+        public ModelReference()
         {
             // left for proto-buf
         }

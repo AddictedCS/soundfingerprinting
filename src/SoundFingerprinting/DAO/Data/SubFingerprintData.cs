@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using DAO;
 
@@ -22,7 +21,7 @@
             Clusters = clusters;
         }
 
-        private SubFingerprintData()
+        public SubFingerprintData()
         {
             Clusters = new List<string>();
         }
