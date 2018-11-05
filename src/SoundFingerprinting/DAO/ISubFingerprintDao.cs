@@ -18,7 +18,7 @@ namespace SoundFingerprinting.DAO
 
         IEnumerable<SubFingerprintData> ReadHashedFingerprintsByTrackReference(IModelReference trackReference);
 
-        FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration queryConfiguration);
+        IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration queryConfiguration);
 
         int DeleteSubFingerprintsByTrackReference(IModelReference trackReference);
     }

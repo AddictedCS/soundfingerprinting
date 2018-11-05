@@ -51,22 +51,22 @@
             return storage.ReadSubFingerprintByTrackReference(trackReference);
         }
 
-        public FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration queryConfiguration)
+        public IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration queryConfiguration)
         {
-            var allSubs = new ConcurrentBag<QueryResponseMatch>();
+            var allSubs = new ConcurrentBag<SubFingerprintData>();
             int threshold = queryConfiguration.ThresholdVotes;
             var assignedClusters = queryConfiguration.Clusters;
 
             Parallel.ForEach(hashes, hashedFingerprint =>
             {
-                var subFingerprints = ReadSubFingerprints(hashedFingerprint.Hashes, threshold, assignedClusters);
+                var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    allSubs.Add(new QueryResponseMatch(subFingerprint, hashedFingerprint.SequenceNumber));
+                    allSubs.Add(subFingerprint);
                 }
             });
 
-            return new FingerprintsQueryResponse(allSubs);
+            return new HashSet<SubFingerprintData>(allSubs);
         }
 
         public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)

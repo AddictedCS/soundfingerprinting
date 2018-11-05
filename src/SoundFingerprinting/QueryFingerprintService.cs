@@ -45,19 +45,20 @@
         private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
-            var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber)), configuration);
-
-            var joined = from candidate in result.Matches
-                         join hashedFingerprint in hashedFingerprints on candidate.QuerySequenceNumber equals hashedFingerprint.SequenceNumber
-                         select new { candidate.SubFingerprint, HashedFingerprint = hashedFingerprint };
-
+            var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => hashedFingerprint.HashBins), configuration);
+            var groupedResults = new GroupedQueryResults(hashedFingerprints);
             int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
-            return joined.AsParallel().Aggregate(new GroupedQueryResults(hashedFingerprints), (accumulator, pair) =>
+            Parallel.ForEach(hashedFingerprints, queryFingerprint =>
             {
-                int hammingSimilarity = similarityUtility.CalculateHammingSimilarity(pair.HashedFingerprint.HashBins, pair.SubFingerprint.Hashes, hashesPerTable);
-                accumulator.Add(pair.HashedFingerprint, pair.SubFingerprint, hammingSimilarity);
-                return accumulator;
+                var subFingerprints = result.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));
+                foreach (var subFingerprint in subFingerprints)
+                {
+                    int hammingSimilarity = similarityUtility.CalculateHammingSimilarity(queryFingerprint.HashBins, subFingerprint.Hashes, hashesPerTable);
+                    groupedResults.Add(queryFingerprint, subFingerprint, hammingSimilarity);
+                }
             });
+
+            return groupedResults;
         }
     }
 }

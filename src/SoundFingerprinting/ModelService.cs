@@ -35,12 +35,12 @@
             return trackReference;
         }
 
-        public virtual FingerprintsQueryResponse ReadSubFingerprints(IEnumerable<QueryHash> hashes, QueryConfiguration config)
+        public virtual IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
         {
             var queryHashes = hashes.ToList();
             if (!queryHashes.Any())
             {
-                return FingerprintsQueryResponse.Empty;
+                return Enumerable.Empty<SubFingerprintData>();
             }
 
             return SubFingerprintDao.ReadSubFingerprints(queryHashes, config);

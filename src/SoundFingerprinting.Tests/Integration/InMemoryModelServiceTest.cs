@@ -83,9 +83,7 @@
 
             modelService.DeleteTrack(trackReference);
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { new QueryHash(GenericHashBuckets(), 0) }, new DefaultQueryConfiguration())
-                                              .Matches
-                                              .Select(info => info.SubFingerprint)
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
                                               .ToList();
 
             Assert.IsFalse(subFingerprints.Any());
@@ -99,9 +97,7 @@
             var expectedTrack = new TrackInfo("isrc", "artist", "title", 200);
             var trackReference = modelService.Insert(expectedTrack, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { new QueryHash(GenericHashBuckets(), 0) }, new DefaultQueryConfiguration())
-                                              .Matches
-                                              .Select(info => info.SubFingerprint)
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
                                               .ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
@@ -127,9 +123,7 @@
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { new QueryHash(queryBuckets, 0) }, new LowLatencyQueryConfiguration())
-                                              .Matches
-                                              .Select(info => info.SubFingerprint)
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { queryBuckets }, new LowLatencyQueryConfiguration())
                                               .ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
@@ -152,9 +146,7 @@
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { new QueryHash(queryBuckets, 0) }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } })
-                                              .Matches
-                                              .Select(info => info.SubFingerprint)
+            var subFingerprints = modelService.ReadSubFingerprints(new[] { queryBuckets }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } })
                                               .ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);

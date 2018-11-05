@@ -37,14 +37,12 @@
             var trackReference = trackDao.InsertTrack(track).TrackReference;
             const int NumberOfHashBins = 100;
             var genericHashBuckets = GenericHashBuckets();
-            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins)
-                    .Select(
-                        sequenceNumber =>
-                            new HashedFingerprint(
-                                genericHashBuckets,
-                                (uint)sequenceNumber,
-                                sequenceNumber * 0.928f,
-                                Enumerable.Empty<string>()));
+            var hashedFingerprints = Enumerable.Range(0, NumberOfHashBins).Select(
+                sequenceNumber => new HashedFingerprint(
+                    genericHashBuckets,
+                    (uint)sequenceNumber,
+                    sequenceNumber * 0.928f,
+                    Enumerable.Empty<string>()));
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
@@ -123,31 +121,30 @@
             foreach (var hashedFingerprint in hashedFingerprintsForFirstTrack)
             {
                 var subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                    new[] { new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber) },
+                    new[] { hashedFingerprint.HashBins },
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = ThresholdVotes,
                             Clusters = new[] { "first-group-id" }
-                        }).Matches.Select(info => info.SubFingerprint).ToList();
+                        }).ToList();
 
                 Assert.AreEqual(1, subFingerprintData.Count);
                 Assert.AreEqual(firstTrackReference, subFingerprintData[0].TrackReference);
 
                 subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                    new[] { new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber) },
+                    new[] { hashedFingerprint.HashBins },
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = ThresholdVotes,
                             Clusters = new[] { "second-group-id" }
-                        }).Matches.Select(info => info.SubFingerprint).ToList();
+                        }).ToList();
 
 
                 Assert.AreEqual(1, subFingerprintData.Count);
                 Assert.AreEqual(secondTrackReference, subFingerprintData[0].TrackReference);
 
-                subFingerprintData = subFingerprintDao.ReadSubFingerprints(
-                        new[] { new QueryHash(hashedFingerprint.HashBins, hashedFingerprint.SequenceNumber) },
-                        new DefaultQueryConfiguration { ThresholdVotes = ThresholdVotes }).Matches.Select(info => info.SubFingerprint).ToList();
+                subFingerprintData = subFingerprintDao.ReadSubFingerprints(new[] { hashedFingerprint.HashBins }, new DefaultQueryConfiguration { ThresholdVotes = ThresholdVotes })
+                        .ToList();
 
                 Assert.AreEqual(2, subFingerprintData.Count);
             }
