@@ -12,6 +12,7 @@
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Math;
@@ -274,8 +275,8 @@
         private TrackData GetActualTrack(TagInfo tags)
         {
             return !string.IsNullOrEmpty(tags.ISRC)
-                       ? modelService.ReadTrackByISRC(tags.ISRC)
-                       : modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title).FirstOrDefault();
+                       ? modelService.ReadTrackById(tags.ISRC)
+                       : modelService.ReadTrackByTitle(tags.Title).FirstOrDefault();
         }
 
         private object[] GetNotFoundLine(TagInfo tags)
@@ -328,7 +329,7 @@
                                             allFiles.Count,
                                             System.IO.Path.GetFileNameWithoutExtension(file))
                                 });
-                        var track = InsertTrack(file);
+                        var track = GetTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
                                         .From(file)
                                         .WithFingerprintConfig(
@@ -341,23 +342,22 @@
                                         .Hash()
                                         .Result;
 
-                        modelService.InsertHashDataForTrack(hashes, track);
+                        modelService.Insert(track, hashes);
                     });
  
             stopWatch.Stop();
-            sb.AppendLine(string.Format("{0},{1}", inserted, stopWatch.ElapsedMilliseconds / 1000));
+            sb.AppendLine($"{inserted},{stopWatch.ElapsedMilliseconds / 1000}");
         }
 
-        private IModelReference InsertTrack(string file)
+        private TrackInfo GetTrack(string file)
         {
             var tags = GetTagsFromFile(file);
-            var trackData = new TrackData(tags);
-            return modelService.InsertTrack(trackData);
+            return new TrackInfo(tags.ISRC, tags.Artist, tags.Title, tags.Duration);
         }
 
         private void DeleteAll()
         {
-            var tracks = modelService.ReadAllTracks();
+            var tracks = modelService.ReadAllTracks().ToList();
             int deleted = 0;
             foreach (var track in tracks)
             {
@@ -366,7 +366,7 @@
                     OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {
-                            Message = string.Format("Deleted {0} out of {1} tracks from storage", Interlocked.Increment(ref deleted), tracks.Count)
+                            Message = $"Deleted {Interlocked.Increment(ref deleted)} out of {tracks.Count} tracks from storage"
                         });
             }
         }

@@ -44,13 +44,7 @@
             return format.LengthInSeconds;
         }
 
-        public override IReadOnlyCollection<string> SupportedFormats
-        {
-            get
-            {
-                return new[] { ".wav" };
-            }
-        }
+        public override IReadOnlyCollection<string> SupportedFormats => new[] { ".wav" };
 
         private static void CheckInputFileFormat(WaveFormat format, double startsAt)
         {

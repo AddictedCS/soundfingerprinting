@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.DAO.Data
 {
+    using System.Linq;
+
     using NUnit.Framework;
 
     using SoundFingerprinting.DAO;
@@ -11,17 +13,18 @@
         [Test]
         public void ShouldIdentifyAsEqual()
         {
-            var dto0 = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
+            var dto0 = new SubFingerprintData(new int[0], 0, 0, Enumerable.Empty<string>(), new ModelReference<int>(1), new ModelReference<int>(0));
 
-            var dto1 = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
+            var dto1 = new SubFingerprintData(new int[0], 0, 0, Enumerable.Empty<string>(), new ModelReference<int>(1), new ModelReference<int>(0));
 
             Assert.AreEqual(dto0, dto1);
+            Assert.AreEqual(dto0.GetHashCode(), dto1.GetHashCode());
         }
 
         [Test]
         public void ShouldNotBeEqualToNull()
         {
-            var dto = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
+            var dto = new SubFingerprintData(new int[0], 0, 0, Enumerable.Empty<string>(), new ModelReference<int>(1), new ModelReference<int>(0));
 
             Assert.IsFalse(dto.Equals(null));
         }

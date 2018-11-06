@@ -30,7 +30,7 @@
                 for (int j = 0; j < subFingerprintsPerTrack; ++j)
                 {
                     var hashed = new HashedFingerprint(longs, (uint)j, j * 1.48f, Enumerable.Empty<string>());
-                    storage.AddSubfingerprint(hashed, trackReference);
+                    storage.AddHashedFingerprint(hashed, trackReference);
                 }
             });
 

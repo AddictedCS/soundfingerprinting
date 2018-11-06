@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
 
-    internal class AudioSamplesNormalizer : IAudioSamplesNormalizer
+    public class AudioSamplesNormalizer : IAudioSamplesNormalizer
     {
         private const float MinRms = 0.1f;
 

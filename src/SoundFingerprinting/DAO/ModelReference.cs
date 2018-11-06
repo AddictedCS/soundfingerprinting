@@ -4,30 +4,26 @@
 
     using ProtoBuf;
 
-    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
     [Serializable]
     [ProtoContract]
     public class ModelReference<T> : IModelReference<T>
     {
-        public ModelReference()
-        {
-        }
-
         public ModelReference(T id)
         {
             Id = id;
         }
 
-        [ProtoMember(1)]
-        public T Id { get; private set; }
-
-        object IModelReference.Id
+        public ModelReference()
         {
-            get
-            {
-                return Id;
-            }
+            // left for proto-buf
         }
+
+        public static ModelReference<T> Null { get; } = new ModelReference<T>(default(T));
+
+        [ProtoMember(1)]
+        public T Id { get; }
+
+        object IModelReference.Id => Id;
 
         public override bool Equals(object obj)
         {

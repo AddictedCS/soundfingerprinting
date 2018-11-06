@@ -11,7 +11,7 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.LCS;
 
-    internal class GroupedQueryResults
+    public class GroupedQueryResults
     {
         private readonly IEnumerable<HashedFingerprint> queryFingerprints;
         private readonly SortedDictionary<uint, Candidates> matches;

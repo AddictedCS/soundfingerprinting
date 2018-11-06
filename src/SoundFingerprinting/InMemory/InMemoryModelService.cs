@@ -1,45 +1,28 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.Math;
 
     public class InMemoryModelService : AdvancedModelService
     {
         private readonly IRAMStorage ramStorage;
 
-        public InMemoryModelService(): this(new RAMStorage(50))
+        public InMemoryModelService() : this(new RAMStorage(25), new StandardGroupingCounter())
         {
         }
 
-        public InMemoryModelService(string loadFrom): this(new RAMStorage(50))
+        public InMemoryModelService(string loadFrom) : this(new RAMStorage(25), new StandardGroupingCounter())
         {
             ramStorage.InitializeFromFile(loadFrom);
         }
 
-        internal InMemoryModelService(IRAMStorage ramStorage)
-            : this(
-                new TrackDao(ramStorage),
-                new SubFingerprintDao(ramStorage),
-                new SpectralImageDao(ramStorage),
-                ramStorage)
+        public InMemoryModelService(IRAMStorage ramStorage, IGroupingCounter groupingCounter) : this(new TrackDao(ramStorage), new SubFingerprintDao(ramStorage, groupingCounter), new SpectralImageDao(ramStorage), ramStorage)
         {
         }
 
-        private InMemoryModelService(
-            ITrackDao trackDao,
-            ISubFingerprintDao subFingerprintDao,
-            ISpectralImageDao spectralImageDao,
-            IRAMStorage ramStorage)
-            : base(trackDao, subFingerprintDao, spectralImageDao)
+        private InMemoryModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao, ISpectralImageDao spectralImageDao, IRAMStorage ramStorage) : base(trackDao, subFingerprintDao, spectralImageDao)
         {
             this.ramStorage = ramStorage;
-        }
-
-        public override bool SupportsBatchedSubFingerprintQuery
-        {
-            get
-            {
-                return false;
-            }
         }
 
         public void Snapshot(string path)

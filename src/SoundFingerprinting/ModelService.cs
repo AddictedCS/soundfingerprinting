@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -11,76 +10,72 @@
 
     public abstract class ModelService : IModelService
     {
-        private readonly ITrackDao trackDao;
-        private readonly ISubFingerprintDao subFingerprintDao;
-
         protected ModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
         {
-            this.trackDao = trackDao;
-            this.subFingerprintDao = subFingerprintDao;
+            TrackDao = trackDao;
+            SubFingerprintDao = subFingerprintDao;
         }
 
-        public abstract bool SupportsBatchedSubFingerprintQuery { get; }
+        public virtual ModelServiceInfo Info => new ModelServiceInfo(TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray());
 
-        public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
-        {
-            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes, config.Clusters, config.MetaFields);
-        }
+        protected ITrackDao TrackDao { get; }
+        
+        protected ISubFingerprintDao SubFingerprintDao { get; }
 
-        public virtual bool ContainsTrack(string isrc, string artist, string title)
+        public virtual IModelReference Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints)
         {
-            if (!string.IsNullOrEmpty(isrc))
+            var fingerprints = hashedFingerprints.ToList();
+            if (!fingerprints.Any())
             {
-                return ReadTrackByISRC(isrc) != null;
+                return null;
             }
 
-            return ReadTrackByArtistAndTitleName(artist, title).Any();
+            var trackReference = TrackDao.InsertTrack(trackInfo).TrackReference;
+            SubFingerprintDao.InsertHashDataForTrack(fingerprints, trackReference);
+            return trackReference;
         }
 
-        public virtual IModelReference InsertTrack(TrackData track)
+        public virtual IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
         {
-            return trackDao.InsertTrack(track);
+            var queryHashes = hashes.ToList();
+            if (!queryHashes.Any())
+            {
+                return Enumerable.Empty<SubFingerprintData>();
+            }
+
+            return SubFingerprintDao.ReadSubFingerprints(queryHashes, config);
         }
 
-        public virtual void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
+        public virtual IEnumerable<TrackData> ReadAllTracks()
         {
-            subFingerprintDao.InsertHashDataForTrack(hashes, trackReference);
+            return TrackDao.ReadAll();
         }
 
-        [Obsolete]
-        public virtual IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
+        public virtual IEnumerable<TrackData> ReadTrackByTitle(string title)
         {
-            return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);
+            return TrackDao.ReadTrackByTitle(title);
         }
 
-        public virtual IList<TrackData> ReadAllTracks()
+        public virtual TrackData ReadTrackByReference(IModelReference ids)
         {
-            return trackDao.ReadAll();
+            return TrackDao.ReadTrack(ids);
         }
 
-        public virtual IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
+        public virtual IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
-            return trackDao.ReadTrackByArtistAndTitleName(artist, title);
+            return TrackDao.ReadTracksByReferences(references);
         }
 
-        public virtual TrackData ReadTrackByReference(IModelReference trackReference)
+        public virtual TrackData ReadTrackById(string id)
         {
-            return trackDao.ReadTrack(trackReference);
-        }
-
-        public virtual List<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> ids)
-        {
-            return trackDao.ReadTracks(ids);
-        }
-
-        public virtual TrackData ReadTrackByISRC(string isrc)
-        {
-            return trackDao.ReadTrackByISRC(isrc);
+            return TrackDao.ReadTrackById(id);
         }
 
         public virtual int DeleteTrack(IModelReference trackReference)
         {
-            return trackDao.DeleteTrack(trackReference);
+            int deletedSubFingerprints = SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference);
+            int deletedTrack = TrackDao.DeleteTrack(trackReference);
+            return deletedSubFingerprints + deletedTrack;
         }
     }
 }

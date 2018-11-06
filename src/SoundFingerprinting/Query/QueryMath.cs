@@ -5,10 +5,9 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
-    internal class QueryMath : IQueryMath
+    public class QueryMath : IQueryMath
     {
         private readonly IQueryResultCoverageCalculator queryResultCoverageCalculator;
         private readonly IConfidenceCalculator confidenceCalculator;
@@ -26,10 +25,8 @@
             return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration)).ToList();
         }
 
-        public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
+        public static bool IsCandidatePassingThresholdVotes(int[] query, int[] result, int thresholdVotes)
         {
-            int[] query = queryFingerprint.HashBins;
-            int[] result = candidate.Hashes;
             int count = 0;
             for (int i = 0; i < query.Length; ++i)
             {

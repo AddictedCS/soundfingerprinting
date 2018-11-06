@@ -5,43 +5,58 @@
     using System.Linq;
     using System.Threading.Tasks;
 
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Utils;
+    using SoundFingerprinting.Math;
 
     internal class SubFingerprintDao : ISubFingerprintDao
     {
         private readonly IRAMStorage storage;
+        private readonly IGroupingCounter groupingCounter;
 
-        public SubFingerprintDao(IRAMStorage storage)
+        public SubFingerprintDao(IRAMStorage storage, IGroupingCounter groupingCounter)
         {
             this.storage = storage;
+            this.groupingCounter = groupingCounter;
         }
 
-        public void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
+        public int SubFingerprintsCount => storage.SubFingerprintsCount;
+
+        public IEnumerable<int> HashCountsPerTable => storage.HashCountsPerTable;
+
+        public IEnumerable<SubFingerprintData> InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
         {
+            var subFingerprints = new List<SubFingerprintData>();
             foreach (var hashedFingerprint in hashes)
             {
-                storage.AddSubfingerprint(hashedFingerprint, trackReference);
+                var subFingerprint = storage.AddHashedFingerprint(hashedFingerprint, trackReference);
+                subFingerprints.Add(subFingerprint);
+            }
+
+            return subFingerprints;
+        }
+
+        public void InsertSubFingerprints(IEnumerable<SubFingerprintData> subFingerprints)
+        {
+            foreach (var subFingerprint in subFingerprints)
+            {
+                storage.AddSubFingerprint(subFingerprint);
             }
         }
 
-        public IList<HashedFingerprint> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
+        public IEnumerable<SubFingerprintData> ReadHashedFingerprintsByTrackReference(IModelReference trackReference)
         {
-            var subFingerprints = storage.ReadSubFingerprintByTrackReference(trackReference);
-
-            return subFingerprints.Select(data => new HashedFingerprint(
-                    data.Hashes,
-                    data.SequenceNumber,
-                    data.SequenceAt,
-                    data.Clusters))
-                .ToList();
+            return storage.ReadSubFingerprintByTrackReference(trackReference);
         }
 
-        public ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, int threshold, IEnumerable<string> assignedClusters, IDictionary<string, string> metaFields)
+        public IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration queryConfiguration)
         {
             var allSubs = new ConcurrentBag<SubFingerprintData>();
+            int threshold = queryConfiguration.ThresholdVotes;
+            var assignedClusters = queryConfiguration.Clusters;
+
             Parallel.ForEach(hashes, hashedFingerprint =>
             {
                 var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
@@ -54,11 +69,14 @@
             return new HashSet<SubFingerprintData>(allSubs);
         }
 
+        public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
+        {
+            return storage.DeleteSubFingerprintsByTrackReference(trackReference);
+        }
+
         private IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
         {
-            var subFingeprintCount = CountSubFingerprintMatches(hashes, thresholdVotes);
-            var subFingerprints = subFingeprintCount.Select(id => storage.ReadSubFingerprintById(id));
-
+            var subFingerprints = CountSubFingerprintMatches(hashes, thresholdVotes);
             var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
             if (clusters.Any())
             {
@@ -68,16 +86,16 @@
             return subFingerprints;
         }
 
-        private IEnumerable<ulong> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
+        private IEnumerable<SubFingerprintData> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
         {
-            var results = new List<ulong>[hashes.Length];
+            var results = new List<uint>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
             {
                 int hashBin = hashes[table];
                 results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
             }
 
-            return SubFingerprintGroupingCounter.GroupByAndCount(results, thresholdVotes);
+            return groupingCounter.GroupByAndCount(results, thresholdVotes, id => storage.ReadSubFingerprintById(id));
         }
     }
 }

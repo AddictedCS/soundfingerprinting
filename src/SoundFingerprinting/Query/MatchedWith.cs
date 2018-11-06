@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Query
 {
-    internal class MatchedWith
+    public class MatchedWith
     {
         public MatchedWith(float queryAt, float resultAt, int hammingSimilarity)
         {

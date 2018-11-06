@@ -10,7 +10,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
 
@@ -29,10 +29,9 @@
                 .UsingServices(audioService)
                 .Hash();
 
-            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
-            var trackReferences = modelService.InsertTrack(trackData);
+            var trackData = new TrackInfo("isrc", "artist", "title", 200);
 
-            modelService.InsertHashDataForTrack(hashedFingerprints, trackReferences);
+            modelService.Insert(trackData, hashedFingerprints);
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
@@ -54,18 +53,24 @@
         {
             var modelService = new InMemoryModelService();
 
-            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
-            var trackReferences = modelService.InsertTrack(trackData);
+            var firstTrack = new TrackInfo("id1", "artist", "title", 200);
+            var ref1 = modelService.Insert(firstTrack, new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Enumerable.Empty<string>()) });
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
 
             var fromFileService = new InMemoryModelService(tempFile);
 
-            var newTrackReference = fromFileService.InsertTrack(trackData);
+            var secondTrack = new TrackInfo("id2", "artist", "title", 200);
+            var ref2 = fromFileService.Insert(secondTrack, new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Enumerable.Empty<string>()) });
+
+            var tracks = fromFileService.ReadAllTracks().ToList();
 
             File.Delete(tempFile);
-            Assert.AreNotEqual(trackReferences, newTrackReference);
+
+            Assert.IsTrue(tracks.Any(track => track.ISRC == "id1"));
+            Assert.IsTrue(tracks.Any(track => track.ISRC == "id2"));
+            Assert.IsTrue(!ref1.Equals(ref2));
         }
 
         [Test]

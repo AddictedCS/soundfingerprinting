@@ -15,34 +15,29 @@
             SampleRate = sampleRate;
         }
 
-        internal AudioSamples()
+        private AudioSamples()
         {
+            // left for serializers
         }
 
         /// <summary>
         ///  Gets audio samples in Ieee32 format
         /// </summary>
-        public float[] Samples { get; internal set; }
+        public float[] Samples { get; }
 
         /// <summary>
         ///  Gets the origin of the audio samples
         /// </summary>
-        public string Origin { get; internal set; }
+        public string Origin { get; }
 
         /// <summary>
         ///  Gets sample rate at which the audio has been sampled
         /// </summary>
-        public int SampleRate { get;  internal set; }
+        public int SampleRate { get; }
 
         /// <summary>
         ///  Gets the duration of the audio samples
         /// </summary>
-        public double Duration
-        {
-            get
-            {
-                return (double)Samples.Length / SampleRate;
-            }
-        }
+        public double Duration => (double)Samples.Length / SampleRate;
     }
 }
