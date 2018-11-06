@@ -19,12 +19,9 @@ private readonly IAudioService audioService = new SoundFingerprintingAudioServic
 
 public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAudioFile)
 {
-    var track = new TrackData("GBBKS1200164", "Adele", "Skyfall", "Skyfall", 2012, 290);
-	
-    // store track metadata in the datasource
-    var trackReference = modelService.InsertTrack(track);
+    var track = new TrackInfo("GBBKS1200164", "Skyfall", "Adele", 290d);
 
-    // create hashed fingerprints
+    // create fingerprints
     var hashedFingerprints = FingerprintCommandBuilder.Instance
                                 .BuildFingerprintCommand()
                                 .From(pathToAudioFile)
@@ -33,7 +30,7 @@ public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAu
                                 .Result;
 								
     // store hashes in the database for later retrieval
-    modelService.InsertHashDataForTrack(hashedFingerprints, trackReference);
+    modelService.Insert(track, hashedFingerprints);
 }
 ```
 There are four storages available for use. The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code>. Other storages that you can use are:
@@ -76,6 +73,9 @@ Every `ResultEntry` object will contain the following information:
 - `FingerprintingDuration` - time in milliseconds spent generating the acousting fingerprints from the media file.
 - `TotalTracksAnalyzed` - total # of tracks analyzed during query time. If this number exceeds 50, try optimizing your configuration.
 - `TotalFingerprintsAnalyzed` - total # of fingerprints analyzed during query time. If this number exceeds 500, try optimizing your configuration.
+
+### Version 6.0.0
+Version 6.0.0 provides a slightly improved `IModelService` interface. Now you can insert `TrackInfo` and it's corresponding fingerprints in one method call. The signatures of the fingerprints stayed the same, no need to re-index your tracks. Also, instead of inserting `TrackData` objects a new lightweight data class has been added: `TrackInfo`.
 
 ### Version 5.2.0
 Version 5.2.0 provides a query configuration option `AllowMultipleMatchesOfTheSameTrackInQuery` which will instruct the framework to consider the use case of having the same track matched multiple times within the same query. This is handy for long queries that can contain same match scattered across the query. Default value is `false`.
