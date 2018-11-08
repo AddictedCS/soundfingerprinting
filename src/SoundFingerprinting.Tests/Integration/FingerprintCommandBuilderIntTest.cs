@@ -1,18 +1,15 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using Audio;
-
     using Builder;
     using Configuration;
     using InMemory;
     using NUnit.Framework;
-
     using SoundFingerprinting.Data;
     using Strides;
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     [TestFixture]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
@@ -54,7 +51,7 @@
         {
             const int SecondsToProcess = 8;
             const int StartAtSecond = 2;
-            var track = new TrackInfo("isrc", "artist", "title", 200d);
+            var track = new TrackInfo("isrc", "title", "artist", 200d);
 
             var fingerprints = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
@@ -120,7 +117,7 @@
                 .Hash();
 
             int bytesPerSample = format.Channels * format.BitsPerSample / 8;
-            int numberOfSamples = (int) format.Length / bytesPerSample;
+            int numberOfSamples = (int)format.Length / bytesPerSample;
             int numberOfDownsampledSamples = (int)(numberOfSamples / ((double)format.SampleRate / config.SampleRate));
             long numberOfFingerprints = numberOfDownsampledSamples / config.SamplesPerFingerprint;
             Assert.AreEqual(numberOfFingerprints, list.Count);

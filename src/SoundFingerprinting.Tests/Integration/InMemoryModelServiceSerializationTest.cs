@@ -29,7 +29,7 @@
                 .UsingServices(audioService)
                 .Hash();
 
-            var trackData = new TrackInfo("isrc", "artist", "title", 200);
+            var trackData = new TrackInfo("isrc", "title", "artist", 200);
 
             modelService.Insert(trackData, hashedFingerprints);
 
@@ -53,7 +53,7 @@
         {
             var modelService = new InMemoryModelService();
 
-            var firstTrack = new TrackInfo("id1", "artist", "title", 200);
+            var firstTrack = new TrackInfo("id1", "title", "artist", 200);
             var ref1 = modelService.Insert(firstTrack, new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Enumerable.Empty<string>()) });
 
             var tempFile = Path.GetTempFileName();
@@ -61,7 +61,7 @@
 
             var fromFileService = new InMemoryModelService(tempFile);
 
-            var secondTrack = new TrackInfo("id2", "artist", "title", 200);
+            var secondTrack = new TrackInfo("id2", "title", "artist", 200);
             var ref2 = fromFileService.Insert(secondTrack, new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Enumerable.Empty<string>()) });
 
             var tracks = fromFileService.ReadAllTracks().ToList();
@@ -88,7 +88,6 @@
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
-
 
             var fromFileService = new InMemoryModelService(tempFile);
 

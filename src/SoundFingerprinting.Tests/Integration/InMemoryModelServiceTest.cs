@@ -22,7 +22,7 @@
         [Test]
         public void InsertTrackTest()
         {
-            var track = new TrackInfo("id", "artist", "title", 200);
+            var track = new TrackInfo("id", "title", "artist", 200);
 
             var trackReference = modelService.Insert(track, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
 
@@ -32,7 +32,7 @@
         [Test]
         public void ReadTrackByTrackReferenceTest()
         {
-            var track = new TrackInfo("id", "artist", "title", 200);
+            var track = new TrackInfo("id", "title", "artist", 200);
 
             var trackReference = modelService.Insert(track, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
 
@@ -66,7 +66,7 @@
             const int NumberOfTracks = 100;
             for (int i = 0; i < NumberOfTracks; i++)
             {
-                var track = new TrackInfo($"isrc{i}", "artist", "title", 200);
+                var track = new TrackInfo($"isrc{i}", "title", "artist", 200);
                 modelService.Insert(track, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
             }
 
@@ -78,7 +78,7 @@
         [Test]
         public void DeleteTrackTest()
         {
-            var track = new TrackInfo("isrc", "artist", "title", 200);
+            var track = new TrackInfo("isrc", "title", "artist", 200);
             var trackReference = modelService.Insert(track, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
 
             modelService.DeleteTrack(trackReference);
@@ -94,7 +94,7 @@
         [Test]
         public void InsertHashDataTest()
         {
-            var expectedTrack = new TrackInfo("isrc", "artist", "title", 200);
+            var expectedTrack = new TrackInfo("isrc", "title", "artist", 200);
             var trackReference = modelService.Insert(expectedTrack, new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) });
 
             var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
@@ -109,8 +109,8 @@
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdTest()
         {
-            var t1 = new TrackInfo("isrc1", "artist", "title", 200);
-            var t2 = new TrackInfo("isrc2", "artist", "title", 200);
+            var t1 = new TrackInfo("isrc1", "title", "artist", 200);
+            var t2 = new TrackInfo("isrc2", "title", "artist", 200);
             int[] firstTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             int[] secondTrackBuckets = { 2, 2, 4, 5, 6, 7, 7, 9, 10, 11, 12, 13, 14, 14, 16, 17, 18, 19, 20, 20, 22, 23, 24, 25, 26 };
 
@@ -133,8 +133,8 @@
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdWithClustersTest()
         {
-            var firstTrack = new TrackInfo("isrc1", "artist", "title", 200);
-            var secondTrack = new TrackInfo("isrc2", "artist", "title", 200);
+            var firstTrack = new TrackInfo("isrc1", "title", "artist", 200);
+            var secondTrack = new TrackInfo("isrc2", "title", "artist", 200);
             int[] firstTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             int[] secondTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f, new[] { "first-group-id" });
