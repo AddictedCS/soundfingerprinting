@@ -2,18 +2,16 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using SoundFingerprinting.DAO;
 
     internal static class SubFingerprintGroupingCounter
     {
-        public static IEnumerable<uint> GroupByAndCount(List<uint>[] subFingerprints, int threshold)
+        public static IEnumerable<uint> GroupByAndCount(IEnumerable<uint>[] subFingerprints, int threshold)
         {
             var counter = new Dictionary<uint, int>();
-            for (int i = 0; i < subFingerprints.Length; ++i)
+            foreach (var subFingerprint in subFingerprints)
             {
-                for (int j = 0; j < subFingerprints[i].Count; ++j)
+                foreach (var key in subFingerprint)
                 {
-                    var key = subFingerprints[i][j];
                     counter.TryGetValue(key, out var count);
                     counter[key] = count + 1;
                 }

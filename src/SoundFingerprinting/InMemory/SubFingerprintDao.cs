@@ -1,15 +1,14 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Math;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     internal class SubFingerprintDao : ISubFingerprintDao
     {
@@ -66,7 +65,7 @@
                 }
             });
 
-            return new HashSet<SubFingerprintData>(allSubs);
+            return allSubs;
         }
 
         public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
@@ -88,7 +87,7 @@
 
         private IEnumerable<SubFingerprintData> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
         {
-            var results = new List<uint>[hashes.Length];
+            var results = new IEnumerable<uint>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
             {
                 int hashBin = hashes[table];

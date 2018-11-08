@@ -1,16 +1,15 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
+    using DAO;
+    using DAO.Data;
+    using Data;
+    using ProtoBuf;
     using System;
     using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using DAO;
-    using DAO.Data;
-    using Data;
-
-    using ProtoBuf;
 
     [Serializable]
     [ProtoContract]
@@ -39,7 +38,7 @@
         public RAMStorage(int numberOfHashTables) : this(numberOfHashTables, new IntModelReferenceProvider())
         {
         }
-        
+
         private RAMStorage()
         {
             // left for proto-buf
@@ -53,7 +52,7 @@
             }
         }
 
-        [ProtoMember(3)] 
+        [ProtoMember(3)]
         private int NumberOfHashTables { get; set; }
 
         [ProtoMember(4)]
@@ -123,8 +122,8 @@
         public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
         {
             var all = from @ref in SubFingerprints.Values
-                where @ref.TrackReference.Equals(trackReference)
-                select (uint)@ref.SubFingerprintReference.Id;
+                      where @ref.TrackReference.Equals(trackReference)
+                      select (uint)@ref.SubFingerprintReference.Id;
 
             var references = new HashSet<uint>(all);
 
@@ -143,7 +142,7 @@
                                    return accumulator + list.RemoveAll(id => references.Contains(id));
                                });
                 });
-                
+
                 return totals + references.Count;
             }
         }
@@ -158,14 +157,14 @@
             return 0;
         }
 
-        public List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash)
+        public IEnumerable<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash)
         {
             if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
             {
                 return subFingerprintIds;
             }
 
-            return Enumerable.Empty<uint>().ToList();
+            return Enumerable.Empty<uint>();
         }
 
         public SubFingerprintData ReadSubFingerprintById(uint id)
@@ -175,7 +174,7 @@
 
         public IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference)
         {
-            return SubFingerprints.Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Value).ToList();
+            return SubFingerprints.Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Value);
         }
 
         public void Reset(int numberOfHashTables)
@@ -256,8 +255,7 @@
                                 spectralImage,
                                 orderNumber++,
                                 spectralReferenceProvider.Next(),
-                                trackReference))
-                            .ToList();
+                                trackReference));
 
             lock (SpectralImages)
             {
@@ -270,7 +268,7 @@
                 }
                 else
                 {
-                    SpectralImages[trackReference] = dtos;
+                    SpectralImages[trackReference] = dtos.ToList();
                 }
             }
         }
@@ -282,7 +280,7 @@
                 return spectralImageDatas;
             }
 
-            return Enumerable.Empty<SpectralImageData>().ToList();
+            return Enumerable.Empty<SpectralImageData>();
         }
     }
 }

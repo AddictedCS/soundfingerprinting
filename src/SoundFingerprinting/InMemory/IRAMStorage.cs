@@ -1,10 +1,9 @@
 namespace SoundFingerprinting.InMemory
 {
-    using System.Collections.Generic;
-
     using DAO;
     using DAO.Data;
     using Data;
+    using System.Collections.Generic;
 
     public interface IRAMStorage
     {
@@ -18,7 +17,7 @@ namespace SoundFingerprinting.InMemory
 
         void AddSubFingerprint(SubFingerprintData subFingerprintData);
 
-        List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash);
+        IEnumerable<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash);
 
         void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 
@@ -37,7 +36,7 @@ namespace SoundFingerprinting.InMemory
         SubFingerprintData ReadSubFingerprintById(uint id);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference);
-        
+
         int DeleteSubFingerprintsByTrackReference(IModelReference trackReference);
     }
 }

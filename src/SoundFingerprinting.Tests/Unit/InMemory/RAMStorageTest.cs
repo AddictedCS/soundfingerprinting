@@ -1,14 +1,12 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.InMemory
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using NUnit.Framework;
-
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Math;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     [TestFixture]
     public class RAMStorageTest
@@ -36,7 +34,7 @@
 
             for (int i = 0; i < 25; ++i)
             {
-                var subFingerprints = storage.GetSubFingerprintsByHashTableAndHash(i, longs[i]);
+                var subFingerprints = storage.GetSubFingerprintsByHashTableAndHash(i, longs[i]).ToList();
                 Assert.AreEqual(tracksCount * subFingerprintsPerTrack, subFingerprints.Count);
             }
         }

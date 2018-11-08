@@ -1,12 +1,11 @@
 ﻿namespace SoundFingerprinting.Math
 {
+    using SoundFingerprinting.DAO.Data;
     using System;
     using System.Collections.Generic;
 
-    using SoundFingerprinting.DAO.Data;
-
     public interface IGroupingCounter
     {
-        IEnumerable<SubFingerprintData> GroupByAndCount(List<uint>[] results, int thresholdVotes, Func<uint, SubFingerprintData> resolver);
+        IEnumerable<SubFingerprintData> GroupByAndCount(IEnumerable<uint>[] results, int thresholdVotes, Func<uint, SubFingerprintData> resolver);
     }
 }

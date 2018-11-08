@@ -1,11 +1,10 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
-    using System.Collections.Generic;
-    using System.Linq;
-
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using System.Collections.Generic;
+    using System.Linq;
 
     internal class TrackDao : ITrackDao
     {
@@ -57,15 +56,13 @@
 
         public IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
-            return references.Aggregate(new List<TrackData>(), (list, reference) =>
+            foreach (var reference in references)
             {
                 if (storage.Tracks.TryGetValue(reference, out var track))
                 {
-                    list.Add(track);
+                    yield return track;
                 }
-
-                return list;
-            });
+            }
         }
 
         public int DeleteTrack(IModelReference trackReference)
