@@ -1,13 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     using NUnit.Framework;
-
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
@@ -16,6 +9,11 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Strides;
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     [TestFixture]
     public class TrackDaoTest : IntegrationWithSampleFilesTest
@@ -48,7 +46,7 @@
             var modelReferences = new ConcurrentBag<IModelReference>();
             for (int i = 0; i < 1000; i++)
             {
-                var modelReference = trackDao.InsertTrack(new TrackInfo("isrc", "artist", "title", 200)).TrackReference;
+                var modelReference = trackDao.InsertTrack(new TrackInfo("isrc", "title", "artist", 200)).TrackReference;
 
                 Assert.IsFalse(modelReferences.Contains(modelReference));
                 modelReferences.Add(modelReference);
@@ -60,7 +58,7 @@
         {
             const int TrackCount = 5;
             var expectedTracks = InsertTracks(TrackCount);
-            
+
             var tracks = trackDao.ReadAll().ToList();
 
             Assert.AreEqual(TrackCount, tracks.Count);
@@ -73,7 +71,7 @@
         [Test]
         public void ReadByIdTest()
         {
-            var track = new TrackInfo("isrc", "artist", "title", 200);
+            var track = new TrackInfo("isrc", "title", "artist", 200);
 
             var trackReference = trackDao.InsertTrack(track).TrackReference;
 
@@ -128,7 +126,7 @@
         {
             const int NumberOfTracks = 10;
             InsertTracks(NumberOfTracks);
-            
+
             var allTracks = trackDao.ReadAll().ToList();
 
             Assert.IsTrue(allTracks.Count == NumberOfTracks);
@@ -208,7 +206,7 @@
 
         private TrackInfo GetTrack()
         {
-            return new TrackInfo(Guid.NewGuid().ToString(), "artist", "title", 360);
+            return new TrackInfo(Guid.NewGuid().ToString(), "title", "artist", 360);
         }
     }
 }
