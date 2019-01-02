@@ -6,7 +6,7 @@
     using SoundFingerprinting.Strides;
 
     /// <summary>
-    ///   Configuration options used when querying the ModelService
+    ///   Configuration options used when querying the data source
     /// </summary>
     public abstract class QueryConfiguration
     {
@@ -18,10 +18,7 @@
         /// </summary>
         public int ThresholdVotes
         {
-            get
-            {
-                return thresholdVotes;
-            }
+            get => thresholdVotes;
 
             set
             {
@@ -39,10 +36,7 @@
         /// </summary>
         public int MaxTracksToReturn
         {
-            get
-            {
-                return maxTracksToReturn;
-            }
+            get => maxTracksToReturn;
 
             set
             {
@@ -60,15 +54,9 @@
         /// </summary>
         public IStride Stride
         {
-            get
-            {
-                return FingerprintConfiguration.SpectrogramConfig.Stride;
-            }
+            get => FingerprintConfiguration.SpectrogramConfig.Stride;
 
-            set
-            {
-                FingerprintConfiguration.SpectrogramConfig.Stride = value;
-            }
+            set => FingerprintConfiguration.SpectrogramConfig.Stride = value;
         }
 
         /// <summary>
@@ -76,15 +64,9 @@
         /// </summary>
         public double HaarWaveletNorm
         {
-            get
-            {
-                return FingerprintConfiguration.HaarWaveletNorm;
-            }
+            get => FingerprintConfiguration.HaarWaveletNorm;
 
-            set
-            {
-                FingerprintConfiguration.HaarWaveletNorm = value;
-            }
+            set => FingerprintConfiguration.HaarWaveletNorm = value;
         }
 
         /// <summary>
@@ -92,15 +74,9 @@
         /// </summary>
         public Func<float, float, float> ScalingFunction
         {
-            get
-            {
-                return FingerprintConfiguration.ScalingFunction;
-            }
+            get => FingerprintConfiguration.ScalingFunction;
 
-            set
-            {
-                FingerprintConfiguration.ScalingFunction = value;
-            }
+            set => FingerprintConfiguration.ScalingFunction = value;
         }
 
         /// <summary>
@@ -108,15 +84,9 @@
         /// </summary>
         public int TopWavelets
         {
-            get
-            {
-                return FingerprintConfiguration.TopWavelets;
-            }
+            get => FingerprintConfiguration.TopWavelets;
 
-            set
-            {
-                FingerprintConfiguration.TopWavelets = value;
-            }
+            set => FingerprintConfiguration.TopWavelets = value;
         }
 
         /// <summary>
@@ -124,15 +94,9 @@
         /// </summary>
         public FrequencyRange FrequencyRange
         {
-            get
-            {
-                return FingerprintConfiguration.FrequencyRange;
-            }
+            get => FingerprintConfiguration.FrequencyRange;
 
-            set
-            {
-                FingerprintConfiguration.FrequencyRange = value;
-            }
+            set => FingerprintConfiguration.FrequencyRange = value;
         }
 
         /// <summary>
@@ -142,7 +106,7 @@
 
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 
-        ///  Useful when you have a long query which may contain same track multiple times scatered across the query.
+        ///  Useful when you have a long query which may contain same track multiple times scattered across the query.
         ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
         public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
