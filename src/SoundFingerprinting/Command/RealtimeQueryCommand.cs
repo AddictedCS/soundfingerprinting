@@ -54,6 +54,11 @@ namespace SoundFingerprinting.Command
                     
                     // TODO aggregate results over time
                     // Fire on passing callback
+
+                    foreach (var result in results.ResultEntries)
+                    {
+                        realtimeQueryConfiguration.Callback(result);
+                    }
                 }
             }
         }

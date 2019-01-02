@@ -9,8 +9,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Query;
 
     [TestFixture]
     public class RealtimeQueryTest
@@ -18,18 +18,25 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task ShouldQueryInRealtime()
         {
+            var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
-            var data = GenerateRandomAudioSamples("Queen");
+            var data = GenerateRandomAudioChunks("Queen");
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+                .From(concatenated)
+                .UsingServices(audioService)
+                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
             
             var collection = SimulateRealtimeQueryData(data);
 
-            Action<ResultEntry> callback = entry =>
-            {
-                Console.WriteLine($"Found entry {entry.Track.Title}");
-            };
-
-            var realtimeConfig = new RealtimeQueryConfiguration(5, 0.5, callback, TimeSpan.FromSeconds(2));
+            var realtimeConfig = new RealtimeQueryConfiguration(5, 0.5,
+                entry =>
+                {
+                    Console.WriteLine($"Found entry {entry.Track.Title}"); 
+                }, TimeSpan.FromSeconds(2));
 
             var cancellationTokenSource = new CancellationTokenSource();
             
@@ -42,7 +49,26 @@ namespace SoundFingerprinting.Tests.Unit.Query
             await Task.Delay(30000);
         }
 
-        private List<AudioSamples> GenerateRandomAudioSamples(string source)
+        private AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
+        {
+            int length = 0;
+            foreach (var samples in data)
+            {
+                length += samples.Samples.Length;
+            }
+
+            float[] concatenated = new float[length];
+            int dest = 0;
+            for (int i = 0; i < data.Count; i++)
+            {
+                Array.Copy(data[i].Samples,0, concatenated, dest, data[i].Samples.Length);
+                dest += data[i].Samples.Length;
+            }
+            
+            return new AudioSamples(concatenated, "Queen", 5512);
+        }
+
+        private List<AudioSamples> GenerateRandomAudioChunks(string source)
         {
             var list = new List<AudioSamples>();
 
