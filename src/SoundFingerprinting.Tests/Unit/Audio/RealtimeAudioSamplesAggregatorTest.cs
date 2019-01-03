@@ -51,15 +51,17 @@ namespace SoundFingerprinting.Tests.Unit.Audio
 
         private static void VerifyEndingsAreAttached(float[] prev, float[] next, AudioSamples current, int minSize, int strideSize)
         {
-            Assert.AreEqual(minSize + minSize - strideSize, current.Samples.Length);
-            for (int i = 0; i < strideSize; i++)
+            int prefixLength = minSize - strideSize;
+            Assert.AreEqual(minSize + prefixLength, current.Samples.Length);
+            
+            for (int i = 0; i < prefixLength; i++)
             {
-                Assert.AreEqual(prev[minSize - strideSize + i], current.Samples[i]);
+                Assert.AreEqual(prev[prev.Length - prefixLength + i], current.Samples[i]);
             }
 
-            for (int i = 0; i < minSize; ++i)
+            for (int i = 0; i < next.Length; ++i)
             {
-                Assert.AreEqual(next[i], current.Samples[strideSize + i]);
+                Assert.AreEqual(next[i], current.Samples[prefixLength + i]);
             }
         }
     }

@@ -33,7 +33,7 @@
         {
             get
             {
-               // lock (lockObject)
+                lock (lockObject)
                 {
                     return random.Next(Min, Max);
                 }

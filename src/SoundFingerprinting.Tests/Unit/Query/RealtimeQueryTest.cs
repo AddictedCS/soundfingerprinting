@@ -11,6 +11,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Strides;
 
     [TestFixture]
     public class RealtimeQueryTest
@@ -36,7 +37,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 entry =>
                 {
                     Console.WriteLine($"Found entry {entry.Track.Title}"); 
-                }, TimeSpan.FromSeconds(2));
+                }, TimeSpan.FromSeconds(2), new IncrementalStaticStride(256));
 
             var cancellationTokenSource = new CancellationTokenSource();
             
