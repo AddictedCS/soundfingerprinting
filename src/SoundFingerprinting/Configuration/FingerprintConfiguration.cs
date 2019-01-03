@@ -12,15 +12,9 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public IStride Stride
         {
-            get
-            {
-                return SpectrogramConfig.Stride;
-            }
+            get => SpectrogramConfig.Stride;
 
-            set
-            {
-                SpectrogramConfig.Stride = value;
-            }
+            set => SpectrogramConfig.Stride = value;
         }
 
         /// <summary>
@@ -38,14 +32,8 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public Func<float, float, float> ScalingFunction
         {
-            get
-            {
-                return SpectrogramConfig.ScalingFunction;
-            }
-            set
-            {
-                SpectrogramConfig.ScalingFunction = value;
-            } 
+            get => SpectrogramConfig.ScalingFunction;
+            set => SpectrogramConfig.ScalingFunction = value;
         }
 
         /// <summary>
@@ -53,14 +41,8 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public FrequencyRange FrequencyRange
         {
-            get
-            {
-                return SpectrogramConfig.FrequencyRange;
-            }
-            set
-            {
-                SpectrogramConfig.FrequencyRange = value;
-            }
+            get => SpectrogramConfig.FrequencyRange;
+            set => SpectrogramConfig.FrequencyRange = value;
         }
 
         /// <summary>
@@ -71,13 +53,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets number of audio samples read for one fingerprint
         /// </summary>
-        internal int SamplesPerFingerprint
-        {
-            get
-            {
-                return SpectrogramConfig.ImageLength * SpectrogramConfig.Overlap;
-            }
-        }
+        internal int SamplesPerFingerprint => SpectrogramConfig.ImageLength * SpectrogramConfig.Overlap;
 
         /// <summary>
         ///  Gets or sets number of top wavelets to consider during wavelet transformation
@@ -97,12 +73,6 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets fingerprint length in seconds
         /// </summary>
-        internal double FingerprintLengthInSeconds
-        {
-            get
-            {
-                return (double)SamplesPerFingerprint / SampleRate;
-            }
-        }
+        internal double FingerprintLengthInSeconds => (double)SamplesPerFingerprint / SampleRate;
     }
 }
