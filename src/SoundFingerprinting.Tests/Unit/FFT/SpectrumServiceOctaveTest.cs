@@ -81,7 +81,7 @@
 
             var config = new DefaultSpectrogramConfig
             {
-                Stride = new IncrementalStaticStride(Fs, -32 * 128 + Fs, 32 * 128),
+                Stride = new IncrementalStaticStride(Fs),
                 Overlap = 32,
                 ImageLength = 128
             };
