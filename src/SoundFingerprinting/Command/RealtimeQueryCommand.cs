@@ -41,20 +41,20 @@ namespace SoundFingerprinting.Command
 
         public async Task Query(CancellationToken cancellationToken)
         {
+            var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(realtimeQueryConfiguration.Stride, 10240);
             while (!realtimeSamples.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
             {
                 if (realtimeSamples.TryTake(out var audioSamples, realtimeQueryConfiguration.ApproximateChunkLength.Milliseconds, cancellationToken))
                 {
+                    var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
+                    
                     var hashes = await fingerprintCommandBuilder.BuildFingerprintCommand()
-                        .From(audioSamples)
+                        .From(prefixed)
                         .UsingServices(audioService)
                         .Hash();
 
                     var results = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
                     
-                    // TODO aggregate results over time
-                    // Fire on passing callback
-
                     foreach (var result in results.ResultEntries)
                     {
                         realtimeQueryConfiguration.Callback(result);

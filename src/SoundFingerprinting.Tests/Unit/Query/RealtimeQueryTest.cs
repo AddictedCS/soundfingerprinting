@@ -22,7 +22,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
-            var data = GenerateRandomAudioChunks("Queen");
+            int count = 10;
+            var data = GenerateRandomAudioChunks("Queen", count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(concatenated)
@@ -33,11 +34,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var collection = SimulateRealtimeQueryData(data);
 
-            var realtimeConfig = new RealtimeQueryConfiguration(5, 0.5,
+            var realtimeConfig = new RealtimeQueryConfiguration(4, 0.5,
                 entry =>
                 {
-                    Console.WriteLine($"Found entry {entry.Track.Title}"); 
-                }, TimeSpan.FromSeconds(2), new IncrementalStaticStride(256));
+                    Console.WriteLine($"Found {entry.Track.Title}, Starts At {entry.TrackMatchStartsAt}");
+                    Interlocked.Decrement(ref count);
+                }, 
+                TimeSpan.FromSeconds(2), new IncrementalRandomStride(256, 512));
 
             var cancellationTokenSource = new CancellationTokenSource();
             
@@ -48,6 +51,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationTokenSource.Token);
 
             await Task.Delay(30000);
+            collection.CompleteAdding();
+            cancellationTokenSource.Cancel();
+            Assert.IsTrue(count <= 1);
         }
 
         private AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
@@ -69,11 +75,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return new AudioSamples(concatenated, "Queen", 5512);
         }
 
-        private List<AudioSamples> GenerateRandomAudioChunks(string source)
+        private List<AudioSamples> GenerateRandomAudioChunks(string source, int count)
         {
             var list = new List<AudioSamples>();
 
-            for (int i = 0; i < 10; ++i)
+            for (int i = 0; i < count; ++i)
             {
                 var samples = TestUtilities.GenerateRandomFloatArray(10240);
                 list.Add(new AudioSamples(samples, source, 5512));
@@ -92,8 +98,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     collection.Add(audioSample);
                     await Task.Delay((int)audioSample.Duration);
                 }
-                
-                collection.CompleteAdding();
             });
 
             return collection;
