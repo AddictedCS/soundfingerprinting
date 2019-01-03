@@ -34,8 +34,8 @@
             for (int i = 0; i < Count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.IsTrue(skip <= Max);
-                Assert.IsTrue(skip >= Min);
+                Assert.IsTrue(skip <= 8192 + Max);
+                Assert.IsTrue(skip >= 8192 + Min);
             }
         }
 
