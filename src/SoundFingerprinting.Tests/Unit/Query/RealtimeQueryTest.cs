@@ -23,6 +23,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
 
             int count = 10;
+            int found = 0;
             var data = GenerateRandomAudioChunks("Queen", count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
@@ -34,11 +35,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var collection = SimulateRealtimeQueryData(data);
 
-            var realtimeConfig = new RealtimeQueryConfiguration(4, 0.5,
+            var realtimeConfig = new RealtimeQueryConfiguration(4, 5,
                 entry =>
                 {
                     Console.WriteLine($"Found {entry.Track.Title}, Starts At {entry.TrackMatchStartsAt}");
-                    Interlocked.Decrement(ref count);
+                    Interlocked.Increment(ref found);
                 }, 
                 TimeSpan.FromSeconds(2), new IncrementalRandomStride(256, 512));
 
@@ -53,7 +54,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             await Task.Delay(30000);
             collection.CompleteAdding();
             cancellationTokenSource.Cancel();
-            Assert.IsTrue(count <= 1);
+            Assert.IsTrue(found >= 3);
         }
 
         private AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)

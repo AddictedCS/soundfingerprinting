@@ -24,13 +24,13 @@ namespace SoundFingerprinting.Command
     public class RealtimeQueryConfiguration
     {
         public RealtimeQueryConfiguration(int thresholdVotes, 
-            double confidenceThreshold, 
+            double secondsThreshold, 
             Action<ResultEntry> callback, 
             TimeSpan approximateChunkLength, 
             IStride stride)
         {
             ThresholdVotes = thresholdVotes;
-            ConfidenceThreshold = confidenceThreshold;
+            SecondsThreshold = secondsThreshold;
             Callback = callback;
             ApproximateChunkLength = approximateChunkLength;
             Stride = stride;
@@ -38,7 +38,7 @@ namespace SoundFingerprinting.Command
         
         public int ThresholdVotes { get; }
         
-        public double ConfidenceThreshold { get; }
+        public double SecondsThreshold { get; }
         
         public TimeSpan ApproximateChunkLength { get; }
 
