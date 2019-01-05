@@ -49,13 +49,31 @@
         {
             var configuration = new DefaultSpectrogramConfig();
             var samples = TestUtilities.GenerateRandomAudioSamples(new DefaultFingerprintConfiguration().SamplesPerFingerprint + configuration.WdftSize); // 8192 + 2048
-            this.SetupFftService(configuration);
+            SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(configuration.ImageLength, result[0].Rows);
+        }
+
+        [Test]
+        public void CreateLogSpectrumFromTwoEntries()
+        {
+            int stride = 256;
+            var configuration = new DefaultSpectrogramConfig
+            {
+                Stride = new IncrementalStaticStride(stride)
+            };
+            
+            var samples = TestUtilities.GenerateRandomAudioSamples(new DefaultFingerprintConfiguration().SamplesPerFingerprint + configuration.WdftSize + stride);
+            SetupFftService(configuration);
+
+            var result = spectrumService.CreateLogSpectrogram(samples, configuration);
+
+            logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
+            Assert.AreEqual(2, result.Count);
         }
 
         [Test]

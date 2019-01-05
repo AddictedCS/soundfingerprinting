@@ -1,56 +1,42 @@
 ﻿namespace SoundFingerprinting.Strides
 {
+    using System;
+
     /// <summary>
     ///   Incremental random stride used in providing step length (measured in number of audio samples) between 2 consecutive fingerprints
     /// </summary>
-    public class IncrementalRandomStride : RandomStride
+    public class IncrementalRandomStride : IStride
     {
-        private const int SamplesPerFingerprint = 128 * 64; // 8192 samples per one fingerprint
- 
-        /// <summary>
-        ///   Initializes a new instance of the <see cref="IncrementalRandomStride"/> class. 
-        /// </summary>
-        /// <example>
-        ///   new IncrementalRandomStride(256, 512)
-        /// </example>
-        /// <param name="min">
-        ///   Inclusive min value used for generating a random stride
-        /// </param>
-        /// <param name="max">
-        ///   Exclusive max value used for generating a random stride
-        /// </param>
-        public IncrementalRandomStride(int min, int max) : this(min, max, 0)
+        private readonly object lockObject = new object();
+        private readonly Random random;
+        
+        public IncrementalRandomStride(int minStride, int maxStride, int seed = 0) 
         {
+            if (minStride > maxStride)
+            {
+                throw new ArgumentException("Bad arguments. Max stride should be bigger than Min stride");
+            }
+
+            Min = minStride;
+            Max = maxStride;
+            random = seed == 0 ? new Random() : new Random(seed);
+            FirstStride = 0;
         }
 
-        /// <summary>
-        ///   Initializes a new instance of the <see cref="IncrementalRandomStride"/> class. 
-        /// </summary>
-        /// <example>
-        ///   new IncrementalRandomStride(256, 512)
-        /// </example>
-        /// <param name="min">
-        ///   Inclusive min value used for generating a random stride
-        /// </param>
-        /// <param name="max">
-        ///   Exclusive max value used for generating a random stride
-        /// </param>
-        /// <param name="seed">
-        ///   Seed used when generating next random stride. Leave unset if you want to use environment ticks as the seed.
-        /// </param>
-        public IncrementalRandomStride(int min, int max, int seed) : base(min, max, seed)
-        {
-        }
+        private int Min { get; }
 
-        internal IncrementalRandomStride(int minStride, int maxStride, int firstStride, int seed): base(minStride, maxStride, firstStride, seed)
-        {
-        }
+        private int Max { get; }
 
-        public override int NextStride
+        public int FirstStride { get; }
+
+        public int NextStride
         {
             get
             {
-                return -SamplesPerFingerprint + Random.Next(Min, Max);
+                lock (lockObject)
+                {
+                    return random.Next(Min, Max);
+                }
             }
         }
 

@@ -71,7 +71,7 @@
         public Task<QueryResult> Query()
         {
             var fingerprintingStopwatch = Stopwatch.StartNew();
-            Task<QueryResult> resultingTask = createFingerprintMethod()
+            return createFingerprintMethod()
                                      .Hash()
                                      .ContinueWith(
                                         task =>
@@ -79,15 +79,13 @@
                                             long fingerprintingTime = fingerprintingStopwatch.ElapsedMilliseconds;
                                             var hashes = task.Result;
                                             var queryStopwatch = Stopwatch.StartNew();
-                                            QueryResult queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
+                                            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
                                             long queryingTime = queryStopwatch.ElapsedMilliseconds;
                                             queryResult.Stats.FingerprintingDuration = fingerprintingTime;
                                             queryResult.Stats.QueryDuration = queryingTime;
                                             return queryResult;
                                         },
                                         TaskContinuationOptions.ExecuteSynchronously);
-
-            return resultingTask;
         }
     }
 }

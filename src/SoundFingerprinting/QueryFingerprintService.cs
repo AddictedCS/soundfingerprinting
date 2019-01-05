@@ -33,7 +33,7 @@
 
             if (!groupedQueryResults.ContainsMatches)
             {
-                return QueryResult.EmptyResult();
+                return QueryResult.Empty;
             }
 
             var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration);

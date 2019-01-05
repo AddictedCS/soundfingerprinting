@@ -9,5 +9,7 @@
         /// </summary>
         /// <returns>Source selector</returns>
         IQuerySource BuildQueryCommand();
+
+        IRealtimeSource BuildRealtimeQueryCommand();
     }
 }

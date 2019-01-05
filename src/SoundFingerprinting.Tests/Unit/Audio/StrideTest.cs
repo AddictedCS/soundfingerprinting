@@ -14,14 +14,14 @@
         {
             const int Value = 5115;
             StaticStride stride = new StaticStride(Value);
-            Assert.AreEqual(Value, stride.NextStride);
+            Assert.AreEqual(8192 + Value, stride.NextStride);
         }
 
         [Test]
         public void IncrementalStaticStrideTest()
         {
             IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115);
-            Assert.AreEqual(5115 - 8192, incrementalStatic.NextStride);
+            Assert.AreEqual(5115, incrementalStatic.NextStride);
         }
 
         [Test]
@@ -34,8 +34,8 @@
             for (int i = 0; i < Count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.IsTrue(skip <= Max);
-                Assert.IsTrue(skip >= Min);
+                Assert.IsTrue(skip <= 8192 + Max);
+                Assert.IsTrue(skip >= 8192 + Min);
             }
         }
 

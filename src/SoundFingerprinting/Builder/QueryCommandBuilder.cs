@@ -22,6 +22,11 @@
             return new QueryCommand(fingerprintCommandBuilder, queryFingerprintService);
         }
 
+        public IRealtimeSource BuildRealtimeQueryCommand()
+        {
+            return new RealtimeQueryCommand();
+        }
+
         public static IQueryCommandBuilder Instance { get; } = new QueryCommandBuilder();
     }
 }

@@ -5,7 +5,11 @@
 
     public class QueryResult
     {
-        internal QueryResult(IEnumerable<ResultEntry> results)
+        /// <summary>
+        ///  Create an instance of QueryResult class
+        /// </summary>
+        /// <param name="results">Actual result entries</param>
+        public QueryResult(IEnumerable<ResultEntry> results)
         {
             ResultEntries = results;
         }
@@ -13,13 +17,7 @@
         /// <summary>
         ///   Gets a value indicating whether query result contains any matches
         /// </summary>
-        public bool ContainsMatches
-        {
-            get
-            {
-                return ResultEntries != null && ResultEntries.Any();
-            }
-        }
+        public bool ContainsMatches => ResultEntries != null && ResultEntries.Any();
 
         /// <summary>
         ///   Gets the list of matches, sorted from the most probable to the least probable
@@ -29,35 +27,26 @@
         /// <summary>
         ///  Gets best match if result entries are not empty
         /// </summary>
-        public ResultEntry BestMatch
-        {
-            get
-            {
-                if (ContainsMatches)
-                {
-                    return ResultEntries.First();
-                }
-
-                return null;
-            }
-        }
+        public ResultEntry BestMatch => ContainsMatches ? ResultEntries.First() : null;
 
         /// <summary>
         ///  Gets query statistics
         /// </summary>
-        public QueryStats Stats { get; internal set; } = new QueryStats();
+        public QueryStats Stats { get; } = new QueryStats();
 
-        public static QueryResult Empty()
-        {
-            return EmptyResult();
-        }
+        /// <summary>
+        ///  Returns empty query result
+        /// </summary>
+        public static QueryResult Empty { get; } = new QueryResult(Enumerable.Empty<ResultEntry>());
 
-        internal static QueryResult EmptyResult()
-        {
-            return new QueryResult(Enumerable.Empty<ResultEntry>());
-        }
-
-        internal static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, int totalTracksCandidates, int totalSubFingerprintCandidates)
+        /// <summary>
+        ///  Returns an instance of QueryResult class that will contain a list of result entries
+        /// </summary>
+        /// <param name="results">Result entries</param>
+        /// <param name="totalTracksCandidates">Total track candidates analyzed during query</param>
+        /// <param name="totalSubFingerprintCandidates">Total sub-fingerprint candidates analyzed during query</param>
+        /// <returns>Instance of QueryResult class</returns>
+        public static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, int totalTracksCandidates, int totalSubFingerprintCandidates)
         {
             var queryResults = new QueryResult(results)
                                {
