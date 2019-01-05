@@ -21,7 +21,7 @@ namespace SoundFingerprinting.Query
             collapsed = null;
             if (Entry.Track.Equals(next.Track))
             {
-                if (TrackMatchOverlaps(next))
+                if (TrackMatchOverlaps(next) || CanSwallow(next))
                 {
                     collapsed = new PendingResultEntry(Entry.MergeWith(next));
                     return true;
@@ -40,17 +40,7 @@ namespace SoundFingerprinting.Query
             waiting += length;
         }
 
-        private bool CanWait => waiting < 2 * AccuracyDelta;
-
-        private bool IsLongEnough(double threshold)
-        {
-            return Entry.QueryMatchLength > threshold;
-        }
-
-        public bool IsCompleted(double threshold)
-        {
-            return IsLongEnough(threshold) || !CanWait;
-        }
+        public bool CanWait => waiting < 2 * AccuracyDelta;
 
         public override bool Equals(object obj)
         {
@@ -70,6 +60,11 @@ namespace SoundFingerprinting.Query
         private bool TrackMatchOverlaps(ResultEntry next)
         {
             return TrackMatchEndsAt >= next.TrackMatchStartsAt - AccuracyDelta && next.TrackMatchStartsAt + AccuracyDelta >= TrackMatchEndsAt;
+        }
+
+        private bool CanSwallow(ResultEntry next)
+        {
+            return Entry.TrackMatchStartsAt <= next.TrackMatchStartsAt && TrackMatchEndsAt >= next.TrackMatchStartsAt + next.QueryMatchLength;
         }
     }
 }

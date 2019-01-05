@@ -2,41 +2,47 @@ namespace SoundFingerprinting.Query
 {
     using System.Collections.Generic;
     using System.Linq;
+    using SoundFingerprinting.Command;
 
-    public interface IRealtimeResultEntryAggregator
-    {
-        IEnumerable<ResultEntry> Consume(IEnumerable<ResultEntry> candidates, double secondsThreshold, double queryLength);
-    }
-    
     public class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
     {
         private readonly object lockObject = new object();
         private List<PendingResultEntry> pendingResults = new List<PendingResultEntry>();
         
-        public IEnumerable<ResultEntry> Consume(IEnumerable<ResultEntry> candidates, double secondsThreshold, double queryLength)
+        public RealtimeQueryResult
+            Consume(IEnumerable<ResultEntry> candidates, 
+            IRealtimeResultEntryFilter realtimeResultEntryFilter, 
+            double queryLength)
         {
             lock (lockObject)
             {
                 CollapseWithNewArrivals(candidates);
                 IncreaseWaitTime(queryLength);
-                return PurgeCompletedMatches(secondsThreshold);
+                return PurgeCompletedMatches(realtimeResultEntryFilter);
             }
         }
 
-        private IEnumerable<ResultEntry> PurgeCompletedMatches(double secondsThreshold)
+        private RealtimeQueryResult PurgeCompletedMatches(IRealtimeResultEntryFilter resultEntryFilter)
         {
             var completed = new HashSet<PendingResultEntry>();
+            var cantWaitAnymore = new HashSet<PendingResultEntry>();
+            
             foreach (var entry in pendingResults)
             {
-                if (entry.IsCompleted(secondsThreshold))
+                if (resultEntryFilter.Pass(entry.Entry))
                 {
                     completed.Add(entry);
                 }
+                else if (!entry.CanWait)
+                {
+                    cantWaitAnymore.Add(entry);
+                }
             }
 
-            pendingResults = pendingResults.Where(match => !completed.Contains(match))
+            pendingResults = pendingResults.Where(match => !completed.Contains(match) && !cantWaitAnymore.Contains(match))
                                            .ToList();
-            return completed.Select(pending => pending.Entry);
+            
+            return new RealtimeQueryResult(completed.Select(entry => entry.Entry).ToList(), cantWaitAnymore.Select(entry => entry.Entry).ToList());
         }
 
         private void IncreaseWaitTime(double queryLength)

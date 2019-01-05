@@ -22,8 +22,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsTrue(collapsed1.TryCollapse(entry3, out var collapsed2));
 
             var result = collapsed2.Entry;
-            Assert.AreEqual(3* 1.48, result.QueryMatchLength);
-            Assert.AreEqual(3*1.48, result.QueryLength);
+            Assert.AreEqual(3 * 1.48, result.QueryMatchLength, 0.0001);
+            Assert.AreEqual(3 * 1.48, result.QueryLength, 0.0001);
         }
 
         [Test]
@@ -55,12 +55,37 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var track = new TrackData("1", "artist", "title", string.Empty, 0, 120, new ModelReference<uint>(1));
 
             var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 3d, 3d, 10d, -10, 0d, 100, 3d));
-            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 3d, 3d, 14d, -10 + 3, 0d, 100, 3d));
+            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 3d, 3d, 12d, -10 + 2, 0d, 100, 3d));
 
             entry1.TryCollapse(entry2, out var collapsed);
 
-            Assert.IsTrue(collapsed.IsCompleted(5d));
+            Assert.AreEqual(5, collapsed.Entry.QueryMatchLength);
+        }
+        
+        [Test]
+        public void IsCompletedAsTheMatchIsLongerThanTheThreshold2()
+        {
+            var track = new TrackData("1", "artist", "title", string.Empty, 0, 120, new ModelReference<uint>(1));
+
+            var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 3d, 3d, 10d, -10, 0d, 100, 3d));
+            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 3d, 3d, 14d, -10 + 2, 0d, 100, 3d));
+
+            entry1.TryCollapse(entry2, out var collapsed);
+
             Assert.AreEqual(6, collapsed.Entry.QueryMatchLength);
+        }
+
+        [Test]
+        public void ShouldSwallowEntryWithinEntry()
+        {
+            var track = new TrackData("1", "artist", "title", string.Empty, 0, 120, new ModelReference<uint>(1));
+
+            var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 3d, 3d, 10d, -10, 0d, 100, 3d));
+            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 2.5d, 2.5d, 10.5d, -10 + 2.5, 0d, 100, 2.5d));
+
+            Assert.IsTrue(entry1.TryCollapse(entry2, out var collapsed));
+
+            Assert.AreEqual(3, collapsed.Entry.QueryMatchLength); 
         }
     }
 }

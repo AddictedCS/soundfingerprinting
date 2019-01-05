@@ -16,6 +16,9 @@ namespace SoundFingerprinting.Command
     
     public class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration, IUsingRealtimeQueryServices, IRealtimeQueryCommand
     {
+        private const int MinSamplesForOneFingerprint = 10240;
+        private const int Delay = MinSamplesForOneFingerprint / 5512;
+        
         private readonly IQueryFingerprintService queryFingerprintService = QueryFingerprintService.Instance;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder = FingerprintCommandBuilder.Instance;
         
@@ -43,12 +46,12 @@ namespace SoundFingerprinting.Command
 
         public async Task Query(CancellationToken cancellationToken)
         {
-            var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(realtimeQueryConfiguration.Stride, 10240);
+            var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(realtimeQueryConfiguration.Stride, MinSamplesForOneFingerprint);
             var realtimeResultEntryAggregator = new StatefulRealtimeResultEntryAggregator();
             
             while (!realtimeSamples.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
             {
-                if (realtimeSamples.TryTake(out var audioSamples, realtimeQueryConfiguration.ApproximateChunkLength.Milliseconds, cancellationToken))
+                if (realtimeSamples.TryTake(out var audioSamples, Delay, cancellationToken))
                 {
                     var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                     
@@ -59,11 +62,16 @@ namespace SoundFingerprinting.Command
 
                     var results = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
 
-                    var completed = realtimeResultEntryAggregator.Consume(results.ResultEntries, realtimeQueryConfiguration.SecondsThreshold, TimeSpan.FromMilliseconds(audioSamples.Duration).TotalSeconds);
+                    var realtimeQueryResult = realtimeResultEntryAggregator.Consume(results.ResultEntries, realtimeQueryConfiguration.ResultEntryFilter, TimeSpan.FromMilliseconds(audioSamples.Duration).TotalSeconds);
                     
-                    foreach (var result in completed)
+                    foreach (var result in realtimeQueryResult.SuccessEntries)
                     {
-                        realtimeQueryConfiguration.Callback(result);
+                        realtimeQueryConfiguration?.SuccessCallback(result);
+                    }
+
+                    foreach (var result in realtimeQueryResult.DidNotPassThresholdEntries)
+                    {
+                        realtimeQueryConfiguration?.DidNotPassFilterCallback(result);
                     }
                 }
             }

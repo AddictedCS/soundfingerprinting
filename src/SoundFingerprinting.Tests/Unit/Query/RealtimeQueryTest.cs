@@ -24,6 +24,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             int count = 10;
             int found = 0;
+            int didntPassThreshold = 0;
             var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -36,13 +37,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var collection = SimulateRealtimeQueryData(data);
 
-            var realtimeConfig = new RealtimeQueryConfiguration(4, 5,
+            var realtimeConfig = new RealtimeQueryConfiguration(4, new QueryMatchLengthFilter(5), 
                 entry =>
                 {
-                    Console.WriteLine($"Found {entry.Track.Title}, Starts At {entry.TrackMatchStartsAt}");
+                    Console.WriteLine($"Found {entry.Track.Title}, Starts At {entry.TrackMatchStartsAt}, Length {entry.QueryMatchLength}");
                     Interlocked.Increment(ref found);
-                }, 
-                TimeSpan.FromSeconds(2), new IncrementalRandomStride(256, 512));
+                },
+                entry =>
+                {
+                    Console.WriteLine($"Entry {entry.Track.Title} didn't pass filter, Starts At {entry.TrackMatchStartsAt}, Length {entry.QueryMatchLength}");
+                    Interlocked.Increment(ref didntPassThreshold);
+                }
+                , new IncrementalRandomStride(256, 512));
 
             var cancellationTokenSource = new CancellationTokenSource();
             
@@ -54,7 +60,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             await Task.Delay(30000);
             cancellationTokenSource.Cancel();
+            
             Assert.IsTrue(found >= 3);
+            Assert.IsTrue(didntPassThreshold <= 1);
         }
 
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
@@ -111,7 +119,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
         private static async Task Jitter(BlockingCollection<AudioSamples> collection)
         {
-            for (int i = 0; i < 3; ++i)
+            for (int i = 0; i < 4; ++i)
             {
                 var audioSample = GetMinSizeOfAudioSamples();
                 collection.Add(audioSample);
