@@ -40,11 +40,16 @@ namespace SoundFingerprinting.Query
             waiting += length;
         }
 
-        public bool CanWait => waiting < 2 * AccuracyDelta;
+        private bool CanWait => waiting < 2 * AccuracyDelta;
 
-        public bool IsLongEnough(double threshold)
+        private bool IsLongEnough(double threshold)
         {
             return Entry.QueryMatchLength > threshold;
+        }
+
+        public bool IsCompleted(double threshold)
+        {
+            return IsLongEnough(threshold) || !CanWait;
         }
 
         public override bool Equals(object obj)

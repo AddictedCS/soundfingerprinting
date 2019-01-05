@@ -28,13 +28,14 @@ namespace SoundFingerprinting.Query
             var completed = new HashSet<PendingResultEntry>();
             foreach (var entry in pendingResults)
             {
-                if (entry.IsLongEnough(secondsThreshold) || !entry.CanWait)
+                if (entry.IsCompleted(secondsThreshold))
                 {
                     completed.Add(entry);
                 }
             }
 
-            pendingResults = pendingResults.Where(match => !completed.Contains(match)).ToList();
+            pendingResults = pendingResults.Where(match => !completed.Contains(match))
+                                           .ToList();
             return completed.Select(pending => pending.Entry);
         }
 
