@@ -24,9 +24,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             int count = 10;
             int found = 0;
-            var data = GenerateRandomAudioChunks("Queen", count);
+            var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
-            var hashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
                 .From(concatenated)
                 .UsingServices(audioService)
                 .Hash();
@@ -52,12 +53,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationTokenSource.Token);
 
             await Task.Delay(30000);
-            collection.CompleteAdding();
             cancellationTokenSource.Cancel();
             Assert.IsTrue(found >= 3);
         }
 
-        private AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
+        private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
         {
             int length = 0;
             foreach (var samples in data)
@@ -76,32 +76,54 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return new AudioSamples(concatenated, "Queen", 5512);
         }
 
-        private List<AudioSamples> GenerateRandomAudioChunks(string source, int count)
+        private static List<AudioSamples> GenerateRandomAudioChunks(int count)
         {
             var list = new List<AudioSamples>();
-
             for (int i = 0; i < count; ++i)
             {
-                var samples = TestUtilities.GenerateRandomFloatArray(10240);
-                list.Add(new AudioSamples(samples, source, 5512));
+                var audioSamples = GetMinSizeOfAudioSamples();
+                list.Add(audioSamples);
             }
 
             return list;
         }
 
-        private BlockingCollection<AudioSamples> SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples)
+        private static BlockingCollection<AudioSamples> SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples)
         {
             var collection = new BlockingCollection<AudioSamples>();
             Task.Factory.StartNew(async () =>
             {
+                await Jitter(collection);
+                
                 foreach (var audioSample in audioSamples)
                 {
                     collection.Add(audioSample);
-                    await Task.Delay((int)audioSample.Duration);
+                    await Task.Delay(TimeSpan.FromSeconds(audioSample.Duration));
                 }
+
+                await Jitter(collection);
+                
+                collection.CompleteAdding();
             });
 
             return collection;
+        }
+
+        private static async Task Jitter(BlockingCollection<AudioSamples> collection)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                var audioSample = GetMinSizeOfAudioSamples();
+                collection.Add(audioSample);
+                await Task.Delay(TimeSpan.FromSeconds(audioSample.Duration));
+            }
+        }
+
+        private static AudioSamples GetMinSizeOfAudioSamples()
+        {
+            var samples = TestUtilities.GenerateRandomFloatArray(10240);
+            var audioSample = new AudioSamples(samples, "cnn", 5512);
+            return audioSample;
         }
     }
 }
