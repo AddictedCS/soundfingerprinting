@@ -5,12 +5,13 @@ namespace SoundFingerprinting.Query
     public class PendingResultEntry
     {
         private const double AccuracyDelta = 1.48d;
-        private double waiting;
+        private readonly double waiting;
 
-        public PendingResultEntry(ResultEntry entry)
+        public PendingResultEntry(ResultEntry entry, double waiting = 0)
         {
             Entry = entry;
             InternalUid = Guid.NewGuid().ToString();
+            this.waiting = waiting;
         }
 
         public ResultEntry Entry { get; }
@@ -35,9 +36,12 @@ namespace SoundFingerprinting.Query
         
         private double TrackMatchEndsAt => Entry.TrackMatchStartsAt + Entry.QueryMatchLength;
 
-        public void Wait(double length)
+        public PendingResultEntry Wait(double length)
         {
-            waiting += length;
+            return new PendingResultEntry(new ResultEntry(Entry.Track, Entry.QueryMatchStartsAt, Entry.QueryMatchLength,
+                    Entry.QueryCoverageLength, Entry.TrackMatchStartsAt, Entry.TrackStartsAt, Entry.Confidence,
+                    Entry.HammingSimilaritySum,
+                    Entry.QueryLength + length), waiting + length);
         }
 
         public bool CanWait => waiting < 2 * AccuracyDelta;

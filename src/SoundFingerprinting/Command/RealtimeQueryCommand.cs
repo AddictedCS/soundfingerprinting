@@ -62,7 +62,7 @@ namespace SoundFingerprinting.Command
 
                     var results = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
 
-                    var realtimeQueryResult = realtimeResultEntryAggregator.Consume(results.ResultEntries, realtimeQueryConfiguration.ResultEntryFilter, TimeSpan.FromMilliseconds(audioSamples.Duration).TotalSeconds);
+                    var realtimeQueryResult = realtimeResultEntryAggregator.Consume(results.ResultEntries, realtimeQueryConfiguration.ResultEntryFilter, audioSamples.Duration);
                     
                     foreach (var result in realtimeQueryResult.SuccessEntries)
                     {

@@ -9,15 +9,11 @@ namespace SoundFingerprinting.Query
         private readonly object lockObject = new object();
         private List<PendingResultEntry> pendingResults = new List<PendingResultEntry>();
         
-        public RealtimeQueryResult
-            Consume(IEnumerable<ResultEntry> candidates, 
-            IRealtimeResultEntryFilter realtimeResultEntryFilter, 
-            double queryLength)
+        public RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, IRealtimeResultEntryFilter realtimeResultEntryFilter, double queryLength)
         {
             lock (lockObject)
             {
-                CollapseWithNewArrivals(candidates);
-                IncreaseWaitTime(queryLength);
+                CollapseWithNewArrivals(candidates, queryLength);
                 return PurgeCompletedMatches(realtimeResultEntryFilter);
             }
         }
@@ -45,15 +41,7 @@ namespace SoundFingerprinting.Query
             return new RealtimeQueryResult(completed.Select(entry => entry.Entry).ToList(), cantWaitAnymore.Select(entry => entry.Entry).ToList());
         }
 
-        private void IncreaseWaitTime(double queryLength)
-        {
-            foreach (var pendingResult in pendingResults)
-            {
-                pendingResult.Wait(queryLength);
-            }
-        }
-
-        private void CollapseWithNewArrivals(IEnumerable<ResultEntry> candidates)
+        private void CollapseWithNewArrivals(IEnumerable<ResultEntry> candidates, double length)
         {
             var newArrivals = candidates.Select(candidate => new PendingResultEntry(candidate)).ToList();
 
@@ -86,6 +74,7 @@ namespace SoundFingerprinting.Query
             });
 
             pendingResults = pendingResults.Where(match => !result.AlreadyCollapsed.Contains(match))
+                                           .Select(old => old.Wait(length)) 
                                            .Concat(result.NewPendingMatches)
                                            .Concat(newArrivals.Where(match => !result.AlreadyCollapsed.Contains(match))) 
                                            .ToList();

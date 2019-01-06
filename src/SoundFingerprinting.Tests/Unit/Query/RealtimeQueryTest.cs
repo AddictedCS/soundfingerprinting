@@ -24,45 +24,45 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             int count = 10;
             int found = 0;
-            int didntPassThreshold = 0;
+            int didNotPassThreshold = 0;
             var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
-                .BuildFingerprintCommand()
-                .From(concatenated)
-                .UsingServices(audioService)
-                .Hash();
+                                                .BuildFingerprintCommand()
+                                                .From(concatenated)
+                                                .UsingServices(audioService)
+                                                .Hash();
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
             
             var collection = SimulateRealtimeQueryData(data);
 
-            var realtimeConfig = new RealtimeQueryConfiguration(4, new QueryMatchLengthFilter(5), 
+            var realtimeConfig = new RealtimeQueryConfiguration(4, new QueryMatchLengthFilter(10), 
                 entry =>
                 {
-                    Console.WriteLine($"Found {entry.Track.Title}, Starts At {entry.TrackMatchStartsAt}, Length {entry.QueryMatchLength}");
+                    Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
                     Interlocked.Increment(ref found);
                 },
                 entry =>
                 {
-                    Console.WriteLine($"Entry {entry.Track.Title} didn't pass filter, Starts At {entry.TrackMatchStartsAt}, Length {entry.QueryMatchLength}");
-                    Interlocked.Increment(ref didntPassThreshold);
+                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Length {entry.QueryMatchLength:0.000}");
+                    Interlocked.Increment(ref didNotPassThreshold);
                 }
                 , new IncrementalRandomStride(256, 512));
 
             var cancellationTokenSource = new CancellationTokenSource();
             
             _ = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
-                .From(collection)
-                .WithRealtimeQueryConfig(realtimeConfig)
-                .UsingServices(modelService)
-                .Query(cancellationTokenSource.Token);
+                                            .From(collection)
+                                            .WithRealtimeQueryConfig(realtimeConfig)
+                                            .UsingServices(modelService)
+                                            .Query(cancellationTokenSource.Token);
 
             await Task.Delay(30000);
             cancellationTokenSource.Cancel();
             
             Assert.IsTrue(found >= 3);
-            Assert.IsTrue(didntPassThreshold <= 1);
+            Assert.IsTrue(didNotPassThreshold <= 1);
         }
 
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
@@ -77,7 +77,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int dest = 0;
             for (int i = 0; i < data.Count; i++)
             {
-                Array.Copy(data[i].Samples,0, concatenated, dest, data[i].Samples.Length);
+                Array.Copy(data[i].Samples, 0, concatenated, dest, data[i].Samples.Length);
                 dest += data[i].Samples.Length;
             }
             
@@ -119,7 +119,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
         private static async Task Jitter(BlockingCollection<AudioSamples> collection)
         {
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < 5; ++i)
             {
                 var audioSample = GetMinSizeOfAudioSamples();
                 collection.Add(audioSample);
@@ -130,8 +130,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         private static AudioSamples GetMinSizeOfAudioSamples()
         {
             var samples = TestUtilities.GenerateRandomFloatArray(10240);
-            var audioSample = new AudioSamples(samples, "cnn", 5512);
-            return audioSample;
+            return new AudioSamples(samples, "cnn", 5512);
         }
     }
 }
