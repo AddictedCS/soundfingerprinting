@@ -7,6 +7,7 @@ namespace SoundFingerprinting.Query
     {
         RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, 
             IRealtimeResultEntryFilter realtimeResultEntryFilter, 
-            double queryLength);
+            double queryLength,
+            double accuracy);
     }
 }

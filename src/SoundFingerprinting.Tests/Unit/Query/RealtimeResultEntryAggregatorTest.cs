@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             for (int i = 0; i < 10; ++i)
             {
-                var aggregated = aggregator.Consume(new ResultEntry[0], filter, 5d);
+                var aggregated = aggregator.Consume(new ResultEntry[0], filter, 5d, 1.48d);
                 AddAll(aggregated.SuccessEntries, success);
                 AddAll(aggregated.DidNotPassThresholdEntries, filtered);
             }
@@ -32,14 +32,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
             for (int i = 0; i < 10; ++i)
             {
                 var entry = new ResultEntry(new TrackData("1234", "Queen", "Bohemian Rhapsody", string.Empty, 0, 120d, new ModelReference<uint>(1)), 0d, 1.48d, 1.48d, 10d + i*1.48d, -10d -i*1.48d, 0.01233, 0, 1.48d);
-                var aggregated = aggregator.Consume(new[] { entry }, filter, 1.48d);
+                var aggregated = aggregator.Consume(new[] { entry }, filter, 1.48d, 1.48d);
                 AddAll(aggregated.SuccessEntries, success);
                 AddAll(aggregated.DidNotPassThresholdEntries, filtered);
             }
             
             for (int i = 0; i < 10; ++i)
             {
-                var aggregated = aggregator.Consume(new ResultEntry[0], filter, 5d);
+                var aggregated = aggregator.Consume(new ResultEntry[0], filter, 5d, 1.48d);
                 AddAll(aggregated.SuccessEntries, success);
                 AddAll(aggregated.DidNotPassThresholdEntries, filtered);
             }

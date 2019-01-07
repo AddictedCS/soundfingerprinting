@@ -10,12 +10,14 @@ namespace SoundFingerprinting.Command
             IRealtimeResultEntryFilter resultEntryFilter,
             Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback,
-            IStride stride)
+            IStride stride,
+            double permittedGap)
         {
             ThresholdVotes = thresholdVotes;
             ResultEntryFilter = resultEntryFilter;
             SuccessCallback = successCallback;
             Stride = stride;
+            PermittedGap = permittedGap;
             DidNotPassFilterCallback = didNotPassFilterCallback;
         }
         
@@ -28,5 +30,7 @@ namespace SoundFingerprinting.Command
         public Action<ResultEntry> DidNotPassFilterCallback { get; }
         
         public IStride Stride { get; }
+        
+        public double PermittedGap { get; }
     }
 }

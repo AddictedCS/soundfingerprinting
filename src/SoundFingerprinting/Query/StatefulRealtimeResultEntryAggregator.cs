@@ -9,16 +9,19 @@ namespace SoundFingerprinting.Query
         private readonly object lockObject = new object();
         private List<PendingResultEntry> pendingResults = new List<PendingResultEntry>();
         
-        public RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, IRealtimeResultEntryFilter realtimeResultEntryFilter, double queryLength)
+        public RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, 
+            IRealtimeResultEntryFilter realtimeResultEntryFilter, 
+            double queryLength,
+            double accuracy)
         {
             lock (lockObject)
             {
-                CollapseWithNewArrivals(candidates, queryLength);
-                return PurgeCompletedMatches(realtimeResultEntryFilter);
+                CollapseWithNewArrivals(candidates, queryLength, accuracy);
+                return PurgeCompletedMatches(realtimeResultEntryFilter, accuracy);
             }
         }
 
-        private RealtimeQueryResult PurgeCompletedMatches(IRealtimeResultEntryFilter resultEntryFilter)
+        private RealtimeQueryResult PurgeCompletedMatches(IRealtimeResultEntryFilter resultEntryFilter, double accuracy)
         {
             var completed = new HashSet<PendingResultEntry>();
             var cantWaitAnymore = new HashSet<PendingResultEntry>();
@@ -29,7 +32,7 @@ namespace SoundFingerprinting.Query
                 {
                     completed.Add(entry);
                 }
-                else if (!entry.CanWait)
+                else if (!entry.CanWait(accuracy))
                 {
                     cantWaitAnymore.Add(entry);
                 }
@@ -41,7 +44,7 @@ namespace SoundFingerprinting.Query
             return new RealtimeQueryResult(completed.Select(entry => entry.Entry).ToList(), cantWaitAnymore.Select(entry => entry.Entry).ToList());
         }
 
-        private void CollapseWithNewArrivals(IEnumerable<ResultEntry> candidates, double length)
+        private void CollapseWithNewArrivals(IEnumerable<ResultEntry> candidates, double length, double accuracy)
         {
             var newArrivals = candidates.Select(candidate => new PendingResultEntry(candidate)).ToList();
 
@@ -63,7 +66,7 @@ namespace SoundFingerprinting.Query
                     return current;
                 }
 
-                if (pair.Pending.TryCollapse(pair.NewArrival, out var collapsed))
+                if (pair.Pending.TryCollapse(accuracy, pair.NewArrival, out var collapsed))
                 {
                     alreadyCollapsed.Add(pair.Pending);
                     alreadyCollapsed.Add(pair.NewArrival);

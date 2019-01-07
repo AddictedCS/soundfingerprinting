@@ -4,7 +4,6 @@ namespace SoundFingerprinting.Query
 
     public class PendingResultEntry
     {
-        private const double AccuracyDelta = 1.48d;
         private readonly double waiting;
 
         public PendingResultEntry(ResultEntry entry, double waiting = 0)
@@ -16,13 +15,13 @@ namespace SoundFingerprinting.Query
 
         public ResultEntry Entry { get; }
 
-        public bool TryCollapse(PendingResultEntry pendingNext, out PendingResultEntry collapsed)
+        public bool TryCollapse(double accuracy, PendingResultEntry pendingNext, out PendingResultEntry collapsed)
         {
             var next = pendingNext.Entry;
             collapsed = null;
             if (Entry.Track.Equals(next.Track))
             {
-                if (TrackMatchOverlaps(next) || CanSwallow(next))
+                if (TrackMatchOverlaps(accuracy, next) || CanSwallow(next))
                 {
                     collapsed = new PendingResultEntry(Entry.MergeWith(next));
                     return true;
@@ -44,7 +43,10 @@ namespace SoundFingerprinting.Query
                     Entry.QueryLength + length), waiting + length);
         }
 
-        public bool CanWait => waiting < 2 * AccuracyDelta;
+        public bool CanWait(double accuracyDelta)
+        {
+            return waiting < accuracyDelta;
+        }
 
         public override bool Equals(object obj)
         {
@@ -61,9 +63,9 @@ namespace SoundFingerprinting.Query
             return InternalUid != null ? InternalUid.GetHashCode() : 0;
         }
         
-        private bool TrackMatchOverlaps(ResultEntry next)
+        private bool TrackMatchOverlaps(double accuracy, ResultEntry next)
         {
-            return TrackMatchEndsAt >= next.TrackMatchStartsAt - AccuracyDelta && next.TrackMatchStartsAt + AccuracyDelta >= TrackMatchEndsAt;
+            return TrackMatchEndsAt >= next.TrackMatchStartsAt - accuracy && next.TrackMatchStartsAt + accuracy >= TrackMatchEndsAt;
         }
 
         private bool CanSwallow(ResultEntry next)

@@ -45,8 +45,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 {
                     Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryMatchLength:0.000}");
                     Interlocked.Increment(ref didNotPassThreshold);
-                }
-                , new IncrementalRandomStride(256, 512));
+                }, 
+                new IncrementalRandomStride(256, 512), 
+                1.48d);
 
             var cancellationTokenSource = new CancellationTokenSource();
             
