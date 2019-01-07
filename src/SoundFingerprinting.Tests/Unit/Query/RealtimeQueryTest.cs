@@ -22,9 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
-            int count = 10;
-            int found = 0;
-            int didNotPassThreshold = 0;
+            int count = 10, found = 0, didNotPassThreshold = 0;
             var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -45,7 +43,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 },
                 entry =>
                 {
-                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Length {entry.QueryMatchLength:0.000}");
+                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryMatchLength:0.000}");
                     Interlocked.Increment(ref didNotPassThreshold);
                 }
                 , new IncrementalRandomStride(256, 512));
@@ -61,8 +59,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             await Task.Delay(30000);
             cancellationTokenSource.Cancel();
             
-            Assert.IsTrue(found >= 3);
-            Assert.IsTrue(didNotPassThreshold <= 1);
+            Assert.AreEqual(1, found);
+            Assert.AreEqual(1, didNotPassThreshold);
         }
 
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)

@@ -11,7 +11,7 @@ namespace SoundFingerprinting.Query
                 throw new ArgumentException($"{nameof(with)} merging entries should correspond to the same track");
             }
 
-            double avgConfidence = (entry.Confidence + with.Confidence) / 2;
+            double avgConfidence = Math.Min((entry.Confidence + with.Confidence) / 2, 1d);
             
             return new ResultEntry(entry.Track, 
                 entry.QueryMatchStartsAt < with.QueryMatchStartsAt ? entry.QueryMatchStartsAt : with.QueryMatchStartsAt,
@@ -19,9 +19,9 @@ namespace SoundFingerprinting.Query
                 entry.QueryCoverageLength + with.QueryCoverageLength,
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackMatchStartsAt : with.TrackMatchStartsAt,
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackStartsAt : with.TrackStartsAt,
-                avgConfidence > 1 ? 1 : avgConfidence,
+                avgConfidence,
                 entry.HammingSimilaritySum + with.HammingSimilaritySum,
-                entry.QueryLength + with.QueryLength);
+                CalculateNewQueryLength(entry, with));
         }
         
         private static double CalculateNewQueryMatchLength(ResultEntry a, ResultEntry b)
@@ -50,6 +50,42 @@ namespace SoundFingerprinting.Query
             // B           ------
             // not glued on purpose
             return first.QueryMatchLength + second.QueryMatchLength;
+        }
+
+        private static double CalculateNewQueryLength(ResultEntry a, ResultEntry b)
+        {
+            if (Math.Abs(a.TrackMatchStartsAt - b.TrackMatchStartsAt) < 0.0001)
+            {
+                // same start
+                return a.QueryLength;
+            }
+
+            // t --------------
+            // a      ---------
+            // b   --------
+            if (a.TrackMatchStartsAt > b.TrackMatchStartsAt)
+            {
+                double diff = a.TrackMatchStartsAt - b.TrackMatchStartsAt;
+                if (diff > b.TrackMatchStartsAt)
+                {
+                    return a.QueryLength + b.QueryLength;
+                }
+
+                return diff + a.QueryLength;
+            }
+            else
+            {
+                // t -------------
+                // a  ------
+                // b      -----
+                double diff = b.TrackMatchStartsAt - a.TrackMatchStartsAt;
+                if (diff > a.QueryLength)
+                {
+                    return a.QueryLength + b.QueryLength;
+                }
+
+                return diff + b.QueryLength;
+            }
         }
     }
 }
