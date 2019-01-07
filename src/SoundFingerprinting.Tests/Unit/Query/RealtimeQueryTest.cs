@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
-            int count = 10, found = 0, didNotPassThreshold = 0;
+            int count = 10, found = 0, didNotPassThreshold = 0, thresholdVotes = 4, testWaitTime = 30000;
             var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -35,7 +35,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var collection = SimulateRealtimeQueryData(data);
 
-            var realtimeConfig = new RealtimeQueryConfiguration(4, new QueryMatchLengthFilter(10), 
+            var realtimeConfig = new RealtimeQueryConfiguration(thresholdVotes, new QueryMatchLengthFilter(10), 
                 entry =>
                 {
                     Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
@@ -56,7 +56,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                             .UsingServices(modelService)
                                             .Query(cancellationTokenSource.Token);
 
-            await Task.Delay(30000);
+            await Task.Delay(testWaitTime);
             cancellationTokenSource.Cancel();
             
             Assert.AreEqual(1, found);
