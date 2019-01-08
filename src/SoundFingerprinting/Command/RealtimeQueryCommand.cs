@@ -62,19 +62,21 @@ namespace SoundFingerprinting.Command
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride, MinSamplesForOneFingerprint);
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
+            var commandBuilder = FingerprintCommandBuilder.Instance;
+            var queryFingerprintService = QueryFingerprintService.Instance;
             
             while (!realtimeSamples.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
             {
                 if (realtimeSamples.TryTake(out var audioSamples, Delay, cancellationToken))
                 {
                     var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
-                    
-                    var hashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+
+                    var hashes = await commandBuilder.BuildFingerprintCommand()
                         .From(prefixed)
                         .UsingServices(audioService)
                         .Hash();
 
-                    var results = QueryFingerprintService.Instance.Query(hashes, queryConfiguration, modelService);
+                    var results = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
 
                     var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
                     
