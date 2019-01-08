@@ -6,8 +6,7 @@ namespace SoundFingerprinting.Builder
     {
         private readonly IFingerprintService fingerprintService;
 
-        public FingerprintCommandBuilder()
-            : this(FingerprintService.Instance)
+        public FingerprintCommandBuilder(): this(FingerprintService.Instance)
         {
         }
 

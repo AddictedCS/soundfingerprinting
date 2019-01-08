@@ -4,11 +4,10 @@
 
     /// <inheritdoc />
     /// <summary>
-    ///   Incremental random stride used in providing step length (measured in number of audio samples) between 2 consecutive fingerprints
+    ///   Incremental random stride used in providing step length (measured in number of audio samples) between 2 consecutive fingerprints.
     /// </summary>
     public class IncrementalRandomStride : IStride
     {
-        private readonly object lockObject = new object();
         private readonly Random random;
         
         public IncrementalRandomStride(int minStride, int maxStride, int seed = 0) 
@@ -29,16 +28,7 @@
 
         public int FirstStride { get; } = 0;
 
-        public int NextStride
-        {
-            get
-            {
-                lock (lockObject)
-                {
-                    return random.Next(Min, Max);
-                }
-            }
-        }
+        public int NextStride => random.Next(Min, Max);
 
         public override string ToString()
         {
