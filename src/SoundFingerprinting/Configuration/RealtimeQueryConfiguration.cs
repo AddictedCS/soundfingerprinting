@@ -14,24 +14,44 @@ namespace SoundFingerprinting.Configuration
             IStride stride,
             double permittedGap)
         {
-            ThresholdVotes = thresholdVotes;
+            QueryConfiguration = new DefaultQueryConfiguration
+            {
+                ThresholdVotes = thresholdVotes,
+                FingerprintConfiguration = new DefaultFingerprintConfiguration
+                {
+                    SpectrogramConfig = new DefaultSpectrogramConfig
+                    {
+                        Stride = stride
+                    }
+                }
+            };
+                
             ResultEntryFilter = resultEntryFilter;
             SuccessCallback = successCallback;
-            Stride = stride;
             PermittedGap = permittedGap;
             DidNotPassFilterCallback = didNotPassFilterCallback;
         }
-        
-        public int ThresholdVotes { get; }
-        
-        public IRealtimeResultEntryFilter ResultEntryFilter { get; }
 
-        public Action<ResultEntry> SuccessCallback { get; }
+        public int ThresholdVotes
+        {
+            get => QueryConfiguration.ThresholdVotes;
+            set => QueryConfiguration.ThresholdVotes = value;
+        }
+
+        public IRealtimeResultEntryFilter ResultEntryFilter { get; set; }
+
+        public Action<ResultEntry> SuccessCallback { get; set; }
         
-        public Action<ResultEntry> DidNotPassFilterCallback { get; }
-        
-        public IStride Stride { get; }
-        
-        public double PermittedGap { get; }
+        public Action<ResultEntry> DidNotPassFilterCallback { get; set; }
+
+        public IStride Stride
+        {
+            get => QueryConfiguration.Stride;
+            set => QueryConfiguration.Stride = value;
+        }
+
+        public double PermittedGap { get; set; }
+
+        internal QueryConfiguration QueryConfiguration { get; }
     }
 }

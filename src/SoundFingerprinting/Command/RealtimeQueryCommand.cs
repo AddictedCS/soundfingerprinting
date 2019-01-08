@@ -21,14 +21,12 @@ namespace SoundFingerprinting.Command
 
         private BlockingCollection<AudioSamples> realtimeSamples;
         private RealtimeQueryConfiguration configuration;
-        private QueryConfiguration queryConfiguration;
         private IModelService modelService;
         private IAudioService audioService;
 
         public RealtimeQueryCommand()
         {
             configuration = new DefaultRealtimeQueryConfiguration(e => throw new Exception("Register a success callback for your realtime query"), e => { /* do nothing */ });
-            queryConfiguration = new DefaultQueryConfiguration();
         }
         
         public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
@@ -40,21 +38,12 @@ namespace SoundFingerprinting.Command
         public IUsingRealtimeQueryServices WithRealtimeQueryConfig(RealtimeQueryConfiguration realtimeQueryConfiguration)
         {
             configuration = realtimeQueryConfiguration;
-            queryConfiguration = new DefaultQueryConfiguration
-            {
-                ThresholdVotes = realtimeQueryConfiguration.ThresholdVotes
-            };
             return this;
         }
 
         public IUsingRealtimeQueryServices WithRealtimeQueryConfig(Func<RealtimeQueryConfiguration, RealtimeQueryConfiguration> amendQueryFunctor)
         {
             configuration = amendQueryFunctor(configuration);
-            if (configuration.ThresholdVotes != queryConfiguration.ThresholdVotes)
-            {
-                queryConfiguration = new DefaultQueryConfiguration {ThresholdVotes = configuration.ThresholdVotes};
-            }
-
             return this;
         }
 
@@ -73,10 +62,11 @@ namespace SoundFingerprinting.Command
 
                     var hashes = await commandBuilder.BuildFingerprintCommand()
                         .From(prefixed)
+                        .WithFingerprintConfig(configuration.QueryConfiguration.FingerprintConfiguration)
                         .UsingServices(audioService)
                         .Hash();
 
-                    var results = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
+                    var results = queryFingerprintService.Query(hashes, configuration.QueryConfiguration, modelService);
 
                     var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
                     
