@@ -1,55 +1,76 @@
 namespace SoundFingerprinting.Query
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.Command;
 
     public class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
     {
+        private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
+        private readonly double permittedGap;
         private readonly object lockObject = new object();
-        private List<PendingResultEntry> pendingResults = new List<PendingResultEntry>();
         
-        public RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, 
-            IRealtimeResultEntryFilter realtimeResultEntryFilter, 
-            double queryLength,
-            double accuracy)
+        private List<PendingResultEntry> pendingResults = new List<PendingResultEntry>();
+
+        public StatefulRealtimeResultEntryAggregator(IRealtimeResultEntryFilter realtimeResultEntryFilter, double permittedGap)
+        {
+            this.realtimeResultEntryFilter = realtimeResultEntryFilter;
+            this.permittedGap = permittedGap;
+        }
+        
+        public RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, double queryLength)
         {
             lock (lockObject)
             {
-                CollapseWithNewArrivals(candidates, queryLength, accuracy);
-                return PurgeCompletedMatches(realtimeResultEntryFilter, accuracy);
+                var collapsed = CollapseWithNewArrivals(pendingResults, candidates ?? Enumerable.Empty<ResultEntry>(), queryLength, permittedGap);
+                return PurgeCompletedMatches(collapsed, realtimeResultEntryFilter, permittedGap, out pendingResults);
             }
         }
 
-        private RealtimeQueryResult PurgeCompletedMatches(IRealtimeResultEntryFilter resultEntryFilter, double accuracy)
+        private static RealtimeQueryResult PurgeCompletedMatches(
+            IEnumerable<PendingResultEntry> pendingResults, 
+            IRealtimeResultEntryFilter realtimeResultEntryFilter,
+            double permittedGap, out List<PendingResultEntry> leftPendingResultEntries)
         {
+            var resultEntries = pendingResults.ToList();
+            if (!resultEntries.Any())
+            {
+                leftPendingResultEntries = new List<PendingResultEntry>();
+                return new RealtimeQueryResult(Enumerable.Empty<ResultEntry>(), Enumerable.Empty<ResultEntry>());
+            }
+            
             var completed = new HashSet<PendingResultEntry>();
             var cantWaitAnymore = new HashSet<PendingResultEntry>();
-            
-            foreach (var entry in pendingResults)
+            foreach (var entry in resultEntries)
             {
-                if (resultEntryFilter.Pass(entry.Entry))
+                if (realtimeResultEntryFilter.Pass(entry.Entry))
                 {
                     completed.Add(entry);
                 }
-                else if (!entry.CanWait(accuracy))
+                else if (!entry.CanWait(permittedGap))
                 {
                     cantWaitAnymore.Add(entry);
                 }
             }
 
-            pendingResults = pendingResults.Where(match => !completed.Contains(match) && !cantWaitAnymore.Contains(match))
-                                           .ToList();
+            leftPendingResultEntries = resultEntries.Where(match => !completed.Contains(match) && !cantWaitAnymore.Contains(match))
+                                                    .ToList();
             
             return new RealtimeQueryResult(completed.Select(entry => entry.Entry).ToList(), cantWaitAnymore.Select(entry => entry.Entry).ToList());
         }
 
-        private void CollapseWithNewArrivals(IEnumerable<ResultEntry> candidates, double length, double accuracy)
+        private static IEnumerable<PendingResultEntry> CollapseWithNewArrivals(
+            IEnumerable<PendingResultEntry> oldResultEntries, 
+            IEnumerable<ResultEntry> newResultEntries, 
+            double queryLength, 
+            double permittedGap)
         {
-            var newArrivals = candidates.Select(candidate => new PendingResultEntry(candidate)).ToList();
+            var newArrivals = newResultEntries.Select(candidate => new PendingResultEntry(candidate))
+                                              .ToList();
 
             var cartesian = from newArrival in newArrivals
-                from pending in pendingResults
+                from pending in oldResultEntries
                 select new {NewArrival = newArrival, Pending = pending};
 
             var accumulator = new
@@ -58,7 +79,7 @@ namespace SoundFingerprinting.Query
                 NewPendingMatches = new List<PendingResultEntry>(),
             };
 
-            var result = cartesian.Aggregate(accumulator, (current, pair) =>
+            var cartesianAggregation = cartesian.Aggregate(accumulator, (current, pair) =>
             {
                 var alreadyCollapsed = current.AlreadyCollapsed;
                 if (alreadyCollapsed.Contains(pair.NewArrival) || alreadyCollapsed.Contains(pair.Pending))
@@ -66,7 +87,7 @@ namespace SoundFingerprinting.Query
                     return current;
                 }
 
-                if (pair.Pending.TryCollapse(accuracy, pair.NewArrival, out var collapsed))
+                if (pair.Pending.TryCollapse(permittedGap, pair.NewArrival, out var collapsed))
                 {
                     alreadyCollapsed.Add(pair.Pending);
                     alreadyCollapsed.Add(pair.NewArrival);
@@ -76,11 +97,11 @@ namespace SoundFingerprinting.Query
                 return current;
             });
 
-            pendingResults = pendingResults.Where(match => !result.AlreadyCollapsed.Contains(match))
-                                           .Select(old => old.Wait(length)) 
-                                           .Concat(result.NewPendingMatches)
-                                           .Concat(newArrivals.Where(match => !result.AlreadyCollapsed.Contains(match))) 
-                                           .ToList();
+            return oldResultEntries.Where(match => !cartesianAggregation.AlreadyCollapsed.Contains(match))
+                                   .Select(old => old.Wait(queryLength)) 
+                                   .Concat(cartesianAggregation.NewPendingMatches)
+                                   .Concat(newArrivals.Where(match => !cartesianAggregation.AlreadyCollapsed.Contains(match))) 
+                                   .ToList();
         }
     }
 }

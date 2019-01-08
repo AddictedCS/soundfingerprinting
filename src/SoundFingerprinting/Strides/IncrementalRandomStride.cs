@@ -2,6 +2,7 @@
 {
     using System;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Incremental random stride used in providing step length (measured in number of audio samples) between 2 consecutive fingerprints
     /// </summary>
@@ -20,14 +21,13 @@
             Min = minStride;
             Max = maxStride;
             random = seed == 0 ? new Random() : new Random(seed);
-            FirstStride = 0;
         }
 
         private int Min { get; }
 
         private int Max { get; }
 
-        public int FirstStride { get; }
+        public int FirstStride { get; } = 0;
 
         public int NextStride
         {

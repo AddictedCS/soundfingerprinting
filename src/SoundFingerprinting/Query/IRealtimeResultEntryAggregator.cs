@@ -5,9 +5,6 @@ namespace SoundFingerprinting.Query
 
     public interface IRealtimeResultEntryAggregator
     {
-        RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, 
-            IRealtimeResultEntryFilter realtimeResultEntryFilter, 
-            double queryLength,
-            double accuracy);
+        RealtimeQueryResult Consume(IEnumerable<ResultEntry> candidates, double queryLength);
     }
 }
