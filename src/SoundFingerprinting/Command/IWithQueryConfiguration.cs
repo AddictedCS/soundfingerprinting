@@ -5,7 +5,7 @@
     using SoundFingerprinting.Configuration;
 
     /// <summary>
-    ///   Configuration ammender interface
+    ///   Query configuration interface
     /// </summary>
     public interface IWithQueryConfiguration : IUsingQueryServices
     {
@@ -17,9 +17,9 @@
         IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration);
 
         /// <summary>
-        ///  Sets amender for default query configuration
+        ///   Sets query configuration parameters
         /// </summary>
-        /// <param name="amendQueryConfigFunctor">Amender</param>
+        /// <param name="amendQueryConfigFunctor">Functor</param>
         /// <returns>Query services selector</returns>
         IUsingQueryServices WithQueryConfig(Func<QueryConfiguration, QueryConfiguration> amendQueryConfigFunctor);
     }

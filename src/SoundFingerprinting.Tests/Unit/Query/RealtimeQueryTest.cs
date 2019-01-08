@@ -9,6 +9,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Strides;

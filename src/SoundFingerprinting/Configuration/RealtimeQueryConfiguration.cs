@@ -1,6 +1,7 @@
-namespace SoundFingerprinting.Command
+namespace SoundFingerprinting.Configuration
 {
     using System;
+    using SoundFingerprinting.Command;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 

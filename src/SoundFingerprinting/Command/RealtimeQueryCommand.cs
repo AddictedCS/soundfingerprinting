@@ -24,6 +24,12 @@ namespace SoundFingerprinting.Command
         private QueryConfiguration queryConfiguration;
         private IModelService modelService;
         private IAudioService audioService;
+
+        public RealtimeQueryCommand()
+        {
+            configuration = new DefaultRealtimeQueryConfiguration(e => throw new Exception("Register a success callback for your realtime query"), e => { /* do nothing */ });
+            queryConfiguration = new DefaultQueryConfiguration();
+        }
         
         public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
         {
@@ -33,11 +39,22 @@ namespace SoundFingerprinting.Command
 
         public IUsingRealtimeQueryServices WithRealtimeQueryConfig(RealtimeQueryConfiguration realtimeQueryConfiguration)
         {
-            this.configuration = realtimeQueryConfiguration;
+            configuration = realtimeQueryConfiguration;
             queryConfiguration = new DefaultQueryConfiguration
             {
                 ThresholdVotes = realtimeQueryConfiguration.ThresholdVotes
             };
+            return this;
+        }
+
+        public IUsingRealtimeQueryServices WithRealtimeQueryConfig(Func<RealtimeQueryConfiguration, RealtimeQueryConfiguration> amendQueryFunctor)
+        {
+            configuration = amendQueryFunctor(configuration);
+            if (configuration.ThresholdVotes != queryConfiguration.ThresholdVotes)
+            {
+                queryConfiguration = new DefaultQueryConfiguration {ThresholdVotes = configuration.ThresholdVotes};
+            }
+
             return this;
         }
 
