@@ -10,6 +10,10 @@
         /// <returns>Source selector</returns>
         IQuerySource BuildQueryCommand();
 
+        /// <summary>
+        ///  Start building a query command for realtime audio identification
+        /// </summary>
+        /// <returns>Source selector</returns>
         IRealtimeSource BuildRealtimeQueryCommand();
     }
 }

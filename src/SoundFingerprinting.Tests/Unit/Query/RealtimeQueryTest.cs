@@ -18,6 +18,52 @@ namespace SoundFingerprinting.Tests.Unit.Query
     public class RealtimeQueryTest
     {
         [Test]
+        public async Task RealtimeQueryStrideShouldBeUsed()
+        {
+            var audioService = new SoundFingerprintingAudioService();
+            var modelService = new InMemoryModelService();
+            var strideTooBig = new IncrementalStaticStride(10240);
+            double permittedGap = (double) 10240 / 5512;
+            int count = 10, found = 0, didNotPassThreshold = 0, thresholdVotes = 4, testWaitTime = 30000;
+            var data = GenerateRandomAudioChunks(count);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                                                .BuildFingerprintCommand()
+                                                .From(concatenated)
+                                                .UsingServices(audioService)
+                                                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            
+            var collection = SimulateRealtimeQueryData(data);
+
+            var realtimeConfig = new RealtimeQueryConfiguration(thresholdVotes, new QueryMatchLengthFilter(10), 
+                entry =>
+                {
+                    Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
+                    Interlocked.Increment(ref found);
+                },
+                entry =>
+                {
+                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryMatchLength:0.000}");
+                    Interlocked.Increment(ref didNotPassThreshold);
+                }, 
+                strideTooBig,
+                permittedGap);
+
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
+            
+            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                                            .From(collection)
+                                            .WithRealtimeQueryConfig(realtimeConfig)
+                                            .UsingServices(modelService)
+                                            .Query(cancellationTokenSource.Token);
+
+            Assert.AreEqual(0, found);
+            Assert.AreEqual(2, didNotPassThreshold);
+        }
+        
+        [Test]
         public async Task ShouldQueryInRealtime()
         {
             var audioService = new SoundFingerprintingAudioService();
@@ -50,17 +96,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new IncrementalRandomStride(256, 512), 
                 1.48d);
 
-            var cancellationTokenSource = new CancellationTokenSource();
+             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             
-            _ = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
                                             .From(collection)
                                             .WithRealtimeQueryConfig(realtimeConfig)
                                             .UsingServices(modelService)
                                             .Query(cancellationTokenSource.Token);
 
-            await Task.Delay(testWaitTime);
-            cancellationTokenSource.Cancel();
-            
             Assert.AreEqual(1, found);
             Assert.AreEqual(1, didNotPassThreshold);
         }
