@@ -29,6 +29,11 @@
         /// <returns>Configuration selector</returns>
         IWithQueryConfiguration From(AudioSamples audioSamples);
 
+        /// <summary>
+        ///   Create query from previously created fingerprints
+        /// </summary>
+        /// <param name="hashedFingerprints">List of fingerprints</param>
+        /// <returns>Configuration selector. Keep in mind that all the configuration options related to fingerprint creation will be disregarded.</returns>
         IWithQueryConfiguration From(List<HashedFingerprint> hashedFingerprints);
     }
 }

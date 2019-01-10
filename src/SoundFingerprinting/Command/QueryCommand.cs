@@ -19,7 +19,7 @@
         private IModelService modelService;
         
         private Func<IWithFingerprintConfiguration> fingerprintingMethodFromSelector;
-        private Func<IFingerprintCommand> createFingerprintMethod;
+        private Func<IFingerprintCommand> createFingerprintCommand;
 
         private QueryConfiguration queryConfiguration;
 
@@ -51,7 +51,7 @@
 
         public IWithQueryConfiguration From(List<HashedFingerprint> hashedFingerprints)
         {
-            createFingerprintMethod = () => new ExecutedFingerprintCommand(hashedFingerprints);
+            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashedFingerprints);
             return this;
         }
 
@@ -70,16 +70,20 @@
         public IQueryCommand UsingServices(IModelService modelService, IAudioService audioService)
         {
             this.modelService = modelService;
-            createFingerprintMethod = () => fingerprintingMethodFromSelector()
-                                                .WithFingerprintConfig(queryConfiguration.FingerprintConfiguration)
-                                                .UsingServices(audioService);
+            if (createFingerprintCommand == null)
+            {
+                createFingerprintCommand = () => fingerprintingMethodFromSelector()
+                    .WithFingerprintConfig(queryConfiguration.FingerprintConfiguration)
+                    .UsingServices(audioService);
+            }
+
             return this;
         }
 
         public Task<QueryResult> Query()
         {
             var fingerprintingStopwatch = Stopwatch.StartNew();
-            return createFingerprintMethod()
+            return createFingerprintCommand()
                                      .Hash()
                                      .ContinueWith(
                                         task =>

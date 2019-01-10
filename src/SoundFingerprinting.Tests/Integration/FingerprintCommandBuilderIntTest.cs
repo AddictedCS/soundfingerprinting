@@ -210,6 +210,34 @@
             AssertHashDatasAreTheSame(hashDatas2, hashDatas3);
             AssertHashDatasAreTheSame(hashDatas3, hashDatas4);
         }
+        
+        [Test]
+        public async Task ShouldCreateFingerprintsFromAudioSamplesQueryWithPreviouslyCreatedFingerprintsAndGetTheRightResult()
+        {
+            var audioSamples = GetAudioSamples();
+            var track = new TrackInfo(string.Empty, audioSamples.Origin, audioSamples.Origin, audioSamples.Duration);
+            var fingerprints = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(audioSamples)
+                .UsingServices(audioService)
+                .Hash();
+
+            var trackReference = modelService.Insert(track, fingerprints);
+
+            var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+                .From(fingerprints)
+                .UsingServices(modelService, audioService)
+                .Query();
+
+            Assert.IsTrue(queryResult.ContainsMatches);
+            Assert.AreEqual(1, queryResult.ResultEntries.Count());
+            var bestMatch = queryResult.BestMatch;
+            Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
+            Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
+            Assert.AreEqual(audioSamples.Duration, bestMatch.QueryMatchLength, 1.48d);
+            Assert.AreEqual(1d, bestMatch.Coverage, 0.005d);
+            Assert.AreEqual(1, bestMatch.Confidence, $"Confidence:{bestMatch.Confidence}");
+        }
 
         private static float[] GetQuerySamples(AudioSamples audioSamples, int startAtSecond, int secondsToProcess)
         {
