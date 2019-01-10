@@ -2,11 +2,13 @@ namespace SoundFingerprinting.Command
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
     public class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration, IUsingRealtimeQueryServices, IRealtimeQueryCommand
@@ -50,53 +52,72 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public async Task Query(CancellationToken cancellationToken)
-        {
-            try
-            {
-                await QueryInternal(cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                // operation cancelled, do nothing
-            }
-        }
-
-        private async Task QueryInternal(CancellationToken cancellationToken)
+        public async Task<double> Query(CancellationToken cancellationToken)
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride, MinSamplesForOneFingerprint);
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
             var commandBuilder = FingerprintCommandBuilder.Instance;
             var queryFingerprintService = QueryFingerprintService.Instance;
 
+            double queryLength = 0d;
             while (!realtimeSamples.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
             {
-                if (realtimeSamples.TryTake(out var audioSamples, Delay, cancellationToken))
+                bool isOut;
+                AudioSamples audioSamples;
+                try
                 {
+                    isOut = realtimeSamples.TryTake(out audioSamples, Delay, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    return queryLength;
+                }
+                
+                if (isOut)
+                {
+                    queryLength += audioSamples.Duration;
+                    
                     var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
-
-                    var hashes = await commandBuilder.BuildFingerprintCommand()
-                        .From(prefixed)
-                        .WithFingerprintConfig(configuration.QueryConfiguration.FingerprintConfiguration)
-                        .UsingServices(audioService)
-                        .Hash();
-
+                    var hashes = await CreateQueryFingerprints(commandBuilder, prefixed);
                     var results = queryFingerprintService.Query(hashes, configuration.QueryConfiguration, modelService);
-
                     var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
 
-                    foreach (var result in realtimeQueryResult.SuccessEntries)
-                    {
-                        configuration?.SuccessCallback(result);
-                    }
-
-                    foreach (var result in realtimeQueryResult.DidNotPassThresholdEntries)
-                    {
-                        configuration?.DidNotPassFilterCallback(result);
-                    }
-
-                    configuration?.QueryFingerprintsCallback(hashes);
+                    InvokeSuccessHandler(realtimeQueryResult);
+                    InvokeDidNotPassFilterHandler(realtimeQueryResult);
+                    InvokeHashedFingerprintsCallback(hashes);
                 }
+            }
+
+            return queryLength;
+        }
+
+        private void InvokeHashedFingerprintsCallback(List<HashedFingerprint> hashes)
+        {
+            configuration?.QueryFingerprintsCallback(hashes);
+        }
+
+        private async Task<List<HashedFingerprint>> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
+        {
+            return await commandBuilder.BuildFingerprintCommand()
+                .From(prefixed)
+                .WithFingerprintConfig(configuration.QueryConfiguration.FingerprintConfiguration)
+                .UsingServices(audioService)
+                .Hash();
+        }
+
+        private void InvokeDidNotPassFilterHandler(RealtimeQueryResult realtimeQueryResult)
+        {
+            foreach (var result in realtimeQueryResult.DidNotPassThresholdEntries)
+            {
+                configuration?.DidNotPassFilterCallback(result);
+            }
+        }
+
+        private void InvokeSuccessHandler(RealtimeQueryResult realtimeQueryResult)
+        {
+            foreach (var result in realtimeQueryResult.SuccessEntries)
+            {
+                configuration?.SuccessCallback(result);
             }
         }
 

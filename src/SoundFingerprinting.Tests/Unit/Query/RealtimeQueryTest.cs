@@ -39,7 +39,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var collection = SimulateRealtimeQueryData(data, false);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             
-            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+            double duration = await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
                                               .From(collection)
                                               .WithRealtimeQueryConfig(config =>
                                               {
@@ -54,6 +54,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .Query(cancellationTokenSource.Token);
 
             Assert.AreEqual((count - 1) * minSize / staticStride + 1, fingerprintsCount);
+            Assert.AreEqual((double)10 * minSize / 5512, duration, 0.00001);
         }
         
         [Test]

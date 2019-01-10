@@ -5,6 +5,6 @@ namespace SoundFingerprinting.Command
 
     public interface IRealtimeQueryCommand
     {
-        Task Query(CancellationToken cancellationToken);
+        Task<double> Query(CancellationToken cancellationToken);
     }
 }
