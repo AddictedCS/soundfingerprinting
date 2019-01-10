@@ -9,11 +9,6 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
 
-    public interface IRealtimeQueryCommand
-    {
-        Task Query(CancellationToken cancellationToken);
-    }
-    
     public class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration, IUsingRealtimeQueryServices, IRealtimeQueryCommand
     {
         private const int MinSamplesForOneFingerprint = 10240;
@@ -26,7 +21,15 @@ namespace SoundFingerprinting.Command
 
         public RealtimeQueryCommand()
         {
-            configuration = new DefaultRealtimeQueryConfiguration(e => throw new Exception("Register a success callback for your realtime query"), e => { /* do nothing */ });
+            configuration = new DefaultRealtimeQueryConfiguration(
+                e => throw new Exception("Register a success callback for your realtime query"), e =>
+                {
+                    // do nothing
+                },
+                fingerprints =>
+                {
+                    // do nothing
+                });
         }
         
         public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
@@ -49,11 +52,23 @@ namespace SoundFingerprinting.Command
 
         public async Task Query(CancellationToken cancellationToken)
         {
+            try
+            {
+                await QueryInternal(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // operation cancelled, do nothing
+            }
+        }
+
+        private async Task QueryInternal(CancellationToken cancellationToken)
+        {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride, MinSamplesForOneFingerprint);
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
             var commandBuilder = FingerprintCommandBuilder.Instance;
             var queryFingerprintService = QueryFingerprintService.Instance;
-            
+
             while (!realtimeSamples.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
             {
                 if (realtimeSamples.TryTake(out var audioSamples, Delay, cancellationToken))
@@ -69,7 +84,7 @@ namespace SoundFingerprinting.Command
                     var results = queryFingerprintService.Query(hashes, configuration.QueryConfiguration, modelService);
 
                     var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
-                    
+
                     foreach (var result in realtimeQueryResult.SuccessEntries)
                     {
                         configuration?.SuccessCallback(result);
@@ -79,6 +94,8 @@ namespace SoundFingerprinting.Command
                     {
                         configuration?.DidNotPassFilterCallback(result);
                     }
+
+                    configuration?.QueryFingerprintsCallback(hashes);
                 }
             }
         }

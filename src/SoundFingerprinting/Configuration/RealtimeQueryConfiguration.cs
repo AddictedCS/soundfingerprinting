@@ -1,7 +1,9 @@
 namespace SoundFingerprinting.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using SoundFingerprinting.Command;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
@@ -11,6 +13,7 @@ namespace SoundFingerprinting.Configuration
             IRealtimeResultEntryFilter resultEntryFilter,
             Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback,
+            Action<List<HashedFingerprint>> queryFingerprintsCallback,
             IStride stride,
             double permittedGap)
         {
@@ -30,6 +33,7 @@ namespace SoundFingerprinting.Configuration
             SuccessCallback = successCallback;
             PermittedGap = permittedGap;
             DidNotPassFilterCallback = didNotPassFilterCallback;
+            QueryFingerprintsCallback = queryFingerprintsCallback;
         }
 
         public int ThresholdVotes
@@ -43,6 +47,8 @@ namespace SoundFingerprinting.Configuration
         public Action<ResultEntry> SuccessCallback { get; set; }
         
         public Action<ResultEntry> DidNotPassFilterCallback { get; set; }
+
+        public Action<List<HashedFingerprint>> QueryFingerprintsCallback { get; set; }
 
         public IStride Stride
         {
