@@ -15,7 +15,7 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
-    internal class FingerprintService : IFingerprintService
+    public class FingerprintService : IFingerprintService
     {
         private readonly ISpectrumService spectrumService;
         private readonly IWaveletDecomposition waveletDecomposition;
@@ -47,7 +47,7 @@ namespace SoundFingerprinting
             return HashFingerprints(fingerprints, configuration);
         }
 
-        public List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;

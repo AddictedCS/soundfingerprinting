@@ -18,7 +18,7 @@ namespace SoundFingerprinting.Command
 
         private FingerprintConfiguration fingerprintConfiguration;
 
-        internal FingerprintCommand(IFingerprintService fingerprintService)
+        public FingerprintCommand(IFingerprintService fingerprintService)
         {
             this.fingerprintService = fingerprintService;
             fingerprintConfiguration = new DefaultFingerprintConfiguration();

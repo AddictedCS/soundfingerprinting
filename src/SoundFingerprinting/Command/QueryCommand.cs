@@ -1,12 +1,14 @@
 ﻿namespace SoundFingerprinting.Command
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
     public sealed class QueryCommand : IQuerySource, IWithQueryConfiguration, IQueryCommand
@@ -21,7 +23,7 @@
 
         private QueryConfiguration queryConfiguration;
 
-        internal QueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
+        public QueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
@@ -44,6 +46,12 @@
         public IWithQueryConfiguration From(AudioSamples audioSamples)
         {
             fingerprintingMethodFromSelector = () => fingerprintCommandBuilder.BuildFingerprintCommand().From(audioSamples);
+            return this;
+        }
+
+        public IWithQueryConfiguration From(List<HashedFingerprint> hashedFingerprints)
+        {
+            createFingerprintMethod = () => new ExecutedFingerprintCommand(hashedFingerprints);
             return this;
         }
 
