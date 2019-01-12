@@ -25,7 +25,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int minSize = 8192 + 2048;
             int staticStride = 1024;
             double permittedGap = (double) minSize / 5512;
-            int count = 10, found = 0, didNotPassThreshold = 0, testWaitTime = 30000, fingerprintsCount = 0;
+            int count = 10, found = 0, didNotPassThreshold = 0, fingerprintsCount = 0;
+            int testWaitTime = (int)(((double) (count + 1) * minSize) / 5512 * 1000);
             var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -54,7 +55,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .Query(cancellationTokenSource.Token);
 
             Assert.AreEqual((count - 1) * minSize / staticStride + 1, fingerprintsCount);
-            Assert.AreEqual((double)10 * minSize / 5512, duration, 0.00001);
+            Assert.AreEqual((double)count * minSize / 5512, duration, 0.00001);
         }
         
         [Test]

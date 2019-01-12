@@ -14,7 +14,8 @@ namespace SoundFingerprinting.Command
     public class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration, IUsingRealtimeQueryServices, IRealtimeQueryCommand
     {
         private const int MinSamplesForOneFingerprint = 10240;
-        private const int Delay = MinSamplesForOneFingerprint / 5512;
+        private const int SupportedFrequency = 5512;
+        private const int MillisecondsDelay = (int)((double) MinSamplesForOneFingerprint / SupportedFrequency * 1000);
 
         private BlockingCollection<AudioSamples> realtimeSamples;
         private RealtimeQueryConfiguration configuration;
@@ -24,14 +25,8 @@ namespace SoundFingerprinting.Command
         public RealtimeQueryCommand()
         {
             configuration = new DefaultRealtimeQueryConfiguration(
-                e => throw new Exception("Register a success callback for your realtime query"), e =>
-                {
-                    // do nothing
-                },
-                fingerprints =>
-                {
-                    // do nothing
-                });
+                e => throw new Exception("Register a success callback for your realtime query"), 
+                e => { /* do nothing */ }, fingerprints => { /* do nothing */ });
         }
         
         public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
@@ -66,15 +61,20 @@ namespace SoundFingerprinting.Command
                 AudioSamples audioSamples;
                 try
                 {
-                    isOut = realtimeSamples.TryTake(out audioSamples, Delay, cancellationToken);
+                    isOut = realtimeSamples.TryTake(out audioSamples, MillisecondsDelay, cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {
                     return queryLength;
                 }
-                
+
                 if (isOut)
                 {
+                    if (audioSamples.SampleRate != SupportedFrequency)
+                    {
+                        throw new ArgumentException($"{nameof(audioSamples)} should be provided down sampled to {SupportedFrequency}Hz");
+                    }
+                    
                     queryLength += audioSamples.Duration;
                     
                     var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
