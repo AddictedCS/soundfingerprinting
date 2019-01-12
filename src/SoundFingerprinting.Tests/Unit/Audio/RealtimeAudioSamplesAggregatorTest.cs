@@ -15,6 +15,23 @@ namespace SoundFingerprinting.Tests.Unit.Audio
 
             Assert.Throws<ArgumentException>(() => realtimeAggregator.Aggregate(new AudioSamples(TestUtilities.GenerateRandomFloatArray(10240 - 1), "cnn", 5512)));
         }
+
+        [Test]
+        public void ShouldBufferFirstEntryCorrectly()
+        {
+            const int minSize = 10240;
+            const int incrementBy = 1024;
+            
+            var realtimeAggregator = new RealtimeAudioSamplesAggregator(new IncrementalStaticStride(incrementBy), minSize);
+
+            var a = realtimeAggregator.Aggregate(new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize), "cnn", 5512));
+            
+            Assert.AreEqual(minSize, a.Samples.Length);
+
+            var b = realtimeAggregator.Aggregate(new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize), "cnn", 5512));
+            
+            Assert.AreEqual(minSize - incrementBy + minSize, b.Samples.Length);
+        }
         
         [Test]
         public void ShouldBufferCorrectly()
