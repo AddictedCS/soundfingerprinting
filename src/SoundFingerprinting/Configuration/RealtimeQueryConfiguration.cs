@@ -15,7 +15,8 @@ namespace SoundFingerprinting.Configuration
             Action<ResultEntry> didNotPassFilterCallback,
             Action<List<HashedFingerprint>> queryFingerprintsCallback,
             IStride stride,
-            double permittedGap)
+            double permittedGap,
+            IEnumerable<string> clusters)
         {
             QueryConfiguration = new DefaultQueryConfiguration
             {
@@ -26,7 +27,8 @@ namespace SoundFingerprinting.Configuration
                     {
                         Stride = stride
                     }
-                }
+                },
+                Clusters = clusters
             };
                 
             ResultEntryFilter = resultEntryFilter;
@@ -57,6 +59,12 @@ namespace SoundFingerprinting.Configuration
         }
 
         public double PermittedGap { get; set; }
+
+        public IEnumerable<string> Clusters
+        {
+            get => QueryConfiguration.Clusters;
+            set => QueryConfiguration.Clusters = value;
+        }
 
         internal QueryConfiguration QueryConfiguration { get; }
     }

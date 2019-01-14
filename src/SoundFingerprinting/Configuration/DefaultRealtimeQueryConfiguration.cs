@@ -12,7 +12,7 @@ namespace SoundFingerprinting.Configuration
         public DefaultRealtimeQueryConfiguration(Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback, Action<List<HashedFingerprint>> queryFingerprintsCallback) :
             base(4, new QueryMatchLengthFilter(5d), successCallback, didNotPassFilterCallback,
-                queryFingerprintsCallback, new IncrementalRandomStride(256, 512), 2d)
+                queryFingerprintsCallback, new IncrementalRandomStride(256, 512), 2d, new List<string>())
         {
         }
     }

@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -17,6 +18,60 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class RealtimeQueryTest
     {
+        [Test]
+        public async Task RealtimeQueryShouldMatchOnlySelectedClusters()
+        {
+            var audioService = new SoundFingerprintingAudioService();
+            var modelService = new InMemoryModelService();
+            int minSize = 8192 + 2048;
+            int count = 10, foundWithClusters = 0, foundWithWrongClusters = 0;
+            int testWaitTime = (int)(((double) (count + 1) * minSize) / 5512 * 1000);
+            var data = GenerateRandomAudioChunks(count);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                                                .BuildFingerprintCommand()
+                                                .From(concatenated)
+                                                .WithFingerprintConfig(config => 
+                                                { 
+                                                    config.Clusters = new [] { "USA" };
+                                                    return config;
+                                                })
+                                                .UsingServices(audioService)
+                                                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
+            var wrong = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                                              .From(SimulateRealtimeQueryData(data, false))
+                                              .WithRealtimeQueryConfig(config =>
+                                              {
+                                                    config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
+                                                    config.SuccessCallback = entry => Interlocked.Increment(ref foundWithWrongClusters);
+                                                    config.Clusters = new[] {"CANADA"};
+                                                    return config;
+                                              })
+                                              .UsingServices(modelService)
+                                              .Query(cancellationTokenSource.Token);
+            
+            var right = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                                .From(SimulateRealtimeQueryData(data, false))
+                                .WithRealtimeQueryConfig(config =>
+                                {
+                                    config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
+                                    config.SuccessCallback = entry => Interlocked.Increment(ref foundWithClusters);
+                                    config.Clusters = new[] {"USA"};
+                                    return config;
+                                })
+                                .UsingServices(modelService)
+                                .Query(cancellationTokenSource.Token);
+
+            await Task.WhenAll(wrong, right);
+
+            Assert.AreEqual(1, foundWithClusters);
+            Assert.AreEqual(0, foundWithWrongClusters);
+        }
+        
         [Test]
         public async Task RealtimeQueryStrideShouldBeUsed()
         {
@@ -93,7 +148,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Interlocked.Add(ref fingerprintsCount, fingerprints.Count);
                 },
                 new IncrementalRandomStride(256, 512), 
-                1.48d);
+                1.48d,
+                Enumerable.Empty<string>());
 
              var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             
