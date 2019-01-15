@@ -9,9 +9,11 @@
         ///  Create an instance of QueryResult class
         /// </summary>
         /// <param name="results">Actual result entries</param>
-        public QueryResult(IEnumerable<ResultEntry> results)
+        /// <param name="queryStats">Query statistics</param>
+        public QueryResult(IEnumerable<ResultEntry> results, QueryStats queryStats)
         {
             ResultEntries = results;
+            Stats = queryStats;
         }
 
         /// <summary>
@@ -32,12 +34,12 @@
         /// <summary>
         ///  Gets query statistics
         /// </summary>
-        public QueryStats Stats { get; } = new QueryStats();
+        public QueryStats Stats { get; }
 
         /// <summary>
         ///  Returns empty query result
         /// </summary>
-        public static QueryResult Empty { get; } = new QueryResult(Enumerable.Empty<ResultEntry>());
+        public static QueryResult Empty { get; } = new QueryResult(Enumerable.Empty<ResultEntry>(), new QueryStats(0, 0, 0, 0));
 
         /// <summary>
         ///  Returns an instance of QueryResult class that will contain a list of result entries
@@ -48,15 +50,7 @@
         /// <returns>Instance of QueryResult class</returns>
         public static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, int totalTracksCandidates, int totalSubFingerprintCandidates)
         {
-            var queryResults = new QueryResult(results)
-                               {
-                                   Stats =
-                                   {
-                                       TotalTracksAnalyzed = totalTracksCandidates,
-                                       TotalFingerprintsAnalyzed = totalSubFingerprintCandidates
-                                   }
-                               };
-            return queryResults;
+            return new QueryResult(results, new QueryStats(totalTracksCandidates, totalSubFingerprintCandidates, 0, 0));
         }
     }
 }

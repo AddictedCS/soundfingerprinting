@@ -84,15 +84,15 @@
         {
             var fingerprintingStopwatch = Stopwatch.StartNew();
             var hashes = await createFingerprintCommand().Hash();
-            long fingerprintingTime = fingerprintingStopwatch.ElapsedMilliseconds;
-            
+            long fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
+
             var queryStopwatch = Stopwatch.StartNew();
             var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
-            long queryingTime = queryStopwatch.ElapsedMilliseconds;
-            
-            queryResult.Stats.FingerprintingDuration = fingerprintingTime;
-            queryResult.Stats.QueryDuration = queryingTime;
-            return queryResult;
+            long queryDuration = queryStopwatch.ElapsedMilliseconds;
+
+            return new QueryResult(queryResult.ResultEntries, new QueryStats(queryResult.Stats.TotalTracksAnalyzed,
+                queryResult.Stats.TotalFingerprintsAnalyzed,
+                queryDuration, fingerprintingDuration));
         }
     }
 }

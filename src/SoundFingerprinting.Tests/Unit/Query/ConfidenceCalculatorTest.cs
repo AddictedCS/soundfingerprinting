@@ -22,7 +22,7 @@
         }
 
         [Test]
-        public void ShouldCalculatedConfidence2()
+        public void ShouldCalculateConfidence2()
         {
             // Query Length 2 mins
             // Source 30 sec (30 seconds available in the middle of the track)
