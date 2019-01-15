@@ -80,24 +80,19 @@
             return this;
         }
 
-        public Task<QueryResult> Query()
+        public async Task<QueryResult> Query()
         {
             var fingerprintingStopwatch = Stopwatch.StartNew();
-            return createFingerprintCommand()
-                                     .Hash()
-                                     .ContinueWith(
-                                        task =>
-                                        {
-                                            long fingerprintingTime = fingerprintingStopwatch.ElapsedMilliseconds;
-                                            var hashes = task.Result;
-                                            var queryStopwatch = Stopwatch.StartNew();
-                                            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
-                                            long queryingTime = queryStopwatch.ElapsedMilliseconds;
-                                            queryResult.Stats.FingerprintingDuration = fingerprintingTime;
-                                            queryResult.Stats.QueryDuration = queryingTime;
-                                            return queryResult;
-                                        },
-                                        TaskContinuationOptions.ExecuteSynchronously);
+            var hashes = await createFingerprintCommand().Hash();
+            long fingerprintingTime = fingerprintingStopwatch.ElapsedMilliseconds;
+            
+            var queryStopwatch = Stopwatch.StartNew();
+            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
+            long queryingTime = queryStopwatch.ElapsedMilliseconds;
+            
+            queryResult.Stats.FingerprintingDuration = fingerprintingTime;
+            queryResult.Stats.QueryDuration = queryingTime;
+            return queryResult;
         }
     }
 }
