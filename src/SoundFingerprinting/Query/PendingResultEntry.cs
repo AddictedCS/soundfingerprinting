@@ -15,13 +15,13 @@ namespace SoundFingerprinting.Query
 
         public ResultEntry Entry { get; }
 
-        public bool TryCollapse(double accuracy, PendingResultEntry pendingNext, out PendingResultEntry collapsed)
+        public bool TryCollapse(PendingResultEntry pendingNext, double permittedGap, out PendingResultEntry collapsed)
         {
             var next = pendingNext.Entry;
             collapsed = null;
             if (Entry.Track.Equals(next.Track))
             {
-                if (TrackMatchOverlaps(accuracy, next) || CanSwallow(next))
+                if (TrackMatchOverlaps(next, permittedGap) || CanSwallow(next))
                 {
                     collapsed = new PendingResultEntry(Entry.MergeWith(next));
                     return true;
@@ -63,9 +63,9 @@ namespace SoundFingerprinting.Query
             return InternalUid != null ? InternalUid.GetHashCode() : 0;
         }
         
-        private bool TrackMatchOverlaps(double accuracy, ResultEntry next)
+        private bool TrackMatchOverlaps(ResultEntry next, double permittedGap)
         {
-            return TrackMatchEndsAt >= next.TrackMatchStartsAt - accuracy && next.TrackMatchStartsAt + accuracy >= TrackMatchEndsAt;
+            return TrackMatchEndsAt >= next.TrackMatchStartsAt - permittedGap && next.TrackMatchStartsAt + permittedGap >= TrackMatchEndsAt;
         }
 
         private bool CanSwallow(ResultEntry next)

@@ -86,7 +86,7 @@ namespace SoundFingerprinting.Query
                     return current;
                 }
 
-                if (pair.Pending.TryCollapse(permittedGap, pair.NewArrival, out var collapsed))
+                if (pair.Pending.TryCollapse(pair.NewArrival, permittedGap, out var collapsed))
                 {
                     alreadyCollapsed.Add(pair.Pending);
                     alreadyCollapsed.Add(pair.NewArrival);
