@@ -57,35 +57,34 @@ namespace SoundFingerprinting.Command
             double queryLength = 0d;
             while (!realtimeSamples.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
             {
-                bool isOut;
                 AudioSamples audioSamples;
                 try
                 {
-                    isOut = realtimeSamples.TryTake(out audioSamples, MillisecondsDelay, cancellationToken);
+                    if (!realtimeSamples.TryTake(out audioSamples, MillisecondsDelay, cancellationToken))
+                    {
+                        continue;
+                    }
                 }
                 catch (OperationCanceledException)
                 {
                     return queryLength;
                 }
 
-                if (isOut)
+                if (audioSamples.SampleRate != SupportedFrequency)
                 {
-                    if (audioSamples.SampleRate != SupportedFrequency)
-                    {
-                        throw new ArgumentException($"{nameof(audioSamples)} should be provided down sampled to {SupportedFrequency}Hz");
-                    }
-                    
-                    queryLength += audioSamples.Duration;
-                    
-                    var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
-                    var hashes = await CreateQueryFingerprints(commandBuilder, prefixed);
-                    var results = queryFingerprintService.Query(hashes, configuration.QueryConfiguration, modelService);
-                    var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
-
-                    InvokeSuccessHandler(realtimeQueryResult);
-                    InvokeDidNotPassFilterHandler(realtimeQueryResult);
-                    InvokeHashedFingerprintsCallback(hashes);
+                    throw new ArgumentException($"{nameof(audioSamples)} should be provided down sampled to {SupportedFrequency}Hz");
                 }
+
+                queryLength += audioSamples.Duration;
+
+                var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
+                var hashes = await CreateQueryFingerprints(commandBuilder, prefixed);
+                var results = queryFingerprintService.Query(hashes, configuration.QueryConfiguration, modelService);
+                var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
+
+                InvokeSuccessHandler(realtimeQueryResult);
+                InvokeDidNotPassFilterHandler(realtimeQueryResult);
+                InvokeHashedFingerprintsCallback(hashes);
             }
 
             return queryLength;
