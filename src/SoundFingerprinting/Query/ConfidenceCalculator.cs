@@ -71,12 +71,12 @@
         private double GetConfidenceForSmallSnippetFoundInLongQuery(
             double sourceMatchStartsAt, double sourceMatchLength, double queryLength, double originStartsAt, double originLength)
         {
-            if (this.OriginTrackIsClippedFromTheBegining(sourceMatchStartsAt, originStartsAt))
+            if (OriginTrackIsClippedFromTheBegining(sourceMatchStartsAt, originStartsAt))
             {
                 return sourceMatchLength / (originLength - (originStartsAt - sourceMatchStartsAt));
             }
 
-            if (this.OriginTrackIsClippedAtTheEnd(sourceMatchStartsAt, queryLength, originLength))
+            if (OriginTrackIsClippedAtTheEnd(sourceMatchStartsAt, queryLength, originLength))
             {
                 return sourceMatchLength / (queryLength - sourceMatchStartsAt + originStartsAt);
             }

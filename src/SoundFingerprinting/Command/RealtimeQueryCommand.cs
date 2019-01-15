@@ -124,7 +124,7 @@ namespace SoundFingerprinting.Command
         public IRealtimeQueryCommand UsingServices(IModelService modelService)
         {
             this.modelService = modelService;
-            this.audioService = new SoundFingerprintingAudioService();
+            audioService = new SoundFingerprintingAudioService();
             return this;
         }
     }

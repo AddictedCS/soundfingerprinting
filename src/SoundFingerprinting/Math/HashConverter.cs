@@ -6,7 +6,7 @@
     {
         public byte[] ToBytes(long[] array, int count)
         {
-            int bytesPerLong = this.GetBytesPerLong(count, array.Length);
+            int bytesPerLong = GetBytesPerLong(count, array.Length);
             byte[] bytes = new byte[count];
             for (int i = 0; i < array.Length; i++)
             {

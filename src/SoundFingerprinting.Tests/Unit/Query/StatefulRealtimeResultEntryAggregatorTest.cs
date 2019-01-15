@@ -45,8 +45,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsTrue(third.DidNotPassThresholdEntries.Any());
         }
 
-        
-
         [Test]
         public void ShouldMergeResults()
         {

@@ -13,7 +13,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
@@ -227,7 +226,7 @@
                     RowWithDetails =
                         new object[]
                             {
-                                this.GetInsertMetadata(), queryStride.ToString(), seconds, startAts[iteration],
+                                GetInsertMetadata(), queryStride.ToString(), seconds, startAts[iteration],
                                 fscore.Precision, fscore.Recall, fscore.F1, 
                                 statistics.TruePositiveInfo,
                                 statistics.TruePositivePercentileInfo,
@@ -253,7 +252,7 @@
 
         private string GetInsertMetadata()
         {
-            return this.lastInsertStride != null ? this.lastInsertStride.ToString() : string.Empty;
+            return lastInsertStride != null ? lastInsertStride.ToString() : string.Empty;
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
