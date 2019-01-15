@@ -9,7 +9,7 @@ namespace SoundFingerprinting.Data
     public class TimedHashes
     {
         private const double Accuracy = 1.48d;
-        private const double FingerprintLength = 8192.0d / 5512;
+        private const double FingerprintCount = 8192.0d / 5512;
         
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> hashedFingerprints = new List<HashedFingerprint>();
@@ -30,44 +30,57 @@ namespace SoundFingerprinting.Data
         [ProtoMember(2)]
         public DateTime StartsAt { get; }
 
-        private DateTime EndsAt => StartsAt.Add(TimeSpan.FromSeconds(hashedFingerprints.Last().StartsAt + FingerprintLength));
+        private DateTime EndsAt => StartsAt.Add(TimeSpan.FromSeconds(hashedFingerprints.Last().StartsAt + FingerprintCount));
 
         public bool MergeWith(TimedHashes with, out TimedHashes merged)
         {
             merged = null;
             
-            if (StartsAt <= with.StartsAt && EndsAt <= with.StartsAt.Subtract(TimeSpan.FromSeconds(Accuracy)))
+            if (StartsAt <= with.StartsAt && EndsAt >= with.StartsAt.Subtract(TimeSpan.FromSeconds(Accuracy)))
             {
-                HashedFingerprint[] first = hashedFingerprints.ToArray();
-                HashedFingerprint[] seconds = with.hashedFingerprints.ToArray();
-
-                var result = new List<HashedFingerprint>();
-                int i = 0, j = 0;
-                for (int k = 0; k < first.Length + seconds.Length; ++k)
-                {
-                    if (i == first.Length)
-                    {
-                        result.Add(seconds[j++]);
-                    }
-                    else if (j == seconds.Length)
-                    {
-                        result.Add(first[i++]);
-                    }
-                    else if (first[i].StartsAt <= seconds[j].StartsAt)
-                    {
-                        result.Add(first[i++]);
-                    }
-                    else
-                    {
-                        result.Add(seconds[j++]);
-                    }
-                }
-                
+                var result = Merge(hashedFingerprints.OrderBy(h => h.SequenceNumber).ToList(), StartsAt, with.hashedFingerprints.OrderBy(h => h.SequenceNumber).ToList(), with.StartsAt);
                 merged = new TimedHashes(result, StartsAt);
                 return true;
             }
             
             return false;
+        }
+
+        private static List<HashedFingerprint> Merge(IReadOnlyList<HashedFingerprint> first, DateTime firstStartsAt, IReadOnlyList<HashedFingerprint> second, DateTime secondStartsAt)
+        {
+            var result = new List<HashedFingerprint>();
+            int i = 0, j = 0;
+            var diff = secondStartsAt.Subtract(firstStartsAt);
+            
+            for (int k = 0; k < first.Count + second.Count; ++k)
+            {
+                if (i == first.Count)
+                {
+                    var startAt = diff.TotalSeconds + j * FingerprintCount;
+                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].Clusters));
+                    ++j;
+                }
+                else if (j == second.Count)
+                {
+                    var startsAt = i * FingerprintCount;
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, (float)startsAt, first[i].Clusters));
+                    ++i;
+                }
+                else if (firstStartsAt.Add(TimeSpan.FromSeconds(first[i].StartsAt)) <= secondStartsAt.Add(TimeSpan.FromSeconds(second[j].StartsAt)))
+                {
+                    var startsAt = i * FingerprintCount;
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, (float)startsAt, first[i].Clusters));
+                    ++i;
+                }
+                else
+                {
+                    var startAt = diff.TotalSeconds + j * FingerprintCount;
+                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].Clusters));
+                    ++j;
+                }
+            }
+
+            return result;
         }
     }
 }
