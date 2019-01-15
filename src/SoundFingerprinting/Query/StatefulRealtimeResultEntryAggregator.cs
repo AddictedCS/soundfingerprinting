@@ -99,7 +99,7 @@ namespace SoundFingerprinting.Query
             return oldResultEntries.Where(match => !cartesianAggregation.AlreadyCollapsed.Contains(match))
                                    .Select(old => old.Wait(queryLength)) 
                                    .Concat(cartesianAggregation.NewPendingMatches)
-                                   .Concat(newArrivals.Where(match => !cartesianAggregation.AlreadyCollapsed.Contains(match))) 
+                                   .Concat(newArrivals.Where(newArrival => !cartesianAggregation.AlreadyCollapsed.Contains(newArrival))) 
                                    .ToList();
         }
     }
