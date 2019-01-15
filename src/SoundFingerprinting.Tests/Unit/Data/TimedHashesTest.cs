@@ -5,7 +5,6 @@ namespace SoundFingerprinting.Tests.Unit.Data
     using System.Linq;
     using NUnit.Framework;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Tests.Integration;
 
     [TestFixture]
     public class TimedHashesTest
