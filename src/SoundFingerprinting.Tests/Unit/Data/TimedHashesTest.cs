@@ -36,5 +36,23 @@ namespace SoundFingerprinting.Tests.Unit.Data
             Assert.AreEqual(2 * one, result.HashedFingerprints[4].StartsAt, 0.0001);
             Assert.AreEqual(1 + 2 * one, result.HashedFingerprints[5].StartsAt, 0.0001);
         }
+
+        [Test]
+        public void CantMergeSinceTheGapIsTooBig()
+        {
+            var a = new TimedHashes(new List<HashedFingerprint>
+                {
+                    new HashedFingerprint(new[] {1}, 0, 0, new string[0]),
+                },
+                DateTime.Parse("01/15/2019 10:00:00"));
+
+            var b = new TimedHashes(new List<HashedFingerprint>
+                {
+                    new HashedFingerprint(new[] {2}, 0, 0, new string[0]),
+                },
+                DateTime.Parse("01/15/2019 10:01:00"));
+            
+            Assert.IsFalse(a.MergeWith(b, out _));
+        }
     }
 }
