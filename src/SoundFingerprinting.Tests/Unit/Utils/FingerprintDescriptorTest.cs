@@ -9,7 +9,7 @@
     using SoundFingerprinting.Utils;
 
     [TestFixture]
-    public class FingerprintDescriptorTest : AbstractTest
+    public class FingerprintDescriptorTest
     {
         private const int TopWavelets = 200;
 
@@ -25,7 +25,7 @@
         }
 
         [Test]
-        public void ExtractTopWaveletesText()
+        public void ExtractTopWaveletsText()
         {
             float[] frames = TestUtilities.GenerateRandomFloatArray(128 * 32);
             float[] copy = (float[])frames.Clone();
@@ -71,13 +71,14 @@
 
             if (topWavelets >= frames.Length)
             {
-                throw new ArgumentException("TopWaveletes cannot exceed the length of frames array");
+                throw new ArgumentException("TopWavelets cannot exceed the length of frames array");
             }
 
             // Negative Numbers = 01
             // Positive Numbers = 10
-            // Zeros            = 00      
-            bool[] result = new bool[frames.Length * 2]; /*Concatenated float array*/
+            // Zeros            = 00
+            // Concatenated float array
+            bool[] result = new bool[frames.Length * 2]; 
             int topW = 0;
             foreach (var pair in query)
             {

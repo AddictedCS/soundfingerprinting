@@ -7,7 +7,7 @@
     using SoundFingerprinting.MinHash;
 
     [TestFixture]
-    public class CachedPermutationsTest : AbstractTest
+    public class CachedPermutationsTest
     {
         private CachedPermutations cachedPermutations;
 

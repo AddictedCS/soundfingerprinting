@@ -28,13 +28,13 @@
         public void RandomStrideClassTest()
         {
             const int min = 0;
-            const int Max = 253;
-            RandomStride randomStride = new RandomStride(min, Max, 0);
+            const int max = 253;
+            RandomStride randomStride = new RandomStride(min, max, 0);
             const int count = 1024;
             for (int i = 0; i < count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.IsTrue(skip <= 8192 + Max);
+                Assert.IsTrue(skip <= 8192 + max);
                 Assert.IsTrue(skip >= 8192 + min);
             }
         }

@@ -58,7 +58,7 @@
         [Test]
         public void TestExactAmountOfDataIsReceivedAsRequested()
         {
-            const double SecondsToRead = 65.8;
+            const double secondsToRead = 65.8;
 
             // 20 20 20 seconds
             var floats = new[]
@@ -72,9 +72,9 @@
 
             var queue = new Queue<float[]>(floats);
 
-            var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queue), SecondsToRead, SampleRate);
+            var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queue), secondsToRead, SampleRate);
 
-            Assert.AreEqual((int)(SecondsToRead * SampleRate) / 4 * 4, samples.Length);
+            Assert.AreEqual((int)(secondsToRead * SampleRate) / 4 * 4, samples.Length);
             int prevArrayLength = 0;
             for (int i = 0; i < floats.Length - 1; ++i)
             {

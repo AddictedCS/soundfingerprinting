@@ -48,8 +48,8 @@
         [Test]
         public void CreateFingerprints()
         {
-            const int TenSeconds = 5512 * 10;
-            var samples = TestUtilities.GenerateRandomAudioSamples(TenSeconds);
+            const int tenSeconds = 5512 * 10;
+            var samples = TestUtilities.GenerateRandomAudioSamples(tenSeconds);
             var fingerprintConfig = new DefaultFingerprintConfiguration();
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);

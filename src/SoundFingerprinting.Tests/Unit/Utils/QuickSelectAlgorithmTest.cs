@@ -11,13 +11,12 @@
     [TestFixture]
     public class QuickSelectAlgorithmTest
     {
-        private readonly Random random = new Random();
-
         private readonly QuickSelectAlgorithm algorithm = new QuickSelectAlgorithm();
 
         [Test]
         public void ShouldProperlyTestAccuracy()
         {
+            var random = new Random();
             float a = (float)random.NextDouble();
             float b = a + 0.0000001f;
 
@@ -27,25 +26,26 @@
         [Test]
         public void ShouldGenerateSameSignatureDuringMultipleRuns()
         {
-            const int Count = 4096;
-            const int TopWavelets = 200;
+            const int count = 4096;
+            const int topWavelets = 200;
 
+            var random = new Random();
             for (int run = 0; run < 50000; ++run)
             {
-                float[] a = GenerateRandomArray(Count);
+                float[] a = GenerateRandomArray(count, random);
                 float[] b = (float[])a.Clone();
 
-                ushort[] x = Enumerable.Range(0, Count).Select(i => (ushort)i).ToArray();
+                ushort[] x = Enumerable.Range(0, count).Select(i => (ushort)i).ToArray();
                 ushort[] y = (ushort[])x.Clone();
 
-                int akth = algorithm.Find(TopWavelets - 1, a, x, 0, a.Length - 1);
-                int bkth = algorithm.Find(TopWavelets - 1, b, y, 0, b.Length - 1);
+                int akth = algorithm.Find(topWavelets - 1, a, x, 0, a.Length - 1);
+                int bkth = algorithm.Find(topWavelets - 1, b, y, 0, b.Length - 1);
 
                 Assert.AreEqual(akth, bkth);
                 var aset = new HashSet<float>();
                 var bset = new HashSet<float>();
 
-                for (int i = 0; i < TopWavelets; ++i)
+                for (int i = 0; i < topWavelets; ++i)
                 {
                     aset.Add(a[i]);
                     bset.Add(b[i]);
@@ -61,25 +61,23 @@
         [Test]
         public void ShouldFindTop200Element()
         {
-            const int Count = 4096;
-            const int TopWavelets = 200;
+            const int count = 4096;
+            const int topWavelets = 200;
 
+            var random = new Random();
             for (int run = 0; run < 10; ++run)
             {
-                float[] floats = GenerateRandomArray(Count);
-                ushort[] indexes = Enumerable.Range(0, Count).Select(i => (ushort)i).ToArray();
+                float[] floats = GenerateRandomArray(count, random);
+                ushort[] indexes = Enumerable.Range(0, count).Select(i => (ushort)i).ToArray();
 
-                int kth = algorithm.Find(TopWavelets - 1, floats, indexes, 0, floats.Length - 1);
+                int kth = algorithm.Find(topWavelets - 1, floats, indexes, 0, floats.Length - 1);
 
-                Assert.AreEqual(TopWavelets - 1, kth);
-                for (int i = 0; i < TopWavelets; ++i)
+                Assert.AreEqual(topWavelets - 1, kth);
+                for (int i = 0; i < topWavelets; ++i)
                 {
-                    for (int j = TopWavelets; j < floats.Length; ++j)
+                    for (int j = topWavelets; j < floats.Length; ++j)
                     {
-                        Assert.AreEqual(
-                            1,
-                            Math.Abs(floats[i]).CompareTo(floats[j]),
-                            $"{floats[i]} < {floats[j]} at i:{i}, j:{j}");
+                        Assert.AreEqual(1, Math.Abs(floats[i]).CompareTo(floats[j]), $"{floats[i]} < {floats[j]} at i:{i}, j:{j}");
                     }
                 }
             }
@@ -97,7 +95,7 @@
             }
         }
 
-        private float[] GenerateRandomArray(int count)
+        private float[] GenerateRandomArray(int count, Random random)
         {
             float[] rand = new float[count];
             for (int i = 0; i < count; ++i)

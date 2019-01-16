@@ -7,33 +7,27 @@
     using SoundFingerprinting.Wavelets;
 
     [TestFixture]
-    public class StandardHaarWaveletDecompositionTest : AbstractTest
+    public class StandardHaarWaveletDecompositionTest
     {
-        private IWaveletDecomposition waveletDecomposition;
-
-        [SetUp]
-        public void SetUp()
-        {
-            waveletDecomposition = new StandardHaarWaveletDecomposition();
-        }
-
         [Test]
         public void StandardDecompositionTest()
         {
-            const int Rows = 128;
-            const int Cols = 32;
-            float[][] frames = new float[Rows][];
-            float[] concatenated = new float[Rows * Cols];
-            for (int i = 0; i < Rows; i++)
+            const int rows = 128;
+            const int cols = 32;
+            float[][] frames = new float[rows][];
+            float[] concatenated = new float[rows * cols];
+            for (int i = 0; i < rows; i++)
             {
-                frames[i] = TestUtilities.GenerateRandomSingleArray(Cols);
-                Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * Cols, sizeof(float) * Cols);
+                frames[i] = TestUtilities.GenerateRandomSingleArray(cols);
+                Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * cols, sizeof(float) * cols);
             }
 
-            AssertAreSame(Rows, Cols, frames, concatenated);
-            waveletDecomposition.DecomposeImageInPlace(concatenated, Rows, Cols, 1d);
+            AssertAreSame(rows, cols, frames, concatenated);
+            
+            var waveletDecomposition = new StandardHaarWaveletDecomposition();
+            waveletDecomposition.DecomposeImageInPlace(concatenated, rows, cols, 1d);
             DecomposeImageLocal(frames);
-            AssertAreSame(Rows, Cols, frames, concatenated);
+            AssertAreSame(rows, cols, frames, concatenated);
         }
 
         private void AssertAreSame(int rows, int cols, float[][] frames, float[] concatenated)

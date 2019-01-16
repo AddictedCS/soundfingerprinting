@@ -12,11 +12,11 @@
         {
             var tagInfoWithoutTitle = new TagInfo { Artist = "artist" };
             var tagInfoWithoutArtist = new TagInfo { Title = "title" };
-            var tagInfoWithoutISRC = new TagInfo();
+            var tagInfoWithoutIsrc = new TagInfo();
 
             Assert.IsFalse(tagInfoWithoutArtist.IsTrackUniquelyIdentifiable());
             Assert.IsFalse(tagInfoWithoutTitle.IsTrackUniquelyIdentifiable());
-            Assert.IsFalse(tagInfoWithoutISRC.IsTrackUniquelyIdentifiable());
+            Assert.IsFalse(tagInfoWithoutIsrc.IsTrackUniquelyIdentifiable());
         }
 
         [Test]

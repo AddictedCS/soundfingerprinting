@@ -7,36 +7,29 @@
     [TestFixture]
     public class HanningWindowTest
     {
-        private IWindowFunction windowFunction;
-
-        [SetUp]
-        public void SetUp()
-        {
-            windowFunction = new HanningWindow();
-        }
-
         [Test]
         public void WindowInPlaceTest()
         {
-            const int Length = 128 * 64;
-            float[] outerspace = TestUtilities.GenerateRandomSingleArray(Length);
-            float[] outerspaceCopy = new float[outerspace.Length];
-            outerspace.CopyTo(outerspaceCopy, 0);
+            const int length = 128 * 64;
+            float[] outerSpace = TestUtilities.GenerateRandomSingleArray(length);
+            float[] outerSpaceCopy = new float[outerSpace.Length];
+            outerSpace.CopyTo(outerSpaceCopy, 0);
 
-            windowFunction.WindowInPlace(outerspace, outerspace.Length);
-            WeightByHanningWindow(outerspaceCopy);
+            var windowFunction = new HanningWindow();
+            windowFunction.WindowInPlace(outerSpace, outerSpace.Length);
+            WeightByHanningWindow(outerSpaceCopy);
 
-            for (int i = 0; i < outerspace.Length; i++)
+            for (int i = 0; i < outerSpace.Length; i++)
             {
-                Assert.AreEqual(true, (outerspace[i] - outerspaceCopy[i]) < 0.00001);
+                Assert.AreEqual(true, (outerSpace[i] - outerSpaceCopy[i]) < 0.00001);
             }
         }
 
-        private void WeightByHanningWindow(float[] outerspace)
+        private void WeightByHanningWindow(float[] outerSpace)
         {
-            for (int i = 0; i < outerspace.Length; i++)
+            for (int i = 0; i < outerSpace.Length; i++)
             {
-                outerspace[i] *= (float)(0.5 * (1 - System.Math.Cos(System.Math.PI * 2 * i / (outerspace.Length - 1))));
+                outerSpace[i] *= (float)(0.5 * (1 - System.Math.Cos(System.Math.PI * 2 * i / (outerSpace.Length - 1))));
             }
         }
     }

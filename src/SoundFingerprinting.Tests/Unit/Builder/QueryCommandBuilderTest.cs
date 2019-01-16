@@ -57,7 +57,7 @@
         [Test]
         public async Task QueryIsBuiltFromFileCorrectly()
         {
-            const string PathToFile = "path-to-file";
+            const string pathToFile = "path-to-file";
             QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), new QueryStats(0, 0, 0, 0));
             List<HashedFingerprint> hashedFingerprints =
                 new List<HashedFingerprint>(
@@ -69,14 +69,14 @@
                         });
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
-            fingerprintingSource.Setup(source => source.From(PathToFile)).Returns(withAlgorithConfiguration.Object);
+            fingerprintingSource.Setup(source => source.From(pathToFile)).Returns(withAlgorithConfiguration.Object);
             withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(command => command.Hash()).Returns(Task.Factory.StartNew(() => hashedFingerprints));
             queryFingerprintService.Setup(service => service.Query(hashedFingerprints, It.IsAny<DefaultQueryConfiguration>(), this.modelService.Object)).Returns(dummyResult);
 
             _ = await queryCommandBuilder.BuildQueryCommand()
-                .From(PathToFile)
+                .From(pathToFile)
                 .UsingServices(modelService.Object, audioService.Object)
                 .Query();
         }

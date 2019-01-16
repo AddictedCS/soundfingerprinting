@@ -14,7 +14,7 @@
     using SoundFingerprinting.Utils;
 
     [TestFixture]
-    public class LocalitySensitiveHashingAlgorithmTest : AbstractTest
+    public class LocalitySensitiveHashingAlgorithmTest
     {
         private LocalitySensitiveHashingAlgorithm lshAlgorithm;
         private Mock<IMinHashService> minHashService;
@@ -48,7 +48,7 @@
                 Enumerable.Empty<string>());
 
             Assert.AreEqual(5, hash.SequenceNumber);
-            Assert.AreEqual(5 * 0.928, hash.StartsAt, Epsilon);
+            Assert.AreEqual(5 * 0.928, hash.StartsAt, 0.0001);
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, hash.HashBins);
         }
     }

@@ -15,10 +15,10 @@
         [Test]
         public void ShouldIdentifyLongestMatch()
         {
-            const double QueryLength = 9d;
+            const double queryLength = 9d;
             var matches = TestUtilities.GetMatchedWith(new float[] { 5, 9, 11, 14 }, new float[] { 0, 5, 9, 10 });
 
-            var coverage = qrc.GetCoverage(matches, QueryLength, fingerprintLengthInSeconds);
+            var coverage = qrc.GetCoverage(matches, queryLength, fingerprintLengthInSeconds);
 
             Assert.AreEqual(5.4586, coverage.SourceMatchLength, 0.001);
         }
@@ -26,10 +26,10 @@
         [Test]
         public void ShouldSelectBestLongestMatch()
         {
-            const double QueryLength = 5d;
+            const double queryLength = 5d;
             var matches = TestUtilities.GetMatchedWith(new float[] { 1, 2, 3, 4, 5 }, new float[] { 1, 2, 9, 11, 12 });
 
-            var coverage = qrc.GetCoverage(matches, QueryLength, fingerprintLengthInSeconds);
+            var coverage = qrc.GetCoverage(matches, queryLength, fingerprintLengthInSeconds);
 
             Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.01);
             Assert.AreEqual(4.486, coverage.SourceCoverageLength, 0.01);
@@ -39,10 +39,10 @@
         [Test]
         public void ShouldDisregardJingleSinceTheGapIsTooBig()
         {
-            const double QueryLength = 5d;
+            const double queryLength = 5d;
             var matches = TestUtilities.GetMatchedWith(new float[] { 1, 4, 5, 1, 2 }, new float[] { 1, 3, 4, 10, 11 });
 
-            var coverage = qrc.GetCoverage(matches, QueryLength, fingerprintLengthInSeconds);
+            var coverage = qrc.GetCoverage(matches, queryLength, fingerprintLengthInSeconds);
 
             Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.01);
             Assert.AreEqual(4.486, coverage.SourceCoverageLength, 0.01);

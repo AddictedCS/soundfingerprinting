@@ -8,7 +8,7 @@
     using SoundFingerprinting.Utils;
 
     [TestFixture]
-    public class MinHashServiceTest : AbstractTest
+    public class MinHashServiceTest
     {
         private MinHashService minHashService;
 
