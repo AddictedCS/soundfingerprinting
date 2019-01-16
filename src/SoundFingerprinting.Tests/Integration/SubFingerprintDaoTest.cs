@@ -25,7 +25,7 @@
         [SetUp]
         public void SetUp()
         {
-            var ramStorage = new RAMStorage(NumberOfHashTables);
+            var ramStorage = new RAMStorage(25);
             subFingerprintDao = new SubFingerprintDao(ramStorage, new StandardGroupingCounter());
             trackDao = new TrackDao(ramStorage);
         }

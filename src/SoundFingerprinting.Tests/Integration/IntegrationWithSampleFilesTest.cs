@@ -26,7 +26,7 @@
             for (int i = 0; i < firstHashDatas.Count; i++)
             {
                 Assert.AreEqual(firstHashDatas[i].SequenceNumber, secondHashDatas[i].SequenceNumber);
-                Assert.AreEqual(firstHashDatas[i].StartsAt, secondHashDatas[i].StartsAt, Epsilon);
+                Assert.AreEqual(firstHashDatas[i].StartsAt, secondHashDatas[i].StartsAt, 0.0001);
                 CollectionAssert.AreEqual(firstHashDatas[i].HashBins, secondHashDatas[i].HashBins);
             }
         }

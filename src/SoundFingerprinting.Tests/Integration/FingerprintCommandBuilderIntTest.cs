@@ -84,7 +84,7 @@
             const int SecondsToProcess = 8;
             const int StartAtSecond = 1;
 
-            var samples = audioService.ReadMonoSamplesFromFile(PathToWav, SampleRate, SecondsToProcess, StartAtSecond);
+            var samples = audioService.ReadMonoSamplesFromFile(PathToWav, 5512, SecondsToProcess, StartAtSecond);
 
             var hashDatasFromFile = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
@@ -250,7 +250,7 @@
 
         private static AudioSamples GenerateRandomAudioSamples(int length)
         {
-            return new AudioSamples(TestUtilities.GenerateRandomFloatArray(length), string.Empty, SampleRate);
+            return new AudioSamples(TestUtilities.GenerateRandomFloatArray(length), string.Empty, 5512);
         }
     }
 }

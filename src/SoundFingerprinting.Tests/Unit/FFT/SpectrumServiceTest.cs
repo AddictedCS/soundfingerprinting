@@ -9,8 +9,11 @@
     using SoundFingerprinting.Strides;
 
     [TestFixture]
-    public class SpectrumServiceTest : AbstractTest
+    public class SpectrumServiceTest
     {
+        private const int SampleRate = 5512;
+        private const double Epsilon = 0.0001;
+        
         private SpectrumService spectrumService;
         private Mock<IFFTServiceUnsafe> fftService;
         private Mock<ILogUtility> logUtility;
