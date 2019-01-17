@@ -3,8 +3,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.CompilerServices;
-
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
@@ -13,6 +11,8 @@
 
     public class GroupedQueryResults
     {
+        private readonly object lockObject = new object();
+        
         private readonly IEnumerable<HashedFingerprint> queryFingerprints;
         private readonly SortedDictionary<uint, Candidates> matches;
         private readonly ConcurrentDictionary<IModelReference, int> similaritySumPerTrack;
@@ -29,28 +29,24 @@
             return CalculateExactQueryLength(queryFingerprints, configuration);
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Add(HashedFingerprint hashedFingerprint, SubFingerprintData subFingerprintData, int hammingSimilarity)
         {
-            similaritySumPerTrack.AddOrUpdate(subFingerprintData.TrackReference, hammingSimilarity, (key, oldHamming) => oldHamming + hammingSimilarity);
-            var matchedWith = new MatchedWith(hashedFingerprint.StartsAt, subFingerprintData.SequenceAt, hammingSimilarity);
-            if (!matches.TryGetValue(hashedFingerprint.SequenceNumber, out var matched))
+            lock (lockObject)
             {
-                matches.Add(hashedFingerprint.SequenceNumber, new Candidates(subFingerprintData.TrackReference, matchedWith));
-            }
-            else
-            {
-                matched.AddOrUpdateNewMatch(subFingerprintData.TrackReference, matchedWith);
+                similaritySumPerTrack.AddOrUpdate(subFingerprintData.TrackReference, hammingSimilarity, (key, oldHamming) => oldHamming + hammingSimilarity);
+                var matchedWith = new MatchedWith(hashedFingerprint.StartsAt, subFingerprintData.SequenceAt, hammingSimilarity);
+                if (!matches.TryGetValue(hashedFingerprint.SequenceNumber, out var matched))
+                {
+                    matches.Add(hashedFingerprint.SequenceNumber, new Candidates(subFingerprintData.TrackReference, matchedWith));
+                }
+                else
+                {
+                    matched.AddOrUpdateNewMatch(subFingerprintData.TrackReference, matchedWith);
+                }
             }
         }
 
-        public bool ContainsMatches
-        {
-            get
-            {
-                return similaritySumPerTrack.Any();
-            }
-        }
+        public bool ContainsMatches => similaritySumPerTrack.Any();
 
         public int SubFingerprintsCount
         {
@@ -60,13 +56,7 @@
             }
         }
 
-        public int TracksCount
-        {
-            get
-            {
-                return similaritySumPerTrack.Count;
-            }
-        }
+        public int TracksCount => similaritySumPerTrack.Count;
 
         public IEnumerable<IModelReference> GetTopTracksByHammingSimilarity(int count)
         {
