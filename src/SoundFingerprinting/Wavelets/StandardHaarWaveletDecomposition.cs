@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    ///   Standart Haar wavelet decomposition algorithm.
+    ///   Standard Haar wavelet decomposition algorithm.
     /// </summary>
     /// <remarks>
     /// Implemented according to the algorithm found here http://grail.cs.washington.edu/projects/wavelets/article/wavelet1.pdf
