@@ -83,7 +83,9 @@
 
         public MatchedWith GetBestMatchForTrack(IModelReference trackReference)
         {
-            return GetMatchesForTrackOrderedByQueryAt(trackReference).OrderByDescending(matchedWith => matchedWith.HammingSimilarity).FirstOrDefault();
+            return GetMatchesForTrackOrderedByQueryAt(trackReference)
+                                .OrderByDescending(matchedWith => matchedWith.HammingSimilarity)
+                                .FirstOrDefault();
         }
 
         public IEnumerable<MatchedWith> GetMatchesForTrackOrderedByQueryAt(IModelReference trackReference)

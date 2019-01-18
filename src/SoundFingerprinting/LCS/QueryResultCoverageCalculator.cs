@@ -19,6 +19,9 @@
         public IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var fingerprintConfiguration = configuration.FingerprintConfiguration;
+            
+            // TODO this is redundant as matches are not required to be ordered down the line
+            // TODO simplify GroupedQueryResults class
             var matches = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(trackData.TrackReference);
 
             double queryLength = groupedQueryResults.GetQueryLength(fingerprintConfiguration);

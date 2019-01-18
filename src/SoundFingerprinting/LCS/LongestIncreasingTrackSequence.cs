@@ -5,6 +5,8 @@
 
     using SoundFingerprinting.Query;
 
+    using Math = System.Math;
+        
     internal class LongestIncreasingTrackSequence : ILongestIncreasingTrackSequence
     {
         private const float AllowedMismatchLength = 1.48f;
@@ -12,57 +14,66 @@
         public List<List<MatchedWith>> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches)
         {
             var matchedWiths = new List<List<MatchedWith>>();
-            var orderedByQueryAt = matches.ToList();
-
-            while (orderedByQueryAt.Any())
+            var list = matches.OrderBy(match => match.QueryAt).ToList();
+            while (list.Any())
             {
-                int[] maxLength = new int[orderedByQueryAt.Count];
-                int max = 0, maxIndex = 0;
+                var orderedByQueryAt = list.ToArray();
+                int[] maxLength = BuildMaxLengthIndexArray(orderedByQueryAt, out var max, out var maxIndex);
+                var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex);
+                matchedWiths.Add(longestSequence);
+                list = list.Except(longestSequence)
+                           .OrderBy(match => match.QueryAt)
+                           .ToList();
+            }
 
-                for (int i = 1; i < orderedByQueryAt.Count; ++i)
+            return matchedWiths;
+        }
+
+        private static List<MatchedWith> FindLongestSequence(MatchedWith[] matches, int[] maxLength, int max, int maxIndex)
+        {
+            var currentList = new List<MatchedWith>();
+            for (int i = maxIndex; i >= 0; --i)
+            {
+                if (maxLength[i] == max)
                 {
-                    for (int j = 0; j < i; ++j)
+                    currentList.Add(matches[i]);
+                    max--;
+                }
+            }
+
+            currentList.Reverse();
+            return currentList;
+        }
+
+        private static int[] BuildMaxLengthIndexArray(IReadOnlyList<MatchedWith> matches, out int max, out int maxIndex)
+        {
+            int[] maxLength = new int[matches.Count];
+            
+            max = 0;
+            maxIndex = 0;
+            
+            for (int i = 1; i < matches.Count; ++i)
+            {
+                for (int j = 0; j < i; ++j)
+                {
+                    if (matches[j].ResultAt < matches[i].ResultAt && maxLength[j] + 1 > maxLength[i])
                     {
-                        if (orderedByQueryAt[j].ResultAt < orderedByQueryAt[i].ResultAt && maxLength[j] + 1 > maxLength[i])
+                        float queryAt = Math.Abs(matches[i].QueryAt - matches[j].QueryAt);
+                        float resultAt = Math.Abs(matches[i].ResultAt - matches[j].ResultAt);
+                        if (Math.Abs(queryAt - resultAt) < AllowedMismatchLength)
                         {
-                            float queryAt = System.Math.Abs(orderedByQueryAt[i].QueryAt - orderedByQueryAt[j].QueryAt);
-                            float resultAt = System.Math.Abs(orderedByQueryAt[i].ResultAt - orderedByQueryAt[j].ResultAt);
-                            if (System.Math.Abs(queryAt - resultAt) < AllowedMismatchLength)
+                            maxLength[i] = maxLength[j] + 1;
+                            if (maxLength[i] > max)
                             {
-                                maxLength[i] = maxLength[j] + 1;
-                                if (maxLength[i] > max)
-                                {
-                                    max = maxLength[i];
-                                    maxIndex = i;
-                                }
+                                max = maxLength[i];
+                                maxIndex = i;
                             }
                         }
                     }
                 }
-
-                var used = new HashSet<int>();
-                var currentList = new List<MatchedWith>();
-
-                for (int i = maxIndex; i >= 0; --i)
-                {
-                    if (maxLength[i] == max)
-                    {
-                        currentList.Add(orderedByQueryAt[i]);
-                        max--;
-                        used.Add(i);
-                    }
-                }
-
-                foreach (var toRemove in used)
-                {
-                    orderedByQueryAt.RemoveAt(toRemove);
-                }
-
-                currentList.Reverse();
-                matchedWiths.Add(currentList);
             }
 
-            return matchedWiths;
+            return maxLength;
         }
     }
 }
