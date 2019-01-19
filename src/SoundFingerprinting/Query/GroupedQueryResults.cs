@@ -17,6 +17,8 @@
         private readonly SortedDictionary<uint, Candidates> matches;
         private readonly ConcurrentDictionary<IModelReference, int> similaritySumPerTrack;
 
+        // TODO queryFingerprints are used solely to calculate query length
+        // TODO can we get rid of this?
         public GroupedQueryResults(IEnumerable<HashedFingerprint> queryFingerprints)
         {
             this.queryFingerprints = queryFingerprints;
