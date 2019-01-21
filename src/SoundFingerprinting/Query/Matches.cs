@@ -12,7 +12,22 @@ namespace SoundFingerprinting.Query
         {
             this.matches = matches;
         }
-        
+
+        public double QueryAtStartsAt
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public double TrackAtStartAt
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public double TotalLength
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         public IEnumerator<MatchedWith> GetEnumerator()
         {
             return matches.GetEnumerator();
