@@ -78,8 +78,7 @@
                         
                         if (queryAt <= AllowedMismatchLength && resultAt <= AllowedMismatchLength)
                         {
-                            var maxAt = new MaxAt(maxLength[j].Length + 1, matches[i].ResultAt);
-                            maxLength[i] = maxAt;
+                            maxLength[i] = new MaxAt(maxLength[j].Length + 1, matches[i].ResultAt);
                             if (maxLength[i].Length > max)
                             {
                                 max = maxLength[i].Length;
@@ -92,20 +91,6 @@
 
             return maxLength;
         }
-
-        private static bool alreadyContains(MaxAt maxAt, MaxAt[] lengths)
-        {
-            for (int i = 0; i < lengths.Length; ++i)
-            {
-                if (lengths[i].Length == maxAt.Length && Math.Abs(lengths[i].ResultAt - maxAt.ResultAt) < 0.000001d)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        
 
         private struct MaxAt
         {

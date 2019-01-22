@@ -81,5 +81,15 @@
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[1].Select(pair => pair.ResultAt));
             CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.ResultAt));
         }
+
+        [Test]
+        public void ShouldGrabTheFirstMatch()
+        {
+            var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 1.1f, 2.1f, 3.1f, 4}, new[] {1, 2, 3, 1, 2, 3, 4f});
+
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            
+            Assert.AreEqual(2, result.Count);
+        }
     }
 }
