@@ -22,6 +22,8 @@ namespace SoundFingerprinting.Query
             }
         }
 
+        public int EntriesCount => matches.Count;
+
         public float QueryAtStartsAt => matches.First().Value.QueryAt;
         
         public float TrackAtStartsAt => matches.First().Value.ResultAt;
@@ -85,7 +87,7 @@ namespace SoundFingerprinting.Query
 
         private bool TrackMatchOverlaps(Matches current, Matches next, double permittedGap)
         {
-            return current.TrackAtEndsAt >= next.TrackAtStartsAt - permittedGap;
+            return current.TrackAtStartsAt <= next.TrackAtEndsAt && current.TrackAtEndsAt >= next.TrackAtStartsAt - permittedGap;
         }
     }
 }

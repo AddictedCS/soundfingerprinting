@@ -10,16 +10,16 @@
     {
         private const float AllowedMismatchLength = 10240 / 5512f;
 
-        public List<List<MatchedWith>> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches)
+        public List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches)
         {
-            var matchedWiths = new List<List<MatchedWith>>();
+            var matchedWiths = new List<Matches>();
             var list = matches.OrderBy(match => match.QueryAt).ToList();
             while (list.Any())
             {
                 var orderedByQueryAt = list.ToArray();
                 MaxAt[] maxLength = BuildMaxLengthIndexArray(orderedByQueryAt, out var max, out var maxIndex);
                 var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex).ToList();
-                matchedWiths.Add(longestSequence);
+                matchedWiths.Add(new Matches(longestSequence));
                 list = list.Except(longestSequence)
                            .OrderBy(match => match.QueryAt)
                            .ToList();

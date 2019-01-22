@@ -88,6 +88,17 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsFalse(a.TryCollapseWith(b, 1.48f, out _));
         }
 
+        [Test]
+        public void ShouldNotMergeWithTrackAtReversed()
+        {
+            // a   -------          0|15 + 10 = 10|25
+            // b            ------- 0|35 + 10 = 10|45
+            var a = GetMatches(0f, 15f, 10d, 512f / 5512);
+            var b = GetMatches(0f, 35f, 10d, 512f / 5512);
+
+            Assert.IsFalse(b.TryCollapseWith(a, 1.48f, out _));
+        }
+
         private static Matches GetMatches(float startQueryAt, float startTrackAt, double length, float stride)
         {
             const int hammingSimilarity = 100;
