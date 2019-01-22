@@ -96,7 +96,10 @@
             {
                 if (valuePair.Value.TryGetMatchesForTrack(trackReference, out var matchedWith))
                 {
-                    yield return matchedWith;
+                    foreach (var with in matchedWith)
+                    {
+                        yield return with;
+                    }
                 }
             }
         }

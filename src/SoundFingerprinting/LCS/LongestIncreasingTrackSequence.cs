@@ -1,8 +1,9 @@
 ﻿namespace SoundFingerprinting.LCS
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
-
+    using System.Security.Principal;
     using SoundFingerprinting.Query;
 
     using Math = System.Math;
@@ -18,8 +19,8 @@
             while (list.Any())
             {
                 var orderedByQueryAt = list.ToArray();
-                int[] maxLength = BuildMaxLengthIndexArray(orderedByQueryAt, out var max, out var maxIndex);
-                var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex);
+                MaxAt[] maxLength = BuildMaxLengthIndexArray(orderedByQueryAt, out var max, out var maxIndex);
+                var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex).ToList();
                 matchedWiths.Add(longestSequence);
                 list = list.Except(longestSequence)
                            .OrderBy(match => match.QueryAt)
@@ -29,25 +30,39 @@
             return matchedWiths;
         }
 
-        private static List<MatchedWith> FindLongestSequence(MatchedWith[] matches, int[] maxLength, int max, int maxIndex)
+        private static IEnumerable<MatchedWith> FindLongestSequence(MatchedWith[] matches, MaxAt[] maxLength, int max, int maxIndex)
         {
-            var currentList = new List<MatchedWith>();
-            for (int i = maxIndex; i >= 0; --i)
+            var lis = new Stack<MatchedWith>();
+            lis.Push(matches[maxIndex]);
+            max--;
+            
+            for (int i = maxIndex - 1; i >= 0; --i)
             {
-                if (maxLength[i] == max)
+                if (maxLength[i].Length == max)
                 {
-                    currentList.Add(matches[i]);
-                    max--;
+                    var prev = lis.Peek();
+                    if (Math.Abs(prev.ResultAt - maxLength[i].ResultAt) <= AllowedMismatchLength)
+                    {
+                        lis.Push(matches[i]);
+                        max--;
+                    }
                 }
             }
 
-            currentList.Reverse();
-            return currentList;
+            while (lis.Any())
+            {
+                yield return lis.Pop();
+            }
         }
 
-        private static int[] BuildMaxLengthIndexArray(IReadOnlyList<MatchedWith> matches, out int max, out int maxIndex)
+        private static MaxAt[] BuildMaxLengthIndexArray(IReadOnlyList<MatchedWith> matches, out int max, out int maxIndex)
         {
-            int[] maxLength = new int[matches.Count];
+            var maxLength = new MaxAt[matches.Count];
+
+            for (int i = 0; i < maxLength.Length; ++i)
+            {
+                maxLength[i] = new MaxAt(0, matches[i].ResultAt);
+            }
             
             max = 0;
             maxIndex = 0;
@@ -56,16 +71,18 @@
             {
                 for (int j = 0; j < i; ++j)
                 {
-                    if (matches[j].ResultAt < matches[i].ResultAt && maxLength[j] + 1 > maxLength[i])
+                    if (matches[j].ResultAt < matches[i].ResultAt && maxLength[j].Length + 1 > maxLength[i].Length)
                     {
                         float queryAt = Math.Abs(matches[i].QueryAt - matches[j].QueryAt);
                         float resultAt = Math.Abs(matches[i].ResultAt - matches[j].ResultAt);
-                        if (Math.Abs(queryAt - resultAt) < AllowedMismatchLength)
+                        
+                        if (queryAt <= AllowedMismatchLength && resultAt <= AllowedMismatchLength)
                         {
-                            maxLength[i] = maxLength[j] + 1;
-                            if (maxLength[i] > max)
+                            var maxAt = new MaxAt(maxLength[j].Length + 1, matches[i].ResultAt);
+                            maxLength[i] = maxAt;
+                            if (maxLength[i].Length > max)
                             {
-                                max = maxLength[i];
+                                max = maxLength[i].Length;
                                 maxIndex = i;
                             }
                         }
@@ -74,6 +91,33 @@
             }
 
             return maxLength;
+        }
+
+        private static bool alreadyContains(MaxAt maxAt, MaxAt[] lengths)
+        {
+            for (int i = 0; i < lengths.Length; ++i)
+            {
+                if (lengths[i].Length == maxAt.Length && Math.Abs(lengths[i].ResultAt - maxAt.ResultAt) < 0.000001d)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+
+        private struct MaxAt
+        {
+            public MaxAt(int length, double resultAt)
+            {
+                Length = length;
+                ResultAt = resultAt;
+            }
+
+            public int Length { get; }
+
+            public double ResultAt { get; }
         }
     }
 }
