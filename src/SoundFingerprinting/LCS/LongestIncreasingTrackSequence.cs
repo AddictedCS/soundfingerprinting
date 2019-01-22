@@ -1,16 +1,14 @@
 ﻿namespace SoundFingerprinting.LCS
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
-    using System.Security.Principal;
     using SoundFingerprinting.Query;
 
     using Math = System.Math;
         
     internal class LongestIncreasingTrackSequence : ILongestIncreasingTrackSequence
     {
-        private const float AllowedMismatchLength = 1.48f;
+        private const float AllowedMismatchLength = 10240 / 5512f;
 
         public List<List<MatchedWith>> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches)
         {
