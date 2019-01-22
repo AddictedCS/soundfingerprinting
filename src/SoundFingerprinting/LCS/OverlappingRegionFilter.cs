@@ -20,7 +20,6 @@
                         sequences.RemoveAt(i);
                         sequences.Add(c);
                         i = -1;
-                        j = 0;
                         break;
                     }
                 }
