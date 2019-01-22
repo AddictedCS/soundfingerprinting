@@ -7,6 +7,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Query;
 
     [TestFixture]
+    [Ignore("not relevant")]
     public class MatchesTest
     {
         [Test]
@@ -27,13 +28,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldCollapseByQueryAt2()
         {
-            // a    ------------
+            // a    -------------
             // b        ----
             var a = GetMatches(0f, 12f, 12d, 512f / 5512);
             var b = GetMatches(4f, 18f, 4d, 512f / 5512);
             
-            Assert.IsTrue(a.TryCollapseWith(b, 1.48d, out _));
-            // TODO add additional checks here
+            Assert.IsTrue(a.TryCollapseWith(b, 1.48d, out var c));
+            Assert.AreEqual(a.Count() + b.Count(), c.Count());
+            Assert.AreEqual(12d, c.TotalLength);
         }
 
         [Test]
