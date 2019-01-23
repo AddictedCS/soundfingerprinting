@@ -69,12 +69,21 @@ namespace SoundFingerprinting.Query
             while (ai < a.Length || bi < b.Length)
             {
                 if (ai >= a.Length)
+                {
                     concatenated.Add(b[bi++]);
+                }
                 else if (bi >= b.Length)
+                {
                     concatenated.Add(a[ai++]);
+                }
                 else if (a[ai].QueryAt < b[bi].QueryAt)
+                {
                     concatenated.Add(a[ai++]);
-                else concatenated.Add(b[bi++]);
+                }
+                else
+                {
+                    concatenated.Add(b[bi++]);
+                }
             }
 
             return new Matches(concatenated);
