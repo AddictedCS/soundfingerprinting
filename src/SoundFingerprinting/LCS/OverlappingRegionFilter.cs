@@ -10,16 +10,16 @@
 
         public static IEnumerable<Matches> FilterOverlappingSequences(List<Matches> sequences)
         {
-            for (int i = 0; i < sequences.Count; ++i)
+            for (int current = 0; current < sequences.Count; ++current)
             {
-                for (int j = i + 1; j < sequences.Count; ++j)
+                for (int next = current + 1; next < sequences.Count; ++next)
                 {
-                    if (sequences[i].TryCollapseWith(sequences[j], PermittedGap, out var c))
+                    if (sequences[current].TryCollapseWith(sequences[next], PermittedGap, out var c))
                     {
-                        sequences.RemoveAt(j);
-                        sequences.RemoveAt(i);
+                        sequences.RemoveAt(next);
+                        sequences.RemoveAt(current);
                         sequences.Add(c);
-                        i = -1;
+                        current = -1;
                         break;
                     }
                 }
