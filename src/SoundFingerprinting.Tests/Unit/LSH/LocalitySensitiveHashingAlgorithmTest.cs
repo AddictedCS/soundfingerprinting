@@ -77,7 +77,7 @@
             foreach (var hashPerTable in distribution)
             {
                 double collisions = (double) (l - hashPerTable) / l;
-                Assert.IsTrue(collisions <= 0.005d, $"Less than 0.5 percents of collisions across 100K hashes: {collisions}");
+                Assert.IsTrue(collisions <= 0.01d, $"Less than 1% of collisions across 100K hashes: {collisions}");
             }
         }
     }
