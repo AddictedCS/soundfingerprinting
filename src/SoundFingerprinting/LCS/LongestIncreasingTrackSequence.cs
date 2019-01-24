@@ -13,7 +13,8 @@
         public List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches)
         {
             var matchedWiths = new List<Matches>();
-            var list = matches.OrderBy(match => match.QueryAt).ToList();
+            var list = matches.OrderBy(match => match.QueryAt)
+                              .ToList();
             while (list.Any())
             {
                 var orderedByQueryAt = list.ToArray();

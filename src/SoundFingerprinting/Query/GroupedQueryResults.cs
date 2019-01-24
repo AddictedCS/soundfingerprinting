@@ -3,7 +3,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -12,23 +11,21 @@
     public class GroupedQueryResults
     {
         private readonly object lockObject = new object();
-        
-        private readonly IEnumerable<HashedFingerprint> queryFingerprints;
+
+        private readonly double queryLength;
         private readonly SortedDictionary<uint, Candidates> matches;
         private readonly ConcurrentDictionary<IModelReference, int> similaritySumPerTrack;
 
-        // TODO queryFingerprints are used solely to calculate query length
-        // TODO can we get rid of this?
-        public GroupedQueryResults(IEnumerable<HashedFingerprint> queryFingerprints)
+        public GroupedQueryResults(double queryLength)
         {
-            this.queryFingerprints = queryFingerprints;
+            this.queryLength = queryLength;
             matches = new SortedDictionary<uint, Candidates>();
             similaritySumPerTrack = new ConcurrentDictionary<IModelReference, int>();
         }
 
-        public double GetQueryLength(FingerprintConfiguration configuration)
+        public double GetQueryLength()
         {
-            return CalculateExactQueryLength(queryFingerprints, configuration);
+            return queryLength;
         }
 
         public void Add(HashedFingerprint hashedFingerprint, SubFingerprintData subFingerprintData, int hammingSimilarity)
@@ -102,18 +99,6 @@
                     }
                 }
             }
-        }
-
-        private static double CalculateExactQueryLength(IEnumerable<HashedFingerprint> hashedFingerprints, FingerprintConfiguration fingerprintConfiguration)
-        {
-            double startsAt = double.MaxValue, endsAt = double.MinValue;
-            foreach (var hashedFingerprint in hashedFingerprints)
-            {
-                startsAt = System.Math.Min(startsAt, hashedFingerprint.StartsAt);
-                endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
-            }
-
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, fingerprintConfiguration.FingerprintLengthInSeconds);
         }
     }
 }

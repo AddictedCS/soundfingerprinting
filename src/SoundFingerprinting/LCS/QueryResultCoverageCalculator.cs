@@ -24,7 +24,7 @@
             // TODO simplify GroupedQueryResults class
             var matches = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(trackData.TrackReference);
 
-            double queryLength = groupedQueryResults.GetQueryLength(fingerprintConfiguration);
+            double queryLength = groupedQueryResults.GetQueryLength();
 
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
