@@ -52,7 +52,7 @@
 
             for (int i = 0; i < references.Length; ++i)
             {
-                var matchedWith = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(references[i]).ToList();
+                var matchedWith = groupedQueryResults.GetMatchesForTrack(references[i]).ToList();
                 Assert.AreEqual(runs / references.Length, matchedWith.Count);
             }
         }
@@ -72,7 +72,7 @@
                 groupedQueryResults.Add(hashed, candidate, i);
             });
 
-            var matchedWith = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(reference);
+            var matchedWith = groupedQueryResults.GetMatchesForTrack(reference);
 
             var ordered = matchedWith.Select(with => (int)with.QueryAt).ToList();
 

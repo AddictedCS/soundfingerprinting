@@ -109,7 +109,14 @@
         ///  Useful when you have a long query which may contain same track multiple times scattered across the query.
         ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
+        [Obsolete("Will be removed since new version will account for all the edge cases automatically")]
         public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
+
+        /// <summary>
+        ///  Permitted gap between consecutive matches. If 2 consecutive matches are further away than permitted gap, they will be reported as 2 different matches.
+        ///  Handy when tracks slightly differ in certain locations. The algorithm then can ignore this differences.
+        /// </summary>
+        public double PermittedGap { get; set; }
 
         /// <summary>
         ///  Gets or sets meta fields that are passed to the storage when querying. Useful for statistics gathering and such.

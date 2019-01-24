@@ -22,14 +22,14 @@
             
             // TODO this is redundant as matches are not required to be ordered down the line
             // TODO simplify GroupedQueryResults class
-            var matches = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(trackData.TrackReference);
+            var matches = groupedQueryResults.GetMatchesForTrack(trackData.TrackReference);
 
             double queryLength = groupedQueryResults.GetQueryLength();
 
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
-                var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);
-                var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences);
+                var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
+                var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences, configuration.PermittedGap);
                 return filtered.Select(matchedSequence => GetCoverage(matchedSequence, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds));
             }
 

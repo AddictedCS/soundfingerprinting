@@ -11,6 +11,8 @@
     [TestFixture]
     public class OverlappingRegionFilterTest
     {
+        private const double PermittedGap = 8192d/5512;
+        
         [Test]
         public void ShouldMergeOverlappingRegionsWithLongestInFront()
         {
@@ -19,7 +21,7 @@
                 {
                     new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 3, 4 }, new float[] { 0, 1, 2, 3 }).ToList()),
                     new Matches(TestUtilities.GetMatchedWith(new float[] { 2 }, new float[] { 1 }).ToList())
-                })
+                }, PermittedGap)
                 .ToList();
 
             Assert.AreEqual(1, result.Count);
@@ -34,7 +36,7 @@
                     {
                         new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 2 }, new float[] { 0, 1, 2 }).ToList()),
                         new Matches(TestUtilities.GetMatchedWith(new float[] { 4, 5 }, new float[] { 4, 5 }).ToList())
-                    })
+                    }, PermittedGap)
                 .ToList();
 
             Assert.AreEqual(2, result.Count);
@@ -53,7 +55,7 @@
                         new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 2 }, new float[] { 0, 1, 2 }).ToList()),
                         new Matches(TestUtilities.GetMatchedWith(new float[] { 5 }, new float[] { 5 }).ToList()),
                         new Matches(TestUtilities.GetMatchedWith(new float[] { 6 }, new float[] { 6 }).ToList())
-                    })
+                    }, PermittedGap)
                 .ToList();
 
             Assert.AreEqual(2, result.Count);

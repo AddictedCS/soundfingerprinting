@@ -9,12 +9,13 @@
     [TestFixture]
     public class LongestIncreasingTrackSequenceTest
     {
+        private const double PermittedGap = 8192d / 5512;
         private readonly ILongestIncreasingTrackSequence increasingTrackSequence = new LongestIncreasingTrackSequence();
 
         [Test]
         public void ShouldFindLongestIncreasingSequenceWithOneElement()
         {
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(TestUtilities.GetMatchedWith(new float[] { 0 }, new float [] { 0 }));
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(TestUtilities.GetMatchedWith(new float[] { 0 }, new float [] { 0 }), PermittedGap);
 
             Assert.AreEqual(1, result.Count);
             CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.ResultAt));
@@ -25,7 +26,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new[] { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f }, new[] { 0, 0.1f, 0.2f, 0.3f, 0.5f, 0.4f, 0.6f, 0.7f, 0.9f, 0.8f });
 
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(2, result.Count);
             CollectionAssert.AreEqual(new[] { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f, 0.7f, 0.9f }, result[0].Select(with => with.ResultAt));
@@ -37,7 +38,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new float[] { 10, 11, 12, 13, 14, 15, 16 }, new float[] { 1, 2, 3, 8, 9, 10, 11 });
 
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(2, result.Count);
             CollectionAssert.AreEqual(new float[] { 8, 9, 10, 11 }, result[0].Select(with => with.ResultAt));
@@ -49,7 +50,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new float[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, new float[] { 1, 2, 3, 1, 2, 3, 4, 5, 6, 7 });
 
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(2, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.ResultAt));
@@ -61,7 +62,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new float[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, new float[] { 1, 2, 3, 1, 2, 3, 4, 1, 2, 3 });
 
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(3, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.ResultAt));
@@ -74,7 +75,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new float[] { 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 }, new float[] { 1, 2, 3, 4, 1, 2, 3, 4, 5, 1, 2, 3 });
 
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(3, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.ResultAt));
@@ -87,7 +88,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 1.1f, 2.1f, 3.1f, 4}, new[] {1, 2, 3, 1, 2, 3, 4f});
 
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
             
             Assert.AreEqual(2, result.Count);
         }

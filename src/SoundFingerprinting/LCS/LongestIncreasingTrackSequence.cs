@@ -8,9 +8,7 @@
         
     internal class LongestIncreasingTrackSequence : ILongestIncreasingTrackSequence
     {
-        private const float AllowedMismatchLength = 10240 / 5512f;
-
-        public List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches)
+        public List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches, double permittedGap)
         {
             var matchedWiths = new List<Matches>();
             var list = matches.OrderBy(match => match.QueryAt)
@@ -18,8 +16,8 @@
             while (list.Any())
             {
                 var orderedByQueryAt = list.ToArray();
-                MaxAt[] maxLength = BuildMaxLengthIndexArray(orderedByQueryAt, out var max, out var maxIndex);
-                var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex).ToList();
+                MaxAt[] maxLength = BuildMaxLengthIndexArray(orderedByQueryAt, permittedGap, out var max, out var maxIndex);
+                var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex, permittedGap).ToList();
                 matchedWiths.Add(new Matches(longestSequence));
                 list = list.Except(longestSequence)
                            .OrderBy(match => match.QueryAt)
@@ -29,7 +27,7 @@
             return matchedWiths;
         }
 
-        private static IEnumerable<MatchedWith> FindLongestSequence(MatchedWith[] matches, MaxAt[] maxLength, int max, int maxIndex)
+        private static IEnumerable<MatchedWith> FindLongestSequence(MatchedWith[] matches, MaxAt[] maxLength, int max, int maxIndex, double permittedGap)
         {
             var lis = new Stack<MatchedWith>();
             lis.Push(matches[maxIndex]);
@@ -40,7 +38,7 @@
                 if (maxLength[i].Length == max)
                 {
                     var prev = lis.Peek();
-                    if (Math.Abs(prev.ResultAt - maxLength[i].ResultAt) <= AllowedMismatchLength)
+                    if (Math.Abs(prev.ResultAt - maxLength[i].ResultAt) <= permittedGap)
                     {
                         lis.Push(matches[i]);
                         max--;
@@ -54,7 +52,7 @@
             }
         }
 
-        private static MaxAt[] BuildMaxLengthIndexArray(IReadOnlyList<MatchedWith> matches, out int max, out int maxIndex)
+        private static MaxAt[] BuildMaxLengthIndexArray(IReadOnlyList<MatchedWith> matches, double permittedGap, out int max, out int maxIndex)
         {
             var maxLength = new MaxAt[matches.Count];
 
@@ -75,7 +73,7 @@
                         float queryAt = Math.Abs(matches[i].QueryAt - matches[j].QueryAt);
                         float resultAt = Math.Abs(matches[i].ResultAt - matches[j].ResultAt);
                         
-                        if (queryAt <= AllowedMismatchLength && resultAt <= AllowedMismatchLength)
+                        if (queryAt <= permittedGap && resultAt <= permittedGap)
                         {
                             maxLength[i] = new MaxAt(maxLength[j].Length + 1, matches[i].ResultAt);
                             if (maxLength[i].Length > max)

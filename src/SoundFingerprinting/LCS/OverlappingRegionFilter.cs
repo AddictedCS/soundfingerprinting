@@ -6,15 +6,13 @@
 
     internal static class OverlappingRegionFilter
     {
-        private const double PermittedGap = 8192d / 5512;
-
-        public static IEnumerable<Matches> FilterOverlappingSequences(List<Matches> sequences)
+        public static IEnumerable<Matches> FilterOverlappingSequences(List<Matches> sequences, double permittedGap)
         {
             for (int current = 0; current < sequences.Count; ++current)
             {
                 for (int next = current + 1; next < sequences.Count; ++next)
                 {
-                    if (sequences[current].TryCollapseWith(sequences[next], PermittedGap, out var c))
+                    if (sequences[current].TryCollapseWith(sequences[next], permittedGap, out var c))
                     {
                         sequences.RemoveAt(next);
                         sequences.RemoveAt(current);
