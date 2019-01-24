@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Query
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Security.Principal;
 
     public class Matches : IEnumerable<MatchedWith>
     {
@@ -91,12 +92,12 @@ namespace SoundFingerprinting.Query
 
         private static bool QueryMatchOverlaps(Matches current, Matches next, double permittedGap)
         {
-            return current.QueryAtEndsAt >= next.QueryAtStartsAt - permittedGap;
+            return next.QueryAtStartsAt - current.QueryAtEndsAt <= permittedGap;
         }
 
         private bool TrackMatchOverlaps(Matches current, Matches next, double permittedGap)
         {
-            return current.TrackAtStartsAt <= next.TrackAtEndsAt && current.TrackAtEndsAt >= next.TrackAtStartsAt - permittedGap;
+            return current.TrackAtStartsAt <= next.TrackAtEndsAt && next.TrackAtStartsAt - current.TrackAtEndsAt <= permittedGap;
         }
     }
 }

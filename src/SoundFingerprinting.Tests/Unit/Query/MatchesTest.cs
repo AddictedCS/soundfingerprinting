@@ -69,8 +69,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             // a      --------
             // b               --------
 
-            var a = GetMatches(0f, 10f, 10d, 512f / 5512);
-            var b = GetMatches(0f, 20f, 10d, 512f / 5512);
+            var a = GetMatches(0f, 0f, 10d, 512f / 5512);
+            var b = GetMatches(0f, 10f, 10d, 512f / 5512);
 
             Assert.IsFalse(a.TryCollapseWith(b, 1.48f, out _));
         }
