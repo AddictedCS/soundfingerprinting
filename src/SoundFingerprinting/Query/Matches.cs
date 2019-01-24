@@ -3,7 +3,6 @@ namespace SoundFingerprinting.Query
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Security.Principal;
 
     public class Matches : IEnumerable<MatchedWith>
     {
@@ -33,8 +32,6 @@ namespace SoundFingerprinting.Query
 
         private float QueryAtEndsAt => matches.Last().Key;
 
-        private float TrackAtEndsAt => matches.Last().Value.ResultAt;
-
         public IEnumerator<MatchedWith> GetEnumerator()
         {
             return matches.Values.GetEnumerator();
@@ -47,8 +44,8 @@ namespace SoundFingerprinting.Query
 
         public bool TryCollapseWith(Matches with, double permittedGap, out Matches collapsed)
         {
-            Matches current = QueryAtStartsAt <= with.QueryAtStartsAt ? this : with;
-            Matches next = current == this ? with : this;
+            var current = QueryAtStartsAt <= with.QueryAtStartsAt ? this : with;
+            var next = current == this ? with : this;
 
             collapsed = null;
             if (QueryMatchOverlaps(current, next, permittedGap) && TrackMatchOverlaps(current, next, permittedGap))
@@ -59,12 +56,24 @@ namespace SoundFingerprinting.Query
 
             return false;
         }
+        
+        private static bool QueryMatchOverlaps(Matches current, Matches next, double permittedGap)
+        {
+            return next.QueryAtStartsAt - current.QueryAtEndsAt <= permittedGap;
+        }
+
+        private static bool TrackMatchOverlaps(Matches current, Matches next, double permittedGap)
+        {
+            var queryAt = next.QueryAtStartsAt - current.QueryAtStartsAt;
+            var trackAt = next.TrackAtStartsAt - current.TrackAtStartsAt;
+            return System.Math.Abs(queryAt - trackAt) <= permittedGap;
+        }
 
         private static Matches MergeWith(Matches current, Matches next)
         {
             var concatenated = new List<MatchedWith>();
-            MatchedWith[] a = current.ToArray();
-            MatchedWith[] b = next.ToArray();
+            var a = current.ToArray();
+            var b = next.ToArray();
 
             int ai = 0, bi = 0;
             while (ai < a.Length || bi < b.Length)
@@ -88,16 +97,6 @@ namespace SoundFingerprinting.Query
             }
 
             return new Matches(concatenated);
-        }
-
-        private static bool QueryMatchOverlaps(Matches current, Matches next, double permittedGap)
-        {
-            return next.QueryAtStartsAt - current.QueryAtEndsAt <= permittedGap;
-        }
-
-        private bool TrackMatchOverlaps(Matches current, Matches next, double permittedGap)
-        {
-            return current.TrackAtStartsAt <= next.TrackAtEndsAt && next.TrackAtStartsAt - current.TrackAtEndsAt <= permittedGap;
         }
     }
 }

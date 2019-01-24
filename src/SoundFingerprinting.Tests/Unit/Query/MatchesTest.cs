@@ -62,7 +62,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
 
         [Test]
-        [Ignore("Gap between consecutive matches is too small")]
         public void ShouldNotCollapseAsQueryMatchCorrespondsTo2DifferentTracksLocation()
         {
             // query  -------- (matches both but in different TrackAt locations)
