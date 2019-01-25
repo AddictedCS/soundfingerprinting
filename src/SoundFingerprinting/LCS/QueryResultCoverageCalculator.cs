@@ -41,7 +41,8 @@
 
         public Coverage GetCoverage(IEnumerable<MatchedWith> matches, double queryLength, double fingerprintLengthIsSeconds)
         {
-            var orderedByResultAt = matches.OrderBy(with => with.ResultAt).ToList();
+            var orderedByResultAt = matches.OrderBy(with => with.ResultAt)
+                                           .ToList();
 
             var trackRegion = CoverageEstimator.EstimateTrackCoverage(orderedByResultAt, queryLength, fingerprintLengthIsSeconds);
 
@@ -50,18 +51,15 @@
             // optimistic coverage length
             double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, fingerprintLengthIsSeconds);
 
-            // calculated coverage length
-            double calculated = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, fingerprintLengthIsSeconds);
+            double queryMatchLength = sourceCoverageLength - notCovered; // exact length of matched fingerprints
 
-            double sourceMatchLength = calculated - notCovered; // exact length of matched fingerprints
+            double queryMatchStartsAt = orderedByResultAt[trackRegion.StartAt].QueryAt;
+            double trackMatchStartsAt = orderedByResultAt[trackRegion.StartAt].ResultAt;
 
-            double sourceMatchStartsAt = orderedByResultAt[trackRegion.StartAt].QueryAt;
-            double originMatchStartsAt = orderedByResultAt[trackRegion.StartAt].ResultAt;
-
-            return new Coverage(sourceMatchStartsAt, sourceMatchLength, sourceCoverageLength, originMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
+            return new Coverage(queryMatchStartsAt, queryMatchLength, sourceCoverageLength, trackMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
         }
 
-        private static double GetNotCoveredLength(List<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
+        private static double GetNotCoveredLength(IReadOnlyList<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
         {
             double notCovered = 0d;
             bestMatch = orderedByResultAt[trackRegion.StartAt];
