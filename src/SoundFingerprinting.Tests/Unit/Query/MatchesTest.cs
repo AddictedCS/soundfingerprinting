@@ -38,6 +38,20 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
 
         [Test]
+        [Ignore("Chorus can match across different location, but since it's in the same track, it has to be merged")]
+        public void ShouldCollapseAsItIsContainedWithinItself()
+        {
+            // q ------------------------ 
+            // a ------------------------
+            // b    -----
+
+            var a = GetMatches(0, 0, 120, 512f / 5512);
+            var b = GetMatches(10, 20, 10, 512f / 5512);
+            
+            Assert.IsTrue(a.TryCollapseWith(b, 1.48d, out var c));
+        }
+
+        [Test]
         public void ShouldNotCollapseByQueryAtAsGapIsTooBig()
         {
             // a    ---------                0|10 + 10 = 10|20
