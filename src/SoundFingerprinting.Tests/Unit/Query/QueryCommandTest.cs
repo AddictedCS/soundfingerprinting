@@ -38,11 +38,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var result = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(new AudioSamples(withJitter, "cnn", 5512))
-                .WithQueryConfig(config =>
-                {
-                    config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
-                    return config;
-                })
                 .UsingServices(modelService, audioService)
                 .Query();
             
@@ -80,11 +75,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var result = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(new AudioSamples(match, "cnn", 5512))
-                .WithQueryConfig(config =>
-                {
-                    config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
-                    return config;
-                })
                 .UsingServices(modelService, audioService)
                 .Query();
             
