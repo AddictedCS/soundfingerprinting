@@ -100,7 +100,7 @@
         }
 
         /// <summary>
-        ///  Gets or sets list of clusters to consider when querying the datasource for potential candidates
+        ///  Gets or sets list of clusters to consider when querying the data source for potential candidates
         /// </summary>
         public IEnumerable<string> Clusters { get; set; }
 
