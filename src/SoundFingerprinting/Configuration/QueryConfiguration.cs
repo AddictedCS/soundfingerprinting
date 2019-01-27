@@ -114,7 +114,7 @@
 
         /// <summary>
         ///  Permitted gap between consecutive matches. If 2 consecutive matches are further away than permitted gap, they will be reported as 2 different matches.
-        ///  Handy when tracks slightly differ in certain locations. The algorithm then can ignore this differences.
+        ///  Handy when tracks slightly differ in certain locations. The algorithm then can ignore this differences. Only works with AllowMultipleMatchesOfTheSameTrackInQuery set to true.
         /// </summary>
         public double PermittedGap { get; set; }
 

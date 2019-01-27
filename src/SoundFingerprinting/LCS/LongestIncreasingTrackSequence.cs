@@ -19,9 +19,7 @@
                 MaxAt[] maxLength = BuildMaxLengthIndexArray(orderedByQueryAt, permittedGap, out var max, out var maxIndex);
                 var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex, permittedGap).ToList();
                 matchedWiths.Add(new Matches(longestSequence));
-                list = list.Except(longestSequence)
-                           .OrderBy(match => match.QueryAt)
-                           .ToList();
+                list = list.Except(longestSequence).ToList();
             }
 
             return matchedWiths;
