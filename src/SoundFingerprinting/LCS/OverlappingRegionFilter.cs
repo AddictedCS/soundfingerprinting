@@ -6,7 +6,7 @@
 
     internal static class OverlappingRegionFilter
     {
-        public static IEnumerable<Matches> FilterOverlappingSequences(List<Matches> sequences, double permittedGap)
+        public static IEnumerable<Matches> MergeOverlappingSequences(List<Matches> sequences, double permittedGap)
         {
             for (int current = 0; current < sequences.Count; ++current)
             {

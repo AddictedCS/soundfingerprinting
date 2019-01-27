@@ -20,8 +20,6 @@
         {
             var fingerprintConfiguration = configuration.FingerprintConfiguration;
             
-            // TODO this is redundant as matches are not required to be ordered down the line
-            // TODO simplify GroupedQueryResults class
             var matches = groupedQueryResults.GetMatchesForTrack(trackData.TrackReference);
 
             double queryLength = groupedQueryResults.GetQueryLength();
@@ -29,10 +27,10 @@
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
-                var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences, configuration.PermittedGap);
+                var filtered = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
                 return filtered.Select(matchedSequence => GetCoverage(matchedSequence, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds));
             }
-
+            
             return new List<Coverage>
                    {
                        GetCoverage(matches, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds)

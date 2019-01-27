@@ -16,7 +16,7 @@
         [Test]
         public void ShouldMergeOverlappingRegionsWithLongestInFront()
         {
-            var result = OverlappingRegionFilter.FilterOverlappingSequences(
+            var result = OverlappingRegionFilter.MergeOverlappingSequences(
                 new List<Matches>
                 {
                     new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 3, 4 }, new float[] { 0, 1, 2, 3 }).ToList()),
@@ -31,7 +31,7 @@
         [Test]
         public void ShouldFilterOverlappingRegionsWithLongestInFront2()
         {
-            var result = OverlappingRegionFilter.FilterOverlappingSequences(
+            var result = OverlappingRegionFilter.MergeOverlappingSequences(
                     new List<Matches>
                     {
                         new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 2 }, new float[] { 0, 1, 2 }).ToList()),
@@ -47,7 +47,7 @@
         [Test]
         public void ShouldFilterOverlappingRegionsWithLongestInTheBack()
         {
-            var result = OverlappingRegionFilter.FilterOverlappingSequences(
+            var result = OverlappingRegionFilter.MergeOverlappingSequences(
                     new List<Matches>
                     {
                         new Matches(TestUtilities.GetMatchedWith(new float[] { 4, 6, 7, 9, 10 }, new float[] { 4, 5, 6, 7, 9 }).ToList()),
