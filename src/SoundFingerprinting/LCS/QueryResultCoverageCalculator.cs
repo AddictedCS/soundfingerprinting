@@ -18,11 +18,25 @@
 
         public IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
+            var fingerprintConfiguration = configuration.FingerprintConfiguration;
+            
+            // TODO this is redundant as matches are not required to be ordered down the line
+            // TODO simplify GroupedQueryResults class
             var matches = groupedQueryResults.GetMatchesForTrack(trackData.TrackReference);
+
             double queryLength = groupedQueryResults.GetQueryLength();
-            var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
-            var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences, configuration.PermittedGap);
-            return filtered.Select(matchedSequence => GetCoverage(matchedSequence, queryLength, configuration.FingerprintConfiguration.FingerprintLengthInSeconds));
+
+            if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
+            {
+                var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
+                var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences, configuration.PermittedGap);
+                return filtered.Select(matchedSequence => GetCoverage(matchedSequence, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds));
+            }
+
+            return new List<Coverage>
+                   {
+                       GetCoverage(matches, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds)
+                   };
         }
 
         public Coverage GetCoverage(IEnumerable<MatchedWith> matches, double queryLength, double fingerprintLengthIsSeconds)
