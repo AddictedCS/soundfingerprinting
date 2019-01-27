@@ -109,7 +109,6 @@
         ///  Useful when you have a long query which may contain same track multiple times scattered across the query.
         ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
-        [Obsolete("Will be removed since new version will account for all the edge cases automatically")]
         public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
 
         /// <summary>
