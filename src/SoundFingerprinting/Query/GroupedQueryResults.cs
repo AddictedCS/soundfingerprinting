@@ -40,7 +40,7 @@
                 }
                 else
                 {
-                    matched.AddOrUpdateNewMatch(subFingerprintData.TrackReference, matchedWith);
+                    matched.AddNewMatch(subFingerprintData.TrackReference, matchedWith);
                 }
             }
         }
@@ -89,14 +89,11 @@
 
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
-            foreach(var valuePair in matches)
+            foreach (var candidates in matches.Values)
             {
-                if (valuePair.Value.TryGetMatchesForTrack(trackReference, out var matchedWith))
+                foreach (var match in candidates.GetMatchesForTrack(trackReference))
                 {
-                    foreach (var with in matchedWith)
-                    {
-                        yield return with;
-                    }
+                    yield return match;
                 }
             }
         }

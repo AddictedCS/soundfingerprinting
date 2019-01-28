@@ -2,6 +2,7 @@
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Query;
 
@@ -13,16 +14,21 @@
         {
             foreach (var candidate in candidates)
             {
-                AddOrUpdateNewMatch(trackReference, candidate);
+                AddNewMatch(trackReference, candidate);
             }
         }
 
-        public bool TryGetMatchesForTrack(IModelReference trackReference, out List<MatchedWith> matchedWith)
+        public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
-            return candidates.TryGetValue(trackReference, out matchedWith);
+            if (candidates.TryGetValue(trackReference, out var matchedWith))
+            {
+                return matchedWith;
+            }
+            
+            return Enumerable.Empty<MatchedWith>();
         }
 
-        public void AddOrUpdateNewMatch(IModelReference trackReference, MatchedWith match)
+        public void AddNewMatch(IModelReference trackReference, MatchedWith match)
         {
             candidates.AddOrUpdate(trackReference, reference => new List<MatchedWith> {match}, (reference, old) =>
             {
