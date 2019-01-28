@@ -13,6 +13,50 @@ namespace SoundFingerprinting.Tests.Unit.Query
     public class QueryCommandTest
     {
         /**
+         * Long queries, long matches
+         * t     -----15-----25-----35-----45-----
+         * query 000000111111100000011111110000000
+         * track 000000111111100000011111110000000
+         */
+        [Test]
+        [Ignore("Same repeating regions should not fire as a separate match if there is a longer region that already contains it")]
+        public async Task ShouldIdentifyOnlyOneMatch()
+        {
+            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512);
+
+            float[] withJitter = AddJitter(match);
+
+            var modelService = new InMemoryModelService();
+            var audioService = new SoundFingerprintingAudioService();
+
+            var hashes = await FingerprintCommandBuilder.Instance
+                                    .BuildFingerprintCommand()
+                                    .From(new AudioSamples(withJitter, "Queen", 5512))
+                                    .UsingServices(audioService)
+                                    .Hash();
+
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen", withJitter.Length / 5512f), hashes);
+
+            var result = await QueryCommandBuilder.Instance
+                                    .BuildQueryCommand()
+                                    .From(new AudioSamples(withJitter, "cnn", 5512))
+                                    .WithQueryConfig(config =>
+                                    {
+                                        config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
+                                        return config;
+                                    })
+                                    .UsingServices(modelService, audioService)
+                                    .Query();
+            
+            Assert.IsTrue(result.ContainsMatches);
+            var entries = result.ResultEntries.OrderBy(entry => entry.QueryMatchStartsAt).ToList();
+            
+            Assert.AreEqual(1, entries.Count);
+            Assert.AreEqual(0d, entries[0].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(0d, entries[0].TrackMatchStartsAt, 1f);   
+        }
+        
+        /**
          * Very long queries, short tracks
          * query  000000111110000000000000011111000000000000
          * track  11111    
@@ -60,7 +104,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
          * stored 11110000002222200000
          */
         [Test]
-        [Ignore("Current implementation disregards multiple matches. Has to be fixed in v6.1")]
         public async Task ShouldIdentifyMultipleRegionsOfTheSameMatch()
         {
             float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512);
@@ -81,12 +124,16 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var result = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(new AudioSamples(match, "cnn", 5512))
-                .WithQueryConfig(config => config)
+                .WithQueryConfig(config =>
+                {
+                    config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
+                    return config;
+                })
                 .UsingServices(modelService, audioService)
                 .Query();
             
             Assert.IsTrue(result.ContainsMatches);
-            var entries = result.ResultEntries.ToList();
+            var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
             Assert.AreEqual(2, entries.Count);
             Assert.AreEqual(15d, entries[0].TrackMatchStartsAt, 1f);
             Assert.AreEqual(35d, entries[1].TrackMatchStartsAt, 1f);

@@ -100,7 +100,7 @@
         }
 
         /// <summary>
-        ///  Gets or sets list of clusters to consider when querying the datasource for potential candidates
+        ///  Gets or sets list of clusters to consider when querying the data source for potential candidates
         /// </summary>
         public IEnumerable<string> Clusters { get; set; }
 
@@ -110,6 +110,12 @@
         ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
         public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
+
+        /// <summary>
+        ///  Permitted gap between consecutive matches. If 2 consecutive matches are further away than permitted gap, they will be reported as 2 different matches.
+        ///  Handy when tracks slightly differ in certain locations. The algorithm then can ignore this differences. Only works with AllowMultipleMatchesOfTheSameTrackInQuery set to true.
+        /// </summary>
+        public double PermittedGap { get; set; }
 
         /// <summary>
         ///  Gets or sets meta fields that are passed to the storage when querying. Useful for statistics gathering and such.

@@ -17,20 +17,12 @@
         private readonly DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
         private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
-        private IModelService modelService = new InMemoryModelService();
-
-        [TearDown]
-        public void TearDown()
-        {
-            modelService = new InMemoryModelService();
-        }
-
         [Test]
         public async Task CreateFingerprintsFromFileAndAssertNumberOfFingerprints()
         {
-            const int StaticStride = 5096;
+            const int staticStride = 5096;
 
-            var fingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = new IncrementalStaticStride(StaticStride) };
+            var fingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = new IncrementalStaticStride(staticStride) };
 
             var command = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                                         .From(PathToWav)
@@ -39,7 +31,7 @@
 
             double seconds = audioService.GetLengthInSeconds(PathToWav);
             int samples = (int)(seconds * fingerprintConfiguration.SampleRate);
-            int expectedFingerprints = (samples - fingerprintConfiguration.SamplesPerFingerprint) / StaticStride;
+            int expectedFingerprints = (samples - fingerprintConfiguration.SamplesPerFingerprint) / staticStride;
 
             var fingerprints = await command.Hash();
 
@@ -60,6 +52,7 @@
                                             .UsingServices(audioService)
                                             .Hash();
 
+            var modelService = new InMemoryModelService();
             var trackReference = modelService.Insert(track, fingerprints);
 
             var queryResult = await QueryCommandBuilder.Instance
@@ -155,21 +148,23 @@
         [Test]
         public async Task ShouldCreateFingerprintsFromAudioSamplesQueryAndGetTheRightResult()
         {
-            const int SecondsToProcess = 10;
-            const int StartAtSecond = 30;
+            const int secondsToProcess = 10;
+            const int startAtSecond = 30;
             var audioSamples = GetAudioSamples();
-            var track = new TrackInfo(string.Empty, audioSamples.Origin, audioSamples.Origin, audioSamples.Duration);
+            var track = new TrackInfo("1234", audioSamples.Origin, audioSamples.Origin, audioSamples.Duration);
             var fingerprints = await FingerprintCommandBuilder.Instance
                     .BuildFingerprintCommand()
                     .From(audioSamples)
                     .UsingServices(audioService)
                     .Hash();
 
+            var modelService = new InMemoryModelService();
             var trackReference = modelService.Insert(track, fingerprints);
 
-            var querySamples = GetQuerySamples(GetAudioSamples(), StartAtSecond, SecondsToProcess);
+            var querySamples = GetQuerySamples(GetAudioSamples(), startAtSecond, secondsToProcess);
 
-            var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+            var queryResult = await QueryCommandBuilder.Instance
+                    .BuildQueryCommand()
                     .From(new AudioSamples(querySamples, string.Empty, audioSamples.SampleRate))
                     .UsingServices(modelService, audioService)
                     .Query();
@@ -178,8 +173,8 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
-            Assert.IsTrue(bestMatch.QueryMatchLength > SecondsToProcess - 3, $"QueryMatchLength:{bestMatch.QueryLength}");
-            Assert.AreEqual(StartAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
+            Assert.IsTrue(bestMatch.QueryMatchLength > secondsToProcess - 3, $"QueryMatchLength:{bestMatch.QueryLength}");
+            Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
         }
 
@@ -222,6 +217,7 @@
                 .UsingServices(audioService)
                 .Hash();
 
+            var modelService = new InMemoryModelService();
             var trackReference = modelService.Insert(track, fingerprints);
 
             var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()

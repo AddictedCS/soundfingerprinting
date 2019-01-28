@@ -20,19 +20,17 @@
         {
             var fingerprintConfiguration = configuration.FingerprintConfiguration;
             
-            // TODO this is redundant as matches are not required to be ordered down the line
-            // TODO simplify GroupedQueryResults class
-            var matches = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(trackData.TrackReference);
+            var matches = groupedQueryResults.GetMatchesForTrack(trackData.TrackReference);
 
-            double queryLength = groupedQueryResults.GetQueryLength(fingerprintConfiguration);
+            double queryLength = groupedQueryResults.GetQueryLength();
 
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
-                var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches);
-                var filtered = OverlappingRegionFilter.FilterOverlappingSequences(sequences);
+                var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
+                var filtered = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
                 return filtered.Select(matchedSequence => GetCoverage(matchedSequence, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds));
             }
-
+            
             return new List<Coverage>
                    {
                        GetCoverage(matches, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds)
@@ -41,7 +39,8 @@
 
         public Coverage GetCoverage(IEnumerable<MatchedWith> matches, double queryLength, double fingerprintLengthIsSeconds)
         {
-            var orderedByResultAt = matches.OrderBy(with => with.ResultAt).ToList();
+            var orderedByResultAt = matches.OrderBy(with => with.ResultAt)
+                                           .ToList();
 
             var trackRegion = CoverageEstimator.EstimateTrackCoverage(orderedByResultAt, queryLength, fingerprintLengthIsSeconds);
 
@@ -50,18 +49,15 @@
             // optimistic coverage length
             double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, fingerprintLengthIsSeconds);
 
-            // calculated coverage length
-            double calculated = SubFingerprintsToSeconds.AdjustLengthToSeconds(orderedByResultAt[trackRegion.EndAt].ResultAt, orderedByResultAt[trackRegion.StartAt].ResultAt, fingerprintLengthIsSeconds);
+            double queryMatchLength = sourceCoverageLength - notCovered; // exact length of matched fingerprints
 
-            double sourceMatchLength = calculated - notCovered; // exact length of matched fingerprints
+            double queryMatchStartsAt = orderedByResultAt[trackRegion.StartAt].QueryAt;
+            double trackMatchStartsAt = orderedByResultAt[trackRegion.StartAt].ResultAt;
 
-            double sourceMatchStartsAt = orderedByResultAt[trackRegion.StartAt].QueryAt;
-            double originMatchStartsAt = orderedByResultAt[trackRegion.StartAt].ResultAt;
-
-            return new Coverage(sourceMatchStartsAt, sourceMatchLength, sourceCoverageLength, originMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
+            return new Coverage(queryMatchStartsAt, queryMatchLength, sourceCoverageLength, trackMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
         }
 
-        private static double GetNotCoveredLength(List<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
+        private static double GetNotCoveredLength(IReadOnlyList<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
         {
             double notCovered = 0d;
             bestMatch = orderedByResultAt[trackRegion.StartAt];

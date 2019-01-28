@@ -20,7 +20,7 @@
         {
             int runs = 1000;
 
-            var groupedQueryResults = new GroupedQueryResults(Enumerable.Empty<HashedFingerprint>());
+            var groupedQueryResults = new GroupedQueryResults(5d);
             var references = new[] { 1, 2, 3, 4, 5 }.Select(id => new ModelReference<int>(id)).ToArray();
 
             Parallel.For(0, runs, i =>
@@ -52,29 +52,9 @@
 
             for (int i = 0; i < references.Length; ++i)
             {
-                var matchedWith = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(references[i]).ToList();
+                var matchedWith = groupedQueryResults.GetMatchesForTrack(references[i]).ToList();
                 Assert.AreEqual(runs / references.Length, matchedWith.Count);
             }
-        }
-
-        [Test]
-        public void ShouldCalculateQueryLengthCorrectly()
-        {
-            var configuration = new DefaultFingerprintConfiguration();
-            float delta = 0.05f;
-            int runs = 1000;
-            var bag = new ConcurrentBag<HashedFingerprint>();
-            Parallel.For(0, runs, i =>
-            {
-                var hashed = new HashedFingerprint(new int[0], (uint)i, i * delta, new string[0]);
-                bag.Add(hashed);
-            });
-
-            var groupedQueryResult = new GroupedQueryResults(bag);
-
-            double length = groupedQueryResult.GetQueryLength(configuration);
-
-            Assert.AreEqual(length, delta * (runs - 1) + configuration.FingerprintLengthInSeconds, 0.0001);
         }
 
         [Test]
@@ -82,7 +62,7 @@
         {
             int runs = 1000;
 
-            var groupedQueryResults = new GroupedQueryResults(Enumerable.Empty<HashedFingerprint>());
+            var groupedQueryResults = new GroupedQueryResults(5d);
             var reference = new ModelReference<int>(1);
 
             Parallel.For(0, runs, i =>
@@ -92,7 +72,7 @@
                 groupedQueryResults.Add(hashed, candidate, i);
             });
 
-            var matchedWith = groupedQueryResults.GetMatchesForTrackOrderedByQueryAt(reference);
+            var matchedWith = groupedQueryResults.GetMatchesForTrack(reference);
 
             var ordered = matchedWith.Select(with => (int)with.QueryAt).ToList();
 
