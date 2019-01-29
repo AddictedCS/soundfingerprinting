@@ -25,7 +25,8 @@
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
-                var filtered = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
+                var merged = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
+                var filtered = OverlappingRegionFilter.FilterOverlappingMatches(merged);
                 return filtered.Select(matchedSequence =>
                 {
                     var lengthInSeconds = fingerprintConfiguration.FingerprintLengthInSeconds;   

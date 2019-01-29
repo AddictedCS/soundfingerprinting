@@ -32,6 +32,8 @@ namespace SoundFingerprinting.Query
 
         private float QueryAtEndsAt => matches.Last().Key;
 
+        private float TrackAtEndsAt => matches.Last().Value.ResultAt;
+
         public IEnumerator<MatchedWith> GetEnumerator()
         {
             return matches.Values.GetEnumerator();
@@ -55,6 +57,14 @@ namespace SoundFingerprinting.Query
             }
 
             return false;
+        }
+
+        public bool Contains(Matches other)
+        {
+            return TrackAtStartsAt <= other.TrackAtStartsAt
+                   && TrackAtEndsAt >= other.TrackAtStartsAt
+                   && QueryAtStartsAt <= other.QueryAtStartsAt
+                   && QueryAtEndsAt >= other.QueryAtEndsAt;
         }
         
         private static bool QueryMatchOverlaps(Matches current, Matches next, double permittedGap)
