@@ -19,15 +19,20 @@
         public IEnumerable<Coverage> GetCoverages(TrackData trackData, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var fingerprintConfiguration = configuration.FingerprintConfiguration;
-            var matches = groupedQueryResults.GetMatchesForTrack(trackData.TrackReference);
+            var matches = groupedQueryResults.GetMatchesForTrack(trackData.TrackReference).ToList();
+
+            if (!matches.Any())
+            {
+                return Enumerable.Empty<Coverage>();
+            }
+            
             double queryLength = groupedQueryResults.GetQueryLength();
 
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
                 var merged = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
-                var filtered = OverlappingRegionFilter.FilterOverlappingMatches(merged);
-                return filtered.Select(matchedSequence =>
+                return merged.Select(matchedSequence =>
                 {
                     var lengthInSeconds = fingerprintConfiguration.FingerprintLengthInSeconds;   
                     return CoverageEstimator.EstimateTrackCoverage(matchedSequence, queryLength, lengthInSeconds);

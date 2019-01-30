@@ -62,5 +62,15 @@
             CollectionAssert.AreEqual(new float[] { 4, 5, 6, 7, 9, 10, 11, 17 }, result[0].Select(with => with.QueryAt));
             CollectionAssert.AreEqual(new float[] { 0, 1, 2 }, result[1].Select(with => with.QueryAt));
         }
+
+        [Test]
+        public void ShouldNotFailWithJustOneEntryAtTheInput()
+        {
+            var matches = new List<Matches> {new Matches(TestUtilities.GetMatchedWith(new[] {1f}, new[] {1f}))};
+            
+            var result = OverlappingRegionFilter.MergeOverlappingSequences(matches, PermittedGap);
+            
+            Assert.AreEqual(1, result.Count());
+        }
     }
 }

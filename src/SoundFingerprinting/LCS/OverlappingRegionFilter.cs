@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.LCS
 {
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
     using SoundFingerprinting.Query;
 
@@ -24,10 +23,10 @@
                 }
             }
 
-            return sequences.OrderByDescending(sequence => sequence.EntriesCount);
+            return FilterOverlappingMatches(sequences.OrderByDescending(sequence => sequence.EntriesCount));
         }
 
-        public static IEnumerable<Matches> FilterOverlappingMatches(IEnumerable<Matches> sequences)
+        private static IEnumerable<Matches> FilterOverlappingMatches(IEnumerable<Matches> sequences)
         {
             return sequences.Aggregate(new List<Matches>(), (results, matches) =>
             {
