@@ -18,7 +18,7 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(TestUtilities.GetMatchedWith(new float[] { 0 }, new float [] { 0 }), PermittedGap);
 
             Assert.AreEqual(1, result.Count);
-            CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.TrackMatchAt));
         }
 
         [Test]
@@ -29,8 +29,8 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(2, result.Count);
-            CollectionAssert.AreEqual(new[] { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f, 0.7f, 0.9f }, result[0].Select(with => with.ResultAt));
-            CollectionAssert.AreEqual(new[] { 0.5f, 0.8f }, result[1].Select(with => with.ResultAt));
+            CollectionAssert.AreEqual(new[] { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f, 0.7f, 0.9f }, result[0].Select(with => with.TrackMatchAt));
+            CollectionAssert.AreEqual(new[] { 0.5f, 0.8f }, result[1].Select(with => with.TrackMatchAt));
         }
 
         [Test]
@@ -41,8 +41,8 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(2, result.Count);
-            CollectionAssert.AreEqual(new float[] { 8, 9, 10, 11 }, result[0].Select(with => with.ResultAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(with => with.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 8, 9, 10, 11 }, result[0].Select(with => with.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(with => with.TrackMatchAt));
         }
 
         [Test]
@@ -53,8 +53,8 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(2, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.ResultAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.TrackMatchAt));
         }
 
         [Test]
@@ -65,9 +65,9 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(3, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.ResultAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.ResultAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.TrackMatchAt));
         }
 
         [Test]
@@ -78,9 +78,9 @@
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
             Assert.AreEqual(3, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.ResultAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[1].Select(pair => pair.ResultAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.ResultAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[1].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.TrackMatchAt));
         }
 
         [Test]

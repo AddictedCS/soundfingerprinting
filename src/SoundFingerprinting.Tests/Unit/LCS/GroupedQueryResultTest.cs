@@ -45,7 +45,7 @@
             var bestMatch = groupedQueryResults.GetBestMatchForTrack(references.Last());
 
             Assert.AreEqual((runs - 1) * 0.05f, bestMatch.QueryMatchAt, 0.000001);
-            Assert.AreEqual((runs - 1) * 0.07f, bestMatch.ResultAt, 0.000001);
+            Assert.AreEqual((runs - 1) * 0.07f, bestMatch.TrackMatchAt, 0.000001);
 
             for (int i = 0; i < references.Length; ++i)
             {

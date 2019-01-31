@@ -26,13 +26,13 @@ namespace SoundFingerprinting.Query
 
         public float QueryAtStartsAt => matches.First().Value.QueryMatchAt;
         
-        public float TrackAtStartsAt => matches.First().Value.ResultAt;
+        public float TrackAtStartsAt => matches.First().Value.TrackMatchAt;
 
         public float TotalLength => matches.Last().Key - matches.First().Key + FingerprintLengthInSeconds;
 
         private float QueryAtEndsAt => matches.Last().Key;
 
-        private float TrackAtEndsAt => matches.Last().Value.ResultAt;
+        private float TrackAtEndsAt => matches.Last().Value.TrackMatchAt;
 
         public IEnumerator<MatchedWith> GetEnumerator()
         {
