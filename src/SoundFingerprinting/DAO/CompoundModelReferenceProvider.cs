@@ -8,7 +8,7 @@ namespace SoundFingerprinting.DAO
     {
         [ProtoMember(1)]
         private readonly string prefix;
-        
+
         [ProtoMember(2)]
         private int referenceCounter;
 
@@ -21,11 +21,13 @@ namespace SoundFingerprinting.DAO
         {
             this.prefix = prefix;
         }
-        
+
         public IModelReference Next()
         {
             int next = Interlocked.Increment(ref referenceCounter);
-            return new CompoundModelReference(prefix, next);
+            return new CompoundModelReference<string>(prefix, new ModelReference<int>(next));
         }
+
+        public static CompoundModelReference<string> Null { get; } = new CompoundModelReference<string>(string.Empty, new ModelReference<int>(0));
     }
 }
