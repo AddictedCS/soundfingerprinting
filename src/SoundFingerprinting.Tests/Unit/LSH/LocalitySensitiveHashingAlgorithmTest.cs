@@ -29,7 +29,7 @@
             var config = new DefaultHashingConfig { NumberOfLSHTables = 25, NumberOfMinHashesPerTable = 4, HashBuckets = 0 };
             
             var track = new ModelReference<int>(1);
-            for (int i = 0; i < 1000; ++i)
+            for (int i = 0; i < 100; ++i)
             {
                 int[] trues = Enumerable.Range(0, 200).Select(entry => random.Next(0, 8191)).ToArray();
                 var schema = new TinyFingerprintSchema(8192).SetTrueAt(trues);
@@ -37,7 +37,7 @@
                 storage.AddHashedFingerprint(hash, track);
             }
 
-            for (int i = 0; i < 100; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 int[] trues = Enumerable.Range(0, 200).Select(entry => random.Next(0, 8191)).ToArray();
                 var schema = new TinyFingerprintSchema(8192).SetTrueAt(trues);
