@@ -15,16 +15,16 @@ namespace SoundFingerprinting.Query
             this.matches = new SortedList<float, MatchedWith>();
             foreach (var match in matches)
             {
-                if (!this.matches.ContainsKey(match.QueryAt))
+                if (!this.matches.ContainsKey(match.QueryMatchAt))
                 {
-                    this.matches.Add(match.QueryAt, match);
+                    this.matches.Add(match.QueryMatchAt, match);
                 }
             }
         }
 
         public int EntriesCount => matches.Count;
 
-        public float QueryAtStartsAt => matches.First().Value.QueryAt;
+        public float QueryAtStartsAt => matches.First().Value.QueryMatchAt;
         
         public float TrackAtStartsAt => matches.First().Value.ResultAt;
 
@@ -96,7 +96,7 @@ namespace SoundFingerprinting.Query
                 {
                     concatenated.Add(a[ai++]);
                 }
-                else if (a[ai].QueryAt < b[bi].QueryAt)
+                else if (a[ai].QueryMatchAt < b[bi].QueryMatchAt)
                 {
                     concatenated.Add(a[ai++]);
                 }

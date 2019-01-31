@@ -2,14 +2,14 @@
 {
     public class MatchedWith
     {
-        public MatchedWith(float queryAt, float resultAt, int hammingSimilarity)
+        public MatchedWith(float queryMatchAt, float resultAt, int hammingSimilarity)
         {
-            QueryAt = queryAt;
+            QueryMatchAt = queryMatchAt;
             ResultAt = resultAt;
             HammingSimilarity = hammingSimilarity;
         }
 
-        public float QueryAt { get; }
+        public float QueryMatchAt { get; }
 
         public float ResultAt { get; }
 

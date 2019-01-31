@@ -11,7 +11,7 @@
         public List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches, double permittedGap)
         {
             var matchedWiths = new List<Matches>();
-            var list = matches.OrderBy(match => match.QueryAt)
+            var list = matches.OrderBy(match => match.QueryMatchAt)
                               .ToList();
             while (list.Any())
             {
@@ -20,7 +20,7 @@
                 var longestSequence = FindLongestSequence(orderedByQueryAt, maxLength, max, maxIndex, permittedGap).ToList();
                 matchedWiths.Add(new Matches(longestSequence));
                 list = list.Except(longestSequence)
-                           .OrderBy(match => match.QueryAt)
+                           .OrderBy(match => match.QueryMatchAt)
                            .ToList();
             }
 
@@ -70,7 +70,7 @@
                 {
                     if (matches[j].ResultAt < matches[i].ResultAt && maxLength[j].Length + 1 > maxLength[i].Length)
                     {
-                        float queryAt = Math.Abs(matches[i].QueryAt - matches[j].QueryAt);
+                        float queryAt = Math.Abs(matches[i].QueryMatchAt - matches[j].QueryMatchAt);
                         float resultAt = Math.Abs(matches[i].ResultAt - matches[j].ResultAt);
                         
                         if (queryAt <= permittedGap && resultAt <= permittedGap)

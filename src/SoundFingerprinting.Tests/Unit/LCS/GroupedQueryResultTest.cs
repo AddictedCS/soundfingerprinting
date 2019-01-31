@@ -1,12 +1,9 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
-    using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading.Tasks;
 
     using NUnit.Framework;
-
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -33,8 +30,8 @@
             Assert.IsTrue(groupedQueryResults.ContainsMatches);
             for(int i = 0; i < references.Length; ++i)
             {
-                int pertrack = runs / references.Length;
-                int ham = (pertrack - 1) * runs / 2 + pertrack * i;
+                int perTrack = runs / references.Length;
+                int ham = (perTrack - 1) * runs / 2 + perTrack * i;
                 Assert.AreEqual(ham, groupedQueryResults.GetHammingSimilaritySumForTrack(references[i]));
             }
 
@@ -47,7 +44,7 @@
 
             var bestMatch = groupedQueryResults.GetBestMatchForTrack(references.Last());
 
-            Assert.AreEqual((runs - 1) * 0.05f, bestMatch.QueryAt, 0.000001);
+            Assert.AreEqual((runs - 1) * 0.05f, bestMatch.QueryMatchAt, 0.000001);
             Assert.AreEqual((runs - 1) * 0.07f, bestMatch.ResultAt, 0.000001);
 
             for (int i = 0; i < references.Length; ++i)
@@ -74,7 +71,7 @@
 
             var matchedWith = groupedQueryResults.GetMatchesForTrack(reference);
 
-            var ordered = matchedWith.Select(with => (int)with.QueryAt).ToList();
+            var ordered = matchedWith.Select(with => (int)with.QueryMatchAt).ToList();
 
             CollectionAssert.AreEqual(Enumerable.Range(0, runs), ordered);
         }

@@ -47,7 +47,7 @@
             double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(matches[trackRegion.EndAt].ResultAt, matches[trackRegion.StartAt].ResultAt, fingerprintLengthInSeconds);
             double queryMatchLength = sourceCoverageLength - notCovered; // exact length of matched fingerprints
 
-            double queryMatchStartsAt = matches[trackRegion.StartAt].QueryAt;
+            double queryMatchStartsAt = matches[trackRegion.StartAt].QueryMatchAt;
             double trackMatchStartsAt = matches[trackRegion.StartAt].ResultAt;
 
             return new Coverage(queryMatchStartsAt, queryMatchLength, sourceCoverageLength, trackMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
@@ -81,7 +81,7 @@
         
         private static double GetTrackStartsAt(MatchedWith bestMatch)
         {
-            return bestMatch.QueryAt - bestMatch.ResultAt;
+            return bestMatch.QueryMatchAt - bestMatch.ResultAt;
         }
     }
 }
