@@ -98,11 +98,5 @@ namespace SoundFingerprinting.Tests.Unit.DAO
 
             Assert.DoesNotThrow(() => @ref.GetHashCode());
         }
-
-        [Test]
-        public void ShouldHaveAHumanReadableStringRepresentation()
-        {
-            Assert.AreEqual("CompoundModelReference<String>{Prefix: prefix, Reference: ModelReference<Int32>{Id: 42}}", prefix42_1.ToString());
-        }
     }
 }

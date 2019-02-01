@@ -54,9 +54,7 @@ namespace SoundFingerprinting.DAO
 
         public override string ToString()
         {
-            return $"{GetType().GetNameWithGenericArgs()}{{" +
-                $"{nameof(Prefix)}: {Prefix}, " +
-                $"{nameof(Reference)}: {Reference}}}";
+            return $"CompoundModelReference {nameof(Prefix)}: {Prefix}, {nameof(Reference)}: {Reference}";
         }
     }
 }

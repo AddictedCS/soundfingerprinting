@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.DAO
 {
     using System;
-    using SoundFingerprinting.Utils;
     using ProtoBuf;
 
     [Serializable]
@@ -42,7 +41,7 @@
 
         public override string ToString()
         {
-            return $"{GetType().GetNameWithGenericArgs()}{{{nameof(Id)}: {Id}}}";
+            return $"ModelReference {nameof(Id)}: {Id}";
         }
     }
 }
