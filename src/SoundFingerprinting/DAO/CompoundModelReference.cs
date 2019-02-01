@@ -1,36 +1,62 @@
 namespace SoundFingerprinting.DAO
 {
+    using System;
     using ProtoBuf;
+    using SoundFingerprinting.Utils;
 
     [ProtoContract]
-    public class CompoundModelReference : IModelReference<string>
+    public class CompoundModelReference<T> : IModelReference
     {
         [ProtoMember(1)]
-        private readonly string prefix;
-        
+        public T Prefix { get; }
+
         [ProtoMember(2)]
-        private readonly int id;
+        public IModelReference Reference { get; }
+
+        public object Id => Reference.Id;
 
         private CompoundModelReference()
         {
             // left for proto-buf
         }
-        
-        public CompoundModelReference(string prefix, int id)
-        {
-            this.prefix = prefix;
-            this.id = id;
-        }
-        
-        public static CompoundModelReference Null { get; } = new CompoundModelReference(string.Empty, 0);
-            
-        object IModelReference.Id => Id;
 
-        public string Id => $"{prefix}_{id}";
+        public CompoundModelReference(T prefix, IModelReference reference)
+        {
+            if (prefix == null)
+            {
+                throw new ArgumentNullException(nameof(prefix));
+            }
+            this.Prefix = prefix;
+            this.Reference = reference ?? throw new ArgumentNullException(nameof(reference));
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as CompoundModelReference<T>;
+            if (other == null)
+            {
+                return false;
+            }
+            return this.Prefix.Equals(other.Prefix)
+                && this.Reference.Equals(other.Reference);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var code = 17;
+                code = 31 * code + Prefix.GetHashCode();
+                code = 31 * code + Reference.GetHashCode();
+                return code;
+            }
+        }
 
         public override string ToString()
         {
-            return $"CompoundModelReference [Id: {Id}";
+            return $"{GetType().GetNameWithGenericArgs()}{{" +
+                $"{nameof(Prefix)}: {Prefix}, " +
+                $"{nameof(Reference)}: {Reference}}}";
         }
     }
 }

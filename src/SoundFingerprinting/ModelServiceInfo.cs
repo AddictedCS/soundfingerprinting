@@ -64,5 +64,13 @@
                 return hashCode;
             }
         }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}{{" +
+                $"{nameof(TracksCount)}: {TracksCount}, " +
+                $"{nameof(SubFingerprintsCount)}: {SubFingerprintsCount}, " +
+                $"{nameof(HashCountsInTables)}: [{string.Join(", ", HashCountsInTables)}]}}";
+        }
     }
 }
