@@ -31,12 +31,12 @@ namespace SoundFingerprinting.Configuration
                         Stride = stride
                     }
                 },
-                Clusters = clusters
+                Clusters = clusters,
+                PermittedGap = permittedGap
             };
                 
             ResultEntryFilter = resultEntryFilter;
             SuccessCallback = successCallback;
-            PermittedGap = permittedGap;
             DidNotPassFilterCallback = didNotPassFilterCallback;
             QueryFingerprintsCallback = queryFingerprintsCallback;
         }
@@ -82,7 +82,11 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets permitted gap between consecutive candidate so that they are glued together
         /// </summary>
-        public double PermittedGap { get; set; }
+        public double PermittedGap
+        {
+            get => QueryConfiguration.PermittedGap;
+            set => QueryConfiguration.PermittedGap = value;
+        }
 
         /// <summary>
         ///  Gets or sets list of clusters to consider when querying the data source for potential candidates
