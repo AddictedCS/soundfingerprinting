@@ -4,7 +4,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.CompilerServices;
 
     internal class HammingDistanceResultStatistics
     {
@@ -34,29 +33,11 @@
 
         public double[] FalsePositivePercentile { get; set; }
 
-        public string TruePositiveInfo
-        {
-            get
-            {
-                return $"Avg {TruePositivesAvg:0.00}  Min {TruePositiveMin} Max {TruePositiveMax}";
-            }
-        }
+        public string TruePositiveInfo => $"Avg {TruePositivesAvg:0.00}  Min {TruePositiveMin} Max {TruePositiveMax}";
 
-        public string FalseNegativesInfo
-        {
-            get
-            {
-                return $"Avg {FalseNegativesAvg:0.00} Min {FalseNegativesMin} Max {FalseNegativesMax}";
-            }
-        }
+        public string FalseNegativesInfo => $"Avg {FalseNegativesAvg:0.00} Min {FalseNegativesMin} Max {FalseNegativesMax}";
 
-        public string FalsePositivesInfo
-        {
-            get
-            {
-                return $"Avg {FalsePositiveAvg:0.00} Min {FalsePositiveMin} Max {FalsePositiveMax}";
-            }
-        }
+        public string FalsePositivesInfo => $"Avg {FalsePositiveAvg:0.00} Min {FalsePositiveMin} Max {FalsePositiveMax}";
 
         public string TruePositivePercentileInfo
         {
@@ -89,8 +70,8 @@
                 + $"False Negatives(0.8, 0.9, 0.95, 0.98): [{FalseNegativesPercentileInfo}], False Positives(0.8, 0.9, 0.95, 0.98): [{FalsePositivesPercentileInfo}]";
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public static HammingDistanceResultStatistics From(ConcurrentBag<int> truePositivesBag, ConcurrentBag<int> falseNegativesBag, ConcurrentBag<int> falsePositivesBag, double[] percentiles)
+        public static HammingDistanceResultStatistics From(IEnumerable<int> truePositivesBag, 
+            IEnumerable<int> falseNegativesBag, IEnumerable<int> falsePositivesBag, double[] percentiles)
         {
             var truePositives = truePositivesBag.ToList();
             truePositives.Sort();
@@ -118,7 +99,7 @@
             return instance;
         }
 
-        private static double[] Percentiles(List<int> sortedSequence, IEnumerable<double> percentiles)
+        private static double[] Percentiles(IReadOnlyList<int> sortedSequence, IEnumerable<double> percentiles)
         {
             return percentiles.Select(p => Percentile(sortedSequence, p)).ToArray();
         }
