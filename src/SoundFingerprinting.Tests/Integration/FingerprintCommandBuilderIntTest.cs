@@ -41,9 +41,9 @@
         [Test]
         public async Task ShouldCreateFingerprintsInsertThenQueryAndGetTheRightResult()
         {
-            const int SecondsToProcess = 8;
-            const int StartAtSecond = 2;
-            var track = new TrackInfo("isrc", "title", "artist", 200d);
+            const int secondsToProcess = 8;
+            const int startAtSecond = 2;
+            var track = new TrackInfo("id", "title", "artist", 200d);
 
             var fingerprints = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
@@ -57,7 +57,7 @@
 
             var queryResult = await QueryCommandBuilder.Instance
                                .BuildQueryCommand()
-                               .From(PathToWav, SecondsToProcess, StartAtSecond)
+                               .From(PathToWav, secondsToProcess, startAtSecond)
                                .WithQueryConfig(new HighPrecisionQueryConfiguration())
                                .UsingServices(modelService, audioService)
                                .Query();
@@ -66,22 +66,22 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
-            Assert.IsTrue(bestMatch.QueryMatchLength > SecondsToProcess - 3, $"QueryMatchLength:{bestMatch.QueryLength}");
-            Assert.AreEqual(StartAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
+            Assert.IsTrue(bestMatch.QueryMatchLength > secondsToProcess - 3, $"QueryMatchLength:{bestMatch.QueryLength}");
+            Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
         }
 
         [Test]
         public async Task CreateFingerprintsFromFileAndFromAudioSamplesAndGetTheSameResultTest()
         {
-            const int SecondsToProcess = 8;
-            const int StartAtSecond = 1;
+            const int secondsToProcess = 8;
+            const int startAtSecond = 1;
 
-            var samples = audioService.ReadMonoSamplesFromFile(PathToWav, 5512, SecondsToProcess, StartAtSecond);
+            var samples = audioService.ReadMonoSamplesFromFile(PathToWav, 5512, secondsToProcess, startAtSecond);
 
             var hashDatasFromFile = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
-                                        .From(PathToWav, SecondsToProcess, StartAtSecond)
+                                        .From(PathToWav, secondsToProcess, startAtSecond)
                                         .UsingServices(audioService)
                                         .Hash();
 
@@ -119,12 +119,12 @@
         [Test]
         public async Task CreateFingerprintsWithTheSameFingerprintCommandTest()
         {
-            const int SecondsToProcess = 8;
-            const int StartAtSecond = 1;
+            const int secondsToProcess = 8;
+            const int startAtSecond = 1;
 
             var fingerprintCommand = FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
-                                            .From(PathToWav, SecondsToProcess, StartAtSecond)
+                                            .From(PathToWav, secondsToProcess, startAtSecond)
                                             .UsingServices(audioService);
 
             var firstHashDatas = await fingerprintCommand.Hash();

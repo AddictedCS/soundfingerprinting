@@ -56,12 +56,12 @@
         [Test]
         public void ReadAllTracksTest()
         {
-            const int TrackCount = 5;
-            var expectedTracks = InsertTracks(TrackCount);
+            const int trackCount = 5;
+            var expectedTracks = InsertTracks(trackCount);
 
             var tracks = trackDao.ReadAll().ToList();
 
-            Assert.AreEqual(TrackCount, tracks.Count);
+            Assert.AreEqual(trackCount, tracks.Count);
             foreach (var expectedTrack in expectedTracks)
             {
                 Assert.IsTrue(tracks.Any(track => track.ISRC == expectedTrack.Id));
@@ -81,8 +81,8 @@
         [Test]
         public void InsertMultipleTrackAtOnceTest()
         {
-            const int TrackCount = 100;
-            var tracks = InsertTracks(TrackCount);
+            const int trackCount = 100;
+            var tracks = InsertTracks(trackCount);
 
             var actualTracks = trackDao.ReadAll().ToList();
 
@@ -124,12 +124,12 @@
         [Test]
         public void DeleteCollectionOfTracksTest()
         {
-            const int NumberOfTracks = 10;
-            InsertTracks(NumberOfTracks);
+            const int numberOfTracks = 10;
+            InsertTracks(numberOfTracks);
 
             var allTracks = trackDao.ReadAll().ToList();
 
-            Assert.IsTrue(allTracks.Count == NumberOfTracks);
+            Assert.IsTrue(allTracks.Count == numberOfTracks);
             foreach (var track in allTracks)
             {
                 trackDao.DeleteTrack(track.TrackReference);
