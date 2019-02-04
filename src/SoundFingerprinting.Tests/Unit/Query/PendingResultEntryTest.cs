@@ -29,8 +29,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldNotCollapseAsTracksAreDifferent()
         {
-            var track1 = new TrackData("1", "artist", "title", String.Empty, 0, 120, new ModelReference<uint>(1));
-            var track2 = new TrackData("1", "artist", "title", String.Empty, 0, 120, new ModelReference<uint>(2));
+            var track1 = new TrackData("1", "artist", "title", string.Empty, 0, 120, new ModelReference<uint>(1));
+            var track2 = new TrackData("1", "artist", "title", string.Empty, 0, 120, new ModelReference<uint>(2));
             
             var entry1 = new PendingResultEntry(new ResultEntry(track1, 0d, 1.48d, 1.48d, 10d, -10, 0d, 100, 1.48d));
             var entry2 = new PendingResultEntry(new ResultEntry(track2, 0d, 1.48d, 1.48d, 10d + 1.48d, -10 + 1.48, 0d, 100, 1.48d));
