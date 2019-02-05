@@ -83,13 +83,13 @@
         public void ShouldCreateCorrectNumberOfSubFingerprints()
         {
             var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0) };
-            const int TenMinutes = 10 * 60;
-            var samples = TestUtilities.GenerateRandomAudioSamples(TenMinutes * SampleRate);
+            const int tenMinutes = 10 * 60;
+            var samples = TestUtilities.GenerateRandomAudioSamples(tenMinutes * SampleRate);
             this.SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            Assert.AreEqual((TenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
+            Assert.AreEqual((tenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
         }
 
         [Test]
@@ -107,8 +107,8 @@
         public void CutLogarithmizedSpectrumTest()
         {
             var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0, 0) };
-            const int LogSpectrumLength = 1024;
-            var logSpectrum = GetLogSpectrum(LogSpectrumLength);
+            const int logSpectrumLength = 1024;
+            var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, configuration);
             
@@ -162,11 +162,11 @@
             
             // Default stride between 2 consecutive images is 512, but because of rounding issues and the fact
             // that minimal step is 11.6 ms, timestamp is roughly .37155 sec
-            const double TimestampOfFingerprints = (double)512 / SampleRate;
+            const double timestampOfFingerprints = (double)512 / SampleRate;
             Assert.AreEqual(145, cutLogarithmizedSpectrum.Count);
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * TimestampOfFingerprints)) < Epsilon);
+                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * timestampOfFingerprints)) < Epsilon);
             }
         }
 

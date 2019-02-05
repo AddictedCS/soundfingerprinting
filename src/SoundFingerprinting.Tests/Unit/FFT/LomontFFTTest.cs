@@ -11,7 +11,7 @@
     [TestFixture]
     public class LomontFFTTest
     {
-        private readonly LomontFFT lomontFFT = new LomontFFT();
+        private readonly LomontFFT lomontFft = new LomontFFT();
 
         private readonly IComparer floatComparer = Comparer<float>.Create(
             (a, b) =>
@@ -35,8 +35,8 @@
                     input[i] = sineWave[i];
                 }
 
-                lomontFFT.RealFFT(input, true, sineWave.Length);
-                lomontFFT.RealFFT(input, false, sineWave.Length);
+                lomontFft.RealFFT(input, true, sineWave.Length);
+                lomontFft.RealFFT(input, false, sineWave.Length);
 
                 for (int i = 0; i < sineWave.Length; ++i)
                 {
@@ -59,7 +59,7 @@
                     input[i] = sineWave[i];
                 }
 
-                lomontFFT.RealFFT(input, true, sineWave.Length);
+                lomontFft.RealFFT(input, true, sineWave.Length);
 
                 for (int i = 0; i < sineWave.Length; ++i)
                 {

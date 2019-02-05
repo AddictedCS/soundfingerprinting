@@ -23,9 +23,9 @@
         public void ShouldIdentify()
         {
             var tagInfoWithTitleAndArtist = new TagInfo { Artist = "artist", Title = "title" };
-            var tagInfoWithISRC = new TagInfo { ISRC = "ISRC" };
+            var tagInfoWithIsrc = new TagInfo { ISRC = "12345" };
 
-            Assert.IsTrue(tagInfoWithISRC.IsTrackUniquelyIdentifiable());
+            Assert.IsTrue(tagInfoWithIsrc.IsTrackUniquelyIdentifiable());
             Assert.IsTrue(tagInfoWithTitleAndArtist.IsTrackUniquelyIdentifiable());
         }
     }
