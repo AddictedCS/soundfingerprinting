@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
     using NUnit.Framework;
     using SoundFingerprinting.Query;

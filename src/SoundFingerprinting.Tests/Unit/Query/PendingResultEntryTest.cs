@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
-    using System;
     using NUnit.Framework;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
