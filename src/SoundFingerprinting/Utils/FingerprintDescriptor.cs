@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Utils
 {
     using System;
 
-        internal class FingerprintDescriptor : IFingerprintDescriptor
+    internal class FingerprintDescriptor : IFingerprintDescriptor
     {
         private readonly AbsComparator absComparator;
         private readonly IFingerprintEncoder fingerprintEncoder;
