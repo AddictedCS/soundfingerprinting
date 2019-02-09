@@ -28,12 +28,12 @@
             var waveInEvent = new Mock<WaveInEvent>(MockBehavior.Strict);
             naudioFactory.Setup(factory => factory.GetWaveInEvent(5512, 1)).Returns(waveInEvent.Object);
             float[] samples = new float[1024];
-            const int SecondsToRecord = 10;
-            samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), SecondsToRecord, 5512))
+            const int secondsToRecord = 10;
+            samplesAggregator.Setup(agg => agg.ReadSamplesFromSource(It.IsAny<ISamplesProvider>(), secondsToRecord, 5512))
                 .Returns(samples);
             waveInEvent.Protected().Setup("Dispose", true);
 
-            float[] resultSamples = soundCaptureService.ReadMonoSamples(5512, SecondsToRecord);
+            float[] resultSamples = soundCaptureService.ReadMonoSamples(5512, secondsToRecord);
 
             Assert.AreSame(samples, resultSamples);
         }
