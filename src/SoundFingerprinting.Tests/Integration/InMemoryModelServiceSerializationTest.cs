@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -29,7 +30,7 @@
                 .UsingServices(audioService)
                 .Hash();
 
-            var trackData = new TrackInfo("isrc", "title", "artist", 200);
+            var trackData = new TrackInfo("id", "title", "artist", 200, new Dictionary<string, string> {{"key", "value"}});
 
             modelService.Insert(trackData, hashedFingerprints);
 
