@@ -27,17 +27,17 @@
             var similarityUtility = new SimilarityUtility();
 
             double similarity = 0;
-            int simulationRuns = 20000, aggreeOn = 0;
+            int simulationRuns = 20000, agreeOn = 0;
             for (int i = 0; i < simulationRuns; ++i)
             {
                 var arrays = this.GenerateVectors(howSimilarAreVectors, topWavelets, vectorLength);
                 Assert.AreEqual(topWavelets, arrays.Item1.TrueCounts());
                 Assert.AreEqual(topWavelets, arrays.Item2.TrueCounts());
-                aggreeOn += arrays.Item1.AgreeOn(arrays.Item2);
+                agreeOn += arrays.Item1.AgreeOn(arrays.Item2);
                 similarity += similarityUtility.CalculateJaccardSimilarity(arrays.Item1.ToBools(), arrays.Item2.ToBools());
             }
 
-            double averageSimilarityOnTrueBits = (double)aggreeOn / simulationRuns;
+            double averageSimilarityOnTrueBits = (double)agreeOn / simulationRuns;
             Assert.AreEqual(
                 averageSimilarityOnTrueBits,
                 howSimilarAreVectors * topWavelets,
@@ -99,8 +99,7 @@
 
             for (int i = 0; i < howSimilars.Length; ++i)
             {
-                Console.WriteLine(
-                        "{0,5:0.0000}{1,20:0.0000}{2,18:0.0000}{3,20:0.0000}",
+                Console.WriteLine("{0,5:0.0000}{1,20:0.0000}{2,18:0.0000}{3,20:0.0000}",
                         howSimilars[i],
                         probabilityOfAMatch[i],
                         atLeastOneCandidateFounds[i],

@@ -13,7 +13,7 @@
         public void ShouldCalculateConfidence1()
         {
             // Query Length 2 mins
-            // Source 30 sec (20 seconds of match available at the begining of the track)
+            // Source 30 sec (20 seconds of match available at the beginning of the track)
             // 20 seconds match 
 
             double confidence = confidenceCalculator.CalculateConfidence(0d, 20d, 120d, 10d, 30d);
@@ -62,7 +62,7 @@
         {
             // Query Length 10 sec
             // Source 2 mins (10 seconds available in the middle)
-            // 10 seconds match (1 sec missalignment to the left)
+            // 10 seconds match (1 sec misalignment to the left)
 
             double confidence = confidenceCalculator.CalculateConfidence(49d, 10d, 10d, 50d, 120d);
 
@@ -74,7 +74,7 @@
         {
             // Query Length 10 sec
             // Source 2 mins (10 seconds available in the middle)
-            // 10 seconds match (1 sec missalignment to the right)
+            // 10 seconds match (1 sec misalignment to the right)
 
             double confidence = confidenceCalculator.CalculateConfidence(0d, 10d, 10d, 50d, 120d);
 
@@ -85,7 +85,7 @@
         public void ShouldCalculateConfidence7()
         {
             // Query Length 10 sec
-            // Source 2 mins (5 seconds available in the begining)
+            // Source 2 mins (5 seconds available in the beginning)
             // 5 seconds match
 
             double confidence = confidenceCalculator.CalculateConfidence(0d, 5d, 10d, 115d, 120d);
@@ -97,7 +97,7 @@
         public void ShouldCalculateConfidence()
         {
             // Query Length 10 sec
-            // Source 2 mins (5 seconds available in the begining)
+            // Source 2 mins (5 seconds available in the beginning)
             // 5 seconds match
 
             double confidence = confidenceCalculator.CalculateConfidence(5d, 5d, 10d, 0d, 120d);
