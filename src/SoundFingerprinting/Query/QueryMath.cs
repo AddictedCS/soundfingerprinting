@@ -22,7 +22,9 @@
         {
             var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
-            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration)).ToList();
+            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration))
+                .OrderByDescending(entry => entry.HammingSimilaritySum)
+                .ToList();
         }
 
         public static bool IsCandidatePassingThresholdVotes(int[] query, int[] result, int thresholdVotes)
