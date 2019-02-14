@@ -28,7 +28,7 @@
             {
                 if (ConsecutiveMatchesAreLongerThanTheQuery(queryLength, matches, i, fingerprintLengthInSeconds))
                 {
-                    // potentialy a new start of best matched sequence
+                    // potentially a new start of best matched sequence
                     curMinI = i;
                 }
 
@@ -74,7 +74,7 @@
             return notCovered;
         }
 
-        private static bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, List<MatchedWith> sortedMatches, int index, double fingerprintLengthInSeconds)
+        private static bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, IReadOnlyList<MatchedWith> sortedMatches, int index, double fingerprintLengthInSeconds)
         {
             return SubFingerprintsToSeconds.AdjustLengthToSeconds(sortedMatches[index].TrackMatchAt, sortedMatches[index - 1].TrackMatchAt, fingerprintLengthInSeconds) > queryLength;
         }
