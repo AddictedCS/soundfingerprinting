@@ -5,7 +5,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -242,12 +241,12 @@
 
         private string ToTrackString(TrackData actualTrack)
         {
-            return string.Format("{0}-{1}", actualTrack.Artist, actualTrack.Title);
+            return $"{actualTrack.Artist}-{actualTrack.Title}";
         }
 
         private string ToTrackString(TagInfo tag)
         {
-            return string.Format("{0}-{1}", tag.Artist, tag.Title);
+            return $"{tag.Artist}-{tag.Title}";
         }
 
         private string GetInsertMetadata()
@@ -255,10 +254,12 @@
             return lastInsertStride != null ? lastInsertStride.ToString() : string.Empty;
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         private void AppendLine(StringBuilder sb, object[] objects)
         {
-            TestRunnerWriter.AppendLine(sb, objects);
+            lock (this)
+            {
+                TestRunnerWriter.AppendLine(sb, objects);
+            }
         }
 
         private TestRunnerEventArgs GetTestRunnerEventArgs(int truePositives, int trueNegatives, int falsePositives, int falseNegatives, object[] line, int verified)
@@ -322,11 +323,7 @@
                             OngoingActionEvent,
                             new TestRunnerOngoingEventArgs
                                 {
-                                    Message = string.Format(
-                                            "Inserting tracks {0} out of {1}. Track {2}",
-                                            Interlocked.Increment(ref inserted),
-                                            allFiles.Count,
-                                            System.IO.Path.GetFileNameWithoutExtension(file))
+                                    Message = $"Inserting tracks {Interlocked.Increment(ref inserted)} out of {allFiles.Count}. Track {System.IO.Path.GetFileNameWithoutExtension(file)}"
                                 });
                         var track = GetTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
