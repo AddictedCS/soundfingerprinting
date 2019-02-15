@@ -4,21 +4,9 @@ namespace SoundFingerprinting.Audio.NAudio.Test.Play
 
     internal class TestWaveStream : WaveStream
     {
-        public override WaveFormat WaveFormat
-        {
-            get
-            {
-                return WaveFormat.CreateIeeeFloatWaveFormat(5512, 1);
-            }
-        }
+        public override WaveFormat WaveFormat => WaveFormat.CreateIeeeFloatWaveFormat(5512, 1);
 
-        public override long Length
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public override long Length => 0;
 
         public override long Position { get; set; }
 
