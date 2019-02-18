@@ -20,12 +20,7 @@
 
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
-            if (candidates.TryGetValue(trackReference, out var matchedWith))
-            {
-                return matchedWith;
-            }
-            
-            return Enumerable.Empty<MatchedWith>();
+            return candidates.TryGetValue(trackReference, out var matchedWith) ? matchedWith : Enumerable.Empty<MatchedWith>();
         }
 
         public void AddNewMatch(IModelReference trackReference, MatchedWith match)
