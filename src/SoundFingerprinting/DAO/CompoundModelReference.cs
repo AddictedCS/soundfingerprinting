@@ -2,7 +2,6 @@ namespace SoundFingerprinting.DAO
 {
     using System;
     using ProtoBuf;
-    using SoundFingerprinting.Utils;
 
     [ProtoContract]
     public class CompoundModelReference<T> : IModelReference
@@ -26,8 +25,8 @@ namespace SoundFingerprinting.DAO
             {
                 throw new ArgumentNullException(nameof(prefix));
             }
-            this.Prefix = prefix;
-            this.Reference = reference ?? throw new ArgumentNullException(nameof(reference));
+            Prefix = prefix;
+            Reference = reference ?? throw new ArgumentNullException(nameof(reference));
         }
 
         public override bool Equals(object obj)
@@ -37,8 +36,8 @@ namespace SoundFingerprinting.DAO
             {
                 return false;
             }
-            return this.Prefix.Equals(other.Prefix)
-                && this.Reference.Equals(other.Reference);
+            return Prefix.Equals(other.Prefix)
+                && Reference.Equals(other.Reference);
         }
 
         public override int GetHashCode()
