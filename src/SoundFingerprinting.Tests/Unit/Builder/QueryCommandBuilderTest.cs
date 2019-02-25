@@ -58,8 +58,8 @@
         public async Task QueryIsBuiltFromFileCorrectly()
         {
             const string pathToFile = "path-to-file";
-            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), new QueryStats(0, 0, 0, 0));
-            List<HashedFingerprint> hashedFingerprints =
+            var dummyResult = new QueryResult(new List<ResultEntry>(), new QueryStats(0, 0, 0, 0));
+            var hashedFingerprints =
                 new List<HashedFingerprint>(
                     new[]
                         {
