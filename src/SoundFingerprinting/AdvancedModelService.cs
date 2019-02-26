@@ -32,12 +32,13 @@
 
         public IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
         {
-            return SubFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference).Select(
-                subFingerprint => new HashedFingerprint(
-                    subFingerprint.Hashes,
-                    subFingerprint.SequenceNumber,
-                    subFingerprint.SequenceAt,
-                    subFingerprint.Clusters)).ToList();
+            return SubFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference)
+                                    .Select(subFingerprint => new HashedFingerprint(
+                                                subFingerprint.Hashes,
+                                                subFingerprint.SequenceNumber,
+                                                subFingerprint.SequenceAt,
+                                                subFingerprint.Clusters))
+                                    .ToList();
         }
     }
 }
