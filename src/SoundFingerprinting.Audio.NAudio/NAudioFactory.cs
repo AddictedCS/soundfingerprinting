@@ -7,7 +7,7 @@
     {
         public WaveStream GetStream(string pathToAudioFile)
         {
-            // This class assumess media foundation libraries are installed on target machine
+            // This class assumes media foundation libraries are installed on target machine
             // In case you are running on Azure (Windows Server 2012) install Server Media Foundation feature
             return new MediaFoundationReader(pathToAudioFile);
         }

@@ -9,8 +9,7 @@ namespace SoundFingerprinting.Audio.NAudio
         private readonly INAudioFactory naudioFactory;
         private readonly ISamplesAggregator samplesAggregator;
 
-        public NAudioSoundCaptureService() : 
-            this(new SamplesAggregator(), new NAudioFactory())
+        public NAudioSoundCaptureService() : this(new SamplesAggregator(), new NAudioFactory())
         {
             // no op
         }
