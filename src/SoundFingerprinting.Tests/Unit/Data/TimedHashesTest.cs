@@ -2,8 +2,10 @@ namespace SoundFingerprinting.Tests.Unit.Data
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using NUnit.Framework;
+    using ProtoBuf;
     using SoundFingerprinting.Data;
 
     [TestFixture]
@@ -90,6 +92,71 @@ namespace SoundFingerprinting.Tests.Unit.Data
                 DateTime.Parse("01/15/2019 10:01:00"));
             
             Assert.IsFalse(a.MergeWith(b, out _));
+        }
+
+        [Test]
+        public void CanSerializeAndDeserialize()
+        {
+            var list = GetHashedFingerprints();
+
+            var timed = new TimedHashes(list, DateTime.Now);
+            var buffer = Serialize(timed);
+            var deserialized = Deserialize(buffer);
+            Assert.AreEqual(timed.HashedFingerprints.Count, deserialized.HashedFingerprints.Count);
+            Assert.AreEqual(timed.StartsAt, deserialized.StartsAt);
+
+            for (int i = 0; i < timed.HashedFingerprints.Count; ++i)
+            {
+                HashedFingerprint a = timed.HashedFingerprints[i];
+                HashedFingerprint b = deserialized.HashedFingerprints[i];
+                
+                Assert.AreEqual(a.StartsAt, b.StartsAt);
+                Assert.AreEqual(a.SequenceNumber, b.SequenceNumber);
+                CollectionAssert.AreEqual(a.HashBins, b.HashBins);
+            }
+        }
+
+        private static TimedHashes Deserialize(byte[] buffer)
+        {
+            TimedHashes deserialized;
+            using (var stream = new MemoryStream(buffer))
+            {
+                deserialized = Serializer.DeserializeWithLengthPrefix<TimedHashes>(stream, PrefixStyle.Fixed32);
+            }
+
+            return deserialized;
+        }
+
+        private static byte[] Serialize(TimedHashes timed)
+        {
+            byte[] buffer;
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SerializeWithLengthPrefix(stream, timed, PrefixStyle.Fixed32);
+                stream.Flush();
+                buffer = stream.GetBuffer();
+            }
+
+            return buffer;
+        }
+
+        private static List<HashedFingerprint> GetHashedFingerprints()
+        {
+            var random = new Random();
+            var list = new List<HashedFingerprint>();
+            for (int i = 0; i < 100; ++i)
+            {
+                int[] hashes = new int[25];
+                for (int j = 0; j < 25; ++j)
+                {
+                    int hash = random.Next();
+                    hashes[j] = hash;
+                }
+
+                list.Add(new HashedFingerprint(hashes, (uint) (i + 1), i * 1.48f, Enumerable.Empty<string>()));
+            }
+
+            return list;
         }
     }
 }
