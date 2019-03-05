@@ -63,6 +63,13 @@ namespace SoundFingerprinting.Command
             return await QueryAndHash(cancellationToken, new DummyQueryFingerprintService());
         }
 
+        public IRealtimeQueryCommand UsingServices(IModelService modelService)
+        {
+            this.modelService = modelService;
+            audioService = new SoundFingerprintingAudioService();
+            return this;
+        }
+        
         private async Task<double> QueryAndHash(CancellationToken cancellationToken, IQueryFingerprintService queryFingerprintService)
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride, MinSamplesForOneFingerprint);
@@ -134,13 +141,6 @@ namespace SoundFingerprinting.Command
             {
                 configuration?.SuccessCallback(result);
             }
-        }
-
-        public IRealtimeQueryCommand UsingServices(IModelService modelService)
-        {
-            this.modelService = modelService;
-            audioService = new SoundFingerprintingAudioService();
-            return this;
         }
     }
 }
