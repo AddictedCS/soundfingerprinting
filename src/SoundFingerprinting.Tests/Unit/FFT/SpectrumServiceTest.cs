@@ -37,7 +37,7 @@
         {
             var configuration = new DefaultSpectrogramConfig { ImageLength = 2048 };
             var samples = TestUtilities.GenerateRandomAudioSamples((configuration.Overlap * configuration.WdftSize) + configuration.WdftSize); // 64 * 2048
-            this.SetupFftService(configuration);
+            SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
@@ -85,7 +85,7 @@
             var configuration = new DefaultSpectrogramConfig { Stride = new StaticStride(0) };
             const int tenMinutes = 10 * 60;
             var samples = TestUtilities.GenerateRandomAudioSamples(tenMinutes * SampleRate);
-            this.SetupFftService(configuration);
+            SetupFftService(configuration);
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 

@@ -30,7 +30,7 @@
             int simulationRuns = 20000, agreeOn = 0;
             for (int i = 0; i < simulationRuns; ++i)
             {
-                var arrays = this.GenerateVectors(howSimilarAreVectors, topWavelets, vectorLength);
+                var arrays = GenerateVectors(howSimilarAreVectors, topWavelets, vectorLength);
                 Assert.AreEqual(topWavelets, arrays.Item1.TrueCounts());
                 Assert.AreEqual(topWavelets, arrays.Item2.TrueCounts());
                 agreeOn += arrays.Item1.AgreeOn(arrays.Item2);

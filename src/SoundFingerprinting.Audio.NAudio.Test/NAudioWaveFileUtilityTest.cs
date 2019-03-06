@@ -77,7 +77,7 @@
             float[] result = new float[length];
             for (int i = 0; i < length; i++)
             {
-                result[i] = (float)this.rand.NextDouble() * 32767;
+                result[i] = (float)rand.NextDouble() * 32767;
             }
 
             return result;

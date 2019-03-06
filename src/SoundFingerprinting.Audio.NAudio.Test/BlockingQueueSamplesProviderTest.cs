@@ -17,7 +17,7 @@
         {
             var producer = new BlockingCollection<float[]>();
             const int numberOfItemsToAdd = 5;
-            PutSamplesIntoQueueOnIregularIntervals(producer, numberOfItemsToAdd);
+            PutSamplesIntoQueueOnIrregularIntervals(producer, numberOfItemsToAdd);
 
             var samplesProvider = new BlockingQueueSamplesProvider(producer);
 
@@ -36,7 +36,7 @@
             Assert.AreEqual(numberOfItemsToAdd + 1, count);
         }
 
-        private void PutSamplesIntoQueueOnIregularIntervals(BlockingCollection<float[]> producer, int count)
+        private void PutSamplesIntoQueueOnIrregularIntervals(BlockingCollection<float[]> producer, int count)
         {
             Task.Factory.StartNew(() => AddValues(producer, count)).ContinueWith(t => producer.CompleteAdding());
         }
@@ -45,7 +45,7 @@
         {
             for (int i = 0; i < count; ++i)
             {
-                Thread.Sleep(this.random.Next(1000, 3000));
+                Thread.Sleep(random.Next(1000, 3000));
                 producer.Add(new float[1024]);
             }
         }
