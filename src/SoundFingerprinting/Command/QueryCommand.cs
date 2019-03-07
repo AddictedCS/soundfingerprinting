@@ -55,9 +55,9 @@
             return this;
         }
 
-        public IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration)
+        public IUsingQueryServices WithQueryConfig(QueryConfiguration config)
         {
-            this.queryConfiguration = queryConfiguration;
+            queryConfiguration = config;
             return this;
         }
 
@@ -67,9 +67,9 @@
             return this;
         }
 
-        public IQueryCommand UsingServices(IModelService modelService, IAudioService audioService)
+        public IQueryCommand UsingServices(IModelService service, IAudioService audioService)
         {
-            this.modelService = modelService;
+            modelService = service;
             if (createFingerprintCommand == null)
             {
                 createFingerprintCommand = () => fingerprintingMethodFromSelector()

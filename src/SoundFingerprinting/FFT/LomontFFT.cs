@@ -55,7 +55,8 @@
         /// <param name="data">The complex data stored as alternating real                                       
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
-        /// inverse transform</param>                                                                            
+        /// inverse transform</param>
+        /// <param name="length">Length of the transform</param> 
         private void TableFFT(float* data, bool forward, int length)
         {
             var n = length;
@@ -109,6 +110,7 @@
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
         /// inverse transform</param>                                                                            
+        /// <param name="length">Length of the transform</param> 
         internal void RealFFT(float* data, bool forward, int length)
         {
             var n = length; // # of real inputs, 1/2 the complex length                                     
@@ -224,6 +226,7 @@
         /// <param name="data"></param>                                                                          
         /// <param name="n"></param>                                                                             
         /// <param name="forward"></param>                                                                       
+        /// <param name="length">Length of the transform</param> 
         private void Scale(float* data, int n, bool forward, int length)
         {
             // forward scaling if needed                                                                         
