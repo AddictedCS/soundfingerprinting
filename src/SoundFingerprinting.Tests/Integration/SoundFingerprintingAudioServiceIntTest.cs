@@ -17,5 +17,4 @@
             Assert.AreEqual(10.0f, duration, 0.1);
         }
     }
-
 }
