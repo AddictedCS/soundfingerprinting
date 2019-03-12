@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Command
         private const int SupportedFrequency = 5512;
         private const int MillisecondsDelay = (int)((double) MinSamplesForOneFingerprint / SupportedFrequency * 1000);
 
-        private BlockingCollection<AudioSamples> realtimeSamples;
+        private IRealtimeCollection realtimeCollection;
         private RealtimeQueryConfiguration configuration;
         private IModelService modelService;
         private IAudioService audioService;
@@ -31,13 +31,19 @@ namespace SoundFingerprinting.Command
             this.queryFingerprintService = queryFingerprintService;
             
             configuration = new DefaultRealtimeQueryConfiguration(
-                e => throw new Exception("Register a success callback for your realtime query"), 
-                e => { /* do nothing */ }, fingerprints => { /* do nothing */ });
+                e => throw new Exception("Register a success callback for your realtime query."), 
+                e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, e => throw e);
         }
 
         public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
         {
-            realtimeSamples = audioSamples;
+            realtimeCollection = new RealtimeCollection(audioSamples);
+            return this;
+        }
+
+        public IWithRealtimeQueryConfiguration From(IRealtimeCollection collection)
+        {
+            realtimeCollection = collection;
             return this;
         }
 
@@ -76,12 +82,12 @@ namespace SoundFingerprinting.Command
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
 
             double queryLength = 0d;
-            while (!realtimeSamples.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
+            while (!realtimeCollection.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
             {
                 AudioSamples audioSamples;
                 try
                 {
-                    if (!realtimeSamples.TryTake(out audioSamples, MillisecondsDelay, cancellationToken))
+                    if (!realtimeCollection.TryTake(out audioSamples, MillisecondsDelay, cancellationToken))
                     {
                         continue;
                     }
@@ -100,9 +106,8 @@ namespace SoundFingerprinting.Command
 
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
+                var results = await Query(service, hashes, cancellationToken);
                 
-                
-                var results = service.Query(hashes, configuration.QueryConfiguration, modelService);
                 var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
 
                 InvokeSuccessHandler(realtimeQueryResult);
@@ -113,6 +118,29 @@ namespace SoundFingerprinting.Command
             return queryLength;
         }
 
+        private async Task<QueryResult> Query(IQueryFingerprintService service, IReadOnlyCollection<HashedFingerprint> hashes, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    return service.Query(hashes, configuration.QueryConfiguration, modelService);
+                }
+                catch (Exception e)
+                {
+                    InvokeExceptionCallback(e);
+                    await Task.Delay(MillisecondsDelay, cancellationToken);
+                }
+            }
+            
+            return QueryResult.Empty;
+        }
+
+        private void InvokeExceptionCallback(Exception e)
+        {
+            configuration?.ErrorCallback(e);
+        }
+        
         private void InvokeHashedFingerprintsCallback(List<HashedFingerprint> hashes)
         {
             configuration?.QueryFingerprintsCallback(hashes);

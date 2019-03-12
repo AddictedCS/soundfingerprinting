@@ -6,5 +6,7 @@ namespace SoundFingerprinting.Command
     public interface IRealtimeSource
     {
         IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples);
+
+        IWithRealtimeQueryConfiguration From(IRealtimeCollection realtimeCollection);
     }
 }

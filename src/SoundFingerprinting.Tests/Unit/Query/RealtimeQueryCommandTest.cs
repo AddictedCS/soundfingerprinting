@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -13,10 +14,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
     [TestFixture]
-    public class RealtimeQueryTest
+    public class RealtimeQueryCommandTest
     {
         [Test]
         public async Task RealtimeQueryShouldMatchOnlySelectedClusters()
@@ -143,17 +145,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryMatchLength:0.000}");
                     Interlocked.Increment(ref didNotPassThreshold);
                 },
-                fingerprints =>
-                {
-                    Interlocked.Add(ref fingerprintsCount, fingerprints.Count);
-                },
+                fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count),
+                error => throw error,
                 new IncrementalRandomStride(256, 512), 
                 1.48d,
                 Enumerable.Empty<string>());
 
              var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             
-             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+            double processed = await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
                                             .From(collection)
                                             .WithRealtimeQueryConfig(realtimeConfig)
                                             .UsingServices(modelService)
@@ -161,8 +161,52 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             Assert.AreEqual(1, found);
             Assert.AreEqual(1, didNotPassThreshold);
+            Assert.AreEqual(31.48, processed, 0.2);
         }
 
+        [Test]
+        public async Task ShouldNotLoseAudioSamplesInCaseIfExceptionIsThrown()
+        {
+            var audioService = new SoundFingerprintingAudioService();
+            var modelService = new InMemoryModelService();
+
+            int count = 10, found = 0, didNotPassThreshold = 0, thresholdVotes = 4, testWaitTime = 30000, fingerprintsCount = 0, errored = 0;
+            var data = GenerateRandomAudioChunks(count);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                                                .BuildFingerprintCommand()
+                                                .From(concatenated)
+                                                .UsingServices(audioService)
+                                                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            
+            var collection = SimulateRealtimeQueryData(data, true);
+
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
+
+            double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(count, QueryFingerprintService.Instance))
+                 .From(collection)
+                 .WithRealtimeQueryConfig(config =>
+                 {
+                     config.SuccessCallback = entry => Interlocked.Increment(ref found);
+                     config.QueryFingerprintsCallback = fingerprints => Interlocked.Increment(ref fingerprintsCount);
+                     config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
+                     config.ErrorCallback = exception => Interlocked.Increment(ref errored);
+                     config.ResultEntryFilter = new QueryMatchLengthFilter(10);
+                     config.PermittedGap = 1.48d;
+                     config.ThresholdVotes = thresholdVotes;
+                     return config;
+                 })
+                 .UsingServices(modelService)
+                 .Query(cancellationTokenSource.Token);
+
+            Assert.AreEqual(count, errored);
+            Assert.AreEqual(1, found);
+            Assert.AreEqual(1, didNotPassThreshold);
+            Assert.AreEqual(31.48, processed, 0.2);
+        }
+        
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
         {
             int length = 0;
@@ -235,6 +279,28 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             var samples = TestUtilities.GenerateRandomFloatArray(10240);
             return new AudioSamples(samples, "cnn", 5512);
+        }
+
+        private class FaultyQueryService : IQueryFingerprintService
+        {
+            private int faultyCounts;
+            private readonly IQueryFingerprintService goodOne;
+
+            public FaultyQueryService(int faultyCounts, IQueryFingerprintService goodOne)
+            {
+                this.faultyCounts = faultyCounts;
+                this.goodOne = goodOne;
+            }
+            
+            public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+            {
+                if (faultyCounts-- > 0)
+                {
+                    throw new IOException("I/O exception");
+                }
+
+                return goodOne.Query(queryFingerprints, configuration, modelService);
+            }
         }
     }
 }
