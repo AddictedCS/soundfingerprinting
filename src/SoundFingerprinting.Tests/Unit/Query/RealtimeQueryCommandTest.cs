@@ -147,6 +147,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 },
                 fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count),
                 error => throw error,
+                downtime => throw new Exception("Downtime callback called"),
                 new IncrementalRandomStride(256, 512), 
                 1.48d,
                 Enumerable.Empty<string>());
@@ -184,7 +185,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var collection = SimulateRealtimeQueryData(data, true);
 
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
-
+            double totalDowntime = 0d;
             double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(count, QueryFingerprintService.Instance))
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
@@ -194,6 +195,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                      config.ErrorCallback = exception => Interlocked.Increment(ref errored);
                      config.ResultEntryFilter = new QueryMatchLengthFilter(10);
+                     config.RestoredAfterErrorCallback = downtime => totalDowntime += downtime;
                      config.PermittedGap = 1.48d;
                      config.ThresholdVotes = thresholdVotes;
                      return config;
@@ -201,6 +203,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                  .UsingServices(modelService)
                  .Query(cancellationTokenSource.Token);
 
+            Assert.AreEqual(count * 10240/5512d, totalDowntime/1000d, 0.1d);
             Assert.AreEqual(count, errored);
             Assert.AreEqual(1, found);
             Assert.AreEqual(1, didNotPassThreshold);

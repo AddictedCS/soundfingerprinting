@@ -18,6 +18,7 @@ namespace SoundFingerprinting.Configuration
             Action<ResultEntry> didNotPassFilterCallback,
             Action<List<HashedFingerprint>> queryFingerprintsCallback,
             Action<Exception> errorCallback,
+            Action<double> restoredAfterErrorCallback,
             IStride stride,
             double permittedGap,
             IEnumerable<string> clusters)
@@ -41,6 +42,7 @@ namespace SoundFingerprinting.Configuration
             DidNotPassFilterCallback = didNotPassFilterCallback;
             QueryFingerprintsCallback = queryFingerprintsCallback;
             ErrorCallback = errorCallback;
+            RestoredAfterErrorCallback = restoredAfterErrorCallback;
         }
 
         /// <summary>
@@ -76,6 +78,11 @@ namespace SoundFingerprinting.Configuration
         ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute
         /// </summary>
         public Action<Exception> ErrorCallback { get; set; }
+
+        /// <summary>
+        ///  Gets or sets error restore callback
+        /// </summary>
+        public Action<double> RestoredAfterErrorCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets stride between 2 consecutive fingerprints used during querying

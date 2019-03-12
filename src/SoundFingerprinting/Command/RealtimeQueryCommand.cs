@@ -32,7 +32,7 @@ namespace SoundFingerprinting.Command
             
             configuration = new DefaultRealtimeQueryConfiguration(
                 e => throw new Exception("Register a success callback for your realtime query."), 
-                e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, e => throw e);
+                e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, e => throw e, downtime => {/* do nothing */ });
         }
 
         public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
@@ -120,16 +120,23 @@ namespace SoundFingerprinting.Command
 
         private async Task<QueryResult> Query(IQueryFingerprintService service, IReadOnlyCollection<HashedFingerprint> hashes, CancellationToken cancellationToken)
         {
+            Action<double> restoredAfterErrorCallback = null;
+            double downtime = 0d;
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    return service.Query(hashes, configuration.QueryConfiguration, modelService);
+                    var result = service.Query(hashes, configuration.QueryConfiguration, modelService);
+                    restoredAfterErrorCallback?.Invoke(downtime);
+                    return result;
                 }
                 catch (Exception e)
                 {
                     InvokeExceptionCallback(e);
-                    await Task.Delay(MillisecondsDelay, cancellationToken);
+                    const int delay = MillisecondsDelay;
+                    await Task.Delay(delay, cancellationToken);
+                    restoredAfterErrorCallback = configuration.RestoredAfterErrorCallback;
+                    downtime += delay;
                 }
             }
             

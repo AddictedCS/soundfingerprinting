@@ -11,9 +11,9 @@ namespace SoundFingerprinting.Configuration
     {
         public DefaultRealtimeQueryConfiguration(Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback, Action<List<HashedFingerprint>> queryFingerprintsCallback,
-            Action<Exception> onError) :
+            Action<Exception> onError, Action<double> restoredAfterErrorCallback) :
             base(4, new QueryMatchLengthFilter(5d), successCallback, didNotPassFilterCallback,
-                queryFingerprintsCallback, onError, new IncrementalRandomStride(256, 512), 2d, new List<string>())
+                queryFingerprintsCallback, onError, restoredAfterErrorCallback, new IncrementalRandomStride(256, 512), 2d, new List<string>())
         {
         }
     }
