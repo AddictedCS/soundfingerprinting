@@ -214,7 +214,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, found);
             var resultEntry = resultEntries[0];
             double jitterLength = 5 * 10240/5512d;
-            Assert.AreEqual(0d, started.AddSeconds(jitterLength + resultEntry.TrackMatchStartsAt).Subtract(resultEntry.MatchedAt).TotalSeconds, 10240/5512d);
+            Assert.AreEqual(0d, started.AddSeconds(jitterLength + resultEntry.TrackMatchStartsAt).Subtract(resultEntry.MatchedAt).TotalSeconds, 1d);
             Assert.AreEqual(1, didNotPassThreshold);
             Assert.AreEqual(31.48, processed, 0.2);
         }
@@ -262,7 +262,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                 foreach (var audioSample in audioSamples)
                 {
-                    collection.Add(new AudioSamples(audioSample.Samples, audioSample.Origin, audioSample.SampleRate, DateTime.Now));
+                    collection.Add(new AudioSamples(audioSample.Samples, audioSample.Origin, audioSample.SampleRate));
                     await Task.Delay(TimeSpan.FromSeconds(audioSample.Duration));
                 }
 
