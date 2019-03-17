@@ -121,7 +121,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
-            int count = 10, found = 0, didNotPassThreshold = 0, thresholdVotes = 4, testWaitTime = 30000, fingerprintsCount = 0;
+            int count = 10, found = 0, didNotPassThreshold = 0, thresholdVotes = 4, testWaitTime = 40000, fingerprintsCount = 0;
             var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -162,7 +162,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             Assert.AreEqual(1, found);
             Assert.AreEqual(1, didNotPassThreshold);
-            Assert.AreEqual(31.48, processed, 0.2);
+            Assert.AreEqual((count + 10) * 10240/5512d, processed, 0.2);
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
-            int count = 10, found = 0, didNotPassThreshold = 0, thresholdVotes = 4, testWaitTime = 30000, fingerprintsCount = 0, errored = 0;
+            int count = 10, found = 0, didNotPassThreshold = 0, thresholdVotes = 4, testWaitTime = 40000, fingerprintsCount = 0, errored = 0;
             var data = GenerateRandomAudioChunks(count);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -216,7 +216,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             double jitterLength = 5 * 10240/5512d;
             Assert.AreEqual(0d, started.AddSeconds(jitterLength + resultEntry.TrackMatchStartsAt).Subtract(resultEntry.MatchedAt).TotalSeconds, 1d);
             Assert.AreEqual(1, didNotPassThreshold);
-            Assert.AreEqual(31.48, processed, 0.2);
+            Assert.AreEqual((count + 10) * 10240/5512d, processed, 0.2);
         }
         
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
