@@ -212,7 +212,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(count * 10240/5512d, totalDowntime/1000d, 0.1d);
             Assert.AreEqual(count, errored);
             Assert.AreEqual(1, found);
-            Assert.AreEqual(started.AddSeconds(5 * 10240/5512d /*jitter*/ + resultEntries[0].QueryMatchStartsAt).ToString(), resultEntries[0].MatchedAt.ToString());
+            var resultEntry = resultEntries[0];
+            double jitterLength = 5 * 10240/5512d;
+            Assert.AreEqual(0d, started.AddSeconds(jitterLength + resultEntry.TrackMatchStartsAt).Subtract(resultEntry.MatchedAt).TotalSeconds, 10240/5512d);
             Assert.AreEqual(1, didNotPassThreshold);
             Assert.AreEqual(31.48, processed, 0.2);
         }
