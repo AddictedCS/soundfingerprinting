@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Tests.Unit.LCS
 {
+    using System;
     using System.Linq;
     using NUnit.Framework;
     using SoundFingerprinting.Configuration;
@@ -18,7 +19,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var track = new TrackData("1234", "artist", "title", "album", 1986, 120d, new ModelReference<int>(1));
 
-            var coverages = qrc.GetCoverages(track, new GroupedQueryResults(10d), new DefaultQueryConfiguration());
+            var coverages = qrc.GetCoverages(track, new GroupedQueryResults(10d, DateTime.Now), new DefaultQueryConfiguration());
             
             Assert.IsFalse(coverages.Any());
         }

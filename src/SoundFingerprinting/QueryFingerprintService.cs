@@ -47,7 +47,7 @@
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
             var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => hashedFingerprint.HashBins), configuration);
             double queryLength = hashedFingerprints.QueryLength(configuration.FingerprintConfiguration);
-            var groupedResults = new GroupedQueryResults(queryLength);
+            var groupedResults = new GroupedQueryResults(queryLength, configuration.RelativeTo);
             int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
             Parallel.ForEach(hashedFingerprints, queryFingerprint =>
             {

@@ -181,16 +181,22 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 .Hash();
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
-            
+
+            var started = DateTime.Now;
+            var resultEntries = new List<ResultEntry>();
             var collection = SimulateRealtimeQueryData(data, true);
 
-            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime * 10);
             double totalDowntime = 0d;
             double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(count, QueryFingerprintService.Instance))
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
                  {
-                     config.SuccessCallback = entry => Interlocked.Increment(ref found);
+                     config.SuccessCallback = entry =>
+                     {
+                         Interlocked.Increment(ref found);
+                         resultEntries.Add(entry);
+                     };
                      config.QueryFingerprintsCallback = fingerprints => Interlocked.Increment(ref fingerprintsCount);
                      config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                      config.ErrorCallback = exception => Interlocked.Increment(ref errored);
@@ -206,6 +212,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(count * 10240/5512d, totalDowntime/1000d, 0.1d);
             Assert.AreEqual(count, errored);
             Assert.AreEqual(1, found);
+            Assert.AreEqual(started.AddSeconds(5 * 10240/5512d /*jitter*/ + resultEntries[0].QueryMatchStartsAt).ToString(), resultEntries[0].MatchedAt.ToString());
             Assert.AreEqual(1, didNotPassThreshold);
             Assert.AreEqual(31.48, processed, 0.2);
         }
@@ -253,7 +260,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                 foreach (var audioSample in audioSamples)
                 {
-                    collection.Add(audioSample);
+                    collection.Add(new AudioSamples(audioSample.Samples, audioSample.Origin, audioSample.SampleRate, DateTime.Now));
                     await Task.Delay(TimeSpan.FromSeconds(audioSample.Duration));
                 }
 

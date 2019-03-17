@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@
         {
             int runs = 1000;
 
-            var groupedQueryResults = new GroupedQueryResults(5d);
+            var groupedQueryResults = new GroupedQueryResults(5d, DateTime.Now);
             var references = new[] { 1, 2, 3, 4, 5 }.Select(id => new ModelReference<int>(id)).ToArray();
 
             Parallel.For(0, runs, i =>
@@ -59,7 +60,7 @@
         {
             int runs = 1000;
 
-            var groupedQueryResults = new GroupedQueryResults(5d);
+            var groupedQueryResults = new GroupedQueryResults(5d, DateTime.Now);
             var reference = new ModelReference<int>(1);
 
             Parallel.For(0, runs, i =>

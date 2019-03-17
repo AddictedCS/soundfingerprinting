@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
@@ -26,7 +27,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public void ShouldWaitAsGapPermits()
         {
             var aggregator = new StatefulRealtimeResultEntryAggregator(new QueryMatchLengthFilter(10d), 2d);
-            var first = aggregator.Consume(new[] { new ResultEntry(GetTrack(), 0d, 2d, 2d, 10d, -10d, .95d, 120, 5d) }, 5d);
+            var first = aggregator.Consume(new[] { new ResultEntry(GetTrack(), 0d, 2d, 2d, 10d, -10d, .95d, 120, 5d, DateTime.Now) }, 5d);
 
             Assert.IsFalse(first.SuccessEntries.Any());
             Assert.IsFalse(first.DidNotPassThresholdEntries.Any());
@@ -59,7 +60,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             for (int i = 0; i < 10; ++i)
             {
-                var entry = new ResultEntry(GetTrack(), 0d, 1.48d, 1.48d, 10d + i*1.48d, -10d -i*1.48d, 0.01233, 0, 1.48d);
+                var entry = new ResultEntry(GetTrack(), 0d, 1.48d, 1.48d, 10d + i*1.48d, -10d -i*1.48d, 0.01233, 0, 1.48d, DateTime.Now);
                 var aggregated = aggregator.Consume(new[] { entry }, 1.48d);
                 AddAll(aggregated.SuccessEntries, success);
                 AddAll(aggregated.DidNotPassThresholdEntries, filtered);
