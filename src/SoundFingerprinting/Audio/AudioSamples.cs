@@ -8,11 +8,17 @@
     [Serializable]
     public class AudioSamples
     {
-        public AudioSamples(float[] samples, string origin, int sampleRate)
+        public AudioSamples(float[] samples, string origin, int sampleRate) : this(samples, origin, sampleRate, DateTime.Now)
+        {
+            // no op
+        }
+
+        public AudioSamples(float[] samples, string origin, int sampleRate, DateTime relativeTo)
         {
             Samples = samples;
             Origin = origin;
             SampleRate = sampleRate;
+            RelativeTo = relativeTo;
         }
 
         private AudioSamples()
@@ -34,6 +40,11 @@
         ///  Gets sample rate at which the audio has been sampled
         /// </summary>
         public int SampleRate { get; }
+
+        /// <summary>
+        ///  Gets relative to time location when the audio samples have been generated
+        /// </summary>
+        public DateTime RelativeTo { get; }
 
         /// <summary>
         ///  Gets the duration of the audio samples

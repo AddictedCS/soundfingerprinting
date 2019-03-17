@@ -26,7 +26,7 @@
                 return Enumerable.Empty<Coverage>();
             }
             
-            double queryLength = groupedQueryResults.GetQueryLength();
+            double queryLength = groupedQueryResults.QueryLength;
 
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {

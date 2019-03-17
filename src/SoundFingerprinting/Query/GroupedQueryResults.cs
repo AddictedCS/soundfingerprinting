@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Query
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
@@ -12,21 +13,20 @@
     {
         private readonly object lockObject = new object();
 
-        private readonly double queryLength;
         private readonly SortedDictionary<uint, Candidates> matches;
         private readonly ConcurrentDictionary<IModelReference, int> similaritySumPerTrack;
 
-        public GroupedQueryResults(double queryLength)
+        public GroupedQueryResults(double queryLength, DateTime relativeTo)
         {
-            this.queryLength = queryLength;
+            RelativeTo = relativeTo;
+            QueryLength = queryLength;
             matches = new SortedDictionary<uint, Candidates>();
             similaritySumPerTrack = new ConcurrentDictionary<IModelReference, int>();
         }
 
-        public double GetQueryLength()
-        {
-            return queryLength;
-        }
+        public double QueryLength { get; }
+
+        public DateTime RelativeTo { get; }
 
         public void Add(HashedFingerprint hashedFingerprint, SubFingerprintData subFingerprintData, int hammingSimilarity)
         {

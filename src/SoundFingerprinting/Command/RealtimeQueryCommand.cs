@@ -106,7 +106,7 @@ namespace SoundFingerprinting.Command
 
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
-                var results = await Query(service, hashes, cancellationToken);
+                var results = await Query(service, hashes, audioSamples.RelativeTo, cancellationToken);
                 
                 var realtimeQueryResult = resultsAggregator.Consume(results.ResultEntries, audioSamples.Duration);
 
@@ -118,7 +118,7 @@ namespace SoundFingerprinting.Command
             return queryLength;
         }
 
-        private async Task<QueryResult> Query(IQueryFingerprintService service, IReadOnlyCollection<HashedFingerprint> hashes, CancellationToken cancellationToken)
+        private async Task<QueryResult> Query(IQueryFingerprintService service, IReadOnlyCollection<HashedFingerprint> hashes, DateTime relativeTo, CancellationToken cancellationToken)
         {
             Action<double> restoredAfterErrorCallback = null;
             double downtime = 0d;
@@ -126,6 +126,7 @@ namespace SoundFingerprinting.Command
             {
                 try
                 {
+                    configuration.QueryConfiguration.RelativeTo = relativeTo;
                     var result = service.Query(hashes, configuration.QueryConfiguration, modelService);
                     restoredAfterErrorCallback?.Invoke(downtime);
                     return result;

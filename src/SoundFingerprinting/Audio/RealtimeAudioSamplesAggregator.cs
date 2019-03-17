@@ -7,6 +7,7 @@ namespace SoundFingerprinting.Audio
     {
         private readonly float[] buffer;
         private int left;
+        private DateTime relativeTo;
         private readonly object lockObject = new object();
         private long inc = -1;
         
@@ -36,22 +37,24 @@ namespace SoundFingerprinting.Audio
 
                 var cached = Copy(chunk);
                 Cache(chunk);
-                return new AudioSamples(cached, chunk.Origin, chunk.SampleRate);
+                return cached;
             }
         }
 
-        private float[] Copy(AudioSamples chunk)
+        private AudioSamples Copy(AudioSamples chunk)
         {
             float[] withCached = new float[left + chunk.Samples.Length];
             Buffer.BlockCopy(buffer, 0, withCached, 0, sizeof(float) * left);
             Buffer.BlockCopy(chunk.Samples, 0, withCached, sizeof(float) * left, sizeof(float) * chunk.Samples.Length);
-            return withCached;
+            return new AudioSamples(withCached, chunk.Origin, chunk.SampleRate, relativeTo);
         }
 
         private void Cache(AudioSamples chunk)
         {
-            left = MinSize - Stride.NextStride;
-            Buffer.BlockCopy(chunk.Samples, sizeof(float) * (chunk.Samples.Length - left), buffer, 0, sizeof(float) * left);
+            int nextStride = Stride.NextStride;
+            left = chunk.Samples.Length - nextStride;
+            relativeTo = chunk.RelativeTo.AddSeconds((double)(nextStride) / chunk.SampleRate);
+            Buffer.BlockCopy(chunk.Samples, sizeof(float) * (nextStride), buffer, 0, sizeof(float) * left);
         }
 
         public IStride Stride { get; }

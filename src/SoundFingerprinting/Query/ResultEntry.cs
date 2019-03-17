@@ -1,13 +1,23 @@
 namespace SoundFingerprinting.Query
 {
+    using System;
     using SoundFingerprinting.DAO.Data;
 
     /// <summary>
-    ///  Data class containing information about the resulting track
+    ///  Represents an instance of result entry object containing information about the resulting match
     /// </summary>
     public class ResultEntry
     {
-        public ResultEntry(TrackData track, double queryMatchStartsAt, double queryMatchLength, double queryCoverageLength, double trackMatchStartsAt, double trackStartsAt, double confidence, int hammingSimilaritySum, double queryLength)
+        public ResultEntry(TrackData track, 
+            double queryMatchStartsAt, 
+            double queryMatchLength, 
+            double queryCoverageLength, 
+            double trackMatchStartsAt, 
+            double trackStartsAt, 
+            double confidence, 
+            int hammingSimilaritySum, 
+            double queryLength,
+            DateTime matchedAt)
         {
             Track = track;
             QueryMatchStartsAt = queryMatchStartsAt;
@@ -18,6 +28,7 @@ namespace SoundFingerprinting.Query
             HammingSimilaritySum = hammingSimilaritySum;
             TrackStartsAt = trackStartsAt;
             QueryLength = queryLength;
+            MatchedAt = matchedAt;
         }
 
         /// <summary>
@@ -73,7 +84,12 @@ namespace SoundFingerprinting.Query
         ///  Gets the exact query length used to generate this entry
         /// </summary>
         public double QueryLength { get; }
-        
+
+        /// <summary>
+        ///  Gets date time instance when did the match took place
+        /// </summary>
+        public DateTime MatchedAt { get; }
+
         /// <summary>
         ///  Gets similarity count between query match and track
         /// </summary>

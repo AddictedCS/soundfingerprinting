@@ -14,14 +14,15 @@ namespace SoundFingerprinting.Query
             double avgConfidence = Math.Min((entry.Confidence + with.Confidence) / 2, 1d);
             
             return new ResultEntry(entry.Track, 
-                entry.QueryMatchStartsAt < with.QueryMatchStartsAt ? entry.QueryMatchStartsAt : with.QueryMatchStartsAt,
+                entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.QueryMatchStartsAt : with.QueryMatchStartsAt,
                 CalculateNewQueryMatchLength(entry, with),
                 CalculateNewQueryCoverageLength(entry, with),
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackMatchStartsAt : with.TrackMatchStartsAt,
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackStartsAt : with.TrackStartsAt,
                 avgConfidence,
                 entry.HammingSimilaritySum + with.HammingSimilaritySum,
-                CalculateNewQueryLength(entry, with));
+                CalculateNewQueryLength(entry, with),
+                entry.MatchedAt < with.MatchedAt ? entry.MatchedAt : with.MatchedAt);
         }
         
         private static double CalculateNewQueryMatchLength(ResultEntry a, ResultEntry b)

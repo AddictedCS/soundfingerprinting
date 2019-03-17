@@ -123,6 +123,12 @@
         public IDictionary<string, string> MetaFields { get; set; }
 
         /// <summary>
+        ///  Gets or sets the timestamp which is considered as a reference point of the query operation.
+        ///  Useful when you would like to re-query the storage with previously generated fingerprints
+        /// </summary>
+        public DateTime RelativeTo { get; set; }
+
+        /// <summary>
         ///  Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
         /// </summary>
         internal FingerprintConfiguration FingerprintConfiguration { get; set; }

@@ -64,7 +64,8 @@
                     newEntry.TrackStartsAt + result.TrackStartsAt,
                     newEntry.Confidence,
                     newEntry.HammingSimilaritySum,
-                    newEntry.QueryLength);
+                    newEntry.QueryLength,
+                    newEntry.MatchedAt);
             }
 
             return result;

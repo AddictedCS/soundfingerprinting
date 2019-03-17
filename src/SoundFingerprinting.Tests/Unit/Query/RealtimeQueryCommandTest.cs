@@ -186,7 +186,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var resultEntries = new List<ResultEntry>();
             var collection = SimulateRealtimeQueryData(data, true);
 
-            var cancellationTokenSource = new CancellationTokenSource(testWaitTime * 10);
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             double totalDowntime = 0d;
             double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(count, QueryFingerprintService.Instance))
                  .From(collection)

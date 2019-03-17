@@ -67,7 +67,8 @@
                         coverage.TrackStartsAt,
                         confidence,
                         groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
-                        coverage.QueryLength);
+                        coverage.QueryLength,
+                        groupedQueryResults.RelativeTo.AddSeconds(coverage.SourceMatchStartsAt));
                });
         }
     }

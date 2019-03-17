@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -18,6 +19,7 @@
                                            FrequencyRange = Configs.FrequencyRanges.Default
                                        };
             MetaFields = new Dictionary<string, string>();
+            RelativeTo = DateTime.Now;
         }
     }
 }
