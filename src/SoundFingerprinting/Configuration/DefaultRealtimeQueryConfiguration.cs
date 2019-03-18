@@ -2,6 +2,7 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
@@ -11,9 +12,10 @@ namespace SoundFingerprinting.Configuration
     {
         public DefaultRealtimeQueryConfiguration(Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback, Action<List<HashedFingerprint>> queryFingerprintsCallback,
-            Action<Exception> onError, Action<double> restoredAfterErrorCallback) :
+            Action<Exception, TimedHashes> onError, Action restoredAfterErrorCallback) :
             base(4, new QueryMatchLengthFilter(5d), successCallback, didNotPassFilterCallback,
-                queryFingerprintsCallback, onError, restoredAfterErrorCallback, new IncrementalRandomStride(256, 512), 2d, new List<string>())
+                queryFingerprintsCallback, onError, restoredAfterErrorCallback, Enumerable.Empty<TimedHashes>(),
+                new IncrementalRandomStride(256, 512), 2d, 0d, new List<string>())
         {
         }
     }

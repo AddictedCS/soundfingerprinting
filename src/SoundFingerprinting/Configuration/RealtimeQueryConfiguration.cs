@@ -17,10 +17,12 @@ namespace SoundFingerprinting.Configuration
             Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback,
             Action<List<HashedFingerprint>> queryFingerprintsCallback,
-            Action<Exception> errorCallback,
-            Action<double> restoredAfterErrorCallback,
+            Action<Exception, TimedHashes> errorCallback,
+            Action restoredAfterErrorCallback,
+            IEnumerable<TimedHashes> downtimeHashes,
             IStride stride,
             double permittedGap,
+            double downtimeCapturePeriod,
             IEnumerable<string> clusters)
         {
             QueryConfiguration = new DefaultQueryConfiguration
@@ -43,6 +45,8 @@ namespace SoundFingerprinting.Configuration
             QueryFingerprintsCallback = queryFingerprintsCallback;
             ErrorCallback = errorCallback;
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
+            DowntimeHashes = downtimeHashes;
+            DowntimeCapturePeriod = downtimeCapturePeriod;
         }
 
         /// <summary>
@@ -77,12 +81,23 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute
         /// </summary>
-        public Action<Exception> ErrorCallback { get; set; }
+        public Action<Exception, TimedHashes> ErrorCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error restore callback
         /// </summary>
-        public Action<double> RestoredAfterErrorCallback { get; set; }
+        public Action RestoredAfterErrorCallback { get; set; }
+
+        /// <summary>
+        ///  Gets or sets downtime hashes enumerable, that one can provide with hashes that were captured during downtime
+        /// </summary>
+        public IEnumerable<TimedHashes> DowntimeHashes { get; set; }
+
+        /// <summary>
+        ///  Gets or sets downtime capture period, value which will instruct the framework to cache realtime
+        ///  hashes for later processing in case if an unsuccessful request is made to Emy
+        /// </summary>
+        public double DowntimeCapturePeriod { get; set; }
 
         /// <summary>
         ///  Gets or sets stride between 2 consecutive fingerprints used during querying

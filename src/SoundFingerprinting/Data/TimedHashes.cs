@@ -25,12 +25,29 @@ namespace SoundFingerprinting.Data
             // left for proto-buf
         }
 
+        public static TimedHashes Empty => new TimedHashes(new List<HashedFingerprint>(), DateTime.MinValue);
+
         public IList<HashedFingerprint> HashedFingerprints => hashedFingerprints;
 
         [ProtoMember(2)]
         public DateTime StartsAt { get; }
 
-        private DateTime EndsAt => StartsAt.Add(TimeSpan.FromSeconds(hashedFingerprints.Last().StartsAt + FingerprintCount));
+        public DateTime EndsAt => IsEmpty ? DateTime.MinValue : StartsAt.Add(TimeSpan.FromSeconds(hashedFingerprints.Last().StartsAt + FingerprintCount));
+
+        public double TotalSeconds
+        {
+            get
+            {
+                if (IsEmpty)
+                {
+                    return 0d;
+                }
+
+                return hashedFingerprints.Last().StartsAt + FingerprintCount;
+            }
+        }
+
+        public bool IsEmpty => !hashedFingerprints.Any();
 
         public bool MergeWith(TimedHashes with, out TimedHashes merged)
         {

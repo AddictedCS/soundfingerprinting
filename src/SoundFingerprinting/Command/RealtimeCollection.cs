@@ -17,6 +17,8 @@ namespace SoundFingerprinting.Command
         {
             return collection.TryTake(out audioSamples, millisecondsDelay, cancellationToken);
         }
+        
+        // TODO  Add method for addition
 
         public bool IsAddingCompleted => collection.IsAddingCompleted;
     }

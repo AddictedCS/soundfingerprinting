@@ -146,10 +146,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Interlocked.Increment(ref didNotPassThreshold);
                 },
                 fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count),
-                error => throw error,
-                downtime => throw new Exception("Downtime callback called"),
+                (error, _) => throw error,
+                () => throw new Exception("Downtime callback called"),
+                Enumerable.Empty<TimedHashes>(), 
                 new IncrementalRandomStride(256, 512), 
                 1.48d,
+                0d,
                 Enumerable.Empty<string>());
 
              var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
@@ -187,7 +189,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var collection = SimulateRealtimeQueryData(data, true);
 
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
-            double totalDowntime = 0d;
+            var offlineStorage = new OfflineStorage(Path.GetTempPath());
+            var restoreCalled = new bool[1];
             double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(count, QueryFingerprintService.Instance))
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
@@ -199,18 +202,26 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      };
                      config.QueryFingerprintsCallback = fingerprints => Interlocked.Increment(ref fingerprintsCount);
                      config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
-                     config.ErrorCallback = exception => Interlocked.Increment(ref errored);
+                     config.ErrorCallback = (exception, timedHashes) =>
+                     {
+                         Interlocked.Increment(ref errored);
+                         offlineStorage.Save(timedHashes);
+                     };
+                     
                      config.ResultEntryFilter = new QueryMatchLengthFilter(10);
-                     config.RestoredAfterErrorCallback = downtime => totalDowntime += downtime;
+                     config.RestoredAfterErrorCallback = () => restoreCalled[0] = true;
                      config.PermittedGap = 1.48d;
                      config.ThresholdVotes = thresholdVotes;
+                     config.DowntimeHashes = offlineStorage;
+                     config.DowntimeCapturePeriod = 3d;
                      return config;
                  })
                  .UsingServices(modelService)
                  .Query(cancellationTokenSource.Token);
 
-            Assert.AreEqual(count * 10240/5512d, totalDowntime/1000d, 0.1d);
             Assert.AreEqual(count, errored);
+            Assert.AreEqual(20, fingerprintsCount);
+            Assert.IsTrue(restoreCalled[0]);
             Assert.AreEqual(1, found);
             var resultEntry = resultEntries[0];
             double jitterLength = 5 * 10240/5512d;
