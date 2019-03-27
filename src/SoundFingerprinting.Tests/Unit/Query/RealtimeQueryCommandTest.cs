@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -102,7 +103,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .WithRealtimeQueryConfig(config =>
                                               {
                                                     config.Stride = new IncrementalStaticStride(staticStride);
-                                                    config.QueryFingerprintsCallback = fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count);
+                                                    config.QueryFingerprintsCallback = fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.HashedFingerprints.Count);
                                                     config.SuccessCallback = entry => Interlocked.Increment(ref found);
                                                     config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                                                     config.PermittedGap = permittedGap;
@@ -145,7 +146,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.QueryMatchLength:0.000}, Query Length {entry.QueryMatchLength:0.000}");
                     Interlocked.Increment(ref didNotPassThreshold);
                 },
-                fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count),
+                fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.HashedFingerprints.Count),
                 (error, _) => throw error,
                 () => throw new Exception("Downtime callback called"),
                 Enumerable.Empty<TimedHashes>(), 
@@ -204,6 +205,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                      config.ErrorCallback = (exception, timedHashes) =>
                      {
+                         //timedHashes.StartsAt
                          Interlocked.Increment(ref errored);
                          offlineStorage.Save(timedHashes);
                      };
@@ -228,6 +230,80 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(0d, started.AddSeconds(jitterLength + resultEntry.TrackMatchStartsAt).Subtract(resultEntry.MatchedAt).TotalSeconds, 1d);
             Assert.AreEqual(1, didNotPassThreshold);
             Assert.AreEqual((count + 10) * 10240/5512d, processed, 0.2);
+        }
+
+        [Test]
+        public async Task HashesShouldMatchExactlyWhenAggregated()
+        {
+            var audioService = new SoundFingerprintingAudioService();
+            var modelService = new InMemoryModelService();
+
+            int count = 20, testWaitTime = 40000;
+            var data = GenerateRandomAudioChunks(count);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(concatenated)
+                .WithFingerprintConfig(config =>
+                {
+                    config.Stride = new IncrementalStaticStride(512);
+                    return config;
+                })
+                .UsingServices(audioService)
+                .Hash();
+            
+            
+            var collection = SimulateRealtimeQueryData(data, false);
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
+            var fingerprints = new ConcurrentQueue<TimedHashes>();;
+            
+            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                .From(collection)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.QueryFingerprintsCallback += timedHashes => fingerprints.Enqueue(timedHashes);
+                    config.Stride = new IncrementalStaticStride(512);
+                    return config;
+                })
+                .UsingServices(modelService)
+                .Query(cancellationTokenSource.Token);
+            
+            Assert.AreEqual(hashes.Count, fingerprints.Select(entry => entry.HashedFingerprints.Count).Sum());
+            var merged = Merge(fingerprints, 18d).ToList();
+            Assert.AreEqual(2, merged.Count);
+            Assert.AreEqual(hashes.Count, merged.Select(entry => entry.HashedFingerprints.Count).Sum());
+        }
+        
+        private static IEnumerable<TimedHashes> Merge(ConcurrentQueue<TimedHashes> timedHashes, double length)
+        {
+            var completed = TimedHashes.Empty;
+            while(!timedHashes.IsEmpty)
+            {
+                if(!timedHashes.TryDequeue(out var next))
+                {
+                    continue;
+                }
+                
+                if (completed.MergeWith(next, out var merged))
+                {
+                    // continue merging
+                    completed = merged;
+                    if (merged.TotalSeconds >= length)
+                    {
+                        // max length achieved, return completed chunk and start new sequence
+                        yield return merged;
+                        completed = TimedHashes.Empty;
+                    }
+                }
+                else
+                {
+                    // if can't be merged due to gap longer than 1.48 seconds (compared by `StartsAt`)
+                    // return previous chunk, and start a new sequence
+                    // should not happen under normal operation
+                    yield return completed;
+                    completed = next;
+                }
+            }
         }
         
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
