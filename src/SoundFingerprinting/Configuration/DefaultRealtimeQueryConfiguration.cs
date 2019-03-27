@@ -11,7 +11,7 @@ namespace SoundFingerprinting.Configuration
     public class DefaultRealtimeQueryConfiguration : RealtimeQueryConfiguration
     {
         public DefaultRealtimeQueryConfiguration(Action<ResultEntry> successCallback,
-            Action<ResultEntry> didNotPassFilterCallback, Action<List<HashedFingerprint>> queryFingerprintsCallback,
+            Action<ResultEntry> didNotPassFilterCallback, Action<TimedHashes> queryFingerprintsCallback,
             Action<Exception, TimedHashes> onError, Action restoredAfterErrorCallback) :
             base(4, new QueryMatchLengthFilter(5d), successCallback, didNotPassFilterCallback,
                 queryFingerprintsCallback, onError, restoredAfterErrorCallback, Enumerable.Empty<TimedHashes>(),

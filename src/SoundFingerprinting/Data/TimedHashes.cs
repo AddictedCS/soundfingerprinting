@@ -52,6 +52,12 @@ namespace SoundFingerprinting.Data
         public bool MergeWith(TimedHashes with, out TimedHashes merged)
         {
             merged = null;
+
+            if (IsEmpty)
+            {
+                merged = with;
+                return true;
+            }
             
             if (StartsAt <= with.StartsAt && EndsAt >= with.StartsAt.Subtract(TimeSpan.FromSeconds(Accuracy)))
             {
@@ -73,25 +79,23 @@ namespace SoundFingerprinting.Data
             {
                 if (i == first.Count)
                 {
-                    var startAt = diff.TotalSeconds + j * FingerprintCount;
+                    var startAt = diff.TotalSeconds + second[j].StartsAt;
                     result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].Clusters));
                     ++j;
                 }
                 else if (j == second.Count)
                 {
-                    var startsAt = i * FingerprintCount;
-                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, (float)startsAt, first[i].Clusters));
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt, first[i].Clusters));
                     ++i;
                 }
-                else if (firstStartsAt.Add(TimeSpan.FromSeconds(first[i].StartsAt)) <= secondStartsAt.Add(TimeSpan.FromSeconds(second[j].StartsAt)))
+                else if (firstStartsAt.AddSeconds(first[i].StartsAt) <= secondStartsAt.AddSeconds(second[j].StartsAt))
                 {
-                    var startsAt = i * FingerprintCount;
-                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, (float)startsAt, first[i].Clusters));
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt, first[i].Clusters));
                     ++i;
                 }
                 else
                 {
-                    var startAt = diff.TotalSeconds + j * FingerprintCount;
+                    var startAt = diff.TotalSeconds + second[j].StartsAt;
                     result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].Clusters));
                     ++j;
                 }

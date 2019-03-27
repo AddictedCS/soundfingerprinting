@@ -2,6 +2,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.IO;
     using System.Linq;
     using NUnit.Framework;
@@ -38,6 +39,25 @@ namespace SoundFingerprinting.Tests.Unit.Data
             Assert.AreEqual(1 + one, result.HashedFingerprints[3].StartsAt, 0.0001);
             Assert.AreEqual(2 * one, result.HashedFingerprints[4].StartsAt, 0.0001);
             Assert.AreEqual(1 + 2 * one, result.HashedFingerprints[5].StartsAt, 0.0001);
+        }
+
+        [Test]
+        public void ShouldMergeCorrectly()
+        {
+            float acc = 8192 / 5512f;
+            var a = TimedHashes.Empty;
+            var dateTime = DateTime.Now;
+            var b = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {1}, 0, 0, new string[0])}), dateTime);
+            var c = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {2}, 0, 0f, new string[0])}), dateTime.AddSeconds(acc));
+            var d = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {3}, 0, 0f, new string[0])}), dateTime.AddSeconds(2 * acc));
+
+            Assert.IsTrue(a.MergeWith(b, out var x));
+            Assert.IsTrue(x.MergeWith(c, out var y));
+            Assert.IsTrue(y.MergeWith(d, out var z));
+
+            Assert.AreEqual(dateTime, z.StartsAt);
+            Assert.AreEqual(3, z.HashedFingerprints.Count);
+            Assert.AreEqual(3 * acc, z.TotalSeconds, 0.001);
         }
 
         [Test]

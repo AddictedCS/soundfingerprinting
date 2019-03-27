@@ -16,7 +16,7 @@ namespace SoundFingerprinting.Configuration
             IRealtimeResultEntryFilter resultEntryFilter,
             Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback,
-            Action<List<HashedFingerprint>> queryFingerprintsCallback,
+            Action<TimedHashes> queryFingerprintsCallback,
             Action<Exception, TimedHashes> errorCallback,
             Action restoredAfterErrorCallback,
             IEnumerable<TimedHashes> downtimeHashes,
@@ -74,9 +74,9 @@ namespace SoundFingerprinting.Configuration
         public Action<ResultEntry> DidNotPassFilterCallback { get; set; }
 
         /// <summary>
-        ///  Gets or sets fingerprints callback which allows to intercept fingerprints used during querying
+        ///  Gets or sets timed hashes callback which allows to intercept fingerprints used during querying
         /// </summary>
-        public Action<List<HashedFingerprint>> QueryFingerprintsCallback { get; set; }
+        public Action<TimedHashes> QueryFingerprintsCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute

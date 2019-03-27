@@ -109,9 +109,12 @@ namespace SoundFingerprinting.Command
 
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
-                InvokeHashedFingerprintsCallback(hashes);
+                InvokeHashedFingerprintsCallback(hashes, prefixed.RelativeTo);
                 
-                // TODO fix audioSamples.RelativeTo to prefixed.RelativeTo
+                // Here `audioSamples.RelativeTo` are used instead of `prefixed.RelativeTo`
+                // since the resulting `MatchedAt` is more accurate this way (the accuracy is within +-1 second comparing to prefixed.RelativeTo).
+                // The exact cause was not identified, though I assume it's because the actual match need at least 1.85 seconds to pass the threshold
+                // Leaving as is for now.
                 if (!TryQuery(service, hashes, audioSamples.RelativeTo, out var queryResults))
                 {
                     continue;
@@ -119,8 +122,7 @@ namespace SoundFingerprinting.Command
 
                 foreach (var queryResult in queryResults)
                 {
-                    // TODO fix audioSamples.Duration to prefixed.Duration
-                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, audioSamples.Duration);
+                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, prefixed.Duration);
                     InvokeSuccessHandler(aggregatedResult);
                     InvokeDidNotPassFilterHandler(aggregatedResult);
                 }
@@ -163,9 +165,9 @@ namespace SoundFingerprinting.Command
             configuration?.ErrorCallback(e, timedHashes);
         }
         
-        private void InvokeHashedFingerprintsCallback(List<HashedFingerprint> hashes)
+        private void InvokeHashedFingerprintsCallback(List<HashedFingerprint> hashes, DateTime relativeTo)
         {
-            configuration?.QueryFingerprintsCallback(hashes);
+            configuration?.QueryFingerprintsCallback(new TimedHashes(hashes, relativeTo));
         }
 
         private async Task<List<HashedFingerprint>> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
