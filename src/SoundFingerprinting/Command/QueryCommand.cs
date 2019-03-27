@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -49,9 +50,9 @@
             return this;
         }
 
-        public IWithQueryConfiguration From(List<HashedFingerprint> hashedFingerprints)
+        public IWithQueryConfiguration From(IEnumerable<HashedFingerprint> hashedFingerprints)
         {
-            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashedFingerprints);
+            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashedFingerprints.ToList());
             return this;
         }
 

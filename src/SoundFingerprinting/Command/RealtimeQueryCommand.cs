@@ -34,7 +34,7 @@ namespace SoundFingerprinting.Command
             downtimeHashes = new Queue<TimedHashes>();
             
             configuration = new DefaultRealtimeQueryConfiguration(
-                e => throw new Exception("Register a success callback for your realtime query."), 
+                e => { /* do nothing */ }, 
                 e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
         }
 

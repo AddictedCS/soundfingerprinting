@@ -255,13 +255,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var collection = SimulateRealtimeQueryData(data, false);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
-            var fingerprints = new ConcurrentQueue<TimedHashes>();;
+            var fingerprints = new List<TimedHashes>();;
             
             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.QueryFingerprintsCallback += timedHashes => fingerprints.Enqueue(timedHashes);
+                    config.QueryFingerprintsCallback += timedHashes => fingerprints.Add(timedHashes);
                     config.Stride = new IncrementalStaticStride(512);
                     return config;
                 })
@@ -269,43 +269,73 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationTokenSource.Token);
             
             Assert.AreEqual(hashes.Count, fingerprints.Select(entry => entry.HashedFingerprints.Count).Sum());
-            var merged = Merge(fingerprints, 18d).ToList();
+            var merged = TimedHashes.Aggregate(fingerprints, 20d).ToList();
             Assert.AreEqual(2, merged.Count);
             Assert.AreEqual(hashes.Count, merged.Select(entry => entry.HashedFingerprints.Count).Sum());
-        }
-        
-        private static IEnumerable<TimedHashes> Merge(ConcurrentQueue<TimedHashes> timedHashes, double length)
-        {
-            var completed = TimedHashes.Empty;
-            while(!timedHashes.IsEmpty)
+
+            var aggregated = TimedHashes.Aggregate(fingerprints, double.MaxValue).ToList();
+            Assert.AreEqual(1, aggregated.Count);
+            Assert.AreEqual(hashes.Count, aggregated[0].HashedFingerprints.Count);
+            foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0].HashedFingerprints, (a, b) => new {a, b}))
             {
-                if(!timedHashes.TryDequeue(out var next))
-                {
-                    continue;
-                }
-                
-                if (completed.MergeWith(next, out var merged))
-                {
-                    // continue merging
-                    completed = merged;
-                    if (merged.TotalSeconds >= length)
-                    {
-                        // max length achieved, return completed chunk and start new sequence
-                        yield return merged;
-                        completed = TimedHashes.Empty;
-                    }
-                }
-                else
-                {
-                    // if can't be merged due to gap longer than 1.48 seconds (compared by `StartsAt`)
-                    // return previous chunk, and start a new sequence
-                    // should not happen under normal operation
-                    yield return completed;
-                    completed = next;
-                }
+                Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 0.1);
+                Assert.AreEqual(zipped.a.SequenceNumber, zipped.b.SequenceNumber);
+                CollectionAssert.AreEqual(zipped.a.HashBins, zipped.b.HashBins);
             }
         }
-        
+
+        [Test]
+        public async Task QueryingWithAggregatedHashesShouldResultInTheSameMatches()
+        {
+            var audioService = new SoundFingerprintingAudioService();
+            var modelService = new InMemoryModelService();
+
+            int count = 20, testWaitTime = 40000;
+            var data = GenerateRandomAudioChunks(count);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(concatenated)
+                .WithFingerprintConfig(config => config)
+                .UsingServices(audioService)
+                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+
+            var collection = SimulateRealtimeQueryData(data, false);
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
+            var fingerprints = new List<TimedHashes>();
+            var entries = new List<ResultEntry>();
+            
+            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                .From(collection)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.QueryFingerprintsCallback += timedHashes => fingerprints.Add(timedHashes);
+                    config.SuccessCallback = entry => entries.Add(entry);
+                    config.ResultEntryFilter = new CoverageLengthEntryFilter(0.8d);
+                    return config;
+                })
+                .UsingServices(modelService)
+                .Query(cancellationTokenSource.Token);
+
+            Assert.IsTrue(entries.Any());
+            Assert.AreEqual(1, entries.Count);
+            var aggregated = TimedHashes.Aggregate(fingerprints, 60d).ToList();
+            var result = await QueryCommandBuilder.Instance.BuildQueryCommand()
+                .From(aggregated[0].HashedFingerprints)
+                .WithQueryConfig(config =>
+                {
+                    config.RelativeTo = aggregated[0].StartsAt;
+                    return config;
+                })
+                .UsingServices(modelService, audioService)
+                .Query();
+            
+            Assert.IsTrue(result.ContainsMatches);
+            Assert.AreEqual(entries[0].MatchedAt, result.BestMatch.MatchedAt);
+        }
+
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
         {
             int length = 0;

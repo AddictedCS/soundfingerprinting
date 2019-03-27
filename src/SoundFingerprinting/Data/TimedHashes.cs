@@ -69,6 +69,41 @@ namespace SoundFingerprinting.Data
             return false;
         }
 
+        public static IEnumerable<TimedHashes> Aggregate(IEnumerable<TimedHashes> hashes, double length)
+        {
+            return hashes
+                .OrderBy(entry => entry.StartsAt)
+                .Aggregate(new Stack<TimedHashes>(new[] {Empty}), (stack, next) =>
+                    {
+                        var completed = stack.Pop();
+                        if (completed.MergeWith(next, out var merged))
+                        {
+                            stack.Push(merged);
+                            if (merged.TotalSeconds >= length)
+                            {
+                                stack.Push(Empty);
+                            }
+                        }
+                        else
+                        {
+                            stack.Push(completed);
+                            stack.Push(next);
+                        }
+
+                        return stack;
+                    },
+                    stack =>
+                    {
+                        var result = new List<TimedHashes>();
+                        while (stack.Any())
+                        {
+                            result.Add(stack.Pop());
+                        }
+
+                        return result;
+                    });
+        }
+
         private static List<HashedFingerprint> Merge(IReadOnlyList<HashedFingerprint> first, DateTime firstStartsAt, IReadOnlyList<HashedFingerprint> second, DateTime secondStartsAt)
         {
             var result = new List<HashedFingerprint>();
