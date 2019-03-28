@@ -379,8 +379,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                 foreach (var audioSample in audioSamples)
                 {
-                    collection.Add(new AudioSamples(audioSample.Samples, audioSample.Origin, audioSample.SampleRate));
                     await Task.Delay(TimeSpan.FromSeconds(audioSample.Duration));
+                    collection.Add(new AudioSamples(audioSample.Samples, audioSample.Origin, audioSample.SampleRate));
                 }
 
                 if (jitter)
@@ -399,8 +399,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             for (int i = 0; i < 5; ++i)
             {
                 var audioSample = GetMinSizeOfAudioSamples();
-                collection.Add(audioSample);
                 await Task.Delay(TimeSpan.FromSeconds(audioSample.Duration));
+                collection.Add(audioSample);
             }
         }
 

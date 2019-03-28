@@ -111,11 +111,7 @@ namespace SoundFingerprinting.Command
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
                 InvokeHashedFingerprintsCallback(hashes, prefixed.RelativeTo);
                 
-                // Here `audioSamples.RelativeTo` are used instead of `prefixed.RelativeTo`
-                // since the resulting `MatchedAt` is more accurate this way (the accuracy is within +-1 second comparing to prefixed.RelativeTo).
-                // The exact cause was not identified, though I assume it's because the actual match need at least 1.85 seconds to pass the threshold
-                // Leaving as is for now.
-                if (!TryQuery(service, hashes, audioSamples.RelativeTo, out var queryResults))
+                if (!TryQuery(service, hashes, prefixed.RelativeTo, out var queryResults))
                 {
                     continue;
                 }
