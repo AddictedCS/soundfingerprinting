@@ -67,11 +67,6 @@ namespace SoundFingerprinting.Command
             return await QueryAndHash(cancellationToken, queryFingerprintService);
         }
 
-        public async Task<double> Hash(CancellationToken cancellationToken)
-        {
-            return await QueryAndHash(cancellationToken, new DummyQueryFingerprintService());
-        }
-
         public IRealtimeQueryCommand UsingServices(IModelService service)
         {
             modelService = service;
