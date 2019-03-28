@@ -255,25 +255,25 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var collection = SimulateRealtimeQueryData(data, false);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
-            var fingerprints = new List<TimedHashes>();;
+            var list = new List<TimedHashes>();;
             
             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.QueryFingerprintsCallback += timedHashes => fingerprints.Add(timedHashes);
+                    config.QueryFingerprintsCallback += timedHashes => list.Add(timedHashes);
                     config.Stride = new IncrementalStaticStride(512);
                     return config;
                 })
                 .UsingServices(modelService)
                 .Query(cancellationTokenSource.Token);
             
-            Assert.AreEqual(hashes.Count, fingerprints.Select(entry => entry.HashedFingerprints.Count).Sum());
-            var merged = TimedHashes.Aggregate(fingerprints, 20d).ToList();
+            Assert.AreEqual(hashes.Count, list.Select(entry => entry.HashedFingerprints.Count).Sum());
+            var merged = TimedHashes.Aggregate(list, 20d).ToList();
             Assert.AreEqual(2, merged.Count);
             Assert.AreEqual(hashes.Count, merged.Select(entry => entry.HashedFingerprints.Count).Sum());
 
-            var aggregated = TimedHashes.Aggregate(fingerprints, double.MaxValue).ToList();
+            var aggregated = TimedHashes.Aggregate(list, double.MaxValue).ToList();
             Assert.AreEqual(1, aggregated.Count);
             Assert.AreEqual(hashes.Count, aggregated[0].HashedFingerprints.Count);
             foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0].HashedFingerprints, (a, b) => new {a, b}))
