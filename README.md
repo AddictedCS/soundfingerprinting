@@ -67,12 +67,16 @@ Every `ResultEntry` object will contain the following information:
 - `TrackStartsAt` - returns an approximation where does the matched track starts, always relative to the query
 - `Coverage` - returns a value between [0, 1], informing how much the query covered the resulting track (i.e. a 2 minutes query found a 30 seconds track within it, starting at 100th second, coverage will be equal to (120 - 100)/30 ~= 0.66)
 - `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
+- `MatchedAt` - returns timestamp showing at what time did the match occured. Usefull for realtime queries.
 
 `Stats` contains useful statistics information for fine-tuning the algorithm:
 - `QueryDuration` - time in milliseconds spend just querying the fingerprints datasource.
 - `FingerprintingDuration` - time in milliseconds spent generating the acousting fingerprints from the media file.
 - `TotalTracksAnalyzed` - total # of tracks analyzed during query time. If this number exceeds 50, try optimizing your configuration.
 - `TotalFingerprintsAnalyzed` - total # of fingerprints analyzed during query time. If this number exceeds 500, try optimizing your configuration.
+
+### Version 6.2.0
+Version 6.2.0 provides ability to query realtime datasources. Usefull for scenarious when you would like to monitor a realtime stream and get matching results as fast as possible.
 
 ### Version 6.0.0
 Version 6.0.0 provides a slightly improved `IModelService` interface. Now you can insert `TrackInfo` and it's corresponding fingerprints in one method call. The signatures of the fingerprints stayed the same, no need to re-index your tracks. Also, instead of inserting `TrackData` objects a new lightweight data class has been added: `TrackInfo`.
