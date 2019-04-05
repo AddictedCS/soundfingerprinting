@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using ProtoBuf;
@@ -10,6 +11,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
     public class OfflineStorage : IEnumerable<TimedHashes>
     {
+        private readonly string dateFormat = "yyyy-MM-ddTHH-mm-ss";
         private readonly string folder;
 
         public OfflineStorage(string folder)
@@ -28,7 +30,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 return;
             }
             
-            using (var fileStream = new FileStream(Path.Combine(folder, timedHashes.StartsAt.ToString("O") + ".hash"), FileMode.CreateNew))
+            using (var fileStream = new FileStream(Path.Combine(folder, timedHashes.StartsAt.ToString(dateFormat) + ".hash"), FileMode.CreateNew))
             {
                 Serializer.SerializeWithLengthPrefix(fileStream, timedHashes, PrefixStyle.Fixed32);
             }
@@ -36,7 +38,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         
         public IEnumerator<TimedHashes> GetEnumerator()
         {
-            foreach (var file in Directory.GetFiles(folder, "*.hash").OrderBy(filename => DateTime.Parse(Path.GetFileNameWithoutExtension(filename))))
+            foreach (var file in Directory.GetFiles(folder, "*.hash").OrderBy(filename => DateTime.ParseExact(Path.GetFileNameWithoutExtension(filename), dateFormat, CultureInfo.InvariantCulture)))
             {
                 using (var stream = new FileStream(file, FileMode.Open))
                 {

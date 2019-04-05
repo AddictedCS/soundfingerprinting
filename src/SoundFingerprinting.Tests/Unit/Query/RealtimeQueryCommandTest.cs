@@ -3,7 +3,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Dynamic;
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -165,7 +164,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             Assert.AreEqual(1, found);
             Assert.AreEqual(1, didNotPassThreshold);
-            Assert.AreEqual((count + 10) * 10240/5512d, processed, 0.2);
+            Assert.AreEqual((count + 10) * 10240 / 5512d, processed, 0.2);
         }
 
         [Test]
@@ -205,7 +204,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                      config.ErrorCallback = (exception, timedHashes) =>
                      {
-                         //timedHashes.StartsAt
                          Interlocked.Increment(ref errored);
                          offlineStorage.Save(timedHashes);
                      };
@@ -226,10 +224,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsTrue(restoreCalled[0]);
             Assert.AreEqual(1, found);
             var resultEntry = resultEntries[0];
-            double jitterLength = 5 * 10240/5512d;
+            double jitterLength = 5 * 10240 / 5512d;
             Assert.AreEqual(0d, started.AddSeconds(jitterLength + resultEntry.TrackMatchStartsAt).Subtract(resultEntry.MatchedAt).TotalSeconds, 1d);
             Assert.AreEqual(1, didNotPassThreshold);
-            Assert.AreEqual((count + 10) * 10240/5512d, processed, 0.2);
+            Assert.AreEqual((count + 10) * 10240 / 5512d, processed, 0.2);
         }
 
         [Test]
@@ -252,10 +250,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(audioService)
                 .Hash();
             
-            
             var collection = SimulateRealtimeQueryData(data, false);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
-            var list = new List<TimedHashes>();;
+            var list = new List<TimedHashes>();
             
             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
                 .From(collection)
@@ -276,9 +273,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var aggregated = TimedHashes.Aggregate(list, double.MaxValue).ToList();
             Assert.AreEqual(1, aggregated.Count);
             Assert.AreEqual(hashes.Count, aggregated[0].HashedFingerprints.Count);
-            foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0].HashedFingerprints, (a, b) => new {a, b}))
+            foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0].HashedFingerprints, (a, b) => new { a, b }))
             {
-                Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 0.1);
+                Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 0.5d);
                 Assert.AreEqual(zipped.a.SequenceNumber, zipped.b.SequenceNumber);
                 CollectionAssert.AreEqual(zipped.a.HashBins, zipped.b.HashBins);
             }
@@ -412,8 +409,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
         private class FaultyQueryService : IQueryFingerprintService
         {
-            private int faultyCounts;
             private readonly IQueryFingerprintService goodOne;
+
+            private int faultyCounts;
 
             public FaultyQueryService(int faultyCounts, IQueryFingerprintService goodOne)
             {
