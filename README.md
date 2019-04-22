@@ -17,17 +17,16 @@ Below code snippet shows how to extract acoustic fingerprints from an audio file
 private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM
 private readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library
 
-public void StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAudioFile)
+public async Task StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAudioFile)
 {
     var track = new TrackInfo("GBBKS1200164", "Skyfall", "Adele", 290d);
 
     // create fingerprints
-    var hashedFingerprints = FingerprintCommandBuilder.Instance
+    var hashedFingerprints = await FingerprintCommandBuilder.Instance
                                 .BuildFingerprintCommand()
                                 .From(pathToAudioFile)
                                 .UsingServices(audioService)
-                                .Hash()
-                                .Result;
+                                .Hash();
 								
     // store hashes in the database for later retrieval
     modelService.Insert(track, hashedFingerprints);
@@ -43,17 +42,16 @@ Once you've inserted the fingerprints into the datastore, later you might want t
 
 ```csharp
 
-public TrackData GetBestMatchForSong(string queryAudioFile)
+public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
 {
     int secondsToAnalyze = 10; // number of seconds to analyze from query file
     int startAtSecond = 0; // start at the begining
 	
     // query the underlying database for similar audio sub-fingerprints
-    var queryResult = QueryCommandBuilder.Instance.BuildQueryCommand()
+    var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
                                          .From(queryAudioFile, secondsToAnalyze, startAtSecond)
                                          .UsingServices(modelService, audioService)
-                                         .Query()
-                                         .Result;
+                                         .Query();
     
     return queryResult.BestMatch.Track;
 }
@@ -100,24 +98,22 @@ Default `SoundFingerprintingAudioService` supports only wave file at the input. 
 Fingerprinting and Querying algorithms can be easily parametrized with corresponding configuration objects passed as parameters on command creation.
 
 ```csharp
- var hashDatas = FingerprintCommandBuilder.Instance
+ var hashDatas = await FingerprintCommandBuilder.Instance
                            .BuildFingerprintCommand()
                            .From(samples)
                            .WithFingerprintConfig(new HighPrecisionFingerprintConfiguration())
                            .UsingServices(audioService)
-                           .Hash()
-                           .Result;
+                           .Hash();
 ```
 Similarly during query time you can specify a more high precision query configuration in case if you are trying to detect audio in noisy environments.
 
 ```csharp
-QueryResult queryResult = QueryCommandBuilder.Instances
+QueryResult queryResult = await QueryCommandBuilder.Instances
                                    .BuildQueryCommand()
                                    .From(PathToFile)
                                    .WithQueryConfig(new HighPrecisionQueryConfiguration())
                                    .UsingServices(modelService, audioService)
-                                   .Query()
-                                   .Result;
+                                   .Query();
 ```
 There are 3 pre-built configurations to choose from: `LowLatency`, `Default`, `HighPrecision`. Nevertheless you are not limited to use just these 3. You can ammed each particular configuration property by your own via overloads.
 
