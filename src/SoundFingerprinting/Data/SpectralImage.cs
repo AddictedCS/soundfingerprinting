@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    internal class SpectralImage
+    public class SpectralImage
     {
         public SpectralImage(float[] image, ushort rows, ushort cols, float startsAt, uint sequenceNumber)
         {

@@ -2,7 +2,7 @@
 {
     using SoundFingerprinting.Utils;
 
-    internal class Fingerprint
+    public class Fingerprint
     {
         public Fingerprint(IEncodedFingerprintSchema signature, float startAt, uint sequenceNumber)
         {

@@ -61,7 +61,7 @@
 
         public int SubFingerprintsCount => subFingerprints.Count;
 
-        private ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
+        public ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
 
         [ProtoMember(5)]
         private ConcurrentDictionary<uint, SubFingerprintData> SubFingerprints

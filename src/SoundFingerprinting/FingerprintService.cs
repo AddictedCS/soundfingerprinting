@@ -43,11 +43,11 @@ namespace SoundFingerprinting
         public List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
         { 
             var spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            var fingerprints = CreateFingerprintsFromLogSpectrum(spectrum, configuration);
+            var fingerprints = CreateFingerprintsFromLogSpectrum(spectrum, configuration).ToList();
             return HashFingerprints(fingerprints, configuration);
         }
 
-        private List<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        public IEnumerable<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
