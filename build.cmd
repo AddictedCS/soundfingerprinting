@@ -6,4 +6,4 @@ if "%config%" == "" (
 
 dotnet restore .\src\SoundFingerprinting.sln
 dotnet test .\src\SoundFingerprinting.Tests\SoundFingerprinting.Tests.csproj -c %config%
-dotnet pack .\src\SoundFingerprinting\SoundFingerprinting.csproj -c %config% -o ..\..\build
+dotnet pack .\src\SoundFingerprinting\SoundFingerprinting.csproj -c %config% -o build
