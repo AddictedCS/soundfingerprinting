@@ -13,4 +13,4 @@ if [ "$?" != "0" ]; then
 	exit 1
 fi
 
-dotnet pack src/SoundFingerprinting/SoundFingerprinting.csproj -c $TARGET -o ../../build /p:TargetFrameworks=netstandard2.0
+dotnet pack src/SoundFingerprinting/SoundFingerprinting.csproj -c $TARGET -o build /p:TargetFrameworks=netstandard2.0

@@ -21,11 +21,7 @@
             this.queryMath = queryMath;
         }
 
-        public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(
-            new SimilarityUtility(),
-            new QueryMath(
-                new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()),
-                new ConfidenceCalculator()));
+        public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(new SimilarityUtility(), new QueryMath(new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()), new ConfidenceCalculator()));
     
         public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {

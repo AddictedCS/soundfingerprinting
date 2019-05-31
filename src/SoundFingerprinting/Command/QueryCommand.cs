@@ -18,6 +18,7 @@
         private readonly IQueryFingerprintService queryFingerprintService;
         
         private IModelService modelService;
+        private IQueryMatchRegistry queryMatchRegistry;
         
         private Func<IWithFingerprintConfiguration> fingerprintingMethodFromSelector;
         private Func<IFingerprintCommand> createFingerprintCommand;
@@ -29,6 +30,7 @@
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
             queryConfiguration = new DefaultQueryConfiguration();
+            queryMatchRegistry = NoOpQueryMatchRegistry.NoOp;
         }
 
         public IWithQueryConfiguration From(string pathToAudioFile)
@@ -70,7 +72,14 @@
 
         public IQueryCommand UsingServices(IModelService service, IAudioService audioService)
         {
+            return UsingServices(service, audioService, NoOpQueryMatchRegistry.NoOp);
+        }
+        
+        public IQueryCommand UsingServices(IModelService service, IAudioService audioService, IQueryMatchRegistry registry)
+        {
             modelService = service;
+            queryMatchRegistry = registry;
+            
             if (createFingerprintCommand == null)
             {
                 createFingerprintCommand = () => fingerprintingMethodFromSelector()
@@ -80,7 +89,7 @@
 
             return this;
         }
-
+        
         public async Task<QueryResult> Query()
         {
             var fingerprintingStopwatch = Stopwatch.StartNew();
@@ -90,6 +99,11 @@
             var queryStopwatch = Stopwatch.StartNew();
             var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
             long queryDuration = queryStopwatch.ElapsedMilliseconds;
+            if (queryResult.ContainsMatches)
+            {
+                // TODO add fields to filter false positives
+                queryMatchRegistry.RegisterMatches(queryResult.ResultEntries);
+            }
 
             return new QueryResult(queryResult.ResultEntries, new QueryStats(queryResult.Stats.TotalTracksAnalyzed,
                 queryResult.Stats.TotalFingerprintsAnalyzed,
