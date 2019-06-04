@@ -7,8 +7,6 @@
 
 _soundfingerprinting_ is a C# framework designed for companies, enthusiasts, researchers in the fields of audio and digital signal processing, data mining and audio recognition. It implements an efficient algorithm which provides fast insert and retrieval of acoustic fingerprints with high precision and recall rate.
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/AddictedCS)
-
 ## Documentation
 
 Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _sub-fingerprints_ (or _fingerprints_, two terms used interchangeably) will be stored in a configurable datastore.
@@ -32,12 +30,8 @@ public async Task StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pa
     modelService.Insert(track, hashedFingerprints);
 }
 ```
-There are four storages available for use. The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code>. Other storages that you can use are:
-- ***SoundFingerprinting.Emy*** contact me at ciumac.sergiu@gmail.com for early access to a enterprise fingerprinting storage that is both super fast and resilient.
-- ***Solr*** efficient non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). MIT licensed, useful when the number of tracks does not exceed 1000 tracks.
-- ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql) [deprecated]. MIT licensed, still used, but not supported anymore due to it's inefficiency.
-- Starting with v3.2.0 <code>InMemoryModelService</code> can be serialized to filesystem, and reloaded on application startup. Useful for scenarious when you don't want to introduce external data storages.
 
+### Querying
 Once you've inserted the fingerprints into the datastore, later you might want to query the storage in order to recognize the song those samples you have. The origin of query samples may vary: file, URL, microphone, radio tuner, etc. It's up to your application, where you get the samples from.
 
 ```csharp
@@ -56,6 +50,38 @@ public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
     return queryResult.BestMatch.Track;
 }
 ```
+### Fingerprints Storage
+The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code> class. If you plan to use an external persistent storage for audio fingerprints **Emy** is the preferred choice. It is a specialized storage developed for audio fingerprints. **Emy** provides a community version which is free for non-commercial use. You can try it with docker:
+
+    docker run -p 3399:3399 -p 3340:3340 addictedcs/soundfingerprinting.emy:6.4.0.0-community
+
+**Emy** provides a backoffice interface which you can access on port :3340. 
+In order to insert and query **Emy** server please install [SoundFingerprinting.Emy](https://www.nuget.org/packages/SoundFingerprinting.Emy) NuGet package.
+
+    Install-Package SoundFingerprinting.Emy
+    
+The package will provide you with <code>EmyModelService</code> class, which can substitute default <code>InMemoryModelService</code>.
+```csharp
+ var emyModelService = EmyModelService.NewInstance("localhost", 3399);
+ // query Emy database for similar audio sub-fingerprints
+ var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+                                         .From(queryAudioFile, secondsToAnalyze, startAtSecond)
+                                         .UsingServices(modelService, audioService)
+                                         .Query();
+					 
+emyModelService.RegisterMatches(queryResult.ResultEntries);
+```
+Registering matches is now possible with <code>EmyModelService</code>. The results will be displayed in the **Emy** dashboard.
+
+<img src="https://i.imgur.com/lhqUY74.png" width="800">
+
+If you plan to use **Emy** storage in a commercial project please contact sergiu@emysound.com for details. Enterprise version is ~12.5x faster when number of tracks exceeds ~10K, supports clustering, replication and much more. By using **Emy** you will also support core SoundFingerprinting library and its ongoing development.
+
+Previous storages are now considered deprecate, as **Emy** is now considered the default choice for persistent storage. 
+
+- ***Solr*** non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). MIT licensed, useful when the number of tracks does not exceed 5000 tracks [deprecated].
+- ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql) [deprecated]. MIT licensed.
+
 ### Query result details
 Every `ResultEntry` object will contain the following information:
 - `Track` - matched track from the datastore
