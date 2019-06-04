@@ -62,13 +62,16 @@ In order to insert and query **Emy** server please install [SoundFingerprinting.
     
 The package will provide you with <code>EmyModelService</code> class, which can substitute default <code>InMemoryModelService</code>.
 ```csharp
+ // connect to Emy on port 3399
  var emyModelService = EmyModelService.NewInstance("localhost", 3399);
- // query Emy database for similar audio sub-fingerprints
+ 
+ // query Emy database
  var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
                                          .From(queryAudioFile, secondsToAnalyze, startAtSecond)
                                          .UsingServices(modelService, audioService)
                                          .Query();
-					 
+					
+// register matches s.t. they appear in the dashboard					
 emyModelService.RegisterMatches(queryResult.ResultEntries);
 ```
 Registering matches is now possible with <code>EmyModelService</code>. The results will be displayed in the **Emy** dashboard.
