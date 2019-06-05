@@ -23,6 +23,14 @@ namespace SoundFingerprinting.Audio.NAudio
             }
         }
 
+        public void WriteSamplesToFile(short[] samples, int sampleRate, string destination)
+        {
+            using (var writer = factory.GetWriter(destination, sampleRate, Mono))
+            {
+                writer.WriteSamples(samples, 0, samples.Length);
+            }
+        }
+
         public void RecodeFileToMonoWave(string source, string destination, int sampleRate, int resamplerQuality)
         {
             using (var stream = factory.GetStream(source))
