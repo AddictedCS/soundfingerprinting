@@ -9,6 +9,16 @@ namespace SoundFingerprinting.DAO
         [ProtoMember(1)]
         private int referenceCounter;
 
+        public IntModelReferenceProvider(int referenceCounter = 0)
+        {
+            this.referenceCounter = referenceCounter;
+        }
+
+        private IntModelReferenceProvider()
+        {
+            // left for protobuf
+        }
+
         public IModelReference Next()
         {
             int reference = Interlocked.Increment(ref referenceCounter);

@@ -46,5 +46,22 @@
                 }
             }
         }
+
+        [Test]
+        public void ShouldSerializeModelReferenceProviders()
+        {
+            var provider = new UIntModelReferenceProvider(10);
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SerializeWithLengthPrefix(stream, provider, PrefixStyle.Fixed32);
+                byte[] serialized = stream.ToArray();
+                using (var streamFinal = new MemoryStream(serialized))
+                {
+                    var deserialized = Serializer.DeserializeWithLengthPrefix<UIntModelReferenceProvider>(streamFinal, PrefixStyle.Fixed32);
+
+                    Assert.AreEqual(11, (uint)deserialized.Next().Id);
+                }
+            }
+        }
     }
 }
