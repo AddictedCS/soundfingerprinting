@@ -15,7 +15,7 @@ Below code snippet shows how to extract acoustic fingerprints from an audio file
 private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM
 private readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library
 
-public async Task StoreAudioFileFingerprintsInStorageForLaterRetrieval(string pathToAudioFile)
+public async Task StoreForLaterRetrieval(string pathToAudioFile)
 {
     var track = new TrackInfo("GBBKS1200164", "Skyfall", "Adele", 290d);
 
@@ -53,7 +53,7 @@ public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
 ### Fingerprints Storage
 The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code> class. If you plan to use an external persistent storage for audio fingerprints **Emy** is the preferred choice. It is a specialized storage developed for audio fingerprints. **Emy** provides a community version which is free for non-commercial use. You can try it with docker:
 
-    docker run -p 3399:3399 -p 3340:3340 addictedcs/soundfingerprinting.emy:6.4.0.0-community
+    docker run -p 3399:3399 -p 3340:3340 addictedcs/soundfingerprinting.emy
 
 **Emy** provides a backoffice interface which you can access on port :3340. 
 In order to insert and query **Emy** server please install [SoundFingerprinting.Emy](https://www.nuget.org/packages/SoundFingerprinting.Emy) NuGet package.
