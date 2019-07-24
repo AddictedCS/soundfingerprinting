@@ -31,8 +31,9 @@
             var random = new Random();
             for (int run = 0; run < 50000; ++run)
             {
-                (float[] a, float[] b) = GetTwoRandomCopies(count, random);
-
+                var tuple = GetTwoRandomCopies(count, random);
+                var a = tuple.Item1;
+                var b = tuple.Item2;
                 ushort[] indexes1 = Range(0, count);
                 ushort[] indexes2 = Range(0, count);
 
@@ -97,10 +98,10 @@
             }
         }
 
-        private (float[], float[]) GetTwoRandomCopies(int count, Random random)
+        private Tuple<float[], float[]> GetTwoRandomCopies(int count, Random random)
         {
             float[] a = GenerateRandomArray(count, random);
-            return (a, (float[]) a.Clone());
+            return Tuple.Create(a, (float[]) a.Clone());
         }
         
         private float[] GenerateRandomArray(int count, Random random)
