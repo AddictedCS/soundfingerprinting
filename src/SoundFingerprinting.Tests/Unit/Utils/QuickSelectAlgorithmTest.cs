@@ -28,35 +28,37 @@
         {
             const int count = 4096;
             const int topWavelets = 200;
-
             var random = new Random();
             for (int run = 0; run < 50000; ++run)
             {
-                float[] a = GenerateRandomArray(count, random);
-                float[] b = (float[])a.Clone();
+                (float[] a, float[] b) = GetTwoRandomCopies(count, random);
 
-                ushort[] x = Enumerable.Range(0, count).Select(i => (ushort)i).ToArray();
-                ushort[] y = (ushort[])x.Clone();
+                ushort[] indexes1 = Range(0, count);
+                ushort[] indexes2 = Range(0, count);
 
-                int akth = algorithm.Find(topWavelets - 1, a, x, 0, a.Length - 1);
-                int bkth = algorithm.Find(topWavelets - 1, b, y, 0, b.Length - 1);
+                int akth = algorithm.Find(topWavelets - 1, a, indexes1, 0, a.Length - 1);
+                int bkth = algorithm.Find(topWavelets - 1, b, indexes2, 0, b.Length - 1);
 
                 Assert.AreEqual(akth, bkth);
-                var aset = new HashSet<float>();
-                var bset = new HashSet<float>();
-
-                for (int i = 0; i < topWavelets; ++i)
-                {
-                    aset.Add(a[i]);
-                    bset.Add(b[i]);
-                }
-
-                var adistinct = aset.Except(bset);
-                var bdistinct = bset.Except(aset);
-                Assert.AreEqual(0, adistinct.Count(), "Not matched: " + string.Join(",", adistinct.Union(bdistinct).Select(f => (double)f).ToArray()));
+                AssertFingerprintsAreSame(topWavelets, a, b);
             }
         }
 
+        private static void AssertFingerprintsAreSame(int topWavelets, float[] a, float[] b)
+        {
+            var aset = new HashSet<float>();
+            var bset = new HashSet<float>();
+
+            for (int i = 0; i < topWavelets; ++i)
+            {
+                aset.Add(a[i]);
+                bset.Add(b[i]);
+            }
+
+            var adistinct = aset.Except(bset).ToList();
+            var bdistinct = bset.Except(aset);
+            Assert.AreEqual(0, adistinct.Count, "Not matched: " + string.Join(",", adistinct.Union(bdistinct)));
+        }
 
         [Test]
         public void ShouldFindTop200Element()
@@ -95,6 +97,12 @@
             }
         }
 
+        private (float[], float[]) GetTwoRandomCopies(int count, Random random)
+        {
+            float[] a = GenerateRandomArray(count, random);
+            return (a, (float[]) a.Clone());
+        }
+        
         private float[] GenerateRandomArray(int count, Random random)
         {
             float[] rand = new float[count];
@@ -105,6 +113,11 @@
             }
 
             return rand;
+        }
+
+        private static ushort[] Range(int from, int to)
+        {
+            return Enumerable.Range(from, to).Select(i => (ushort)i).ToArray();
         }
     }
 }
