@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using NUnit.Framework;
@@ -15,6 +16,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
         [Test]
         public void ShouldMerge()
         {
+            DateTimeFormatInfo dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
             float one = 8192f / 5512;
             var a = new TimedHashes(new List<HashedFingerprint>
                 {
@@ -22,7 +24,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                     new HashedFingerprint(new[] {1}, 2, 2 * one, new string[0]),
                     new HashedFingerprint(new[] {1}, 0, 0, new string[0]),
                 },
-                DateTime.Parse("01/15/2019 10:00:00"));
+                DateTime.Parse("01/15/2019 10:00:00", dtfi));
 
             var b = new TimedHashes(new List<HashedFingerprint>
                 {
@@ -30,7 +32,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                     new HashedFingerprint(new[] {2}, 2, 2 * one, new string[0]),
                     new HashedFingerprint(new[] {2}, 0, 0, new string[0]),
                 },
-                DateTime.Parse("01/15/2019 10:00:01"));
+                DateTime.Parse("01/15/2019 10:00:01", dtfi));
 
             Assert.IsTrue(a.MergeWith(b, out var result));
             Assert.AreEqual(0, result.HashedFingerprints[0].StartsAt);
@@ -63,6 +65,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
         [Test]
         public void ShouldMergeLongSequences()
         {
+            DateTimeFormatInfo dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
             var first = new List<HashedFingerprint>();
             var second = new List<HashedFingerprint>();
             
@@ -74,8 +77,8 @@ namespace SoundFingerprinting.Tests.Unit.Data
             }
 
             var r = new Random();
-            var a = new TimedHashes(first.OrderBy(x => r.Next()).ToList(), DateTime.Parse("01/15/2019 10:00:00"));
-            var b = new TimedHashes(second.OrderBy(x => r.Next()).ToList(), DateTime.Parse("01/15/2019 10:00:01.3"));
+            var a = new TimedHashes(first.OrderBy(x => r.Next()).ToList(), DateTime.Parse("01/15/2019 10:00:00", dtfi));
+            var b = new TimedHashes(second.OrderBy(x => r.Next()).ToList(), DateTime.Parse("01/15/2019 10:00:01.3", dtfi));
 
             Assert.IsTrue(a.MergeWith(b, out var c));
             for (int i = 0; i < 200; ++i)
@@ -99,17 +102,18 @@ namespace SoundFingerprinting.Tests.Unit.Data
         [Test]
         public void CantMergeSinceTheGapIsTooBig()
         {
+            DateTimeFormatInfo dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
             var a = new TimedHashes(new List<HashedFingerprint>
                 {
                     new HashedFingerprint(new[] {1}, 0, 0, new string[0]),
                 },
-                DateTime.Parse("01/15/2019 10:00:00"));
+                DateTime.Parse("01/15/2019 10:00:00", dtfi));
 
             var b = new TimedHashes(new List<HashedFingerprint>
                 {
                     new HashedFingerprint(new[] {2}, 0, 0, new string[0]),
                 },
-                DateTime.Parse("01/15/2019 10:01:00"));
+                DateTime.Parse("01/15/2019 10:01:00", dtfi));
             
             Assert.IsFalse(a.MergeWith(b, out _));
         }
