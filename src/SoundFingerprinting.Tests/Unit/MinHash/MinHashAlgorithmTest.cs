@@ -43,6 +43,30 @@
         }
 
         [Test]
+        public void ShouldNotIdentifyTooManyHashesOnLastPositionForAdaptivePermutations()
+        {
+            int indexesPerPermutation = 1024;
+            var random = new Random(1);
+            var permutations = new AdaptivePermutations(100, 128, 32, indexesPerPermutation);
+            var minHash = new ExtendedMinHashService(permutations);
+            var counts = new List<int>();
+            int maxIndex = permutations.GetPermutations().First().Length;
+            Assert.AreEqual(indexesPerPermutation, maxIndex);
+            for (int i = 0; i < 50000; ++i)
+            {
+                var schema = GenerateRandom(random, 200, 128, 32);
+                int[] hashes = minHash.Hash(schema, 25 * 4);
+                int count = hashes.Count(last => last == maxIndex);
+                counts.Add(count);
+            }
+
+            Console.WriteLine($"Avg. Permutations {counts.Average():0.000}");
+            Console.WriteLine($"Max. {counts.Max()}");
+            Console.WriteLine($"Min. {counts.Min()}");
+            Assert.AreEqual(0, counts.Average(), 0.0001, "On average we expect no more than 0.0 elements in the schema to contain hashes at last position");
+        }
+
+        [Test]
         public void ShouldBeAbleToGenerateMultipleTimesDifferentSignatures()
         {
             double howSimilarAreVectors = 0.4;

@@ -11,10 +11,11 @@
     {
         private const int LargePrime = 433494437;
 
-        private readonly IMinHashService minHashService;
+        private readonly IMinHashService<byte> minHashService;
+        private readonly IMinHashService<int> extendedMinHashService;
         private readonly IHashConverter hashConverter;
 
-        internal LocalitySensitiveHashingAlgorithm(IMinHashService minHashService, IHashConverter hashConverter)
+        internal LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService, IHashConverter hashConverter)
         {
             this.minHashService = minHashService;
             this.hashConverter = hashConverter;

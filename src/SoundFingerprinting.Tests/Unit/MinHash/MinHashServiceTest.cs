@@ -23,10 +23,26 @@
 
         private class TestPermutations : IPermutations
         {
+            readonly int[][] perms = { new[] { 1, 4, 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };
             public int[][] GetPermutations()
             {
-                int[][] perms = { new[] { 1, 4, 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };
                 return perms;
+            }
+
+            public int Count
+            {
+                get
+                {
+                    return perms.Length;
+                }
+            }
+
+            public int IndexesPerPermutation
+            {
+                get
+                {
+                    return perms[0].Length;
+                }
             }
         }
     }

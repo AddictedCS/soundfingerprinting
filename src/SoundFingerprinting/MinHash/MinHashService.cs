@@ -1,10 +1,9 @@
 ﻿namespace SoundFingerprinting.MinHash
 {
     using System;
-
     using SoundFingerprinting.Utils;
 
-    internal class MinHashService : IMinHashService
+    internal class MinHashService : IMinHashService<byte>
     {
         private readonly IPermutations permutations;
 
@@ -17,7 +16,15 @@
         {
             get
             {
-                return permutations.GetPermutations().Length;
+                return permutations.Count;
+            }
+        }
+
+        public int IndexesPerPermutation
+        {
+            get
+            {
+                return permutations.IndexesPerPermutation;
             }
         }
 
