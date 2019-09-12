@@ -36,7 +36,7 @@ namespace SoundFingerprinting
 
         public static FingerprintService Instance { get; } = new FingerprintService(
             new SpectrumService(new LomontFFT(), new LogUtility()),
-            new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()), new HashConverter()),
+            new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations())),
             new StandardHaarWaveletDecomposition(),
             new FastFingerprintDescriptor());
 

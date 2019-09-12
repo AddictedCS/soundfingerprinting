@@ -17,7 +17,7 @@
     [TestFixture]
     public class MinHashAlgorithmTest
     {
-        private readonly LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()), new HashConverter());
+        private readonly LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()));
 
         [Test]
         public void ShouldNotIdentifyTooManyHashesOnLastPosition()

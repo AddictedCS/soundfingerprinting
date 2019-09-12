@@ -19,7 +19,7 @@
         [Test]
         public void FingerprintsCantMatchUniformlyAtRandom()
         {
-            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()), new HashConverter());
+            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()));
 
             var random = new Random();
 
@@ -53,7 +53,7 @@
         [Test]
         public void DistributionOfHashesHasToBeUniform()
         {
-            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()), new HashConverter());
+            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()));
 
             var random = new Random();
 

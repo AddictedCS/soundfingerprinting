@@ -4,6 +4,8 @@
 
     internal class HashConverter : IHashConverter
     {
+        public static IHashConverter Instance { get; } = new HashConverter();
+
         public byte[] ToBytes(long[] array, int count)
         {
             int bytesPerLong = GetBytesPerLong(count, array.Length);

@@ -10,7 +10,6 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
@@ -25,18 +24,14 @@
             var fcbWithOldFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
-                    new LocalitySensitiveHashingAlgorithm(
-                        new MinHashService(new DefaultPermutations()),
-                        new HashConverter()),
+                    new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations())),
                     new StandardHaarWaveletDecomposition(),
                     new FingerprintDescriptor()));
 
             var fcbWithFastFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
-                    new LocalitySensitiveHashingAlgorithm(
-                        new MinHashService(new DefaultPermutations()),
-                        new HashConverter()),
+                    new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations())),
                     new StandardHaarWaveletDecomposition(),
                     new FastFingerprintDescriptor()));
 
@@ -73,17 +68,13 @@
 
             var fingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
-                new LocalitySensitiveHashingAlgorithm(
-                    new MinHashService(new DefaultPermutations()),
-                    new HashConverter()),
+                new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations())),
                 new StandardHaarWaveletDecomposition(),
                 new FingerprintDescriptor());
 
             var fastFingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
-                new LocalitySensitiveHashingAlgorithm(
-                    new MinHashService(new DefaultPermutations()),
-                    new HashConverter()),
+                new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations())),
                 new StandardHaarWaveletDecomposition(),
                 new FastFingerprintDescriptor());
 
