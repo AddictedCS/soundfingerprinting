@@ -358,7 +358,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var list = new List<AudioSamples>();
             for (int i = 0; i < count; ++i)
             {
-                var audioSamples = GetMinSizeOfAudioSamples(seed);
+                var audioSamples = GetMinSizeOfAudioSamples(seed * i);
                 list.Add(audioSamples);
             }
 
@@ -396,7 +396,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             for (int i = 0; i < 5; ++i)
             {
-                var audioSample = GetMinSizeOfAudioSamples(1);
+                var audioSample = GetMinSizeOfAudioSamples(0);
                 await Task.Delay(TimeSpan.FromSeconds(audioSample.Duration));
                 collection.Add(audioSample);
             }
