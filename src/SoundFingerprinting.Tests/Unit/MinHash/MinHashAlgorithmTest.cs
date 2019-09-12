@@ -20,6 +20,29 @@
         private readonly LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()), new HashConverter());
 
         [Test]
+        public void ShouldNotIdentifyTooManyHashesOnLastPosition()
+        {
+            var random = new Random(1);
+            var permutations = new MaxEntropyPermutations();
+            var minHash = new MinHashService(permutations);
+            var counts = new List<int>();
+            int maxIndex = permutations.GetPermutations().First().Length;
+            Assert.AreEqual(255, maxIndex);
+            for (int i = 0; i < 50000; ++i)
+            {
+                var schema = GenerateRandom(random, 200, 128, 32);
+                byte[] hashes = minHash.Hash(schema, 25 * 4);
+                int count = hashes.Count(last => last == maxIndex);
+                counts.Add(count);
+            }
+
+            Console.WriteLine($"Avg. Permutations {counts.Average():0.000}");
+            Console.WriteLine($"Max. {counts.Max()}");
+            Console.WriteLine($"Min. {counts.Min()}");
+            Assert.IsTrue(counts.Average() <= 0.25, "On average we expect no more than 0.25 elements in the schema to contain hashes at last position");
+        }
+
+        [Test]
         public void ShouldBeAbleToGenerateMultipleTimesDifferentSignatures()
         {
             double howSimilarAreVectors = 0.4;
@@ -115,6 +138,23 @@
         private int AgreeOn(int[] x, int[] y)
         {
             return x.Where((t, i) => t == y[i]).Count();
+        }
+
+        private TinyFingerprintSchema GenerateRandom(Random random, int topWavelets, int width, int height)
+        {
+            int length = width * height * 2;
+            var schema = new TinyFingerprintSchema(length);
+            for (int i = 0; i < topWavelets; ++i)
+            {
+                int index = random.Next(1, width * height);
+
+                if (index % 2 == 0)
+                    schema.SetTrueAt(index * 2);     // negative wavelet
+                else
+                    schema.SetTrueAt(index * 2 - 1); // positive wavelet
+            }
+
+            return schema;
         }
 
         private Tuple<TinyFingerprintSchema, TinyFingerprintSchema> GenerateVectors(double similarityIndex, int topWavelets, int length)
