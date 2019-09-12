@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.LSH
 {
+    using System;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
@@ -9,16 +10,17 @@
 
     internal class LocalitySensitiveHashingAlgorithm : ILocalitySensitiveHashingAlgorithm
     {
+        private const uint TwoTo32Minus1 = 4294967295;
+        private const uint PrimeDefault = 4294967291;
         private const int LargePrime = 433494437;
 
+        private readonly int[] A = { 142212803, 120936273, 235649938, 212405735, 369800342, 12467216, 400235300, 133796086 };
         private readonly IMinHashService<byte> minHashService;
-        private readonly IMinHashService<int> extendedMinHashService;
-        private readonly IHashConverter hashConverter;
+        private readonly IHashConverter hashConverter = HashConverter.Instance;
 
-        internal LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService, IHashConverter hashConverter)
+        internal LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService)
         {
             this.minHashService = minHashService;
-            this.hashConverter = hashConverter;
         }
 
         public HashedFingerprint Hash(Fingerprint fingerprint, HashingConfig hashingConfig,  IEnumerable<string> clusters)
@@ -32,6 +34,20 @@
                 fingerprint.SequenceNumber,
                 fingerprint.StartsAt,
                 clusters);
+        }
+
+        public HashedFingerprint HashImage(Fingerprint fingerprint, HashingConfig hashingConfig, IEnumerable<string> clusters)
+        {
+            int n = hashingConfig.NumberOfLSHTables * hashingConfig.NumberOfMinHashesPerTable;
+            int width = hashingConfig.Width;
+            int height = hashingConfig.Height;
+            int only = 2048;
+
+            var extendedMinHashService = new ExtendedMinHashService(new AdaptivePermutations(n, width, height, only));
+
+            int[] minHashes = extendedMinHashService.Hash(fingerprint.Signature, n);
+            int[] hashed = HashMinHashes(minHashes, hashingConfig.NumberOfLSHTables, hashingConfig.NumberOfMinHashesPerTable);
+            return new HashedFingerprint(hashed, fingerprint.SequenceNumber, fingerprint.StartsAt, clusters);
         }
 
         /// <summary>
@@ -58,6 +74,33 @@
             }
 
             return hashes;
+        }
+
+        private int[] HashMinHashes(int[] signature, int l, int k)
+        {
+            if (A.Length < k)
+            {
+                throw new ArgumentException($"{nameof(k)} should be less or equal to A's array length {A.Length}");
+            }
+
+            int[] hash = new int[l];
+            for (int table = 0; table < l; ++table)
+            {
+                long h = 0;
+                for (int i = 0; i < k; ++i)
+                {
+                    h += A[k] * signature[table * k + i];
+                    h = (h & TwoTo32Minus1) + 5 * (h >> 32);
+                    if (h > PrimeDefault)
+                    {
+                        h -= PrimeDefault;
+                    }
+                }
+
+                hash[table] = (int)h;
+            }
+
+            return hash;
         }
     }
 }

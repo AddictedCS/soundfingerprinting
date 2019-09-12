@@ -8,5 +8,7 @@
     internal interface ILocalitySensitiveHashingAlgorithm
     {
         HashedFingerprint Hash(Fingerprint fingerprint, HashingConfig hashingConfig, IEnumerable<string> clusters);
+
+        HashedFingerprint HashImage(Fingerprint fingerprint, HashingConfig hashingConfig, IEnumerable<string> clusters);
     }
 }
