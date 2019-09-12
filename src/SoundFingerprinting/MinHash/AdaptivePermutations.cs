@@ -9,7 +9,7 @@
 
         private readonly Random random;
 
-        public AdaptivePermutations(int n, int width, int height, int only)
+        public AdaptivePermutations(int n, int width, int height)
         {
             random = new Random(width * height);
             permutations = new int[n][];
@@ -18,7 +18,7 @@
                 int count = width * height * 2;
                 int[] p = Enumerable.Range(0, count).ToArray();
                 RandomShuffleInPlace(p);
-                permutations[i] = p.Take(only).ToArray();
+                permutations[i] = p;
             }
         }
 

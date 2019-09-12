@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.LSH
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using SoundFingerprinting.Configuration;
@@ -17,10 +18,12 @@
         private readonly int[] A = { 142212803, 120936273, 235649938, 212405735, 369800342, 12467216, 400235300, 133796086 };
         private readonly IMinHashService<byte> minHashService;
         private readonly IHashConverter hashConverter = HashConverter.Instance;
+        private readonly ConcurrentDictionary<int, IMinHashService<int>> extendedMinHashServices;
 
         internal LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService)
         {
             this.minHashService = minHashService;
+            extendedMinHashServices = new ConcurrentDictionary<int, IMinHashService<int>>();
         }
 
         public HashedFingerprint Hash(Fingerprint fingerprint, HashingConfig hashingConfig,  IEnumerable<string> clusters)
@@ -29,11 +32,8 @@
             int numberOfHashKeysPerTable = hashingConfig.NumberOfMinHashesPerTable;
             int hashBuckets = hashingConfig.HashBuckets;
             byte[] subFingerprint = minHashService.Hash(fingerprint.Signature, numberOfHashTables * numberOfHashKeysPerTable);
-            return new HashedFingerprint(
-                GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable, hashBuckets),
-                fingerprint.SequenceNumber,
-                fingerprint.StartsAt,
-                clusters);
+            int[] hashBins = GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable, hashBuckets);
+            return new HashedFingerprint(hashBins, fingerprint.SequenceNumber, fingerprint.StartsAt, clusters);
         }
 
         public HashedFingerprint HashImage(Fingerprint fingerprint, HashingConfig hashingConfig, IEnumerable<string> clusters)
@@ -41,10 +41,7 @@
             int n = hashingConfig.NumberOfLSHTables * hashingConfig.NumberOfMinHashesPerTable;
             int width = hashingConfig.Width;
             int height = hashingConfig.Height;
-            int only = 2048;
-
-            var extendedMinHashService = new ExtendedMinHashService(new AdaptivePermutations(n, width, height, only));
-
+            var extendedMinHashService = extendedMinHashServices.GetOrAdd(width * height, key => new ExtendedMinHashService(new AdaptivePermutations(n, width, height)));
             int[] minHashes = extendedMinHashService.Hash(fingerprint.Signature, n);
             int[] hashed = HashMinHashes(minHashes, hashingConfig.NumberOfLSHTables, hashingConfig.NumberOfMinHashesPerTable);
             return new HashedFingerprint(hashed, fingerprint.SequenceNumber, fingerprint.StartsAt, clusters);
@@ -70,7 +67,7 @@
 
             for (int i = 0; i < hashes.Length; ++i)
             {
-                hashes[i] = System.Math.Abs(hashes[i] * LargePrime % hashBucketsCount);
+                hashes[i] = Math.Abs(hashes[i] * LargePrime % hashBucketsCount);
             }
 
             return hashes;

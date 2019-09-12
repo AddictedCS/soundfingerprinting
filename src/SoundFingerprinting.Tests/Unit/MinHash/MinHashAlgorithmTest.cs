@@ -45,13 +45,12 @@
         [Test]
         public void ShouldNotIdentifyTooManyHashesOnLastPositionForAdaptivePermutations()
         {
-            int indexesPerPermutation = 1024;
             var random = new Random(1);
-            var permutations = new AdaptivePermutations(100, 128, 32, indexesPerPermutation);
+            var permutations = new AdaptivePermutations(100, 128, 32);
             var minHash = new ExtendedMinHashService(permutations);
             var counts = new List<int>();
             int maxIndex = permutations.GetPermutations().First().Length;
-            Assert.AreEqual(indexesPerPermutation, maxIndex);
+            Assert.AreEqual(128 * 32 * 2, maxIndex);
             for (int i = 0; i < 50000; ++i)
             {
                 var schema = GenerateRandom(random, 200, 128, 32);
