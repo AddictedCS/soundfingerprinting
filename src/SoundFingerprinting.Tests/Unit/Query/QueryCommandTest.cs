@@ -63,7 +63,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task ShouldIdentifyMultipleTracksInSameQuery()
         {
-            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512);
+            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 1);
 
             float[] withJitter = AddJitter(match);
 
