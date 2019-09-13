@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Collections.Generic;
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
@@ -9,7 +10,6 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
 
@@ -79,6 +79,50 @@
                 double collisions = (double) (l - hashPerTable) / l;
                 Assert.IsTrue(collisions <= 0.01d, $"Less than 1% of collisions across 100K hashes: {collisions}");
             }
+        }
+
+        [Test]
+        [Ignore("Not yet finalized")]
+        public void ShouldBeAbleToControlReturnedCandidatesWithThresholdParameter()
+        {
+            int l = 25, k = 4, width = 128, height = 72;
+
+            var hashingConfig = new DefaultHashingConfig
+                                {
+                                    Width = width, Height = height, NumberOfLSHTables = l, NumberOfMinHashesPerTable = k
+                                };
+
+            var lsh = new LocalitySensitiveHashingAlgorithm(MinHashService.MaxEntropy);
+
+            double[] howSimilars = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
+            double[] retainTopWavelets = { 1 };
+
+            int simulations = 1000;
+            foreach (double retain in retainTopWavelets)
+            {
+                foreach (double howSimilar in howSimilars)
+                {
+                    int topWavelets = (int)(retain * width * height);
+                    var agreeOn = new List<int>();
+                    for (int i = 0; i < simulations; ++i)
+                    {
+                        var arrays = TestUtilities.GenerateSimilarFingerprints(howSimilar, topWavelets, width * height * 2);
+                        var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), hashingConfig, Enumerable.Empty<string>());
+                        var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), hashingConfig, Enumerable.Empty<string>());
+                        int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
+                        agreeOn.Add(agreeCount);
+                    }
+
+                    Console.WriteLine($"Retain: {retain: 0.000}, Similarity: {howSimilar: 0.00}, Avg. Table Matches {agreeOn.Average(): 0.000}");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        private int AgreeOn(int[] x, int[] y)
+        {
+            return x.Where((t, i) => t == y[i]).Count();
         }
     }
 }

@@ -12,6 +12,16 @@
             this.permutations = permutations;
         }
 
+        /// <summary>
+        ///  Old permutations, not used anymore
+        /// </summary>
+        public static MinHashService Default { get; } = new MinHashService(new DefaultPermutations());
+
+        /// <summary>
+        ///  Max entropy permutations
+        /// </summary>
+        public static MinHashService MaxEntropy { get; } = new MinHashService(new MaxEntropyPermutations());
+
         public int PermutationsCount
         {
             get

@@ -17,8 +17,6 @@
     [TestFixture]
     public class MinHashAlgorithmTest
     {
-        private readonly LocalitySensitiveHashingAlgorithm lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()));
-
         [Test]
         public void ShouldNotIdentifyTooManyHashesOnLastPosition()
         {
@@ -30,7 +28,7 @@
             Assert.AreEqual(255, maxIndex);
             for (int i = 0; i < 50000; ++i)
             {
-                var schema = GenerateRandom(random, 200, 128, 32);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 byte[] hashes = minHash.Hash(schema, 25 * 4);
                 int count = hashes.Count(last => last == maxIndex);
                 counts.Add(count);
@@ -49,11 +47,11 @@
             var permutations = new AdaptivePermutations(100, 128, 32);
             var minHash = new ExtendedMinHashService(permutations);
             var counts = new List<int>();
-            int maxIndex = permutations.GetPermutations().First().Length;
+            int maxIndex = permutations.IndexesPerPermutation;
             Assert.AreEqual(128 * 32 * 2, maxIndex);
             for (int i = 0; i < 50000; ++i)
             {
-                var schema = GenerateRandom(random, 200, 128, 32);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 int[] hashes = minHash.Hash(schema, 25 * 4);
                 int count = hashes.Count(last => last == maxIndex);
                 counts.Add(count);
@@ -76,7 +74,7 @@
             int simulationRuns = 20000, agreeOn = 0;
             for (int i = 0; i < simulationRuns; ++i)
             {
-                var arrays = GenerateVectors(howSimilarAreVectors, topWavelets, vectorLength);
+                var arrays = TestUtilities.GenerateSimilarFingerprints(howSimilarAreVectors, topWavelets, vectorLength);
                 Assert.AreEqual(topWavelets, arrays.Item1.TrueCounts());
                 Assert.AreEqual(topWavelets, arrays.Item2.TrueCounts());
                 agreeOn += arrays.Item1.AgreeOn(arrays.Item2);
@@ -84,11 +82,7 @@
             }
 
             double averageSimilarityOnTrueBits = (double)agreeOn / simulationRuns;
-            Assert.AreEqual(
-                averageSimilarityOnTrueBits,
-                howSimilarAreVectors * topWavelets,
-                1.0,
-                "Actual Average Similarity on True bits: " + averageSimilarityOnTrueBits);
+            Assert.AreEqual(averageSimilarityOnTrueBits, howSimilarAreVectors * topWavelets, 1.0, $"Actual Average Similarity on True bits: {averageSimilarityOnTrueBits}");
 
             // values that match are counted one time, values that don't count twice (1 0 | 1 0) - don't match on 2 bits, even though they are generated from 1 wavelet
             double jaccardSimilarity = (howSimilarAreVectors * topWavelets) / ((2 * topWavelets) - (howSimilarAreVectors * topWavelets));
@@ -98,10 +92,11 @@
         [Test]
         public void ShouldMatchAccordingToTheTheory()
         {
+            var lsh = new LocalitySensitiveHashingAlgorithm(new MinHashService(new DefaultPermutations()));
             int bands = 25; // segments
             int rows = 4;
             int topWavelets = 200;
-            int vectorLength = 8192;
+            int vectorLength = 128 * 32 * 2;
 
             var hashingConfig = new DefaultHashingConfig();
 
@@ -121,7 +116,7 @@
                 int atLeastOneCandidateFound = 0;
                 for (int j = 0; j < simulationRuns; ++j)
                 {
-                    var arrays = GenerateVectors(howSimilar, topWavelets, vectorLength);
+                    var arrays = TestUtilities.GenerateSimilarFingerprints(howSimilar, topWavelets, vectorLength);
                     var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), hashingConfig, new List<string>());
                     var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), hashingConfig, new List<string>());
                     int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
@@ -145,11 +140,7 @@
 
             for (int i = 0; i < howSimilars.Length; ++i)
             {
-                Console.WriteLine("{0,5:0.0000}{1,20:0.0000}{2,18:0.0000}{3,20:0.0000}",
-                        howSimilars[i],
-                        probabilityOfAMatch[i],
-                        atLeastOneCandidateFounds[i],
-                        avgCandidatesFound[i]);
+                Console.WriteLine("{0,5:0.0000}{1,20:0.0000}{2,18:0.0000}{3,20:0.0000}", howSimilars[i], probabilityOfAMatch[i], atLeastOneCandidateFounds[i], avgCandidatesFound[i]);
             }
 
             for (int i = 0; i < howSimilars.Length; ++i)
@@ -161,80 +152,6 @@
         private int AgreeOn(int[] x, int[] y)
         {
             return x.Where((t, i) => t == y[i]).Count();
-        }
-
-        private TinyFingerprintSchema GenerateRandom(Random random, int topWavelets, int width, int height)
-        {
-            int length = width * height * 2;
-            var schema = new TinyFingerprintSchema(length);
-            for (int i = 0; i < topWavelets; ++i)
-            {
-                int index = random.Next(1, width * height);
-
-                if (index % 2 == 0)
-                    schema.SetTrueAt(index * 2);     // negative wavelet
-                else
-                    schema.SetTrueAt(index * 2 - 1); // positive wavelet
-            }
-
-            return schema;
-        }
-
-        private Tuple<TinyFingerprintSchema, TinyFingerprintSchema> GenerateVectors(double similarityIndex, int topWavelets, int length)
-        {
-            var random = new Random();
-
-            var first = new TinyFingerprintSchema(length);
-            var second = new TinyFingerprintSchema(length);
-            var unique = new HashSet<int>();
-            for (int i = 0; i < topWavelets; ++i)
-            {
-                int index = random.Next(length / 2);
-                if (unique.Contains(2 * index) || unique.Contains(2 * index + 1))
-                {
-                    i--;
-                    continue;
-                }
-
-                unique.Add(2 * index);
-                unique.Add(2 * index + 1);
-
-                float value = random.NextDouble() > 0.5 ? -1 : 1;
-                if (random.NextDouble() > similarityIndex)
-                {
-                    Disagree(value, first, index, second);
-                }
-                else
-                {
-                    Agree(value, first, index, second);
-                }
-            }
-
-            return Tuple.Create(first, second);
-        }
-
-        private void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
-        {
-            EncodeWavelet(value, first, index);
-            EncodeWavelet(value, second, index);
-        }
-
-        private void Disagree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
-        {
-            EncodeWavelet(value, first, index);
-            EncodeWavelet(-1 * value, second, index);
-        }
-
-        private void EncodeWavelet(float value, TinyFingerprintSchema array, int index)
-        {
-            if (value > 0)
-            {
-                array.SetTrueAt(index * 2);
-            }
-            else if (value < 0)
-            {
-                array.SetTrueAt((index * 2) + 1);
-            }
         }
     }
 }

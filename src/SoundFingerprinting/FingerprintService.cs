@@ -2,6 +2,7 @@ namespace SoundFingerprinting
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -80,5 +81,33 @@ namespace SoundFingerprinting
 
             return hashedFingerprints.ToList();
         }
+
+        public HashedFingerprint HashImage(float[][] frame, int sequenceNumber, FingerprintConfiguration configuration)
+        {
+            var frames = EncodeRowCols(frame);
+            int width = frame[0].Length, height = frame.Length;
+            waveletDecomposition.DecomposeImageInPlace(frames, height, width, configuration.HaarWaveletNorm);
+            ushort[] indexes = RangeUtils.GetRange(frames.Length);
+            var schema = fingerprintDescriptor.ExtractTopWavelets(frames, configuration.TopWavelets, indexes);
+            var fingerprint = new Fingerprint(schema, 0f, (uint)sequenceNumber);
+            return lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig, Enumerable.Empty<string>());
+        }
+
+        private float[] EncodeRowCols(float[][] image)
+        {
+            int width = image[0].Length;
+            int height = image.Length;
+            float[] floats = new float[width * height];
+            for (int row = 0; row < height /*rows*/; ++row)
+            {
+                for (int col = 0; col < width /*cols*/; ++col)
+                {
+                    floats[row * width + col] = image[row][col];
+                }
+            }
+
+            return floats;
+        }
+
     }
 }
