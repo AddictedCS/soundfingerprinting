@@ -8,8 +8,8 @@
 
     public interface IFingerprintService
     {
-        List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration);
+        IEnumerable<HashedFingerprint> CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration);
 
-        HashedFingerprint CreateFingerprintFromImage(float[][] image, int sequenceNumber, FingerprintConfiguration configuration);
+        IEnumerable<HashedFingerprint> CreateFingerprintsFromImageFrames(IEnumerable<Frame> imageFrames, FingerprintConfiguration configuration);
     }
 }

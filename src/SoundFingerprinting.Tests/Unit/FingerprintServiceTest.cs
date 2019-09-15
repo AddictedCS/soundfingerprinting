@@ -62,7 +62,7 @@
             localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig, It.IsAny<IEnumerable<string>>()))
                 .Returns(new HashedFingerprint(new int[0], 1, 0f, Enumerable.Empty<string>()));
 
-            var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
+            var fingerprints = fingerprintService.CreateFingerprintsFromAudioSamples(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)
                                                  .ToList();
 
@@ -82,17 +82,17 @@
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), configuration.TopWavelets, It.IsAny<ushort[]>())).Returns(
                     new TinyFingerprintSchema(1024));
 
-            var rawFingerprints = fingerprintService.CreateFingerprints(samples, configuration);
+            var rawFingerprints = fingerprintService.CreateFingerprintsFromAudioSamples(samples, configuration);
 
-            Assert.IsTrue(rawFingerprints.Count == 0);
+            Assert.IsTrue(!rawFingerprints.Any());
         }
 
-        private List<SoundFingerprinting.Data.Frame> GetDividedLogSpectrum()
+        private List<Frame> GetDividedLogSpectrum()
         {
-            var dividedLogSpectrum = new List<SoundFingerprinting.Data.Frame>();
+            var dividedLogSpectrum = new List<Frame>();
             for (uint index = 0; index < 4; index++)
             {
-                dividedLogSpectrum.Add(new SoundFingerprinting.Data.Frame(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928f * index, index));
+                dividedLogSpectrum.Add(new Frame(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928f * index, index));
             }
 
             return dividedLogSpectrum;

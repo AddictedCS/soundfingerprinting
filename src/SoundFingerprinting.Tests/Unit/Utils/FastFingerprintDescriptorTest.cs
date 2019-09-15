@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using NUnit.Framework;
@@ -82,8 +83,8 @@
             var configuration = new DefaultFingerprintConfiguration();
             for (int i = 0; i < runs; ++i)
             {
-                var x = fingerprintService.CreateFingerprints(audioSamples, configuration);
-                var y = fastFingerprintService.CreateFingerprints(audioSamples, configuration);
+                var x = fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
+                var y = fastFingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
 
                 for (int j = 0; j < x.Count; ++j)
                 {

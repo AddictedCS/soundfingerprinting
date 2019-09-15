@@ -43,22 +43,30 @@ namespace SoundFingerprinting
             new FastFingerprintDescriptor(), 
             new ImageService());
 
-        public List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
+        public IEnumerable<HashedFingerprint> CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
         { 
-            var spectrum = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            var fingerprints = CreateFingerprintsFromLogSpectrum(spectrum, configuration).ToList();
-            return HashFingerprints(fingerprints, configuration);
+            var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
+            return CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
+                .AsParallel()
+                .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig, configuration.Clusters));
+        }
+        
+        public IEnumerable<HashedFingerprint> CreateFingerprintsFromImageFrames(IEnumerable<Frame> imageFrames, FingerprintConfiguration configuration)
+        {
+            return CreateOriginalFingerprintsFromFrames(imageFrames, configuration)
+                .AsParallel()
+                .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig, configuration.Clusters));
         }
 
-        internal IEnumerable<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<Data.Frame> spectralImages, FingerprintConfiguration configuration)
+        internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
-            var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
-
-            Parallel.ForEach(spectralImages, () => new ushort[spectrumLength], (spectralImage, loop, cachedIndexes) =>
+            var images = frames.ToList();
+            var length = images.First().Length;
+            Parallel.ForEach(images, () => new ushort[length], (spectralImage, loop, cachedIndexes) =>
             {
                  waveletDecomposition.DecomposeImageInPlace(spectralImage.ImageRowCols, spectralImage.Rows, spectralImage.Cols, configuration.HaarWaveletNorm);
-                 RangeUtils.PopulateIndexes(spectrumLength, cachedIndexes);
+                 RangeUtils.PopulateIndexes(length, cachedIndexes);
                  var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.ImageRowCols, configuration.TopWavelets, cachedIndexes);
                  if (!image.IsSilence())
                  {
@@ -70,29 +78,6 @@ namespace SoundFingerprinting
             cachedIndexes => { });
 
             return fingerprints.ToList();
-        }
-
-        private List<HashedFingerprint> HashFingerprints(IEnumerable<Fingerprint> fingerprints, FingerprintConfiguration configuration)
-        {
-            var hashedFingerprints = new ConcurrentBag<HashedFingerprint>();
-            Parallel.ForEach(fingerprints, (fingerprint, state, index) =>
-            { 
-                var hashedFingerprint = lshAlgorithm.Hash(fingerprint, configuration.HashingConfig, configuration.Clusters);
-                hashedFingerprints.Add(hashedFingerprint);
-            });
-
-            return hashedFingerprints.ToList();
-        }
-
-        public HashedFingerprint CreateFingerprintFromImage(float[][] image, int sequenceNumber, FingerprintConfiguration configuration)
-        {
-            var frames =  imageService.Image2RowCols(image);
-            int width = image[0].Length, height = image.Length;
-            waveletDecomposition.DecomposeImageInPlace(frames, height, width, configuration.HaarWaveletNorm);
-            ushort[] indexes = RangeUtils.GetRange(frames.Length);
-            var schema = fingerprintDescriptor.ExtractTopWavelets(frames, configuration.TopWavelets, indexes);
-            var fingerprint = new Fingerprint(schema, 0f, (uint)sequenceNumber);
-            return lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig, Enumerable.Empty<string>());
         }
     }
 }

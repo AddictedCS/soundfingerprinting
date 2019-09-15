@@ -74,18 +74,11 @@ namespace SoundFingerprinting.Tests
         public static TinyFingerprintSchema GenerateRandomFingerprint(Random random, int topWavelets, int width, int height)
         {
             int length = width * height * 2;
-            var schema = new TinyFingerprintSchema(length);
-            for (int i = 0; i < topWavelets; ++i)
-            {
-                int index = random.Next(1, width * height);
-
-                if (index % 2 == 0)
-                    schema.SetTrueAt(index * 2);     // negative wavelet
-                else
-                    schema.SetTrueAt(index * 2 - 1); // positive wavelet
-            }
-
-            return schema;
+            int[] trues = Enumerable.Range(0, topWavelets)
+                .Select(entry => random.Next(0, length))
+                .ToArray();
+            
+            return new TinyFingerprintSchema(length).SetTrueAt(trues);
         }
 
         private static void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)

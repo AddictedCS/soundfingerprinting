@@ -1,7 +1,15 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using SoundFingerprinting.Image;
+
     public class Frame
     {
+        private static readonly IImageService ImageService = new ImageService();
+        
+        public Frame(float[][] image, float startsAt, uint sequenceNumber) : this(ImageService.Image2RowCols(image), (ushort)image.Length, (ushort)image[0].Length, startsAt, sequenceNumber)
+        {
+        }
+        
         public Frame(float[] imageRowCols, ushort rows, ushort cols, float startsAt, uint sequenceNumber)
         {
             ImageRowCols = imageRowCols;
@@ -20,5 +28,7 @@
         public uint SequenceNumber { get; }
 
         public float StartsAt { get; }
+
+        public int Length => ImageRowCols.Length;
     }
 }

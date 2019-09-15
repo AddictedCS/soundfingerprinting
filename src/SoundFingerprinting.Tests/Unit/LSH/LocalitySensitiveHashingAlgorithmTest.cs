@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
@@ -11,7 +12,6 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
-    using SoundFingerprinting.Utils;
 
     [TestFixture]
     public class LocalitySensitiveHashingAlgorithmTest
@@ -33,16 +33,14 @@
             var track = new ModelReference<int>(1);
             for (int i = 0; i < 100; ++i)
             {
-                int[] trues = Enumerable.Range(0, 200).Select(entry => random.Next(0, 8191)).ToArray();
-                var schema = new TinyFingerprintSchema(8192).SetTrueAt(trues);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config, Enumerable.Empty<string>());
                 storage.AddHashedFingerprint(hash, track);
             }
 
             for (int i = 0; i < 10; ++i)
             {
-                int[] trues = Enumerable.Range(0, 200).Select(entry => random.Next(0, 8191)).ToArray();
-                var schema = new TinyFingerprintSchema(8192).SetTrueAt(trues);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config, Enumerable.Empty<string>());
                 for (int j = 0; j < 25; ++j)
                 {
@@ -68,8 +66,7 @@
             int l = 100000;
             for (int i = 0; i < l; ++i)
             {
-                int[] trues = Enumerable.Range(0, 200).Select(entry => random.Next(0, 8191)).ToArray();
-                var schema = new TinyFingerprintSchema(8192).SetTrueAt(trues);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config, Enumerable.Empty<string>());
                 storage.AddHashedFingerprint(hash, track);
             }
@@ -95,14 +92,14 @@
 
             var lsh = LocalitySensitiveHashingAlgorithm.Instance;
 
-            double[] howSimilars     = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
+            double[] howSimilarly    = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
             int[] expectedThresholds = { 0, 0, 0, 2, 3, 5, 7, 11 };
 
-            var random = new Random(12345);
-            int simulations = 10000;
-            for(int r = 0; r < howSimilars.Length; ++r)
+            const int simulations = 10000;
+            Parallel.For(0, howSimilarly.Length, r =>    
             {
-                double howSimilar = howSimilars[r];
+                var random = new Random((r + 1) * 100);
+                double howSimilar = howSimilarly[r];
                 int topWavelets = (int)(0.035 * width * height);
                 var agreeOn = new List<int>();
                 var hammingDistances = new List<int>();
@@ -121,10 +118,10 @@
                 Assert.AreEqual(requested, hammingDistances.Average(), 1);
                 Assert.AreEqual(expectedThresholds[r], Math.Floor(agreeOn.Average()));
                 Console.WriteLine($"Similarity: {howSimilar: 0.00}, Avg. Table Matches {agreeOn.Average(): 0.000}");
-            }
+            });
         }
 
-        private int AgreeOn(int[] x, int[] y)
+        private static int AgreeOn(int[] x, int[] y)
         {
             return x.Where((t, i) => t == y[i]).Count();
         }
