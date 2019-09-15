@@ -9,6 +9,7 @@
     public interface IFingerprintService
     {
         List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration);
-        IEnumerable<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration);
+
+        HashedFingerprint CreateFingerprintFromImage(float[][] image, int sequenceNumber, FingerprintConfiguration configuration);
     }
 }

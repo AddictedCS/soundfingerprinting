@@ -9,6 +9,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
@@ -23,16 +24,16 @@
             var fcbWithOldFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
-                    new LocalitySensitiveHashingAlgorithm(),
+                    LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
-                    new FingerprintDescriptor()));
+                    new FingerprintDescriptor(), new ImageService()));
 
             var fcbWithFastFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
-                    new LocalitySensitiveHashingAlgorithm(),
+                    LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
-                    new FastFingerprintDescriptor()));
+                    new FastFingerprintDescriptor(), new ImageService()));
 
             var audioService = new SoundFingerprintingAudioService();
             var audioSamples = GetAudioSamples();
@@ -67,15 +68,15 @@
 
             var fingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
-                new LocalitySensitiveHashingAlgorithm(),
+                LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
-                new FingerprintDescriptor());
+                new FingerprintDescriptor(), new ImageService());
 
             var fastFingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
-                new LocalitySensitiveHashingAlgorithm(),
+                LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
-                new FastFingerprintDescriptor());
+                new FastFingerprintDescriptor(), new ImageService());
 
             int runs = 10;
             var configuration = new DefaultFingerprintConfiguration();

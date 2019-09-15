@@ -11,7 +11,6 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
-    using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
 
     [TestFixture]
@@ -22,7 +21,7 @@
         [Test]
         public void FingerprintsCantMatchUniformlyAtRandom()
         {
-            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm();
+            var lshAlgorithm = LocalitySensitiveHashingAlgorithm.Instance;
 
             var random = new Random();
 
@@ -56,7 +55,7 @@
         [Test]
         public void DistributionOfHashesHasToBeUniform()
         {
-            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm();
+            var lshAlgorithm = LocalitySensitiveHashingAlgorithm.Instance;
 
             var random = new Random();
 
@@ -94,7 +93,7 @@
                                     Width = width, Height = height, NumberOfLSHTables = l, NumberOfMinHashesPerTable = k
                                 };
 
-            var lsh = new LocalitySensitiveHashingAlgorithm();
+            var lsh = LocalitySensitiveHashingAlgorithm.Instance;
 
             double[] howSimilars     = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
             int[] expectedThresholds = { 0, 0, 0, 2, 3, 5, 7, 11 };

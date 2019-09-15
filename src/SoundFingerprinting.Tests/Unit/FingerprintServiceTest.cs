@@ -10,6 +10,7 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -22,6 +23,7 @@
         private Mock<ISpectrumService> spectrumService;
         private Mock<IWaveletDecomposition> waveletDecomposition;
         private Mock<ILocalitySensitiveHashingAlgorithm> localitySensitiveHashingAlgorithm;
+        private Mock<IImageService> imageService;
 
         [SetUp]
         public void SetUp()
@@ -30,11 +32,13 @@
             spectrumService = new Mock<ISpectrumService>(MockBehavior.Strict);
             waveletDecomposition = new Mock<IWaveletDecomposition>(MockBehavior.Strict);
             localitySensitiveHashingAlgorithm = new Mock<ILocalitySensitiveHashingAlgorithm>(MockBehavior.Strict);
+            imageService = new Mock<IImageService>(MockBehavior.Strict);
             fingerprintService = new FingerprintService(
                 spectrumService.Object,
                 localitySensitiveHashingAlgorithm.Object,
                 waveletDecomposition.Object,
-                fingerprintDescriptor.Object);
+                fingerprintDescriptor.Object,
+                imageService.Object);
         }
 
         [TearDown]

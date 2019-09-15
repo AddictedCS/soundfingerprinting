@@ -92,7 +92,7 @@
         [Test]
         public void ShouldMatchAccordingToTheTheory()
         {
-            var lsh = new LocalitySensitiveHashingAlgorithm();
+            var lsh = LocalitySensitiveHashingAlgorithm.Instance;
             int bands = 25; // segments
             int rows = 4;
             int topWavelets = 200;

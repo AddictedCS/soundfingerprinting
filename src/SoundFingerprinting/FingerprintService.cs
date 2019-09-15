@@ -9,8 +9,8 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
-    using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
@@ -20,24 +20,28 @@ namespace SoundFingerprinting
         private readonly IWaveletDecomposition waveletDecomposition;
         private readonly IFingerprintDescriptor fingerprintDescriptor;
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
+        private readonly IImageService imageService;
 
         internal FingerprintService(
             ISpectrumService spectrumService,
             ILocalitySensitiveHashingAlgorithm lshAlgorithm,
             IWaveletDecomposition waveletDecomposition,
-            IFingerprintDescriptor fingerprintDescriptor)
+            IFingerprintDescriptor fingerprintDescriptor,
+            IImageService imageService)
         {
             this.lshAlgorithm = lshAlgorithm;
             this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
+            this.imageService = imageService;
         }
 
         public static FingerprintService Instance { get; } = new FingerprintService(
             new SpectrumService(new LomontFFT(), new LogUtility()),
-            new LocalitySensitiveHashingAlgorithm(),
+            LocalitySensitiveHashingAlgorithm.Instance,
             new StandardHaarWaveletDecomposition(),
-            new FastFingerprintDescriptor());
+            new FastFingerprintDescriptor(), 
+            new ImageService());
 
         public List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration)
         { 
@@ -46,7 +50,7 @@ namespace SoundFingerprinting
             return HashFingerprints(fingerprints, configuration);
         }
 
-        public IEnumerable<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        internal IEnumerable<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
@@ -80,32 +84,15 @@ namespace SoundFingerprinting
             return hashedFingerprints.ToList();
         }
 
-        public HashedFingerprint HashImage(float[][] frame, int sequenceNumber, FingerprintConfiguration configuration)
+        public HashedFingerprint CreateFingerprintFromImage(float[][] image, int sequenceNumber, FingerprintConfiguration configuration)
         {
-            var frames = EncodeRowCols(frame);
-            int width = frame[0].Length, height = frame.Length;
+            var frames =  imageService.Image2RowCols(image);
+            int width = image[0].Length, height = image.Length;
             waveletDecomposition.DecomposeImageInPlace(frames, height, width, configuration.HaarWaveletNorm);
             ushort[] indexes = RangeUtils.GetRange(frames.Length);
             var schema = fingerprintDescriptor.ExtractTopWavelets(frames, configuration.TopWavelets, indexes);
             var fingerprint = new Fingerprint(schema, 0f, (uint)sequenceNumber);
             return lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig, Enumerable.Empty<string>());
         }
-
-        private float[] EncodeRowCols(float[][] image)
-        {
-            int width = image[0].Length;
-            int height = image.Length;
-            float[] floats = new float[width * height];
-            for (int row = 0; row < height /*rows*/; ++row)
-            {
-                for (int col = 0; col < width /*cols*/; ++col)
-                {
-                    floats[row * width + col] = image[row][col];
-                }
-            }
-
-            return floats;
-        }
-
     }
 }
