@@ -4,6 +4,8 @@ namespace SoundFingerprinting.Math
     {
         int CalculateHammingDistance(byte[] a, byte[] b);
 
+        int CalculateHammingDistance(bool[] a, bool[] b);
+
         int CalculateHammingSimilarity(byte[] a, byte[] b);
 
         int CalculateHammingSimilarity(int[] expected, int[] actual, int setBytesPerLong);
@@ -23,5 +25,6 @@ namespace SoundFingerprinting.Math
         ///   0 = 00
         /// </remarks>
         double CalculateJaccardSimilarity(bool[] x, bool[] y);
+
     }
 }

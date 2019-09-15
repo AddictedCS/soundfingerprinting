@@ -48,9 +48,8 @@ namespace SoundFingerprinting.Tests
             }
         }
 
-        public static Tuple<TinyFingerprintSchema, TinyFingerprintSchema> GenerateSimilarFingerprints(double similarityIndex, int topWavelets, int length)
+        public static Tuple<TinyFingerprintSchema, TinyFingerprintSchema> GenerateSimilarFingerprints(Random random, double similarityIndex, int topWavelets, int length)
         {
-            var random = new Random();
             var first = new TinyFingerprintSchema(length);
             var second = new TinyFingerprintSchema(length);
             var indexesTopWavelets = Enumerable.Range(0, length / 2)

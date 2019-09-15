@@ -10,12 +10,15 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
+    using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
 
     [TestFixture]
     public class LocalitySensitiveHashingAlgorithmTest
     {
+        private readonly ISimilarityUtility similarity = new SimilarityUtility();
+
         [Test]
         public void FingerprintsCantMatchUniformlyAtRandom()
         {
@@ -82,7 +85,6 @@
         }
 
         [Test]
-        [Ignore("Not yet finalized")]
         public void ShouldBeAbleToControlReturnedCandidatesWithThresholdParameter()
         {
             int l = 25, k = 4, width = 128, height = 72;
@@ -94,29 +96,32 @@
 
             var lsh = new LocalitySensitiveHashingAlgorithm(MinHashService.MaxEntropy);
 
-            double[] howSimilars = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
-            double[] retainTopWavelets = { 1 };
+            double[] howSimilars     = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
+            int[] expectedThresholds = { 0, 0, 0, 2, 3, 5, 7, 11 };
 
-            int simulations = 1000;
-            foreach (double retain in retainTopWavelets)
+            var random = new Random(12345);
+            int simulations = 10000;
+            for(int r = 0; r < howSimilars.Length; ++r)
             {
-                foreach (double howSimilar in howSimilars)
+                double howSimilar = howSimilars[r];
+                int topWavelets = (int)(0.035 * width * height);
+                var agreeOn = new List<int>();
+                var hammingDistances = new List<int>();
+                for (int i = 0; i < simulations; ++i)
                 {
-                    int topWavelets = (int)(retain * width * height);
-                    var agreeOn = new List<int>();
-                    for (int i = 0; i < simulations; ++i)
-                    {
-                        var arrays = TestUtilities.GenerateSimilarFingerprints(howSimilar, topWavelets, width * height * 2);
-                        var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), hashingConfig, Enumerable.Empty<string>());
-                        var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), hashingConfig, Enumerable.Empty<string>());
-                        int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
-                        agreeOn.Add(agreeCount);
-                    }
-
-                    Console.WriteLine($"Retain: {retain: 0.000}, Similarity: {howSimilar: 0.00}, Avg. Table Matches {agreeOn.Average(): 0.000}");
+                    var fingerprints = TestUtilities.GenerateSimilarFingerprints(random, howSimilar, topWavelets, width * height * 2);
+                    int hammingDistance = similarity.CalculateHammingDistance(fingerprints.Item1.ToBools(), fingerprints.Item2.ToBools());
+                    hammingDistances.Add(hammingDistance);
+                    var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0), hashingConfig, Enumerable.Empty<string>());
+                    var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0), hashingConfig, Enumerable.Empty<string>());
+                    int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
+                    agreeOn.Add(agreeCount);
                 }
 
-                Console.WriteLine();
+                int requested = (int)((1 - howSimilar) * topWavelets * 2);
+                Assert.AreEqual(requested, hammingDistances.Average(), 1);
+                Assert.AreEqual(expectedThresholds[r], Math.Floor(agreeOn.Average()));
+                Console.WriteLine($"Similarity: {howSimilar: 0.00}, Avg. Table Matches {agreeOn.Average(): 0.000}");
             }
         }
 

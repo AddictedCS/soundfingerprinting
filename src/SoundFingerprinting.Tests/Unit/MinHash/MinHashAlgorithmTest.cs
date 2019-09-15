@@ -12,7 +12,6 @@
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
-    using SoundFingerprinting.Utils;
 
     [TestFixture]
     public class MinHashAlgorithmTest
@@ -72,9 +71,10 @@
 
             double similarity = 0;
             int simulationRuns = 20000, agreeOn = 0;
+            var random = new Random(1);
             for (int i = 0; i < simulationRuns; ++i)
             {
-                var arrays = TestUtilities.GenerateSimilarFingerprints(howSimilarAreVectors, topWavelets, vectorLength);
+                var arrays = TestUtilities.GenerateSimilarFingerprints(random, howSimilarAreVectors, topWavelets, vectorLength);
                 Assert.AreEqual(topWavelets, arrays.Item1.TrueCounts());
                 Assert.AreEqual(topWavelets, arrays.Item2.TrueCounts());
                 agreeOn += arrays.Item1.AgreeOn(arrays.Item2);
@@ -107,6 +107,7 @@
 
             Parallel.For(0, howSimilars.Length, i =>
             {
+                var random = new Random(i);
                 double howSimilar = howSimilars[i];
                 double jaccardSimilarity = howSimilar * topWavelets / (2 * topWavelets - howSimilar * topWavelets);
                 probabilityOfAMatch[i] = Math.Round(1 - Math.Pow(1 - Math.Pow(jaccardSimilarity, rows), bands), 4);
@@ -116,7 +117,7 @@
                 int atLeastOneCandidateFound = 0;
                 for (int j = 0; j < simulationRuns; ++j)
                 {
-                    var arrays = TestUtilities.GenerateSimilarFingerprints(howSimilar, topWavelets, vectorLength);
+                    var arrays = TestUtilities.GenerateSimilarFingerprints(random, howSimilar, topWavelets, vectorLength);
                     var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), hashingConfig, new List<string>());
                     var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), hashingConfig, new List<string>());
                     int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
