@@ -16,13 +16,12 @@
         private const int LargePrime = 433494437;
 
         private readonly int[] A = { 142212803, 120936273, 235649938, 212405735, 369800342, 12467216, 400235300, 133796086 };
-        private readonly IMinHashService<byte> minHashService;
+        private readonly IMinHashService<byte> minHashService = MinHashService.MaxEntropy;
         private readonly IHashConverter hashConverter = HashConverter.Instance;
         private readonly ConcurrentDictionary<int, IMinHashService<int>> extendedMinHashServices;
 
-        internal LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService)
+        internal LocalitySensitiveHashingAlgorithm()
         {
-            this.minHashService = minHashService;
             extendedMinHashServices = new ConcurrentDictionary<int, IMinHashService<int>>();
         }
 

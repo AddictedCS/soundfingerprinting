@@ -22,7 +22,7 @@
         [Test]
         public void FingerprintsCantMatchUniformlyAtRandom()
         {
-            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()));
+            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm();
 
             var random = new Random();
 
@@ -56,7 +56,7 @@
         [Test]
         public void DistributionOfHashesHasToBeUniform()
         {
-            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations()));
+            var lshAlgorithm = new LocalitySensitiveHashingAlgorithm();
 
             var random = new Random();
 
@@ -94,7 +94,7 @@
                                     Width = width, Height = height, NumberOfLSHTables = l, NumberOfMinHashesPerTable = k
                                 };
 
-            var lsh = new LocalitySensitiveHashingAlgorithm(MinHashService.MaxEntropy);
+            var lsh = new LocalitySensitiveHashingAlgorithm();
 
             double[] howSimilars     = { 0.3, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9 };
             int[] expectedThresholds = { 0, 0, 0, 2, 3, 5, 7, 11 };

@@ -2,7 +2,6 @@ namespace SoundFingerprinting
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -11,7 +10,6 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -37,7 +35,7 @@ namespace SoundFingerprinting
 
         public static FingerprintService Instance { get; } = new FingerprintService(
             new SpectrumService(new LomontFFT(), new LogUtility()),
-            new LocalitySensitiveHashingAlgorithm(new MinHashService(new MaxEntropyPermutations())),
+            new LocalitySensitiveHashingAlgorithm(),
             new StandardHaarWaveletDecomposition(),
             new FastFingerprintDescriptor());
 
