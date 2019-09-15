@@ -1,17 +1,17 @@
 ﻿namespace SoundFingerprinting.Data
 {
-    public class SpectralImage
+    public class Frame
     {
-        public SpectralImage(float[] image, ushort rows, ushort cols, float startsAt, uint sequenceNumber)
+        public Frame(float[] imageRowCols, ushort rows, ushort cols, float startsAt, uint sequenceNumber)
         {
-            Image = image;
+            ImageRowCols = imageRowCols;
             Rows = rows;
             Cols = cols;
             StartsAt = startsAt;
             SequenceNumber = sequenceNumber;
         }
 
-        public float[] Image { get; }
+        public float[] ImageRowCols { get; }
 
         public ushort Rows { get; }
 

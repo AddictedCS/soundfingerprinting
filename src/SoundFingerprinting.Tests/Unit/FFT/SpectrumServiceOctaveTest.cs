@@ -49,7 +49,7 @@
 
             foreach (var image in spectralImages)
             {
-                float[] spectrum = image.Image;
+                float[] spectrum = image.ImageRowCols;
                 for (int row = 0; row < image.Rows; ++row)
                 {
                     for (int col = 0; col < image.Cols; ++col)

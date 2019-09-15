@@ -80,7 +80,7 @@
             var spectrumService = new SpectrumService(new LomontFFT(), new LogUtility());
 
             var spectrums = spectrumService.CreateLogSpectrogram(GetAudioSamples(), new DefaultSpectrogramConfig())
-                .Select(spectrum => spectrum.Image)
+                .Select(spectrum => spectrum.ImageRowCols)
                 .ToList();
 
             var modelService = new InMemoryModelService();

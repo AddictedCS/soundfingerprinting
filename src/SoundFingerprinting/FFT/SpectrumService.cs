@@ -20,13 +20,13 @@
             this.logUtility = logUtility;
         }
 
-        public List<SpectralImage> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration)
+        public List<Frame> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration)
         {
             int wdftSize = configuration.WdftSize;
             int width = (audioSamples.Samples.Length - wdftSize) / configuration.Overlap;
             if (width < 1)
             {
-                return new List<SpectralImage>();
+                return new List<Frame>();
             }
 
             float[] frames = new float[width * configuration.LogBins];
@@ -50,7 +50,7 @@
             return images;
         }
 
-        private void ScaleFullSpectrum(IEnumerable<SpectralImage> spectralImages, SpectrogramConfig configuration)
+        private void ScaleFullSpectrum(IEnumerable<Frame> spectralImages, SpectrogramConfig configuration)
         {
             Parallel.ForEach(spectralImages, image =>
             {
@@ -58,23 +58,23 @@
             });
         }
 
-        private void ScaleSpectrum(SpectralImage spetralImage, Func<float, float, float> scalingFunction)
+        private void ScaleSpectrum(Frame spetralFrame, Func<float, float, float> scalingFunction)
         {
-            float max = spetralImage.Image.Max(f => Math.Abs(f));
+            float max = spetralFrame.ImageRowCols.Max(f => Math.Abs(f));
 
-            for (int i = 0; i < spetralImage.Image.Length; ++i)
+            for (int i = 0; i < spetralFrame.ImageRowCols.Length; ++i)
             {
-                spetralImage.Image[i] = scalingFunction(spetralImage.Image[i], max);
+                spetralFrame.ImageRowCols[i] = scalingFunction(spetralFrame.ImageRowCols[i], max);
             }
         }
 
-        public List<SpectralImage> CutLogarithmizedSpectrum(float[] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
+        public List<Frame> CutLogarithmizedSpectrum(float[] logarithmizedSpectrum, int sampleRate, SpectrogramConfig configuration)
         {
             var strideBetweenConsecutiveImages = configuration.Stride;
             int overlap = configuration.Overlap;
             int index = GetFrequencyIndexLocationOfAudioSamples(strideBetweenConsecutiveImages.FirstStride, overlap);
             int numberOfLogBins = configuration.LogBins;
-            var spectralImages = new List<SpectralImage>();
+            var spectralImages = new List<Frame>();
 
             int width = logarithmizedSpectrum.Length / numberOfLogBins;
             ushort fingerprintImageLength = configuration.ImageLength;
@@ -85,7 +85,7 @@
                 float[] spectralImage = new float[fingerprintImageLength * numberOfLogBins]; 
                 Buffer.BlockCopy(logarithmizedSpectrum, sizeof(float) * index * numberOfLogBins, spectralImage,  0, fullLength * sizeof(float));
                 float startsAt = index * ((float)overlap / sampleRate);
-                spectralImages.Add(new SpectralImage(spectralImage, fingerprintImageLength, (ushort)numberOfLogBins, startsAt, sequenceNumber));
+                spectralImages.Add(new Frame(spectralImage, fingerprintImageLength, (ushort)numberOfLogBins, startsAt, sequenceNumber));
                 index += GetFrequencyIndexLocationOfAudioSamples(strideBetweenConsecutiveImages.NextStride, overlap);
                 sequenceNumber++;
             }

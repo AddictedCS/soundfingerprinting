@@ -87,12 +87,12 @@
             Assert.IsTrue(rawFingerprints.Count == 0);
         }
 
-        private List<SpectralImage> GetDividedLogSpectrum()
+        private List<SoundFingerprinting.Data.Frame> GetDividedLogSpectrum()
         {
-            var dividedLogSpectrum = new List<SpectralImage>();
+            var dividedLogSpectrum = new List<SoundFingerprinting.Data.Frame>();
             for (uint index = 0; index < 4; index++)
             {
-                dividedLogSpectrum.Add(new SpectralImage(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928f * index, index));
+                dividedLogSpectrum.Add(new SoundFingerprinting.Data.Frame(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928f * index, index));
             }
 
             return dividedLogSpectrum;

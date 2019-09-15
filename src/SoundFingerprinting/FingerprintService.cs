@@ -50,16 +50,16 @@ namespace SoundFingerprinting
             return HashFingerprints(fingerprints, configuration);
         }
 
-        internal IEnumerable<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<SpectralImage> spectralImages, FingerprintConfiguration configuration)
+        internal IEnumerable<Fingerprint> CreateFingerprintsFromLogSpectrum(IEnumerable<Data.Frame> spectralImages, FingerprintConfiguration configuration)
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var spectrumLength = configuration.SpectrogramConfig.ImageLength * configuration.SpectrogramConfig.LogBins;
 
             Parallel.ForEach(spectralImages, () => new ushort[spectrumLength], (spectralImage, loop, cachedIndexes) =>
             {
-                 waveletDecomposition.DecomposeImageInPlace(spectralImage.Image, spectralImage.Rows, spectralImage.Cols, configuration.HaarWaveletNorm);
+                 waveletDecomposition.DecomposeImageInPlace(spectralImage.ImageRowCols, spectralImage.Rows, spectralImage.Cols, configuration.HaarWaveletNorm);
                  RangeUtils.PopulateIndexes(spectrumLength, cachedIndexes);
-                 var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.Image, configuration.TopWavelets, cachedIndexes);
+                 var image = fingerprintDescriptor.ExtractTopWavelets(spectralImage.ImageRowCols, configuration.TopWavelets, cachedIndexes);
                  if (!image.IsSilence())
                  {
                      fingerprints.Add(new Fingerprint(image, spectralImage.StartsAt, spectralImage.SequenceNumber));
