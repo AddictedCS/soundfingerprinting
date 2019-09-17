@@ -1,7 +1,11 @@
 ﻿namespace SoundFingerprinting.Data
 {
+    using System;
+    using ProtoBuf;
     using SoundFingerprinting.Image;
 
+    [Serializable]
+    [ProtoContract]
     public class Frame
     {
         private static readonly IImageService ImageService = new ImageService();
@@ -19,10 +23,18 @@
             SequenceNumber = sequenceNumber;
         }
 
+        private Frame()
+        {
+            // no op, left for proto-buf
+        }
+
+        [ProtoMember(1)]
         public float[] ImageRowCols { get; }
 
+        [ProtoMember(2)]
         public ushort Rows { get; }
 
+        [ProtoMember(3)]
         public ushort Cols { get; }
 
         public uint SequenceNumber { get; }
