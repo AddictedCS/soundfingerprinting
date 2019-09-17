@@ -4,14 +4,14 @@
 
     public class Fingerprint
     {
-        public Fingerprint(IEncodedFingerprintSchema signature, float startAt, uint sequenceNumber)
+        public Fingerprint(IEncodedFingerprintSchema schema, float startAt, uint sequenceNumber)
         {
-            Signature = signature;
+            Schema = schema;
             StartsAt = startAt;
             SequenceNumber = sequenceNumber;
         }
 
-        public IEncodedFingerprintSchema Signature { get; }
+        public IEncodedFingerprintSchema Schema { get; }
 
         public uint SequenceNumber { get; }
 

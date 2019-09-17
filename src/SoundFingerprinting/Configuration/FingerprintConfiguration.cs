@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
     using System.Collections.Generic;
-
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
 
     public abstract class FingerprintConfiguration
@@ -74,5 +74,10 @@ namespace SoundFingerprinting.Configuration
         ///  Gets or sets fingerprint length in seconds
         /// </summary>
         internal double FingerprintLengthInSeconds { get; set; }
+
+        /// <summary>
+        ///  Gets or sets the transformation for the original point that needs to be saved for second level cross-check
+        /// </summary>
+        public Func<Frame, byte[]> OriginalPointSaveTransform { get; set; }
     }
 }

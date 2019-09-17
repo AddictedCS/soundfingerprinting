@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Configuration
 {
+    using System;
     using System.Linq;
 
     public class DefaultFingerprintConfiguration : FingerprintConfiguration
@@ -13,6 +14,7 @@ namespace SoundFingerprinting.Configuration
             HaarWaveletNorm = System.Math.Sqrt(2);
             Clusters = Enumerable.Empty<string>();
             FingerprintLengthInSeconds = (double)SamplesPerFingerprint / SampleRate;
+            OriginalPointSaveTransform = frame => Array.Empty<byte>();
         }
     }
 }

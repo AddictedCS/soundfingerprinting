@@ -9,12 +9,19 @@
     [ProtoContract]
     public class HashedFingerprint 
     {
-        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters)
+        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters) 
+            : this(hashBins, sequenceNumber, startsAt, clusters, Array.Empty<byte>())
+        {
+            
+        }
+        
+        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters, byte[] originalPoint)
         {
             HashBins = hashBins;
             SequenceNumber = sequenceNumber;
             StartsAt = startsAt;
             Clusters = clusters;
+            OriginalPoint = originalPoint;
         }
 
         private HashedFingerprint()
@@ -33,5 +40,8 @@
 
         [ProtoMember(4)]
         public IEnumerable<string> Clusters { get; }
+        
+        [ProtoMember(5)] 
+        public byte[] OriginalPoint { get; set; }
     }
 }

@@ -28,19 +28,19 @@
 
         public DateTime RelativeTo { get; }
 
-        public void Add(HashedFingerprint hashedFingerprint, SubFingerprintData subFingerprintData, int hammingSimilarity)
+        public void Add(HashedFingerprint queryFingerprint, SubFingerprintData resultSubFingerprint, int hammingSimilarity)
         {
             lock (lockObject)
             {
-                similaritySumPerTrack.AddOrUpdate(subFingerprintData.TrackReference, hammingSimilarity, (key, oldHamming) => oldHamming + hammingSimilarity);
-                var matchedWith = new MatchedWith(hashedFingerprint.StartsAt, subFingerprintData.SequenceAt, hammingSimilarity);
-                if (!matches.TryGetValue(hashedFingerprint.SequenceNumber, out var matched))
+                similaritySumPerTrack.AddOrUpdate(resultSubFingerprint.TrackReference, hammingSimilarity, (key, oldHamming) => oldHamming + hammingSimilarity);
+                var matchedWith = new MatchedWith(queryFingerprint.StartsAt, resultSubFingerprint.SequenceAt, hammingSimilarity);
+                if (!matches.TryGetValue(queryFingerprint.SequenceNumber, out var matched))
                 {
-                    matches.Add(hashedFingerprint.SequenceNumber, new Candidates(subFingerprintData.TrackReference, matchedWith));
+                    matches.Add(queryFingerprint.SequenceNumber, new Candidates(resultSubFingerprint.TrackReference, matchedWith));
                 }
                 else
                 {
-                    matched.AddNewMatch(subFingerprintData.TrackReference, matchedWith);
+                    matched.AddNewMatch(resultSubFingerprint.TrackReference, matchedWith);
                 }
             }
         }

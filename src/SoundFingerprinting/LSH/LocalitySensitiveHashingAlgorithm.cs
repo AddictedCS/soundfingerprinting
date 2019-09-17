@@ -33,7 +33,7 @@
             int numberOfHashTables = hashingConfig.NumberOfLSHTables;
             int numberOfHashKeysPerTable = hashingConfig.NumberOfMinHashesPerTable;
             int hashBuckets = hashingConfig.HashBuckets;
-            byte[] subFingerprint = minHashService.Hash(fingerprint.Signature, numberOfHashTables * numberOfHashKeysPerTable);
+            byte[] subFingerprint = minHashService.Hash(fingerprint.Schema, numberOfHashTables * numberOfHashKeysPerTable);
             int[] hashBins = GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable, hashBuckets);
             return new HashedFingerprint(hashBins, fingerprint.SequenceNumber, fingerprint.StartsAt, clusters);
         }
@@ -44,7 +44,7 @@
             int width = hashingConfig.Width;
             int height = hashingConfig.Height;
             var extendedMinHashService = extendedMinHashServices.GetOrAdd(width * height, key => new ExtendedMinHashService(new AdaptivePermutations(n, width, height)));
-            int[] minHashes = extendedMinHashService.Hash(fingerprint.Signature, n);
+            int[] minHashes = extendedMinHashService.Hash(fingerprint.Schema, n);
             int[] hashed = HashMinHashes(minHashes, hashingConfig.NumberOfLSHTables, hashingConfig.NumberOfMinHashesPerTable);
             return new HashedFingerprint(hashed, fingerprint.SequenceNumber, fingerprint.StartsAt, clusters);
         }
