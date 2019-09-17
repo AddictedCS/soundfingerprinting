@@ -44,7 +44,7 @@ namespace SoundFingerprinting.Tests
         {
             for (int i = 0; i < queryAt.Length; ++i)
             {
-                yield return new MatchedWith(queryAt[i], resultAt[i], 100);
+                yield return new MatchedWith((uint)i, queryAt[i], (uint)i, resultAt[i], 100);
             }
         }
 

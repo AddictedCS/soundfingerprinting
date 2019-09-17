@@ -6,6 +6,6 @@ namespace SoundFingerprinting.Query
 
     public interface IScoreAlgorithm
     {
-        int GetScore(HashedFingerprint queryPoint, SubFingerprintData databasePoint, QueryConfiguration queryConfiguration);
+        double GetScore(HashedFingerprint queryPoint, SubFingerprintData databasePoint, QueryConfiguration queryConfiguration);
     }
 }

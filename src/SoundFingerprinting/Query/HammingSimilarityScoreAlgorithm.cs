@@ -14,7 +14,7 @@ namespace SoundFingerprinting.Query
             this.similarityUtility = similarityUtility;
         }
 
-        public int GetScore(HashedFingerprint queryPoint, SubFingerprintData databasePoint, QueryConfiguration queryConfiguration)
+        public double GetScore(HashedFingerprint queryPoint, SubFingerprintData databasePoint, QueryConfiguration queryConfiguration)
         {
             int hashesPerTable = queryConfiguration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
             return similarityUtility.CalculateHammingSimilarity(queryPoint.HashBins, databasePoint.Hashes, hashesPerTable);

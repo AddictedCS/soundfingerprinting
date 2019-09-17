@@ -117,12 +117,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
             const int hammingSimilarity = 100;
             float startAt = 0f;
             var matches = new List<MatchedWith>();
-            
+            uint index = 0;
             while (startAt <= length)
             {
-                var match = new MatchedWith(startQueryAt + startAt, startTrackAt + startAt, hammingSimilarity);
+                var match = new MatchedWith(index, startQueryAt + startAt, index, startTrackAt + startAt, hammingSimilarity);
                 matches.Add(match);
                 startAt += stride;
+                index++;
             }
             
             return new Matches(matches);

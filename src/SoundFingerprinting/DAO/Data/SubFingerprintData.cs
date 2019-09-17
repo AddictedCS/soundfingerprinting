@@ -12,7 +12,7 @@
     public class SubFingerprintData
     {
         public SubFingerprintData(int[] hashes, uint sequenceNumber, float sequenceAt, IEnumerable<string> clusters, IModelReference subFingerprintReference, IModelReference trackReference) 
-            : this(hashes, sequenceNumber, sequenceAt, clusters, subFingerprintReference, trackReference, Array.Empty<byte>())
+            : this(hashes, sequenceNumber, sequenceAt, clusters, subFingerprintReference, trackReference, new byte[0])
         {
         }
         

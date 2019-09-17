@@ -14,33 +14,33 @@
         private readonly object lockObject = new object();
 
         private readonly SortedDictionary<uint, Candidates> matches;
-        private readonly ConcurrentDictionary<IModelReference, int> similaritySumPerTrack;
+        private readonly ConcurrentDictionary<IModelReference, double> similaritySumPerTrack;
 
         public GroupedQueryResults(double queryLength, DateTime relativeTo)
         {
             RelativeTo = relativeTo;
             QueryLength = queryLength;
             matches = new SortedDictionary<uint, Candidates>();
-            similaritySumPerTrack = new ConcurrentDictionary<IModelReference, int>();
+            similaritySumPerTrack = new ConcurrentDictionary<IModelReference, double>();
         }
 
         public double QueryLength { get; }
 
         public DateTime RelativeTo { get; }
 
-        public void Add(HashedFingerprint queryFingerprint, SubFingerprintData resultSubFingerprint, int hammingSimilarity)
+        public void Add(HashedFingerprint queryFingerprint, SubFingerprintData resultSubFingerprint, double score)
         {
             lock (lockObject)
             {
-                similaritySumPerTrack.AddOrUpdate(resultSubFingerprint.TrackReference, hammingSimilarity, (key, oldHamming) => oldHamming + hammingSimilarity);
-                var matchedWith = new MatchedWith(queryFingerprint.StartsAt, resultSubFingerprint.SequenceAt, hammingSimilarity);
-                if (!matches.TryGetValue(queryFingerprint.SequenceNumber, out var matched))
+                similaritySumPerTrack.AddOrUpdate(resultSubFingerprint.TrackReference, score, (key, old) => old + score);
+                var matchedWith = new MatchedWith(queryFingerprint.SequenceNumber, queryFingerprint.StartsAt, resultSubFingerprint.SequenceNumber, resultSubFingerprint.SequenceAt, score);
+                if (!matches.TryGetValue(queryFingerprint.SequenceNumber, out var candidates))
                 {
                     matches.Add(queryFingerprint.SequenceNumber, new Candidates(resultSubFingerprint.TrackReference, matchedWith));
                 }
                 else
                 {
-                    matched.AddNewMatch(resultSubFingerprint.TrackReference, matchedWith);
+                    candidates.AddNewMatch(resultSubFingerprint.TrackReference, matchedWith);
                 }
             }
         }
@@ -70,9 +70,9 @@
             }
         }
 
-        public int GetHammingSimilaritySumForTrack(IModelReference trackReference)
+        public double GetHammingSimilaritySumForTrack(IModelReference trackReference)
         {
-            if (similaritySumPerTrack.TryGetValue(trackReference, out int sum))
+            if (similaritySumPerTrack.TryGetValue(trackReference, out double sum))
             {
                 return sum;
             }

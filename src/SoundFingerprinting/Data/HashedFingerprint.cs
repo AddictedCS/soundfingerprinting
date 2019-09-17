@@ -10,7 +10,7 @@
     public class HashedFingerprint 
     {
         public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters) 
-            : this(hashBins, sequenceNumber, startsAt, clusters, Array.Empty<byte>())
+            : this(hashBins, sequenceNumber, startsAt, clusters, new byte[0])
         {
             
         }

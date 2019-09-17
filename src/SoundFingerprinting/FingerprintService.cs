@@ -57,6 +57,7 @@ namespace SoundFingerprinting
             return CreateOriginalFingerprintsFromFrames(frames, configuration)
                 .AsParallel()
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig, configuration.Clusters))
+                .ToList()
                 .Join(frames, hashed => hashed.SequenceNumber, frame => frame.SequenceNumber, (hash, frame) =>
                 {
                     byte[] transformed = configuration.OriginalPointSaveTransform(frame);

@@ -96,7 +96,8 @@
                 hashedFingerprint.StartsAt,
                 hashedFingerprint.Clusters,
                 subFingerprintReference,
-                trackReference);
+                trackReference,
+                hashedFingerprint.OriginalPoint);
 
             AddSubFingerprint(subFingerprintData);
             InsertHashes(hashedFingerprint.HashBins, (uint)subFingerprintReference.Id);

@@ -60,16 +60,11 @@
                         coverage.OriginMatchStartsAt,
                         track.Length);
 
-                    return new ResultEntry(
+                    return new ExtendedResultEntry(
                         track,
-                        coverage.SourceMatchStartsAt,
-                        coverage.SourceMatchLength,
-                        coverage.SourceCoverageLength,
-                        coverage.OriginMatchStartsAt,
-                        coverage.TrackStartsAt,
+                        coverage,
                         confidence,
                         groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
-                        coverage.QueryLength,
                         groupedQueryResults.RelativeTo.AddSeconds(coverage.SourceMatchStartsAt));
                });
         }

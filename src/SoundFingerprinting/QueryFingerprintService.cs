@@ -49,7 +49,7 @@
                 var subFingerprints = result.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int score = scoreAlgorithm.GetScore(queryFingerprint, subFingerprint, configuration);
+                    double score = scoreAlgorithm.GetScore(queryFingerprint, subFingerprint, configuration);
                     groupedResults.Add(queryFingerprint, subFingerprint, score);
                 }
             });

@@ -11,5 +11,13 @@
         public int StartAt { get; }
 
         public int EndAt { get; }
+
+        public int Count
+        {
+            get
+            {
+                return EndAt - StartAt + 1;
+            }
+        }
     }
 }

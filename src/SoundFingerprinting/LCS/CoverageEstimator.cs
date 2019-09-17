@@ -50,10 +50,30 @@
             double queryMatchStartsAt = matches[trackRegion.StartAt].QueryMatchAt;
             double trackMatchStartsAt = matches[trackRegion.StartAt].TrackMatchAt;
 
-            return new Coverage(queryMatchStartsAt, queryMatchLength, sourceCoverageLength, trackMatchStartsAt, GetTrackStartsAt(bestMatch), queryLength);
+            return new Coverage(queryMatchStartsAt, queryMatchLength, sourceCoverageLength, trackMatchStartsAt, 
+                GetTrackStartsAt(bestMatch), queryLength, 
+                GetSumScoreAcrossMatches(trackRegion, matches),
+                GetAvgScoreAcrossMatches(trackRegion, matches),
+                GetQueryMatches(trackRegion, matches),
+                trackRegion.Count);
    
         }
-        
+
+        private static double GetAvgScoreAcrossMatches(TrackRegion trackRegion, List<MatchedWith> matches)
+        {
+            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Average(match => match.HammingSimilarity);
+        }
+
+        private static double GetSumScoreAcrossMatches(TrackRegion trackRegion, List<MatchedWith> matches)
+        {
+            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Sum(match => match.HammingSimilarity);
+        }
+
+        private static int GetQueryMatches(TrackRegion trackRegion, List<MatchedWith> matches)
+        {
+            return new HashSet<uint>(matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Select(match => match.QuerySequenceNumber)).Count;
+        }
+
         private static double GetNotCoveredLength(IReadOnlyList<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
         {
             double notCovered = 0d;
