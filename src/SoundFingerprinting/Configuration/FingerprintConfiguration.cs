@@ -71,8 +71,8 @@ namespace SoundFingerprinting.Configuration
         internal HashingConfig HashingConfig { get; set; }
 
         /// <summary>
-        ///  Gets fingerprint length in seconds
+        ///  Gets or sets fingerprint length in seconds
         /// </summary>
-        internal double FingerprintLengthInSeconds => (double)SamplesPerFingerprint / SampleRate;
+        internal double FingerprintLengthInSeconds { get; set; }
     }
 }

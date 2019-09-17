@@ -34,8 +34,7 @@
                 var merged = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
                 return merged.Select(matchedSequence =>
                 {
-                    var lengthInSeconds = fingerprintConfiguration.FingerprintLengthInSeconds;   
-                    return CoverageEstimator.EstimateTrackCoverage(matchedSequence, queryLength, lengthInSeconds);
+                    return CoverageEstimator.EstimateTrackCoverage(matchedSequence, queryLength, fingerprintConfiguration.FingerprintLengthInSeconds);
                 });
             }
             

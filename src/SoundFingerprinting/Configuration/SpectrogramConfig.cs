@@ -26,10 +26,7 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public FrequencyRange FrequencyRange
         {
-            get
-            {
-                return frequencyRange;
-            }
+            get => frequencyRange;
 
             set
             {
@@ -57,10 +54,7 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public double LogBase
         {
-            get
-            {
-                return logBase;
-            }
+            get => logBase;
 
             set
             {

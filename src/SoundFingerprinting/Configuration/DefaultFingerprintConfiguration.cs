@@ -12,6 +12,7 @@ namespace SoundFingerprinting.Configuration
             SampleRate = 5512;
             HaarWaveletNorm = System.Math.Sqrt(2);
             Clusters = Enumerable.Empty<string>();
+            FingerprintLengthInSeconds = (double)SamplesPerFingerprint / SampleRate;
         }
     }
 }
