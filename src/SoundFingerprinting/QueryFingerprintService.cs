@@ -6,22 +6,21 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     public class QueryFingerprintService : IQueryFingerprintService
     {
-        private readonly ISimilarityUtility similarityUtility;
+        private readonly IScoreAlgorithm scoreAlgorithm;
         private readonly IQueryMath queryMath;
 
-        private QueryFingerprintService(ISimilarityUtility similarityUtility, IQueryMath queryMath)
+        public QueryFingerprintService(IScoreAlgorithm scoreAlgorithm, IQueryMath queryMath)
         {
-            this.similarityUtility = similarityUtility;
+            this.scoreAlgorithm = scoreAlgorithm;
             this.queryMath = queryMath;
         }
 
-        public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(new SimilarityUtility(), new QueryMath(new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()), new ConfidenceCalculator()));
+        public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(new HammingSimilarityScoreAlgorithm(new SimilarityUtility()), QueryMath.Instance);
     
         public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
         {
@@ -50,8 +49,8 @@
                 var subFingerprints = result.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));
                 foreach (var subFingerprint in subFingerprints)
                 {
-                    int hammingSimilarity = similarityUtility.CalculateHammingSimilarity(queryFingerprint.HashBins, subFingerprint.Hashes, hashesPerTable);
-                    groupedResults.Add(queryFingerprint, subFingerprint, hammingSimilarity);
+                    int score = scoreAlgorithm.GetScore(queryFingerprint, subFingerprint, configuration);
+                    groupedResults.Add(queryFingerprint, subFingerprint, score);
                 }
             });
 

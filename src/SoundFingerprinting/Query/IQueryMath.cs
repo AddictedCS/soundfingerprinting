@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Query
 
     using SoundFingerprinting.Configuration;
 
-    internal interface IQueryMath
+    public interface IQueryMath
     {
         List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration);
     }

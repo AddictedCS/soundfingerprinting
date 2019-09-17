@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Math
 {
-    internal interface ISimilarityUtility
+    public interface ISimilarityUtility
     {
         int CalculateHammingDistance(byte[] a, byte[] b);
 
