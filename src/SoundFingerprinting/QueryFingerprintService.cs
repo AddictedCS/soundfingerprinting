@@ -43,7 +43,6 @@
             var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => hashedFingerprint.HashBins), configuration);
             double queryLength = hashedFingerprints.QueryLength(configuration.FingerprintConfiguration);
             var groupedResults = new GroupedQueryResults(queryLength, configuration.RelativeTo);
-            int hashesPerTable = configuration.FingerprintConfiguration.HashingConfig.NumberOfMinHashesPerTable;
             Parallel.ForEach(hashedFingerprints, queryFingerprint =>
             {
                 var subFingerprints = result.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));

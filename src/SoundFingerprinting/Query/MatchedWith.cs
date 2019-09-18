@@ -2,13 +2,13 @@
 {
     public class MatchedWith
     {
-        public MatchedWith(uint querySequenceNumber, float queryMatchAt, uint trackSequenceNumber, float trackMatchAt, double hammingSimilarity)
+        public MatchedWith(uint querySequenceNumber, float queryMatchAt, uint trackSequenceNumber, float trackMatchAt, double score)
         {
             QuerySequenceNumber = querySequenceNumber;
             QueryMatchAt = queryMatchAt;
             TrackMatchAt = trackMatchAt;
             TrackSequenceNumber = trackSequenceNumber;
-            HammingSimilarity = hammingSimilarity;
+            Score = score;
         }
 
         public uint QuerySequenceNumber { get; }
@@ -19,6 +19,6 @@
 
         public float TrackMatchAt { get; }
 
-        public double HammingSimilarity { get; }
+        public double Score { get; }
     }
 }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using NUnit.Framework;
@@ -11,7 +12,7 @@
     using SoundFingerprinting.Query;
 
     [TestFixture]
-    public class GroupedQueryResultTest
+    public class GroupedQueryResultsTest
     {
         [Test]
         public void ShouldAccumulateResults()
@@ -33,10 +34,10 @@
             {
                 int perTrack = runs / references.Length;
                 int ham = (perTrack - 1) * runs / 2 + perTrack * i;
-                Assert.AreEqual(ham, groupedQueryResults.GetHammingSimilaritySumForTrack(references[i]));
+                Assert.AreEqual(ham, groupedQueryResults.GetScoreSumForTrack(references[i]));
             }
 
-            var modelReferences = groupedQueryResults.GetTopTracksByHammingSimilarity(references.Length * 2).ToList();
+            var modelReferences = groupedQueryResults.GetTopTracksByScore(references.Length * 2).ToList();
 
             for (int i = 0; i < references.Length; ++i)
             {
@@ -75,6 +76,33 @@
             var ordered = matchedWith.Select(with => (int)with.QueryMatchAt).ToList();
 
             CollectionAssert.AreEqual(Enumerable.Range(0, runs), ordered);
+        }
+
+        [Test]
+        public void SameQueryHashGeneratesMultipleTrackMatches()
+        {
+            var groupedQueryResults = new GroupedQueryResults(10d, DateTime.Now);
+
+            var random = new Random(1);
+            int runs = 100;
+            int[] counts = new int[runs];
+            var trackRef = new ModelReference<uint>(1);
+            int k = 0;
+            Parallel.For(0, runs, i =>
+            {
+                counts[i] = random.Next(5, 10);
+                var queryPoint = new HashedFingerprint(new int[25], (uint)i, i * 1.48f, Enumerable.Empty<string>());
+                for (int j = 0; j < counts[i]; ++j)
+                {
+                    var dbPoint = new SubFingerprintData(new int[25], (uint)k, k * 0.01f, Enumerable.Empty<string>(), new ModelReference<uint>((uint)Interlocked.Increment(ref k)), trackRef);
+                    groupedQueryResults.Add(queryPoint, dbPoint, i);
+                }
+            });
+
+            var allMatches = groupedQueryResults.GetMatchesForTrack(trackRef).ToList();
+            
+            Assert.AreEqual(counts.Sum(), allMatches.Count);
+            Assert.AreEqual(runs, allMatches.Select(m => m.QuerySequenceNumber).Distinct().Count());
         }
     }
 }

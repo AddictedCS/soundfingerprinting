@@ -62,17 +62,21 @@
 
         private static double GetAvgScoreAcrossMatches(TrackRegion trackRegion, List<MatchedWith> matches)
         {
-            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Average(match => match.HammingSimilarity);
+            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Average(match => match.Score);
         }
 
         private static double GetSumScoreAcrossMatches(TrackRegion trackRegion, List<MatchedWith> matches)
         {
-            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Sum(match => match.HammingSimilarity);
+            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Sum(match => match.Score);
         }
 
         private static int GetQueryMatches(TrackRegion trackRegion, List<MatchedWith> matches)
         {
-            return new HashSet<uint>(matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Select(match => match.QuerySequenceNumber)).Count;
+            return matches.Skip(trackRegion.StartAt)
+                          .Take(trackRegion.Count)
+                          .Select(match => match.QuerySequenceNumber)
+                          .Distinct()
+                          .Count();
         }
 
         private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, List<MatchedWith> matches)
@@ -80,7 +84,7 @@
             return matches.Skip(trackRegion.StartAt)
                           .Take(trackRegion.Count)
                           .GroupBy(match => match.QuerySequenceNumber)
-                          .Select(group => { return group.OrderByDescending(match => match.HammingSimilarity).First(); })
+                          .Select(group => { return group.OrderByDescending(match => match.Score).First(); })
                           .OrderBy(match => match.QuerySequenceNumber);
         }
 
@@ -95,7 +99,7 @@
                     notCovered += orderedByResultAt[i].TrackMatchAt - (orderedByResultAt[i - 1].TrackMatchAt + fingerprintLengthInSeconds);
                 }
 
-                if (bestMatch.HammingSimilarity < orderedByResultAt[i].HammingSimilarity)
+                if (bestMatch.Score < orderedByResultAt[i].Score)
                 {
                     bestMatch = orderedByResultAt[i];
                 }

@@ -14,7 +14,7 @@
         {
             foreach (var candidate in candidates)
             {
-                AddNewMatch(trackReference, candidate);
+                AddNewMatchForTrack(trackReference, candidate);
             }
         }
 
@@ -23,7 +23,7 @@
             return candidates.TryGetValue(trackReference, out var matchedWith) ? matchedWith : Enumerable.Empty<MatchedWith>();
         }
 
-        public void AddNewMatch(IModelReference trackReference, MatchedWith match)
+        public void AddNewMatchForTrack(IModelReference trackReference, MatchedWith match)
         {
             candidates.AddOrUpdate(trackReference, reference => new List<MatchedWith> {match}, (reference, old) =>
             {

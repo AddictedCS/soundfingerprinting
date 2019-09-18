@@ -22,7 +22,7 @@
 
         public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration)
         {
-            var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
+            var trackIds = groupedQueryResults.GetTopTracksByScore(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
             return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration))
                 .OrderByDescending(entry => entry.HammingSimilaritySum)
@@ -64,7 +64,7 @@
                         track,
                         coverage,
                         confidence,
-                        groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
+                        groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
                         groupedQueryResults.RelativeTo.AddSeconds(coverage.SourceMatchStartsAt));
                });
         }
