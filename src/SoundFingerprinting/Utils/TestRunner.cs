@@ -154,12 +154,12 @@
                             if (isSuccessful)
                             {
                                 Interlocked.Increment(ref truePositives);
-                                truePositiveHammingDistance.Add((int)queryResult.BestMatch.HammingSimilaritySum);
+                                truePositiveHammingDistance.Add((int)queryResult.BestMatch.Score);
                             }
                             else
                             {
                                 Interlocked.Increment(ref falsePositives);
-                                falseNegativesHammingDistance.Add((int)queryResult.BestMatch.HammingSimilaritySum);
+                                falseNegativesHammingDistance.Add((int)queryResult.BestMatch.Score);
                             }
 
                             var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
@@ -192,7 +192,7 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
-                            falsePositivesHammingDistance.Add((int)queryResult.BestMatch.HammingSimilaritySum);
+                            falsePositivesHammingDistance.Add((int)queryResult.BestMatch.Score);
                             Interlocked.Increment(ref falsePositives);
                             var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                             AppendLine(sb, foundLine);
@@ -290,7 +290,7 @@
             return new object[]
                 {
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
-                    bestMatch.HammingSimilaritySum, bestMatch.Confidence,
+                    bestMatch.Score, bestMatch.Confidence,
                     bestMatch.Coverage,
                     bestMatch.QueryMatchLength, bestMatch.TrackStartsAt
                 };

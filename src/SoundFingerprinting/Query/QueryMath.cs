@@ -25,7 +25,7 @@
             var trackIds = groupedQueryResults.GetTopTracksByScore(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
             return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration))
-                .OrderByDescending(entry => entry.HammingSimilaritySum)
+                .OrderByDescending(entry => entry.Score)
                 .ToList();
         }
 
@@ -54,10 +54,10 @@
             return coverages.Select(coverage =>
                {
                     double confidence = confidenceCalculator.CalculateConfidence(
-                        coverage.SourceMatchStartsAt,
-                        coverage.SourceMatchLength,
+                        coverage.QueryMatchStartsAt,
+                        coverage.QueryMatchLength,
                         coverage.QueryLength,
-                        coverage.OriginMatchStartsAt,
+                        coverage.TrackMatchStartsAt,
                         track.Length);
 
                     return new ExtendedResultEntry(
@@ -65,7 +65,7 @@
                         coverage,
                         confidence,
                         groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
-                        groupedQueryResults.RelativeTo.AddSeconds(coverage.SourceMatchStartsAt));
+                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt));
                });
         }
     }

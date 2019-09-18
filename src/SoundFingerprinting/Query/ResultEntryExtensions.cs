@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Query
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackMatchStartsAt : with.TrackMatchStartsAt,
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackStartsAt : with.TrackStartsAt,
                 avgConfidence,
-                entry.HammingSimilaritySum + with.HammingSimilaritySum,
+                entry.Score + with.Score,
                 CalculateNewQueryLength(entry, with),
                 entry.MatchedAt < with.MatchedAt ? entry.MatchedAt : with.MatchedAt);
         }

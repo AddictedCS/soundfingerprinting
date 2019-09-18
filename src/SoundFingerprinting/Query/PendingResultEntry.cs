@@ -39,7 +39,7 @@ namespace SoundFingerprinting.Query
         {
             return new PendingResultEntry(new ResultEntry(Entry.Track, Entry.QueryMatchStartsAt, Entry.QueryMatchLength,
                     Entry.QueryCoverageLength, Entry.TrackMatchStartsAt, Entry.TrackStartsAt, Entry.Confidence,
-                    Entry.HammingSimilaritySum, Entry.QueryLength + length, Entry.MatchedAt), waiting + length);
+                    Entry.Score, Entry.QueryLength + length, Entry.MatchedAt), waiting + length);
         }
 
         public bool CanWait(double accuracyDelta)

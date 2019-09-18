@@ -7,15 +7,15 @@ namespace SoundFingerprinting.Query
 
     public class ExtendedResultEntry : ResultEntry
     {
-        public ExtendedResultEntry(TrackData track, Coverage coverage, double confidence, double hammingSimilaritySum, DateTime matchedAt)
+        public ExtendedResultEntry(TrackData track, Coverage coverage, double confidence, double score, DateTime matchedAt)
             : base(track,
-                coverage.SourceMatchStartsAt,
-                coverage.SourceMatchLength,
-                coverage.SourceCoverageLength,
-                coverage.OriginMatchStartsAt,
+                coverage.QueryMatchStartsAt,
+                coverage.QueryMatchLength,
+                coverage.QueryCoverageLength,
+                coverage.TrackMatchStartsAt,
                 coverage.TrackStartsAt,
                 confidence, 
-                hammingSimilaritySum, 
+                score, 
                 coverage.QueryLength, 
                 matchedAt)
         {

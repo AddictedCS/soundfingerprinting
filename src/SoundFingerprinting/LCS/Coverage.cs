@@ -6,38 +6,32 @@
 
     public class Coverage
     {
-        public Coverage(double sourceMatchStartsAt, double sourceMatchLength, double sourceCoverageLength, double originMatchStartsAt, double trackStartsAt, double queryLength, double scoreSumAcrossCoverage, double scoreAvgAcrossCoverage, int queryMatchesCountAcrossCoverage, int sourceMatchesCountAcrossCoverage, IEnumerable<MatchedWith> bestPath)
+        public Coverage(double queryMatchStartsAt, double queryMatchLength, double queryCoverageLength, double trackMatchStartsAt, double trackStartsAt, double queryLength, double scoreAvgAcrossCoverage, int sourceMatchesCountAcrossCoverage, IEnumerable<MatchedWith> bestPath)
         {
-            SourceMatchStartsAt = sourceMatchStartsAt;
-            SourceMatchLength = sourceMatchLength;
-            OriginMatchStartsAt = originMatchStartsAt;
+            QueryMatchStartsAt = queryMatchStartsAt;
+            QueryMatchLength = queryMatchLength;
+            TrackMatchStartsAt = trackMatchStartsAt;
             TrackStartsAt = trackStartsAt;
-            SourceCoverageLength = sourceCoverageLength;
+            QueryCoverageLength = queryCoverageLength;
             QueryLength = queryLength;
-            ScoreSumAcrossCoverage = scoreSumAcrossCoverage;
             ScoreAvgAcrossCoverage = scoreAvgAcrossCoverage;
-            QueryMatchesCountAcrossCoverage = queryMatchesCountAcrossCoverage;
             SourceMatchesCountAcrossCoverage = sourceMatchesCountAcrossCoverage;
             BestPath = bestPath;
         }
 
-        public double SourceMatchStartsAt { get; }
+        public double QueryMatchStartsAt { get; }
 
-        public double SourceMatchLength { get; }
+        public double QueryMatchLength { get; }
 
-        public double SourceCoverageLength { get; }
+        public double QueryCoverageLength { get; }
 
-        public double OriginMatchStartsAt { get; }
+        public double TrackMatchStartsAt { get; }
 
         public double TrackStartsAt { get; }
 
         public double QueryLength { get; }
 
-        public double ScoreSumAcrossCoverage { get; }
-
         public double ScoreAvgAcrossCoverage { get; }
-
-        public int QueryMatchesCountAcrossCoverage { get; }
 
         public int SourceMatchesCountAcrossCoverage { get; }
 

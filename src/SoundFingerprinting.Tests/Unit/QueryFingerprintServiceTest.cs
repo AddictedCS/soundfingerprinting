@@ -71,7 +71,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(100, queryResult.BestMatch.HammingSimilaritySum);
+            Assert.AreEqual(100, queryResult.BestMatch.Score);
             Assert.AreEqual(2, queryResult.ResultEntries.Count());
             var results = queryResult.ResultEntries.ToList();
             Assert.AreEqual(firstTrackReference, results[0].Track.TrackReference);
@@ -127,7 +127,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.ISRC);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(200, queryResult.BestMatch.HammingSimilaritySum);
+            Assert.AreEqual(200, queryResult.BestMatch.Score);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
         }
 

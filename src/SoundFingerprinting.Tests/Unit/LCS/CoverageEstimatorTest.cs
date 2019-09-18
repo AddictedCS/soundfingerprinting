@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = CoverageEstimator.EstimateTrackCoverage(matches, queryLength, fingerprintLengthInSeconds);
 
-            Assert.AreEqual(5.4586, coverage.SourceMatchLength, 0.001);
+            Assert.AreEqual(5.4586, coverage.QueryMatchLength, 0.001);
         }
 
         [Test]
@@ -28,8 +28,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = CoverageEstimator.EstimateTrackCoverage(matches, queryLength, fingerprintLengthInSeconds);
 
-            Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.01);
-            Assert.AreEqual(4.486, coverage.SourceCoverageLength, 0.01);
+            Assert.AreEqual(3.9724, coverage.QueryMatchLength, 0.01);
+            Assert.AreEqual(4.486, coverage.QueryCoverageLength, 0.01);
             Assert.AreEqual(-6, coverage.TrackStartsAt);
         }
 
@@ -41,8 +41,32 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = CoverageEstimator.EstimateTrackCoverage(matches, queryLength, fingerprintLengthInSeconds);
 
-            Assert.AreEqual(3.9724, coverage.SourceMatchLength, 0.01);
-            Assert.AreEqual(4.486, coverage.SourceCoverageLength, 0.01);
+            Assert.AreEqual(3.9724, coverage.QueryMatchLength, 0.01);
+            Assert.AreEqual(4.486, coverage.QueryCoverageLength, 0.01);
+        }
+
+        [Test]
+        public void ShouldCalculateCoverageCorrectlyForImageSearch()
+        {
+            int fps = 30;
+            int seconds = 10;
+            float[] queryMatchAt = new float[fps * seconds];
+            float[] dbMatchAt = new float[fps * seconds];
+            float shift = 11.5f;
+            for (int i = 0; i < fps * seconds; ++i)
+            {
+                queryMatchAt[i] = i * 1f / fps;
+                dbMatchAt[i] = shift + i * 1f / fps;
+            }
+            
+            var matches = TestUtilities.GetMatchedWith(queryMatchAt, dbMatchAt);
+
+            var coverage = CoverageEstimator.EstimateTrackCoverage(matches, seconds, 1d / fps);
+            
+            Assert.AreEqual(seconds, coverage.QueryCoverageLength, 0.0001);
+            Assert.AreEqual(seconds, coverage.QueryMatchLength, 0.0001);
+            Assert.AreEqual(shift, coverage.TrackMatchStartsAt);
+            Assert.AreEqual(0, coverage.QueryMatchStartsAt);
         }
     }
 }

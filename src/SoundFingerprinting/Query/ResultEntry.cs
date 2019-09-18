@@ -15,7 +15,7 @@ namespace SoundFingerprinting.Query
             double trackMatchStartsAt, 
             double trackStartsAt, 
             double confidence, 
-            double hammingSimilaritySum, 
+            double score, 
             double queryLength,
             DateTime matchedAt)
         {
@@ -25,7 +25,7 @@ namespace SoundFingerprinting.Query
             QueryCoverageLength = queryCoverageLength;
             TrackMatchStartsAt = trackMatchStartsAt;
             Confidence = confidence;
-            HammingSimilaritySum = hammingSimilaritySum;
+            Score = score;
             TrackStartsAt = trackStartsAt;
             QueryLength = queryLength;
             MatchedAt = matchedAt;
@@ -93,7 +93,7 @@ namespace SoundFingerprinting.Query
         /// <summary>
         ///  Gets similarity count between query match and track
         /// </summary>
-        public double HammingSimilaritySum { get; }
+        public double Score { get; }
 
         /// <summary>
         ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query

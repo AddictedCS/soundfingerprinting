@@ -52,34 +52,20 @@
 
             return new Coverage(queryMatchStartsAt, queryMatchLength, sourceCoverageLength, trackMatchStartsAt, 
                 GetTrackStartsAt(bestMatch), queryLength, 
-                GetSumScoreAcrossMatches(trackRegion, matches),
                 GetAvgScoreAcrossMatches(trackRegion, matches),
-                GetQueryMatches(trackRegion, matches),
                 trackRegion.Count,
                 GetBestReconstructedPath(trackRegion, matches));
    
         }
 
-        private static double GetAvgScoreAcrossMatches(TrackRegion trackRegion, List<MatchedWith> matches)
-        {
-            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Average(match => match.Score);
-        }
-
-        private static double GetSumScoreAcrossMatches(TrackRegion trackRegion, List<MatchedWith> matches)
-        {
-            return matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Sum(match => match.Score);
-        }
-
-        private static int GetQueryMatches(TrackRegion trackRegion, List<MatchedWith> matches)
+        private static double GetAvgScoreAcrossMatches(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
         {
             return matches.Skip(trackRegion.StartAt)
                           .Take(trackRegion.Count)
-                          .Select(match => match.QuerySequenceNumber)
-                          .Distinct()
-                          .Count();
+                          .Average(match => match.Score);
         }
 
-        private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, List<MatchedWith> matches)
+        private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
         {
             return matches.Skip(trackRegion.StartAt)
                           .Take(trackRegion.Count)
