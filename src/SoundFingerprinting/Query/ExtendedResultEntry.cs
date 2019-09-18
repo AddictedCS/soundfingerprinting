@@ -1,7 +1,7 @@
-﻿using System;
-
+﻿
 namespace SoundFingerprinting.Query
 {
+    using System;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.LCS;
 
