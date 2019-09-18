@@ -55,7 +55,8 @@
                 GetSumScoreAcrossMatches(trackRegion, matches),
                 GetAvgScoreAcrossMatches(trackRegion, matches),
                 GetQueryMatches(trackRegion, matches),
-                trackRegion.Count);
+                trackRegion.Count,
+                GetBestReconstructedPath(trackRegion, matches));
    
         }
 
@@ -72,6 +73,15 @@
         private static int GetQueryMatches(TrackRegion trackRegion, List<MatchedWith> matches)
         {
             return new HashSet<uint>(matches.Skip(trackRegion.StartAt).Take(trackRegion.Count).Select(match => match.QuerySequenceNumber)).Count;
+        }
+
+        private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, List<MatchedWith> matches)
+        {
+            return matches.Skip(trackRegion.StartAt)
+                          .Take(trackRegion.Count)
+                          .GroupBy(match => match.QuerySequenceNumber)
+                          .Select(group => { return group.OrderByDescending(match => match.HammingSimilarity).First(); })
+                          .OrderBy(match => match.QuerySequenceNumber);
         }
 
         private static double GetNotCoveredLength(IReadOnlyList<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
