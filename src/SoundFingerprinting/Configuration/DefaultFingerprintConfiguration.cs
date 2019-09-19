@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Configuration
 {
-    using System;
     using System.Linq;
 
     public class DefaultFingerprintConfiguration : FingerprintConfiguration

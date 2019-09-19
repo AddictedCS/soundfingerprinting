@@ -48,7 +48,7 @@
                 avgQuery += queryResult.Stats.QueryDuration;
             }
 
-            Console.WriteLine("Avg. Fingerprinting: {0,0:000}ms, Avg. Query: {1, 0:000}ms", avgFingerprinting / totalRuns, avgQuery/ totalRuns);
+            Console.WriteLine("Avg. Fingerprinting: {0,0:000}ms, Avg. Query: {1, 0:000}ms", avgFingerprinting / totalRuns, avgQuery / totalRuns);
         }
     }
 }
