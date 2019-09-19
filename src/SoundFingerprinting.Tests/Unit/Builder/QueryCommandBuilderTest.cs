@@ -23,7 +23,7 @@
         private Mock<IFingerprintCommandBuilder> fingerprintCommandBuilder;
         private Mock<IQueryFingerprintService> queryFingerprintService;
         private Mock<ISourceFrom> fingerprintingSource;
-        private Mock<IWithFingerprintConfiguration> withAlgorithConfiguration;
+        private Mock<IWithFingerprintConfiguration> withAlgorithmConfiguration;
         private Mock<IFingerprintCommand> fingerprintCommand;
         private Mock<IUsingFingerprintServices> usingFingerprintServices;
         private Mock<IModelService> modelService;
@@ -34,7 +34,7 @@
         {
             fingerprintCommandBuilder = new Mock<IFingerprintCommandBuilder>(MockBehavior.Strict);
             fingerprintingSource = new Mock<ISourceFrom>(MockBehavior.Strict);
-            withAlgorithConfiguration = new Mock<IWithFingerprintConfiguration>(MockBehavior.Strict);
+            withAlgorithmConfiguration = new Mock<IWithFingerprintConfiguration>(MockBehavior.Strict);
             fingerprintCommand = new Mock<IFingerprintCommand>(MockBehavior.Strict);
             queryFingerprintService = new Mock<IQueryFingerprintService>(MockBehavior.Strict);
             usingFingerprintServices = new Mock<IUsingFingerprintServices>(MockBehavior.Strict);
@@ -49,7 +49,7 @@
         {
             fingerprintCommandBuilder.VerifyAll();
             fingerprintingSource.VerifyAll();
-            withAlgorithConfiguration.VerifyAll();
+            withAlgorithmConfiguration.VerifyAll();
             fingerprintCommand.VerifyAll();
             queryFingerprintService.VerifyAll();
         }
@@ -69,8 +69,8 @@
                         });
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
-            fingerprintingSource.Setup(source => source.From(pathToFile)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
+            fingerprintingSource.Setup(source => source.From(pathToFile)).Returns(withAlgorithmConfiguration.Object);
+            withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(command => command.Hash()).Returns(Task.Factory.StartNew(() => hashedFingerprints));
             queryFingerprintService.Setup(service => service.Query(hashedFingerprints, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
@@ -96,8 +96,8 @@
                             new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2, Enumerable.Empty<string>())
                         });
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
-            fingerprintingSource.Setup(source => source.From(pathToFile, secondsToQuery, startAtSecond)).Returns(withAlgorithConfiguration.Object);
-            withAlgorithConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
+            fingerprintingSource.Setup(source => source.From(pathToFile, secondsToQuery, startAtSecond)).Returns(withAlgorithmConfiguration.Object);
+            withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
             queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
