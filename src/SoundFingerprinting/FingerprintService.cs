@@ -9,7 +9,6 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -20,34 +19,31 @@ namespace SoundFingerprinting
         private readonly IWaveletDecomposition waveletDecomposition;
         private readonly IFingerprintDescriptor fingerprintDescriptor;
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
-        private readonly IImageService imageService;
 
         internal FingerprintService(
             ISpectrumService spectrumService,
             ILocalitySensitiveHashingAlgorithm lshAlgorithm,
             IWaveletDecomposition waveletDecomposition,
-            IFingerprintDescriptor fingerprintDescriptor,
-            IImageService imageService)
+            IFingerprintDescriptor fingerprintDescriptor)
         {
             this.lshAlgorithm = lshAlgorithm;
             this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
-            this.imageService = imageService;
         }
 
         public static FingerprintService Instance { get; } = new FingerprintService(
             new SpectrumService(new LomontFFT(), new LogUtility()),
             LocalitySensitiveHashingAlgorithm.Instance,
             new StandardHaarWaveletDecomposition(),
-            new FastFingerprintDescriptor(), 
-            new ImageService());
+            new FastFingerprintDescriptor());
 
         public IEnumerable<HashedFingerprint> CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
         { 
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             return CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
                 .AsParallel()
+                .ToList()
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig, configuration.Clusters));
         }
         

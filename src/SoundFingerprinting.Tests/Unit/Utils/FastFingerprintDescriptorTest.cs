@@ -10,7 +10,6 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
@@ -27,14 +26,14 @@
                     new SpectrumService(new LomontFFT(), new LogUtility()),
                     LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
-                    new FingerprintDescriptor(), new ImageService()));
+                    new FingerprintDescriptor()));
 
             var fcbWithFastFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
                     LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
-                    new FastFingerprintDescriptor(), new ImageService()));
+                    new FastFingerprintDescriptor()));
 
             var audioService = new SoundFingerprintingAudioService();
             var audioSamples = GetAudioSamples();
@@ -71,13 +70,13 @@
                 new SpectrumService(new LomontFFT(), new LogUtility()),
                 LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
-                new FingerprintDescriptor(), new ImageService());
+                new FingerprintDescriptor());
 
             var fastFingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
                 LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
-                new FastFingerprintDescriptor(), new ImageService());
+                new FastFingerprintDescriptor());
 
             int runs = 10;
             var configuration = new DefaultFingerprintConfiguration();

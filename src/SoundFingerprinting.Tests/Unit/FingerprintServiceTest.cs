@@ -6,7 +6,7 @@
     using Moq;
 
     using NUnit.Framework;
-
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
@@ -37,8 +37,7 @@
                 spectrumService.Object,
                 localitySensitiveHashingAlgorithm.Object,
                 waveletDecomposition.Object,
-                fingerprintDescriptor.Object,
-                imageService.Object);
+                fingerprintDescriptor.Object);
         }
 
         [TearDown]
@@ -85,6 +84,16 @@
             var rawFingerprints = fingerprintService.CreateFingerprintsFromAudioSamples(samples, configuration);
 
             Assert.IsTrue(!rawFingerprints.Any());
+        }
+
+        [Test]
+        public void ShouldReturnNonNullEntriesForSilence()
+        {
+            var silence = new float[8192 + 2048];
+
+            var result = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(new AudioSamples(silence, string.Empty, 5512), new DefaultFingerprintConfiguration()).ToList();
+            
+            Assert.IsTrue(!result.Any());
         }
 
         private List<Frame> GetDividedLogSpectrum()
