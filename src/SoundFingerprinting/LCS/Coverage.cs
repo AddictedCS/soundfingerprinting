@@ -8,14 +8,16 @@
     public class Coverage
     {
         private readonly double fingerprintLength;
+        private readonly double permittedGap;
 
-        public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double avgScore, int trackMatchesCount, double fingerprintLength)
+        public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double avgScore, int trackMatchesCount, double fingerprintLength, double permittedGap)
         {
             BestPath = bestPath.ToList();
             QueryLength = queryLength;
             AvgScore = avgScore;
             TrackMatchesCount = trackMatchesCount;
             this.fingerprintLength = fingerprintLength;
+            this.permittedGap = permittedGap;
         }
 
         /// <summary>
@@ -118,23 +120,25 @@
         public IEnumerable<MatchedWith> BestPath { get; }
 
         /// <summary>
-        ///  Computes query match discontinuities. Capture all the query gaps we find in the best path
+        ///  Gets query match discontinuities. Capture all the query gaps we find in the best path
         /// </summary>
-        /// <param name="permittedGap">Permitted gap</param>
-        /// <returns>Set of discontinuities</returns>
-        public IEnumerable<Discontinuity> ComputeQueryDiscontinuities(double permittedGap)
+        public IEnumerable<Discontinuity> QueryDiscontinuities
         {
-            return BestPath.Select(m => m.QueryMatchAt).FindGaps(permittedGap);
+            get
+            {
+                return BestPath.Select(m => m.QueryMatchAt).FindGaps(permittedGap);
+            }
         }
 
         /// <summary>
-        ///  Computes track match discontinuities. Capture all the track gaps we find in the best path
+        ///  Gets track match discontinuities. Capture all the track gaps we find in the best path
         /// </summary>
-        /// <param name="permittedGap">Permitted gap</param>
-        /// <returns>Set of discontinuities</returns>
-        public IEnumerable<Discontinuity> ComputeTrackDiscontinuities(double permittedGap)
+        public IEnumerable<Discontinuity> TrackDiscontinuities
         {
-            return BestPath.Select(m => m.TrackMatchAt).FindGaps(permittedGap);
+            get
+            {
+                return BestPath.Select(m => m.TrackMatchAt).FindGaps(permittedGap);
+            }
         }
 
         /// <summary>

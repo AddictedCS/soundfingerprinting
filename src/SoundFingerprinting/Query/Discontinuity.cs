@@ -12,7 +12,7 @@
 
         public float End { get; }
 
-        public float Length
+        public float LengthInSeconds
         {
             get
             {
