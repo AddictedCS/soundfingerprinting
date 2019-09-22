@@ -1,11 +1,10 @@
-﻿namespace SoundFingerprinting.LCS
+﻿namespace SoundFingerprinting.Query
 {
-    using SoundFingerprinting.Query;
-
+    using SoundFingerprinting.LCS;
     using System.Collections.Generic;
     using System.Linq;
 
-    internal static class CoverageEstimator
+    public static class MatchedWithExtensions
     {
         /// <summary>
         ///  Estimates track coverage assuming there is only one match of the target Track in the query.
@@ -17,16 +16,22 @@
         /// </summary>
         /// <param name="matchedWiths">Matched withs for specific track</param>
         /// <param name="queryLength">Length of the query</param>
-        /// <param name="fingerprintLengthInSeconds">Fingerprint length in seconds</param>
+        /// <param name="fingerprintLength">Fingerprint length in seconds</param>
         /// <returns>Longest track region</returns>
-        public static Coverage EstimateTrackCoverage(IEnumerable<MatchedWith> matchedWiths, double queryLength, double fingerprintLengthInSeconds)
+        public static Coverage EstimateCoverage(this IEnumerable<MatchedWith> matchedWiths, double queryLength, double fingerprintLength)
         {
             var matches = matchedWiths.OrderBy(with => with.TrackMatchAt).ToList();
+            var trackRegion = GetTrackRegion(matches, queryLength, fingerprintLength);
+            return new Coverage(GetBestReconstructedPath(trackRegion, matches), queryLength, GetAvgScoreAcrossMatches(trackRegion, matches), trackRegion.Count, fingerprintLength);
+        }
 
+        private static TrackRegion GetTrackRegion(IReadOnlyList<MatchedWith> orderedByTrackMatchAt, double queryLength, double fingerprintLengthInSeconds)
+        {
             int minI = 0, maxI = 0, curMinI = 0, maxLength = 0;
-            for (int i = 1; i < matches.Count; ++i)
+            for (int i = 1; i < orderedByTrackMatchAt.Count; ++i)
             {
-                if (ConsecutiveMatchesAreLongerThanTheQuery(queryLength, matches, i, fingerprintLengthInSeconds))
+                // since we don't allow same multiple matches in the query, we check to see if this is a start of new best sequence 
+                if (ConsecutiveMatchesAreLongerThanTheQuery(queryLength, orderedByTrackMatchAt, i, fingerprintLengthInSeconds))
                 {
                     // potentially a new start of best matched sequence
                     curMinI = i;
@@ -40,22 +45,7 @@
                 }
             }
 
-            var trackRegion = new TrackRegion(minI, maxI);
-            var notCovered = GetNotCoveredLength(matches, trackRegion, fingerprintLengthInSeconds, out var bestMatch);
-
-            // optimistic coverage length
-            double sourceCoverageLength = SubFingerprintsToSeconds.AdjustLengthToSeconds(matches[trackRegion.EndAt].TrackMatchAt, matches[trackRegion.StartAt].TrackMatchAt, fingerprintLengthInSeconds);
-            double queryMatchLength = sourceCoverageLength - notCovered; // exact length of matched fingerprints
-
-            double queryMatchStartsAt = matches[trackRegion.StartAt].QueryMatchAt;
-            double trackMatchStartsAt = matches[trackRegion.StartAt].TrackMatchAt;
-
-            return new Coverage(queryMatchStartsAt, queryMatchLength, sourceCoverageLength, trackMatchStartsAt, 
-                GetTrackStartsAt(bestMatch), queryLength, 
-                GetAvgScoreAcrossMatches(trackRegion, matches),
-                trackRegion.Count,
-                GetBestReconstructedPath(trackRegion, matches));
-   
+            return new TrackRegion(minI, maxI);
         }
 
         private static double GetAvgScoreAcrossMatches(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
@@ -74,34 +64,9 @@
                           .OrderBy(match => match.QuerySequenceNumber);
         }
 
-        private static double GetNotCoveredLength(IReadOnlyList<MatchedWith> orderedByResultAt, TrackRegion trackRegion, double fingerprintLengthInSeconds, out MatchedWith bestMatch)
-        {
-            double notCovered = 0d;
-            bestMatch = orderedByResultAt[trackRegion.StartAt];
-            for (int i = trackRegion.StartAt + 1; i <= trackRegion.EndAt; ++i)
-            {
-                if (orderedByResultAt[i].TrackMatchAt - orderedByResultAt[i - 1].TrackMatchAt > fingerprintLengthInSeconds)
-                {
-                    notCovered += orderedByResultAt[i].TrackMatchAt - (orderedByResultAt[i - 1].TrackMatchAt + fingerprintLengthInSeconds);
-                }
-
-                if (bestMatch.Score < orderedByResultAt[i].Score)
-                {
-                    bestMatch = orderedByResultAt[i];
-                }
-            }
-
-            return notCovered;
-        }
-
         private static bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, IReadOnlyList<MatchedWith> sortedMatches, int index, double fingerprintLengthInSeconds)
         {
             return SubFingerprintsToSeconds.AdjustLengthToSeconds(sortedMatches[index].TrackMatchAt, sortedMatches[index - 1].TrackMatchAt, fingerprintLengthInSeconds) > queryLength;
-        }
-        
-        private static double GetTrackStartsAt(MatchedWith bestMatch)
-        {
-            return bestMatch.QueryMatchAt - bestMatch.TrackMatchAt;
         }
     }
 }

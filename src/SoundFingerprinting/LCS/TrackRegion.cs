@@ -2,7 +2,7 @@
 {
     internal class TrackRegion
     {
-        public TrackRegion( int startAt, int endAt)
+        public TrackRegion(int startAt, int endAt)
         {
             EndAt = endAt;
             StartAt = startAt;

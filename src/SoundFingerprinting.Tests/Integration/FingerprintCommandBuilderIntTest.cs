@@ -66,7 +66,7 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
-            Assert.IsTrue(bestMatch.QueryMatchLength > secondsToProcess - 3, $"QueryMatchLength:{bestMatch.QueryLength}");
+            Assert.IsTrue(bestMatch.QueryMatchLength > secondsToProcess - 3, $"QueryCoverageSum:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
         }
@@ -173,7 +173,7 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
-            Assert.IsTrue(bestMatch.QueryMatchLength > secondsToProcess - 3, $"QueryMatchLength:{bestMatch.QueryLength}");
+            Assert.IsTrue(bestMatch.QueryMatchLength > secondsToProcess - 3, $"QueryCoverageSum:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
         }
