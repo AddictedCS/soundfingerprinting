@@ -14,14 +14,14 @@
         ///  This never happens in case if a query is longer than any track in the storage.
         ///  In case if multiple tracks could be found in the same track, LongestIncreasingTrackSequence has to be used 
         /// </summary>
-        /// <param name="matchedWiths">Matched withs for specific track</param>
+        /// <param name="matchedEntries">Matched withs for specific track</param>
         /// <param name="queryLength">Length of the query</param>
         /// <param name="fingerprintLength">Fingerprint length in seconds</param>
         /// <param name="permittedGap">Permitted gap for discontinuity calculation</param>
         /// <returns>Longest track region</returns>
-        public static Coverage EstimateCoverage(this IEnumerable<MatchedWith> matchedWiths, double queryLength, double fingerprintLength, double permittedGap)
+        public static Coverage EstimateCoverage(this IEnumerable<MatchedWith> matchedEntries, double queryLength, double fingerprintLength, double permittedGap)
         {
-            var matches = matchedWiths.OrderBy(with => with.TrackMatchAt).ToList();
+            var matches = matchedEntries.OrderBy(with => with.TrackMatchAt).ToList();
             var trackRegion = GetTrackRegion(matches, queryLength, fingerprintLength);
             return new Coverage(GetBestReconstructedPath(trackRegion, matches), queryLength, GetAvgScoreAcrossMatches(trackRegion, matches), trackRegion.Count, fingerprintLength, permittedGap);
         }
@@ -58,11 +58,26 @@
 
         private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
         {
-            return matches.Skip(trackRegion.StartAt)
-                          .Take(trackRegion.Count)
-                          .GroupBy(match => match.QuerySequenceNumber)
-                          .Select(group => { return group.OrderByDescending(match => match.Score).First(); })
-                          .OrderBy(match => match.QuerySequenceNumber);
+            return matches
+                   .Skip(trackRegion.StartAt)
+                   .Take(trackRegion.Count)
+                   .OrderByDescending(m => m.Score)
+                   .GroupBy(m => m.TrackSequenceNumber)
+                   .Aggregate(new { List = new List<MatchedWith>(), Used = new HashSet<uint>()}, (acc, group) =>
+                       {
+                           foreach (var match in group.OrderByDescending(m => m.Score))
+                           {
+                               if (!acc.Used.Contains(match.QuerySequenceNumber))
+                               {
+                                   acc.List.Add(match);
+                                   acc.Used.Add(match.QuerySequenceNumber);
+                                   break;
+                               }
+                           }
+
+                           return acc;
+                       }, acc => acc.List)
+                   .OrderBy(m => m.TrackSequenceNumber);
         }
 
         private static bool ConsecutiveMatchesAreLongerThanTheQuery(double queryLength, IReadOnlyList<MatchedWith> sortedMatches, int index, double fingerprintLengthInSeconds)

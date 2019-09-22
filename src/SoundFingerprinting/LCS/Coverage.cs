@@ -105,7 +105,7 @@
         {
             get
             {
-                return BestPath.Count();
+                return BestPath.Select(m => m.QuerySequenceNumber).Distinct().Count();
             }
         }
 
@@ -164,7 +164,7 @@
             {
                 double notCoveredSeconds = 0d;
                 var list = BestPath.ToList();
-                for (int i = 1; i < list.Count - 1; ++i)
+                for (int i = 1; i < list.Count; ++i)
                 {
                     if (list[i].TrackMatchAt - list[i - 1].TrackMatchAt > fingerprintLength)
                     {
