@@ -23,8 +23,8 @@
         public List<Frame> CreateLogSpectrogram(AudioSamples audioSamples, SpectrogramConfig configuration)
         {
             int wdftSize = configuration.WdftSize;
-            int width = (audioSamples.Samples.Length - wdftSize) / configuration.Overlap;
-            if (width < 1)
+            int width = (audioSamples.Samples.Length - wdftSize) / configuration.Overlap + 1;
+            if (width < configuration.ImageLength)
             {
                 return new List<Frame>();
             }
@@ -58,13 +58,13 @@
             });
         }
 
-        private void ScaleSpectrum(Frame spetralFrame, Func<float, float, float> scalingFunction)
+        private void ScaleSpectrum(Frame spectralFrame, Func<float, float, float> scalingFunction)
         {
-            float max = spetralFrame.ImageRowCols.Max(f => Math.Abs(f));
+            float max = spectralFrame.ImageRowCols.Max(f => Math.Abs(f));
 
-            for (int i = 0; i < spetralFrame.ImageRowCols.Length; ++i)
+            for (int i = 0; i < spectralFrame.ImageRowCols.Length; ++i)
             {
-                spetralFrame.ImageRowCols[i] = scalingFunction(spetralFrame.ImageRowCols[i], max);
+                spectralFrame.ImageRowCols[i] = scalingFunction(spectralFrame.ImageRowCols[i], max);
             }
         }
 

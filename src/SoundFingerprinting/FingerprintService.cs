@@ -65,6 +65,11 @@ namespace SoundFingerprinting
         {
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var images = frames.ToList();
+            if (!images.Any())
+            {
+                return Enumerable.Empty<Fingerprint>();
+            }
+            
             var length = images.First().Length;
             Parallel.ForEach(images, () => new ushort[length], (frame, loop, cachedIndexes) =>
             {

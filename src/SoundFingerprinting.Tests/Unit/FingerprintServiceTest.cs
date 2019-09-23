@@ -96,7 +96,18 @@
             Assert.IsTrue(!result.Any());
         }
 
-        private List<Frame> GetDividedLogSpectrum()
+        [Test]
+        public void ShouldCreateOneFingerprint()
+        {
+            var floats = TestUtilities.GenerateRandomFloatArray(8192 + 2048 - 64);
+
+            var fingerprints = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(new AudioSamples(floats, string.Empty, 5512), new DefaultFingerprintConfiguration()).ToList();
+
+            Assert.IsNotEmpty(fingerprints);
+            Assert.AreEqual(1, fingerprints.Count);
+        }
+
+        private static List<Frame> GetDividedLogSpectrum()
         {
             var dividedLogSpectrum = new List<Frame>();
             for (uint index = 0; index < 4; index++)
