@@ -23,7 +23,7 @@
         {
             var matches = matchedEntries.OrderBy(with => with.TrackMatchAt).ToList();
             var trackRegion = GetTrackRegion(matches, queryLength, fingerprintLength);
-            return new Coverage(GetBestReconstructedPath(trackRegion, matches), queryLength, GetAvgScoreAcrossMatches(trackRegion, matches), trackRegion.Count, fingerprintLength, permittedGap);
+            return new Coverage(GetBestReconstructedPath(trackRegion, matches), queryLength, fingerprintLength, permittedGap);
         }
 
         private static TrackRegion GetTrackRegion(IReadOnlyList<MatchedWith> orderedByTrackMatchAt, double queryLength, double fingerprintLengthInSeconds)
@@ -49,32 +49,29 @@
             return new TrackRegion(minI, maxI);
         }
 
-        private static double GetAvgScoreAcrossMatches(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
-        {
-            return matches.Skip(trackRegion.StartAt)
-                          .Take(trackRegion.Count)
-                          .Average(match => match.Score);
-        }
-
         private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
         {
-            return matches
-                   .Skip(trackRegion.StartAt)
+            return matches.Skip(trackRegion.StartAt)
                    .Take(trackRegion.Count)
                    .OrderByDescending(m => m.Score)
                    .GroupBy(m => m.TrackSequenceNumber)
                    .Aggregate(new { List = new List<MatchedWith>(), Used = new HashSet<uint>()}, (acc, group) =>
                        {
-                           foreach (var match in group.OrderByDescending(m => m.Score))
+                           var bestByScore = group.OrderByDescending(m => m.Score).ToList();
+                           foreach (var match in bestByScore)
                            {
                                if (!acc.Used.Contains(match.QuerySequenceNumber))
                                {
                                    acc.List.Add(match);
                                    acc.Used.Add(match.QuerySequenceNumber);
-                                   break;
+                                   return acc;
                                }
                            }
 
+                           // if all query matches have been used, lets pick up first as a match
+                           // this is done in order to simplify the use case when you have a bigger 
+                           // query stride, which generates more matches between query to track entries
+                           acc.List.Add(bestByScore.First());
                            return acc;
                        }, acc => acc.List)
                    .OrderBy(m => m.TrackSequenceNumber);

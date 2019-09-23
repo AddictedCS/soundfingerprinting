@@ -10,12 +10,10 @@
         private readonly double fingerprintLength;
         private readonly double permittedGap;
 
-        public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double avgScore, int trackMatchesCount, double fingerprintLength, double permittedGap)
+        public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double fingerprintLength, double permittedGap)
         {
             BestPath = bestPath.ToList();
             QueryLength = queryLength;
-            AvgScore = avgScore;
-            TrackMatchesCount = trackMatchesCount;
             this.fingerprintLength = fingerprintLength;
             this.permittedGap = permittedGap;
         }
@@ -83,11 +81,6 @@
         public double QueryLength { get; }
 
         /// <summary>
-        ///  Gets average score across all track matches
-        /// </summary>
-        public double AvgScore { get; }
-
-        /// <summary>
         ///  Gets average score across best path
         /// </summary>
         public double AvgScoreAcrossBestPath
@@ -110,9 +103,15 @@
         }
 
         /// <summary>
-        ///  Gets number of database fingerprints that matched the query
+        ///  Gets number of database fingerprints that matched the query fingerprints
         /// </summary>
-        public int TrackMatchesCount { get; }
+        public int TrackMatchesCount
+        {
+            get
+            {
+                return BestPath.Select(m => m.TrackSequenceNumber).Distinct().Count();
+            }
+        }
 
         /// <summary>
         ///  Gets best reconstructed path
