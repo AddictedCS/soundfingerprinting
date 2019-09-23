@@ -58,21 +58,13 @@
                    .Aggregate(new { List = new List<MatchedWith>(), Used = new HashSet<uint>()}, (acc, group) =>
                        {
                            var bestByScore = group.OrderByDescending(m => m.Score).ToList();
-                           foreach (var match in bestByScore)
+                           foreach (var match in bestByScore.Where(match => !acc.Used.Contains(match.QuerySequenceNumber)))
                            {
-                               if (!acc.Used.Contains(match.QuerySequenceNumber))
-                               {
-                                   acc.List.Add(match);
-                                   acc.Used.Add(match.QuerySequenceNumber);
-                                   return acc;
-                               }
+                               acc.List.Add(match);
+                               acc.Used.Add(match.QuerySequenceNumber);
+                               return acc;
                            }
 
-                           // TODO parametrize this strategy as it generates unnecessary matches for image search
-                           // if all query matches have been used, lets pick up first as a match
-                           // this is done in order to simplify the use case when you have a bigger 
-                           // query stride, which generates more matches between query to track entries
-                           // acc.List.Add(bestByScore.First());
                            return acc;
                        }, acc => acc.List)
                    .OrderBy(m => m.TrackSequenceNumber);

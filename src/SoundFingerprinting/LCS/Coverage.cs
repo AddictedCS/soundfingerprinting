@@ -21,46 +21,22 @@
         /// <summary>
         ///  Gets starting point of the query in seconds
         /// </summary>
-        public double QueryMatchStartsAt
-        {
-            get
-            {
-                return BestPath.First().QueryMatchAt;
-            }
-        }
+        public double QueryMatchStartsAt => BestPath.First().QueryMatchAt;
 
         /// <summary>
         ///  Gets starting point of the track match in seconds
         /// </summary>
-        public double TrackMatchStartsAt
-        {
-            get
-            {
-                return BestPath.First().TrackMatchAt;
-            }
-        }
+        public double TrackMatchStartsAt => BestPath.First().TrackMatchAt;
 
         /// <summary>
         ///  Gets query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
         /// </summary>
-        public double QueryCoverageSeconds
-        {
-            get
-            {
-                return MatchLengthWithTrackDiscontinuities - NotCoveredLength;
-            }
-        }
+        public double QueryCoverageSeconds => MatchLengthWithTrackDiscontinuities - NotCoveredLength;
 
         /// <summary>
         ///  Gets match length including track discontinuities
         /// </summary>
-        public double MatchLengthWithTrackDiscontinuities
-        {
-            get
-            {
-                return SubFingerprintsToSeconds.AdjustLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
-            }
-        }
+        public double MatchLengthWithTrackDiscontinuities => SubFingerprintsToSeconds.AdjustLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
 
         /// <summary>
         ///  Gets best estimate of where does the track actually starts.

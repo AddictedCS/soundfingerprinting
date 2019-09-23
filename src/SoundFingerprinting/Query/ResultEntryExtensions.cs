@@ -15,8 +15,8 @@ namespace SoundFingerprinting.Query
             
             return new ResultEntry(entry.Track, 
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.QueryMatchStartsAt : with.QueryMatchStartsAt,
-                CalculateNewQueryMatchLength(entry, with),
-                CalculateNewQueryCoverageLength(entry, with),
+                CalculateNewQueryCoverage(entry, with),
+                CalculateNewMatchLength(entry, with),
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackMatchStartsAt : with.TrackMatchStartsAt,
                 entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackStartsAt : with.TrackStartsAt,
                 avgConfidence,
@@ -25,7 +25,7 @@ namespace SoundFingerprinting.Query
                 entry.MatchedAt < with.MatchedAt ? entry.MatchedAt : with.MatchedAt);
         }
         
-        private static double CalculateNewQueryMatchLength(ResultEntry a, ResultEntry b)
+        private static double CalculateNewQueryCoverage(ResultEntry a, ResultEntry b)
         {
             var first = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? a : b;
             var second = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? b : a;
@@ -51,7 +51,7 @@ namespace SoundFingerprinting.Query
             return first.QueryCoverageSeconds + second.QueryCoverageSeconds;
         }
         
-        private static double CalculateNewQueryCoverageLength(ResultEntry a, ResultEntry b)
+        private static double CalculateNewMatchLength(ResultEntry a, ResultEntry b)
         {
             var first = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? a : b;
             var second = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? b : a;

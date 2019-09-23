@@ -33,6 +33,8 @@
             MetaFields = new Dictionary<string, string>();
         }
 
+        public string Id => ISRC;
+
         [ProtoMember(1)]
         public string Artist { get; }
 
