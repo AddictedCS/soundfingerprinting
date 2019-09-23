@@ -58,8 +58,8 @@
                 return new ResultEntry(
                     newEntry.Track,
                     newEntry.QueryMatchStartsAt,
-                    newEntry.QueryMatchLength,
-                    newEntry.QueryCoverageLength,
+                    newEntry.QueryCoverageSeconds,
+                    newEntry.MatchLengthWithTrackDiscontinuities,
                     newEntry.TrackMatchStartsAt,
                     newEntry.TrackStartsAt + result.TrackStartsAt,
                     newEntry.Confidence,

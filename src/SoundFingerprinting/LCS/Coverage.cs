@@ -43,7 +43,7 @@
         /// <summary>
         ///  Gets query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
         /// </summary>
-        public double QueryCoverageSum
+        public double QueryCoverageSeconds
         {
             get
             {

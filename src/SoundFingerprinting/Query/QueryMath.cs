@@ -55,7 +55,7 @@
                {
                     double confidence = confidenceCalculator.CalculateConfidence(
                         coverage.QueryMatchStartsAt,
-                        coverage.QueryCoverageSum,
+                        coverage.QueryCoverageSeconds,
                         coverage.QueryLength,
                         coverage.TrackMatchStartsAt,
                         track.Length);

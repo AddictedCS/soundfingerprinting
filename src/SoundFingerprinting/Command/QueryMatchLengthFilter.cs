@@ -13,7 +13,7 @@ namespace SoundFingerprinting.Command
 
         public bool Pass(ResultEntry entry)
         {
-            return entry.QueryMatchLength > secondsThreshold;
+            return entry.QueryCoverageSeconds > secondsThreshold;
         }
     }
 }

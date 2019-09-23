@@ -30,25 +30,25 @@ namespace SoundFingerprinting.Query
             var first = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? a : b;
             var second = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? b : a;
 
-            if (first.TrackMatchStartsAt + first.QueryMatchLength >= second.TrackMatchStartsAt + second.QueryMatchLength)
+            if (first.TrackMatchStartsAt + first.QueryCoverageSeconds >= second.TrackMatchStartsAt + second.QueryCoverageSeconds)
             {
                 // a ---------
                 // b   -----
-                return first.QueryMatchLength;
+                return first.QueryCoverageSeconds;
             }
 
-            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.QueryMatchLength >= second.TrackMatchStartsAt)
+            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.QueryCoverageSeconds >= second.TrackMatchStartsAt)
             {
                 // a     -------
                 // b          -------
-                return  second.QueryMatchLength - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
+                return  second.QueryCoverageSeconds - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
 
             }
             
             // a  -------
             // b            ------
             // not glued on purpose
-            return first.QueryMatchLength + second.QueryMatchLength;
+            return first.QueryCoverageSeconds + second.QueryCoverageSeconds;
         }
         
         private static double CalculateNewQueryCoverageLength(ResultEntry a, ResultEntry b)
@@ -56,18 +56,18 @@ namespace SoundFingerprinting.Query
             var first = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? a : b;
             var second = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? b : a;
 
-            if (first.TrackMatchStartsAt + first.QueryCoverageLength >= second.TrackMatchStartsAt + second.QueryCoverageLength)
+            if (first.TrackMatchStartsAt + first.MatchLengthWithTrackDiscontinuities >= second.TrackMatchStartsAt + second.MatchLengthWithTrackDiscontinuities)
             {
-                return first.QueryCoverageLength;
+                return first.MatchLengthWithTrackDiscontinuities;
             }
 
-            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.QueryCoverageLength >= second.TrackMatchStartsAt)
+            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.MatchLengthWithTrackDiscontinuities >= second.TrackMatchStartsAt)
             {
-                return  second.QueryCoverageLength - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
+                return  second.MatchLengthWithTrackDiscontinuities - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
 
             }
             
-            return first.QueryCoverageLength + second.QueryCoverageLength;
+            return first.MatchLengthWithTrackDiscontinuities + second.MatchLengthWithTrackDiscontinuities;
         }
 
         private static double CalculateNewQueryLength(ResultEntry a, ResultEntry b)

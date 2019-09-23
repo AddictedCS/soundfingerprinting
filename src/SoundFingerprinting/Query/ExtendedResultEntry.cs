@@ -10,7 +10,7 @@ namespace SoundFingerprinting.Query
         public ExtendedResultEntry(TrackData track, Coverage coverage, double confidence, double score, DateTime matchedAt)
             : base(track,
                 coverage.QueryMatchStartsAt,
-                coverage.QueryCoverageSum,
+                coverage.QueryCoverageSeconds,
                 coverage.MatchLengthWithTrackDiscontinuities,
                 coverage.TrackMatchStartsAt,
                 coverage.TrackStartsAt,
