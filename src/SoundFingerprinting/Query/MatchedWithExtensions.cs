@@ -68,10 +68,11 @@
                                }
                            }
 
+                           // TODO parametrize this strategy as it generates unnecessary matches for image search
                            // if all query matches have been used, lets pick up first as a match
                            // this is done in order to simplify the use case when you have a bigger 
                            // query stride, which generates more matches between query to track entries
-                           acc.List.Add(bestByScore.First());
+                           // acc.List.Add(bestByScore.First());
                            return acc;
                        }, acc => acc.List)
                    .OrderBy(m => m.TrackSequenceNumber);
