@@ -1,5 +1,8 @@
 namespace SoundFingerprinting.Tests.Unit.LCS
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     using NUnit.Framework;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
@@ -66,6 +69,32 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.AreEqual(seconds, coverage.QueryCoverageSum, 0.0001);
             Assert.AreEqual(shift, coverage.TrackMatchStartsAt);
             Assert.AreEqual(0, coverage.QueryMatchStartsAt);
+        }
+
+        [Test]
+        public void BestPathShouldIdentifyBestShiftingMatchesByScore()
+        {
+            var all = new List<MatchedWith>();
+            var count = 100;
+            for (int querySequence = 0; querySequence < count; ++querySequence)
+            {
+                for (int trackSequence = querySequence; trackSequence < querySequence + count; ++trackSequence)
+                {
+                    var match = new MatchedWith((uint)querySequence, querySequence * 1.48f, (uint)trackSequence, trackSequence * 1.48f, trackSequence);
+                    all.Add(match);
+                }
+            }
+
+            var coverage = all.EstimateCoverage(count * 1.48, 1.48, 1.48);
+
+            // shifted matches, best path
+            var bestPath = coverage.BestPath.ToList();
+            int shift = (count - 1);
+            for (int i = 0; i < bestPath.Count; ++i)
+            {
+                Assert.AreEqual(shift + i, bestPath[i].TrackSequenceNumber);
+                Assert.AreEqual(i, bestPath[i].QuerySequenceNumber);
+            }
         }
     }
 }
