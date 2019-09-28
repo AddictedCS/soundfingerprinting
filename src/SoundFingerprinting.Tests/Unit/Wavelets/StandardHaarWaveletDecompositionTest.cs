@@ -30,6 +30,23 @@
             AssertAreSame(rows, cols, frames, concatenated);
         }
 
+        /// <summary>
+        ///  Example from https://www.eecis.udel.edu/~amer/CISC651/wavelets_for_computer_graphics_Stollnitz.pdf
+        ///  It may be worth exploring using Non-Standard Wavelet Transform where columns are processed first and then the rows
+        ///  More details here: https://dsp.stackexchange.com/questions/58843/what-is-the-correct-order-of-operations-for-a-2d-haar-wavelet-decomposition 
+        /// </summary>
+        [Test]
+        public void ShouldDecomposeAsExpected()
+        {
+            var wd = new StandardHaarWaveletDecomposition();
+
+            var floats = new[] {8f, 4, 1, 3};
+
+            wd.DecomposeImageInPlace(floats, 1, 4, 2d); // Let's use 2 as norm, to reconstruct the result more easily
+
+            CollectionAssert.AreEqual(new[] {4, 2, 2, -1}, floats);
+        }
+
         private void AssertAreSame(int rows, int cols, float[][] frames, float[] concatenated)
         {
             for (int i = 0; i < rows; i++)
