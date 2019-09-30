@@ -8,6 +8,7 @@
     /// <remarks>
     /// Implemented according to the algorithm found here http://grail.cs.washington.edu/projects/wavelets/article/wavelet1.pdf
     /// According to Fast Multi-Resolution Image Query paper, Haar wavelet decomposition with standard basis function works better in image querying
+    /// The wavelet norm, is actually scale, and since it has to be applied on every step the code is not the exact replica of Haar Wavelet https://www.youtube.com/watch?v=ViZYXxuxUKA
     /// </remarks>
     internal class StandardHaarWaveletDecomposition : IWaveletDecomposition
     {
