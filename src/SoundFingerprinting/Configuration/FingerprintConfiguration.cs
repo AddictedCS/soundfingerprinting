@@ -68,12 +68,12 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets hashing configuration parameters
         /// </summary>
-        internal HashingConfig HashingConfig { get; set; }
+        public HashingConfig HashingConfig { get; set; }
 
         /// <summary>
         ///  Gets or sets fingerprint length in seconds
         /// </summary>
-        internal double FingerprintLengthInSeconds { get; set; }
+        public double FingerprintLengthInSeconds { get; set; }
 
         /// <summary>
         ///  Gets or sets the transformation for the original point that needs to be saved for second level cross-check
