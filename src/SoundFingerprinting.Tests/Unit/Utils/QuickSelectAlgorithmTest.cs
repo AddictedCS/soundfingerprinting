@@ -29,7 +29,7 @@
             const int count = 4096;
             const int topWavelets = 200;
             var random = new Random();
-            for (int run = 0; run < 50000; ++run)
+            for (int run = 0; run < 10000; ++run)
             {
                 var tuple = GetTwoRandomCopies(count, random);
                 var a = tuple.Item1;

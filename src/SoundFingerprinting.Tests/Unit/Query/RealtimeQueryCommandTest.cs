@@ -152,6 +152,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new IncrementalRandomStride(256, 512), 
                 1.48d,
                 0d,
+                (int)(10240d/5512) * 1000,
                 Enumerable.Empty<string>());
 
              var cancellationTokenSource = new CancellationTokenSource(testWaitTime);

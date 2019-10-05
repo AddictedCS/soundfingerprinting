@@ -23,6 +23,7 @@ namespace SoundFingerprinting.Configuration
             IStride stride,
             double permittedGap,
             double downtimeCapturePeriod,
+            int millisecondsDelay,
             IEnumerable<string> clusters)
         {
             QueryConfiguration = new DefaultQueryConfiguration
@@ -47,6 +48,7 @@ namespace SoundFingerprinting.Configuration
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
             DowntimeHashes = downtimeHashes;
             DowntimeCapturePeriod = downtimeCapturePeriod;
+            MillisecondsDelay = millisecondsDelay;
         }
 
         /// <summary>
@@ -125,6 +127,11 @@ namespace SoundFingerprinting.Configuration
             get => QueryConfiguration.Clusters;
             set => QueryConfiguration.Clusters = value;
         }
+
+        /// <summary>
+        ///  Gets or sets milliseconds delay between consecutive poll operations from the underlying blocking collection
+        /// </summary>
+        public int MillisecondsDelay { get; set; }
 
         internal QueryConfiguration QueryConfiguration { get; }
     }

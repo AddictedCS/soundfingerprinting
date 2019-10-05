@@ -19,7 +19,6 @@ namespace SoundFingerprinting.Command
         
         private const int MinSamplesForOneFingerprint = 10240;
         private const int SupportedFrequency = 5512;
-        private const int MillisecondsDelay = (int)((double) MinSamplesForOneFingerprint / SupportedFrequency * 1000);
 
         private IRealtimeCollection realtimeCollection;
         private readonly Queue<TimedHashes> downtimeHashes;
@@ -85,7 +84,7 @@ namespace SoundFingerprinting.Command
                 AudioSamples audioSamples;
                 try
                 {
-                    if (!realtimeCollection.TryTake(out audioSamples, MillisecondsDelay, cancellationToken))
+                    if (!realtimeCollection.TryTake(out audioSamples, configuration.MillisecondsDelay, cancellationToken))
                     {
                         continue;
                     }

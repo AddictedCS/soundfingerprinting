@@ -112,7 +112,7 @@
                 double jaccardSimilarity = howSimilar * topWavelets / (2 * topWavelets - howSimilar * topWavelets);
                 probabilityOfAMatch[i] = Math.Round(1 - Math.Pow(1 - Math.Pow(jaccardSimilarity, rows), bands), 4);
 
-                int simulationRuns = 50000;
+                int simulationRuns = 10000;
                 int agreeOn = 0;
                 int atLeastOneCandidateFound = 0;
                 for (int j = 0; j < simulationRuns; ++j)

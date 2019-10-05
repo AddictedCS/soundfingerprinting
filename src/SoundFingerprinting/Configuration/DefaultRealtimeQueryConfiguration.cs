@@ -15,7 +15,8 @@ namespace SoundFingerprinting.Configuration
             Action<Exception, TimedHashes> onError, Action restoredAfterErrorCallback) :
             base(4, new QueryMatchLengthFilter(5d), successCallback, didNotPassFilterCallback,
                 queryFingerprintsCallback, onError, restoredAfterErrorCallback, Enumerable.Empty<TimedHashes>(),
-                new IncrementalRandomStride(256, 512), 2d, 0d, new List<string>())
+                new IncrementalRandomStride(256, 512), 2d, 0d,
+                (int) (10240d / 5512) * 1000, new List<string>())
         {
         }
     }
