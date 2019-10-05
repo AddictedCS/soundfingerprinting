@@ -131,6 +131,6 @@
         /// <summary>
         ///  Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
         /// </summary>
-        internal FingerprintConfiguration FingerprintConfiguration { get; set; }
+        public FingerprintConfiguration FingerprintConfiguration { get; set; }
     }
 }

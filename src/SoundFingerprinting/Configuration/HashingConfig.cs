@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Configuration
 {
-    internal abstract class HashingConfig
+    public abstract class HashingConfig
     {
         /// <summary>
         /// Gets or sets the number of Locality Sensitive tables to split into

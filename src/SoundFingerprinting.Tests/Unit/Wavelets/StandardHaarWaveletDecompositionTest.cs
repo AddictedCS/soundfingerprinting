@@ -18,7 +18,7 @@
             float[] concatenated = new float[rows * cols];
             for (int i = 0; i < rows; i++)
             {
-                frames[i] = TestUtilities.GenerateRandomSingleArray(cols);
+                frames[i] = TestUtilities.GenerateRandomSingleArray(cols, i);
                 Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * cols, sizeof(float) * cols);
             }
 
