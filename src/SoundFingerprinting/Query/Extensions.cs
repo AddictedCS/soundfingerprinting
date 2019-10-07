@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 namespace SoundFingerprinting.Query
 {
+    using System;
     using System.Linq;
     public static class Extensions
     {
@@ -19,14 +20,14 @@ namespace SoundFingerprinting.Query
             return ret;
         }
 
-        public static IEnumerable<Discontinuity> FindGaps(this IEnumerable<float> entries, double permittedGap)
+        public static IEnumerable<Discontinuity> FindGaps(this IEnumerable<Tuple<uint, float>> entries, double permittedGap)
         {
-            var floats = entries.OrderBy(entry => entry).ToArray();
+            var floats = entries.OrderBy(entry => entry.Item2).ToArray();
             for (int i = 1; i < floats.Length; ++i)
             {
-                if (floats[i] - floats[i - 1] > permittedGap)
+                if (floats[i].Item2 - floats[i - 1].Item2 > permittedGap && floats[i].Item1 - floats[i - 1].Item1 > 1)
                 {
-                    yield return new Discontinuity(floats[i - 1], floats[i]);
+                    yield return new Discontinuity(floats[i - 1].Item2, floats[i].Item2);
                 }
             }
         }

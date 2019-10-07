@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.LCS
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -101,7 +102,7 @@
         {
             get
             {
-                return BestPath.Select(m => m.QueryMatchAt).FindGaps(permittedGap);
+                return BestPath.Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt)).FindGaps(permittedGap);
             }
         }
 
@@ -112,7 +113,7 @@
         {
             get
             {
-                return BestPath.Select(m => m.TrackMatchAt).FindGaps(permittedGap);
+                return BestPath.Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt)).FindGaps(permittedGap);
             }
         }
 
