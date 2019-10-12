@@ -112,7 +112,7 @@
         public TrackData AddTrack(TrackInfo track)
         {
             var trackReference = trackReferenceProvider.Next();
-            var trackData = new TrackData(track.Id, track.Artist, track.Title, string.Empty, 0, track.DurationInSeconds, trackReference, track.MetaFields);
+            var trackData = new TrackData(track.Id, track.Artist, track.Title, string.Empty, 0, track.DurationInSeconds, trackReference, track.MetaFields, track.MediaType);
             return AddTrack(trackData);
         }
 

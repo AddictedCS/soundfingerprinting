@@ -30,7 +30,7 @@
 
         public TrackData ReadTrackById(string id)
         {
-            return storage.Tracks.FirstOrDefault(pair => pair.Value.ISRC == id).Value;
+            return storage.Tracks.FirstOrDefault(pair => pair.Value.Id == id).Value;
         }
 
         public IEnumerable<TrackData> ReadAll()

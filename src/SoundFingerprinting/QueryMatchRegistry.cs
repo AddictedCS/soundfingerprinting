@@ -14,7 +14,7 @@ namespace SoundFingerprinting
         {
             var queryMatches = resultEntries.Select(resultEntry =>
                 new QueryMatch(Guid.NewGuid().ToString(),
-                    resultEntry.Track.ISRC,
+                    resultEntry.Track.Id,
                     resultEntry.QueryCoverageSeconds,
                     resultEntry.QueryMatchStartsAt, resultEntry.TrackStartsAt,
                     resultEntry.TrackMatchStartsAt, resultEntry.Confidence, resultEntry.QueryLength,

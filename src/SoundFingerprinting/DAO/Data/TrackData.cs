@@ -5,12 +5,13 @@
     using DAO;
 
     using ProtoBuf;
+    using SoundFingerprinting.Data;
 
     [Serializable]
     [ProtoContract]
     public class TrackData
     {
-        public TrackData(string isrc, string artist, string title, string album, int releaseYear, double length, IModelReference trackReference, IDictionary<string, string> metaFields)
+        public TrackData(string isrc, string artist, string title, string album, int releaseYear, double length, IModelReference trackReference, IDictionary<string, string> metaFields, MediaType mediaType)
         {
             ISRC = isrc;
             Artist = artist;
@@ -20,10 +21,11 @@
             Length = length;
             TrackReference = trackReference;
             MetaFields = metaFields;
+            MediaType = mediaType;
         }
 
         public TrackData(string isrc, string artist, string title, string album, int releaseYear, double length, IModelReference trackReference) : 
-            this(isrc, artist, title, album, releaseYear, length, trackReference, new Dictionary<string, string>())
+            this(isrc, artist, title, album, releaseYear, length, trackReference, new Dictionary<string, string>(), MediaType.Audio)
         {
         }
 
@@ -31,6 +33,7 @@
         {
             // left for proto-buf
             MetaFields = new Dictionary<string, string>();
+            MediaType = MediaType.Audio;
         }
 
         public string Id => ISRC;
@@ -43,15 +46,15 @@
 
         [ProtoMember(3)]
         [Obsolete("Will be renamed to `Id` in upcoming versions.")]
-        public string ISRC { get; }
+        private string ISRC { get; }
 
         [Obsolete("Will be removed in upcoming versions. Use MetaFields instead.")]
         [ProtoMember(4)]
-        public string Album { get; }
+        private string Album { get; }
 
         [Obsolete("Will be removed in upcoming versions. Use MetaFields instead.")]
         [ProtoMember(5)]
-        public int ReleaseYear { get; }
+        private int ReleaseYear { get; }
 
         [ProtoMember(6)]
         public double Length { get; }
@@ -63,6 +66,9 @@
         [IgnoreBinding]
         [ProtoMember(8)]
         public IDictionary<string, string> MetaFields { get; }
+
+        [ProtoMember(9)]
+        public MediaType MediaType { get; }
 
         public override bool Equals(object obj)
         {

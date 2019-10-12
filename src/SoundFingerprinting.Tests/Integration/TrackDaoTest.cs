@@ -46,7 +46,7 @@
             var modelReferences = new ConcurrentBag<IModelReference>();
             for (int i = 0; i < 1000; i++)
             {
-                var modelReference = trackDao.InsertTrack(new TrackInfo("isrc", "title", "artist", 200)).TrackReference;
+                var modelReference = trackDao.InsertTrack(new TrackInfo("id", "title", "artist", 200)).TrackReference;
 
                 Assert.IsFalse(modelReferences.Contains(modelReference));
                 modelReferences.Add(modelReference);
@@ -64,14 +64,14 @@
             Assert.AreEqual(trackCount, tracks.Count);
             foreach (var expectedTrack in expectedTracks)
             {
-                Assert.IsTrue(tracks.Any(track => track.ISRC == expectedTrack.Id));
+                Assert.IsTrue(tracks.Any(track => track.Id == expectedTrack.Id));
             }
         }
 
         [Test]
         public void ReadByIdTest()
         {
-            var track = new TrackInfo("isrc", "title", "artist", 200);
+            var track = new TrackInfo("id", "title", "artist", 200);
 
             var trackReference = trackDao.InsertTrack(track).TrackReference;
 

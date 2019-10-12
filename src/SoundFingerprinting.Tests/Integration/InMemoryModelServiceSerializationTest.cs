@@ -30,7 +30,7 @@
                 .UsingServices(audioService)
                 .Hash();
 
-            var trackData = new TrackInfo("id", "title", "artist", 200, new Dictionary<string, string> {{"key", "value"}});
+            var trackData = new TrackInfo("id", "title", "artist", 200, new Dictionary<string, string> {{"key", "value"}}, MediaType.Audio);
 
             modelService.Insert(trackData, hashedFingerprints);
 
@@ -69,8 +69,8 @@
 
             File.Delete(tempFile);
 
-            Assert.IsTrue(tracks.Any(track => track.ISRC == "id1"));
-            Assert.IsTrue(tracks.Any(track => track.ISRC == "id2"));
+            Assert.IsTrue(tracks.Any(track => track.Id == "id1"));
+            Assert.IsTrue(tracks.Any(track => track.Id == "id2"));
             Assert.IsTrue(!ref1.Equals(ref2));
         }
 

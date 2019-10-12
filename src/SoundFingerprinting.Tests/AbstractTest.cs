@@ -24,7 +24,8 @@
             Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
             Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
             Assert.AreEqual(expectedTrack.DurationInSeconds, actualTrack.Length);
-            Assert.AreEqual(expectedTrack.Id, actualTrack.ISRC);
+            Assert.AreEqual(expectedTrack.Id, actualTrack.Id);
+            Assert.AreEqual(expectedTrack.MediaType, actualTrack.MediaType);
             foreach (var metaField in expectedTrack.MetaFields)
             {
                 Assert.IsTrue(actualTrack.MetaFields.TryGetValue(metaField.Key, out var value));
