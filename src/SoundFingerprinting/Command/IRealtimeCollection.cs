@@ -7,6 +7,6 @@ namespace SoundFingerprinting.Command
     {
         bool TryTake(out AudioSamples audioSamples, int millisecondsDelay, CancellationToken cancellationToken);
 
-        bool IsAddingCompleted { get; }
+        bool IsFinished { get; }
     }
 }

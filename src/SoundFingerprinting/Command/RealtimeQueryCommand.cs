@@ -79,7 +79,7 @@ namespace SoundFingerprinting.Command
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
 
             double queryLength = 0d;
-            while (!realtimeCollection.IsAddingCompleted && !cancellationToken.IsCancellationRequested)
+            while (!realtimeCollection.IsFinished && !cancellationToken.IsCancellationRequested)
             {
                 AudioSamples audioSamples;
                 try
@@ -116,7 +116,6 @@ namespace SoundFingerprinting.Command
                     InvokeSuccessHandler(aggregatedResult);
                     InvokeDidNotPassFilterHandler(aggregatedResult);
                 }
-                
             }
 
             return queryLength;

@@ -11,7 +11,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
     public class OfflineStorage : IEnumerable<TimedHashes>
     {
-        private readonly string dateFormat = "yyyy-MM-ddTHH-mm-ss";
+        private readonly string dateFormat = "yyyy-MM-ddTHH-mm-ss.fffff";
         private readonly string folder;
 
         public OfflineStorage(string folder)
@@ -20,6 +20,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
+            }
+
+            foreach (var previousFiles in Directory.GetFiles(folder, "*.hash"))
+            {
+                File.Delete(previousFiles);
             }
         }
         
