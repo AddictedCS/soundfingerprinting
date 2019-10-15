@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
 
     /// <summary>
@@ -57,16 +57,6 @@
             get => FingerprintConfiguration.SpectrogramConfig.Stride;
 
             set => FingerprintConfiguration.SpectrogramConfig.Stride = value;
-        }
-
-        /// <summary>
-        ///   Gets or sets Haar Wavelet norm.
-        /// </summary>
-        public double HaarWaveletNorm
-        {
-            get => FingerprintConfiguration.HaarWaveletNorm;
-
-            set => FingerprintConfiguration.HaarWaveletNorm = value;
         }
 
         /// <summary>
@@ -127,6 +117,12 @@
         ///  Useful when you would like to re-query the storage with previously generated fingerprints
         /// </summary>
         public DateTime RelativeTo { get; set; }
+
+        /// <summary>
+        ///  Gets or sets query media type.
+        ///  Source of fingerprints is either audio or video, set the corresponding type so that the ModelService is aware where to look for matches
+        /// </summary>
+        public MediaType QueryMediaType { get; set; }
 
         /// <summary>
         ///  Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 

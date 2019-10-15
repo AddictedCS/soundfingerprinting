@@ -18,6 +18,11 @@ namespace SoundFingerprinting.DAO
         {
             // left for protobuf
         }
+        
+        public long Current
+        {
+            get { return referenceCounter; }
+        }
 
         public IModelReference Next()
         {

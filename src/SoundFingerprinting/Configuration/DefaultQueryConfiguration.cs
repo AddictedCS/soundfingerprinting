@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using SoundFingerprinting.Data;
 
     public class DefaultQueryConfiguration : QueryConfiguration
     {
@@ -20,6 +21,7 @@
                                        };
             MetaFields = new Dictionary<string, string>();
             RelativeTo = DateTime.Now;
+            QueryMediaType = MediaType.Audio;
         }
     }
 }
