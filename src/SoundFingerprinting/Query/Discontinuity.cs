@@ -16,7 +16,7 @@
         {
             get
             {
-                return Start - End;
+                return End - Start;
             }
         }
 
