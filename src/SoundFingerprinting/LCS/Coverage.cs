@@ -102,7 +102,7 @@
         {
             get
             {
-                return BestPath.Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt)).FindGaps(permittedGap);
+                return BestPath.Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt)).FindGaps(permittedGap, fingerprintLength);
             }
         }
 
@@ -113,7 +113,7 @@
         {
             get
             {
-                return BestPath.Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt)).FindGaps(permittedGap);
+                return BestPath.Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt)).FindGaps(permittedGap, fingerprintLength);
             }
         }
 

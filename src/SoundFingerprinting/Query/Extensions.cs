@@ -20,14 +20,14 @@ namespace SoundFingerprinting.Query
             return ret;
         }
 
-        public static IEnumerable<Discontinuity> FindGaps(this IEnumerable<Tuple<uint, float>> entries, double permittedGap)
+        public static IEnumerable<Discontinuity> FindGaps(this IEnumerable<Tuple<uint, float>> entries, double permittedGap, double fingerprintLength)
         {
             var floats = entries.OrderBy(entry => entry.Item2).ToArray();
             for (int i = 1; i < floats.Length; ++i)
             {
-                if (floats[i].Item2 - floats[i - 1].Item2 > permittedGap && floats[i].Item1 - floats[i - 1].Item1 > 1)
+                if (floats[i].Item2 - (floats[i - 1].Item2 + fingerprintLength) > permittedGap && floats[i].Item1 - floats[i - 1].Item1 > 1)
                 {
-                    yield return new Discontinuity(floats[i - 1].Item2, floats[i].Item2);
+                    yield return new Discontinuity(floats[i - 1].Item2 + (float)fingerprintLength, floats[i].Item2);
                 }
             }
         }
