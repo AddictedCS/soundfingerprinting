@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, 1d);
 
-            Assert.AreEqual(5.4586, coverage.QueryCoverageSeconds, Delta);
+            Assert.AreEqual(11.4862, coverage.MatchLengthWithTrackDiscontinuities, Delta);
         }
 
         [Test]
@@ -33,7 +33,6 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, 1d);
 
-            Assert.AreEqual(3.9724, coverage.QueryCoverageSeconds, Delta);
             Assert.AreEqual(4.486, coverage.MatchLengthWithTrackDiscontinuities, Delta);
             Assert.AreEqual(-6, coverage.TrackStartsAt);
         }
@@ -46,7 +45,6 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, 1d);
 
-            Assert.AreEqual(3.9724, coverage.QueryCoverageSeconds, Delta);
             Assert.AreEqual(4.486, coverage.MatchLengthWithTrackDiscontinuities, Delta);
         }
 

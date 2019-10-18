@@ -138,17 +138,10 @@
         {
             get
             {
-                double notCoveredSeconds = 0d;
-                var list = BestPath.ToList();
-                for (int i = 1; i < list.Count; ++i)
-                {
-                    if (list[i].TrackMatchAt - list[i - 1].TrackMatchAt > fingerprintLength)
-                    {
-                        notCoveredSeconds += list[i].TrackMatchAt - (list[i - 1].TrackMatchAt + fingerprintLength);
-                    }
-                }
-
-                return notCoveredSeconds;
+                return BestPath
+                    .Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt))
+                    .FindGaps(permittedGap: 0, fingerprintLength)
+                    .Sum(gap => gap.LengthInSeconds);
             }
         }
     }
