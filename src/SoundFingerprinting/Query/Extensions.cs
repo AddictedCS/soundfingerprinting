@@ -22,12 +22,12 @@ namespace SoundFingerprinting.Query
 
         public static IEnumerable<Discontinuity> FindGaps(this IEnumerable<Tuple<uint, float>> entries, double permittedGap, double fingerprintLength)
         {
-            var floats = entries.OrderBy(entry => entry.Item2).ToArray();
-            for (int i = 1; i < floats.Length; ++i)
+            var matches = entries.OrderBy(entry => entry.Item2).ToArray();
+            for (int i = 1; i < matches.Length; ++i)
             {
-                if (floats[i].Item2 - (floats[i - 1].Item2 + fingerprintLength) > permittedGap && floats[i].Item1 - floats[i - 1].Item1 > 1)
+                if (matches[i].Item2 - (matches[i - 1].Item2 + fingerprintLength) > permittedGap && matches[i].Item1 - matches[i - 1].Item1 > 1)
                 {
-                    yield return new Discontinuity(floats[i - 1].Item2 + (float)fingerprintLength, floats[i].Item2);
+                    yield return new Discontinuity(matches[i - 1].Item2 + (float)fingerprintLength, matches[i].Item2);
                 }
             }
         }
