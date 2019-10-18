@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, 1d);
 
-            Assert.AreEqual(5.4586, coverage.QueryCoverageSeconds, 0.001);
+            Assert.AreEqual(5.4586, coverage.QueryCoverageSeconds, Delta);
         }
 
         [Test]
