@@ -37,7 +37,7 @@
         /// <summary>
         ///  Gets match length including track discontinuities
         /// </summary>
-        public double MatchLengthWithTrackDiscontinuities => SubFingerprintsToSeconds.AdjustLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
+        public double MatchLengthWithTrackDiscontinuities => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
 
         /// <summary>
         ///  Gets best estimate of where does the track actually starts.
@@ -102,7 +102,7 @@
         {
             get
             {
-                return BestPath.Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt)).FindGaps(permittedGap);
+                return BestPath.Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt)).FindGaps(permittedGap, fingerprintLength);
             }
         }
 
@@ -113,7 +113,7 @@
         {
             get
             {
-                return BestPath.Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt)).FindGaps(permittedGap);
+                return BestPath.Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt)).FindGaps(permittedGap, fingerprintLength);
             }
         }
 
@@ -138,17 +138,11 @@
         {
             get
             {
-                double notCoveredSeconds = 0d;
-                var list = BestPath.ToList();
-                for (int i = 1; i < list.Count; ++i)
-                {
-                    if (list[i].TrackMatchAt - list[i - 1].TrackMatchAt > fingerprintLength)
-                    {
-                        notCoveredSeconds += list[i].TrackMatchAt - (list[i - 1].TrackMatchAt + fingerprintLength);
-                    }
-                }
-
-                return notCoveredSeconds;
+                const double permittedGap = 0;
+                return BestPath
+                    .Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt))
+                    .FindGaps(permittedGap, fingerprintLength)
+                    .Sum(gap => gap.LengthInSeconds);
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Query
 {
-    internal class ConfidenceCalculator : IConfidenceCalculator
+    public class ConfidenceCalculator : IConfidenceCalculator
     {
         /// <summary>
         ///     Calculates how confident is the algorithm that it found a successful match
