@@ -30,15 +30,41 @@
         public double TrackMatchStartsAt => BestPath.First().TrackMatchAt;
 
         /// <summary>
-        ///  Gets query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
+        ///  Gets exact query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
         /// </summary>
-        public double QueryCoverageSeconds => MatchLengthWithTrackDiscontinuities - NotCoveredLength;
+        public double CoverageLength => DiscreteCoverageLength - GapsCoverageLength;
 
         /// <summary>
-        ///  Gets match length including track discontinuities
+        ///  Gets coverage length sum in seconds, allowing gaps specified by permitted gap query parameter
         /// </summary>
-        public double MatchLengthWithTrackDiscontinuities => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
+        public double CoverageWithPermittedGapsLength
+        {
+            get
+            {
+                return DiscreteCoverageLength - TrackDiscontinuities.Sum(d => d.LengthInSeconds);
+            }
+        }
 
+        /// <summary>
+        ///  Gets match length including track discontinuities if any
+        /// </summary>
+        public double DiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
+
+        /// <summary>
+        ///  Gets the exact length of not covered portion of the query match in the database track
+        /// </summary>
+        /// <returns>Seconds of not covered length</returns>
+        public double GapsCoverageLength
+        {
+            get
+            {
+                return BestPath
+                    .Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt))
+                    .FindGaps(0, fingerprintLength)
+                    .Sum(gap => gap.LengthInSeconds);
+            }
+        }
+        
         /// <summary>
         ///  Gets best estimate of where does the track actually starts.
         ///  Can be negative, if algorithm assumes the track starts in the past point relative to the query
@@ -128,21 +154,6 @@
             double stdDev = list.Select(m => m.Score).StdDev();
             double avg = list.Average(m => m.Score);
             return list.Where(match => match.Score < avg - sigma * stdDev);
-        }
-
-        /// <summary>
-        ///  Gets the exact length of not covered portion of the query match in the database track
-        /// </summary>
-        /// <returns>Seconds of not covered length</returns>
-        public double NotCoveredLength
-        {
-            get
-            {
-                return BestPath
-                    .Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt))
-                    .FindGaps(0, fingerprintLength)
-                    .Sum(gap => gap.LengthInSeconds);
-            }
         }
     }
 }
