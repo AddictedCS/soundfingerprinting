@@ -14,7 +14,7 @@ namespace SoundFingerprinting.Query
             {
                 double avg = doubles.Average();
                 double sum = doubles.Sum(d => (d - avg) * (d - avg));
-                ret = System.Math.Sqrt(sum / count);
+                ret = Math.Sqrt(sum / count);
             }
 
             return ret;

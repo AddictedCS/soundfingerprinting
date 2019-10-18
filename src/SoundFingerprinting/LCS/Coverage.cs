@@ -138,10 +138,9 @@
         {
             get
             {
-                const double permittedGap = 0;
                 return BestPath
                     .Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt))
-                    .FindGaps(permittedGap, fingerprintLength)
+                    .FindGaps(0, fingerprintLength)
                     .Sum(gap => gap.LengthInSeconds);
             }
         }

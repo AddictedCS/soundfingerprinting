@@ -18,18 +18,21 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         public void ShouldIdentifyLongestMatch()
         {
             const double queryLength = 9d;
-            var matches = TestUtilities.GetMatchedWith(new float[] { 5, 9, 11, 14 }, new float[] { 0, 5, 9, 10 });
+            const float trackMatchStartsAt = 0f;
+            const float trackMatchEndsAt = 10;
+            var matches = TestUtilities.GetMatchedWith(new[] { 5f, 9, 11, 14 }, new[] { trackMatchStartsAt, 5, 9, trackMatchEndsAt });
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, 1d);
 
-            Assert.AreEqual(11.4862, coverage.MatchLengthWithTrackDiscontinuities, Delta);
+            Assert.AreEqual(trackMatchEndsAt - trackMatchStartsAt + fingerprintLengthInSeconds, coverage.MatchLengthWithTrackDiscontinuities, Delta);
         }
 
         [Test]
         public void ShouldSelectBestLongestMatch()
         {
             const double queryLength = 5d;
-            var matches = TestUtilities.GetMatchedWith(new float[] { 1, 2, 3, 4, 5 }, new float[] { 1, 2, 9, 11, 12 });
+            const float trackMatchStartsAt = 9f;
+            var matches = TestUtilities.GetMatchedWith(new[] { 1f, 2, 3, 4, 5 }, new[] { 1, 2, trackMatchStartsAt, 11, 12 });
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, 1d);
 
@@ -41,7 +44,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         public void ShouldDisregardJingleSinceTheGapIsTooBig()
         {
             const double queryLength = 5d;
-            var matches = TestUtilities.GetMatchedWith(new float[] { 1, 4, 5, 1, 2 }, new float[] { 1, 3, 4, 10, 11 });
+            var matches = TestUtilities.GetMatchedWith(new[] { 1f, 4, 5, 1, 2 }, new[] { 1f, 3, 4, 10, 11 });
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, 1d);
 
