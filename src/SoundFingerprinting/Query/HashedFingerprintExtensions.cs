@@ -15,7 +15,7 @@ namespace SoundFingerprinting.Query
                 endsAt = System.Math.Max(endsAt, hashedFingerprint.StartsAt);
             }
 
-            return SubFingerprintsToSeconds.AdjustLengthToSeconds(endsAt, startsAt, configuration.FingerprintLengthInSeconds); 
+            return SubFingerprintsToSeconds.MatchLengthToSeconds(endsAt, startsAt, configuration.FingerprintLengthInSeconds); 
         }
     }
 }

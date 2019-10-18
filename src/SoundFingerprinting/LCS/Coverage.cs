@@ -37,7 +37,7 @@
         /// <summary>
         ///  Gets match length including track discontinuities
         /// </summary>
-        public double MatchLengthWithTrackDiscontinuities => SubFingerprintsToSeconds.AdjustLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
+        public double MatchLengthWithTrackDiscontinuities => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
 
         /// <summary>
         ///  Gets best estimate of where does the track actually starts.
