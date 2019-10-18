@@ -25,9 +25,14 @@ namespace SoundFingerprinting.Query
             var matches = entries.OrderBy(entry => entry.Item2).ToArray();
             for (int i = 1; i < matches.Length; ++i)
             {
-                if (matches[i].Item2 - (matches[i - 1].Item2 + fingerprintLength) > permittedGap && matches[i].Item1 - matches[i - 1].Item1 > 1)
+                var startsAt = matches[i - 1].Item2;
+                var endsAt = matches[i].Item2;
+                var gap = (float)SubFingerprintsToSeconds.GapLengthToSeconds(endsAt, startsAt, fingerprintLength);
+                var sequenceNumberIncrement = matches[i].Item1 - matches[i - 1].Item1;
+
+                if (gap > permittedGap && sequenceNumberIncrement > 1)
                 {
-                    yield return new Discontinuity(matches[i - 1].Item2 + (float)fingerprintLength, matches[i].Item2);
+                    yield return new Discontinuity(endsAt - gap, endsAt);
                 }
             }
         }
