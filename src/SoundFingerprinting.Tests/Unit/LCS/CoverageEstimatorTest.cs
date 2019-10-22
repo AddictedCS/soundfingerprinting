@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Tests.Unit.LCS
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -13,7 +14,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         private const double Delta = 1E-3;
 
         private readonly float fingerprintLengthInSeconds = (float)new DefaultFingerprintConfiguration().FingerprintLengthInSeconds;
-        
+
         [Test]
         public void ShouldIdentifyLongestMatch()
         {
@@ -61,10 +62,10 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                 queryMatchAt[i] = i * 1f / fps;
                 dbMatchAt[i] = shift + i * 1f / fps;
             }
-            
+
             var matches = TestUtilities.GetMatchedWith(queryMatchAt, dbMatchAt);
             var coverage = matches.EstimateCoverage(seconds, 1d / fps, 1d);
-            
+
             Assert.AreEqual(seconds, coverage.MatchLengthWithTrackDiscontinuities, 0.0001);
             Assert.AreEqual(seconds, coverage.QueryCoverageSeconds, 0.0001);
             Assert.AreEqual(shift, coverage.TrackMatchStartsAt);
@@ -105,12 +106,12 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var matches = Enumerable.Range(0, count)
                 .Select(i => (uint)i)
                 .Select(seqNum => new MatchedWith(
-                    querySequenceNumber:     seqNum,
-                    queryMatchAt:            seqNum * fingerprintLengthInSeconds,
+                    querySequenceNumber: seqNum,
+                    queryMatchAt: seqNum * fingerprintLengthInSeconds,
                     trackSequenceNumber: 2 * seqNum,
-                    trackMatchAt:        2 * seqNum * fingerprintLengthInSeconds,
+                    trackMatchAt: 2 * seqNum * fingerprintLengthInSeconds,
                     score: 100));
-            
+
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, permittedGap: 0);
 
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.QueryCoverageSeconds, Delta);
@@ -139,9 +140,9 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                 .Select(i => (uint)i)
                 .Select(seqNum => new MatchedWith(
                     querySequenceNumber: 2 * seqNum,
-                    queryMatchAt:        2 * seqNum * fingerprintLengthInSeconds,
-                    trackSequenceNumber:     seqNum,
-                    trackMatchAt:            seqNum * fingerprintLengthInSeconds,
+                    queryMatchAt: 2 * seqNum * fingerprintLengthInSeconds,
+                    trackSequenceNumber: seqNum,
+                    trackMatchAt: seqNum * fingerprintLengthInSeconds,
                     score: 100));
 
             var coverage = matches.EstimateCoverage(queryLength, fingerprintLengthInSeconds, permittedGap: 0);
@@ -159,6 +160,25 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.QueryDiscontinuities.Last().Start, Delta);
             Assert.AreEqual(4 * fingerprintLengthInSeconds, coverage.QueryDiscontinuities.Last().End, Delta);
             Assert.AreEqual(fingerprintLengthInSeconds, coverage.QueryDiscontinuities.Last().LengthInSeconds, Delta);
+        }
+
+        [Test]
+        public void FindGapsFloatingPointEdgeCase()
+        {
+            const double permittedGap = 0;
+            const double fingerprintLength = 8192 / 5512d;
+
+            uint startsAtSeqNum = 20;
+            float startsAt = 3.71552968025207519531250000000f;
+            var start = Tuple.Create(startsAtSeqNum, startsAt);
+
+            uint endsAtSeqNum = 28;
+            float endsAt = 5.20174169540405273437500000000f;
+            var end = Tuple.Create(endsAtSeqNum, endsAt);
+
+            var entries = new[] { start, end };
+
+            Assert.DoesNotThrow(() => entries.FindGaps(permittedGap, fingerprintLength).ToList());
         }
     }
 }
