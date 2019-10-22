@@ -9,7 +9,7 @@
 
         public static double GapLengthToSeconds(double endsAt, double startsAt, double fingerprintLengthInSeconds)
         {
-            return endsAt - (startsAt + fingerprintLengthInSeconds);
+            return System.Math.Max(0, endsAt - (startsAt + fingerprintLengthInSeconds));
         }
     }
 }
