@@ -292,7 +292,7 @@
                     actualTrack, ToTrackString(recognizedTrack), isSuccessful,
                     bestMatch.Score, bestMatch.Confidence,
                     bestMatch.Coverage,
-                    bestMatch.QueryCoverageSeconds, bestMatch.TrackStartsAt
+                    bestMatch.CoverageLength, bestMatch.TrackStartsAt
                 };
         }
 

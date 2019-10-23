@@ -33,11 +33,11 @@ namespace SoundFingerprinting.Query
 
         private string InternalUid { get; }
         
-        private double TrackMatchEndsAt => Entry.TrackMatchStartsAt + Entry.QueryCoverageSeconds;
+        private double TrackMatchEndsAt => Entry.TrackMatchStartsAt + Entry.CoverageLength;
 
         public PendingResultEntry Wait(double length)
         {
-            return new PendingResultEntry(new ResultEntry(Entry.Track, Entry.QueryMatchStartsAt, Entry.QueryCoverageSeconds,
+            return new PendingResultEntry(new ResultEntry(Entry.Track, Entry.QueryMatchStartsAt, Entry.CoverageLength,
                     Entry.MatchLengthWithTrackDiscontinuities, Entry.TrackMatchStartsAt, Entry.TrackStartsAt, Entry.Confidence,
                     Entry.Score, Entry.QueryLength + length, Entry.MatchedAt), waiting + length);
         }
@@ -69,7 +69,7 @@ namespace SoundFingerprinting.Query
 
         private bool CanSwallow(ResultEntry next)
         {
-            return Entry.TrackMatchStartsAt <= next.TrackMatchStartsAt && TrackMatchEndsAt >= next.TrackMatchStartsAt + next.QueryCoverageSeconds;
+            return Entry.TrackMatchStartsAt <= next.TrackMatchStartsAt && TrackMatchEndsAt >= next.TrackMatchStartsAt + next.CoverageLength;
         }
     }
 }

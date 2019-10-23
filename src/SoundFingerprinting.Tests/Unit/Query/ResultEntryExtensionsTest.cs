@@ -33,7 +33,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var merged = a.MergeWith(b);
 
-            Assert.AreEqual(15, merged.QueryCoverageSeconds);
+            Assert.AreEqual(15, merged.CoverageLength);
             Assert.AreEqual(15, merged.MatchLengthWithTrackDiscontinuities);
             Assert.AreEqual(18, merged.QueryLength);
             Assert.AreEqual(5d, merged.TrackMatchStartsAt);
@@ -54,7 +54,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var merged = a.MergeWith(b);
 
-            Assert.AreEqual(20, merged.QueryCoverageSeconds);
+            Assert.AreEqual(20, merged.CoverageLength);
             Assert.AreEqual(20, merged.MatchLengthWithTrackDiscontinuities);
             Assert.AreEqual(30, merged.QueryLength);
             Assert.AreEqual(5d, merged.TrackMatchStartsAt);
@@ -75,7 +75,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var merged = a.MergeWith(b);
 
-            Assert.AreEqual(15, merged.QueryCoverageSeconds);
+            Assert.AreEqual(15, merged.CoverageLength);
             Assert.AreEqual(15, merged.MatchLengthWithTrackDiscontinuities);
             Assert.AreEqual(15, merged.QueryLength);
             Assert.AreEqual(15d, merged.TrackMatchStartsAt);

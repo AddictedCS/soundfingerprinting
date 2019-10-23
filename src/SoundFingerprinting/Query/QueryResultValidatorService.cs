@@ -58,7 +58,7 @@
                 return new ResultEntry(
                     newEntry.Track,
                     newEntry.QueryMatchStartsAt,
-                    newEntry.QueryCoverageSeconds,
+                    newEntry.CoverageLength,
                     newEntry.MatchLengthWithTrackDiscontinuities,
                     newEntry.TrackMatchStartsAt,
                     newEntry.TrackStartsAt + result.TrackStartsAt,
