@@ -59,7 +59,7 @@
                     newEntry.Track,
                     newEntry.QueryMatchStartsAt,
                     newEntry.CoverageLength,
-                    newEntry.MatchLengthWithTrackDiscontinuities,
+                    newEntry.DiscreteCoverageLength,
                     newEntry.TrackMatchStartsAt,
                     newEntry.TrackStartsAt + result.TrackStartsAt,
                     newEntry.Confidence,

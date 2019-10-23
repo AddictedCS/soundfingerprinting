@@ -30,7 +30,7 @@ namespace SoundFingerprinting.Query
         {
             get
             {
-                return EstimatedCoverage > 0.9 && !ResultCoverage.TrackDiscontinuities.Any()
+                return DiscreteCoverage > 0.9 && !ResultCoverage.TrackDiscontinuities.Any()
                                                && !ResultCoverage.QueryDiscontinuities.Any();
             }
         }
