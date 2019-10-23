@@ -29,6 +29,7 @@ namespace SoundFingerprinting.Query
                 var endsAt = matches[i].Item2;
                 var gap = (float)SubFingerprintsToSeconds.GapLengthToSeconds(endsAt, startsAt, fingerprintLength);
                 var sequenceNumberIncrement = matches[i].Item1 - matches[i - 1].Item1;
+                // ReSharper disable once RedundantCast, float is not sufficiently exact
                 float start = (float)(endsAt - gap);
                 float end = endsAt;
                 if (!(end <= start) && gap > permittedGap && sequenceNumberIncrement > 1)

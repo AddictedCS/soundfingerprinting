@@ -7,7 +7,9 @@ namespace SoundFingerprinting.Query
         public Discontinuity(float start, float end)
         {
             if (end <= start)
+            {
                 throw new ArgumentException($"{nameof(start)}={start} must be less than {nameof(end)}={end}");
+            }
 
             Start = start;
             End = end;
@@ -17,13 +19,7 @@ namespace SoundFingerprinting.Query
 
         public float End { get; }
 
-        public float LengthInSeconds
-        {
-            get
-            {
-                return End - Start;
-            }
-        }
+        public float LengthInSeconds => End - Start;
 
         public override string ToString()
         {
