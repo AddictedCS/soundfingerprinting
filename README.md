@@ -198,8 +198,4 @@ If you want to contribute you are welcome to open issues or discuss on [issues](
 ### License
 The framework is provided under [MIT](https://opensource.org/licenses/MIT) license agreement.
 
-Special thanks to [JetBrains](https://www.jetbrains.com/) for providing this project with a license for [ReSharper](https://www.jetbrains.com/resharper/)!
-
-![JetBrains](http://blog.jetbrains.com/webide/files/2012/12/logo_JB_tagline-300x108.png)
-
-&copy; Soundfingerprinting, 2010-2018, ciumac.sergiu@gmail.com
+&copy; Soundfingerprinting, 2010-2019, sergiu@emysound.com
