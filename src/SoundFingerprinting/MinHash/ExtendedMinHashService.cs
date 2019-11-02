@@ -12,21 +12,9 @@
             this.permutations = permutations;
         }
 
-        public int PermutationsCount
-        {
-            get
-            {
-                return permutations.Count;
-            }
-        }
+        public int PermutationsCount => permutations.Count;
 
-        public int IndexesPerPermutation
-        {
-            get
-            {
-                return permutations.IndexesPerPermutation;
-            }
-        }
+        public int IndexesPerPermutation => permutations.IndexesPerPermutation;
 
         public int[] Hash(IEncodedFingerprintSchema schema, int n)
         {

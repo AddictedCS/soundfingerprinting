@@ -11,11 +11,10 @@
 
     internal class LocalitySensitiveHashingAlgorithm : ILocalitySensitiveHashingAlgorithm
     {
-        private const uint TwoTo32Minus1 = 4294967295;
-        private const uint PrimeDefault = 4294967291;
         private const int LargePrime = 433494437;
-
-        private readonly int[] A = { 142212803, 120936273, 235649938, 212405735, 369800342, 12467216, 400235300, 133796086 };
+        private const uint PrimeOffset = 2166136261;
+        private const int FnvPrime = 16777619;
+        
         private readonly IMinHashService<byte> minHashService;
         private readonly IHashConverter hashConverter = HashConverter.Instance;
         private readonly ConcurrentDictionary<int, IMinHashService<int>> extendedMinHashServices;
@@ -77,26 +76,17 @@
 
         private int[] HashMinHashes(int[] signature, int l, int k)
         {
-            if (A.Length < k)
-            {
-                throw new ArgumentException($"{nameof(k)} should be less or equal to A's array length {A.Length}");
-            }
-
             int[] hash = new int[l];
             for (int table = 0; table < l; ++table)
             {
-                long h = 0;
+                long h = PrimeOffset;
                 for (int i = 0; i < k; ++i)
                 {
-                    h += A[k] * signature[table * k + i];
-                    h = (h & TwoTo32Minus1) + 5 * (h >> 32);
-                    if (h > PrimeDefault)
-                    {
-                        h -= PrimeDefault;
-                    }
+                    h *= FnvPrime;
+                    h ^= signature[table * k + i];
                 }
 
-                hash[table] = (int)h;
+                hash[table] = (int) h;
             }
 
             return hash;

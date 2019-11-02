@@ -22,21 +22,9 @@
         /// </summary>
         public static MinHashService MaxEntropy { get; } = new MinHashService(new MaxEntropyPermutations());
 
-        public int PermutationsCount
-        {
-            get
-            {
-                return permutations.Count;
-            }
-        }
+        public int PermutationsCount => permutations.Count;
 
-        public int IndexesPerPermutation
-        {
-            get
-            {
-                return permutations.IndexesPerPermutation;
-            }
-        }
+        public int IndexesPerPermutation => permutations.IndexesPerPermutation;
 
         public byte[] Hash(IEncodedFingerprintSchema fingerprint, int n)
         {

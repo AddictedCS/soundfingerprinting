@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.LSH
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -18,6 +19,88 @@
     {
         private readonly ISimilarityUtility similarity = new SimilarityUtility();
 
+        [Test]
+        public void ShouldNotGenerateAudioCollisions()
+        {
+            var lshAlgorithm = LocalitySensitiveHashingAlgorithm.Instance;
+            
+            var random = new Random(1);
+            int width = 128, height = 32;
+
+            var hashingConfig = new DefaultHashingConfig();
+            var tables = Enumerable.Range(0, 25).Select(index => new ConcurrentDictionary<int, int>()).ToArray();
+
+            int runs = 10000;
+            for (int i = 0; i < 10000; ++i)
+            {
+                var tinyFingerprint = TestUtilities.GenerateRandomFingerprint(random, (int) 200, width, height);
+ 
+                var fingerprint = new Fingerprint(tinyFingerprint, 0, 0);
+
+                var hashedFingerprint = lshAlgorithm.Hash(fingerprint, hashingConfig, Enumerable.Empty<string>());
+
+                for (int table = 0; table < tables.Length; ++table)
+                {
+                    int key = hashedFingerprint.HashBins[table];
+                    tables[table].AddOrUpdate(key, 1, (k, old) => old + 1);
+                }
+            }
+
+            for (int i = 0; i < tables.Length; ++i)
+            {
+                Assert.IsTrue(tables[i].Count > runs * 0.9);
+            }
+        }
+
+        [Test]
+        public void LongToIntTest()
+        {
+            long maxValue = (long)int.MaxValue + 1;
+
+            int convertBack = (int) maxValue;
+            
+            Assert.AreEqual(int.MinValue, convertBack);
+        }
+        
+        [Test]
+        public void ShouldNotGenerateVideoCollisions()
+        {
+            var lshAlgorithm = LocalitySensitiveHashingAlgorithm.Instance;
+            
+            var random = new Random(1);
+            int width = 128, height = 72;
+            double topWaveletsPercentage = 0.04;
+
+            var hashingConfig = new DefaultHashingConfig()
+            {
+                Width = width, Height = height
+            };
+            
+            var tables = Enumerable.Range(0, 25).Select(index => new ConcurrentDictionary<int, int>()).ToArray();
+
+            int runs = 10000;
+            for (int i = 0; i < 10000; ++i)
+            {
+                var tinyFingerprint = TestUtilities.GenerateRandomFingerprint(random, (int) (width * height * topWaveletsPercentage), width, height);
+ 
+                var fingerprint = new Fingerprint(tinyFingerprint, 0, 0);
+
+                var hashedFingerprint = lshAlgorithm.HashImage(fingerprint, hashingConfig, Enumerable.Empty<string>());
+
+                for (int table = 0; table < tables.Length; ++table)
+                {
+                    int key = hashedFingerprint.HashBins[table];
+                    tables[table].AddOrUpdate(key, 1, (k, old) => old + 1);
+                }
+            }
+
+            Console.WriteLine(string.Join(",", tables.Select(t => t.Count)));
+            for (int i = 0; i < tables.Length; ++i)
+            {
+                Assert.IsTrue(tables[i].Count > runs * 0.9);
+            }
+        }
+        
         [Test]
         public void FingerprintsCantMatchUniformlyAtRandom()
         {

@@ -71,6 +71,7 @@ namespace SoundFingerprinting.Tests
 
             return Tuple.Create(first, second);
         }
+        
         public static TinyFingerprintSchema GenerateRandomFingerprint(Random random, int topWavelets, int width, int height)
         {
             int length = width * height * 2;
