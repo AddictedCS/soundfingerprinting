@@ -2,22 +2,21 @@
 {
     using System;
     using System.Linq;
-
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.LCS;
 
     public class ExtendedResultEntry : ResultEntry
     {
         public ExtendedResultEntry(TrackData track, Coverage coverage, double confidence, double score, DateTime matchedAt)
-            : base(track, 
+            : base(track,
                 coverage.QueryMatchStartsAt,
                 coverage.CoverageLength,
                 coverage.DiscreteCoverageLength,
                 coverage.TrackMatchStartsAt,
                 coverage.TrackStartsAt,
-                confidence, 
-                score, 
-                coverage.QueryLength, 
+                confidence,
+                score,
+                coverage.QueryLength,
                 matchedAt)
         {
             ResultCoverage = coverage;
