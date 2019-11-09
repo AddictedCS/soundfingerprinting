@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Query
 {
     public class Discontinuity
     {
-        public Discontinuity(float start, float end)
+        public Discontinuity(double start, double end, bool isOnEdge)
         {
             if (end <= start)
             {
@@ -13,13 +13,19 @@ namespace SoundFingerprinting.Query
 
             Start = start;
             End = end;
+            IsOnEdge = isOnEdge;
         }
 
-        public float Start { get; }
+        public double Start { get; }
 
-        public float End { get; }
+        public double End { get; }
 
-        public float LengthInSeconds => End - Start;
+        public double LengthInSeconds => End - Start;
+
+        /// <summary>
+        ///  Gets flag that shows if a discontinuity is on edge (i.e. either beginning or end)
+        /// </summary>
+        public bool IsOnEdge { get; }
 
         public override string ToString()
         {

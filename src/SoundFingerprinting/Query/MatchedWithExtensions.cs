@@ -16,14 +16,15 @@
         /// </summary>
         /// <param name="matchedEntries">Matched withs for specific track</param>
         /// <param name="queryLength">Length of the query</param>
+        /// <param name="trackLength">Length of the matched track</param>
         /// <param name="fingerprintLength">Fingerprint length in seconds</param>
         /// <param name="permittedGap">Permitted gap for discontinuity calculation</param>
         /// <returns>Longest track region</returns>
-        public static Coverage EstimateCoverage(this IEnumerable<MatchedWith> matchedEntries, double queryLength, double fingerprintLength, double permittedGap)
+        public static Coverage EstimateCoverage(this IEnumerable<MatchedWith> matchedEntries, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
             var matches = matchedEntries.OrderBy(with => with.TrackMatchAt).ToList();
             var trackRegion = GetTrackRegion(matches, queryLength, fingerprintLength);
-            return new Coverage(GetBestReconstructedPath(trackRegion, matches), queryLength, fingerprintLength, permittedGap);
+            return new Coverage(GetBestReconstructedPath(trackRegion, matches), queryLength, trackLength, fingerprintLength, permittedGap);
         }
 
         private static TrackRegion GetTrackRegion(IReadOnlyList<MatchedWith> orderedByTrackMatchAt, double queryLength, double fingerprintLengthInSeconds)

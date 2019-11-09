@@ -32,10 +32,10 @@
             {
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
                 var merged = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
-                return merged.Select(sequence => sequence.EstimateCoverage(queryLength, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap));
+                return merged.Select(sequence => sequence.EstimateCoverage(queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap));
             }
 
-            return new[] { matches.EstimateCoverage(queryLength, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap) };
+            return new[] { matches.EstimateCoverage(queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap) };
         }
     }
 }
