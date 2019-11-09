@@ -2,9 +2,9 @@
 
 namespace SoundFingerprinting.Query
 {
-    public class Discontinuity
+    public class Gap
     {
-        public Discontinuity(double start, double end, bool isOnEdge)
+        public Gap(double start, double end, bool isOnEdge)
         {
             if (end <= start)
             {

@@ -7,8 +7,6 @@
 
     public class Coverage
     {
-        private const double PermittedGapZero = 1e-5;
-        
         private readonly double fingerprintLength;
         private readonly double permittedGap;
 
@@ -18,7 +16,7 @@
             QueryLength = queryLength;
             TrackLength = trackLength;
             this.fingerprintLength = fingerprintLength;
-            this.permittedGap = permittedGap > 0 ? permittedGap : PermittedGapZero;
+            this.permittedGap = permittedGap;
         }
 
         /// <summary>
@@ -34,7 +32,7 @@
         /// <summary>
         ///  Gets exact query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
         /// </summary>
-        public double CoverageLength => DiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, PermittedGapZero, fingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
+        public double CoverageLength => DiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, 0, fingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
 
         /// <summary>
         ///  Gets coverage length sum in seconds, allowing gaps specified by permitted gap query parameter
@@ -61,7 +59,7 @@
             get
             {
                 return BestPath
-                    .FindTrackGaps(TrackLength, PermittedGapZero, fingerprintLength)
+                    .FindTrackGaps(TrackLength, 0, fingerprintLength)
                     .Sum(gap => gap.LengthInSeconds);
             }
         }
@@ -130,12 +128,12 @@
         /// <summary>
         ///  Gets query match discontinuities. Capture all the query gaps we find in the best path
         /// </summary>
-        public IEnumerable<Discontinuity> QueryDiscontinuities => BestPath.FindQueryGaps(permittedGap, fingerprintLength);
+        public IEnumerable<Gap> QueryDiscontinuities => BestPath.FindQueryGaps(permittedGap, fingerprintLength);
 
         /// <summary>
         ///  Gets track match discontinuities. Capture all the track gaps we find in the best path
         /// </summary>
-        public IEnumerable<Discontinuity> TrackDiscontinuities => BestPath.FindTrackGaps(TrackLength, permittedGap, fingerprintLength);
+        public IEnumerable<Gap> TrackDiscontinuities => BestPath.FindTrackGaps(TrackLength, permittedGap, fingerprintLength);
 
         /// <summary>
         ///  Get score outliers from the best path. Useful to find regions which are weak matches and may require additional recheck
