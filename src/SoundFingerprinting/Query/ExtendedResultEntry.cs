@@ -1,5 +1,4 @@
-﻿
-namespace SoundFingerprinting.Query
+﻿namespace SoundFingerprinting.Query
 {
     using System;
     using System.Linq;
@@ -26,13 +25,6 @@ namespace SoundFingerprinting.Query
 
         public Coverage ResultCoverage { get; }
 
-        public bool StrongMatch
-        {
-            get
-            {
-                return DiscreteCoverage > 0.9 && !ResultCoverage.TrackGaps.Any()
-                                               && !ResultCoverage.QueryGaps.Any();
-            }
-        }
+        public bool NoGaps => !ResultCoverage.TrackGaps.Any() && !ResultCoverage.QueryGaps.Any();
     }
 }
