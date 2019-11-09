@@ -123,18 +123,18 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.CoverageLength, Delta);
             Assert.AreEqual(5 * fingerprintLengthInSeconds, coverage.DiscreteCoverageLength, Delta);
 
-            Assert.AreEqual(0, coverage.QueryDiscontinuities.Count());
-            Assert.AreEqual(2, coverage.TrackDiscontinuities.Count());
+            Assert.AreEqual(0, coverage.QueryGaps.Count());
+            Assert.AreEqual(2, coverage.TrackGaps.Count());
 
-            Assert.AreEqual(1 * fingerprintLengthInSeconds, coverage.TrackDiscontinuities.First().Start, Delta);
-            Assert.AreEqual(2 * fingerprintLengthInSeconds, coverage.TrackDiscontinuities.First().End, Delta);
-            Assert.AreEqual(fingerprintLengthInSeconds, coverage.TrackDiscontinuities.First().LengthInSeconds, Delta);
+            Assert.AreEqual(1 * fingerprintLengthInSeconds, coverage.TrackGaps.First().Start, Delta);
+            Assert.AreEqual(2 * fingerprintLengthInSeconds, coverage.TrackGaps.First().End, Delta);
+            Assert.AreEqual(fingerprintLengthInSeconds, coverage.TrackGaps.First().LengthInSeconds, Delta);
 
-            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackDiscontinuities.Last().Start, Delta);
-            Assert.AreEqual(4 * fingerprintLengthInSeconds, coverage.TrackDiscontinuities.Last().End, Delta);
-            Assert.AreEqual(fingerprintLengthInSeconds, coverage.TrackDiscontinuities.Last().LengthInSeconds, Delta);
+            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackGaps.Last().Start, Delta);
+            Assert.AreEqual(4 * fingerprintLengthInSeconds, coverage.TrackGaps.Last().End, Delta);
+            Assert.AreEqual(fingerprintLengthInSeconds, coverage.TrackGaps.Last().LengthInSeconds, Delta);
 
-            Assert.AreEqual(coverage.GapsCoverageLength, coverage.TrackDiscontinuities.Sum(d => d.LengthInSeconds), Delta);
+            Assert.AreEqual(coverage.GapsCoverageLength, coverage.TrackGaps.Sum(d => d.LengthInSeconds), Delta);
         }
 
         [Test]
@@ -157,16 +157,16 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.CoverageLength, Delta);
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.DiscreteCoverageLength, Delta);
 
-            Assert.AreEqual(0, coverage.TrackDiscontinuities.Count());
-            Assert.AreEqual(2, coverage.QueryDiscontinuities.Count());
+            Assert.AreEqual(0, coverage.TrackGaps.Count());
+            Assert.AreEqual(2, coverage.QueryGaps.Count());
 
-            Assert.AreEqual(1 * fingerprintLengthInSeconds, coverage.QueryDiscontinuities.First().Start, Delta);
-            Assert.AreEqual(2 * fingerprintLengthInSeconds, coverage.QueryDiscontinuities.First().End, Delta);
-            Assert.AreEqual(fingerprintLengthInSeconds, coverage.QueryDiscontinuities.First().LengthInSeconds, Delta);
+            Assert.AreEqual(1 * fingerprintLengthInSeconds, coverage.QueryGaps.First().Start, Delta);
+            Assert.AreEqual(2 * fingerprintLengthInSeconds, coverage.QueryGaps.First().End, Delta);
+            Assert.AreEqual(fingerprintLengthInSeconds, coverage.QueryGaps.First().LengthInSeconds, Delta);
 
-            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.QueryDiscontinuities.Last().Start, Delta);
-            Assert.AreEqual(4 * fingerprintLengthInSeconds, coverage.QueryDiscontinuities.Last().End, Delta);
-            Assert.AreEqual(fingerprintLengthInSeconds, coverage.QueryDiscontinuities.Last().LengthInSeconds, Delta);
+            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.QueryGaps.Last().Start, Delta);
+            Assert.AreEqual(4 * fingerprintLengthInSeconds, coverage.QueryGaps.Last().End, Delta);
+            Assert.AreEqual(fingerprintLengthInSeconds, coverage.QueryGaps.Last().LengthInSeconds, Delta);
         }
 
         [Test]
@@ -232,11 +232,12 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                 .ToList();
             
             Assert.AreEqual(1, trackDiscontinuities.Count);
-            var discontinuity = trackDiscontinuities.First();
+            var firstGap = trackDiscontinuities.First();
             
-            Assert.AreEqual(shift * fingerprintLength, discontinuity.LengthInSeconds);
-            Assert.AreEqual(0, discontinuity.Start);
-            Assert.AreEqual(shift * fingerprintLength, discontinuity.End);
+            Assert.IsTrue(firstGap.IsOnEdge);
+            Assert.AreEqual(shift * fingerprintLength, firstGap.LengthInSeconds);
+            Assert.AreEqual(0, firstGap.Start);
+            Assert.AreEqual(shift * fingerprintLength, firstGap.End);
             
             Assert.IsEmpty(matchedWiths.FindQueryGaps(permittedGap, fingerprintLength));
         }

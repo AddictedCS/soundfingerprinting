@@ -44,9 +44,9 @@
                 yield return new Gap(0, startsAt, true);
             }
 
-            foreach (var discontinuity in ordered.FindGaps(sanitizedPermittedGap, fingerprintLength))
+            foreach (var gap in ordered.FindGaps(sanitizedPermittedGap, fingerprintLength))
             {
-                yield return discontinuity;
+                yield return gap;
             }
 
             (_, float end) = ordered.Last();

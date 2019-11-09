@@ -5,7 +5,7 @@ using System;
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     [TestFixture]
-    public class DiscontinuityTest
+    public class GapTest
     {
         [Test]
         public void ConstructorThrowsOnInvalidArgs()

@@ -41,7 +41,7 @@
         {
             get
             {
-                return DiscreteCoverageLength - TrackDiscontinuities.Sum(d => d.LengthInSeconds);
+                return DiscreteCoverageLength - TrackGaps.Sum(d => d.LengthInSeconds);
             }
         }
 
@@ -126,14 +126,14 @@
         public IEnumerable<MatchedWith> BestPath { get; }
 
         /// <summary>
-        ///  Gets query match discontinuities. Capture all the query gaps we find in the best path
+        ///  Gets query match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> QueryDiscontinuities => BestPath.FindQueryGaps(permittedGap, fingerprintLength);
+        public IEnumerable<Gap> QueryGaps => BestPath.FindQueryGaps(permittedGap, fingerprintLength);
 
         /// <summary>
-        ///  Gets track match discontinuities. Capture all the track gaps we find in the best path
+        ///  Gets track match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> TrackDiscontinuities => BestPath.FindTrackGaps(TrackLength, permittedGap, fingerprintLength);
+        public IEnumerable<Gap> TrackGaps => BestPath.FindTrackGaps(TrackLength, permittedGap, fingerprintLength);
 
         /// <summary>
         ///  Get score outliers from the best path. Useful to find regions which are weak matches and may require additional recheck
