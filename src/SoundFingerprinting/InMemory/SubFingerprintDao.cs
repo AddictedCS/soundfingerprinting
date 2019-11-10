@@ -15,11 +15,13 @@
     {
         private readonly IRAMStorage storage;
         private readonly IGroupingCounter groupingCounter;
+        private readonly ISubFingerprintIdsToDataResolver storageResolver;
 
         public SubFingerprintDao(IRAMStorage storage, IGroupingCounter groupingCounter)
         {
             this.storage = storage;
             this.groupingCounter = groupingCounter;
+            storageResolver = new RamStorageResolver(storage);
         }
 
         public int SubFingerprintsCount => storage.SubFingerprintsCount;
@@ -95,7 +97,7 @@
                 results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
             }
 
-            return groupingCounter.GroupByAndCount(results, thresholdVotes, id => storage.ReadSubFingerprintById(id));
+            return groupingCounter.GroupByAndCount(results, thresholdVotes, storageResolver);
         }
     }
 }
