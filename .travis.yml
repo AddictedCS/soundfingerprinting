@@ -1,5 +1,4 @@
 language: csharp
-mono: latest
 dotnet: 2.1.300
 solution: src/SoundFingerprinting.sln
 install:
@@ -7,9 +6,6 @@ install:
 script:
   - dotnet restore ./src/SoundFingerprinting.sln
   - dotnet test ./src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -f netcoreapp2.0
-  - export FrameworkPathOverride=/usr/lib/mono/4.5/
-  - dotnet build ./src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -f net45
-  - mono build/testrunner/NUnit.ConsoleRunner.3.5.0/tools/nunit3-console.exe src/SoundFingerprinting.Tests/bin/Release/net45/SoundFingerprinting.Tests.dll
 notifications:
   webhooks:
     urls:
