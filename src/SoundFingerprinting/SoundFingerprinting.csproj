@@ -4,7 +4,7 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-	<PackageVersion>7.1.0-beta2</PackageVersion>
+	<PackageVersion>7.1.0-beta3</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://addictedcs.github.io/soundfingerprinting</PackageProjectUrl>
