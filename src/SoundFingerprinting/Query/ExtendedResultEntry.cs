@@ -24,6 +24,16 @@
 
         public Coverage ResultCoverage { get; }
 
+        public bool StrongMatch
+        {
+            get
+            {
+                bool trackGaps = ResultCoverage.TrackGaps.Any(g => !g.IsOnEdge);
+                bool queryGaps = ResultCoverage.QueryGaps.Any(g => !g.IsOnEdge);
+                return DiscreteCoverage > 0.9 && !trackGaps && !queryGaps;
+            }
+        }
+
         public bool NoGaps => !ResultCoverage.TrackGaps.Any() && !ResultCoverage.QueryGaps.Any();
     }
 }
