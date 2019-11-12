@@ -322,13 +322,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var aggregated = TimedHashes.Aggregate(fingerprints, 60d).ToList();
             var result = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(aggregated[0].HashedFingerprints)
-                .WithQueryConfig(config =>
-                {
-                    config.RelativeTo = aggregated[0].StartsAt;
-                    return config;
-                })
                 .UsingServices(modelService, audioService)
-                .Query();
+                .Query(aggregated[0].StartsAt);
             
             Assert.IsTrue(result.ContainsMatches);
             Assert.AreEqual(entries[0].MatchedAt, result.BestMatch.MatchedAt);
@@ -420,14 +415,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 this.goodOne = goodOne;
             }
             
-            public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+            public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, DateTime relativeTo, IModelService modelService)
             {
                 if (faultyCounts-- > 0)
                 {
                     throw new IOException("I/O exception");
                 }
 
-                return goodOne.Query(queryFingerprints, configuration, modelService);
+                return goodOne.Query(queryFingerprints, configuration, relativeTo, modelService);
             }
         }
     }

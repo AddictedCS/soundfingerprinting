@@ -89,15 +89,20 @@
 
             return this;
         }
-        
+
         public async Task<QueryResult> Query()
+        {
+            return await Query(DateTime.Now);
+        }
+
+        public async Task<QueryResult> Query(DateTime relativeTo)
         {
             var fingerprintingStopwatch = Stopwatch.StartNew();
             var hashes = await createFingerprintCommand().Hash();
             long fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
 
             var queryStopwatch = Stopwatch.StartNew();
-            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
+            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, relativeTo, modelService);
             long queryDuration = queryStopwatch.ElapsedMilliseconds;
             if (queryResult.ContainsMatches)
             {

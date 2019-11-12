@@ -113,12 +113,6 @@
         public IDictionary<string, string> MetaFields { get; set; }
 
         /// <summary>
-        ///  Gets or sets the timestamp which is considered as a reference point of the query operation.
-        ///  Useful when you would like to re-query the storage with previously generated fingerprints
-        /// </summary>
-        public DateTime RelativeTo { get; set; }
-
-        /// <summary>
         ///  Gets or sets query media type.
         ///  Source of fingerprints is either audio or video, set the corresponding type so that the ModelService is aware where to look for matches
         /// </summary>
