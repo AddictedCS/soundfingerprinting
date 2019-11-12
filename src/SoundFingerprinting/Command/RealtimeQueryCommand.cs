@@ -125,8 +125,7 @@ namespace SoundFingerprinting.Command
         {
             try
             {
-                configuration.QueryConfiguration.RelativeTo = relativeTo;
-                var result = service.Query(hashes, configuration.QueryConfiguration, modelService);
+                var result = service.Query(hashes, configuration.QueryConfiguration, relativeTo, modelService);
                 if (!downtimeHashes.Any())
                 {
                     results = new[] {result}.AsEnumerable();
@@ -202,8 +201,7 @@ namespace SoundFingerprinting.Command
             while (downtimeHashes.Any())
             {
                 var timedHashes = downtimeHashes.Dequeue();
-                configuration.QueryConfiguration.RelativeTo = timedHashes.StartsAt;
-                yield return service.Query(timedHashes.HashedFingerprints, configuration.QueryConfiguration, modelService);
+                yield return service.Query(timedHashes.HashedFingerprints, configuration.QueryConfiguration, timedHashes.StartsAt, modelService);
             }
         }
 
@@ -216,8 +214,7 @@ namespace SoundFingerprinting.Command
                     continue;
                 }
                 
-                configuration.QueryConfiguration.RelativeTo = downtimeHash.StartsAt;
-                yield return service.Query(downtimeHash.HashedFingerprints, configuration.QueryConfiguration, modelService);
+                yield return service.Query(downtimeHash.HashedFingerprints, configuration.QueryConfiguration, downtimeHash.StartsAt, modelService);
             }
         }
     }

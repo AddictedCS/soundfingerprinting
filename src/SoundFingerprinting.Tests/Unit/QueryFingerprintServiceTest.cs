@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -66,7 +67,7 @@
                         new TrackData("isrc_1", string.Empty, string.Empty, string.Empty, 0, 0d, secondTrackReference)
                     });
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, DateTime.Now, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
@@ -86,7 +87,7 @@
             modelService.Setup(service => service.ReadSubFingerprints(It.IsAny<IEnumerable<int[]>>(), customQueryConfiguration))
                 .Returns(new List<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, modelService.Object);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, DateTime.Now, modelService.Object);
 
             Assert.IsFalse(queryResult.ContainsMatches);
             Assert.IsNull(queryResult.BestMatch);
@@ -122,7 +123,7 @@
                             firstTrackReference)
                     });
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, modelService.Object);
+            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, DateTime.Now, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
@@ -143,6 +144,7 @@
                         new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>())
                     },
                 new DefaultQueryConfiguration(),
+                DateTime.Now,
                 modelService.Object);
         }
     }

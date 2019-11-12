@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -22,9 +23,9 @@
 
         public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(new HammingSimilarityScoreAlgorithm(new SimilarityUtility()), QueryMath.Instance);
     
-        public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+        public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, DateTime relativeTo, IModelService modelService)
         {
-            var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(queryFingerprints, configuration, modelService);
+            var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(queryFingerprints, configuration, relativeTo, modelService);
 
             if (!groupedQueryResults.ContainsMatches)
             {
@@ -37,12 +38,12 @@
             return QueryResult.NonEmptyResult(resultEntries, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
         }
 
-        private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+        private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, DateTime relativeTo, IModelService modelService)
         {
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
             var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => hashedFingerprint.HashBins), configuration);
             double queryLength = hashedFingerprints.QueryLength(configuration.FingerprintConfiguration);
-            var groupedResults = new GroupedQueryResults(queryLength, configuration.RelativeTo);
+            var groupedResults = new GroupedQueryResults(queryLength, relativeTo);
             Parallel.ForEach(hashedFingerprints, queryFingerprint =>
             {
                 var subFingerprints = result.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));

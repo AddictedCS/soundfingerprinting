@@ -20,7 +20,6 @@
                                            FrequencyRange = Configs.FrequencyRanges.Default
                                        };
             MetaFields = new Dictionary<string, string>();
-            RelativeTo = DateTime.Now;
             QueryMediaType = MediaType.Audio;
         }
     }

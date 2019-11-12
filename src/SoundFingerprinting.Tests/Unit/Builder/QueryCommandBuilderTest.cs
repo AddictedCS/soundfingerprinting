@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -73,7 +74,7 @@
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(command => command.Hash()).Returns(Task.Factory.StartNew(() => hashedFingerprints));
-            queryFingerprintService.Setup(service => service.Query(hashedFingerprints, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
+            queryFingerprintService.Setup(service => service.Query(hashedFingerprints, It.IsAny<DefaultQueryConfiguration>(), It.IsAny<DateTime>(), modelService.Object)).Returns(dummyResult);
 
             _ = await queryCommandBuilder.BuildQueryCommand()
                 .From(pathToFile)
@@ -100,7 +101,7 @@
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
-            queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
+            queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>(), It.IsAny<DateTime>(), modelService.Object)).Returns(dummyResult);
 
             _ = await queryCommandBuilder.BuildQueryCommand()
                                    .From(pathToFile, secondsToQuery, startAtSecond)
