@@ -29,21 +29,9 @@
                 return perms;
             }
 
-            public int Count
-            {
-                get
-                {
-                    return perms.Length;
-                }
-            }
+            public int Count => perms.Length;
 
-            public int IndexesPerPermutation
-            {
-                get
-                {
-                    return perms[0].Length;
-                }
-            }
+            public int IndexesPerPermutation => perms[0].Length;
         }
     }
 }

@@ -34,7 +34,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                     .UsingServices(audioService)
                                     .Hash();
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen", withJitter.Length / 5512f), hashes);
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, withJitter.Length / 5512f));
 
             var result = await QueryCommandBuilder.Instance
                                     .BuildQueryCommand()
@@ -76,7 +76,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(audioService)
                 .Hash();
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen", withJitter.Length / 5512f), hashes);
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, withJitter.Length / 5512f));
 
             var result = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
@@ -118,7 +118,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                     .UsingServices(audioService)
                                     .Hash();
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen", withJitter.Length / 5512f), hashes);
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, withJitter.Length / 5512f));
 
             var result = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()

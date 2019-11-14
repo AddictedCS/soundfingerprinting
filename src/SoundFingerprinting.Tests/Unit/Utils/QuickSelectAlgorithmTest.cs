@@ -31,9 +31,7 @@
             var random = new Random();
             for (int run = 0; run < 10000; ++run)
             {
-                var tuple = GetTwoRandomCopies(count, random);
-                var a = tuple.Item1;
-                var b = tuple.Item2;
+                (float[] a, float[] b) = GetTwoRandomCopies(count, random);
                 ushort[] indexes1 = Range(0, count);
                 ushort[] indexes2 = Range(0, count);
 

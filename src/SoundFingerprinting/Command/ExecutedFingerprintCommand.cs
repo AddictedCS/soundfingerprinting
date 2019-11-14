@@ -1,19 +1,18 @@
 namespace SoundFingerprinting.Command
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using SoundFingerprinting.Data;
 
     public class ExecutedFingerprintCommand : IFingerprintCommand
     {
-        private readonly List<HashedFingerprint> result;
+        private readonly Hashes result;
         
-        public ExecutedFingerprintCommand(List<HashedFingerprint> result)
+        public ExecutedFingerprintCommand(Hashes result)
         {
             this.result = result;
         }
 
-        public Task<List<HashedFingerprint>> Hash()
+        public Task<Hashes> Hash()
         {
             return Task.FromResult(result);
         }

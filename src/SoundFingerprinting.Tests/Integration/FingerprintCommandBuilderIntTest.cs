@@ -43,7 +43,7 @@
         {
             const int secondsToProcess = 8;
             const int startAtSecond = 2;
-            var track = new TrackInfo("id", "title", "artist", 200d);
+            var track = new TrackInfo("id", "title", "artist");
 
             var fingerprints = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
@@ -151,7 +151,7 @@
             const int secondsToProcess = 10;
             const int startAtSecond = 30;
             var audioSamples = GetAudioSamples();
-            var track = new TrackInfo("1234", audioSamples.Origin, audioSamples.Origin, audioSamples.Duration);
+            var track = new TrackInfo("1234", audioSamples.Origin, audioSamples.Origin);
             var fingerprints = await FingerprintCommandBuilder.Instance
                     .BuildFingerprintCommand()
                     .From(audioSamples)
@@ -210,7 +210,7 @@
         public async Task ShouldCreateFingerprintsFromAudioSamplesQueryWithPreviouslyCreatedFingerprintsAndGetTheRightResult()
         {
             var audioSamples = GetAudioSamples();
-            var track = new TrackInfo(string.Empty, audioSamples.Origin, audioSamples.Origin, audioSamples.Duration);
+            var track = new TrackInfo(string.Empty, audioSamples.Origin, audioSamples.Origin);
             var fingerprints = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(audioSamples)

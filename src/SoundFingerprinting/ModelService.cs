@@ -22,7 +22,7 @@
         
         protected ISubFingerprintDao SubFingerprintDao { get; }
 
-        public virtual IModelReference Insert(TrackInfo trackInfo, IEnumerable<HashedFingerprint> hashedFingerprints)
+        public virtual IModelReference Insert(TrackInfo trackInfo, Hashes hashedFingerprints)
         {
             var fingerprints = hashedFingerprints.ToList();
             if (!fingerprints.Any())
@@ -30,7 +30,7 @@
                 return null;
             }
 
-            var trackReference = TrackDao.InsertTrack(trackInfo).TrackReference;
+            var trackReference = TrackDao.InsertTrack(trackInfo, hashedFingerprints.DurationInSeconds).TrackReference;
             SubFingerprintDao.InsertHashDataForTrack(fingerprints, trackReference);
             return trackReference;
         }

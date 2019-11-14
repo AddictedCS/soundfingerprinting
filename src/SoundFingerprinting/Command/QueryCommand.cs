@@ -52,9 +52,9 @@
             return this;
         }
 
-        public IWithQueryConfiguration From(IEnumerable<HashedFingerprint> hashedFingerprints)
+        public IWithQueryConfiguration From(Hashes hashedFingerprints)
         {
-            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashedFingerprints.ToList());
+            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashedFingerprints);
             return this;
         }
 

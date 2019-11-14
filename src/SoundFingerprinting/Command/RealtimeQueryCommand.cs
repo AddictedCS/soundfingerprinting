@@ -103,7 +103,7 @@ namespace SoundFingerprinting.Command
 
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
-                InvokeHashedFingerprintsCallback(hashes, prefixed.RelativeTo);
+                InvokeHashedFingerprintsCallback(hashes.ToList(), prefixed.RelativeTo);
                 
                 if (!TryQuery(service, hashes, prefixed.RelativeTo, out var queryResults))
                 {
@@ -121,11 +121,12 @@ namespace SoundFingerprinting.Command
             return queryLength;
         }
 
-        private bool TryQuery(IQueryFingerprintService service, List<HashedFingerprint> hashes, DateTime relativeTo, out IEnumerable<QueryResult> results)
+        private bool TryQuery(IQueryFingerprintService service, IEnumerable<HashedFingerprint> hashes, DateTime relativeTo, out IEnumerable<QueryResult> results)
         {
+            var hashedFingerprints = hashes.ToList();
             try
             {
-                var result = service.Query(hashes, configuration.QueryConfiguration, relativeTo, modelService);
+                var result = service.Query(hashedFingerprints, configuration.QueryConfiguration, relativeTo, modelService);
                 if (!downtimeHashes.Any())
                 {
                     results = new[] {result}.AsEnumerable();
@@ -141,7 +142,7 @@ namespace SoundFingerprinting.Command
             }
             catch (Exception e)
             {
-                var timedHashes = StoreDowntimeEntries(hashes, relativeTo);
+                var timedHashes = StoreDowntimeEntries(hashedFingerprints.ToList(), relativeTo);
                 InvokeExceptionCallback(e, timedHashes);
                 results = Enumerable.Empty<QueryResult>();
                 return false;
@@ -158,7 +159,7 @@ namespace SoundFingerprinting.Command
             configuration?.QueryFingerprintsCallback(new TimedHashes(hashes, relativeTo));
         }
 
-        private async Task<List<HashedFingerprint>> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
+        private async Task<Hashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
         {
             return await commandBuilder.BuildFingerprintCommand()
                 .From(prefixed)

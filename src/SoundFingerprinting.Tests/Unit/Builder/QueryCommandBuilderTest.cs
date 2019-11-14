@@ -60,14 +60,13 @@
         {
             const string pathToFile = "path-to-file";
             var dummyResult = new QueryResult(new List<ResultEntry>(), new QueryStats(0, 0, 0, 0));
-            var hashedFingerprints =
-                new List<HashedFingerprint>(
+            var hashedFingerprints =new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
                             new HashedFingerprint(GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()),
                             new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>()),
                             new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2, Enumerable.Empty<string>())
-                        });
+                        }), 0.928 * 3);
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(pathToFile)).Returns(withAlgorithmConfiguration.Object);
@@ -89,13 +88,13 @@
             const int startAtSecond = 120;
             const int secondsToQuery = 20;
             QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), new QueryStats(0, 0, 0, 0));
-            var hashDatas = new List<HashedFingerprint>(
+            var hashDatas = new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
                             new HashedFingerprint(GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()),
                             new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>()),
                             new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2, Enumerable.Empty<string>())
-                        });
+                        }), 0.928 * 3);
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(pathToFile, secondsToQuery, startAtSecond)).Returns(withAlgorithmConfiguration.Object);
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);

@@ -27,7 +27,7 @@
                     .UsingServices(audioService)
                     .Hash();
 
-                var track = new TrackInfo($"{i}", string.Empty, string.Empty, 120);
+                var track = new TrackInfo($"{i}", string.Empty, string.Empty);
 
                 modelService.Insert(track, hashes);
             }

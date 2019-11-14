@@ -1,11 +1,14 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.InMemory
 {
+    using System;
     using System.IO;
-
+    using System.Linq;
     using NUnit.Framework;
     using ProtoBuf;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
+    using SoundFingerprinting.Tests.Integration;
 
     [TestFixture]
     public class ProtoSerializerTest
@@ -61,6 +64,28 @@
 
                     Assert.AreEqual(11, (uint)deserialized.Next().Id);
                 }
+            }
+        }
+
+        [Test]
+        public void ShouldSerializeHashes()
+        {
+            var hashes = new Hashes(new [] { new HashedFingerprint(new [] {1,2,3,4,5}, 0, 0, Enumerable.Empty<string>())} , 1.48);
+
+            byte[] serialized;
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SerializeWithLengthPrefix(stream, hashes, PrefixStyle.Fixed32);
+
+                serialized = stream.ToArray();
+            }
+
+            using (var stream = new MemoryStream(serialized))
+            {
+                var data = Serializer.DeserializeWithLengthPrefix<Hashes>(stream, PrefixStyle.Fixed32);
+                Assert.IsNotNull(data);
+                Assert.AreEqual(hashes.Count, data.Count);
+                Assert.AreEqual(hashes.DurationInSeconds, data.DurationInSeconds);
             }
         }
     }

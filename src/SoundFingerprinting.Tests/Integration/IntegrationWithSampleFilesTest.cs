@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization.Formatters.Binary;
@@ -16,8 +17,11 @@
         
         protected readonly string PathToWav = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopin_short.wav");
 
-        protected void AssertHashDatasAreTheSame(IList<HashedFingerprint> firstHashDatas, IList<HashedFingerprint> secondHashDatas)
+        protected void AssertHashDatasAreTheSame(Hashes h1, Hashes h2)
         {
+            var firstHashDatas = h1.ToList();
+            var secondHashDatas = h2.ToList();
+            Assert.AreEqual(h1.DurationInSeconds, h2.DurationInSeconds);
             Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);
          
             // hashes are not ordered as parallel computation is involved

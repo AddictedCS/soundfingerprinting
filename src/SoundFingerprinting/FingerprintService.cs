@@ -38,19 +38,22 @@ namespace SoundFingerprinting
             new StandardHaarWaveletDecomposition(),
             new FastFingerprintDescriptor());
 
-        public IEnumerable<HashedFingerprint> CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
+        public Hashes CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
         { 
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            return CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
+            var hashes = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
                 .AsParallel()
                 .ToList()
-                .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig, configuration.Clusters));
+                .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig, configuration.Clusters))
+                .ToList();
+            
+            return new Hashes(hashes, samples.Duration);
         }
         
-        public IEnumerable<HashedFingerprint> CreateFingerprintsFromImageFrames(IEnumerable<Frame> imageFrames, FingerprintConfiguration configuration)
+        public Hashes CreateFingerprintsFromImageFrames(IEnumerable<Frame> imageFrames, FingerprintConfiguration configuration)
         {
             var frames = imageFrames.ToList();
-            return CreateOriginalFingerprintsFromFrames(frames, configuration)
+            var hashes = CreateOriginalFingerprintsFromFrames(frames, configuration)
                 .AsParallel()
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig, configuration.Clusters))
                 .ToList()
@@ -58,7 +61,10 @@ namespace SoundFingerprinting
                 {
                     byte[] transformed = configuration.OriginalPointSaveTransform(frame);
                     return new HashedFingerprint(hash.HashBins, hash.SequenceNumber, hash.StartsAt, hash.Clusters, transformed);
-                });
+                })
+                .ToList();
+            
+            return new Hashes(hashes, GetDuration(hashes, configuration.FingerprintLengthInSeconds));
         }
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
@@ -86,6 +92,11 @@ namespace SoundFingerprinting
             cachedIndexes => { });
 
             return fingerprints.ToList();
+        }
+        
+        private double GetDuration(IEnumerable<HashedFingerprint> hashes, double fingerprintLengthInSeconds)
+        {
+            return hashes.Max(h => h.StartsAt) + fingerprintLengthInSeconds;
         }
     }
 }

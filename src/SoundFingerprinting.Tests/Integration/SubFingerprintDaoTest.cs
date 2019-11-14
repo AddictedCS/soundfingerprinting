@@ -33,9 +33,9 @@
         [Test]
         public void ShouldInsertAndReadSubFingerprints()
         {
-            var track = new TrackInfo("id", "title", "artist", 200);
-            var trackReference = trackDao.InsertTrack(track).TrackReference;
+            var track = new TrackInfo("id", "title", "artist");
             const int numberOfHashBins = 100;
+            var trackReference = trackDao.InsertTrack(track, 200).TrackReference;
             var genericHashBuckets = GenericHashBuckets();
             var hashedFingerprints = Enumerable.Range(0, numberOfHashBins).Select(
                 sequenceNumber => new HashedFingerprint(
@@ -60,8 +60,8 @@
         [Test]
         public async Task SameNumberOfHashBinsIsInsertedInAllTablesWhenFingerprintingEntireSongTest()
         {
-            var track = new TrackInfo("id", "title", "artist", 120d);
-            var trackReference = trackDao.InsertTrack(track).TrackReference;
+            var track = new TrackInfo("id", "title", "artist");
+            var trackReference = trackDao.InsertTrack(track, 120).TrackReference;
             var hashedFingerprints = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
@@ -74,7 +74,7 @@
                                           .Select(ToHashedFingerprint())
                                           .ToList();
 
-            Assert.AreEqual(hashedFingerprints.Count, hashes.Count);
+            Assert.AreEqual(hashedFingerprints.Count(), hashes.Count);
             foreach (var data in hashes)
             {
                 Assert.AreEqual(25, data.HashBins.Length);
@@ -84,11 +84,11 @@
         [Test]
         public async Task ReadByTrackGroupIdWorksAsExpectedTest()
         {
-            var firstTrack = new TrackInfo("id", "title", "artist", 120d);
-            var secondTrack = new TrackInfo("id", "title", "artist", 120d);
+            var firstTrack = new TrackInfo("id", "title", "artist");
+            var secondTrack = new TrackInfo("id", "title", "artist");
 
-            var firstTrackReference = trackDao.InsertTrack(firstTrack).TrackReference;
-            var secondTrackReference = trackDao.InsertTrack(secondTrack).TrackReference;
+            var firstTrackReference = trackDao.InsertTrack(firstTrack, 120).TrackReference;
+            var secondTrackReference = trackDao.InsertTrack(secondTrack, 120).TrackReference;
 
             var hashedFingerprintsForFirstTrack = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -152,9 +152,6 @@
         [Test]
         public async Task ReadHashDataByTrackTest()
         {
-            var firstTrack = new TrackInfo("id", "title", "artist", 200);
-
-            var firstTrackReference = trackDao.InsertTrack(firstTrack).TrackReference;
 
             var firstHashData = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -162,11 +159,10 @@
                 .UsingServices(audioService)
                 .Hash();
 
+            var firstTrack = new TrackInfo("id", "title", "artist");
+            var firstTrackReference = trackDao.InsertTrack(firstTrack, firstHashData.DurationInSeconds).TrackReference;
+            
             InsertHashedFingerprintsForTrack(firstHashData, firstTrackReference);
-
-            var secondTrack = new TrackInfo("id", "title", "artist", 200);
-
-            var secondTrackReference = trackDao.InsertTrack(secondTrack).TrackReference;
 
             var secondHashData = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -174,19 +170,21 @@
                 .UsingServices(audioService)
                 .Hash();
 
+            var secondTrack = new TrackInfo("id", "title", "artist");
+            var secondTrackReference = trackDao.InsertTrack(secondTrack, secondHashData.DurationInSeconds).TrackReference;
             InsertHashedFingerprintsForTrack(secondHashData, secondTrackReference);
 
             var resultFirstHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(firstTrackReference)
                                                        .Select(ToHashedFingerprint())
                                                        .ToList();
 
-            AssertHashDatasAreTheSame(firstHashData, resultFirstHashData);
+            AssertHashDatasAreTheSame(firstHashData, new Hashes(resultFirstHashData, firstHashData.DurationInSeconds));
 
             var resultSecondHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(secondTrackReference)
                                                         .Select(ToHashedFingerprint())
                                                         .ToList();
 
-            AssertHashDatasAreTheSame(secondHashData, resultSecondHashData);
+            AssertHashDatasAreTheSame(secondHashData, new Hashes(resultSecondHashData, secondHashData.DurationInSeconds));
         }
 
         private static Func<SubFingerprintData, HashedFingerprint> ToHashedFingerprint()

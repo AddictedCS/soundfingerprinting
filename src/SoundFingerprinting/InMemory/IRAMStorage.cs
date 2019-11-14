@@ -28,7 +28,7 @@ namespace SoundFingerprinting.InMemory
 
         void Snapshot(string path);
 
-        TrackData AddTrack(TrackInfo track);
+        TrackData AddTrack(TrackInfo track, double durationInSeconds);
 
         TrackData AddTrack(TrackData track);
 

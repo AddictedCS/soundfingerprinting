@@ -9,7 +9,7 @@ namespace SoundFingerprinting.DAO
     {
         int Count { get; }
 
-        TrackData InsertTrack(TrackInfo track);
+        TrackData InsertTrack(TrackInfo track, double durationInSeconds);
 
         void InsertTrack(TrackData track);
 

@@ -1,8 +1,6 @@
 namespace SoundFingerprinting.Command
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -13,7 +11,7 @@ namespace SoundFingerprinting.Command
     {
         private readonly IFingerprintService fingerprintService;
 
-        private Func<List<HashedFingerprint>> createFingerprintsMethod;
+        private Func<Hashes> createFingerprintsMethod;
 
         private IAudioService audioService;
 
@@ -25,7 +23,7 @@ namespace SoundFingerprinting.Command
             fingerprintConfiguration = new DefaultFingerprintConfiguration();
         }
 
-        public Task<List<HashedFingerprint>> Hash()
+        public Task<Hashes> Hash()
         {
             return Task.Factory.StartNew(createFingerprintsMethod);
         }
@@ -35,7 +33,7 @@ namespace SoundFingerprinting.Command
             createFingerprintsMethod = () =>
                 {
                     AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, fingerprintConfiguration.SampleRate);
-                    return fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, fingerprintConfiguration).ToList();
+                    return fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, fingerprintConfiguration);
                 };
 
             return this;
@@ -43,7 +41,7 @@ namespace SoundFingerprinting.Command
 
         public IWithFingerprintConfiguration From(AudioSamples audioSamples)
         {
-            createFingerprintsMethod = () => fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, fingerprintConfiguration).ToList();
+            createFingerprintsMethod = () => fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, fingerprintConfiguration);
             return this;
         }
 
@@ -52,7 +50,7 @@ namespace SoundFingerprinting.Command
             createFingerprintsMethod = () =>
                 {
                     AudioSamples audioSamples = audioService.ReadMonoSamplesFromFile(pathToAudioFile, fingerprintConfiguration.SampleRate, secondsToProcess, startAtSecond);
-                    return fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, fingerprintConfiguration).ToList();
+                    return fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, fingerprintConfiguration);
                 };
 
             return this;

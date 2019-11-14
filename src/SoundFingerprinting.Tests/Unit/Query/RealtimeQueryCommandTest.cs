@@ -25,7 +25,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
-            int minSize = 8192 + 2048;
             int count = 10, foundWithClusters = 0, foundWithWrongClusters = 0, testWaitTime = 3000;
             var data = GenerateRandomAudioChunks(count, 1);
             var concatenated = Concatenate(data);
@@ -40,7 +39,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 .UsingServices(audioService)
                                                 .Hash();
 
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
             
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             var wrong = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
@@ -91,7 +90,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 .UsingServices(audioService)
                                                 .Hash();
 
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
             
             var collection = SimulateRealtimeQueryData(data, false, TimeSpan.FromMilliseconds);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
@@ -129,7 +128,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 .UsingServices(audioService)
                                                 .Hash();
 
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
             
             var collection = SimulateRealtimeQueryData(data, true, TimeSpan.FromMilliseconds);
 
@@ -182,7 +181,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 .UsingServices(audioService)
                                                 .Hash();
 
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
 
             var started = DateTime.Now;
             var resultEntries = new List<ResultEntry>();
@@ -298,7 +297,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(audioService)
                 .Hash();
 
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", concatenated.Duration), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
 
             var collection = SimulateRealtimeQueryData(data, false, TimeSpan.FromMilliseconds);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
@@ -321,7 +320,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, entries.Count);
             var aggregated = TimedHashes.Aggregate(fingerprints, 60d).ToList();
             var result = await QueryCommandBuilder.Instance.BuildQueryCommand()
-                .From(aggregated[0].HashedFingerprints)
+                .From(new Hashes(aggregated[0].HashedFingerprints, aggregated[0].TotalSeconds))
                 .UsingServices(modelService, audioService)
                 .Query(aggregated[0].StartsAt);
             

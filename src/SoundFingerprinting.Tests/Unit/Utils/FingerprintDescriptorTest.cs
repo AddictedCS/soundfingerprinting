@@ -80,22 +80,21 @@
             // Concatenated float array
             bool[] result = new bool[frames.Length * 2]; 
             int topW = 0;
-            foreach (var pair in query)
+            foreach ((int key, float f) in query)
             {
                 if (++topW > topWavelets)
                 {
                     break;
                 }
 
-                int index = pair.Key;
-                double value = pair.Value;
+                double value = f;
                 if (value > 0)
                 {
-                    result[index * 2] = true;
+                    result[key * 2] = true;
                 }
                 else if (value < 0)
                 {
-                    result[(index * 2) + 1] = true;
+                    result[(key * 2) + 1] = true;
                 }
             }
 

@@ -9,17 +9,16 @@
     [ProtoContract]
     public class TrackInfo
     {
-        public TrackInfo(string id, string title, string artist, double durationInSeconds) : this(id, title, artist, durationInSeconds, new Dictionary<string, string>(), MediaType.Audio)
+        public TrackInfo(string id, string title, string artist) : this(id, title, artist, new Dictionary<string, string>(), MediaType.Audio)
         {
             // no op
         }
         
-        public TrackInfo(string id, string title, string artist, double durationInSeconds, IDictionary<string, string> metaFields, MediaType mediaType)
+        public TrackInfo(string id, string title, string artist, IDictionary<string, string> metaFields, MediaType mediaType)
         {
             Id = id;
             Title = title;
             Artist = artist;
-            DurationInSeconds = durationInSeconds;
             MetaFields = metaFields;
             MediaType = mediaType;
         }
@@ -41,12 +40,9 @@
         public string Artist { get; }
 
         [ProtoMember(4)]
-        public double DurationInSeconds { get; }
-
-        [ProtoMember(5)]
         public IDictionary<string, string> MetaFields { get; }
 
-        [ProtoMember(6)]
+        [ProtoMember(5)]
         public MediaType MediaType { get; }
 
         public override string ToString()
@@ -54,7 +50,6 @@
             return $"TrackInfo Id: {Id}, " +
                    $"Title {Title}, " +
                    $"Artist {Artist}, " +
-                   $"DurationInSeconds {DurationInSeconds}, " +
                    $"MediaType {MediaType}, " +
                    $"MetaFields {string.Join(",", MetaFields.Select(pair => $"{pair.Key}:{pair.Value}"))}";
         }

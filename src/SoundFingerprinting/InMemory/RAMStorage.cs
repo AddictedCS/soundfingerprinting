@@ -109,10 +109,10 @@
             SubFingerprints[(uint)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
         }
 
-        public TrackData AddTrack(TrackInfo track)
+        public TrackData AddTrack(TrackInfo track, double durationInSeconds)
         {
             var trackReference = trackReferenceProvider.Next();
-            var trackData = new TrackData(track.Id, track.Artist, track.Title, string.Empty, 0, track.DurationInSeconds, trackReference, track.MetaFields, track.MediaType);
+            var trackData = new TrackData(track.Id, track.Artist, track.Title, string.Empty, 0, durationInSeconds, trackReference, track.MetaFields, track.MediaType);
             return AddTrack(trackData);
         }
 

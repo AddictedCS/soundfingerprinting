@@ -348,7 +348,7 @@
         private TrackInfo GetTrack(string file)
         {
             var tags = GetTagsFromFile(file);
-            return new TrackInfo(tags.ISRC, tags.Artist, tags.Title, tags.Duration);
+            return new TrackInfo(tags.ISRC, tags.Artist, tags.Title);
         }
 
         private void DeleteAll()
