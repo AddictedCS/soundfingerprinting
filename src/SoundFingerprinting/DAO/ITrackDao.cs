@@ -13,8 +13,6 @@ namespace SoundFingerprinting.DAO
 
         void InsertTrack(TrackData track);
 
-        TrackData ReadTrack(IModelReference trackReference);
-
         IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
 
         int DeleteTrack(IModelReference trackReference);

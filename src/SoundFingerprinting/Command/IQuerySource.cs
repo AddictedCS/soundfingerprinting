@@ -1,6 +1,5 @@
 ﻿namespace SoundFingerprinting.Command
 {
-    using System.Collections.Generic;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Data;
 

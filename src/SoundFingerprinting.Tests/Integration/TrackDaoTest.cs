@@ -69,16 +69,6 @@
         }
 
         [Test]
-        public void ReadByIdTest()
-        {
-            var track = new TrackInfo("id", "title", "artist");
-
-            var trackReference = trackDao.InsertTrack(track, 200).TrackReference;
-
-            AssertTracksAreEqual(track, trackDao.ReadTrack(trackReference));
-        }
-
-        [Test]
         public void InsertMultipleTrackAtOnceTest()
         {
             const int trackCount = 100;
@@ -146,7 +136,7 @@
 
             trackDao.DeleteTrack(trackReference);
 
-            Assert.IsNull(trackDao.ReadTrack(trackReference));
+            Assert.IsEmpty(trackDao.ReadTracksByReferences(new []{trackReference}));
         }
 
         [Test]
@@ -185,7 +175,7 @@
             var track = new TrackInfo(string.Empty, string.Empty, string.Empty);
             var trackReference = trackDao.InsertTrack(track, 120d).TrackReference;
 
-            var actualTrack = trackDao.ReadTrack(trackReference);
+            var actualTrack = trackDao.ReadTracksByReferences(new [] { trackReference }).First();
 
             AssertModelReferenceIsInitialized(trackReference);
             AssertTracksAreEqual(track, actualTrack);

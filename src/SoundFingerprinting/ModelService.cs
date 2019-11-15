@@ -58,11 +58,6 @@
             return TrackDao.ReadTrackByTitle(title);
         }
 
-        public virtual TrackData ReadTrackByReference(IModelReference ids)
-        {
-            return TrackDao.ReadTrack(ids);
-        }
-
         public virtual IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
             return TrackDao.ReadTracksByReferences(references);
