@@ -12,10 +12,11 @@
         private readonly ISpectralImageDao spectralImageDao;
 
         protected AdvancedModelService(
+            string id,
             ITrackDao trackDao,
             ISubFingerprintDao subFingerprintDao,
             ISpectralImageDao spectralImageDao)
-            : base(trackDao, subFingerprintDao)
+            : base(id, trackDao, subFingerprintDao)
         {
             this.spectralImageDao = spectralImageDao;
         }

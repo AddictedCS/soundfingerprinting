@@ -24,9 +24,9 @@
         {
             var track = new TrackInfo("id", "title", "artist");
 
-            var trackReference = modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
 
-            AssertModelReferenceIsInitialized(trackReference);
+            Assert.IsNotNull(modelService.ReadTrackById("id"));
         }
 
         [Test]
@@ -34,17 +34,18 @@
         {
             var track = new TrackInfo("id", "title", "artist");
 
-            var trackReference = modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
-
-            var first = modelService.ReadTrackByReference(trackReference);
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            var trackReference = modelService.ReadTrackById("id").TrackReference;
+            
+            var first = modelService.ReadTracksByReferences(new []{ trackReference }).First();
 
             AssertTracksAreEqual(track, first);
 
-            modelService.DeleteTrack(trackReference);
+            modelService.DeleteTrack("id");
 
-            var result = modelService.ReadTrackByReference(trackReference);
+            var result = modelService.ReadTracksByReferences(new [] { trackReference });
 
-            Assert.IsTrue(result == null);
+            Assert.IsEmpty(result);
         }
 
         [Test]
@@ -79,11 +80,11 @@
         public void DeleteTrackTest()
         {
             var track = new TrackInfo("id", "title", "artist");
-            var trackReference = modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
 
-            modelService.DeleteTrack(trackReference);
+            modelService.DeleteTrack("id");
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
+            var subFingerprints = modelService.Query(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
                                               .ToList();
 
             Assert.IsFalse(subFingerprints.Any());
@@ -95,11 +96,12 @@
         public void InsertHashDataTest()
         {
             var expectedTrack = new TrackInfo("id", "title", "artist");
-            var trackReference = modelService.Insert(expectedTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            modelService.Insert(expectedTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
+            var subFingerprints = modelService.Query(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
                                               .ToList();
 
+            var trackReference = modelService.ReadTrackById("id").TrackReference;
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(trackReference, subFingerprints[0].TrackReference);
             Assert.AreNotEqual(0, subFingerprints[0].SubFingerprintReference.GetHashCode());
@@ -117,17 +119,16 @@
             var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f, Enumerable.Empty<string>());
             var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f, Enumerable.Empty<string>());
 
-            var firstTrackReference = modelService.Insert(t1, new Hashes(new[] { firstHashData }, 1.48d));
+            modelService.Insert(t1, new Hashes(new[] { firstHashData }, 1.48d));
             modelService.Insert(t2, new Hashes(new[] { secondHashData }, 1.48d));
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { queryBuckets }, new LowLatencyQueryConfiguration())
+            var subFingerprints = modelService.Query(new[] { queryBuckets }, new LowLatencyQueryConfiguration())
                                               .ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
-            Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
 
         [Test]
@@ -140,17 +141,16 @@
             var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f, new[] { "first-group-id" });
             var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f, new[] { "second-group-id" });
 
-            var firstTrackReference = modelService.Insert(firstTrack, new Hashes(new[] { firstHashData }, 1.48d));
+            modelService.Insert(firstTrack, new Hashes(new[] { firstHashData }, 1.48d));
             modelService.Insert(secondTrack, new Hashes(new[] { secondHashData }, 1.48d));
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
 
-            var subFingerprints = modelService.ReadSubFingerprints(new[] { queryBuckets }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } })
+            var subFingerprints = modelService.Query(new[] { queryBuckets }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } })
                                               .ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
-            Assert.AreEqual(firstTrackReference, subFingerprints[0].TrackReference);
         }
     }
 }

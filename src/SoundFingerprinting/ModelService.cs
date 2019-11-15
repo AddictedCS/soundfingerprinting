@@ -10,32 +10,34 @@
 
     public abstract class ModelService : IModelService
     {
-        protected ModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
+        protected readonly string Id;
+        
+        protected ModelService(string id, ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
         {
+            Id = id;
             TrackDao = trackDao;
             SubFingerprintDao = subFingerprintDao;
         }
 
-        public virtual ModelServiceInfo Info => new ModelServiceInfo(TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray());
+        public virtual IEnumerable<ModelServiceInfo> Info => new[] { new ModelServiceInfo(Id, TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray()) };
 
         protected ITrackDao TrackDao { get; }
         
         protected ISubFingerprintDao SubFingerprintDao { get; }
 
-        public virtual IModelReference Insert(TrackInfo trackInfo, Hashes hashedFingerprints)
+        public virtual void Insert(TrackInfo trackInfo, Hashes hashes)
         {
-            var fingerprints = hashedFingerprints.ToList();
+            var fingerprints = hashes.ToList();
             if (!fingerprints.Any())
             {
-                return null;
+                return;
             }
 
-            var trackReference = TrackDao.InsertTrack(trackInfo, hashedFingerprints.DurationInSeconds).TrackReference;
+            var trackReference = TrackDao.InsertTrack(trackInfo, hashes.DurationInSeconds).TrackReference;
             SubFingerprintDao.InsertHashDataForTrack(fingerprints, trackReference);
-            return trackReference;
         }
 
-        public virtual IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
+        public virtual IEnumerable<SubFingerprintData> Query(IEnumerable<int[]> hashes, QueryConfiguration config)
         {
             var queryHashes = hashes.ToList();
             if (!queryHashes.Any())
@@ -66,16 +68,21 @@
             return TrackDao.ReadTracksByReferences(references);
         }
 
-        public virtual TrackData ReadTrackById(string id)
+        public virtual TrackData ReadTrackById(string trackId)
         {
-            return TrackDao.ReadTrackById(id);
+            return TrackDao.ReadTrackById(trackId);
         }
 
-        public virtual int DeleteTrack(IModelReference trackReference)
+        public virtual int DeleteTrack(string trackId)
         {
-            int deletedSubFingerprints = SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference);
-            int deletedTrack = TrackDao.DeleteTrack(trackReference);
-            return deletedSubFingerprints + deletedTrack;
+            var track = ReadTrackById(trackId);
+            if (track == null)
+            {
+                return 0;
+            }
+
+            var trackReference = track.TrackReference;
+            return SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference) + TrackDao.DeleteTrack(trackReference);
         }
     }
 }

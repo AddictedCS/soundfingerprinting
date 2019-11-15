@@ -41,7 +41,7 @@
         private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, DateTime relativeTo, IModelService modelService)
         {
             var hashedFingerprints = queryFingerprints as List<HashedFingerprint> ?? queryFingerprints.ToList();
-            var result = modelService.ReadSubFingerprints(hashedFingerprints.Select(hashedFingerprint => hashedFingerprint.HashBins), configuration);
+            var result = modelService.Query(hashedFingerprints.Select(hashedFingerprint => hashedFingerprint.HashBins), configuration);
             double queryLength = hashedFingerprints.QueryLength(configuration.FingerprintConfiguration);
             var groupedResults = new GroupedQueryResults(queryLength, relativeTo);
             Parallel.ForEach(hashedFingerprints, queryFingerprint =>

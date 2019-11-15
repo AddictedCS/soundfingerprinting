@@ -9,22 +9,20 @@ namespace SoundFingerprinting
 
     public interface IModelService
     {
-        ModelServiceInfo Info { get; }
+        IEnumerable<ModelServiceInfo> Info { get; }
 
-        IModelReference Insert(TrackInfo trackInfo, Hashes hashedFingerprints);
+        void Insert(TrackInfo trackInfo, Hashes hashes);
 
-        IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config);
+        IEnumerable<SubFingerprintData> Query(IEnumerable<int[]> hashes, QueryConfiguration config);
+        
+        int DeleteTrack(string trackId);
 
         IEnumerable<TrackData> ReadAllTracks();
 
         IEnumerable<TrackData> ReadTrackByTitle(string title);
 
-        TrackData ReadTrackById(string id);
-
-        TrackData ReadTrackByReference(IModelReference reference);
+        TrackData ReadTrackById(string trackId);
 
         IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
-
-        int DeleteTrack(IModelReference trackReference);
     }
 }

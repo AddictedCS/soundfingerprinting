@@ -20,7 +20,7 @@
         {
         }
 
-        private InMemoryModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao, ISpectralImageDao spectralImageDao, IRAMStorage ramStorage) : base(trackDao, subFingerprintDao, spectralImageDao)
+        private InMemoryModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao, ISpectralImageDao spectralImageDao, IRAMStorage ramStorage) : base("in-memory-model-service", trackDao, subFingerprintDao, spectralImageDao)
         {
             this.ramStorage = ramStorage;
         }

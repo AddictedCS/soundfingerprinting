@@ -357,9 +357,8 @@
             int deleted = 0;
             foreach (var track in tracks)
             {
-                modelService.DeleteTrack(track.TrackReference);
-                OnTestRunnerEvent(
-                    OngoingActionEvent,
+                modelService.DeleteTrack(track.Id);
+                OnTestRunnerEvent(OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {
                             Message = $"Deleted {Interlocked.Increment(ref deleted)} out of {tracks.Count} tracks from storage"

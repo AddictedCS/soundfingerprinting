@@ -8,11 +8,12 @@
     [ProtoContract]
     public class ModelServiceInfo
     {
-        public ModelServiceInfo(int tracksCount, int subFingerprintsCount, int[] hashCountsInTables)
+        public ModelServiceInfo(string id, int tracksCount, int subFingerprintsCount, int[] hashCountsInTables)
         {
             TracksCount = tracksCount;
             SubFingerprintsCount = subFingerprintsCount;
             HashCountsInTables = hashCountsInTables;
+            Id = id;
         }
 
         private ModelServiceInfo()
@@ -29,6 +30,9 @@
         [ProtoMember(3)]
         public int[] HashCountsInTables { get; }
 
+        [ProtoMember(4)]
+        public string Id { get; }
+
         public override bool Equals(object obj)
         {
             if (obj == this)
@@ -36,22 +40,7 @@
                 return true;
             }
 
-            var other = obj as ModelServiceInfo;
-
-            if (other?.HashCountsInTables.Length != HashCountsInTables.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < HashCountsInTables.Length; ++i)
-            {
-                if (other.HashCountsInTables[i] != HashCountsInTables[i])
-                {
-                    return false;
-                }
-            }
-
-            return TracksCount == other.TracksCount && SubFingerprintsCount == other.SubFingerprintsCount;
+            return obj is ModelServiceInfo other && other.Id.Equals(Id);
         }
 
         public override int GetHashCode()
@@ -68,6 +57,7 @@
         public override string ToString()
         {
             return $"{GetType().Name}{{" +
+                $"{nameof(Id)}: {Id}, " +   
                 $"{nameof(TracksCount)}: {TracksCount}, " +
                 $"{nameof(SubFingerprintsCount)}: {SubFingerprintsCount}, " +
                 $"{nameof(HashCountsInTables)}: [{string.Join(", ", HashCountsInTables)}]}}";

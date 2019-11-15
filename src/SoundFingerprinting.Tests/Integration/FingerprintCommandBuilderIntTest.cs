@@ -53,7 +53,7 @@
                                             .Hash();
 
             var modelService = new InMemoryModelService();
-            var trackReference = modelService.Insert(track, fingerprints);
+            modelService.Insert(track, fingerprints);
 
             var queryResult = await QueryCommandBuilder.Instance
                                .BuildQueryCommand()
@@ -65,7 +65,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
-            Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
+            Assert.AreEqual("id", bestMatch.Track.Id);
             Assert.IsTrue(bestMatch.CoverageLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
@@ -159,7 +159,7 @@
                     .Hash();
 
             var modelService = new InMemoryModelService();
-            var trackReference = modelService.Insert(track, fingerprints);
+            modelService.Insert(track, fingerprints);
 
             var querySamples = GetQuerySamples(GetAudioSamples(), startAtSecond, secondsToProcess);
 
@@ -172,7 +172,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
-            Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
+            Assert.AreEqual("1234", bestMatch.Track.Id);
             Assert.IsTrue(bestMatch.CoverageLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
@@ -210,7 +210,7 @@
         public async Task ShouldCreateFingerprintsFromAudioSamplesQueryWithPreviouslyCreatedFingerprintsAndGetTheRightResult()
         {
             var audioSamples = GetAudioSamples();
-            var track = new TrackInfo(string.Empty, audioSamples.Origin, audioSamples.Origin);
+            var track = new TrackInfo("4321", audioSamples.Origin, audioSamples.Origin);
             var fingerprints = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(audioSamples)
@@ -218,7 +218,7 @@
                 .Hash();
 
             var modelService = new InMemoryModelService();
-            var trackReference = modelService.Insert(track, fingerprints);
+            modelService.Insert(track, fingerprints);
 
             var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(fingerprints)
@@ -228,7 +228,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
-            Assert.AreEqual(trackReference, bestMatch.Track.TrackReference);
+            Assert.AreEqual("4321", bestMatch.Track.Id);
             Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
             Assert.AreEqual(audioSamples.Duration, bestMatch.CoverageLength, 1.48d);
             Assert.AreEqual(1d, bestMatch.Coverage, 0.005d);
