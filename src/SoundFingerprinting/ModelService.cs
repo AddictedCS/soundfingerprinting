@@ -10,8 +10,6 @@
 
     public abstract class ModelService : IModelService
     {
-        protected readonly string Id;
-        
         protected ModelService(string id, ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
         {
             Id = id;
@@ -21,6 +19,8 @@
 
         public virtual IEnumerable<ModelServiceInfo> Info => new[] { new ModelServiceInfo(Id, TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray()) };
 
+        protected string Id { get; }
+        
         protected ITrackDao TrackDao { get; }
         
         protected ISubFingerprintDao SubFingerprintDao { get; }
@@ -40,12 +40,7 @@
         public virtual IEnumerable<SubFingerprintData> Query(IEnumerable<int[]> hashes, QueryConfiguration config)
         {
             var queryHashes = hashes.ToList();
-            if (!queryHashes.Any())
-            {
-                return Enumerable.Empty<SubFingerprintData>();
-            }
-
-            return SubFingerprintDao.ReadSubFingerprints(queryHashes, config);
+            return queryHashes.Any() ? SubFingerprintDao.ReadSubFingerprints(queryHashes, config) : Enumerable.Empty<SubFingerprintData>();
         }
 
         public virtual IEnumerable<TrackData> ReadAllTracks()
@@ -63,14 +58,22 @@
             return TrackDao.ReadTracksByReferences(references);
         }
 
-        public virtual TrackData ReadTrackById(string trackId)
+        public virtual TrackInfo ReadTrackById(string trackId)
         {
-            return TrackDao.ReadTrackById(trackId);
+            var trackData = TrackDao.ReadTrackById(trackId);
+            if (trackData == null)
+            {
+                return null;
+            }
+
+            var metaFields = CopyMetaFields(trackData.MetaFields);
+            metaFields.Add("TrackLength", $"{trackData.Length: 0.000}");
+            return new TrackInfo(trackData.Id, trackData.Title, trackData.Artist, metaFields, trackData.MediaType);
         }
 
         public virtual int DeleteTrack(string trackId)
         {
-            var track = ReadTrackById(trackId);
+            var track = TrackDao.ReadTrackById(trackId);
             if (track == null)
             {
                 return 0;
@@ -78,6 +81,11 @@
 
             var trackReference = track.TrackReference;
             return SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference) + TrackDao.DeleteTrack(trackReference);
+        }
+
+        private static IDictionary<string, string> CopyMetaFields(IDictionary<string, string> metaFields)
+        {
+            return metaFields == null ? new Dictionary<string, string>() : metaFields.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
     }
 }

@@ -1,8 +1,11 @@
 namespace SoundFingerprinting.Data
 {
+    using System;
+
     /// <summary>
-    ///  Media type of tracks
+    ///  Track media type
     /// </summary>
+    [Flags]
     public enum MediaType
     {
         Audio = 1,

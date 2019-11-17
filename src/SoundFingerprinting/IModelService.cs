@@ -17,11 +17,11 @@ namespace SoundFingerprinting
         
         int DeleteTrack(string trackId);
 
+        TrackInfo ReadTrackById(string trackId);
+        
         IEnumerable<TrackData> ReadAllTracks();
 
         IEnumerable<TrackData> ReadTrackByTitle(string title);
-
-        TrackData ReadTrackById(string trackId);
 
         IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
     }

@@ -19,6 +19,19 @@
             return (int[])genericHashBucketsArray.Clone();
         }
 
+        protected void AssertTracksAreEqual(TrackInfo expectedTrack, TrackInfo actualTrack)
+        {
+            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
+            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
+            Assert.AreEqual(expectedTrack.Id, actualTrack.Id);
+            Assert.AreEqual(expectedTrack.MediaType, actualTrack.MediaType);
+            foreach ((string key, string val) in expectedTrack.MetaFields)
+            {
+                Assert.IsTrue(actualTrack.MetaFields.TryGetValue(key, out string value));
+                Assert.AreEqual(val, value);
+            }
+        }
+        
         protected void AssertTracksAreEqual(TrackInfo expectedTrack, TrackData actualTrack)
         {
             Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
@@ -27,7 +40,7 @@
             Assert.AreEqual(expectedTrack.MediaType, actualTrack.MediaType);
             foreach ((string key, string val) in expectedTrack.MetaFields)
             {
-                Assert.IsTrue(actualTrack.MetaFields.TryGetValue(key, out var value));
+                Assert.IsTrue(actualTrack.MetaFields.TryGetValue(key, out string value));
                 Assert.AreEqual(val, value);
             }
         }

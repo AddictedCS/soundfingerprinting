@@ -30,22 +30,18 @@
         }
 
         [Test]
-        public void ReadTrackByTrackReferenceTest()
+        public void ReadTrackByTrackIdTest()
         {
             var track = new TrackInfo("id", "title", "artist");
-
             modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
-            var trackReference = modelService.ReadTrackById("id").TrackReference;
             
-            var first = modelService.ReadTracksByReferences(new []{ trackReference }).First();
-
+            var first = modelService.ReadTrackById("id");
             AssertTracksAreEqual(track, first);
 
             modelService.DeleteTrack("id");
+            var result = modelService.ReadTrackById("id");
 
-            var result = modelService.ReadTracksByReferences(new [] { trackReference });
-
-            Assert.IsEmpty(result);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -101,7 +97,7 @@
             var subFingerprints = modelService.Query(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
                                               .ToList();
 
-            var trackReference = modelService.ReadTrackById("id").TrackReference;
+            var trackReference = modelService.ReadTracksByReferences(subFingerprints.Select(s => s.TrackReference)).First().TrackReference;
             Assert.AreEqual(1, subFingerprints.Count);
             Assert.AreEqual(trackReference, subFingerprints[0].TrackReference);
             Assert.AreNotEqual(0, subFingerprints[0].SubFingerprintReference.GetHashCode());

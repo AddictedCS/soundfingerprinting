@@ -69,8 +69,8 @@
 
             File.Delete(tempFile);
 
-            var ref1 = fromFileService.ReadTrackById("id1").TrackReference;
-            var ref2 = fromFileService.ReadTrackById("id2").TrackReference;
+            var ref1 = tracks.First(track => track.Id == "id1").TrackReference;
+            var ref2 = tracks.First(track => track.Id == "id2").TrackReference;
             Assert.IsTrue(tracks.Any(track => track.Id == "id1"));
             Assert.IsTrue(tracks.Any(track => track.Id == "id2"));
             Assert.IsTrue(!ref1.Equals(ref2));

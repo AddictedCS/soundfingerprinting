@@ -150,7 +150,7 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
-                            bool isSuccessful = recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
+                            bool isSuccessful = recognizedTrack.Id.Equals(actualTrack.Id);
                             if (isSuccessful)
                             {
                                 Interlocked.Increment(ref truePositives);
@@ -162,7 +162,7 @@
                                 falseNegativesHammingDistance.Add((int)queryResult.BestMatch.Score);
                             }
 
-                            var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
+                            var foundLine = GetFoundLine(ToTrackString(actualTrack.Artist, actualTrack.Title), recognizedTrack, isSuccessful, queryResult);
                             AppendLine(sb, foundLine);
                             OnTestRunnerEvent(PositiveFoundEvent, GetTestRunnerEventArgs(truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                         });
@@ -239,9 +239,9 @@
                 };
         }
 
-        private string ToTrackString(TrackData actualTrack)
+        private string ToTrackString(string artist, string title)
         {
-            return $"{actualTrack.Artist}-{actualTrack.Title}";
+            return $"{artist}-{title}";
         }
 
         private string ToTrackString(TagInfo tag)
@@ -272,11 +272,9 @@
                 };
         }
 
-        private TrackData GetActualTrack(TagInfo tags)
+        private TrackInfo GetActualTrack(TagInfo tags)
         {
-            return !string.IsNullOrEmpty(tags.ISRC)
-                       ? modelService.ReadTrackById(tags.ISRC)
-                       : modelService.ReadTrackByTitle(tags.Title).FirstOrDefault();
+            return modelService.ReadTrackById(tags.ISRC);
         }
 
         private object[] GetNotFoundLine(TagInfo tags)
@@ -289,7 +287,7 @@
             var bestMatch = queryResult.BestMatch;
             return new object[]
                 {
-                    actualTrack, ToTrackString(recognizedTrack), isSuccessful,
+                    actualTrack, ToTrackString(recognizedTrack.Artist, recognizedTrack.Title), isSuccessful,
                     bestMatch.Score, bestMatch.Confidence,
                     bestMatch.Coverage,
                     bestMatch.CoverageLength, bestMatch.TrackStartsAt
