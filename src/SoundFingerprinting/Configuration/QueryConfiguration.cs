@@ -92,7 +92,7 @@
         /// <summary>
         ///  Gets or sets list of clusters to consider when querying the data source for potential candidates
         /// </summary>
-        public IEnumerable<string> Clusters { get; set; }
+        public ISet<string> Clusters { get; set; }
 
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 

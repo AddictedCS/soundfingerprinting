@@ -5,6 +5,6 @@ namespace SoundFingerprinting.Math
 
     public interface ISubFingerprintIdsToDataResolver
     {
-        IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids);
+        IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids, ISet<string> clusters);
     }
 }

@@ -48,7 +48,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               {
                                                     config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
                                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithWrongClusters);
-                                                    config.Clusters = new[] {"CANADA"};
+                                                    config.Clusters = new HashSet<string>(new[] {"CANADA"});
                                                     return config;
                                               })
                                               .UsingServices(modelService)
@@ -60,7 +60,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                 {
                                     config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithClusters);
-                                    config.Clusters = new[] {"USA"};
+                                    config.Clusters = new HashSet<string>(new[] {"USA"});
                                     return config;
                                 })
                                 .UsingServices(modelService)
@@ -151,7 +151,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 1.48d,
                 0d,
                 (int)(10240d/5512) * 1000,
-                Enumerable.Empty<string>());
+                new HashSet<string>());
 
              var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             

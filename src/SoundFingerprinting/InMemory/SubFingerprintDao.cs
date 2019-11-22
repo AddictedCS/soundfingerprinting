@@ -2,7 +2,6 @@
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Configuration;
@@ -61,7 +60,7 @@
 
             Parallel.ForEach(hashes, hashedFingerprint =>
             {
-                var subFingerprints = ReadSubFingerprints(hashedFingerprint, threshold, assignedClusters);
+                var subFingerprints = QuerySubFingerprints(hashedFingerprint, threshold, assignedClusters);
                 foreach (var subFingerprint in subFingerprints)
                 {
                     allSubs.Add(subFingerprint);
@@ -76,19 +75,7 @@
             return storage.DeleteSubFingerprintsByTrackReference(trackReference);
         }
 
-        private IEnumerable<SubFingerprintData> ReadSubFingerprints(int[] hashes, int thresholdVotes, IEnumerable<string> assignedClusters)
-        {
-            var subFingerprints = CountSubFingerprintMatches(hashes, thresholdVotes);
-            var clusters = assignedClusters as List<string> ?? assignedClusters.ToList();
-            if (clusters.Any())
-            {
-                return subFingerprints.Where(subFingerprint => subFingerprint.Clusters.Intersect(clusters).Any());
-            }
-
-            return subFingerprints;
-        }
-
-        private IEnumerable<SubFingerprintData> CountSubFingerprintMatches(int[] hashes, int thresholdVotes)
+        private IEnumerable<SubFingerprintData> QuerySubFingerprints(int[] hashes, int thresholdVotes, ISet<string> clusters)
         {
             var results = new List<uint>[hashes.Length];
             for (int table = 0; table < hashes.Length; ++table)
@@ -97,7 +84,7 @@
                 results[table] = storage.GetSubFingerprintsByHashTableAndHash(table, hashBin);
             }
 
-            return groupingCounter.GroupByAndCount(results, thresholdVotes, storageResolver);
+            return groupingCounter.GroupByAndCount(results, thresholdVotes, clusters, storageResolver);
         }
     }
 }

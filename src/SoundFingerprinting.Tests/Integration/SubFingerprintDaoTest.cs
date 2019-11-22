@@ -125,7 +125,7 @@
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = thresholdVotes,
-                            Clusters = new[] { "first-group-id" }
+                            Clusters = new HashSet<string>(new[] { "first-group-id" })
                         }).ToList();
 
                 Assert.AreEqual(1, subFingerprintData.Count);
@@ -136,7 +136,7 @@
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = thresholdVotes,
-                            Clusters = new[] { "second-group-id" }
+                            Clusters = new HashSet<string>(new[] { "second-group-id" })
                         }).ToList();
 
                 Assert.AreEqual(1, subFingerprintData.Count);

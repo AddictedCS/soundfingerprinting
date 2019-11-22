@@ -1,9 +1,10 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     using NUnit.Framework;
-
+    using NUnit.Framework.Internal;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
@@ -143,8 +144,9 @@
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
 
-            var subFingerprints = modelService.Query(new[] { queryBuckets }, new DefaultQueryConfiguration { Clusters = new[] { "first-group-id" } })
-                                              .ToList();
+            var set = new HashSet<string>(new[] { "first-group-id" });
+            var subFingerprints = modelService.Query(new[] { queryBuckets }, new DefaultQueryConfiguration { 
+                    Clusters = set}).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
         }

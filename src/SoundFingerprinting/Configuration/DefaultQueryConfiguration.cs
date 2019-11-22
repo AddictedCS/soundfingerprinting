@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
     using System.Collections.Generic;
-    using System.Linq;
     using SoundFingerprinting.Data;
 
     public class DefaultQueryConfiguration : QueryConfiguration
@@ -10,7 +9,7 @@
         {
             ThresholdVotes = Configs.Threshold.Default;
             MaxTracksToReturn = 25;
-            Clusters = Enumerable.Empty<string>();
+            Clusters = new HashSet<string>();
             PermittedGap = 2d;
             AllowMultipleMatchesOfTheSameTrackInQuery = false;
             FingerprintConfiguration = new DefaultFingerprintConfiguration

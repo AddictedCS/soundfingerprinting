@@ -6,6 +6,6 @@
 
     public interface IGroupingCounter
     {
-        IEnumerable<SubFingerprintData> GroupByAndCount(List<uint>[] results, int thresholdVotes, ISubFingerprintIdsToDataResolver resolver);
+        IEnumerable<SubFingerprintData> GroupByAndCount(List<uint>[] results, int thresholdVotes, ISet<string> clusters, ISubFingerprintIdsToDataResolver resolver);
     }
 }

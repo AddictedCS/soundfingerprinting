@@ -24,7 +24,7 @@ namespace SoundFingerprinting.Configuration
             double permittedGap,
             double downtimeCapturePeriod,
             int millisecondsDelay,
-            IEnumerable<string> clusters)
+            ISet<string> clusters)
         {
             QueryConfiguration = new DefaultQueryConfiguration
             {
@@ -122,7 +122,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets list of clusters to consider when querying the data source for potential candidates
         /// </summary>
-        public IEnumerable<string> Clusters
+        public ISet<string> Clusters
         {
             get => QueryConfiguration.Clusters;
             set => QueryConfiguration.Clusters = value;

@@ -14,8 +14,14 @@ namespace SoundFingerprinting.InMemory
             this.storage = storage;
         }
         
-        public IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids)
+        public IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids, ISet<string> clusters)
         {
+            if (clusters.Any())
+            {
+                return ids.Select(storage.ReadSubFingerprintById)
+                          .Where(data => data.Clusters.Any(clusters.Contains));
+            }
+
             return ids.Select(storage.ReadSubFingerprintById);
         }
     }
