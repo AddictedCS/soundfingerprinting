@@ -2,10 +2,8 @@
 {
     using System.Collections.Generic;
 
-    using SoundFingerprinting.DAO.Data;
-
     public interface IGroupingCounter
     {
-        IEnumerable<SubFingerprintData> GroupByAndCount(List<uint>[] results, int thresholdVotes, ISet<string> clusters, ISubFingerprintIdsToDataResolver resolver);
+        IEnumerable<uint> GroupByAndCount(List<uint>[] results, int thresholdVotes);
     }
 }

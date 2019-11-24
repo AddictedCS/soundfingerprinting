@@ -1,15 +1,13 @@
 ﻿namespace SoundFingerprinting.Math
 {
     using System.Collections.Generic;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Utils;
 
     public class StandardGroupingCounter : IGroupingCounter
     {
-        public IEnumerable<SubFingerprintData> GroupByAndCount(List<uint>[] results, int thresholdVotes, ISet<string> clusters, ISubFingerprintIdsToDataResolver resolver)
+        public IEnumerable<uint> GroupByAndCount(List<uint>[] results, int thresholdVotes)
         {
-            var ids = SubFingerprintGroupingCounter.GroupByAndCount(results, thresholdVotes);
-            return resolver.ResolveFromIds(ids, clusters);
+            return SubFingerprintGroupingCounter.GroupByAndCount(results, thresholdVotes);
         }
     }
 }
