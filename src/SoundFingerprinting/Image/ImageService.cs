@@ -27,5 +27,35 @@
 
             return transformed;
         }
+        
+        public byte[][] FloatsToByteImage(float[][] image, int max)
+        {
+            byte[][] q = new byte[image.Length][];
+            for (int i = 0; i < q.Length; ++i)
+            {
+                q[i] = new byte[image[0].Length];
+                for (int j = 0; j < image[0].Length; ++j)
+                {
+                    q[i][j] = (byte)Math.Min(max, image[i][j] * max);
+                }
+            }
+
+            return q;
+        }
+        
+        public float[][] BytesToFloatImage(byte[][] array, int max)
+        {
+            float[][] floats = new float[array.Length][];
+            for(int i = 0; i < array.Length; ++i)
+            {
+                floats[i] = new float[array[i].Length];
+                for(int j = 0; j < array[i].Length; ++j)
+                {
+                    floats[i][j] = (float)array[i][j] / max;
+                }
+            }
+
+            return floats;
+        }
     }
 }

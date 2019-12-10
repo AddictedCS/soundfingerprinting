@@ -13,7 +13,7 @@ namespace SoundFingerprinting.Configuration
             HaarWaveletNorm = System.Math.Sqrt(2);
             Clusters = Enumerable.Empty<string>();
             FingerprintLengthInSeconds = (double)SamplesPerFingerprint / SampleRate;
-            OriginalPointSaveTransform = frame => new byte[0];
+            OriginalPointSaveTransform = null;
         }
     }
 }

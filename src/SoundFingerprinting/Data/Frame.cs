@@ -42,5 +42,12 @@
         public float StartsAt { get; }
 
         public int Length => ImageRowCols.Length;
+
+        public float[] GetImageRowColsCopy()
+        {
+            float[] copy = new float[ImageRowCols.Length];
+            Buffer.BlockCopy(ImageRowCols, 0, copy, 0, ImageRowCols.Length * sizeof(float));
+            return copy;
+        }
     }
 }
