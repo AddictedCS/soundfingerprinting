@@ -30,7 +30,9 @@
             {
                 bool trackGaps = ResultCoverage.TrackGaps.Any(g => !g.IsOnEdge);
                 bool queryGaps = ResultCoverage.QueryGaps.Any(g => !g.IsOnEdge);
-                return DiscreteCoverage > 0.9 && !trackGaps && !queryGaps;
+                double coverageWithPermittedGap = ResultCoverage.CoverageWithPermittedGapsLength;
+                double trackLength = Track.Length;
+                return coverageWithPermittedGap / trackLength >= 0.9 && !trackGaps && !queryGaps;
             }
         }
 
