@@ -82,11 +82,11 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             var all = new List<MatchedWith>();
             var count = 100;
-            for (int querySequence = 0; querySequence < count; ++querySequence)
+            for (int trackSequence = 0; trackSequence < count; ++trackSequence)
             {
-                for (int trackSequence = querySequence; trackSequence < querySequence + count; ++trackSequence)
+                for (int querySequence = trackSequence; querySequence < trackSequence + count; ++querySequence)
                 {
-                    var match = new MatchedWith((uint)querySequence, querySequence * 1.48f, (uint)trackSequence, trackSequence * 1.48f, trackSequence);
+                    var match = new MatchedWith((uint)querySequence, querySequence * 1.48f, (uint)trackSequence, trackSequence * 1.48f, score: querySequence);
                     all.Add(match);
                 }
             }
@@ -98,8 +98,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             int shift = (count - 1);
             for (int i = 0; i < bestPath.Count; ++i)
             {
-                Assert.AreEqual(shift + i, bestPath[i].TrackSequenceNumber);
-                Assert.AreEqual(i, bestPath[i].QuerySequenceNumber);
+                Assert.AreEqual(shift + i, bestPath[i].QuerySequenceNumber);
+                Assert.AreEqual(i, bestPath[i].TrackSequenceNumber);
             }
         }
 

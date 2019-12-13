@@ -52,13 +52,15 @@
 
         private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
         {
+            // matches are already sorted by `TrackMatchAt`
             return matches.Skip(trackRegion.StartAt)
                    .Take(trackRegion.Count)
-                   .OrderByDescending(m => m.Score)
                    .GroupBy(m => m.TrackSequenceNumber)
                    .Aggregate(new { List = new List<MatchedWith>(), Used = new HashSet<uint>()}, (acc, group) =>
                        {
-                           var bestByScore = group.OrderByDescending(m => m.Score).ToList();
+                           var bestByScore = group.OrderByDescending(m => m.Score)
+                                                  .ThenBy(m => m.QueryMatchAt)
+                                                  .ToList();
                            foreach (var match in bestByScore.Where(match => !acc.Used.Contains(match.QuerySequenceNumber)))
                            {
                                acc.List.Add(match);
