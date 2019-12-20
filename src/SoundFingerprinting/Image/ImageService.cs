@@ -1,8 +1,11 @@
 ﻿namespace SoundFingerprinting.Image
 {
     using System;
+    
     public class ImageService : IImageService
     {
+        public static ImageService Instance { get; } = new ImageService();
+
         public float[] Image2RowCols(float[][] image)
         {
             int width = image[0].Length;
@@ -56,6 +59,17 @@
             }
 
             return floats;
+        }
+        
+        public void ThresholdInvInPlace(byte[][] image, int threshold, byte maxValue)
+        {
+            for (int i = 0; i < image.Length; ++i)
+            {
+                for (int j = 0; j < image[0].Length; ++j)
+                {
+                    image[i][j] = image[i][j] > threshold ? byte.MinValue : maxValue;
+                }
+            }
         }
     }
 }
