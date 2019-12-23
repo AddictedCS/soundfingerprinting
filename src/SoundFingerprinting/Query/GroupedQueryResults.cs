@@ -82,13 +82,7 @@
 
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
-            foreach (var candidates in sequenceToCandidates.Values)
-            {
-                foreach (var match in candidates.GetMatchesForTrack(trackReference))
-                {
-                    yield return match;
-                }
-            }
+            return sequenceToCandidates.Values.SelectMany(candidates => candidates.GetMatchesForTrack(trackReference));
         }
     }
 }

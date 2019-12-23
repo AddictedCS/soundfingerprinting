@@ -53,17 +53,11 @@
             var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
             return coverages.Select(coverage =>
                {
-                    double confidence = confidenceCalculator.CalculateConfidence(
-                        coverage.QueryMatchStartsAt,
-                        coverage.CoverageLength,
-                        coverage.QueryLength,
-                        coverage.TrackMatchStartsAt,
-                        track.Length);
+                    double confidence = confidenceCalculator.CalculateConfidence(coverage.QueryMatchStartsAt,
+                        coverage.CoverageLength, coverage.QueryLength,
+                        coverage.TrackMatchStartsAt, track.Length);
 
-                    return new ExtendedResultEntry(
-                        track,
-                        coverage,
-                        confidence,
+                    return new ExtendedResultEntry(track, coverage, confidence,
                         groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
                         groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt));
                });

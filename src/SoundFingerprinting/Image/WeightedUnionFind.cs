@@ -31,7 +31,7 @@ namespace SoundFingerprinting.Image
         public IEnumerable<Contour> FindDisjointContours(int threshold)
         {
             return Enumerable.Range(0, id.Length)
-                .Select(coord => new { parent = Find(coord), coord = coord })
+                .Select(coord => new { parent = Find(coord), coord })
                 .GroupBy(x => x.parent)
                 .Select(a =>
                 {
@@ -60,7 +60,18 @@ namespace SoundFingerprinting.Image
             }
             count--;
         }
-        public int Find(int p)
+
+        public bool Connected(int p, int q)
+        {
+            return Find(p) == Find(q);
+        }
+
+        public int GetCount()
+        {
+            return count;
+        }
+        
+        private int Find(int p)
         {
             int root = p;
             while (root != id[root])
@@ -74,15 +85,7 @@ namespace SoundFingerprinting.Image
 
             return root;
         }
-        public bool Connected(int p, int q)
-        {
-            return Find(p) == Find(q);
-        }
-
-        public int GetCount()
-        {
-            return count;
-        }
+        
         private Coord Resolve(int index)
         {
             int y = index / width;
