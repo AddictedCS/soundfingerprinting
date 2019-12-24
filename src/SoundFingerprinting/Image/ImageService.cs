@@ -60,16 +60,5 @@
 
             return floats;
         }
-        
-        public void ThresholdInvInPlace(byte[][] image, int threshold, byte maxValue)
-        {
-            for (int i = 0; i < image.Length; ++i)
-            {
-                for (int j = 0; j < image[0].Length; ++j)
-                {
-                    image[i][j] = image[i][j] > threshold ? byte.MinValue : maxValue;
-                }
-            }
-        }
     }
 }
