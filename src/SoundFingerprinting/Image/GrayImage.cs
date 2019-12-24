@@ -154,37 +154,28 @@ namespace SoundFingerprinting.Image
         {
             int width = image[0].Length;
             int height = image.Length;
-            float[] buffer = new float[width * height];
             float[][] result = NewImage(width, height);
-            for (int i = 0; i < height; ++i)
-            {
-                Buffer.BlockCopy(image[i], 0, buffer, i * width * sizeof(float), width * sizeof(float));
-            }
-
             int foff = (kernel.GetLength(0) - 1) / 2;
-            for (int y = 0; y < height; y++)
+            
+            Parallel.For(0, height, y =>
             {
                 for (int x = 0; x < width; x++)
                 {
                     double rgb = 0.0;
-
-                    int kcenter = y * width + x;
                     for (int fy = -foff; fy <= foff; fy++)
                     {
                         for (int fx = -foff; fx <= foff; fx++)
                         {
-                            int kpixel = kcenter + fy * width + fx;
-                            if (kpixel < 0)
-                                kpixel = 0;
-                            if (kpixel >= width * height)
-                                kpixel = width * height - 1;
-                            rgb += buffer[kpixel] * kernel[fy + foff, fx + foff];
+                            (int kx, int ky) = (x + fx, y + fy);
+                            kx = kx < 0 ? 0 : kx > width - 1 ? width - 1 : kx;
+                            ky = ky < 0 ? 0 : ky > height - 1 ? height - 1 : ky;
+                            rgb += image[ky][kx] * kernel[fy + foff, fx + foff];
                         }
                     }
 
-                    result[y][x] = (float)rgb;
+                    result[y][x] = (float) rgb;
                 }
-            }
+            });
 
             return result;
         }

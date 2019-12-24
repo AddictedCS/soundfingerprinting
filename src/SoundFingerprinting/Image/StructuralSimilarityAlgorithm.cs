@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Image
 {
     using System;
-    using System.Collections.Generic;
 
     public class StructuralSimilarityAlgorithm
     {
@@ -15,7 +14,7 @@ namespace SoundFingerprinting.Image
         /// <param name="differenceThreshold">How much difference is considered relevant before we consider a pixel as a contour element (value between 0,255)</param>
         /// <param name="areaThreshold">How big should be the area of the contour, before it is considered relevant (min value 2)</param>
         /// <returns>List of contours</returns>
-        public IEnumerable<Contour> FindContours(GrayImage img1, GrayImage img2, int differenceThreshold, int areaThreshold)
+        public SSIM FindContours(GrayImage img1, GrayImage img2, int differenceThreshold, int areaThreshold)
         {
             if(img1.Width != img2.Width)
                 throw new ArgumentException(nameof(img1.Width));
@@ -52,7 +51,7 @@ namespace SoundFingerprinting.Image
 
             byte[][] ssim = S.ConvertAndUnwrap(x => (byte)(x * byte.MaxValue));
             ImageService.Instance.ThresholdInvInPlace(ssim, differenceThreshold, byte.MaxValue);
-            return Contour.FindContours(ssim, byte.MaxValue, areaThreshold);
+            return new SSIM(ssim, Contour.FindContours(ssim, byte.MaxValue, areaThreshold));
         }
     }
 }
