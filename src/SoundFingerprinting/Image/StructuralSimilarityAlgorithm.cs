@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Image
 {
     using System;
+    using System.Linq;
 
     public class StructuralSimilarityAlgorithm
     {
@@ -48,10 +49,11 @@ namespace SoundFingerprinting.Image
             var b2 = vx.Add(vy).Convert(x => (float) (x + c2));                   //vx + vy + C2)  
             var d = b1.Multiply(b2);
             var s = a1.Multiply(a2).Divide(d);
-            byte[][] ssim = s.ConvertAndUnwrap(x => (byte) (x * byte.MaxValue));
+            byte[][] ssimImage = s.ConvertAndUnwrap(x => (byte) (x * byte.MaxValue));
+            byte[][] thresholdInvImage = ssimImage.Select(x => x.ToArray()).ToArray();
 
-            ThresholdInvInPlace(ssim, differenceThreshold, byte.MaxValue);
-            return new SSIM(ssim, Contour.FindContours(ssim, byte.MaxValue, areaThreshold));
+            ThresholdInvInPlace(thresholdInvImage, differenceThreshold, byte.MaxValue);
+            return new SSIM(ssimImage, thresholdInvImage, Contour.FindContours(thresholdInvImage, byte.MaxValue, areaThreshold));
         }
 
         private static void ThresholdInvInPlace(byte[][] image, int threshold, byte maxValue)
