@@ -5,7 +5,6 @@ namespace SoundFingerprinting.Image
 
     public class StructuralSimilarityAlgorithm
     {
-        private readonly double[,] kernel2d = GaussianBlurKernel.Kernel2D(11, 1.5);
         private const double K1 = 0.01;
         private const double K2 = 0.03;
         private const int L = 255;
@@ -17,8 +16,14 @@ namespace SoundFingerprinting.Image
         /// <param name="img2">Second image</param>
         /// <param name="differenceThreshold">How much difference is considered relevant before we consider a pixel as a contour element (value between 0,255)</param>
         /// <param name="areaThreshold">How big should be the area of the contour, before it is considered relevant (min value 2)</param>
-        /// <returns>List of contours and thresholded image</returns>
-        public SSIM FindContours(GrayImage img1, GrayImage img2, int differenceThreshold, int areaThreshold)
+        /// <param name="kernelSize">Gaussian blur kernel size (i.e. 11)</param>
+        /// <param name="sigma">Gaussian kernel sigma over X and Y directions (i.e. 1.5)</param>
+        /// <returns>List of contours, thresholded and SSIM image</returns>
+        public SSIM FindContours(GrayImage img1, GrayImage img2,
+            int differenceThreshold,
+            int areaThreshold,
+            int kernelSize,
+            double sigma)
         {
             if (img1.Width != img2.Width)
                 throw new ArgumentException(nameof(img1.Width));
@@ -27,6 +32,7 @@ namespace SoundFingerprinting.Image
             if (areaThreshold < 2)
                 throw new ArgumentException(nameof(areaThreshold));
 
+            double[,] kernel2d = GaussianBlurKernel.Kernel2D(kernelSize, sigma);
             var ux = img1.GaussianBlur(kernel2d);
             var uy = img2.GaussianBlur(kernel2d);
             var uxx = img1.Multiply(img1).GaussianBlur(kernel2d);
