@@ -10,10 +10,18 @@ namespace SoundFingerprinting.Tests.Unit.LCS
     public class LISTest
     {
         [Test]
+        public void ShouldFindLongestIncreasingSequenceEmpty()
+        {
+            var result = LIS.GetIncreasingSequences(Enumerable.Empty<MatchedWith>());
+            
+            Assert.IsFalse(result.Any());
+        }
+        
+        [Test]
         public void ShouldFindLongestIncreasingSequenceTrivial()
         {
             var pairs = new[] {(1, 1, 0d)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
             
             AssertResult(pairs, result);
         }
@@ -27,7 +35,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              * expected  x x x
              */
             var pairs = new[] {(1, 1, 0d), (2, 2, 0d), (3, 3, 0d)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
 
             AssertResult(pairs, result);
         }
@@ -44,7 +52,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 4d), (2, 1, 3), (3, 1, 2), (4, 2, 1)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 4d), (4, 2, 1)};
             AssertResult(expected, result);
@@ -65,7 +73,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 3d), (1, 2, 2), (1, 3, 1), (4, 4, 1)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 3), (4, 4, 1d)};
             AssertResult(expected, result);
@@ -86,7 +94,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 4, 0d), (2, 3, 1), (3, 2, 2), (4, 1, 3)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(4, 1, 3d)};
 
@@ -107,7 +115,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 1d), (2, 2, 1), (0, 3, 2), (3, 3, 1), (4, 4, 1)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 1), (4, 4, 1)};
 
@@ -129,7 +137,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 2), (4, 3, 1), (4, 4, 1)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 2), (4, 4, 1)};
 
@@ -154,14 +162,14 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (20, 1, 0), (2, 2, 1), (3, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1)};
-            var results = LIS.Zip(Generate(pairs), 10);
+            var results = LIS.GetIncreasingSequences(Generate(pairs), 10);
 
-            var expected1 = new[] {(1, 1, 0d), (2, 2, 1), (3, 3, 0)};
-            var expected2 = new[] {(20, 1, 0d), (21, 2, 0), (22, 3, 1)};
+            var expected2 = new[] {(1, 1, 0d), (2, 2, 1), (3, 3, 0)};
+            var expected1 = new[] {(20, 1, 0d), (21, 2, 0), (22, 3, 1)};
 
-            // TODO implement finding multiple sequences at once
-            // AssertResult(expected1, results[0]);
-            AssertResult(expected2, results[0]);
+            Assert.AreEqual(2, results.Length);
+            AssertResult(expected1, results[0]);
+            AssertResult(expected2, results[1]);
         }
 
         [Test]
@@ -177,7 +185,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (4, 3, 2), (3, 4, 1), (3, 5, 0)};
-            var result = LIS.Zip(Generate(pairs)).First();
+            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 0d), (2, 2, 0), (4, 3, 2)};
 
@@ -189,23 +197,23 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             /*
              * s
-             * q          20 1 2 21 3 22 4 5 
-             * t          1  1 2 2  3 3  4 5 
-             * expected   y  x x y  x y  x x
-             * max        1  2 2 3  3 4  4 5
-             * max (c.)   1  1 2 2  3 3  4 5
+             * q          20 1 2 21 3 22 4 0 5 
+             * t          1  1 2 2  3 3  4 4 5 
+             * expected   y  x x y  x y  x   x
+             * max        1  2 2 3  3 4  4 1 5
+             * max (c.)   1  1 2 2  3 3  4 1 5
              */
 
-            var pairs = new[] {(20, 1, 0d), (1, 1, 0), (2, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1), (4, 4, 0), (5, 5, 0)};
+            var pairs = new[] {(20, 1, 0d), (1, 1, 0), (2, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1), (4, 4, 0), (0, 4, 0), (5, 5, 0)};
 
-            var results = LIS.Zip(Generate(pairs), 10);
+            var results = LIS.GetIncreasingSequences(Generate(pairs), 10);
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0)};
-            var expected2 = new[] {(22, 3, 0d), (21, 2, 0), (20, 1, 0)};
+            var expected2 = new[] {(20, 1, 0), (21, 2, 0), (22, 3, 1d)};
 
+            Assert.AreEqual(2, results.Length);
             AssertResult(expected1, results[0]);
-            // TODO implement finding multiple sequences at once
-            // AssertResult(expected2, results[1]);
+            AssertResult(expected2, results[1]);
         }
 
         private static void AssertResult((int q, int t, double s)[] pairs, IEnumerable<MatchedWith> result)
