@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.LCS
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -30,7 +31,8 @@
 
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
-                var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, configuration.PermittedGap);
+                double allowedGap = Math.Min(trackData.Length, queryLength);
+                var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, allowedGap);
                 var merged = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
                 return merged.Select(sequence => sequence.EstimateCoverage(queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap));
             }

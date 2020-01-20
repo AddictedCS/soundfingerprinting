@@ -6,6 +6,6 @@
 
     internal interface ILongestIncreasingTrackSequence
     {
-        List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches, double permittedGap);
+        List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches, double maxGap);
     }
 }
