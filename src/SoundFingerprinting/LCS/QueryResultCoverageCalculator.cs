@@ -32,9 +32,9 @@
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
                 double allowedGap = Math.Min(trackData.Length, queryLength);
+                
                 var sequences = longestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, allowedGap);
-                var merged = OverlappingRegionFilter.MergeOverlappingSequences(sequences, configuration.PermittedGap);
-                return merged.Select(sequence => sequence.EstimateCoverage(queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap));
+                return sequences.Select(sequence => new Coverage(sequence, queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap));
             }
 
             return new[] { matches.EstimateCoverage(queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap) };

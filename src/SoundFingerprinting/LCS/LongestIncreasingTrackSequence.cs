@@ -8,7 +8,9 @@
     {
         public List<Matches> FindAllIncreasingTrackSequences(IEnumerable<MatchedWith> matches, double maxGap)
         {
-            return LIS.GetIncreasingSequences(matches, maxGap).Select(list => new Matches(list)).ToList();
+            return LIS.GetIncreasingSequences(matches, maxGap)
+                      .Select(list => new Matches(list))
+                      .ToList();
         }
     }
 }

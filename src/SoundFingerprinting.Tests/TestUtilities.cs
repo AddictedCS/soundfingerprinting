@@ -40,11 +40,12 @@ namespace SoundFingerprinting.Tests
             return d;
         }
 
-        public static IEnumerable<MatchedWith> GetMatchedWith(float[] queryAt, float[] resultAt, int score = 100)
+        public static IEnumerable<MatchedWith> GetMatchedWith(int[] queryAt, int[] trackAt, int score = 100, float fingerprintLength = 1)
         {
             for (int sequenceNumber = 0; sequenceNumber < queryAt.Length; ++sequenceNumber)
             {
-                yield return new MatchedWith((uint)sequenceNumber, queryAt[sequenceNumber], (uint)sequenceNumber, resultAt[sequenceNumber], score);
+                yield return new MatchedWith((uint)queryAt[sequenceNumber], queryAt[sequenceNumber] * fingerprintLength, 
+                    (uint)trackAt[sequenceNumber], trackAt[sequenceNumber] * fingerprintLength, score);
             }
         }
 

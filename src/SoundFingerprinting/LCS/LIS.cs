@@ -48,22 +48,22 @@ namespace SoundFingerprinting.LCS
             
             int max = 1, maxIndex = 0;
 
-            for (int life = 1; life < matches.Count; ++life)
+            for (int i = 1; i < matches.Count; ++i)
             {
-                for (int happiness = 0; happiness < life; ++happiness)
+                for (int j = 0; j < i; ++j)
                 {
-                    bool queryIsIncreasing = matches[happiness].QuerySequenceNumber < matches[life].QuerySequenceNumber;
-                    bool canExtendMax = maxIncreasingQuerySequence[happiness].Length + 1 > maxIncreasingQuerySequence[life].Length;
-                    bool sameSequence = System.Math.Abs(matches[happiness].QueryMatchAt - matches[life].QueryMatchAt) < maxGap;
+                    bool queryIsIncreasing = matches[j].QuerySequenceNumber < matches[i].QuerySequenceNumber;
+                    bool canExtendMax = maxIncreasingQuerySequence[j].Length + 1 > maxIncreasingQuerySequence[i].Length;
+                    bool sameSequence = IsSameSequence(matches[j], matches[i], maxGap);
                     if (queryIsIncreasing && canExtendMax && sameSequence)
                     {
-                        maxIncreasingQuerySequence[life] = new MaxAt(maxIncreasingQuerySequence[happiness].Length + 1, matches[life]);
-                        if (maxIncreasingQuerySequence[life].Length >= max)
+                        maxIncreasingQuerySequence[i] = new MaxAt(maxIncreasingQuerySequence[j].Length + 1, matches[i]);
+                        if (maxIncreasingQuerySequence[i].Length >= max)
                         {
                             // it is important to have >= since in case if the query increase and the track is not 
                             // we need to move the sequence forward
-                            max = maxIncreasingQuerySequence[life].Length;
-                            maxIndex = life;
+                            max = maxIncreasingQuerySequence[i].Length;
+                            maxIndex = i;
                         }
                     }
                 }
@@ -71,7 +71,7 @@ namespace SoundFingerprinting.LCS
 
             var exclude = new HashSet<MatchedWith>();
             var lis = new Stack<MaxAt>();
-            for (int index = maxIndex; index >= 0; --index)
+            for (int index = maxIndex; index >= 0 && max > 0; --index)
             {
                 var current = maxIncreasingQuerySequence[index];
                 if (current.Length == max) // found entry to insert into the final list
@@ -93,7 +93,7 @@ namespace SoundFingerprinting.LCS
                         foreach (var maxAt in candidates)
                         {
                             // pick first best candidate from the same sequence
-                            bool sameSequence = System.Math.Abs(last.MatchedWith.QueryMatchAt - maxAt.MatchedWith.QueryMatchAt) <= maxGap;
+                            bool sameSequence = IsSameSequence(last.MatchedWith, maxAt.MatchedWith, maxGap);
                             if (sameSequence)
                             {
                                 lis.Push(maxAt);
@@ -106,7 +106,7 @@ namespace SoundFingerprinting.LCS
                     var lastPicked = lis.Peek();
                     foreach (var maxAt in candidates)
                     {
-                        bool sameSequence = System.Math.Abs(lastPicked.MatchedWith.QueryMatchAt - maxAt.MatchedWith.QueryMatchAt) <= maxGap;
+                        bool sameSequence = IsSameSequence(lastPicked.MatchedWith, maxAt.MatchedWith, maxGap);
                         if (sameSequence)
                         {
                             exclude.Add(maxAt.MatchedWith);
@@ -119,7 +119,7 @@ namespace SoundFingerprinting.LCS
                 {
                     // out of order element need to be excluded during next iteration
                     var lastPicked = lis.Peek();
-                    bool sameSequence = System.Math.Abs(lastPicked.MatchedWith.QueryMatchAt - current.MatchedWith.QueryMatchAt) <= maxGap;
+                    bool sameSequence = IsSameSequence(lastPicked.MatchedWith, current.MatchedWith, maxGap);
                     if (sameSequence)
                     {
                         exclude.Add(current.MatchedWith);
@@ -160,6 +160,12 @@ namespace SoundFingerprinting.LCS
             }
 
             return candidates;
+        }
+
+        private static bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
+        {
+            return System.Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap &&
+                   System.Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
         }
     }
 }

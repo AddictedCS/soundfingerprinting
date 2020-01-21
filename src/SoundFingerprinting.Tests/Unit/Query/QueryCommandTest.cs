@@ -4,10 +4,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using System.Threading.Tasks;
     using NUnit.Framework;
+    using NUnit.Framework.Internal.Commands;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Query;
 
     [TestFixture]
     public class QueryCommandTest
@@ -65,7 +67,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 1);
 
-            float[] withJitter = AddJitter(match);
+            float[] withJitter = AddJitter(match, 15, 20, 15, 2);
 
             var modelService = new InMemoryModelService();
             var audioService = new SoundFingerprintingAudioService();
@@ -76,7 +78,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(audioService)
                 .Hash();
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, withJitter.Length / 5512f));
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, match.Length / 5512f));
 
             var result = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
@@ -94,7 +96,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             Assert.AreEqual(2, entries.Count);
             Assert.AreEqual(15d, entries[0].QueryMatchStartsAt, 1f);
-            Assert.AreEqual(35d, entries[1].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(45d, entries[1].QueryMatchStartsAt, 1f);
         }
         
         /**
@@ -105,9 +107,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task ShouldIdentifyMultipleRegionsOfTheSameMatch()
         {
-            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512);
+            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 1);
 
-            float[] withJitter = AddJitter(match);
+            float[] withJitter = AddJitter(match, 15, 20, 15, 2);
 
             var modelService = new InMemoryModelService();
             var audioService = new SoundFingerprintingAudioService();
@@ -135,21 +137,21 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
             Assert.AreEqual(2, entries.Count);
             Assert.AreEqual(15d, entries[0].TrackMatchStartsAt, 1f);
-            Assert.AreEqual(35d, entries[1].TrackMatchStartsAt, 1f);
+            Assert.AreEqual(45d, entries[1].TrackMatchStartsAt, 1f);
         }
 
-        private float[] AddJitter(float[] match)
+        private float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15, int seed = 0)
         {
-            float[] before = TestUtilities.GenerateRandomFloatArray(15 * 5512);
-            float[] between = TestUtilities.GenerateRandomFloatArray(10 * 5512);
-            float[] after = TestUtilities.GenerateRandomFloatArray(15 * 5512);
+            float[] before = TestUtilities.GenerateRandomFloatArray(beforeSec * 5512);
+            float[] between = TestUtilities.GenerateRandomFloatArray(betweenSec * 5512);
+            float[] after = TestUtilities.GenerateRandomFloatArray(afterSec * 5512);
             float[] total = new float[before.Length + between.Length + after.Length + match.Length * 2];
 
             Buffer.BlockCopy(before, 0, total, 0, sizeof(float) * before.Length);
             Buffer.BlockCopy(match, 0, total, sizeof(float) * before.Length, sizeof(float) * match.Length);
             Buffer.BlockCopy(between, 0, total, sizeof(float) * (before.Length + match.Length), sizeof(float) * between.Length);
-            Buffer.BlockCopy(match, 0, total, sizeof(float) * (before.Length + match.Length + between.Length),sizeof(float) * match.Length);
-            Buffer.BlockCopy(after, 0, total, sizeof(float) * (before.Length + 2 * match.Length + between.Length),sizeof(float) * after.Length);
+            Buffer.BlockCopy(match, 0, total, sizeof(float) * (before.Length + match.Length + between.Length), sizeof(float) * match.Length);
+            Buffer.BlockCopy(after, 0, total, sizeof(float) * (before.Length + 2 * match.Length + between.Length), sizeof(float) * after.Length);
             return total;
         }
     }
