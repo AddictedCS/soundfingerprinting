@@ -19,8 +19,8 @@
             var result = OverlappingRegionFilter.MergeOverlappingSequences(
                 new List<Matches>
                 {
-                    new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 3, 4 }, new float[] { 0, 1, 2, 3 }).ToList()),
-                    new Matches(TestUtilities.GetMatchedWith(new float[] { 2 }, new float[] { 1 }).ToList())
+                    new Matches(TestUtilities.GetMatchedWith(new[] { 0, 1, 3, 4 }, new[] { 0, 1, 2, 3 }).ToList()),
+                    new Matches(TestUtilities.GetMatchedWith(new[] { 2 }, new[] { 1 }).ToList())
                 }, PermittedGap)
                 .ToList();
 
@@ -34,8 +34,8 @@
             var result = OverlappingRegionFilter.MergeOverlappingSequences(
                     new List<Matches>
                     {
-                        new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 2 }, new float[] { 0, 1, 2 }).ToList()),
-                        new Matches(TestUtilities.GetMatchedWith(new float[] { 4, 5 }, new float[] { 4, 5 }).ToList())
+                        new Matches(TestUtilities.GetMatchedWith(new[] { 0, 1, 2 }, new[] { 0, 1, 2 }).ToList()),
+                        new Matches(TestUtilities.GetMatchedWith(new[] { 4, 5 }, new[] { 4, 5 }).ToList())
                     }, PermittedGap)
                 .ToList();
 
@@ -50,11 +50,11 @@
             var result = OverlappingRegionFilter.MergeOverlappingSequences(
                     new List<Matches>
                     {
-                        new Matches(TestUtilities.GetMatchedWith(new float[] { 4, 6, 7, 9, 10 }, new float[] { 4, 5, 6, 7, 9 }).ToList()),
-                        new Matches(TestUtilities.GetMatchedWith(new float[] { 10, 11, 17}, new float[] { 10, 11, 12 }).ToList()),
-                        new Matches(TestUtilities.GetMatchedWith(new float[] { 0, 1, 2 }, new float[] { 0, 1, 2 }).ToList()),
-                        new Matches(TestUtilities.GetMatchedWith(new float[] { 5 }, new float[] { 5 }).ToList()),
-                        new Matches(TestUtilities.GetMatchedWith(new float[] { 6 }, new float[] { 6 }).ToList())
+                        new Matches(TestUtilities.GetMatchedWith(new[] { 4, 6, 7, 9, 10 }, new[] { 4, 5, 6, 7, 9 }).ToList()),
+                        new Matches(TestUtilities.GetMatchedWith(new[] { 10, 11, 17}, new[] { 10, 11, 12 }).ToList()),
+                        new Matches(TestUtilities.GetMatchedWith(new[] { 0, 1, 2 }, new[] { 0, 1, 2 }).ToList()),
+                        new Matches(TestUtilities.GetMatchedWith(new[] { 5 }, new[] { 5 }).ToList()),
+                        new Matches(TestUtilities.GetMatchedWith(new[] { 6 }, new[] { 6 }).ToList())
                     }, PermittedGap)
                 .ToList();
 
@@ -66,7 +66,7 @@
         [Test]
         public void ShouldNotFailWithJustOneEntryAtTheInput()
         {
-            var matches = new List<Matches> {new Matches(TestUtilities.GetMatchedWith(new[] {1f}, new[] {1f}))};
+            var matches = new List<Matches> {new Matches(TestUtilities.GetMatchedWith(new[] {1}, new[] {1}))};
             
             var result = OverlappingRegionFilter.MergeOverlappingSequences(matches, PermittedGap);
             

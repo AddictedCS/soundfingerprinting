@@ -15,7 +15,7 @@
         [Test]
         public void ShouldFindLongestIncreasingSequenceWithOneElement()
         {
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(TestUtilities.GetMatchedWith(new float[] { 0 }, new float [] { 0 }), PermittedGap);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(TestUtilities.GetMatchedWith(new[] { 0 }, new [] { 0 }), PermittedGap);
 
             Assert.AreEqual(1, result.Count);
             CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.TrackMatchAt));
@@ -24,7 +24,7 @@
         [Test]
         public void ShouldFindLongestIncreasingSequence()
         {
-            var matches = TestUtilities.GetMatchedWith(new float[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, new float[] { 1, 2, 3, 1, 2, 3, 4, 5, 6, 7 });
+            var matches = TestUtilities.GetMatchedWith(new[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, new[] { 1, 2, 3, 1, 2, 3, 4, 5, 6, 7 });
 
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
 
@@ -37,8 +37,8 @@
         public void ShouldFindLongestIncreasingSequenceComplex()
         {
             var matches = TestUtilities.GetMatchedWith(
-                new float[] { 0, 1, 2,   10, 11, 12, 13,  24, 25, 26 }, 
-                new float[] { 1, 2, 3,   1,  2,  3,  4,   1, 2, 3 });
+                new[] { 0, 1, 2,   10, 11, 12, 13,  24, 25, 26 }, 
+                new[] { 1, 2, 3,   1,  2,  3,  4,   1, 2, 3 });
 
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, 5);
 
@@ -52,8 +52,8 @@
         public void ShouldFindLongestIncreasingSequenceComplex2()
         {
             var matches = TestUtilities.GetMatchedWith(
-                new float[] { 7, 8, 9, 10, 21, 22, 23, 24, 25, 36, 37, 38 }, 
-                new float[] { 1, 2, 3, 4,  1,  2,  3,  4,  5,  1,  2,  3 });
+                new[] { 7, 8, 9, 10, 21, 22, 23, 24, 25, 36, 37, 38 }, 
+                new[] { 1, 2, 3, 4,  1,  2,  3,  4,  5,  1,  2,  3 });
 
             var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, 5);
 
@@ -66,9 +66,9 @@
         [Test]
         public void ShouldGrabTheFirstMatch()
         {
-            var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 1.1f, 2.1f, 3.1f, 4}, new[] {1, 2, 3, 1, 2, 3, 4f});
+            var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 10, 12, 13, 14}, new[] {1, 2, 3, 10, 12, 13, 14});
 
-            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, PermittedGap);
+            var result = increasingTrackSequence.FindAllIncreasingTrackSequences(matches, 5);
             
             Assert.AreEqual(2, result.Count);
         }

@@ -12,9 +12,8 @@ namespace SoundFingerprinting.LCS
         /// <param name="matched">All matched candidates</param>
         /// <param name="maxGap">Max gap (i.e. Math.Min(trackLength, queryLength)</param>
         /// <returns>All available sequences</returns>
-        public static IEnumerable<MatchedWith>[] GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap = int.MaxValue)
+        public static IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap = int.MaxValue)
         {
-            var allSequences = new List<IEnumerable<MatchedWith>>();
             var matchedWiths = matched.ToList();
             while (true)
             {
@@ -22,7 +21,7 @@ namespace SoundFingerprinting.LCS
                 var withs = result as MatchedWith[] ?? result.ToArray();
                 if (withs.Any())
                 {
-                    allSequences.Add(withs);
+                    yield return withs;
                 }
 
                 var second = exclude as MatchedWith[] ?? exclude.ToArray();
@@ -31,8 +30,6 @@ namespace SoundFingerprinting.LCS
 
                 matchedWiths = matchedWiths.Except(second).ToList();
             }
-
-            return allSequences.ToArray();
         }
 
         private static (IEnumerable<MatchedWith>, IEnumerable<MatchedWith>) GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)

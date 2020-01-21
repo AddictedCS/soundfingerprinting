@@ -19,9 +19,11 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             const double queryLength = 9d;
             const double trackLength = 9d;
-            const float trackMatchStartsAt = 0f;
-            const float trackMatchEndsAt = 10;
-            var matches = TestUtilities.GetMatchedWith(new[] { 5f, 9, 11, 14 }, new[] { trackMatchStartsAt, 5, 9, trackMatchEndsAt });
+            const int trackMatchStartsAt = 0;
+            const int trackMatchEndsAt = 10;
+            var matches = TestUtilities.GetMatchedWith(
+                new[] { 5, 9, 11, 14 }, 
+                new[] { trackMatchStartsAt, 5, 9, trackMatchEndsAt });
 
             var coverage = matches.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, 1d);
 
@@ -33,8 +35,9 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             const double queryLength = 5d;
             const double trackLength = 5d;
-            const float trackMatchStartsAt = 9f;
-            var matches = TestUtilities.GetMatchedWith(new[] { 1f, 2, 3, 4, 5 }, new[] { 1, 2, trackMatchStartsAt, 11, 12 });
+            var matches = TestUtilities.GetMatchedWith(
+                new[] { 1, 2, 3, 4, 5 }, 
+                new[] { 1, 2, 9, 11, 12 });
 
             var coverage = matches.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, 1d);
 
@@ -47,11 +50,13 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             const double queryLength = 5d;
             const double trackLength = 5d;
-            var matches = TestUtilities.GetMatchedWith(new[] { 1f, 4, 5, 1, 2 }, new[] { 1f, 3, 4, 10, 11 });
+            var matches = TestUtilities.GetMatchedWith(
+                new[] { 0, 1, 4, 5, 1, 2 }, 
+                new[] { 0, 1, 3, 4, 10, 11 });
 
             var coverage = matches.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, 1d);
 
-            Assert.AreEqual(4.486, coverage.DiscreteCoverageLength, Delta);
+            Assert.AreEqual(4 + fingerprintLengthInSeconds, coverage.DiscreteCoverageLength, Delta);
         }
 
         [Test]
@@ -59,51 +64,24 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             int fps = 30;
             int seconds = 10;
-            float[] queryMatchAt = new float[fps * seconds];
-            float[] dbMatchAt = new float[fps * seconds];
-            float shift = 11.5f;
+            int[] queryMatchAt = new int[fps * seconds];
+            int[] dbMatchAt = new int[fps * seconds];
+            int shift = 1000;
             float length = 1f / fps;
             for (int i = 0; i < fps * seconds; ++i)
             {
-                queryMatchAt[i] = i * 1f / fps;
-                dbMatchAt[i] = shift + i * 1f / fps;
+                queryMatchAt[i] = i;
+                dbMatchAt[i] = shift + i;
             }
 
-            var matches = TestUtilities.GetMatchedWith(queryMatchAt, dbMatchAt);
+            var matches = TestUtilities.GetMatchedWith(queryMatchAt, dbMatchAt, 100, length);
             var coverage = matches.EstimateCoverage(seconds + length, shift + seconds + length, 1d / fps, 1d);
             Assert.AreEqual(seconds, coverage.DiscreteCoverageLength, 0.0001);
             Assert.AreEqual(seconds, coverage.CoverageLength, 0.0001);
-            Assert.AreEqual(shift, coverage.TrackMatchStartsAt);
+            Assert.AreEqual(shift * length, coverage.TrackMatchStartsAt);
             Assert.AreEqual(0, coverage.QueryMatchStartsAt);
         }
 
-        [Test]
-        public void BestPathShouldIdentifyBestShiftingMatchesByScore()
-        {
-            var all = new List<MatchedWith>();
-            var count = 100;
-            for (int trackSequence = 0; trackSequence < count; ++trackSequence)
-            {
-                for (int querySequence = trackSequence; querySequence < trackSequence + count; ++querySequence)
-                {
-                    var match = new MatchedWith((uint)querySequence, querySequence * 1.48f, (uint)trackSequence, trackSequence * 1.48f, score: querySequence);
-                    all.Add(match);
-                }
-            }
-
-            var coverage = all.EstimateCoverage(count * 1.48, count * 1.48, 1.48, 1.48);
-
-            // shifted matches, best path
-            var bestPath = coverage.BestPath.ToList();
-            int shift = (count - 1);
-            for (int i = 0; i < bestPath.Count; ++i)
-            {
-                Assert.AreEqual(shift + i, bestPath[i].QuerySequenceNumber);
-                Assert.AreEqual(i, bestPath[i].TrackSequenceNumber);
-            }
-        }
-
-        [Test]
         public void ShouldFindTrackDiscontinuities()
         {
             var count = 3;
