@@ -147,5 +147,10 @@
             double avg = list.Average(m => m.Score);
             return list.Where(match => match.Score < avg - sigma * stdDev);
         }
+
+        public Coverage NewBestPath(IEnumerable<MatchedWith> newBestPath)
+        {
+            return new Coverage(newBestPath, QueryLength, TrackLength, fingerprintLength, permittedGap);
+        }
     }
 }

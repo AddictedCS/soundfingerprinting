@@ -164,8 +164,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var pairs = new[] {(1, 1, 0d), (20, 1, 0), (2, 2, 1), (3, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1)};
             var results = LIS.GetIncreasingSequences(Generate(pairs), 10).ToArray();
 
-            var expected2 = new[] {(1, 1, 0d), (2, 2, 1), (3, 3, 0)};
-            var expected1 = new[] {(20, 1, 0d), (21, 2, 0), (22, 3, 1)};
+            var expected1 = new[] {(1, 1, 0d), (2, 2, 1), (3, 3, 0)};
+            var expected2 = new[] {(20, 1, 0d), (21, 2, 0), (22, 3, 1)};
 
             Assert.AreEqual(2, results.Length);
             AssertResult(expected1, results[0]);
