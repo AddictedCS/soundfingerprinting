@@ -188,6 +188,8 @@ namespace SoundFingerprinting.LCS
 
                 if (i > 0 && !IsSameSequence(dp[i - 1], matches[j], maxGap))
                     continue;
+                if (i == 0 && dp[i] != null && !IsSameSequence(dp[0], matches[j], maxGap))
+                    continue;
 
                 dp[i] = matches[j];
                 

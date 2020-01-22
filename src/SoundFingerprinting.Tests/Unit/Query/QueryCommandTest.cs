@@ -10,6 +10,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.Strides;
 
     [TestFixture]
     public class QueryCommandTest
@@ -127,6 +128,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(new AudioSamples(match, "cnn", 5512))
                 .WithQueryConfig(config =>
                 {
+                    config.Stride = new IncrementalStaticStride(256);
                     config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
                     return config;
                 })
@@ -135,7 +137,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
+            CollectionAssert.IsOrdered(((ExtendedResultEntry) entries[1])
+                            .ResultCoverage
+                            .BestPath
+                            .Select(_ => _.TrackSequenceNumber));
+            CollectionAssert.IsOrdered(((ExtendedResultEntry) entries[1])
+                .ResultCoverage
+                .BestPath
+                .Select(_ => _.QuerySequenceNumber));
+            
             Assert.AreEqual(2, entries.Count);
+            Assert.AreEqual(10, entries[0].CoverageLength, 1f);
+            Assert.AreEqual(10, entries[1].CoverageLength, 1f);
             Assert.AreEqual(15d, entries[0].TrackMatchStartsAt, 1f);
             Assert.AreEqual(45d, entries[1].TrackMatchStartsAt, 1f);
         }

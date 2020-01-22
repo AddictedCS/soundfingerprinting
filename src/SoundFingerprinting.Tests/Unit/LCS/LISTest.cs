@@ -212,8 +212,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var expected2 = new[] {(20, 1, 0), (21, 2, 0), (22, 3, 1d)};
 
             Assert.AreEqual(2, results.Length);
-            AssertResult(expected1, results[0]);
-            AssertResult(expected2, results[1]);
+            AssertResult(expected2, results[0]);
+            AssertResult(expected1, results[1]);
         }
 
         [Test]
@@ -235,16 +235,35 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         public void ShouldFindLongestIncreasingSequence10()
         {
             /*
-              * q        1 2 3 4 5 6 1  2  3  4  5  7
+              * q        1 2 3 4 5 6 0  2  3  4  5  7
               * t        1 2 3 4 5 6 20 21 22 23 24 25
               * max (c.) 1 2 3 4 5 6 1  2  3  4  5  7
               */ 
             
-            var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0), (6, 6, 0), 
-                (1, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (7, 25, 0)};
+            var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0), (6, 6, 0), (0, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (7, 25, 0)};
             var results = LIS.GetIncreasingSequences(Generate(pairs), 7).ToArray();
             
             Assert.AreEqual(2, results.Length);
+        }
+        
+        [Test]
+        public void ShouldFindLongestIncreasingSequence11()
+        {
+            /*
+              * q        1 2 0  1  2
+              * t        1 2 20 21 22  
+              * max (c.) 1 2 1  2  3
+              */
+
+            var pairs = new[] {(1, 1, 0d), (0, 20, 0), (2, 2, 0)};
+            var results = LIS.GetIncreasingSequences(Generate(pairs), 5).ToArray();
+
+            var expected1 = new[] {(1, 1, 0d), (2, 2, 0)};
+            var expected2 = new[] {(0, 20, 0d)};
+            Assert.AreEqual(2, results.Length);
+            
+            AssertResult(expected1, results[0]);
+            AssertResult(expected2, results[1]);
         }
 
         private static void AssertResult((int q, int t, double s)[] pairs, IEnumerable<MatchedWith> result)
