@@ -5,7 +5,7 @@ namespace SoundFingerprinting.LCS
     using System.Linq;
     using SoundFingerprinting.Query;
 
-    public class LIS
+    public class LisNew
     {
         /// <summary>
         ///  Gets longest increasing sequences in the matches candidates
@@ -36,52 +36,6 @@ namespace SoundFingerprinting.LCS
             return results.OrderByDescending(_ => _.Count());
         }
 
-        private static IEnumerable<IEnumerable<MatchedWith>> GetLongestIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap)
-        {
-            var matches = matched.OrderBy(x => x.TrackSequenceNumber).ToList();
-            var dp = new MatchedWith[matches.Count][];
-            int[] len = new int[matches.Count];
-            var comparer = Comparer<MatchedWith>.Create((a, b) =>
-            {
-                if (a.QuerySequenceNumber > b.QuerySequenceNumber)
-                    return 1;
-                return -1;
-            });
-
-            int totalSequences = 0;
-            foreach (var x in matches)
-            {
-                int t = totalSequences;
-                for (int j = 0; j < t + 1 /*allow one sequence to be added at a time*/; ++j)
-                {
-                    if (dp[j] == null)
-                    {
-                        // if not initialized, initialize
-                        dp[j] = new MatchedWith[matches.Count];
-                        totalSequences++; // one more sequence added
-                    }
-
-                    int i = Array.BinarySearch(dp[j], 0, len[j], x, comparer);
-
-                    if (i < 0)
-                        i = -(i + 1);
-
-                    // if not same sequence, create new one, or find the sequence which corresponds to it
-                    if (i > 0 && !IsSameSequence(x, dp[j][i - 1], maxGap))
-                        continue;
-
-                    // sequence to be increase found
-                    dp[j][i] = x;
-                    if (i == len[j])
-                        len[j]++; // new max found
-                    break;
-                }
-            }
-
-            return dp.Take(totalSequences)
-                .Select((x, index) => x.Take(len[index]));
-        }
-
 
         private static (IEnumerable<MatchedWith>, IEnumerable<MatchedWith>) GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
         {
@@ -93,15 +47,15 @@ namespace SoundFingerprinting.LCS
                 return (Enumerable.Empty<MatchedWith>(), Enumerable.Empty<MatchedWith>());
             }
 
-            var maxs = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
+            var maxArray = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
+            var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex + 1));
             var exclude = new List<MatchedWith>();
             var lis = new Stack<MaxAt>();
-            for (int i = maxIndex; i >= 0 && max > 0; --i)
+            while (TryPop(maxs, out var current) && max > 0)
             {
-                var current = maxs[i];
                 if (current.Length == max) // found a potential entry to insert into the final list
                 {
-                    if (lis.TryPeek(out var lastPicked) && !IsSameSequence(current.MatchedWith, lastPicked.MatchedWith, maxGap))
+                    if (TryPeek(lis, out var lastPicked) && !IsSameSequence(current, lastPicked, maxGap))
                     {
                         // entry is not from the same list of increasing candidates
                         continue;
@@ -109,16 +63,16 @@ namespace SoundFingerprinting.LCS
 
                     max--;
                     exclude.Add(current.MatchedWith);
-                    
+
                     // get all candidates in the current region that did not increase max length
                     // pick best by score
-                    for (int j = i - 1; j >= 0 && current.Length == maxs[j].Length; --j)
+                    while (TryPeek(maxs, out var lookAhead) && EqualMaxLength(current, lookAhead))
                     {
                         // select best candidate by score and from the same sequence
-                        if (IsSameSequence(current.MatchedWith, maxs[j].MatchedWith, maxGap))
+                        if (IsSameSequence(current, maxs.Pop(), maxGap))
                         {
-                            exclude.Add(maxs[j].MatchedWith);
-                            current = current.MatchedWith.Score < maxs[j].MatchedWith.Score ? maxs[j] : current;
+                            exclude.Add(lookAhead.MatchedWith);
+                            current = GetBestByScore(current, lookAhead);
                         }
                     }
 
@@ -127,8 +81,7 @@ namespace SoundFingerprinting.LCS
                 else
                 {
                     // out of order element need to be excluded during next iteration
-                    var lastPicked = lis.Peek();
-                    if (IsSameSequence(lastPicked.MatchedWith, current.MatchedWith, maxGap))
+                    if (TryPeek(lis, out var lastPicked) && IsSameSequence(lastPicked, current, maxGap))
                     {
                         exclude.Add(current.MatchedWith);
                     }
@@ -141,19 +94,43 @@ namespace SoundFingerprinting.LCS
         private static IEnumerable<MatchedWith> CaptureResult(Stack<MaxAt> lis)
         {
             var result = new List<MatchedWith>();
-            while (lis.TryPop(out var current))
+            while (TryPop(lis, out var current))
             {
-                while (lis.TryPeek(out var lookAhead) && current.MatchedWith.TrackSequenceNumber == lookAhead.MatchedWith.TrackSequenceNumber)
+                while (TryPeek(lis, out var lookAhead) && EqualTrackSequence(current, lookAhead))
                 {
                     // lis peaked same track sequence entries, let's find best candidate of them all
-                    current = current.MatchedWith.Score < lookAhead.MatchedWith.Score ? lookAhead : current;
-                    lis.Pop();
+                    current = GetBestByScore(current, lis.Pop());
                 }
 
                 result.Add(current.MatchedWith);
             }
 
             return result;
+        }
+
+        private static bool EqualTrackSequence(MaxAt current, MaxAt lookAhead)
+        {
+            return current.MatchedWith.TrackSequenceNumber == lookAhead.MatchedWith.TrackSequenceNumber;
+        }
+
+        private static MaxAt GetBestByScore(MaxAt current, MaxAt lookAhead)
+        {
+            return current.MatchedWith.Score < lookAhead.MatchedWith.Score ? lookAhead : current;
+        }
+
+        private static bool EqualMaxLength(MaxAt current, MaxAt lookAhead)
+        {
+            return current.Length == lookAhead.Length;
+        }
+        
+        private static bool IsSameSequence(MaxAt a, MaxAt b, double maxGap)
+        {
+            return IsSameSequence(a.MatchedWith, b.MatchedWith, maxGap);
+        }
+
+        private static bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
+        {
+            return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap && Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
         }
 
         private static MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
@@ -197,9 +174,28 @@ namespace SoundFingerprinting.LCS
             return maxs;
         }
 
-        private static bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
+        private static bool TryPop<T>(Stack<T> s, out T result)
         {
-            return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap && Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
+            result = default;
+            if (s.Any())
+            {
+                result = s.Pop();
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryPeek<T>(Stack<T> s, out T result)
+        {
+            result = default;
+            if (s.Any())
+            {
+                result = s.Peek();
+                return true;
+            }
+
+            return false;
         }
     }
 }

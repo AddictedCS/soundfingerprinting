@@ -12,7 +12,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         [Test]
         public void ShouldFindLongestIncreasingSequenceEmpty()
         {
-            var result = LIS.GetIncreasingSequences(Enumerable.Empty<MatchedWith>());
+            var result = LisNew.GetIncreasingSequences(Enumerable.Empty<MatchedWith>());
             
             Assert.IsFalse(result.Any());
         }
@@ -21,7 +21,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         public void ShouldFindLongestIncreasingSequenceTrivial()
         {
             var pairs = new[] {(1, 1, 0d)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
             
             AssertResult(pairs, result);
         }
@@ -35,7 +35,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              * expected  x x x
              */
             var pairs = new[] {(1, 1, 0d), (2, 2, 0d), (3, 3, 0d)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
 
             AssertResult(pairs, result);
         }
@@ -52,7 +52,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 4d), (2, 1, 3), (3, 1, 2), (4, 2, 1)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 4d), (4, 2, 1)};
             AssertResult(expected, result);
@@ -73,7 +73,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 3d), (1, 2, 2), (1, 3, 1), (4, 4, 1)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 3), (4, 4, 1d)};
             AssertResult(expected, result);
@@ -94,7 +94,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 4, 0d), (2, 3, 1), (3, 2, 2), (4, 1, 3)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(4, 1, 3d)};
 
@@ -115,7 +115,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 1d), (2, 2, 1), (0, 3, 2), (3, 3, 1), (4, 4, 1)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 1), (4, 4, 1)};
 
@@ -137,7 +137,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 2), (4, 3, 1), (4, 4, 1)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 2), (4, 4, 1)};
 
@@ -162,7 +162,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (20, 1, 0), (2, 2, 1), (3, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1)};
-            var results = LIS.GetIncreasingSequences(Generate(pairs), 10).ToArray();
+            var results = LisNew.GetIncreasingSequences(Generate(pairs), 10).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 1), (3, 3, 0)};
             var expected2 = new[] {(20, 1, 0d), (21, 2, 0), (22, 3, 1)};
@@ -185,7 +185,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (4, 3, 2), (3, 4, 1), (3, 5, 0)};
-            var result = LIS.GetIncreasingSequences(Generate(pairs)).First();
+            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
 
             var expected = new[] {(1, 1, 0d), (2, 2, 0), (4, 3, 2)};
 
@@ -206,7 +206,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var pairs = new[] {(20, 1, 0d), (1, 1, 0), (2, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1), (4, 4, 0), (0, 4, 0), (5, 5, 0)};
 
-            var results = LIS.GetIncreasingSequences(Generate(pairs), 10).ToArray();
+            var results = LisNew.GetIncreasingSequences(Generate(pairs), 10).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0)};
             var expected2 = new[] {(20, 1, 0), (21, 2, 0), (22, 3, 1d)};
@@ -226,7 +226,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (1, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (6, 25, 0)};
-            var results = LIS.GetIncreasingSequences(Generate(pairs), 6).ToArray();
+            var results = LisNew.GetIncreasingSequences(Generate(pairs), 6).ToArray();
             
             Assert.AreEqual(2, results.Length);
         }
@@ -241,7 +241,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
               */ 
             
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0), (6, 6, 0), (0, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (7, 25, 0)};
-            var results = LIS.GetIncreasingSequences(Generate(pairs), 7).ToArray();
+            var results = LisNew.GetIncreasingSequences(Generate(pairs), 7).ToArray();
             
             Assert.AreEqual(2, results.Length);
         }
@@ -256,7 +256,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
               */
 
             var pairs = new[] {(1, 1, 0d), (0, 20, 0), (2, 2, 0)};
-            var results = LIS.GetIncreasingSequences(Generate(pairs), 5).ToArray();
+            var results = LisNew.GetIncreasingSequences(Generate(pairs), 5).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0)};
             var expected2 = new[] {(0, 20, 0d)};
