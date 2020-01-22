@@ -10,6 +10,7 @@
         {
             return LIS.GetIncreasingSequences(matches, maxGap)
                       .Select(list => new Matches(list))
+                      .OrderByDescending(list => list.Count())
                       .ToList();
         }
     }
