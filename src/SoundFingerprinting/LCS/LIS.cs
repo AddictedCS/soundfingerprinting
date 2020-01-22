@@ -191,16 +191,10 @@ namespace SoundFingerprinting.LCS
 
                 dp[i] = matches[j];
                 
-                if (i == len)
+                if (i >= len - 1)
                 {
-                    // the sequence has increased
-                    maxs[j] = new MaxAt(++len, matches[j]);
-                    maxIndex = j;
-                    max = len;
-                }
-                else if (i == len - 1)
-                {
-                    // the sequence is equal (2 equal elements at the end)
+                    // the sequence has increased or found an equal element at the very end
+                    len = i == len ? len + 1 : len; 
                     maxs[j] = new MaxAt(len, matches[j]);
                     maxIndex = j;
                     max = len;
