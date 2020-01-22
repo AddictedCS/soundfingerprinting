@@ -33,7 +33,29 @@ namespace SoundFingerprinting.LCS
                 matchedWiths = matchedWiths.Except(second).ToList();
             }
 
+            AssertResults(results, matched);
+
             return results.OrderByDescending(_ => _.Count());
+        }
+
+        private static void AssertResults(IEnumerable<IEnumerable<MatchedWith>> results, IEnumerable<MatchedWith> initial)
+        {
+            var initialResults = initial.OrderBy(_ => _.TrackSequenceNumber);
+            foreach (IEnumerable<MatchedWith> result in results)
+            {
+                var trackIds = result.Select(_ => _.TrackSequenceNumber).ToArray();
+                var queryIds = result.Select(_ => _.QuerySequenceNumber).ToArray();
+
+                for (int i = 1; i < trackIds.Length; ++i)
+                {
+                    if (trackIds[i] <= trackIds[i - 1])
+                        throw new Exception($"Track Ids are not sorted [{trackIds[i]},{trackIds[i - 1]}] from [{string.Join(",", trackIds)}], " +
+                                            $"initial results {string.Join(",", initialResults.Select(_ => $"({_.QuerySequenceNumber},{_.TrackSequenceNumber},{_.Score})"))}");
+                    if (queryIds[i] <= queryIds[i - 1])
+                        throw new Exception($"Query Ids are not sorted [{queryIds[i]},{queryIds[i - 1]}] from [{string.Join(",", queryIds)}], " +
+                                            $"initial results {string.Join(",", initialResults.Select(_ => $"({_.QuerySequenceNumber},{_.TrackSequenceNumber},{_.Score})"))}");
+                }
+            }
         }
 
 
@@ -68,6 +90,12 @@ namespace SoundFingerprinting.LCS
                     // pick best by score
                     while (TryPeek(maxs, out var lookAhead) && EqualMaxLength(current, lookAhead))
                     {
+                        if (lastPicked != null && lookAhead.MatchedWith.QuerySequenceNumber > lastPicked.MatchedWith.QuerySequenceNumber)
+                        {
+                            exclude.Add(maxs.Pop().MatchedWith);
+                            continue;
+                        }
+                        
                         // select best candidate by score and from the same sequence
                         if (IsSameSequence(current, maxs.Pop(), maxGap))
                         {
@@ -75,7 +103,7 @@ namespace SoundFingerprinting.LCS
                             current = GetBestByScore(current, lookAhead);
                         }
                     }
-
+                    
                     lis.Push(current);
                 }
                 else
@@ -145,32 +173,33 @@ namespace SoundFingerprinting.LCS
 
             for (int j = 0; j < matches.Count; ++j)
             {
-                int i = Array.BinarySearch(dp, 0, len, matches[j], comparer);
+                var x = matches[j];
+                int i = Array.BinarySearch(dp, 0, len, x, comparer);
                 if (i < 0)
                     i = -(i + 1);
 
-                if (i > 0 && !IsSameSequence(dp[i - 1], matches[j], maxGap))
+                if (i > 0 && !IsSameSequence(dp[i - 1], x, maxGap))
                     continue;
-                if (i == 0 && dp[i] != null && !IsSameSequence(dp[0], matches[j], maxGap))
+                if (i == 0 && dp[i] != null && !IsSameSequence(dp[0], x, maxGap))
                     continue;
 
-                dp[i] = matches[j];
+                dp[i] = x;
 
                 if (i >= len - 1)
                 {
                     // the sequence has increased or found an equal element at the very end
                     len = i == len ? len + 1 : len;
-                    maxs[j] = new MaxAt(len, matches[j]);
+                    maxs[j] = new MaxAt(len, x);
                     maxIndex = j;
-                    max = len;
                 }
                 else
                 {
                     // the sequence does not increase
-                    maxs[j] = new MaxAt(maxs[j].Length /*copy value so far*/, matches[j]);
+                    maxs[j] = new MaxAt(i + 1, x);
                 }
             }
 
+            max = maxs[maxIndex].Length;
             return maxs;
         }
 
