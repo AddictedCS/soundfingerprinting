@@ -212,8 +212,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var expected2 = new[] {(20, 1, 0), (21, 2, 0), (22, 3, 1d)};
 
             Assert.AreEqual(2, results.Length);
-            AssertResult(expected2, results[0]);
-            AssertResult(expected1, results[1]);
+            AssertResult(expected1, results[0]);
+            AssertResult(expected2, results[1]);
         }
 
         [Test]

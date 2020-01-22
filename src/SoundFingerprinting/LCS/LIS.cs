@@ -2,7 +2,6 @@ namespace SoundFingerprinting.LCS
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using SoundFingerprinting.Query;
 
@@ -17,13 +16,14 @@ namespace SoundFingerprinting.LCS
         public static IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap = int.MaxValue)
         {
             var matchedWiths = matched.ToList();
+            var results = new List<IEnumerable<MatchedWith>>();
             while (true)
             {
                 var (result, exclude) = GetLongestIncreasingSequence(matchedWiths, maxGap);
                 var withs = result as MatchedWith[] ?? result.ToArray();
                 if (withs.Any())
                 {
-                    yield return withs;
+                    results.Add(withs);
                 }
 
                 var second = exclude as MatchedWith[] ?? exclude.ToArray();
@@ -32,6 +32,8 @@ namespace SoundFingerprinting.LCS
 
                 matchedWiths = matchedWiths.Except(second).ToList();
             }
+
+            return results.OrderByDescending(_ => _.Count());
         }
 
         private static IEnumerable<IEnumerable<MatchedWith>> GetLongestIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap)
@@ -77,7 +79,7 @@ namespace SoundFingerprinting.LCS
             }
 
             return dp.Take(totalSequences)
-                     .Select((x, index) => x.Take(len[index]));
+                .Select((x, index) => x.Take(len[index]));
         }
 
 
@@ -91,83 +93,67 @@ namespace SoundFingerprinting.LCS
                 return (Enumerable.Empty<MatchedWith>(), Enumerable.Empty<MatchedWith>());
             }
 
-            MaxAt[] maxIncreasingQuerySequence = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
-
-            var exclude = new HashSet<MatchedWith>();
+            var maxs = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
+            var exclude = new List<MatchedWith>();
             var lis = new Stack<MaxAt>();
-            for (int index = maxIndex; index >= 0 && max > 0; --index)
+            for (int i = maxIndex; i >= 0 && max > 0; --i)
             {
-                var current = maxIncreasingQuerySequence[index];
-                if (current.Length == max) // found entry to insert into the final list
+                var current = maxs[i];
+                if (current.Length == max) // found a potential entry to insert into the final list
                 {
-                    var candidates = GetCandidatesWithEqualMaxLength(maxIncreasingQuerySequence, index)
-                        .OrderByDescending(_ => _.MatchedWith.Score)
-                        .ToList();
-
-                    if (!lis.Any())
+                    if (lis.TryPeek(out var lastPicked) && !IsSameSequence(current.MatchedWith, lastPicked.MatchedWith, maxGap))
                     {
-                        // select best candidate by score
-                        // since no other elements are present, lets pick first
-                        lis.Push(candidates.First());
-                    }
-                    else
-                    {
-                        // multiple candidates are available lets pick the best by score
-                        var last = lis.Peek();
-                        foreach (var maxAt in candidates)
-                        {
-                            // pick first best candidate from the same sequence
-                            bool sameSequence = IsSameSequence(last.MatchedWith, maxAt.MatchedWith, maxGap);
-                            if (sameSequence)
-                            {
-                                lis.Push(maxAt);
-                                break;
-                            }
-                        }
-                    }
-
-                    // store candidates that have to be excluded from the list during next iteration
-                    var lastPicked = lis.Peek();
-                    foreach (var maxAt in candidates)
-                    {
-                        bool sameSequence = IsSameSequence(lastPicked.MatchedWith, maxAt.MatchedWith, maxGap);
-                        if (sameSequence)
-                        {
-                            exclude.Add(maxAt.MatchedWith);
-                        }
+                        // entry is not from the same list of increasing candidates
+                        continue;
                     }
 
                     max--;
+                    exclude.Add(current.MatchedWith);
+                    
+                    // get all candidates in the current region that did not increase max length
+                    // pick best by score
+                    for (int j = i - 1; j >= 0 && current.Length == maxs[j].Length; --j)
+                    {
+                        // select best candidate by score and from the same sequence
+                        if (IsSameSequence(current.MatchedWith, maxs[j].MatchedWith, maxGap))
+                        {
+                            exclude.Add(maxs[j].MatchedWith);
+                            current = current.MatchedWith.Score < maxs[j].MatchedWith.Score ? maxs[j] : current;
+                        }
+                    }
+
+                    lis.Push(current);
                 }
                 else
                 {
                     // out of order element need to be excluded during next iteration
                     var lastPicked = lis.Peek();
-                    bool sameSequence = IsSameSequence(lastPicked.MatchedWith, current.MatchedWith, maxGap);
-                    if (sameSequence)
+                    if (IsSameSequence(lastPicked.MatchedWith, current.MatchedWith, maxGap))
                     {
                         exclude.Add(current.MatchedWith);
                     }
                 }
             }
 
+            return (CaptureResult(lis), exclude);
+        }
+
+        private static IEnumerable<MatchedWith> CaptureResult(Stack<MaxAt> lis)
+        {
             var result = new List<MatchedWith>();
-            while (lis.Any())
+            while (lis.TryPop(out var current))
             {
-                var current = lis.Pop();
-                var lookAhead = lis.Any() ? lis.Peek() : new MaxAt(0, null);
-                var candidates = new List<MaxAt> {current};
-                while (current.MatchedWith.TrackSequenceNumber == lookAhead.MatchedWith?.TrackSequenceNumber)
+                while (lis.TryPeek(out var lookAhead) && current.MatchedWith.TrackSequenceNumber == lookAhead.MatchedWith.TrackSequenceNumber)
                 {
-                    // lis peeked same track sequence entries, let's find best candidate of them all
-                    candidates.Add(lis.Pop());
-                    lookAhead = lis.Any() ? lis.Peek() : new MaxAt(0, null);
+                    // lis peaked same track sequence entries, let's find best candidate of them all
+                    current = current.MatchedWith.Score < lookAhead.MatchedWith.Score ? lookAhead : current;
+                    lis.Pop();
                 }
 
-                result.Add(candidates.OrderByDescending(_ => _.MatchedWith.Score).First().MatchedWith);
+                result.Add(current.MatchedWith);
             }
 
-            return (result, exclude);
+            return result;
         }
 
         private static MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
@@ -177,9 +163,9 @@ namespace SoundFingerprinting.LCS
             int len = 0;
             max = 1;
             maxIndex = 0;
-            
+
             var comparer = Comparer<MatchedWith>.Create((a, b) => a.QuerySequenceNumber.CompareTo(b.QuerySequenceNumber));
-            
+
             for (int j = 0; j < matches.Count; ++j)
             {
                 int i = Array.BinarySearch(dp, 0, len, matches[j], comparer);
@@ -192,11 +178,11 @@ namespace SoundFingerprinting.LCS
                     continue;
 
                 dp[i] = matches[j];
-                
+
                 if (i >= len - 1)
                 {
                     // the sequence has increased or found an equal element at the very end
-                    len = i == len ? len + 1 : len; 
+                    len = i == len ? len + 1 : len;
                     maxs[j] = new MaxAt(len, matches[j]);
                     maxIndex = j;
                     max = len;
@@ -211,57 +197,9 @@ namespace SoundFingerprinting.LCS
             return maxs;
         }
 
-        private static MaxAt[] MaxIncreasingQuerySequence(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
-        {
-            var maxIncreasingQuerySequence = matches.Select(_ => new MaxAt(1, _)).ToArray();
-            max = 1;
-            maxIndex = 0;
-            for (int i = 1; i < matches.Count; ++i)
-            {
-                for (int j = 0; j < i; ++j)
-                {
-                    bool queryIsIncreasing = matches[j].QuerySequenceNumber < matches[i].QuerySequenceNumber;
-                    bool canExtendMax = maxIncreasingQuerySequence[j].Length + 1 > maxIncreasingQuerySequence[i].Length;
-                    bool sameSequence = IsSameSequence(matches[j], matches[i], maxGap);
-                    if (queryIsIncreasing && canExtendMax && sameSequence)
-                    {
-                        maxIncreasingQuerySequence[i] = new MaxAt(maxIncreasingQuerySequence[j].Length + 1, matches[i]);
-                        if (maxIncreasingQuerySequence[i].Length >= max)
-                        {
-                            // it is important to have >= since in case if the query increase and the track is not 
-                            // we need to move the sequence forward
-                            max = maxIncreasingQuerySequence[i].Length;
-                            maxIndex = i;
-                        }
-                    }
-                }
-            }
-
-            return maxIncreasingQuerySequence;
-        }
-
-
-        private static IEnumerable<MaxAt> GetCandidatesWithEqualMaxLength(MaxAt[] maxIncreasingQuerySequence, int index)
-        {
-            var current = maxIncreasingQuerySequence[index];
-            var candidates = new List<MaxAt> {current};
-            for (int lookAheadIndex = index - 1;
-                lookAheadIndex >= 0 && current.Length == maxIncreasingQuerySequence[lookAheadIndex].Length;
-                --lookAheadIndex)
-            {
-                // lis does not decrease meaning we need to pick best candidate by score
-                // from the list of candidates with the same LIS length
-                var lookAhead = maxIncreasingQuerySequence[lookAheadIndex];
-                candidates.Add(lookAhead);
-            }
-
-            return candidates;
-        }
-
         private static bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
         {
-            return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap &&
-                   Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
+            return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap && Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
         }
     }
 }
