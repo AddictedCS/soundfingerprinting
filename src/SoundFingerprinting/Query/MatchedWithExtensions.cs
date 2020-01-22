@@ -24,9 +24,10 @@
         public static Coverage EstimateCoverage(this IEnumerable<MatchedWith> matchedEntries, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
             double maxGap = Math.Min(queryLength, trackLength);
-            var bestPath = LIS.GetIncreasingSequences(matchedEntries, maxGap)
+            /*var bestPath = LIS.GetIncreasingSequences(matchedEntries, maxGap)
                 .OrderByDescending(_ => _.Count())
-                .First();
+                .First();*/
+            var bestPath = LisOld.GetBestPath(matchedEntries, queryLength, fingerprintLength);
             return new Coverage(bestPath, queryLength, trackLength, fingerprintLength, permittedGap);
         }
     }
