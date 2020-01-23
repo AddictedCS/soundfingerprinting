@@ -213,7 +213,7 @@ namespace SoundFingerprinting.LCS
 
         private static bool TryPop<T>(Stack<T> s, out T result)
         {
-            result = default;
+            result = default(T);
             if (s.Any())
             {
                 result = s.Pop();
@@ -225,7 +225,7 @@ namespace SoundFingerprinting.LCS
 
         private static bool TryPeek<T>(Stack<T> s, out T result)
         {
-            result = default;
+            result = default(T);
             if (s.Any())
             {
                 result = s.Peek();
