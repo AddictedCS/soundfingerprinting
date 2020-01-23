@@ -32,8 +32,9 @@ namespace SoundFingerprinting.LCS
 
                 matchedWiths = matchedWiths.Except(second).ToList();
             }
-
-            AssertResults(results, matched);
+#if DEBUG
+            AssertResults(results, matchedWiths);
+#endif
 
             return results.OrderByDescending(_ => _.Count());
         }
@@ -90,7 +91,9 @@ namespace SoundFingerprinting.LCS
                     // pick best by score
                     while (TryPeek(maxs, out var lookAhead) && EqualMaxLength(current, lookAhead))
                     {
-                        if (lastPicked != null && lookAhead.MatchedWith.QuerySequenceNumber >= lastPicked.MatchedWith.QuerySequenceNumber)
+                        // we disallow query sequence reverts, so let's find best candidate by score
+                        // from the same increasing sequence
+                        if (IsQuerySequenceIncreasing(lookAhead, lastPicked))
                         {
                             exclude.Add(maxs.Pop().MatchedWith);
                             continue;
@@ -117,6 +120,11 @@ namespace SoundFingerprinting.LCS
             }
 
             return (CaptureResult(lis), exclude);
+        }
+
+        private static bool IsQuerySequenceIncreasing(MaxAt lookAhead, MaxAt lastPicked)
+        {
+            return lookAhead.MatchedWith.QuerySequenceNumber >= lastPicked?.MatchedWith.QuerySequenceNumber;
         }
 
         private static IEnumerable<MatchedWith> CaptureResult(Stack<MaxAt> lis)
