@@ -1,9 +1,7 @@
 ﻿namespace SoundFingerprinting.Query
 {
-    using System;
     using SoundFingerprinting.LCS;
     using System.Collections.Generic;
-    using System.Linq;
 
     public static class MatchedWithExtensions
     {
@@ -23,8 +21,6 @@
         /// <returns>Longest track region</returns>
         public static Coverage EstimateCoverage(this IEnumerable<MatchedWith> matchedEntries, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
-            // double maxGap = Math.Min(queryLength, trackLength);
-            // var bestPath = LisNew.GetIncreasingSequences(matchedEntries, maxGap).First();
             var bestPath = LisOld.GetBestPath(matchedEntries, queryLength, trackLength, fingerprintLength);
             return new Coverage(bestPath, queryLength, trackLength, fingerprintLength, permittedGap);
         }

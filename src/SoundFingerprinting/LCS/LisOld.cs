@@ -16,16 +16,11 @@ namespace SoundFingerprinting.LCS
         /// <param name="trackLength">Track length</param>
         /// <param name="fingerprintLength">Fingerprint length</param>
         /// <returns>Best computed path</returns>
-        public static IEnumerable<MatchedWith> GetBestPath(
-            IEnumerable<MatchedWith> matchedEntries, 
-            double queryLength, 
-            double trackLength,
-            double fingerprintLength)
+        public static IEnumerable<MatchedWith> GetBestPath(IEnumerable<MatchedWith> matchedEntries, double queryLength, double trackLength, double fingerprintLength)
         {
             var orderedByTrackMatchAt = matchedEntries.OrderBy(with => with.TrackMatchAt).ToList();
             var trackRegion = GetTrackRegion(orderedByTrackMatchAt, System.Math.Min(queryLength, trackLength), fingerprintLength);
-            var bestPath = GetBestReconstructedPath(trackRegion, orderedByTrackMatchAt);
-            return bestPath;
+            return GetBestReconstructedPath(trackRegion, orderedByTrackMatchAt);
         }
 
         private static TrackRegion GetTrackRegion(IReadOnlyList<MatchedWith> orderedByTrackMatchAt, double maxGap, double fingerprintLengthInSeconds)
