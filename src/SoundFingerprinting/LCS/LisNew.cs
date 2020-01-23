@@ -90,7 +90,7 @@ namespace SoundFingerprinting.LCS
                     // pick best by score
                     while (TryPeek(maxs, out var lookAhead) && EqualMaxLength(current, lookAhead))
                     {
-                        if (lastPicked != null && lookAhead.MatchedWith.QuerySequenceNumber > lastPicked.MatchedWith.QuerySequenceNumber)
+                        if (lastPicked != null && lookAhead.MatchedWith.QuerySequenceNumber >= lastPicked.MatchedWith.QuerySequenceNumber)
                         {
                             exclude.Add(maxs.Pop().MatchedWith);
                             continue;
