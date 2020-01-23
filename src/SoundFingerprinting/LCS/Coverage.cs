@@ -41,7 +41,7 @@
         {
             get
             {
-                return DiscreteCoverageLength - TrackGaps.Sum(d => d.LengthInSeconds);
+                return DiscreteCoverageLength - TrackGaps.Where(g => !g.IsOnEdge).Sum(d => d.LengthInSeconds);
             }
         }
 
