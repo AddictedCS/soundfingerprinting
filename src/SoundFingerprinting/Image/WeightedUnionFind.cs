@@ -32,7 +32,7 @@ namespace SoundFingerprinting.Image
         {
             return Enumerable.Range(0, id.Length)
                 .Select(coord => new { parent = Find(coord), coord })
-                .Where(x => sz[x.parent] > threshold)
+                .Where(x => sz[x.parent] >= threshold)
                 .GroupBy(x => x.parent)
                 .Select(a =>
                 {
