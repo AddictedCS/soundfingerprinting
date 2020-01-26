@@ -32,6 +32,7 @@ namespace SoundFingerprinting.Image
         {
             return Enumerable.Range(0, id.Length)
                 .Select(coord => new { parent = Find(coord), coord })
+                .Where(x => sz[x.parent] > threshold)
                 .GroupBy(x => x.parent)
                 .Select(a =>
                 {
@@ -40,7 +41,6 @@ namespace SoundFingerprinting.Image
                     var bottomRight = new Coord(coords.Max(c => c.X), coords.Max(c => c.Y));
                     return new Contour(topLeft, bottomRight, coords.Count);
                 })
-                .Where(x => x.Area >= threshold)
                 .ToList();
         }
 
@@ -55,11 +55,13 @@ namespace SoundFingerprinting.Image
             {
                 id[rp] = rq;
                 sz[rq] += sz[rp];
+                sz[rp] = 0;
             }
             else
             {
                 id[rq] = rp;
                 sz[rp] += sz[rq];
+                sz[rq] = 0;
             }
             count--;
         }
