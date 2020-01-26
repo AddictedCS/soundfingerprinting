@@ -48,15 +48,16 @@ namespace SoundFingerprinting.Image
             int rq = Find(q);
             if (rp == rq)
                 return;
-            if (sz[p] <= sz[q])
+            // make the smaller root point to the larger one
+            if (sz[rp] <= sz[rq])
             {
                 id[rp] = rq;
-                sz[q] += sz[p];
+                sz[rq] += sz[rp];
             }
             else
             {
                 id[rq] = rp;
-                sz[p] += sz[q];
+                sz[rp] += sz[rq];
             }
             count--;
         }
