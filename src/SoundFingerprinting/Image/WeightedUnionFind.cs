@@ -35,8 +35,10 @@ namespace SoundFingerprinting.Image
                 .GroupBy(x => x.parent)
                 .Select(a =>
                 {
-                    var all = a.Select(i => i.coord).ToList();
-                    return new Contour(Resolve(all.Min()), Resolve(all.Max()), all.Count);
+                    var coords = a.Select(i => Resolve(i.coord)).ToList();
+                    var topLeft = new Coord(coords.Min(c => c.X), coords.Min(c => c.Y));
+                    var bottomRight = new Coord(coords.Max(c => c.X), coords.Max(c => c.Y));
+                    return new Contour(topLeft, bottomRight, coords.Count);
                 })
                 .Where(x => x.Area >= threshold)
                 .ToList();
