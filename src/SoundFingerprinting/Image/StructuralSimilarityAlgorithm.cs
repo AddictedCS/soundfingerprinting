@@ -23,7 +23,8 @@ namespace SoundFingerprinting.Image
             int differenceThreshold,
             int areaThreshold,
             int kernelSize,
-            double sigma)
+            double sigma,
+            int borderWidth)
         {
             if (img1.Width != img2.Width)
                 throw new ArgumentException(nameof(img1.Width));
@@ -56,7 +57,11 @@ namespace SoundFingerprinting.Image
             var d = b1.Multiply(b2);
             var s = a1.Multiply(a2).Divide(d);
             byte[][] ssimImage = s.ConvertAndUnwrap(x => (byte) (x * byte.MaxValue));
-            byte[][] thresholdInvImage = ssimImage.Select(x => x.ToArray()).ToArray();
+            byte[][] thresholdInvImage = ssimImage
+                .Skip(borderWidth)
+                .Take(img1.Height - 2 * borderWidth)
+                .Select(x => x.Skip(borderWidth).Take(img1.Width - 2 * borderWidth).ToArray())
+                .ToArray();
 
             ThresholdInvInPlace(thresholdInvImage, differenceThreshold, byte.MaxValue);
             return new SSIM(ssimImage, thresholdInvImage, Contour.FindContours(thresholdInvImage, byte.MaxValue, areaThreshold));
