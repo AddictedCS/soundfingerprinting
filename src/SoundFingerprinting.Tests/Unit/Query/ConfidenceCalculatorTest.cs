@@ -7,6 +7,8 @@
     [TestFixture]
     public class ConfidenceCalculatorTest
     {
+        private const double delta = 0.001;
+
         private readonly ConfidenceCalculator confidenceCalculator = new ConfidenceCalculator();
 
         [Test]
@@ -18,7 +20,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(0d, 20d, 120d, 10d, 30d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
 
         [Test]
@@ -30,7 +32,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(50d, 30d, 120d, 0d, 30d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
 
         [Test]
@@ -42,7 +44,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(110d, 10d, 120d, 0, 30d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
 
         [Test]
@@ -54,7 +56,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(50d, 10d, 10d, 50d, 120d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
 
         [Test]
@@ -66,7 +68,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(49d, 10d, 10d, 50d, 120d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
 
         [Test]
@@ -78,7 +80,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(0d, 10d, 10d, 50d, 120d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
 
         [Test]
@@ -90,7 +92,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(0d, 5d, 10d, 115d, 120d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
 
         [Test]
@@ -102,7 +104,7 @@
 
             double confidence = confidenceCalculator.CalculateConfidence(5d, 5d, 10d, 0d, 120d);
 
-            Assert.AreEqual(1d, confidence, 0.001);
+            Assert.AreEqual(1d, confidence, delta);
         }
     }
 }
