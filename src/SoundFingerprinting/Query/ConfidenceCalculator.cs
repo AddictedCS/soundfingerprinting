@@ -6,31 +6,31 @@
         ///     Calculates how confident is the algorithm that it found a successful match
         ///     Source - query file, Origin - inserted item in the database
         /// </summary>
-        /// <param name="sourceMatchStartsAt">Source starts to match at this position</param>
-        /// <param name="sourceMatchLength">Length of the match in the source</param>
+        /// <param name="queryMatchStartsAt">Source starts to match at this position</param>
+        /// <param name="coverageLength">Length of the match in the source</param>
         /// <param name="queryLength">Total length of the query</param>
-        /// <param name="originStartsAt">Start position of the match in the resulting (origin) track, as returned from the datasource</param>
-        /// <param name="originLength">Length of the origin track as it was inserted in datasource</param>
+        /// <param name="trackMatchStartsAt">Start position of the match in the resulting (origin) track, as returned from the datasource</param>
+        /// <param name="trackLength">Length of the origin track as it was inserted in datasource</param>
         /// <returns>Confidence level [0, 1)</returns>
         public double CalculateConfidence(
-            double sourceMatchStartsAt,
-            double sourceMatchLength,
+            double queryMatchStartsAt,
+            double coverageLength,
             double queryLength,
-            double originStartsAt,
-            double originLength)
+            double trackMatchStartsAt,
+            double trackLength)
         {
-            if (NeedleInHaystack(queryLength, originLength))
+            if (NeedleInHaystack(queryLength, trackLength))
             {
                 return
                     Ceil(
                         GetConfidenceForSmallSnippetFoundInLongQuery(
-                            sourceMatchStartsAt, sourceMatchLength, queryLength, originStartsAt, originLength));
+                            queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength));
             }
 
             return
                 Ceil(
-                    GetConfidenceForSmallSnippetFoundInLongOrigin(
-                        sourceMatchStartsAt, sourceMatchLength, queryLength, originStartsAt, originLength));
+                    GetConfidenceForSmallSnippetFoundInLongTrack(
+                        queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength));
         }
 
         private static double Ceil(double confidence)
@@ -43,60 +43,60 @@
             return confidence;
         }
 
-        private double GetConfidenceForSmallSnippetFoundInLongOrigin(double sourceMatchStartsAt, double sourceMatchLength, double queryLength, double originStartsAt, double originLength)
+        private double GetConfidenceForSmallSnippetFoundInLongTrack(double queryMatchStartsAt, double coverageLength, double queryLength, double trackMatchStartsAt, double trackLength)
         {
-            if (QueryClippedFromTheBegining(originStartsAt, originLength, queryLength))
+            if (QueryClippedFromTheBegining(trackMatchStartsAt, trackLength, queryLength))
             {
-                return sourceMatchLength / (originLength - (originStartsAt - sourceMatchStartsAt));
+                return coverageLength / (trackLength - (trackMatchStartsAt - queryMatchStartsAt));
             }
 
-            if (QueryClippedFromTheEnd(sourceMatchStartsAt, originStartsAt))
+            if (QueryClippedFromTheEnd(queryMatchStartsAt, trackMatchStartsAt))
             {
-                return sourceMatchLength / (queryLength - sourceMatchStartsAt + originStartsAt);
+                return coverageLength / (queryLength - queryMatchStartsAt + trackMatchStartsAt);
             }
 
-            return sourceMatchLength / queryLength;
+            return coverageLength / queryLength;
         }
 
-        private bool QueryClippedFromTheEnd(double sourceMatchStartsAt, double originStartsAt)
+        private bool QueryClippedFromTheEnd(double queryMatchStartsAt, double trackMatchStartsAt)
         {
-            return sourceMatchStartsAt > originStartsAt;
+            return queryMatchStartsAt > trackMatchStartsAt;
         }
 
-        private bool QueryClippedFromTheBegining(double originStartsAt, double originLength, double queryLength)
+        private bool QueryClippedFromTheBegining(double trackMatchStartsAt, double trackLength, double queryLength)
         {
-            return originStartsAt + queryLength > originLength;
+            return trackMatchStartsAt + queryLength > trackLength;
         }
 
         private double GetConfidenceForSmallSnippetFoundInLongQuery(
-            double sourceMatchStartsAt, double sourceMatchLength, double queryLength, double originStartsAt, double originLength)
+            double queryMatchStartsAt, double coverageLength, double queryLength, double trackMatchStartsAt, double trackLength)
         {
-            if (OriginTrackIsClippedFromTheBegining(sourceMatchStartsAt, originStartsAt))
+            if (TrackIsClippedFromTheBegining(queryMatchStartsAt, trackMatchStartsAt))
             {
-                return sourceMatchLength / (originLength - (originStartsAt - sourceMatchStartsAt));
+                return coverageLength / (trackLength - (trackMatchStartsAt - queryMatchStartsAt));
             }
 
-            if (OriginTrackIsClippedAtTheEnd(sourceMatchStartsAt, queryLength, originLength))
+            if (TrackIsClippedAtTheEnd(queryMatchStartsAt, queryLength, trackLength))
             {
-                return sourceMatchLength / (queryLength - sourceMatchStartsAt + originStartsAt);
+                return coverageLength / (queryLength - queryMatchStartsAt + trackMatchStartsAt);
             }
 
-            return sourceMatchLength / originLength;
+            return coverageLength / trackLength;
         }
 
-        private bool NeedleInHaystack(double queryLength, double originLength)
+        private bool NeedleInHaystack(double queryLength, double trackLength)
         {
-            return queryLength > originLength;
+            return queryLength > trackLength;
         }
 
-        private bool OriginTrackIsClippedAtTheEnd(double sourceMatchStartsAt, double queryLength, double originLength)
+        private bool TrackIsClippedAtTheEnd(double queryMatchStartsAt, double queryLength, double trackLength)
         {
-            return sourceMatchStartsAt + originLength > queryLength;
+            return queryMatchStartsAt + trackLength > queryLength;
         }
 
-        private bool OriginTrackIsClippedFromTheBegining(double sourceMatchStartsAt, double originStartsAt)
+        private bool TrackIsClippedFromTheBegining(double queryMatchStartsAt, double trackMatchStartsAt)
         {
-            return originStartsAt > sourceMatchStartsAt;
+            return trackMatchStartsAt > queryMatchStartsAt;
         }
     }
 }

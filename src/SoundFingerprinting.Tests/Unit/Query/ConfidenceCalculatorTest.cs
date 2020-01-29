@@ -16,7 +16,7 @@
         {
             // Query Length 2 mins
             // Source 30 sec (20 seconds of match available at the beginning of the track)
-            // 20 seconds match 
+            // 20 seconds match
 
             double confidence = confidenceCalculator.CalculateConfidence(0d, 20d, 120d, 10d, 30d);
 
