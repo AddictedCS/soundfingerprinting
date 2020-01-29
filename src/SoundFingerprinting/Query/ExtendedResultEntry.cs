@@ -24,18 +24,6 @@
 
         public Coverage ResultCoverage { get; }
 
-        public bool StrongMatch
-        {
-            get
-            {
-                bool trackGaps = ResultCoverage.TrackGaps.Any(g => !g.IsOnEdge);
-                bool queryGaps = ResultCoverage.QueryGaps.Any(g => !g.IsOnEdge);
-                double coverageWithPermittedGap = ResultCoverage.CoverageWithPermittedGapsLength;
-                double trackLength = Track.Length;
-                return coverageWithPermittedGap / trackLength >= 0.9 && !trackGaps && !queryGaps;
-            }
-        }
-
         public bool NoGaps => !ResultCoverage.TrackGaps.Any() && !ResultCoverage.QueryGaps.Any();
     }
 }
