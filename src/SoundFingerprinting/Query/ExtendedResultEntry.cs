@@ -19,11 +19,11 @@
                 coverage.QueryLength,
                 matchedAt)
         {
-            ResultCoverage = coverage;
+            Coverage = coverage;
         }
 
-        public Coverage ResultCoverage { get; }
+        public Coverage Coverage { get; }
 
-        public bool NoGaps => !ResultCoverage.TrackGaps.Any() && !ResultCoverage.QueryGaps.Any();
+        public bool NoGaps => !Coverage.TrackGaps.Any() && !Coverage.QueryGaps.Any();
     }
 }
