@@ -12,17 +12,22 @@ namespace SoundFingerprinting.Query
             }
 
             double avgConfidence = Math.Min((entry.Confidence + with.Confidence) / 2, 1d);
-            
-            return new ResultEntry(entry.Track, 
-                entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.QueryMatchStartsAt : with.QueryMatchStartsAt,
+
+            var queryMatchStartsAt = entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.QueryMatchStartsAt : with.QueryMatchStartsAt;
+            var trackMatchStartsAt = entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackMatchStartsAt : with.TrackMatchStartsAt;
+            var trackStartsAt = entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackStartsAt : with.TrackStartsAt;
+            var matchedAt = entry.MatchedAt < with.MatchedAt ? entry.MatchedAt : with.MatchedAt;
+
+            return new ResultEntry(entry.Track,
+                queryMatchStartsAt,
                 CalculateNewQueryCoverage(entry, with),
                 CalculateNewMatchLength(entry, with),
-                entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackMatchStartsAt : with.TrackMatchStartsAt,
-                entry.TrackMatchStartsAt < with.TrackMatchStartsAt ? entry.TrackStartsAt : with.TrackStartsAt,
+                trackMatchStartsAt,
+                trackStartsAt,
                 avgConfidence,
                 entry.Score + with.Score,
                 CalculateNewQueryLength(entry, with),
-                entry.MatchedAt < with.MatchedAt ? entry.MatchedAt : with.MatchedAt);
+                matchedAt);
         }
         
         private static double CalculateNewQueryCoverage(ResultEntry a, ResultEntry b)

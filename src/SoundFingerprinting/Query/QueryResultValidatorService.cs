@@ -55,13 +55,14 @@
             var newEntry = newResult.BestMatch;
             if (newEntry.Confidence > result.Confidence)
             {
+                var trackStartsAt = newEntry.TrackStartsAt + result.TrackStartsAt;
                 return new ResultEntry(
                     newEntry.Track,
                     newEntry.QueryMatchStartsAt,
                     newEntry.CoverageLength,
                     newEntry.DiscreteCoverageLength,
                     newEntry.TrackMatchStartsAt,
-                    newEntry.TrackStartsAt + result.TrackStartsAt,
+                    trackStartsAt,
                     newEntry.Confidence,
                     newEntry.Score,
                     newEntry.QueryLength,
