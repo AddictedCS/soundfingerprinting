@@ -68,7 +68,7 @@ namespace SoundFingerprinting.Query
         /// <summary>
         ///  Gets the percentage of how much the query match covered the original track
         /// </summary>
-        public double Coverage => CoverageLength / Track.Length;
+        public double RelativeCoverage => CoverageLength / Track.Length;
 
         /// <summary>
         ///  Gets the estimated percentage of how much the resulting track got covered by the query
