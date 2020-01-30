@@ -58,15 +58,15 @@
                 var trackStartsAt = newEntry.TrackStartsAt + result.TrackStartsAt;
                 return new ResultEntry(
                     newEntry.Track,
+                    newEntry.Confidence,
+                    newEntry.Score,
+                    newEntry.MatchedAt,
+                    newEntry.QueryLength,
                     newEntry.QueryMatchStartsAt,
                     newEntry.CoverageLength,
                     newEntry.DiscreteCoverageLength,
                     newEntry.TrackMatchStartsAt,
-                    trackStartsAt,
-                    newEntry.Confidence,
-                    newEntry.Score,
-                    newEntry.QueryLength,
-                    newEntry.MatchedAt);
+                    trackStartsAt);
             }
 
             return result;

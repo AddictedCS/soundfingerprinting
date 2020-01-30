@@ -38,9 +38,9 @@ namespace SoundFingerprinting.Query
         public PendingResultEntry Wait(double length)
         {
             var newQueryLength = Entry.QueryLength + length;
-            var resultEntry = new ResultEntry(Entry.Track, Entry.QueryMatchStartsAt, Entry.CoverageLength,
-                    Entry.DiscreteCoverageLength, Entry.TrackMatchStartsAt, Entry.TrackStartsAt, Entry.Confidence,
-                    Entry.Score, newQueryLength, Entry.MatchedAt);
+            var resultEntry = new ResultEntry(Entry.Track, Entry.Confidence, Entry.Score,
+                Entry.MatchedAt, newQueryLength, Entry.QueryMatchStartsAt, Entry.CoverageLength,
+                Entry.DiscreteCoverageLength, Entry.TrackMatchStartsAt, Entry.TrackStartsAt);
             return new PendingResultEntry(resultEntry, waiting + length);
         }
 

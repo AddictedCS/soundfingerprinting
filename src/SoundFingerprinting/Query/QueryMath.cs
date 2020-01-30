@@ -57,9 +57,9 @@
                         coverage.CoverageLength, coverage.QueryLength,
                         coverage.TrackMatchStartsAt, track.Length);
 
-                    return new ResultEntry(track, coverage, confidence,
-                        groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
-                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt));
+                    return new ResultEntry(track, confidence, groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
+                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
+                        coverage);
                });
         }
     }

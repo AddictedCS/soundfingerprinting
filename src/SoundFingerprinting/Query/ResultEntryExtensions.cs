@@ -19,15 +19,15 @@ namespace SoundFingerprinting.Query
             var matchedAt = entry.MatchedAt < with.MatchedAt ? entry.MatchedAt : with.MatchedAt;
 
             return new ResultEntry(entry.Track,
+                avgConfidence,
+                entry.Score + with.Score,
+                matchedAt,
+                CalculateNewQueryLength(entry, with),
                 queryMatchStartsAt,
                 CalculateNewQueryCoverage(entry, with),
                 CalculateNewMatchLength(entry, with),
                 trackMatchStartsAt,
-                trackStartsAt,
-                avgConfidence,
-                entry.Score + with.Score,
-                CalculateNewQueryLength(entry, with),
-                matchedAt);
+                trackStartsAt);
         }
         
         private static double CalculateNewQueryCoverage(ResultEntry a, ResultEntry b)

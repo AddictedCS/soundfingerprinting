@@ -10,31 +10,31 @@ namespace SoundFingerprinting.Query
     /// </summary>
     public class ResultEntry
     {
-        public ResultEntry(TrackData track, Coverage coverage, double confidence, double score, DateTime matchedAt)
+        public ResultEntry(TrackData track, double confidence, double score, DateTime matchedAt, Coverage coverage)
             : this(track,
+                confidence,
+                score,
+                matchedAt,
+                coverage.QueryLength,
                 coverage.QueryMatchStartsAt,
                 coverage.CoverageLength,
                 coverage.DiscreteCoverageLength,
                 coverage.TrackMatchStartsAt,
-                coverage.TrackStartsAt,
-                confidence,
-                score,
-                coverage.QueryLength,
-                matchedAt)
+                coverage.TrackStartsAt)
         {
             Coverage = coverage;
         }
 
-        public ResultEntry(TrackData track, 
-            double queryMatchStartsAt, 
-            double coverageLength, 
-            double discreteCoverageLength, 
-            double trackMatchStartsAt, 
-            double trackStartsAt, 
-            double confidence, 
-            double score, 
+        public ResultEntry(TrackData track,
+            double confidence,
+            double score,
+            DateTime matchedAt,
             double queryLength,
-            DateTime matchedAt)
+            double queryMatchStartsAt,
+            double coverageLength,
+            double discreteCoverageLength,
+            double trackMatchStartsAt,
+            double trackStartsAt)
         {
             Track = track;
             QueryMatchStartsAt = queryMatchStartsAt;
