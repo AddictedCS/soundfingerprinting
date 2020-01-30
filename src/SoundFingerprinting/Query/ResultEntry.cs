@@ -25,6 +25,7 @@ namespace SoundFingerprinting.Query
             Coverage = coverage;
         }
 
+        [Obsolete]
         public ResultEntry(TrackData track,
             double confidence,
             double score,
