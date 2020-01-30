@@ -43,7 +43,8 @@
             return confidence;
         }
 
-        private double GetConfidenceForSmallSnippetFoundInLongTrack(double queryMatchStartsAt, double coverageLength, double queryLength, double trackMatchStartsAt, double trackLength)
+        private double GetConfidenceForSmallSnippetFoundInLongTrack(
+            double queryMatchStartsAt, double coverageLength, double queryLength, double trackMatchStartsAt, double trackLength)
         {
             if (QueryClippedFromTheBegining(trackMatchStartsAt, trackLength, queryLength))
             {
