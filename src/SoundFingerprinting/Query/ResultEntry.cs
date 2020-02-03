@@ -1,23 +1,41 @@
 namespace SoundFingerprinting.Query
 {
     using System;
+    using System.Linq;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.LCS;
 
     /// <summary>
     ///  Represents an instance of result entry object containing information about the resulting match
     /// </summary>
     public class ResultEntry
     {
-        public ResultEntry(TrackData track, 
-            double queryMatchStartsAt, 
-            double coverageLength, 
-            double discreteCoverageLength, 
-            double trackMatchStartsAt, 
-            double trackStartsAt, 
-            double confidence, 
-            double score, 
+        public ResultEntry(TrackData track, double confidence, double score, DateTime matchedAt, Coverage coverage)
+            : this(track,
+                confidence,
+                score,
+                matchedAt,
+                coverage.QueryLength,
+                coverage.QueryMatchStartsAt,
+                coverage.CoverageLength,
+                coverage.DiscreteCoverageLength,
+                coverage.TrackMatchStartsAt,
+                coverage.TrackStartsAt)
+        {
+            Coverage = coverage;
+        }
+
+        [Obsolete]
+        public ResultEntry(TrackData track,
+            double confidence,
+            double score,
+            DateTime matchedAt,
             double queryLength,
-            DateTime matchedAt)
+            double queryMatchStartsAt,
+            double coverageLength,
+            double discreteCoverageLength,
+            double trackMatchStartsAt,
+            double trackStartsAt)
         {
             Track = track;
             QueryMatchStartsAt = queryMatchStartsAt;
@@ -35,6 +53,8 @@ namespace SoundFingerprinting.Query
         ///  Gets the resulting matched track from the data store
         /// </summary>
         public TrackData Track { get; }
+
+        public Coverage Coverage { get; }
 
         /// <summary>
         /// Gets query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
@@ -68,7 +88,7 @@ namespace SoundFingerprinting.Query
         /// <summary>
         ///  Gets the percentage of how much the query match covered the original track
         /// </summary>
-        public double Coverage => CoverageLength / Track.Length;
+        public double RelativeCoverage => CoverageLength / Track.Length;
 
         /// <summary>
         ///  Gets the estimated percentage of how much the resulting track got covered by the query
@@ -99,5 +119,7 @@ namespace SoundFingerprinting.Query
         ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query
         /// </summary>
         public double DiscreteCoverageLength { get; }
+
+        public bool NoGaps => !Coverage.TrackGaps.Any() && !Coverage.QueryGaps.Any();
     }
 }

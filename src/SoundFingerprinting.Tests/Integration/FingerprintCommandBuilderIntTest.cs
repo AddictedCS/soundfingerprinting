@@ -231,7 +231,7 @@
             Assert.AreEqual("4321", bestMatch.Track.Id);
             Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
             Assert.AreEqual(audioSamples.Duration, bestMatch.CoverageLength, 1.48d);
-            Assert.AreEqual(1d, bestMatch.Coverage, 0.005d);
+            Assert.AreEqual(1d, bestMatch.RelativeCoverage, 0.005d);
             Assert.AreEqual(1, bestMatch.Confidence, $"Confidence:{bestMatch.Confidence}");
         }
 
