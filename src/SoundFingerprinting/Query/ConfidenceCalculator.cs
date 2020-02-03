@@ -19,7 +19,7 @@
             double trackMatchStartsAt,
             double trackLength)
         {
-            if (NeedleInHaystack(queryLength, trackLength))
+            if (QueryLongerThanTrack(queryLength, trackLength))
             {
                 return
                     Ceil(
@@ -85,7 +85,7 @@
             return coverageLength / trackLength;
         }
 
-        private bool NeedleInHaystack(double queryLength, double trackLength)
+        private bool QueryLongerThanTrack(double queryLength, double trackLength)
         {
             return queryLength > trackLength;
         }
