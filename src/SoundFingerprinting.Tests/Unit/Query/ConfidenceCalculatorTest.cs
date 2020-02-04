@@ -106,11 +106,11 @@
         /* Query: --==-
          * Track: -==--
          */
-        [TestCase(2, 2, 5, 1, 5, ExpectedResult = 0.3333333333333333)]
+        [TestCase(2, 2, 5, 1, 5, ExpectedResult = 0.5)]
         /* Query: ---==
          * Track: -==--
          */
-        [TestCase(3, 2, 5, 1, 5, ExpectedResult = 0.2857142857142857)]
+        [TestCase(3, 2, 5, 1, 5, ExpectedResult = 0.6666666666666666)]
         /* Query: ==---
          * Track: ---==
          */

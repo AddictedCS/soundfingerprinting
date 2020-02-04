@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Query
 {
+    using static System.Math;
+
     public class ConfidenceCalculator : IConfidenceCalculator
     {
         /// <summary>
@@ -19,85 +21,18 @@
             double trackMatchStartsAt,
             double trackLength)
         {
-            if (QueryLongerThanTrack(queryLength, trackLength))
-            {
-                return
-                    Ceil(
-                        GetConfidenceForSmallSnippetFoundInLongQuery(
-                            queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength));
-            }
+            var queryHead = queryMatchStartsAt;
+            var queryTail = queryLength - (queryHead + coverageLength);
 
-            return
-                Ceil(
-                    GetConfidenceForSmallSnippetFoundInLongTrack(
-                        queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength));
-        }
+            var trackHead = trackMatchStartsAt;
+            var trackTail = trackLength - (trackHead + coverageLength);
 
-        private static double Ceil(double confidence)
-        {
-            if (confidence > 1d)
-            {
-                return 1d;
-            }
+            var maxPossibleCoverageLength = Min(queryHead, trackHead) + coverageLength + Min(queryTail, trackTail);
 
+            var confidence = coverageLength / maxPossibleCoverageLength;
+
+            // TODO: check the arguments or clip the result to [0, 1].
             return confidence;
-        }
-
-        private double GetConfidenceForSmallSnippetFoundInLongTrack(
-            double queryMatchStartsAt, double coverageLength, double queryLength, double trackMatchStartsAt, double trackLength)
-        {
-            if (QueryClippedFromTheBegining(trackMatchStartsAt, trackLength, queryLength))
-            {
-                return coverageLength / (trackLength - (trackMatchStartsAt - queryMatchStartsAt));
-            }
-
-            if (QueryClippedFromTheEnd(queryMatchStartsAt, trackMatchStartsAt))
-            {
-                return coverageLength / (queryLength - queryMatchStartsAt + trackMatchStartsAt);
-            }
-
-            return coverageLength / queryLength;
-        }
-
-        private bool QueryClippedFromTheEnd(double queryMatchStartsAt, double trackMatchStartsAt)
-        {
-            return queryMatchStartsAt > trackMatchStartsAt;
-        }
-
-        private bool QueryClippedFromTheBegining(double trackMatchStartsAt, double trackLength, double queryLength)
-        {
-            return trackMatchStartsAt + queryLength > trackLength;
-        }
-
-        private double GetConfidenceForSmallSnippetFoundInLongQuery(
-            double queryMatchStartsAt, double coverageLength, double queryLength, double trackMatchStartsAt, double trackLength)
-        {
-            if (TrackIsClippedFromTheBegining(queryMatchStartsAt, trackMatchStartsAt))
-            {
-                return coverageLength / (trackLength - (trackMatchStartsAt - queryMatchStartsAt));
-            }
-
-            if (TrackIsClippedAtTheEnd(queryMatchStartsAt, queryLength, trackLength))
-            {
-                return coverageLength / (queryLength - queryMatchStartsAt + trackMatchStartsAt);
-            }
-
-            return coverageLength / trackLength;
-        }
-
-        private bool QueryLongerThanTrack(double queryLength, double trackLength)
-        {
-            return queryLength > trackLength;
-        }
-
-        private bool TrackIsClippedAtTheEnd(double queryMatchStartsAt, double queryLength, double trackLength)
-        {
-            return queryMatchStartsAt + trackLength > queryLength;
-        }
-
-        private bool TrackIsClippedFromTheBegining(double queryMatchStartsAt, double trackMatchStartsAt)
-        {
-            return trackMatchStartsAt > queryMatchStartsAt;
         }
     }
 }
