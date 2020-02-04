@@ -5,17 +5,17 @@ namespace SoundFingerprinting.Query
         /// <summary>
         ///     Calculates how confident is the algorithm that it found a successful match
         /// </summary>
-        /// <param name="sourceMatchStartsAt">Original source starts to match at this position</param>
-        /// <param name="sourceMatchLength">Length of the match in the original source</param>
+        /// <param name="queryMatchStartsAt">Original source starts to match at this position</param>
+        /// <param name="coverageLength">Length of the match in the original source</param>
         /// <param name="queryLength">Total sourceMatchLength of the original source</param>
-        /// <param name="originStartsAt">Start position of the match in the resulting track, as returned from the datasource</param>
-        /// <param name="originLength">Length of the result track as insertedd in datasource</param>
+        /// <param name="trackMatchStartsAt">Start position of the match in the resulting track, as returned from the datasource</param>
+        /// <param name="trackLength">Length of the result track as insertedd in datasource</param>
         /// <returns>Confidence level [0, 1)</returns>
         double CalculateConfidence(
-            double sourceMatchStartsAt,
-            double sourceMatchLength,
+            double queryMatchStartsAt,
+            double coverageLength,
             double queryLength,
-            double originStartsAt,
-            double originLength);
+            double trackMatchStartsAt,
+            double trackLength);
     }
 }
