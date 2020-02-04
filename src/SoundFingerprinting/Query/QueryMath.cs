@@ -54,8 +54,8 @@
             return coverages.Select(coverage =>
                {
                     double confidence = confidenceCalculator.CalculateConfidence(coverage.QueryMatchStartsAt,
-                        coverage.CoverageLength, coverage.QueryLength,
-                        coverage.TrackMatchStartsAt, track.Length);
+                        coverage.QueryLength, coverage.TrackMatchStartsAt,
+                        track.Length, coverage.CoverageLength);
 
                     return new ExtendedResultEntry(track, coverage, confidence,
                         groupedQueryResults.GetScoreSumForTrack(track.TrackReference),

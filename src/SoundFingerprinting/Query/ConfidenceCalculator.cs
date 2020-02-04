@@ -9,17 +9,17 @@
         ///     Source - query file, Origin - inserted item in the database
         /// </summary>
         /// <param name="queryMatchStartsAt">Source starts to match at this position</param>
-        /// <param name="coverageLength">Length of the match in the source</param>
         /// <param name="queryLength">Total length of the query</param>
         /// <param name="trackMatchStartsAt">Start position of the match in the resulting (origin) track, as returned from the datasource</param>
         /// <param name="trackLength">Length of the origin track as it was inserted in datasource</param>
+        /// <param name="coverageLength">Length of the match in the source</param>
         /// <returns>Confidence level [0, 1)</returns>
         public double CalculateConfidence(
             double queryMatchStartsAt,
-            double coverageLength,
             double queryLength,
             double trackMatchStartsAt,
-            double trackLength)
+            double trackLength,
+            double coverageLength)
         {
             var queryHead = queryMatchStartsAt;
             var queryTail = queryLength - (queryHead + coverageLength);

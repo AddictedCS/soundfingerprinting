@@ -72,7 +72,7 @@
             double trackMatchStartsAt, double trackLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength);
+                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageLength);
         }
 
         /* Query: -----
@@ -163,7 +163,7 @@
             double trackMatchStartsAt, double trackLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength);
+                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageLength);
         }
 
         /* Query: -----
@@ -218,7 +218,7 @@
             double trackMatchStartsAt, double trackLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength);
+                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageLength);
         }
 
         [Test]
@@ -228,7 +228,7 @@
             // Source 30 sec (20 seconds of match available at the beginning of the track)
             // 20 seconds match
 
-            double confidence = confidenceCalculator.CalculateConfidence(0d, 20d, 120d, 10d, 30d);
+            double confidence = confidenceCalculator.CalculateConfidence(0d, 120d, 10d, 30d, 20d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
@@ -240,7 +240,7 @@
             // Source 30 sec (30 seconds available in the middle of the track)
             // 30 seconds match
 
-            double confidence = confidenceCalculator.CalculateConfidence(50d, 30d, 120d, 0d, 30d);
+            double confidence = confidenceCalculator.CalculateConfidence(50d, 120d, 0d, 30d, 30d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
@@ -252,7 +252,7 @@
             // Source 30 sec (10 seconds of match available at the end of the track)
             // 10 seconds match
 
-            double confidence = confidenceCalculator.CalculateConfidence(110d, 10d, 120d, 0, 30d);
+            double confidence = confidenceCalculator.CalculateConfidence(110d, 120d, 0, 30d, 10d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
@@ -264,7 +264,7 @@
             // Source 2 mins (10 seconds available in the middle)
             // 10 seconds match
 
-            double confidence = confidenceCalculator.CalculateConfidence(50d, 10d, 10d, 50d, 120d);
+            double confidence = confidenceCalculator.CalculateConfidence(50d, 10d, 50d, 120d, 10d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
@@ -276,7 +276,7 @@
             // Source 2 mins (10 seconds available in the middle)
             // 10 seconds match (1 sec misalignment to the left)
 
-            double confidence = confidenceCalculator.CalculateConfidence(49d, 10d, 10d, 50d, 120d);
+            double confidence = confidenceCalculator.CalculateConfidence(49d, 10d, 50d, 120d, 10d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
@@ -288,7 +288,7 @@
             // Source 2 mins (10 seconds available in the middle)
             // 10 seconds match (1 sec misalignment to the right)
 
-            double confidence = confidenceCalculator.CalculateConfidence(0d, 10d, 10d, 50d, 120d);
+            double confidence = confidenceCalculator.CalculateConfidence(0d, 10d, 50d, 120d, 10d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
@@ -300,7 +300,7 @@
             // Source 2 mins (5 seconds available in the beginning)
             // 5 seconds match
 
-            double confidence = confidenceCalculator.CalculateConfidence(0d, 5d, 10d, 115d, 120d);
+            double confidence = confidenceCalculator.CalculateConfidence(0d, 10d, 115d, 120d, 5d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
@@ -312,7 +312,7 @@
             // Source 2 mins (5 seconds available in the beginning)
             // 5 seconds match
 
-            double confidence = confidenceCalculator.CalculateConfidence(5d, 5d, 10d, 0d, 120d);
+            double confidence = confidenceCalculator.CalculateConfidence(5d, 10d, 0d, 120d, 5d);
 
             Assert.AreEqual(1d, confidence, delta);
         }
