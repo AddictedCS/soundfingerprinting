@@ -11,6 +11,188 @@
 
         private readonly ConfidenceCalculator confidenceCalculator = new ConfidenceCalculator();
 
+        /* Query: ----------
+         * Track: -----
+         */
+        [TestCase(0, 0, 10, 0, 5, ExpectedResult = 0)]
+        /* Query: ==--------
+         * Track: ==---
+         */
+        [TestCase(0, 2, 10, 0, 5, ExpectedResult = 0.4)]
+        /* Query: -==-------
+         * Track: ==---
+         */
+        [TestCase(1, 2, 10, 0, 5, ExpectedResult = 0.4)]
+        /* Query: ---==-----
+         * Track: ==---
+         */
+        [TestCase(3, 2, 10, 0, 5, ExpectedResult = 0.4)]
+        /* Query: --------==
+         * Track: ==---
+         */
+        [TestCase(8, 2, 10, 0, 5, ExpectedResult = 1)]
+        /* Query: ==--------
+         * Track: -==--
+         */
+        [TestCase(0, 2, 10, 1, 5, ExpectedResult = 0.5)]
+        /* Query: ---==-----
+         * Track: -==--
+         */
+        [TestCase(3, 2, 10, 1, 5, ExpectedResult = 0.4)]
+        /* Query: --------==
+         * Track: -==--
+         */
+        [TestCase(8, 2, 10, 1, 5, ExpectedResult = 0.6666666666666666)]
+        /* Query: ==--------
+         * Track: ---==
+         */
+        [TestCase(0, 2, 10, 3, 5, ExpectedResult = 1)]
+        /* Query: -==-------
+         * Track: ---==
+         */
+        [TestCase(1, 2, 10, 3, 5, ExpectedResult = 0.6666666666666666)]
+        /* Query: --==------
+         * Track: ---==
+         */
+        [TestCase(2, 2, 10, 3, 5, ExpectedResult = 0.5)]
+        /* Query: ---==-----
+         * Track: ---==
+         */
+        [TestCase(3, 2, 10, 3, 5, ExpectedResult = 0.4)]
+        /* Query: --------==
+         * Track: ---==
+         */
+        [TestCase(8, 2, 10, 3, 5, ExpectedResult = 0.4)]
+        /* Query: -=====----
+         * Track: =====
+         */
+        [TestCase(1, 5, 10, 0, 5, ExpectedResult = 1)]
+
+        public double QueryLongerThanTrack(double queryMatchStartsAt, double coverageLength, double queryLength,
+            double trackMatchStartsAt, double trackLength)
+        {
+            return confidenceCalculator.CalculateConfidence(
+                queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength);
+        }
+
+        /* Query: -----
+         * Track: -----
+         */
+        [TestCase(0, 0, 5, 0, 5, ExpectedResult = 0)]
+        /* Query: ==---
+         * Track: ==---
+         */
+        [TestCase(0, 2, 5, 0, 5, ExpectedResult = 0.4)]
+        /* Query: -==--
+         * Track: ==---
+         */
+        [TestCase(1, 2, 5, 0, 5, ExpectedResult = 0.5)]
+        /* Query: --==-
+         * Track: ==---
+         */
+        [TestCase(2, 2, 5, 0, 5, ExpectedResult = 0.6666666666666666)]
+        /* Query: ---==
+         * Track: ==---
+         */
+        [TestCase(3, 2, 5, 0, 5, ExpectedResult = 1)]
+        /* Query: ==---
+         * Track: -==--
+         */
+        [TestCase(0, 2, 5, 1, 5, ExpectedResult = 0.5)]
+        /* Query: -==--
+         * Track: -==--
+         */
+        [TestCase(1, 2, 5, 1, 5, ExpectedResult = 0.4)]
+        /* Query: --==-
+         * Track: -==--
+         */
+        [TestCase(2, 2, 5, 1, 5, ExpectedResult = 0.3333333333333333)]
+        /* Query: ---==
+         * Track: -==--
+         */
+        [TestCase(3, 2, 5, 1, 5, ExpectedResult = 0.2857142857142857)]
+        /* Query: ==---
+         * Track: ---==
+         */
+        [TestCase(0, 2, 5, 3, 5, ExpectedResult = 1)]
+        /* Query: -==--
+         * Track: ---==
+         */
+        [TestCase(1, 2, 5, 3, 5, ExpectedResult = 0.6666666666666666)]
+        /* Query: --==-
+         * Track: ---==
+         */
+        [TestCase(2, 2, 5, 3, 5, ExpectedResult = 0.5)]
+        /* Query: ---==
+         * Track: ---==
+         */
+        [TestCase(3, 2, 5, 3, 5, ExpectedResult = 0.4)]
+        /* Query: =====
+         * Track: =====
+         */
+        [TestCase(0, 5, 5, 0, 5, ExpectedResult = 1)]
+        public double QueryAndTrackOfEqualLength(double queryMatchStartsAt, double coverageLength, double queryLength,
+            double trackMatchStartsAt, double trackLength)
+        {
+            return confidenceCalculator.CalculateConfidence(
+                queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength);
+        }
+
+        /* Query: -----
+         * Track: ----------
+          */
+        [TestCase(0, 0, 5, 0, 10, ExpectedResult = 0)]
+        /* Query: ==---
+         * Track: ==--------
+          */
+        [TestCase(0, 2, 5, 0, 10, ExpectedResult = 0.4)]
+        /* Query: -==--
+         * Track: ==--------
+          */
+        [TestCase(1, 2, 5, 0, 10, ExpectedResult = 0.5)]
+        /* Query: ---==
+         * Track: ==--------
+          */
+        [TestCase(3, 2, 5, 0, 10, ExpectedResult = 1)]
+        /* Query: ==---
+         * Track: ---==-----
+         */
+        [TestCase(0, 2, 5, 3, 10, ExpectedResult = 0.4)]
+        /* Query: --==-
+         * Track: ---==-----
+         */
+        [TestCase(2, 2, 5, 3, 10, ExpectedResult = 0.4)]
+        /* Query: ---==
+         * Track: ---==-----
+         */
+        [TestCase(3, 2, 5, 3, 10, ExpectedResult = 0.4)]
+        /* Query: ==---
+         * Track: --------==
+         */
+        [TestCase(0, 2, 5, 8, 10, ExpectedResult = 1)]
+        /* Query: -==--
+         * Track: --------==
+         */
+        [TestCase(1, 2, 5, 8, 10, ExpectedResult = 0.6666666666666666)]
+        /* Query: --==-
+         * Track: --------==
+         */
+        [TestCase(2, 2, 5, 8, 10, ExpectedResult = 0.5)]
+        /* Query: ---==
+         * Track: --------==
+         */
+        [TestCase(3, 2, 5, 8, 10, ExpectedResult = 0.4)]
+        /* Query: =====
+         * Track: ---=====--
+         */
+        [TestCase(0, 5, 5, 3, 10, ExpectedResult = 1)]
+        public double TrackLongerThanQuery(double queryMatchStartsAt, double coverageLength, double queryLength,
+            double trackMatchStartsAt, double trackLength)
+        {
+            return confidenceCalculator.CalculateConfidence(
+                queryMatchStartsAt, coverageLength, queryLength, trackMatchStartsAt, trackLength);
+        }
+
         [Test]
         public void ShouldCalculateConfidence1()
         {
