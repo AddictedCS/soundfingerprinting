@@ -14,211 +14,234 @@
         /* Query: ----------
          * Track: -----
          */
-        [TestCase(0, 0, 10, 0, 5, ExpectedResult = 0)]
+        [TestCase(0, 10, 0, 5, 0, ExpectedResult = 0)]
         /* Query: ==--------
          * Track: ==---
          */
-        [TestCase(0, 2, 10, 0, 5, ExpectedResult = 0.4)]
+        [TestCase(0, 10, 0, 5, 2, ExpectedResult = 0.4)]
         /* Query: -==-------
          * Track: ==---
          */
-        [TestCase(1, 2, 10, 0, 5, ExpectedResult = 0.4)]
+        [TestCase(1, 10, 0, 5, 2, ExpectedResult = 0.4)]
         /* Query: ---==-----
          * Track: ==---
          */
-        [TestCase(3, 2, 10, 0, 5, ExpectedResult = 0.4)]
+        [TestCase(3, 10, 0, 5, 2, ExpectedResult = 0.4)]
         /* Query: --------==
          * Track: ==---
          */
-        [TestCase(8, 2, 10, 0, 5, ExpectedResult = 1)]
+        [TestCase(8, 10, 0, 5, 2, ExpectedResult = 1)]
         /* Query: ==--------
          * Track: -==--
          */
-        [TestCase(0, 2, 10, 1, 5, ExpectedResult = 0.5)]
+        [TestCase(0, 10, 1, 5, 2, ExpectedResult = 0.5)]
         /* Query: ---==-----
          * Track: -==--
          */
-        [TestCase(3, 2, 10, 1, 5, ExpectedResult = 0.4)]
+        [TestCase(3, 10, 1, 5, 2, ExpectedResult = 0.4)]
         /* Query: --------==
          * Track: -==--
          */
-        [TestCase(8, 2, 10, 1, 5, ExpectedResult = 0.6666666666666666)]
+        [TestCase(8, 10, 1, 5, 2, ExpectedResult = 0.6666666666666666)]
         /* Query: ==--------
          * Track: ---==
          */
-        [TestCase(0, 2, 10, 3, 5, ExpectedResult = 1)]
+        [TestCase(0, 10, 3, 5, 2, ExpectedResult = 1)]
         /* Query: -==-------
          * Track: ---==
          */
-        [TestCase(1, 2, 10, 3, 5, ExpectedResult = 0.6666666666666666)]
+        [TestCase(1, 10, 3, 5, 2, ExpectedResult = 0.6666666666666666)]
         /* Query: --==------
          * Track: ---==
          */
-        [TestCase(2, 2, 10, 3, 5, ExpectedResult = 0.5)]
+        [TestCase(2, 10, 3, 5, 2, ExpectedResult = 0.5)]
         /* Query: ---==-----
          * Track: ---==
          */
-        [TestCase(3, 2, 10, 3, 5, ExpectedResult = 0.4)]
+        [TestCase(3, 10, 3, 5, 2, ExpectedResult = 0.4)]
         /* Query: --------==
          * Track: ---==
          */
-        [TestCase(8, 2, 10, 3, 5, ExpectedResult = 0.4)]
+        [TestCase(8, 10, 3, 5, 2, ExpectedResult = 0.4)]
         /* Query: -=====----
          * Track: =====
          */
-        [TestCase(1, 5, 10, 0, 5, ExpectedResult = 1)]
-
-        public double QueryLongerThanTrack(double queryMatchStartsAt, double coverageWithPermittedGapsLength, double queryLength,
-            double trackMatchStartsAt, double trackLength)
+        [TestCase(1, 10, 0, 5, 5, ExpectedResult = 1)]
+        public double QueryLongerThanTrack(
+            double queryMatchStartsAt, double queryLength,
+            double trackMatchStartsAt, double trackLength,
+            double coverageWithPermittedGapsLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength);
+                queryMatchStartsAt,
+                queryLength,
+                trackMatchStartsAt,
+                trackLength,
+                coverageWithPermittedGapsLength,
+                coverageWithPermittedGapsLength,
+                coverageWithPermittedGapsLength);
         }
 
         /* Query: -----
          * Track: -----
          */
-        [TestCase(0, 0, 5, 0, 5, ExpectedResult = 0)]
+        [TestCase(0, 5, 0, 5, 0, ExpectedResult = 0)]
         /* Query: ==---
          * Track: ==---
          */
-        [TestCase(0, 2, 5, 0, 5, ExpectedResult = 0.4)]
+        [TestCase(0, 5, 0, 5, 2, ExpectedResult = 0.4)]
         /* Query: -==--
          * Track: ==---
          */
-        [TestCase(1, 2, 5, 0, 5, ExpectedResult = 0.5)]
+        [TestCase(1, 5, 0, 5, 2, ExpectedResult = 0.5)]
         /* Query: --==-
          * Track: ==---
          */
-        [TestCase(2, 2, 5, 0, 5, ExpectedResult = 0.6666666666666666)]
+        [TestCase(2, 5, 0, 5, 2, ExpectedResult = 0.6666666666666666)]
         /* Query: ---==
          * Track: ==---
          */
-        [TestCase(3, 2, 5, 0, 5, ExpectedResult = 1)]
+        [TestCase(3, 5, 0, 5, 2, ExpectedResult = 1)]
         /* Query: ==---
          * Track: -==--
          */
-        [TestCase(0, 2, 5, 1, 5, ExpectedResult = 0.5)]
+        [TestCase(0, 5, 1, 5, 2, ExpectedResult = 0.5)]
         /* Query: -==--
          * Track: -==--
          */
-        [TestCase(1, 2, 5, 1, 5, ExpectedResult = 0.4)]
+        [TestCase(1, 5, 1, 5, 2, ExpectedResult = 0.4)]
         /* Query: --==-
          * Track: -==--
          */
-        [TestCase(2, 2, 5, 1, 5, ExpectedResult = 0.5)]
+        [TestCase(2, 5, 1, 5, 2, ExpectedResult = 0.5)]
         /* Query: ---==
          * Track: -==--
          */
-        [TestCase(3, 2, 5, 1, 5, ExpectedResult = 0.6666666666666666)]
+        [TestCase(3, 5, 1, 5, 2, ExpectedResult = 0.6666666666666666)]
         /* Query: ==---
          * Track: ---==
          */
-        [TestCase(0, 2, 5, 3, 5, ExpectedResult = 1)]
+        [TestCase(0, 5, 3, 5, 2, ExpectedResult = 1)]
         /* Query: -==--
          * Track: ---==
          */
-        [TestCase(1, 2, 5, 3, 5, ExpectedResult = 0.6666666666666666)]
+        [TestCase(1, 5, 3, 5, 2, ExpectedResult = 0.6666666666666666)]
         /* Query: --==-
          * Track: ---==
          */
-        [TestCase(2, 2, 5, 3, 5, ExpectedResult = 0.5)]
+        [TestCase(2, 5, 3, 5, 2, ExpectedResult = 0.5)]
         /* Query: ---==
          * Track: ---==
          */
-        [TestCase(3, 2, 5, 3, 5, ExpectedResult = 0.4)]
+        [TestCase(3, 5, 3, 5, 2, ExpectedResult = 0.4)]
         /* Query: =====
          * Track: =====
          */
-        [TestCase(0, 5, 5, 0, 5, ExpectedResult = 1)]
+        [TestCase(0, 5, 0, 5, 5, ExpectedResult = 1)]
         /* Query: ---=------
          * Track: =---------
          */
-        [TestCase(3, 1, 10, 0, 10, ExpectedResult = 0.14285714285714285)]
+        [TestCase(3, 10, 0, 10, 1, ExpectedResult = 0.14285714285714285)]
         /* Query: ---==-----
          * Track: ==--------
          */
-        [TestCase(3, 2, 10, 0, 10, ExpectedResult = 0.2857142857142857)]
+        [TestCase(3, 10, 0, 10, 2, ExpectedResult = 0.2857142857142857)]
         /* Query: ---===----
          * Track: ===-------
          */
-        [TestCase(3, 3, 10, 0, 10, ExpectedResult = 0.42857142857142855)]
+        [TestCase(3, 10, 0, 10, 3, ExpectedResult = 0.42857142857142855)]
         /* Query: ---====---
          * Track: ====------
          */
-        [TestCase(3, 4, 10, 0, 10, ExpectedResult = 0.5714285714285714)]
+        [TestCase(3, 10, 0, 10, 4, ExpectedResult = 0.5714285714285714)]
         /* Query: ---=====--
          * Track: =====-----
          */
-        [TestCase(3, 5, 10, 0, 10, ExpectedResult = 0.7142857142857143)]
+        [TestCase(3, 10, 0, 10, 5, ExpectedResult = 0.7142857142857143)]
         /* Query: ---======-
          * Track: ======----
          */
-        [TestCase(3, 6, 10, 0, 10, ExpectedResult = 0.8571428571428571)]
+        [TestCase(3, 10, 0, 10, 6, ExpectedResult = 0.8571428571428571)]
         /* Query: ---=======
          * Track: =======---
          */
-        [TestCase(3, 7, 10, 0, 10, ExpectedResult = 1)]
-        public double QueryAndTrackOfEqualLength(double queryMatchStartsAt, double coverageWithPermittedGapsLength, double queryLength,
-            double trackMatchStartsAt, double trackLength)
+        [TestCase(3, 10, 0, 10, 7, ExpectedResult = 1)]
+        public double QueryAndTrackOfEqualLength(
+            double queryMatchStartsAt, double queryLength,
+            double trackMatchStartsAt, double trackLength,
+            double coverageWithPermittedGapsLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength);
+                queryMatchStartsAt,
+                queryLength,
+                trackMatchStartsAt,
+                trackLength,
+                coverageWithPermittedGapsLength,
+                coverageWithPermittedGapsLength,
+                coverageWithPermittedGapsLength);
         }
 
         /* Query: -----
          * Track: ----------
          */
-        [TestCase(0, 0, 5, 0, 10, ExpectedResult = 0)]
+        [TestCase(0, 5, 0, 10, 0, ExpectedResult = 0)]
         /* Query: ==---
          * Track: ==--------
          */
-        [TestCase(0, 2, 5, 0, 10, ExpectedResult = 0.4)]
+        [TestCase(0, 5, 0, 10, 2, ExpectedResult = 0.4)]
         /* Query: -==--
          * Track: ==--------
          */
-        [TestCase(1, 2, 5, 0, 10, ExpectedResult = 0.5)]
+        [TestCase(1, 5, 0, 10, 2, ExpectedResult = 0.5)]
         /* Query: ---==
          * Track: ==--------
          */
-        [TestCase(3, 2, 5, 0, 10, ExpectedResult = 1)]
+        [TestCase(3, 5, 0, 10, 2, ExpectedResult = 1)]
         /* Query: ==---
          * Track: ---==-----
          */
-        [TestCase(0, 2, 5, 3, 10, ExpectedResult = 0.4)]
+        [TestCase(0, 5, 3, 10, 2, ExpectedResult = 0.4)]
         /* Query: --==-
          * Track: ---==-----
          */
-        [TestCase(2, 2, 5, 3, 10, ExpectedResult = 0.4)]
+        [TestCase(2, 5, 3, 10, 2, ExpectedResult = 0.4)]
         /* Query: ---==
          * Track: ---==-----
          */
-        [TestCase(3, 2, 5, 3, 10, ExpectedResult = 0.4)]
+        [TestCase(3, 5, 3, 10, 2, ExpectedResult = 0.4)]
         /* Query: ==---
          * Track: --------==
          */
-        [TestCase(0, 2, 5, 8, 10, ExpectedResult = 1)]
+        [TestCase(0, 5, 8, 10, 2, ExpectedResult = 1)]
         /* Query: -==--
          * Track: --------==
          */
-        [TestCase(1, 2, 5, 8, 10, ExpectedResult = 0.6666666666666666)]
+        [TestCase(1, 5, 8, 10, 2, ExpectedResult = 0.6666666666666666)]
         /* Query: --==-
          * Track: --------==
          */
-        [TestCase(2, 2, 5, 8, 10, ExpectedResult = 0.5)]
+        [TestCase(2, 5, 8, 10, 2, ExpectedResult = 0.5)]
         /* Query: ---==
          * Track: --------==
          */
-        [TestCase(3, 2, 5, 8, 10, ExpectedResult = 0.4)]
+        [TestCase(3, 5, 8, 10, 2, ExpectedResult = 0.4)]
         /* Query: =====
          * Track: ---=====--
          */
-        [TestCase(0, 5, 5, 3, 10, ExpectedResult = 1)]
-        public double TrackLongerThanQuery(double queryMatchStartsAt, double coverageWithPermittedGapsLength, double queryLength,
-            double trackMatchStartsAt, double trackLength)
+        [TestCase(0, 5, 3, 10, 5, ExpectedResult = 1)]
+        public double TrackLongerThanQuery(
+            double queryMatchStartsAt, double queryLength,
+            double trackMatchStartsAt, double trackLength,
+            double coverageWithPermittedGapsLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength);
+                queryMatchStartsAt,
+                queryLength,
+                trackMatchStartsAt,
+                trackLength,
+                coverageWithPermittedGapsLength,
+                coverageWithPermittedGapsLength,
+                coverageWithPermittedGapsLength);
         }
 
         [Test]
