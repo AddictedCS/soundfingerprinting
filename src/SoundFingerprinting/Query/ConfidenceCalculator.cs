@@ -29,14 +29,8 @@
         /// <param name="queryDiscreteCoverageLength">Length of the match (including gaps) in the query</param>
         /// <param name="trackDiscreteCoverageLength">Length of the match (including gaps) in the track</param>
         /// <returns>Confidence level [0, 1)</returns>
-        internal double CalculateConfidence(
-            double queryMatchStartsAt,
-            double queryLength,
-            double trackMatchStartsAt,
-            double trackLength,
-            double coverageWithPermittedGapsLength,
-            double queryDiscreteCoverageLength,
-            double trackDiscreteCoverageLength)
+        internal double CalculateConfidence(double queryMatchStartsAt, double queryLength, double trackMatchStartsAt, double trackLength,
+            double coverageWithPermittedGapsLength, double queryDiscreteCoverageLength, double trackDiscreteCoverageLength)
         {
             var queryHead = queryMatchStartsAt;
             var queryTail = queryLength - (queryHead + queryDiscreteCoverageLength);
@@ -46,10 +40,8 @@
 
             var maxPossibleCoverageLength = Min(queryHead, trackHead) + trackDiscreteCoverageLength + Min(queryTail, trackTail);
 
-            var confidence = coverageWithPermittedGapsLength / maxPossibleCoverageLength;
-
             // TODO: check the arguments or clip the result to [0, 1] ?
-            return confidence;
+            return coverageWithPermittedGapsLength / maxPossibleCoverageLength;
         }
     }
 }
