@@ -243,5 +243,57 @@
                 coverageWithPermittedGapsLength,
                 coverageWithPermittedGapsLength);
         }
+
+        /* Query: =====-----
+         * Track: ===--
+        */
+        [TestCase(0, 10, 0, 5, 2, 5, 3, ExpectedResult = 0.4)]
+        /* Query: --====----
+         * Track: ==---
+        */
+        [TestCase(2, 10, 0, 5, 1, 4, 2, ExpectedResult = 0.2)]
+        /* Query: ----======
+         * Track: ====-
+        */
+        [TestCase(4, 10, 0, 5, 3, 6, 4, ExpectedResult = 0.75)]
+        /* Query: ====------
+         * Track: -==--
+        */
+        [TestCase(0, 10, 1, 5, 1, 4, 2, ExpectedResult = 0.25)]
+        /* Query: ---=====--
+         * Track: -===-
+        */
+        [TestCase(3, 10, 1, 5, 2, 5, 3, ExpectedResult = 0.4)]
+        /* Query: ------====
+         * Track: -==--
+        */
+        [TestCase(6, 10, 1, 5, 1, 4, 2, ExpectedResult = 0.3333333333333333)]
+        /* Query: =====-----
+         * Track: --===
+        */
+        [TestCase(0, 10, 2, 5, 2, 5, 3, ExpectedResult = 0.6666666666666666)]
+        /* Query: -=====----
+         * Track: --===
+        */
+        [TestCase(1, 10, 2, 5, 2, 5, 3, ExpectedResult = 0.5)]
+        /* Query: -----=====
+         * Track: --===
+        */
+        [TestCase(5, 10, 2, 5, 2, 5, 3, ExpectedResult = 0.4)]
+        public double CoveragesOfDifferentLength(
+            double queryMatchStartsAt, double queryLength,
+            double trackMatchStartsAt, double trackLength,
+            double coverageWithPermittedGapsLength,
+            double queryDiscreteCoverageLength, double trackDiscreteCoverageLength)
+        {
+            return confidenceCalculator.CalculateConfidence(
+                queryMatchStartsAt,
+                queryLength,
+                trackMatchStartsAt,
+                trackLength,
+                coverageWithPermittedGapsLength,
+                queryDiscreteCoverageLength,
+                trackDiscreteCoverageLength);
+        }
     }
 }
