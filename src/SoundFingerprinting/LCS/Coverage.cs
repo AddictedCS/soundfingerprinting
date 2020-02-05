@@ -50,7 +50,7 @@
         /// <summary>
         ///  Gets the query match length including all query gaps (if any).
         /// </summary>
-        public double QueryDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().QueryMatchAt, QueryMatchStartsAt, fingerprintLength);
+        public double QueryDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().QueryMatchAt, QueryMatchStartsAt, FingerprintLength);
 
         /// <summary>
         ///  Gets the exact length of not covered portion of the query match in the database track
