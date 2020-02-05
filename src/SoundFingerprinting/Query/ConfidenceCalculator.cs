@@ -12,7 +12,7 @@
         /// <param name="queryLength">Total length of the query</param>
         /// <param name="trackMatchStartsAt">Start position of the match in the resulting (origin) track, as returned from the datasource</param>
         /// <param name="trackLength">Length of the origin track as it was inserted in datasource</param>
-        /// <param name="coverageLength">Length of the match (excluding gaps) in the source.</param>
+        /// <param name="coverageWithPermittedGapsLength">Length of the match (including permitted gaps) in the track.</param>
         /// <param name="queryDiscreteCoverageLength">Length of the match (including gaps) in the query</param>
         /// <param name="trackDiscreteCoverageLength">Length of the match (including gaps) in the track</param>
         /// <returns>Confidence level [0, 1)</returns>
@@ -21,7 +21,7 @@
             double queryLength,
             double trackMatchStartsAt,
             double trackLength,
-            double coverageLength,
+            double coverageWithPermittedGapsLength,
             double queryDiscreteCoverageLength,
             double trackDiscreteCoverageLength)
         {
@@ -33,7 +33,7 @@
 
             var maxPossibleCoverageLength = Min(queryHead, trackHead) + trackDiscreteCoverageLength + Min(queryTail, trackTail);
 
-            var confidence = coverageLength / maxPossibleCoverageLength;
+            var confidence = coverageWithPermittedGapsLength / maxPossibleCoverageLength;
 
             // TODO: check the arguments or clip the result to [0, 1].
             return confidence;

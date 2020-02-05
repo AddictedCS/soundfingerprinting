@@ -68,11 +68,11 @@
          */
         [TestCase(1, 5, 10, 0, 5, ExpectedResult = 1)]
 
-        public double QueryLongerThanTrack(double queryMatchStartsAt, double coverageLength, double queryLength,
+        public double QueryLongerThanTrack(double queryMatchStartsAt, double coverageWithPermittedGapsLength, double queryLength,
             double trackMatchStartsAt, double trackLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageLength, coverageLength, coverageLength);
+                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength);
         }
 
         /* Query: -----
@@ -159,11 +159,11 @@
          * Track: =======---
          */
         [TestCase(3, 7, 10, 0, 10, ExpectedResult = 1)]
-        public double QueryAndTrackOfEqualLength(double queryMatchStartsAt, double coverageLength, double queryLength,
+        public double QueryAndTrackOfEqualLength(double queryMatchStartsAt, double coverageWithPermittedGapsLength, double queryLength,
             double trackMatchStartsAt, double trackLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageLength, coverageLength, coverageLength);
+                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength);
         }
 
         /* Query: -----
@@ -214,11 +214,11 @@
          * Track: ---=====--
          */
         [TestCase(0, 5, 5, 3, 10, ExpectedResult = 1)]
-        public double TrackLongerThanQuery(double queryMatchStartsAt, double coverageLength, double queryLength,
+        public double TrackLongerThanQuery(double queryMatchStartsAt, double coverageWithPermittedGapsLength, double queryLength,
             double trackMatchStartsAt, double trackLength)
         {
             return confidenceCalculator.CalculateConfidence(
-                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageLength, coverageLength, coverageLength);
+                queryMatchStartsAt, queryLength, trackMatchStartsAt, trackLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength, coverageWithPermittedGapsLength);
         }
 
         [Test]
