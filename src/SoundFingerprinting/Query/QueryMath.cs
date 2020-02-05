@@ -55,9 +55,9 @@
                {
                     double confidence = confidenceCalculator.CalculateConfidence(coverage);
 
-                    return new ExtendedResultEntry(track, coverage, confidence,
-                        groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
-                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt));
+                    return new ResultEntry(track, confidence, groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
+                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
+                        coverage);
                });
         }
     }

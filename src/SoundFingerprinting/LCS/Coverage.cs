@@ -7,16 +7,13 @@
 
     public class Coverage
     {
-        private readonly double fingerprintLength;
-        private readonly double permittedGap;
-
         public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
             BestPath = bestPath.ToList();
             QueryLength = queryLength;
             TrackLength = trackLength;
-            this.fingerprintLength = fingerprintLength;
-            this.permittedGap = permittedGap;
+            FingerprintLength = fingerprintLength;
+            PermittedGap = permittedGap;
         }
 
         /// <summary>
@@ -32,7 +29,7 @@
         /// <summary>
         ///  Gets exact query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
         /// </summary>
-        public double CoverageLength => DiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, 0, fingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
+        public double CoverageLength => DiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, 0, FingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
 
         /// <summary>
         ///  Gets coverage length sum in seconds, allowing gaps specified by permitted gap query parameter
@@ -48,7 +45,7 @@
         /// <summary>
         ///  Gets the track match length including all track gaps (if any).
         /// </summary>
-        public double DiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, fingerprintLength);
+        public double DiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, FingerprintLength);
 
         /// <summary>
         ///  Gets the query match length including all query gaps (if any).
@@ -64,7 +61,7 @@
             get
             {
                 return BestPath
-                    .FindTrackGaps(TrackLength, 0, fingerprintLength)
+                    .FindTrackGaps(TrackLength, 0, FingerprintLength)
                     .Sum(gap => gap.LengthInSeconds);
             }
         }
@@ -133,12 +130,12 @@
         /// <summary>
         ///  Gets query match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> QueryGaps => BestPath.FindQueryGaps(permittedGap, fingerprintLength);
+        public IEnumerable<Gap> QueryGaps => BestPath.FindQueryGaps(PermittedGap, FingerprintLength);
 
         /// <summary>
         ///  Gets track match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> TrackGaps => BestPath.FindTrackGaps(TrackLength, permittedGap, fingerprintLength);
+        public IEnumerable<Gap> TrackGaps => BestPath.FindTrackGaps(TrackLength, PermittedGap, FingerprintLength);
 
         /// <summary>
         ///  Get score outliers from the best path. Useful to find regions which are weak matches and may require additional recheck
@@ -155,7 +152,11 @@
 
         public Coverage NewBestPath(IEnumerable<MatchedWith> newBestPath)
         {
-            return new Coverage(newBestPath, QueryLength, TrackLength, fingerprintLength, permittedGap);
+            return new Coverage(newBestPath, QueryLength, TrackLength, FingerprintLength, PermittedGap);
         }
+
+        internal double FingerprintLength { get; }
+
+        internal double PermittedGap { get; }
     }
 }

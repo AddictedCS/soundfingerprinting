@@ -137,12 +137,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
-            CollectionAssert.IsOrdered(((ExtendedResultEntry) entries[1])
-                            .ResultCoverage
+            CollectionAssert.IsOrdered(entries[1]
+                            .Coverage
                             .BestPath
                             .Select(_ => _.TrackSequenceNumber));
-            CollectionAssert.IsOrdered(((ExtendedResultEntry) entries[1])
-                .ResultCoverage
+            CollectionAssert.IsOrdered(entries[1]
+                .Coverage
                 .BestPath
                 .Select(_ => _.QuerySequenceNumber));
             
