@@ -43,9 +43,14 @@
         }
 
         /// <summary>
-        ///  Gets match length including track discontinuities if any
+        ///  Gets the track match length including all track gaps (if any).
         /// </summary>
         public double DiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, FingerprintLength);
+
+        /// <summary>
+        ///  Gets the query match length including all query gaps (if any).
+        /// </summary>
+        public double QueryDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().QueryMatchAt, QueryMatchStartsAt, FingerprintLength);
 
         /// <summary>
         ///  Gets the exact length of not covered portion of the query match in the database track

@@ -1,102 +1,55 @@
 ﻿namespace SoundFingerprinting.Query
 {
+    using SoundFingerprinting.LCS;
+    using static System.Math;
+
     public class ConfidenceCalculator : IConfidenceCalculator
     {
+        public double CalculateConfidence(Coverage coverage)
+        {
+            return CalculateConfidence(
+                coverage.QueryMatchStartsAt, 
+                coverage.QueryLength, 
+                coverage.TrackMatchStartsAt, 
+                coverage.TrackLength, 
+                coverage.CoverageWithPermittedGapsLength, 
+                coverage.QueryDiscreteCoverageLength, 
+                coverage.DiscreteCoverageLength);
+        }
+
         /// <summary>
         ///     Calculates how confident is the algorithm that it found a successful match
         ///     Source - query file, Origin - inserted item in the database
         /// </summary>
-        /// <param name="sourceMatchStartsAt">Source starts to match at this position</param>
-        /// <param name="sourceMatchLength">Length of the match in the source</param>
+        /// <param name="queryMatchStartsAt">Source starts to match at this position</param>
         /// <param name="queryLength">Total length of the query</param>
-        /// <param name="originStartsAt">Start position of the match in the resulting (origin) track, as returned from the datasource</param>
-        /// <param name="originLength">Length of the origin track as it was inserted in datasource</param>
+        /// <param name="trackMatchStartsAt">Start position of the match in the resulting (origin) track, as returned from the datasource</param>
+        /// <param name="trackLength">Length of the origin track as it was inserted in datasource</param>
+        /// <param name="coverageWithPermittedGapsLength">Length of the match (including permitted gaps) in the track.</param>
+        /// <param name="queryDiscreteCoverageLength">Length of the match (including gaps) in the query</param>
+        /// <param name="trackDiscreteCoverageLength">Length of the match (including gaps) in the track</param>
         /// <returns>Confidence level [0, 1)</returns>
-        public double CalculateConfidence(
-            double sourceMatchStartsAt,
-            double sourceMatchLength,
+        internal double CalculateConfidence(
+            double queryMatchStartsAt,
             double queryLength,
-            double originStartsAt,
-            double originLength)
+            double trackMatchStartsAt,
+            double trackLength,
+            double coverageWithPermittedGapsLength,
+            double queryDiscreteCoverageLength,
+            double trackDiscreteCoverageLength)
         {
-            if (NeedleInHaystack(queryLength, originLength))
-            {
-                return
-                    Ceil(
-                        GetConfidenceForSmallSnippetFoundInLongQuery(
-                            sourceMatchStartsAt, sourceMatchLength, queryLength, originStartsAt, originLength));
-            }
+            var queryHead = queryMatchStartsAt;
+            var queryTail = queryLength - (queryHead + queryDiscreteCoverageLength);
 
-            return
-                Ceil(
-                    GetConfidenceForSmallSnippetFoundInLongOrigin(
-                        sourceMatchStartsAt, sourceMatchLength, queryLength, originStartsAt, originLength));
-        }
+            var trackHead = trackMatchStartsAt;
+            var trackTail = trackLength - (trackHead + trackDiscreteCoverageLength);
 
-        private static double Ceil(double confidence)
-        {
-            if (confidence > 1d)
-            {
-                return 1d;
-            }
+            var maxPossibleCoverageLength = Min(queryHead, trackHead) + trackDiscreteCoverageLength + Min(queryTail, trackTail);
 
+            var confidence = coverageWithPermittedGapsLength / maxPossibleCoverageLength;
+
+            // TODO: check the arguments or clip the result to [0, 1] ?
             return confidence;
-        }
-
-        private double GetConfidenceForSmallSnippetFoundInLongOrigin(double sourceMatchStartsAt, double sourceMatchLength, double queryLength, double originStartsAt, double originLength)
-        {
-            if (QueryClippedFromTheBegining(originStartsAt, originLength, queryLength))
-            {
-                return sourceMatchLength / (originLength - (originStartsAt - sourceMatchStartsAt));
-            }
-
-            if (QueryClippedFromTheEnd(sourceMatchStartsAt, originStartsAt))
-            {
-                return sourceMatchLength / (queryLength - sourceMatchStartsAt + originStartsAt);
-            }
-
-            return sourceMatchLength / queryLength;
-        }
-
-        private bool QueryClippedFromTheEnd(double sourceMatchStartsAt, double originStartsAt)
-        {
-            return sourceMatchStartsAt > originStartsAt;
-        }
-
-        private bool QueryClippedFromTheBegining(double originStartsAt, double originLength, double queryLength)
-        {
-            return originStartsAt + queryLength > originLength;
-        }
-
-        private double GetConfidenceForSmallSnippetFoundInLongQuery(
-            double sourceMatchStartsAt, double sourceMatchLength, double queryLength, double originStartsAt, double originLength)
-        {
-            if (OriginTrackIsClippedFromTheBegining(sourceMatchStartsAt, originStartsAt))
-            {
-                return sourceMatchLength / (originLength - (originStartsAt - sourceMatchStartsAt));
-            }
-
-            if (OriginTrackIsClippedAtTheEnd(sourceMatchStartsAt, queryLength, originLength))
-            {
-                return sourceMatchLength / (queryLength - sourceMatchStartsAt + originStartsAt);
-            }
-
-            return sourceMatchLength / originLength;
-        }
-
-        private bool NeedleInHaystack(double queryLength, double originLength)
-        {
-            return queryLength > originLength;
-        }
-
-        private bool OriginTrackIsClippedAtTheEnd(double sourceMatchStartsAt, double queryLength, double originLength)
-        {
-            return sourceMatchStartsAt + originLength > queryLength;
-        }
-
-        private bool OriginTrackIsClippedFromTheBegining(double sourceMatchStartsAt, double originStartsAt)
-        {
-            return originStartsAt > sourceMatchStartsAt;
         }
     }
 }
