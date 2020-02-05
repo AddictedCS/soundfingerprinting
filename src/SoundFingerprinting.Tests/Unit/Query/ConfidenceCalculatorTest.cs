@@ -7,8 +7,6 @@
     [TestFixture]
     public class ConfidenceCalculatorTest
     {
-        private const double delta = 0.001;
-
         private readonly ConfidenceCalculator confidenceCalculator = new ConfidenceCalculator();
 
         /* Query: ----------
