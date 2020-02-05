@@ -55,7 +55,7 @@
                {
                     double confidence = confidenceCalculator.CalculateConfidence(coverage.QueryMatchStartsAt,
                         coverage.QueryLength, coverage.TrackMatchStartsAt,
-                        track.Length, coverage.CoverageLength, coverage.DiscreteCoverageLength);
+                        track.Length, coverage.CoverageLength, coverage.QueryDiscreteCoverageLength, coverage.DiscreteCoverageLength);
 
                     return new ExtendedResultEntry(track, coverage, confidence,
                         groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
