@@ -15,6 +15,13 @@
          * 
          * All filters are interpolating around 32 points
          */
+
+        private static readonly float[] LpFilter96KhzTo48Khz =
+        {
+            -1.6977e-03f, 1.7552e-18f, 2.9326e-03f, -3.2716e-18f, -6.7192e-03f, 6.0422e-18f, 1.4071e-02f, -9.5879e-18f, -2.6742e-02f, 1.3296e-17f, 4.9020e-02f,
+            -1.6524e-17f, -9.6782e-02f, 1.8716e-17f, 3.1511e-01f, 5.0000e-01f, 3.1511e-01f, 1.8716e-17f, -9.6782e-02f, -1.6524e-17f, 4.9020e-02f, 1.3296e-17f,
+            -2.6742e-02f, -9.5879e-18f, 1.4071e-02f, 6.0422e-18f, -6.7192e-03f, -3.2716e-18f, 2.9326e-03f, 1.7552e-18f, -1.6977e-03f
+        };
         
         // L = 63, Fs = 72000
         private static readonly float[] LpFilter72KHz64 =
@@ -88,6 +95,10 @@
 
             switch (sourceSampleRate)
             {
+                case 96000:
+                    //96Khz -> 48Khz then to 5512Khz
+                    var f48Khz =  Resample(samples, samples.Length / 2, 2, LpFilter96KhzTo48Khz);
+                    return ResampleNonIntegerFactor(f48Khz, 7, 61, LpFilter336KHz128);
                 case 48000:
                     // 48000 * 7 / 61 is almost 5512
                     return ResampleNonIntegerFactor(samples, 7 , 61, LpFilter336KHz128);
