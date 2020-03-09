@@ -1,10 +1,13 @@
-﻿namespace SoundFingerprinting.LCS
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+// ReSharper disable UnusedMember.Local
+namespace SoundFingerprinting.LCS
 {
     using System.Collections.Generic;
     using System.Linq;
-
+    using ProtoBuf;
     using SoundFingerprinting.Query;
 
+    [ProtoContract]
     public class Coverage
     {
         public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
@@ -14,6 +17,11 @@
             TrackLength = trackLength;
             FingerprintLength = fingerprintLength;
             PermittedGap = permittedGap;
+        }
+
+        private Coverage()
+        {
+            // left for proto-buf
         }
 
         /// <summary>
@@ -82,12 +90,14 @@
         /// <summary>
         ///  Gets query length
         /// </summary>
-        public double QueryLength { get; }
+        [ProtoMember(1)]
+        public double QueryLength { get; private set; }
         
         /// <summary>
         ///  Gets track length
         /// </summary>
-        public double TrackLength { get; }
+        [ProtoMember(2)]
+        public double TrackLength { get; private set; }
 
         /// <summary>
         ///  Gets average score across best path
@@ -125,7 +135,8 @@
         /// <summary>
         ///  Gets best reconstructed path
         /// </summary>
-        public IEnumerable<MatchedWith> BestPath { get; }
+        [ProtoMember(3)]
+        public IEnumerable<MatchedWith> BestPath { get; private set; }
 
         /// <summary>
         ///  Gets query match gaps from the best path
@@ -155,8 +166,10 @@
             return new Coverage(newBestPath, QueryLength, TrackLength, FingerprintLength, PermittedGap);
         }
 
-        internal double FingerprintLength { get; }
+        [ProtoMember(4)]
+        internal double FingerprintLength { get; private set; }
 
-        internal double PermittedGap { get; }
+        [ProtoMember(5)]
+        internal double PermittedGap { get; private set; }
     }
 }
