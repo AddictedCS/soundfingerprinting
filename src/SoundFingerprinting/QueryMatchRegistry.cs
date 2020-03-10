@@ -18,7 +18,7 @@ namespace SoundFingerprinting
                     resultEntry.CoverageLength,
                     resultEntry.QueryMatchStartsAt, resultEntry.TrackStartsAt,
                     resultEntry.TrackMatchStartsAt, resultEntry.Confidence, resultEntry.QueryLength,
-                    resultEntry.MatchedAt, resultEntry.Track.Length));
+                    resultEntry.MatchedAt, resultEntry.Track.Length, resultEntry.Track.MediaType)).ToList();
             RegisterMatches(queryMatches);
         }
     }
