@@ -8,12 +8,12 @@ namespace SoundFingerprinting.Data
     [ProtoContract]
     public class QueryMatch
     {
-        public QueryMatch(string queryMatchId, string trackId, double queryMatchLength, double queryMatchStartsAt, double trackStartsAt, double trackMatchStartsAt, double confidence, double queryLength, DateTime matchedAt, double trackLength)
-        : this(queryMatchId, trackId, queryMatchLength, queryMatchStartsAt, trackStartsAt, trackMatchStartsAt, confidence, queryLength, matchedAt, trackLength, new Dictionary<string, string>())
+        public QueryMatch(string queryMatchId, string trackId, double queryMatchLength, double queryMatchStartsAt, double trackStartsAt, double trackMatchStartsAt, double confidence, double queryLength, DateTime matchedAt, double trackLength, MediaType mediaType)
+        : this(queryMatchId, trackId, queryMatchLength, queryMatchStartsAt, trackStartsAt, trackMatchStartsAt, confidence, queryLength, matchedAt, trackLength, new Dictionary<string, string>(), mediaType)
         {
         }
         
-        public QueryMatch(string queryMatchId, string trackId, double queryMatchLength, double queryMatchStartsAt, double trackStartsAt, double trackMatchStartsAt, double confidence, double queryLength, DateTime matchedAt, double trackLength, Dictionary<string, string> meta)
+        public QueryMatch(string queryMatchId, string trackId, double queryMatchLength, double queryMatchStartsAt, double trackStartsAt, double trackMatchStartsAt, double confidence, double queryLength, DateTime matchedAt, double trackLength, Dictionary<string, string> meta, MediaType mediaType)
         {
             QueryMatchId = queryMatchId;
             TrackId = trackId;
@@ -26,6 +26,7 @@ namespace SoundFingerprinting.Data
             MatchedAt = matchedAt;
             TrackLength = trackLength;
             Meta = meta;
+            MediaType = mediaType;
         }
 
         private QueryMatch()
@@ -65,6 +66,9 @@ namespace SoundFingerprinting.Data
 
         [ProtoMember(11)]
         public string QueryMatchId { get; }
+
+        [ProtoMember(12)]
+        public MediaType MediaType { get; }
 
         public double Coverage => QueryMatchLength / TrackLength;
 
