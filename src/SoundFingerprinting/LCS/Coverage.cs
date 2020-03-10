@@ -1,5 +1,4 @@
-﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
-// ReSharper disable UnusedMember.Local
+﻿// ReSharper disable UnusedMember.Local
 namespace SoundFingerprinting.LCS
 {
     using System.Collections.Generic;
@@ -91,13 +90,13 @@ namespace SoundFingerprinting.LCS
         ///  Gets query length
         /// </summary>
         [ProtoMember(1)]
-        public double QueryLength { get; private set; }
+        public double QueryLength { get; }
         
         /// <summary>
         ///  Gets track length
         /// </summary>
         [ProtoMember(2)]
-        public double TrackLength { get; private set; }
+        public double TrackLength { get; }
 
         /// <summary>
         ///  Gets average score across best path
@@ -136,7 +135,7 @@ namespace SoundFingerprinting.LCS
         ///  Gets best reconstructed path
         /// </summary>
         [ProtoMember(3)]
-        public IEnumerable<MatchedWith> BestPath { get; private set; }
+        public IEnumerable<MatchedWith> BestPath { get; }
 
         /// <summary>
         ///  Gets query match gaps from the best path
@@ -167,9 +166,9 @@ namespace SoundFingerprinting.LCS
         }
 
         [ProtoMember(4)]
-        internal double FingerprintLength { get; private set; }
+        internal double FingerprintLength { get; }
 
         [ProtoMember(5)]
-        internal double PermittedGap { get; private set; }
+        internal double PermittedGap { get; }
     }
 }

@@ -1,8 +1,7 @@
-﻿using System;
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
-// ReSharper disable UnusedMember.Local
+﻿// ReSharper disable UnusedMember.Local
 namespace SoundFingerprinting.Query
 {
+    using System;
     using ProtoBuf;
 
     [ProtoContract]
@@ -29,13 +28,13 @@ namespace SoundFingerprinting.Query
         ///  Gets start of the gap
         /// </summary>
         [ProtoMember(1)]
-        public double Start { get; private set; }
+        public double Start { get; }
 
         /// <summary>
         ///  Gets end of the gap
         /// </summary>
         [ProtoMember(2)]
-        public double End { get; private set; }
+        public double End { get; }
 
         /// <summary>
         ///  Gets gaps length in seconds
@@ -46,7 +45,7 @@ namespace SoundFingerprinting.Query
         ///  Gets flag that shows if a discontinuity is on edge (i.e. either beginning or end)
         /// </summary>
         [ProtoMember(3)]
-        public bool IsOnEdge { get; private set; }
+        public bool IsOnEdge { get; }
 
         public override string ToString()
         {

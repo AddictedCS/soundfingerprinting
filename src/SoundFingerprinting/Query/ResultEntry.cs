@@ -1,4 +1,3 @@
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
 // ReSharper disable UnusedMember.Local
 namespace SoundFingerprinting.Query
 {
@@ -62,19 +61,19 @@ namespace SoundFingerprinting.Query
         ///  Gets the resulting matched track from the data store
         /// </summary>
         [ProtoMember(1)]
-        public TrackData Track { get; private set; }
+        public TrackData Track { get; }
 
         /// <summary>
         ///  Gets coverage of the the provided result entry
         /// </summary>
         [ProtoMember(2)]
-        public Coverage Coverage { get; private set; }
+        public Coverage Coverage { get; }
 
         /// <summary>
         /// Gets query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
         /// </summary>
         [ProtoMember(3)]
-        public double CoverageLength { get; private set; }
+        public double CoverageLength { get; }
         
         /// <summary>
         ///  Gets the exact position in seconds where resulting track started to match in the query
@@ -83,7 +82,7 @@ namespace SoundFingerprinting.Query
         ///  Query length is of 30 seconds. It started to match at 10th second, <code>QueryMatchStartsAt</code> will be equal to 10.
         /// </example>
         [ProtoMember(4)]
-        public double QueryMatchStartsAt { get; private set; }
+        public double QueryMatchStartsAt { get; }
 
         /// <summary>
         ///  Gets best guess in seconds where does the result track starts in the query snippet. This value may be negative.
@@ -92,7 +91,7 @@ namespace SoundFingerprinting.Query
         ///   Resulting Track <c>A</c> in the data store is of 30 sec. The query is of 10 seconds, with <code>TrackMatchStartsAt</code> at 15th second. <code>TrackStartsAt</code> will be equal to -15;
         /// </example>
         [ProtoMember(5)]
-        public double TrackStartsAt { get; private set; }
+        public double TrackStartsAt { get; }
 
         /// <summary>
         ///  Gets the time position in seconds where the origin track started to match the query
@@ -101,7 +100,7 @@ namespace SoundFingerprinting.Query
         ///  Resulting track <c>A</c> in the data store is of 100 sec. The query started to match at 40th sec. <code>TrackMatchStartsAt</code> will be equal to 40.
         /// </example>
         [ProtoMember(6)]
-        public double TrackMatchStartsAt { get; private set; }
+        public double TrackMatchStartsAt { get; }
 
         /// <summary>
         ///  Gets the percentage of how much the query match covered the original track
@@ -117,31 +116,31 @@ namespace SoundFingerprinting.Query
         ///  Gets the value [0, 1) of how confident is the framework that query match corresponds to result track
         /// </summary>
         [ProtoMember(7)]
-        public double Confidence { get; private set; }
+        public double Confidence { get; }
 
         /// <summary>
         ///  Gets the exact query length used to generate this entry
         /// </summary>
         [ProtoMember(8)]
-        public double QueryLength { get; private set; }
+        public double QueryLength { get; }
 
         /// <summary>
         ///  Gets date time instance when did the match took place
         /// </summary>
         [ProtoMember(9)]
-        public DateTime MatchedAt { get; private set; }
+        public DateTime MatchedAt { get; }
 
         /// <summary>
         ///  Gets similarity count between query match and track
         /// </summary>
         [ProtoMember(10)]
-        public double Score { get; private set; }
+        public double Score { get; }
 
         /// <summary>
         ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query
         /// </summary>
         [ProtoMember(11)]
-        public double DiscreteCoverageLength { get; private set; }
+        public double DiscreteCoverageLength { get; }
 
         /// <summary>
         ///  Gets information about gaps in the result entry coverage
