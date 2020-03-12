@@ -70,7 +70,7 @@ namespace SoundFingerprinting.Query
         public Coverage Coverage { get; }
 
         /// <summary>
-        /// Gets query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
+        /// Gets query coverage length with permitted gaps 
         /// </summary>
         [ProtoMember(3)]
         public double CoverageWithPermittedGapsLength { get; }
