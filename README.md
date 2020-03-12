@@ -17,7 +17,7 @@ private readonly IAudioService audioService = new SoundFingerprintingAudioServic
 
 public async Task StoreForLaterRetrieval(string pathToAudioFile)
 {
-    var track = new TrackInfo("GBBKS1200164", "Skyfall", "Adele", 290d);
+    var track = new TrackInfo("GBBKS1200164", "Skyfall", "Adele");
 
     // create fingerprints
     var hashedFingerprints = await FingerprintCommandBuilder.Instance
