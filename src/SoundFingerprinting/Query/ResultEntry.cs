@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Query
                 matchedAt,
                 coverage.QueryLength,
                 coverage.QueryMatchStartsAt,
-                coverage.CoverageLength,
+                coverage.CoverageWithPermittedGapsLength,
                 coverage.DiscreteCoverageLength,
                 coverage.TrackMatchStartsAt,
                 coverage.TrackStartsAt)
@@ -40,14 +40,14 @@ namespace SoundFingerprinting.Query
             DateTime matchedAt,
             double queryLength,
             double queryMatchStartsAt,
-            double coverageLength,
+            double coverageWithPermittedGapsLength,
             double discreteCoverageLength,
             double trackMatchStartsAt,
             double trackStartsAt)
         {
             Track = track;
             QueryMatchStartsAt = queryMatchStartsAt;
-            CoverageLength = coverageLength;
+            CoverageWithPermittedGapsLength = coverageWithPermittedGapsLength;
             DiscreteCoverageLength = discreteCoverageLength;
             TrackMatchStartsAt = trackMatchStartsAt;
             Confidence = confidence;
@@ -73,7 +73,7 @@ namespace SoundFingerprinting.Query
         /// Gets query coverage sum in seconds. Exact length of matched fingerprints, not necessary consecutive, just how much length has been covered by the query
         /// </summary>
         [ProtoMember(3)]
-        public double CoverageLength { get; }
+        public double CoverageWithPermittedGapsLength { get; }
         
         /// <summary>
         ///  Gets the exact position in seconds where resulting track started to match in the query
@@ -105,7 +105,7 @@ namespace SoundFingerprinting.Query
         /// <summary>
         ///  Gets the percentage of how much the query match covered the original track
         /// </summary>
-        public double RelativeCoverage => CoverageLength / Track.Length;
+        public double RelativeCoverage => CoverageWithPermittedGapsLength / Track.Length;
 
         /// <summary>
         ///  Gets the estimated percentage of how much the resulting track got covered by the query

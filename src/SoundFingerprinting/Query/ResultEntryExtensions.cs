@@ -51,25 +51,25 @@ namespace SoundFingerprinting.Query
             var first = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? a : b;
             var second = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? b : a;
 
-            if (first.TrackMatchStartsAt + first.CoverageLength >= second.TrackMatchStartsAt + second.CoverageLength)
+            if (first.TrackMatchStartsAt + first.CoverageWithPermittedGapsLength >= second.TrackMatchStartsAt + second.CoverageWithPermittedGapsLength)
             {
                 // a ---------
                 // b   -----
-                return first.CoverageLength;
+                return first.CoverageWithPermittedGapsLength;
             }
 
-            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.CoverageLength >= second.TrackMatchStartsAt)
+            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.CoverageWithPermittedGapsLength >= second.TrackMatchStartsAt)
             {
                 // a     -------
                 // b          -------
-                return  second.CoverageLength - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
+                return  second.CoverageWithPermittedGapsLength - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
 
             }
             
             // a  -------
             // b            ------
             // not glued on purpose
-            return first.CoverageLength + second.CoverageLength;
+            return first.CoverageWithPermittedGapsLength + second.CoverageWithPermittedGapsLength;
         }
         
         private static double CalculateNewMatchLength(ResultEntry a, ResultEntry b)

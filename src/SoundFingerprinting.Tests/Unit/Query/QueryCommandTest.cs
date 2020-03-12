@@ -147,8 +147,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Select(_ => _.QuerySequenceNumber));
             
             Assert.AreEqual(2, entries.Count);
-            Assert.AreEqual(10, entries[0].CoverageLength, 1f);
-            Assert.AreEqual(10, entries[1].CoverageLength, 1f);
+            Assert.AreEqual(10, entries[0].CoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[1].CoverageWithPermittedGapsLength, 1f);
             Assert.AreEqual(15d, entries[0].TrackMatchStartsAt, 1f);
             Assert.AreEqual(45d, entries[1].TrackMatchStartsAt, 1f);
         }
