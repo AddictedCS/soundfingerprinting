@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Command
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
 
@@ -104,8 +105,8 @@
             long queryDuration = queryStopwatch.ElapsedMilliseconds;
             if (queryResult.ContainsMatches)
             {
-                // TODO add fields to filter false positives
-                queryMatchRegistry.RegisterMatches(queryResult.ResultEntries);
+                var queryMatches = queryResult.ResultEntries.ToQueryMatches();
+                queryMatchRegistry.RegisterMatches(queryMatches, new Dictionary<string, string>());
             }
 
             return new QueryResult(queryResult.ResultEntries, new QueryStats(queryResult.Stats.TotalTracksAnalyzed,

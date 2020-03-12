@@ -2,18 +2,12 @@ namespace SoundFingerprinting
 {
     using System.Collections.Generic;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Query;
 
-    internal class NoOpQueryMatchRegistry : QueryMatchRegistry
+    internal class NoOpQueryMatchRegistry : IQueryMatchRegistry
     {
-        public static NoOpQueryMatchRegistry NoOp = new NoOpQueryMatchRegistry();
+        public static readonly NoOpQueryMatchRegistry NoOp = new NoOpQueryMatchRegistry();
 
-        public override void RegisterMatches(IEnumerable<QueryMatch> queryMatches)
-        {
-            // no op
-        }
-
-        public override void RegisterMatches(IEnumerable<ResultEntry> resultEntries)
+        public void RegisterMatches(IEnumerable<QueryMatch> queryMatches, IDictionary<string, string> meta)
         {
             // no op
         }

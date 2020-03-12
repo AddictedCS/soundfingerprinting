@@ -1,9 +1,25 @@
 namespace SoundFingerprinting.Query
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using SoundFingerprinting.Data;
 
     public static class ResultEntryExtensions
     {
+        public static IEnumerable<QueryMatch> ToQueryMatches(this IEnumerable<ResultEntry> resultEntries)
+        {
+            var queryMatches = resultEntries.Select(resultEntry =>
+                {
+                    var trackData = resultEntry.Track;
+                    var trackInfo = new TrackInfo(trackData.Id, trackData.Title, trackData.Artist, trackData.MetaFields, trackData.MediaType);
+                    var queryMatchId = Guid.NewGuid().ToString();
+                    return new QueryMatch(queryMatchId, trackInfo, resultEntry.Coverage, resultEntry.MatchedAt);
+                })
+                .ToList();
+            return queryMatches;
+        }
+        
         public static ResultEntry MergeWith(this ResultEntry entry, ResultEntry with)
         {
             if (!entry.Track.Equals(with.Track))
