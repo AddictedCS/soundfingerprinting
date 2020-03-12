@@ -1,10 +1,12 @@
-﻿namespace SoundFingerprinting.LCS
+﻿// ReSharper disable UnusedMember.Local
+namespace SoundFingerprinting.LCS
 {
     using System.Collections.Generic;
     using System.Linq;
-
+    using ProtoBuf;
     using SoundFingerprinting.Query;
 
+    [ProtoContract]
     public class Coverage
     {
         public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
@@ -14,6 +16,11 @@
             TrackLength = trackLength;
             FingerprintLength = fingerprintLength;
             PermittedGap = permittedGap;
+        }
+
+        private Coverage()
+        {
+            // left for proto-buf
         }
 
         /// <summary>
@@ -82,11 +89,13 @@
         /// <summary>
         ///  Gets query length
         /// </summary>
+        [ProtoMember(1)]
         public double QueryLength { get; }
         
         /// <summary>
         ///  Gets track length
         /// </summary>
+        [ProtoMember(2)]
         public double TrackLength { get; }
 
         /// <summary>
@@ -125,6 +134,7 @@
         /// <summary>
         ///  Gets best reconstructed path
         /// </summary>
+        [ProtoMember(3)]
         public IEnumerable<MatchedWith> BestPath { get; }
 
         /// <summary>
@@ -155,8 +165,10 @@
             return new Coverage(newBestPath, QueryLength, TrackLength, FingerprintLength, PermittedGap);
         }
 
+        [ProtoMember(4)]
         internal double FingerprintLength { get; }
 
+        [ProtoMember(5)]
         internal double PermittedGap { get; }
     }
 }

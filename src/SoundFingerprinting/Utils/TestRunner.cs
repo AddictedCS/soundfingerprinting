@@ -290,7 +290,7 @@
                     actualTrack, ToTrackString(recognizedTrack.Artist, recognizedTrack.Title), isSuccessful,
                     bestMatch.Score, bestMatch.Confidence,
                     bestMatch.RelativeCoverage,
-                    bestMatch.CoverageLength, bestMatch.TrackStartsAt
+                    bestMatch.CoverageWithPermittedGapsLength, bestMatch.TrackStartsAt
                 };
         }
 

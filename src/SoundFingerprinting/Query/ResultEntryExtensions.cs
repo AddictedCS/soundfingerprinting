@@ -1,9 +1,25 @@
 namespace SoundFingerprinting.Query
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using SoundFingerprinting.Data;
 
     public static class ResultEntryExtensions
     {
+        public static IEnumerable<QueryMatch> ToQueryMatches(this IEnumerable<ResultEntry> resultEntries)
+        {
+            var queryMatches = resultEntries.Select(resultEntry =>
+                {
+                    var trackData = resultEntry.Track;
+                    var trackInfo = new TrackInfo(trackData.Id, trackData.Title, trackData.Artist, trackData.MetaFields, trackData.MediaType);
+                    var queryMatchId = Guid.NewGuid().ToString();
+                    return new QueryMatch(queryMatchId, trackInfo, resultEntry.Coverage, resultEntry.MatchedAt);
+                })
+                .ToList();
+            return queryMatches;
+        }
+        
         public static ResultEntry MergeWith(this ResultEntry entry, ResultEntry with)
         {
             if (!entry.Track.Equals(with.Track))
@@ -35,25 +51,25 @@ namespace SoundFingerprinting.Query
             var first = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? a : b;
             var second = a.TrackMatchStartsAt <= b.TrackMatchStartsAt ? b : a;
 
-            if (first.TrackMatchStartsAt + first.CoverageLength >= second.TrackMatchStartsAt + second.CoverageLength)
+            if (first.TrackMatchStartsAt + first.CoverageWithPermittedGapsLength >= second.TrackMatchStartsAt + second.CoverageWithPermittedGapsLength)
             {
                 // a ---------
                 // b   -----
-                return first.CoverageLength;
+                return first.CoverageWithPermittedGapsLength;
             }
 
-            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.CoverageLength >= second.TrackMatchStartsAt)
+            if (first.TrackMatchStartsAt <= second.TrackMatchStartsAt && first.TrackMatchStartsAt + first.CoverageWithPermittedGapsLength >= second.TrackMatchStartsAt)
             {
                 // a     -------
                 // b          -------
-                return  second.CoverageLength - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
+                return  second.CoverageWithPermittedGapsLength - first.TrackMatchStartsAt + second.TrackMatchStartsAt;
 
             }
             
             // a  -------
             // b            ------
             // not glued on purpose
-            return first.CoverageLength + second.CoverageLength;
+            return first.CoverageWithPermittedGapsLength + second.CoverageWithPermittedGapsLength;
         }
         
         private static double CalculateNewMatchLength(ResultEntry a, ResultEntry b)
