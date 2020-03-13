@@ -1,7 +1,7 @@
 ## Audio fingerprinting and recognition in .NET
 
 [![Join the chat at https://gitter.im/soundfingerprinting/Lobby](https://badges.gitter.im/soundfingerprinting/Lobby.svg)](https://gitter.im/soundfingerprinting/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-![.NET Core](https://github.com/AddictedCS/soundfingerprinting/workflows/Build%20/develop/badge.svg)
+![.NET Core](https://github.com/AddictedCS/soundfingerprinting/workflows/.NET%20Core/badge.svg)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](license.txt)
 [![NuGet](https://img.shields.io/nuget/dt/SoundFingerprinting.svg)](https://www.nuget.org/packages/SoundFingerprinting)
 
