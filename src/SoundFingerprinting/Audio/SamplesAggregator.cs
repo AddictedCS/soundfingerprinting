@@ -6,7 +6,7 @@
 
     public class SamplesAggregator : ISamplesAggregator
     {
-        internal const int DefaultBufferLengthInSeconds = 60;
+        private const int DefaultBufferLengthInSeconds = 60;
 
         private const int BlockAlign = 4;
 
@@ -39,7 +39,7 @@
 
             if (totalBytesRead < GetExactNumberOfBytesToRead(secondsToRead, sampleRate))
             {
-                throw new AudioServiceException("Could not read requested number of seconds " + secondsToRead + ", audio file is not that long");
+                throw new AudioServiceException($"Could not read requested number of seconds {secondsToRead}, audio file is not that long");
             }
 
             return ConcatenateChunksOfSamples(chunks);
@@ -93,7 +93,7 @@
 
             float[] samples = new float[chunks.Sum(a => a.Length)];
             int startAt = 0;
-            foreach (float[] chunk in chunks)
+            foreach (var chunk in chunks)
             {
                 Buffer.BlockCopy(chunk, 0, samples, startAt * sizeof(float), chunk.Length * sizeof(float));
                 startAt += chunk.Length;

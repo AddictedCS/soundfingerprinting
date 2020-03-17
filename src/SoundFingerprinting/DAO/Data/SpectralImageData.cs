@@ -27,18 +27,18 @@
         }
 
         [ProtoMember(1)]
-        public float[] Image { get; internal set; }
+        public float[] Image { get; }
 
         [ProtoMember(2)]
-        public int OrderNumber { get; internal set; }
+        public int OrderNumber { get; }
 
         [IgnoreBinding]
         [ProtoMember(3)]
-        public IModelReference TrackReference { get; internal set; }
+        public IModelReference TrackReference { get; }
 
         [IgnoreBinding]
         [ProtoMember(4)]
-        public IModelReference SpectralImageReference { get; internal set; }
+        public IModelReference SpectralImageReference { get; }
 
         public override bool Equals(object obj)
         {

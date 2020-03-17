@@ -16,6 +16,7 @@
             var dto1 = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
             Assert.AreEqual(dto0, dto1);
+            Assert.AreEqual(dto0.GetHashCode(), dto1.GetHashCode());
         }
 
         [Test]

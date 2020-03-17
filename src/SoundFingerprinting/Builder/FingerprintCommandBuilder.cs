@@ -15,11 +15,11 @@ namespace SoundFingerprinting.Builder
             this.fingerprintService = fingerprintService;
         }
 
+        public static IFingerprintCommandBuilder Instance { get; } = new FingerprintCommandBuilder();
+
         public ISourceFrom BuildFingerprintCommand()
         {
             return new FingerprintCommand(fingerprintService);
         }
-
-        public static IFingerprintCommandBuilder Instance { get; } = new FingerprintCommandBuilder();
     }
 }

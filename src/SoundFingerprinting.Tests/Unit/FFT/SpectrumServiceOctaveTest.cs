@@ -28,8 +28,7 @@
             float f2 = 1400;
             for (int t = 0; t < samples.Length; ++t)
             {
-                samples[t] = (float)System.Math.Sin(2 * System.Math.PI * f1 / Fs * t)
-                             + (float)System.Math.Sin(2 * System.Math.PI * f2 / Fs * t);
+                samples[t] = (float)System.Math.Sin(2 * System.Math.PI * f1 / Fs * t) + (float)System.Math.Sin(2 * System.Math.PI * f2 / Fs * t);
             }
 
             var audio = new AudioSamples(samples, "410Hz", 5512);
@@ -49,7 +48,7 @@
 
             foreach (var image in spectralImages)
             {
-                float[] spectrum = image.Image;
+                float[] spectrum = image.ImageRowCols;
                 for (int row = 0; row < image.Rows; ++row)
                 {
                     for (int col = 0; col < image.Cols; ++col)
@@ -81,7 +80,7 @@
 
             var config = new DefaultSpectrogramConfig
             {
-                Stride = new IncrementalStaticStride(Fs, -32 * 128 + Fs, 32 * 128),
+                Stride = new IncrementalStaticStride(Fs),
                 Overlap = 32,
                 ImageLength = 128
             };

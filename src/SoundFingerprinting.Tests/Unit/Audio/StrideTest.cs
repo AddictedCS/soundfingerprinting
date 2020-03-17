@@ -7,35 +7,35 @@
     using SoundFingerprinting.Strides;
 
     [TestFixture]
-    public class StrideClassesTest : AbstractTest
+    public class StrideClassesTest
     {
         [Test]
         public void StaticStrideClassTest()
         {
-            const int Value = 5115;
-            StaticStride stride = new StaticStride(Value);
-            Assert.AreEqual(Value, stride.NextStride);
+            const int value = 5115;
+            StaticStride stride = new StaticStride(value);
+            Assert.AreEqual(8192 + value, stride.NextStride);
         }
 
         [Test]
         public void IncrementalStaticStrideTest()
         {
             IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115);
-            Assert.AreEqual(5115 - 8192, incrementalStatic.NextStride);
+            Assert.AreEqual(5115, incrementalStatic.NextStride);
         }
 
         [Test]
         public void RandomStrideClassTest()
         {
-            const int Min = 0;
-            const int Max = 253;
-            RandomStride randomStride = new RandomStride(Min, Max, 0);
-            const int Count = 1024;
-            for (int i = 0; i < Count; i++)
+            const int min = 0;
+            const int max = 253;
+            RandomStride randomStride = new RandomStride(min, max, 0);
+            const int count = 1024;
+            for (int i = 0; i < count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.IsTrue(skip <= Max);
-                Assert.IsTrue(skip >= Min);
+                Assert.IsTrue(skip <= 8192 + max);
+                Assert.IsTrue(skip >= 8192 + min);
             }
         }
 

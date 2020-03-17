@@ -1,6 +1,8 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
     using System;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -9,8 +11,6 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
-    using SoundFingerprinting.Math;
-    using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -19,43 +19,37 @@
     public class FastFingerprintDescriptorTest : IntegrationWithSampleFilesTest
     {
         [Test]
-        public void ShouldCreateExactlyTheSameFingerprints()
+        public async Task ShouldCreateExactlyTheSameFingerprints()
         {
-            var fcb0 = new FingerprintCommandBuilder(
+            var fcbWithOldFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
-                    new LocalitySensitiveHashingAlgorithm(
-                        new MinHashService(new DefaultPermutations()),
-                        new HashConverter()),
+                    LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
                     new FingerprintDescriptor()));
 
-            var fcb1 = new FingerprintCommandBuilder(
+            var fcbWithFastFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
-                    new LocalitySensitiveHashingAlgorithm(
-                        new MinHashService(new DefaultPermutations()),
-                        new HashConverter()),
+                    LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
                     new FastFingerprintDescriptor()));
 
             var audioService = new SoundFingerprintingAudioService();
             var audioSamples = GetAudioSamples();
 
-            int testRuns = 5;
-            for (int i = 0; i < testRuns; ++i)
+            int runs = 5;
+            for (int i = 0; i < runs; ++i)
             {
-                var hashDatas0 = fcb0.BuildFingerprintCommand()
+                var hashDatas0 = await fcbWithOldFingerprintDescriptor.BuildFingerprintCommand()
                     .From(audioSamples)
                     .UsingServices(audioService)
-                    .Hash()
-                    .Result;
+                    .Hash();
 
-                var hashDatas1 = fcb1.BuildFingerprintCommand()
+                var hashDatas1 = await fcbWithFastFingerprintDescriptor.BuildFingerprintCommand()
                     .From(audioSamples)
                     .UsingServices(audioService)
-                    .Hash()
-                    .Result;
+                    .Hash();
 
                 AssertHashDatasAreTheSame(hashDatas0, hashDatas1);
             }
@@ -74,25 +68,22 @@
 
             var fingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
-                new LocalitySensitiveHashingAlgorithm(
-                    new MinHashService(new DefaultPermutations()),
-                    new HashConverter()),
+                LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
                 new FingerprintDescriptor());
 
             var fastFingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
-                new LocalitySensitiveHashingAlgorithm(
-                    new MinHashService(new DefaultPermutations()),
-                    new HashConverter()),
+                LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
                 new FastFingerprintDescriptor());
 
             int runs = 10;
+            var configuration = new DefaultFingerprintConfiguration();
             for (int i = 0; i < runs; ++i)
             {
-                var x = fingerprintService.CreateFingerprints(audioSamples, new DefaultFingerprintConfiguration());
-                var y = fastFingerprintService.CreateFingerprints(audioSamples, new DefaultFingerprintConfiguration());
+                var x = fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
+                var y = fastFingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
 
                 for (int j = 0; j < x.Count; ++j)
                 {

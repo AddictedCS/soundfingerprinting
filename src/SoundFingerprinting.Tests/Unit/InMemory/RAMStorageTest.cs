@@ -24,13 +24,14 @@
 
             int tracksCount = 520;
             int subFingerprintsPerTrack = 33;
+            float one = 8192f / 5512;
             Parallel.For(0, tracksCount, i =>
             {
                 var trackReference = new ModelReference<int>(i);
                 for (int j = 0; j < subFingerprintsPerTrack; ++j)
                 {
-                    var hashed = new HashedFingerprint(longs, (uint)j, j * 1.48f, Enumerable.Empty<string>());
-                    storage.AddSubfingerprint(hashed, trackReference);
+                    var hashed = new HashedFingerprint(longs, (uint)j, j * one);
+                    storage.AddHashedFingerprint(hashed, trackReference);
                 }
             });
 

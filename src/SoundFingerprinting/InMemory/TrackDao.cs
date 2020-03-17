@@ -5,6 +5,7 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
 
     internal class TrackDao : ITrackDao
     {
@@ -15,47 +16,56 @@
             this.storage = storage;
         }
 
-        public IModelReference InsertTrack(TrackData track)
+        public int Count => storage.Tracks.Count;
+
+        public TrackData InsertTrack(TrackInfo track, double durationInSeconds)
         {
-            return storage.AddTrack(track);
+            return storage.AddTrack(track, durationInSeconds);
         }
 
-        public TrackData ReadTrackByISRC(string isrc)
+        public void InsertTrack(TrackData track)
         {
-            return storage.Tracks.FirstOrDefault(pair => pair.Value.ISRC == isrc).Value;
+            storage.AddTrack(track);
         }
 
-        public IList<TrackData> ReadAll()
+        public TrackData ReadTrackById(string id)
         {
-            return storage.Tracks.Values.ToList();
+            return storage.Tracks.FirstOrDefault(pair => pair.Value.Id == id).Value;
         }
 
-        public IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
+        public IEnumerable<TrackData> ReadAll()
         {
-            return storage.Tracks.Where(pair => pair.Value.Artist == artist && pair.Value.Title == title)
-                          .Select(pair => pair.Value)
-                          .ToList();
+            return storage.Tracks.Values;
+        }
+
+        public IEnumerable<TrackData> ReadTrackByTitle(string title)
+        {
+            return storage.Tracks
+                .Where(pair => pair.Value.Title == title)
+                .Select(pair => pair.Value);
         }
 
         public TrackData ReadTrack(IModelReference trackReference)
         {
-            if (storage.Tracks.ContainsKey((int)trackReference.Id))
+            if (storage.Tracks.ContainsKey(trackReference))
             {
-                return storage.Tracks[(int)trackReference.Id];
+                return storage.Tracks[trackReference];
             }
 
             return null;
         }
 
-        public List<TrackData> ReadTracks(IEnumerable<IModelReference> ids)
+        public IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
-            var result = new List<TrackData>();
-            foreach (var id in ids)
+            return references.Aggregate(new List<TrackData>(), (list, reference) =>
             {
-                result.Add(ReadTrack(id));
-            }
+                if (storage.Tracks.TryGetValue(reference, out var track))
+                {
+                    list.Add(track);
+                }
 
-            return result;
+                return list;
+            });
         }
 
         public int DeleteTrack(IModelReference trackReference)

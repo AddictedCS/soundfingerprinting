@@ -10,80 +10,82 @@
 
     public abstract class ModelService : IModelService
     {
-        private readonly ITrackDao trackDao;
-        private readonly ISubFingerprintDao subFingerprintDao;
-
-        protected ModelService(ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
+        protected ModelService(string id, ITrackDao trackDao, ISubFingerprintDao subFingerprintDao)
         {
-            this.trackDao = trackDao;
-            this.subFingerprintDao = subFingerprintDao;
+            Id = id;
+            TrackDao = trackDao;
+            SubFingerprintDao = subFingerprintDao;
         }
 
-        public abstract bool SupportsBatchedSubFingerprintQuery { get; }
+        public virtual IEnumerable<ModelServiceInfo> Info => new[] { new ModelServiceInfo(Id, TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray()) };
 
-        public virtual IList<SubFingerprintData> ReadSubFingerprints(int[] hashBins, QueryConfiguration config)
-        {
-            return subFingerprintDao.ReadSubFingerprints(hashBins, config.ThresholdVotes, config.Clusters).ToList();
-        }
+        protected string Id { get; }
+        
+        protected ITrackDao TrackDao { get; }
+        
+        protected ISubFingerprintDao SubFingerprintDao { get; }
 
-        public virtual ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config)
+        public virtual void Insert(TrackInfo trackInfo, Hashes hashes)
         {
-            return subFingerprintDao.ReadSubFingerprints(hashes, config.ThresholdVotes, config.Clusters);
-        }
-
-        public virtual bool ContainsTrack(string isrc, string artist, string title)
-        {
-            if (!string.IsNullOrEmpty(isrc))
+            var fingerprints = hashes.ToList();
+            if (!fingerprints.Any())
             {
-                return ReadTrackByISRC(isrc) != null;
+                return;
             }
 
-            return ReadTrackByArtistAndTitleName(artist, title).Any();
+            var trackReference = TrackDao.InsertTrack(trackInfo, hashes.DurationInSeconds).TrackReference;
+            SubFingerprintDao.InsertHashDataForTrack(fingerprints, trackReference);
         }
 
-        public virtual IModelReference InsertTrack(TrackData track)
+        public virtual IEnumerable<SubFingerprintData> Query(IEnumerable<int[]> hashes, QueryConfiguration config)
         {
-            return trackDao.InsertTrack(track);
+            var queryHashes = hashes.ToList();
+            return queryHashes.Any() ? SubFingerprintDao.ReadSubFingerprints(queryHashes, config) : Enumerable.Empty<SubFingerprintData>();
         }
 
-        public virtual void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
+        public virtual IEnumerable<TrackData> ReadAllTracks()
         {
-            subFingerprintDao.InsertHashDataForTrack(hashes, trackReference);
+            return TrackDao.ReadAll();
         }
 
-        public virtual IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
+        public virtual IEnumerable<TrackData> ReadTrackByTitle(string title)
         {
-            return subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference);
+            return TrackDao.ReadTrackByTitle(title);
         }
 
-        public virtual IList<TrackData> ReadAllTracks()
+        public virtual IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
-            return trackDao.ReadAll();
+            return TrackDao.ReadTracksByReferences(references);
         }
 
-        public virtual IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title)
+        public virtual TrackInfo ReadTrackById(string trackId)
         {
-            return trackDao.ReadTrackByArtistAndTitleName(artist, title);
+            var trackData = TrackDao.ReadTrackById(trackId);
+            if (trackData == null)
+            {
+                return null;
+            }
+
+            var metaFields = CopyMetaFields(trackData.MetaFields);
+            metaFields.Add("TrackLength", $"{trackData.Length: 0.000}");
+            return new TrackInfo(trackData.Id, trackData.Title, trackData.Artist, metaFields, trackData.MediaType);
         }
 
-        public virtual TrackData ReadTrackByReference(IModelReference trackReference)
+        public virtual int DeleteTrack(string trackId)
         {
-            return trackDao.ReadTrack(trackReference);
+            var track = TrackDao.ReadTrackById(trackId);
+            if (track == null)
+            {
+                return 0;
+            }
+
+            var trackReference = track.TrackReference;
+            return SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference) + TrackDao.DeleteTrack(trackReference);
         }
 
-        public virtual List<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> ids)
+        private static IDictionary<string, string> CopyMetaFields(IDictionary<string, string> metaFields)
         {
-            return trackDao.ReadTracks(ids);
-        }
-
-        public virtual TrackData ReadTrackByISRC(string isrc)
-        {
-            return trackDao.ReadTrackByISRC(isrc);
-        }
-
-        public virtual int DeleteTrack(IModelReference trackReference)
-        {
-            return trackDao.DeleteTrack(trackReference);
+            return metaFields == null ? new Dictionary<string, string>() : metaFields.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
     }
 }

@@ -9,30 +9,20 @@ namespace SoundFingerprinting
 
     public interface IModelService
     {
-        IList<SubFingerprintData> ReadSubFingerprints(int[] hashBins, QueryConfiguration config);
+        IEnumerable<ModelServiceInfo> Info { get; }
 
-        ISet<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, QueryConfiguration config);
+        void Insert(TrackInfo trackInfo, Hashes hashes);
 
-        IModelReference InsertTrack(TrackData track);
+        IEnumerable<SubFingerprintData> Query(IEnumerable<int[]> hashes, QueryConfiguration config);
+        
+        int DeleteTrack(string trackId);
 
-        void InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference);
+        TrackInfo ReadTrackById(string trackId);
+        
+        IEnumerable<TrackData> ReadAllTracks();
 
-        IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference);
-            
-        IList<TrackData> ReadAllTracks();
+        IEnumerable<TrackData> ReadTrackByTitle(string title);
 
-        IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
-
-        TrackData ReadTrackByReference(IModelReference trackReference);
-
-        TrackData ReadTrackByISRC(string isrc);
-
-        List<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> ids);
-
-        int DeleteTrack(IModelReference trackReference);
-
-        bool ContainsTrack(string isrc, string artist, string title);
-
-        bool SupportsBatchedSubFingerprintQuery { get; }
+        IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
     }
 }

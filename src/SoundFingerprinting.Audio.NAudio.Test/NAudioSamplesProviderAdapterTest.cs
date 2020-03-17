@@ -17,14 +17,14 @@
             var waveProvider = new Mock<IWaveProvider>(MockBehavior.Loose);
             waveProvider.Setup(provider => provider.WaveFormat).Returns(WaveFormat.CreateIeeeFloatWaveFormat(5512, 1));
             var waveToSampleProvider = new Mock<WaveToSampleProvider>(MockBehavior.Strict, waveProvider.Object);
-            const int NumberOfReadSamples = 1024;
-            float[] buffer = new float[NumberOfReadSamples];
-            waveToSampleProvider.Setup(provider => provider.Read(buffer, 0, buffer.Length)).Returns(NumberOfReadSamples);
-            var naudioSamplesProvider = new NAudioSamplesProviderAdapter(waveToSampleProvider.Object);
+            const int numberOfReadSamples = 1024;
+            float[] buffer = new float[numberOfReadSamples];
+            waveToSampleProvider.Setup(provider => provider.Read(buffer, 0, buffer.Length)).Returns(numberOfReadSamples);
+            var nAudioSamplesProvider = new NAudioSamplesProviderAdapter(waveToSampleProvider.Object);
 
-            int samplesRead = naudioSamplesProvider.GetNextSamples(buffer);
+            int samplesRead = nAudioSamplesProvider.GetNextSamples(buffer);
             
-            Assert.AreEqual(NumberOfReadSamples * 4, samplesRead);
+            Assert.AreEqual(numberOfReadSamples * 4, samplesRead);
         }
     }
 }

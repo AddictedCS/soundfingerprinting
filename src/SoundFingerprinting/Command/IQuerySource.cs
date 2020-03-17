@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Command
 {
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Data;
 
     public interface IQuerySource
     {
@@ -26,5 +27,12 @@
         /// <param name="audioSamples">Audio samples to build the fingerprints from</param>
         /// <returns>Configuration selector</returns>
         IWithQueryConfiguration From(AudioSamples audioSamples);
+
+        /// <summary>
+        ///   Create query from previously created fingerprints
+        /// </summary>
+        /// <param name="hashedFingerprints">List of fingerprints</param>
+        /// <returns>Configuration selector. Keep in mind that all the configuration options related to fingerprint creation will be disregarded.</returns>
+        IWithQueryConfiguration From(Hashes hashedFingerprints);
     }
 }

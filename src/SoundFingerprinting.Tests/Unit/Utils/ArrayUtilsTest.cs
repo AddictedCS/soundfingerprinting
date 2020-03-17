@@ -10,7 +10,7 @@
         [Test]
         public void TestArrayIsConcatenatedCorrectly()
         {
-            float[][] array = new[] { new float[] { 1, 2, 3 }, new float[] { 4, 5, 6 }, new float[] { 7, 8, 9 } };
+            float[][] array = { new float[] { 1, 2, 3 }, new float[] { 4, 5, 6 }, new float[] { 7, 8, 9 } };
 
             float[] concatenated = ConcatenateDoubleDimensionalArray(array);
 

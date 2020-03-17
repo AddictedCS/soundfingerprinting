@@ -1,10 +1,9 @@
 ﻿namespace SoundFingerprinting.MinHash
 {
     using System;
-
     using SoundFingerprinting.Utils;
 
-    internal class MinHashService : IMinHashService
+    internal class MinHashService : IMinHashService<byte>
     {
         private readonly IPermutations permutations;
 
@@ -13,13 +12,19 @@
             this.permutations = permutations;
         }
 
-        public int PermutationsCount
-        {
-            get
-            {
-                return permutations.GetPermutations().Length;
-            }
-        }
+        /// <summary>
+        ///  Old permutations, not used anymore
+        /// </summary>
+        public static MinHashService Default { get; } = new MinHashService(new DefaultPermutations());
+
+        /// <summary>
+        ///  Max entropy permutations
+        /// </summary>
+        public static MinHashService MaxEntropy { get; } = new MinHashService(new MaxEntropyPermutations());
+
+        public int PermutationsCount => permutations.Count;
+
+        public int IndexesPerPermutation => permutations.IndexesPerPermutation;
 
         public byte[] Hash(IEncodedFingerprintSchema fingerprint, int n)
         {

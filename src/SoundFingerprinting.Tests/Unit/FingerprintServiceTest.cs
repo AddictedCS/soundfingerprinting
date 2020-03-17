@@ -6,7 +6,7 @@
     using Moq;
 
     using NUnit.Framework;
-
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
@@ -22,7 +22,6 @@
         private Mock<ISpectrumService> spectrumService;
         private Mock<IWaveletDecomposition> waveletDecomposition;
         private Mock<ILocalitySensitiveHashingAlgorithm> localitySensitiveHashingAlgorithm;
-
 
         [SetUp]
         public void SetUp()
@@ -49,17 +48,17 @@
         [Test]
         public void CreateFingerprints()
         {
-            const int TenSeconds = 5512 * 10;
-            var samples = TestUtilities.GenerateRandomAudioSamples(TenSeconds);
+            const int tenSeconds = 5512 * 10;
+            var samples = TestUtilities.GenerateRandomAudioSamples(tenSeconds);
             var fingerprintConfig = new DefaultFingerprintConfiguration();
             var dividedLogSpectrum = GetDividedLogSpectrum();
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, fingerprintConfig.HaarWaveletNorm));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192).SetTrueAt(0, 1));
-            localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig, It.IsAny<IEnumerable<string>>()))
-                .Returns(new HashedFingerprint(new int[0], 1, 0f, Enumerable.Empty<string>()));
+            localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig))
+                .Returns(new HashedFingerprint(new int[0], 1, 0f));
 
-            var fingerprints = fingerprintService.CreateFingerprints(samples, fingerprintConfig)
+            var fingerprints = fingerprintService.CreateFingerprintsFromAudioSamples(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)
                                                  .ToList();
 
@@ -76,21 +75,41 @@
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
 
             waveletDecomposition.Setup(decomposition => decomposition.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, configuration.HaarWaveletNorm));
-            fingerprintDescriptor.Setup(
-                descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), configuration.TopWavelets, It.IsAny<ushort[]>())).Returns(
+            fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), configuration.TopWavelets, It.IsAny<ushort[]>())).Returns(
                     new TinyFingerprintSchema(1024));
 
-            var rawFingerprints = fingerprintService.CreateFingerprints(samples, configuration);
+            var rawFingerprints = fingerprintService.CreateFingerprintsFromAudioSamples(samples, configuration);
 
-            Assert.IsTrue(rawFingerprints.Count == 0);
+            Assert.IsTrue(!rawFingerprints.Any());
         }
 
-        private List<SpectralImage> GetDividedLogSpectrum()
+        [Test]
+        public void ShouldReturnNonNullEntriesForSilence()
         {
-            var dividedLogSpectrum = new List<SpectralImage>();
+            var silence = new float[8192 + 2048];
+
+            var result = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(new AudioSamples(silence, string.Empty, 5512), new DefaultFingerprintConfiguration()).ToList();
+            
+            Assert.IsTrue(!result.Any());
+        }
+
+        [Test]
+        public void ShouldCreateOneFingerprint()
+        {
+            var floats = TestUtilities.GenerateRandomFloatArray(8192 + 2048 - 64);
+
+            var fingerprints = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(new AudioSamples(floats, string.Empty, 5512), new DefaultFingerprintConfiguration()).ToList();
+
+            Assert.IsNotEmpty(fingerprints);
+            Assert.AreEqual(1, fingerprints.Count);
+        }
+
+        private static List<Frame> GetDividedLogSpectrum()
+        {
+            var dividedLogSpectrum = new List<Frame>();
             for (uint index = 0; index < 4; index++)
             {
-                dividedLogSpectrum.Add(new SpectralImage(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928f * index, index));
+                dividedLogSpectrum.Add(new Frame(TestUtilities.GenerateRandomFloatArray(4096), 128, 32, 0.928f * index, index));
             }
 
             return dividedLogSpectrum;

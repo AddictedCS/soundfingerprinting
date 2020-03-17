@@ -55,7 +55,8 @@
         /// <param name="data">The complex data stored as alternating real                                       
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
-        /// inverse transform</param>                                                                            
+        /// inverse transform</param>
+        /// <param name="length">Length of the transform</param> 
         private void TableFFT(float* data, bool forward, int length)
         {
             var n = length;
@@ -109,6 +110,7 @@
         /// and imaginary parts</param>                                                                          
         /// <param name="forward">true for a forward transform, false for                                        
         /// inverse transform</param>                                                                            
+        /// <param name="length">Length of the transform</param> 
         internal void RealFFT(float* data, bool forward, int length)
         {
             var n = length; // # of real inputs, 1/2 the complex length                                     
@@ -224,6 +226,7 @@
         /// <param name="data"></param>                                                                          
         /// <param name="n"></param>                                                                             
         /// <param name="forward"></param>                                                                       
+        /// <param name="length">Length of the transform</param> 
         private void Scale(float* data, int n, bool forward, int length)
         {
             // forward scaling if needed                                                                         
@@ -263,9 +266,9 @@
                 var istep = 2 * mmax;
                 var theta = Math.PI / mmax;
                 float wr = 1, wi = 0;
-                var wpi = (float) Math.Sin(theta);
+                var wpi = (float)Math.Sin(theta);
                 // compute in a slightly slower yet more accurate manner                                         
-                var wpr = (float)System.Math.Sin(theta / 2);
+                var wpr = (float)Math.Sin(theta / 2);
                 wpr = -2 * wpr * wpr;
                 for (var m = 0; m < istep; m += 2)
                 {

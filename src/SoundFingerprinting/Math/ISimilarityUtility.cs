@@ -1,16 +1,10 @@
 namespace SoundFingerprinting.Math
 {
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
-    using SoundFingerprinting.Query;
-
-    internal interface ISimilarityUtility
+    public interface ISimilarityUtility
     {
         int CalculateHammingDistance(byte[] a, byte[] b);
+
+        int CalculateHammingDistance(bool[] a, bool[] b);
 
         int CalculateHammingSimilarity(byte[] a, byte[] b);
 
@@ -31,5 +25,6 @@ namespace SoundFingerprinting.Math
         ///   0 = 00
         /// </remarks>
         double CalculateJaccardSimilarity(bool[] x, bool[] y);
+
     }
 }

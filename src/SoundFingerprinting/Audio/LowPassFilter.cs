@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace SoundFingerprinting.Audio
+﻿namespace SoundFingerprinting.Audio
 {
+    using System;
+
     internal class LowPassFilter : ILowPassFilter
     {
         /*
@@ -16,6 +16,28 @@ namespace SoundFingerprinting.Audio
          * All filters are interpolating around 32 points
          */
 
+        private static readonly float[] LpFilter96KhzTo48Khz =
+        {
+            -1.6977e-03f, 1.7552e-18f, 2.9326e-03f, -3.2716e-18f, -6.7192e-03f, 6.0422e-18f, 1.4071e-02f, -9.5879e-18f, -2.6742e-02f, 1.3296e-17f, 4.9020e-02f,
+            -1.6524e-17f, -9.6782e-02f, 1.8716e-17f, 3.1511e-01f, 5.0000e-01f, 3.1511e-01f, 1.8716e-17f, -9.6782e-02f, -1.6524e-17f, 4.9020e-02f, 1.3296e-17f,
+            -2.6742e-02f, -9.5879e-18f, 1.4071e-02f, 6.0422e-18f, -6.7192e-03f, -3.2716e-18f, 2.9326e-03f, 1.7552e-18f, -1.6977e-03f
+        };
+        
+        // L = 63, Fs = 72000
+        private static readonly float[] LpFilter72KHz64 =
+        {
+            7.5736e-04f, 7.0190e-04f, 6.2634e-04f, 5.0156e-04f, 2.8968e-04f, -4.9681e-05f, -5.5166e-04f, -1.2376e-03f,
+            -2.1067e-03f, -3.1292e-03f, -4.2414e-03f, -5.3443e-03f, -6.3058e-03f, -6.9665e-03f, -7.1501e-03f,
+            -6.6760e-03f, -5.3745e-03f, -3.1034e-03f, 2.3628e-04f, 4.6867e-03f, 1.0222e-02f, 1.6745e-02f, 2.4081e-02f,
+            3.1989e-02f, 4.0169e-02f, 4.8282e-02f, 5.5963e-02f, 6.2852e-02f, 6.8611e-02f, 7.2950e-02f, 7.5647e-02f,
+            7.6563e-02f, 7.5647e-02f, 7.2950e-02f, 6.8611e-02f, 6.2852e-02f, 5.5963e-02f, 4.8282e-02f, 4.0169e-02f,
+            3.1989e-02f, 2.4081e-02f, 1.6745e-02f, 1.0222e-02f, 4.6867e-03f, 2.3628e-04f, -3.1034e-03f, -5.3745e-03f,
+            -6.6760e-03f, -7.1501e-03f, -6.9665e-03f, -6.3058e-03f, -5.3443e-03f, -4.2414e-03f, -3.1292e-03f,
+            -2.1067e-03f - 1.2376e-03f, -5.5166e-04f, -4.9681e-05f, 2.8968e-04f, 5.0156e-04f, 6.2634e-04f, 7.0190e-04f,
+            7.5736e-04f
+        };
+
+        // L = 127
         private static readonly float[] LpFilter336KHz128 =
         {
             -4.2580e-05f, -2.2325e-05f, -1.0539e-06f, 2.2162e-05f, 4.8302e-05f, 7.8386e-05f, 1.1347e-04f, 1.5463e-04f,
@@ -36,27 +58,7 @@ namespace SoundFingerprinting.Audio
             1.1347e-04f, 7.8386e-05f, 4.8302e-05f, 2.2162e-05f, -1.0539e-06f, -2.2325e-05f, -4.2580e-05f
         };
 
-        private static float[] lpFilter336Khz32 =
-        {
-            0.0011856f, 0.0013525f, 0.0018212f, 0.0025816f, 0.0036087f, 0.0048637f, 0.0062957f, 0.0078438f, 0.0094403f,
-            0.0110140f, 0.0124934f, 0.0138109f, 0.0149054f, 0.0157259f, 0.0162341f, 0.0164063f, 0.0162341f, 0.0157259f,
-            0.0149054f, 0.0138109f, 0.0124934f, 0.0110140f, 0.0094403f, 0.0078438f, 0.0062957f, 0.0048637f, 0.0036087f,
-            0.0025816f, 0.0018212f, 0.0013525f, 0.0011856f
-        };
-
-        private static float[] lpFilter336Khz64 =
-        {
-            8.2115e-04f, 8.7360e-04f, 9.7861e-04f, 1.1399e-03f, 1.3605e-03f, 1.6423e-03f, 1.9865e-03f, 2.3930e-03f,
-            2.8609e-03f, 3.3880e-03f, 3.9711e-03f, 4.6062e-03f, 5.2879e-03f, 6.0103e-03f, 6.7664e-03f, 7.5484e-03f,
-            8.3481e-03f, 9.1565e-03f, 9.9644e-03f, 1.0762e-02f, 1.1541e-02f, 1.2290e-02f, 1.3001e-02f, 1.3664e-02f,
-            1.4271e-02f, 1.4815e-02f, 1.5287e-02f, 1.5683e-02f, 1.5996e-02f, 1.6223e-02f, 1.6360e-02f, 1.6406e-02f,
-            1.6360e-02f, 1.6223e-02f, 1.5996e-02f, 1.5683e-02f, 1.5287e-02f, 1.4815e-02f, 1.4271e-02f, 1.3664e-02f,
-            1.3001e-02f, 1.2290e-02f, 1.1541e-02f, 1.0762e-02f, 9.9644e-03f, 9.1565e-03f, 8.3481e-03f, 7.5484e-03f,
-            6.7664e-03f, 6.0103e-03f, 5.2879e-03f, 4.6062e-03f, 3.9711e-03f, 3.3880e-03f, 2.8609e-03f, 2.3930e-03f,
-            1.9865e-03f, 1.6423e-03f, 1.3605e-03f, 1.1399e-03f, 9.7861e-04f, 8.7360e-04f, 8.2115e-04f
-        };
-
-        /*Low pass from 44100 to 5512*/
+        // Low pass from 44100 to 5512
         private static readonly float[] LpFilter44 =
         {
             -6.4966e-04f, -1.4478e-03f, -2.7094e-03f, -4.4524e-03f, -6.2078e-03f, -6.9775e-03f, -5.3848e-03f,
@@ -66,7 +68,7 @@ namespace SoundFingerprinting.Audio
             -6.4966e-04f
         };
 
-        /*Low pass from 22050 to 5512*/
+        // Low pass from 22050 to 5512
         private static readonly float[] LpFilter22 =
         {
             -1.2004e-03f, -2.0475e-03f, -2.0737e-03f, 1.6358e-18f, 4.7512e-03f, 9.8676e-03f, 9.9498e-03f, -4.7939e-18f,
@@ -75,7 +77,7 @@ namespace SoundFingerprinting.Audio
             9.9498e-03f, 9.8676e-03f, 4.7512e-03f, 1.6358e-18f, -2.0737e-03f, -2.0475e-03f, -1.2004e-03f
         };
 
-        /*Low pass from 11025 to 5512*/
+        // Low pass from 11025 to 5512
         private static readonly float[] LpFilter11 =
         {
             -1.6977e-03f, 1.7552e-18f, 2.9326e-03f, -3.2716e-18f, -6.7192e-03f, 6.0422e-18f, 1.4071e-02f, -9.5879e-18f,
@@ -87,10 +89,16 @@ namespace SoundFingerprinting.Audio
         public float[] FilterAndDownsample(float[] samples, int sourceSampleRate, int targetSampleRate)
         {
             if (targetSampleRate != 5512)
+            {
                 throw new ArgumentException($"Target sample {targetSampleRate} rate not supported!");
+            }
 
             switch (sourceSampleRate)
             {
+                case 96000:
+                    //96Khz -> 48Khz then to 5512Khz
+                    var f48Khz =  Resample(samples, samples.Length / 2, 2, LpFilter96KhzTo48Khz);
+                    return ResampleNonIntegerFactor(f48Khz, 7, 61, LpFilter336KHz128);
                 case 48000:
                     // 48000 * 7 / 61 is almost 5512
                     return ResampleNonIntegerFactor(samples, 7 , 61, LpFilter336KHz128);
@@ -98,8 +106,14 @@ namespace SoundFingerprinting.Audio
                     return Resample(samples, samples.Length / 8, 8, LpFilter44);
                 case 22050:
                     return Resample(samples, samples.Length / 4, 4, LpFilter22);
+                case 16000:
+                    // 16000 * 21 / 61 is almost 5512
+                    return ResampleNonIntegerFactor(samples, 21, 61, LpFilter336KHz128);
                 case 11025:
                     return Resample(samples, samples.Length / 2, 2, LpFilter11);
+                case 8000:
+                    // 8000 * 9 / 13 is almost 5512
+                    return ResampleNonIntegerFactor(samples, 9, 13, LpFilter72KHz64);
                 case 5512:
                     return samples;
             }

@@ -6,11 +6,11 @@
 
     public class SoundFingerprintingAudioService : AudioService
     {
-        private static readonly HashSet<int> AcceptedSampleRates = new HashSet<int> { 5512, 11025, 22050, 44100, 48000 };
+        private static readonly HashSet<int> AcceptedSampleRates = new HashSet<int> { 5512, 8000, 11025, 16000, 22050, 44100, 48000, 96000 };
         private static readonly HashSet<int> AcceptedBitsPerSample = new HashSet<int> { 8, 16, 24, 32 };
         private static readonly HashSet<int> AcceptedChannels = new HashSet<int> { 1, 2 };
 
-        private static int waveHeaderLength = 44;
+        private const int WaveHeaderLength = 44;
 
         private readonly ILowPassFilter lowPassFilter;
         private readonly IAudioSamplesNormalizer audioSamplesNormalizer;
@@ -32,9 +32,9 @@
             CheckInputFileFormat(format, startAt);
             float[] samples = ToSamples(pathToSourceFile, format, seconds, startAt);
             float[] monoSamples = ToMonoSamples(samples, format);
-            float[] downsampled = ToTargetSampleRate(monoSamples, format.SampleRate, sampleRate);
-            audioSamplesNormalizer.NormalizeInPlace(downsampled);
-            return new AudioSamples(downsampled, pathToSourceFile, sampleRate);
+            float[] downSampled = ToTargetSampleRate(monoSamples, format.SampleRate, sampleRate);
+            audioSamplesNormalizer.NormalizeInPlace(downSampled);
+            return new AudioSamples(downSampled, pathToSourceFile, sampleRate);
         }
 
         public override float GetLengthInSeconds(string pathToSourceFile)
@@ -44,13 +44,7 @@
             return format.LengthInSeconds;
         }
 
-        public override IReadOnlyCollection<string> SupportedFormats
-        {
-            get
-            {
-                return new[] { ".wav" };
-            }
-        }
+        public override IReadOnlyCollection<string> SupportedFormats => new[] { ".wav" };
 
         private static void CheckInputFileFormat(WaveFormat format, double startsAt)
         {
@@ -69,7 +63,7 @@
         {
             using (var stream = new FileStream(pathToFile, FileMode.Open))
             {
-                stream.Seek(waveHeaderLength, SeekOrigin.Begin);
+                stream.Seek(WaveHeaderLength, SeekOrigin.Begin);
                 int samplesToSeek = (int)(startsAt * format.SampleRate * format.Channels);
                 int bytesPerSample = format.BitsPerSample / 8;
                 stream.Seek(bytesPerSample * samplesToSeek, SeekOrigin.Current);

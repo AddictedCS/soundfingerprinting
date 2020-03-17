@@ -34,8 +34,7 @@
 
             var playFileAttributes = service.PlayFile("path-to-file");
 
-            var attributes = playFileAttributes as PlayFileAttributes;
-            if (attributes != null)
+            if (playFileAttributes is PlayFileAttributes attributes)
             {
                 Assert.AreSame(wavePlayer.Object, attributes.WavePlayer);
                 Assert.AreSame(waveStream.Object, attributes.WaveStream);

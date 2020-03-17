@@ -1,49 +1,37 @@
 ﻿namespace SoundFingerprinting.LCS
 {
     using System.Collections.Concurrent;
-
+    using System.Collections.Generic;
+    using System.Linq;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Query;
 
-    /// <summary>
-    ///  List of candidate matches. Each track is allowed to have only one best match identified by MatchedWith
-    /// </summary>
     internal class Candidates
     {
-        private readonly ConcurrentDictionary<IModelReference, MatchedWith> candidates = new ConcurrentDictionary<IModelReference, MatchedWith>();
+        private readonly ConcurrentDictionary<IModelReference, List<MatchedWith>> candidates = new ConcurrentDictionary<IModelReference, List<MatchedWith>>();
 
         public Candidates(IModelReference trackReference, params MatchedWith[] candidates)
         {
             foreach (var candidate in candidates)
             {
-                AddOrUpdateNewMatch(trackReference, candidate);
+                AddNewMatchForTrack(trackReference, candidate);
             }
         }
 
-        public bool TryGetMatchesForTrack(IModelReference trackReference, out MatchedWith matchedWith)
+        public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
-            return candidates.TryGetValue(trackReference, out matchedWith);
+            return candidates.TryGetValue(trackReference, out var matchedWith) ? matchedWith : Enumerable.Empty<MatchedWith>();
         }
 
-        public void AddOrUpdateNewMatch(IModelReference trackReference, MatchedWith match)
+        public void AddNewMatchForTrack(IModelReference trackReference, MatchedWith match)
         {
-            candidates.AddOrUpdate(trackReference, reference => match, (reference, old) =>
+            candidates.AddOrUpdate(trackReference, reference => new List<MatchedWith> {match}, (reference, old) =>
             {
-                if (old.HammingSimilarity > match.HammingSimilarity)
-                {
-                    return old;
-                }
-
-                return match;
+                old.Add(match);
+                return old;
             });
         }
 
-        public int Count
-        {
-            get
-            {
-                return candidates.Count;
-            }
-        }
+        public int Count => candidates.Count;
     }
 }

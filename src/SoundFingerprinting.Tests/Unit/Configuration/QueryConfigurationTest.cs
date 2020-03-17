@@ -7,7 +7,7 @@
     using SoundFingerprinting.Configuration;
 
     [TestFixture]
-    public class QueryConfigurationTest : AbstractTest
+    public class QueryConfigurationTest
     {
         [Test]
         public void InvalidThresholdVotesIsSetOnQueryConfigurationInstanceTest()

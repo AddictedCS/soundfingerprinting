@@ -1,19 +1,18 @@
-﻿using System.Collections.Generic;
-
-namespace SoundFingerprinting.Utils
+﻿namespace SoundFingerprinting.Utils
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     internal static class SubFingerprintGroupingCounter
     {
-        public static unsafe IEnumerable<ulong> GroupByAndCount(List<ulong>[] subFingerprints, int threshold)
+        public static IEnumerable<uint> GroupByAndCount(List<uint>[] subFingerprints, int threshold)
         {
-            var counter = new Dictionary<ulong, int>();
+            var counter = new Dictionary<uint, int>();
             for (int i = 0; i < subFingerprints.Length; ++i)
             {
                 for (int j = 0; j < subFingerprints[i].Count; ++j)
                 {
-                    ulong key = subFingerprints[i][j];
+                    var key = subFingerprints[i][j];
                     counter.TryGetValue(key, out var count);
                     counter[key] = count + 1;
                 }

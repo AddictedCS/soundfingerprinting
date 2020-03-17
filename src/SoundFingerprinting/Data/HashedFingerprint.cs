@@ -1,38 +1,40 @@
 ﻿namespace SoundFingerprinting.Data
 {
     using System;
-    using System.Collections.Generic;
-
     using ProtoBuf;
 
     [Serializable]
     [ProtoContract]
     public class HashedFingerprint 
     {
-        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters)
+        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt) : this(hashBins, sequenceNumber, startsAt, new byte[0])
+        {
+            
+        }
+        
+        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, byte[] originalPoint)
         {
             HashBins = hashBins;
             SequenceNumber = sequenceNumber;
             StartsAt = startsAt;
-            Clusters = clusters;
+            OriginalPoint = originalPoint;
         }
 
         private HashedFingerprint()
         {
             // Used only by protobuf
-            // Similarly private setters are only used by protobuf as well
         }
 
         [ProtoMember(1)]
-        public int[] HashBins { get; private set; }
+        public int[] HashBins { get; }
 
         [ProtoMember(2)]
-        public uint SequenceNumber { get; private set; }
+        public uint SequenceNumber { get; }
 
         [ProtoMember(3)]
-        public float StartsAt { get; private set; }
+        public float StartsAt { get; }
 
-        [ProtoMember(4)]
-        public IEnumerable<string> Clusters { get; private set; }
+        [ProtoMember(5)] 
+        public byte[] OriginalPoint { get; }
     }
 }

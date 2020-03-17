@@ -1,7 +1,9 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -9,7 +11,7 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
 
@@ -19,29 +21,26 @@
         private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
         [Test]
-        public void ShouldSerializeAndDeserialize()
+        public async Task ShouldSerializeAndDeserialize()
         {
             var modelService = new InMemoryModelService();
 
-            var hashedFingerprints = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var hashedFingerprints = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
-                .Hash()
-                .Result;
+                .Hash();
 
-            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
-            var trackReferences = modelService.InsertTrack(trackData);
+            var trackData = new TrackInfo("id", "title", "artist", new Dictionary<string, string> {{"key", "value"}}, MediaType.Audio);
 
-            modelService.InsertHashDataForTrack(hashedFingerprints, trackReferences);
+            modelService.Insert(trackData, hashedFingerprints);
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
 
-            var queryResult = QueryCommandBuilder.Instance.BuildQueryCommand()
+            var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new InMemoryModelService(tempFile), audioService)
-                .Query()
-                .Result;
+                .Query();
 
             File.Delete(tempFile);
 
@@ -55,18 +54,26 @@
         {
             var modelService = new InMemoryModelService();
 
-            var trackData = new TrackData("isrc", "artist", "title", "album", 2017, 200);
-            var trackReferences = modelService.InsertTrack(trackData);
+            var firstTrack = new TrackInfo("id1", "title", "artist");
+            modelService.Insert(firstTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f) }, 1.48));
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
 
             var fromFileService = new InMemoryModelService(tempFile);
 
-            var newTrackReference = fromFileService.InsertTrack(trackData);
+            var secondTrack = new TrackInfo("id2", "title", "artist");
+            fromFileService.Insert(secondTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f) }, 1.48));
+
+            var tracks = fromFileService.ReadAllTracks().ToList();
 
             File.Delete(tempFile);
-            Assert.AreNotEqual(trackReferences, newTrackReference);
+
+            var ref1 = tracks.First(track => track.Id == "id1").TrackReference;
+            var ref2 = tracks.First(track => track.Id == "id2").TrackReference;
+            Assert.IsTrue(tracks.Any(track => track.Id == "id1"));
+            Assert.IsTrue(tracks.Any(track => track.Id == "id2"));
+            Assert.IsTrue(!ref1.Equals(ref2));
         }
 
         [Test]
@@ -75,7 +82,7 @@
             var spectrumService = new SpectrumService(new LomontFFT(), new LogUtility());
 
             var spectrums = spectrumService.CreateLogSpectrogram(GetAudioSamples(), new DefaultSpectrogramConfig())
-                .Select(spectrum => spectrum.Image)
+                .Select(spectrum => spectrum.ImageRowCols)
                 .ToList();
 
             var modelService = new InMemoryModelService();
@@ -84,7 +91,6 @@
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
-
 
             var fromFileService = new InMemoryModelService(tempFile);
 

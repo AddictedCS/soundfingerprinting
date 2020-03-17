@@ -3,21 +3,24 @@ namespace SoundFingerprinting.DAO
     using System.Collections.Generic;
 
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
 
     public interface ITrackDao
     {
-        IModelReference InsertTrack(TrackData track);
+        int Count { get; }
 
-        TrackData ReadTrack(IModelReference trackReference);
+        TrackData InsertTrack(TrackInfo track, double durationInSeconds);
 
-        List<TrackData> ReadTracks(IEnumerable<IModelReference> ids);
+        void InsertTrack(TrackData track);
+
+        IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
 
         int DeleteTrack(IModelReference trackReference);
 
-        IList<TrackData> ReadTrackByArtistAndTitleName(string artist, string title);
+        IEnumerable<TrackData> ReadTrackByTitle(string title);
 
-        TrackData ReadTrackByISRC(string isrc);
+        TrackData ReadTrackById(string id);
 
-        IList<TrackData> ReadAll();
+        IEnumerable<TrackData> ReadAll();
     }
 }

@@ -5,14 +5,13 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
@@ -151,19 +150,19 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
-                            bool isSuccessful = recognizedTrack.TrackReference.Equals(actualTrack.TrackReference);
+                            bool isSuccessful = recognizedTrack.Id.Equals(actualTrack.Id);
                             if (isSuccessful)
                             {
                                 Interlocked.Increment(ref truePositives);
-                                truePositiveHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
+                                truePositiveHammingDistance.Add((int)queryResult.BestMatch.Score);
                             }
                             else
                             {
                                 Interlocked.Increment(ref falsePositives);
-                                falseNegativesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
+                                falseNegativesHammingDistance.Add((int)queryResult.BestMatch.Score);
                             }
 
-                            var foundLine = GetFoundLine(ToTrackString(actualTrack), recognizedTrack, isSuccessful, queryResult);
+                            var foundLine = GetFoundLine(ToTrackString(actualTrack.Artist, actualTrack.Title), recognizedTrack, isSuccessful, queryResult);
                             AppendLine(sb, foundLine);
                             OnTestRunnerEvent(PositiveFoundEvent, GetTestRunnerEventArgs(truePositives, trueNegatives, falsePositives, falseNegatives, foundLine, verified));
                         });
@@ -193,7 +192,7 @@
                             }
 
                             var recognizedTrack = queryResult.BestMatch.Track;
-                            falsePositivesHammingDistance.Add(queryResult.BestMatch.HammingSimilaritySum);
+                            falsePositivesHammingDistance.Add((int)queryResult.BestMatch.Score);
                             Interlocked.Increment(ref falsePositives);
                             var foundLine = GetFoundLine(ToTrackString(tags), recognizedTrack, false, queryResult);
                             AppendLine(sb, foundLine);
@@ -226,7 +225,7 @@
                     RowWithDetails =
                         new object[]
                             {
-                                this.GetInsertMetadata(), queryStride.ToString(), seconds, startAts[iteration],
+                                GetInsertMetadata(), queryStride.ToString(), seconds, startAts[iteration],
                                 fscore.Precision, fscore.Recall, fscore.F1, 
                                 statistics.TruePositiveInfo,
                                 statistics.TruePositivePercentileInfo,
@@ -240,25 +239,27 @@
                 };
         }
 
-        private string ToTrackString(TrackData actualTrack)
+        private string ToTrackString(string artist, string title)
         {
-            return string.Format("{0}-{1}", actualTrack.Artist, actualTrack.Title);
+            return $"{artist}-{title}";
         }
 
         private string ToTrackString(TagInfo tag)
         {
-            return string.Format("{0}-{1}", tag.Artist, tag.Title);
+            return $"{tag.Artist}-{tag.Title}";
         }
 
         private string GetInsertMetadata()
         {
-            return this.lastInsertStride != null ? this.lastInsertStride.ToString() : string.Empty;
+            return lastInsertStride != null ? lastInsertStride.ToString() : string.Empty;
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         private void AppendLine(StringBuilder sb, object[] objects)
         {
-            TestRunnerWriter.AppendLine(sb, objects);
+            lock (this)
+            {
+                TestRunnerWriter.AppendLine(sb, objects);
+            }
         }
 
         private TestRunnerEventArgs GetTestRunnerEventArgs(int truePositives, int trueNegatives, int falsePositives, int falseNegatives, object[] line, int verified)
@@ -271,11 +272,9 @@
                 };
         }
 
-        private TrackData GetActualTrack(TagInfo tags)
+        private TrackInfo GetActualTrack(TagInfo tags)
         {
-            return !string.IsNullOrEmpty(tags.ISRC)
-                       ? modelService.ReadTrackByISRC(tags.ISRC)
-                       : modelService.ReadTrackByArtistAndTitleName(tags.Artist, tags.Title).FirstOrDefault();
+            return modelService.ReadTrackById(tags.ISRC);
         }
 
         private object[] GetNotFoundLine(TagInfo tags)
@@ -288,10 +287,10 @@
             var bestMatch = queryResult.BestMatch;
             return new object[]
                 {
-                    actualTrack, ToTrackString(recognizedTrack), isSuccessful,
-                    bestMatch.HammingSimilaritySum, bestMatch.Confidence,
-                    bestMatch.Coverage,
-                    bestMatch.QueryMatchLength, bestMatch.TrackStartsAt
+                    actualTrack, ToTrackString(recognizedTrack.Artist, recognizedTrack.Title), isSuccessful,
+                    bestMatch.Score, bestMatch.Confidence,
+                    bestMatch.RelativeCoverage,
+                    bestMatch.CoverageWithPermittedGapsLength, bestMatch.TrackStartsAt
                 };
         }
 
@@ -322,13 +321,9 @@
                             OngoingActionEvent,
                             new TestRunnerOngoingEventArgs
                                 {
-                                    Message = string.Format(
-                                            "Inserting tracks {0} out of {1}. Track {2}",
-                                            Interlocked.Increment(ref inserted),
-                                            allFiles.Count,
-                                            System.IO.Path.GetFileNameWithoutExtension(file))
+                                    Message = $"Inserting tracks {Interlocked.Increment(ref inserted)} out of {allFiles.Count}. Track {System.IO.Path.GetFileNameWithoutExtension(file)}"
                                 });
-                        var track = InsertTrack(file);
+                        var track = GetTrack(file);
                         var hashes = fcb.BuildFingerprintCommand()
                                         .From(file)
                                         .WithFingerprintConfig(
@@ -341,32 +336,30 @@
                                         .Hash()
                                         .Result;
 
-                        modelService.InsertHashDataForTrack(hashes, track);
+                        modelService.Insert(track, hashes);
                     });
  
             stopWatch.Stop();
-            sb.AppendLine(string.Format("{0},{1}", inserted, stopWatch.ElapsedMilliseconds / 1000));
+            sb.AppendLine($"{inserted},{stopWatch.ElapsedMilliseconds / 1000}");
         }
 
-        private IModelReference InsertTrack(string file)
+        private TrackInfo GetTrack(string file)
         {
             var tags = GetTagsFromFile(file);
-            var trackData = new TrackData(tags);
-            return modelService.InsertTrack(trackData);
+            return new TrackInfo(tags.ISRC, tags.Artist, tags.Title);
         }
 
         private void DeleteAll()
         {
-            var tracks = modelService.ReadAllTracks();
+            var tracks = modelService.ReadAllTracks().ToList();
             int deleted = 0;
             foreach (var track in tracks)
             {
-                modelService.DeleteTrack(track.TrackReference);
-                OnTestRunnerEvent(
-                    OngoingActionEvent,
+                modelService.DeleteTrack(track.Id);
+                OnTestRunnerEvent(OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {
-                            Message = string.Format("Deleted {0} out of {1} tracks from storage", Interlocked.Increment(ref deleted), tracks.Count)
+                            Message = $"Deleted {Interlocked.Increment(ref deleted)} out of {tracks.Count} tracks from storage"
                         });
             }
         }

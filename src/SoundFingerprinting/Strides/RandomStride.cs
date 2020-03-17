@@ -7,7 +7,9 @@
     /// </summary>
     public class RandomStride : IStride
     {
-        protected readonly Random Random;
+        private readonly object lockObject = new object();
+        private const int DefaultSamplesPerFingerprint = 128 * 64;
+        private readonly Random random;
 
         /// <summary>
         ///   Initializes a new instance of the <see cref="RandomStride"/> class. 
@@ -30,19 +32,13 @@
 
             Min = minStride;
             Max = maxStride;
-            Random = seed == 0 ? new Random() : new Random(seed);
-
-            FirstStride = Random.Next(minStride, maxStride);
+            random = seed == 0 ? new Random() : new Random(seed);
+            FirstStride = 0;
         }
 
-        public RandomStride(int minStride, int maxStride, int firstStride, int seed): this(minStride, maxStride, seed)
-        {
-            FirstStride = firstStride;
-        }
+        private int Min { get; }
 
-        public int Min { get; }
-
-        public int Max { get; }
+        private int Max { get; }
 
         public int FirstStride { get; }
 
@@ -50,7 +46,10 @@
         {
             get
             {
-                return Random.Next(Min, Max);
+                lock (lockObject)
+                {
+                    return DefaultSamplesPerFingerprint + random.Next(Min, Max);
+                }
             }
         }
 

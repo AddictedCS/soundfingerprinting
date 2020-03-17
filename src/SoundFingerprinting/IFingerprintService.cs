@@ -6,8 +6,10 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
 
-    internal interface IFingerprintService
+    public interface IFingerprintService
     {
-        List<HashedFingerprint> CreateFingerprints(AudioSamples samples, FingerprintConfiguration configuration);
+        Hashes CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration);
+
+        Hashes CreateFingerprintsFromImageFrames(IEnumerable<Frame> imageFrames, FingerprintConfiguration configuration);
     }
 }

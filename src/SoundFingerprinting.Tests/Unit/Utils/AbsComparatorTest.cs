@@ -10,14 +10,13 @@
     [TestFixture]
     public class AbsComparatorTest
     {
-        private readonly AbsComparator comparator = new AbsComparator();
-
         [Test]
         public void ArraysIsSortedCorrectlyDescending()
         {
-            float[] expected = new[] { -13, -8, 7, 5, 2, -1, -0.5f, 0 };
-            int[] expectedIndexes = new[] { 7, 4, 5, 6, 2, 1, 3, 0 };
-            float[] arrayToSort = new[] { 0, -1, 2, -0.5f, -8, 7, 5, -13 };
+            var comparator = new AbsComparator();
+            float[] expected = { -13, -8, 7, 5, 2, -1, -0.5f, 0 };
+            int[] expectedIndexes = { 7, 4, 5, 6, 2, 1, 3, 0 };
+            float[] arrayToSort = { 0, -1, 2, -0.5f, -8, 7, 5, -13 };
             int[] indexes = Enumerable.Range(0, 8).ToArray();
             Array.Sort(arrayToSort, indexes, comparator);
 

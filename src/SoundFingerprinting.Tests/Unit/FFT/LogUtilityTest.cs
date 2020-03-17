@@ -6,7 +6,7 @@
     using SoundFingerprinting.FFT;
 
     [TestFixture]
-    public class LogUtilityTest : AbstractTest
+    public class LogUtilityTest
     {
         private readonly ILogUtility logUtility = new LogUtility();
         private readonly FingerprintConfiguration defaultFingerprintConfiguration = new DefaultFingerprintConfiguration();

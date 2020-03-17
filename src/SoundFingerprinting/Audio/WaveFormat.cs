@@ -3,7 +3,7 @@
     using System;
     using System.IO;
 
-    internal class WaveFormat
+    public class WaveFormat
     {
         public int SampleRate { get; private set; }
 
@@ -13,13 +13,7 @@
 
         public long Length { get; private set; }
 
-        public float LengthInSeconds
-        {
-            get
-            {
-                return (float)Length / (SampleRate * (BitsPerSample / 8) * Channels);
-            }
-        }
+        public float LengthInSeconds => (float)Length / (SampleRate * (BitsPerSample / 8) * Channels);
 
         public static WaveFormat FromFile(string pathToFileName)
         {

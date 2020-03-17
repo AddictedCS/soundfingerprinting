@@ -16,8 +16,8 @@
         public void ShouldGetNextSamples()
         {
             var producer = new BlockingCollection<float[]>();
-            const int NumberOfItemsToAdd = 5;
-            PutSamplesIntoQueueOnIregularIntervals(producer, NumberOfItemsToAdd);
+            const int numberOfItemsToAdd = 5;
+            PutSamplesIntoQueueOnIrregularIntervals(producer, numberOfItemsToAdd);
 
             var samplesProvider = new BlockingQueueSamplesProvider(producer);
 
@@ -25,7 +25,7 @@
             while (!producer.IsAddingCompleted)
             {
                 var added = samplesProvider.GetNextSamples(new float[1024]);
-                if (count < NumberOfItemsToAdd)
+                if (count < numberOfItemsToAdd)
                 {
                     Assert.AreEqual(1024 * 4, added);
                 }
@@ -33,10 +33,10 @@
                 count++;
             }
 
-            Assert.AreEqual(NumberOfItemsToAdd + 1, count);
+            Assert.AreEqual(numberOfItemsToAdd + 1, count);
         }
 
-        private void PutSamplesIntoQueueOnIregularIntervals(BlockingCollection<float[]> producer, int count)
+        private void PutSamplesIntoQueueOnIrregularIntervals(BlockingCollection<float[]> producer, int count)
         {
             Task.Factory.StartNew(() => AddValues(producer, count)).ContinueWith(t => producer.CompleteAdding());
         }
@@ -45,7 +45,7 @@
         {
             for (int i = 0; i < count; ++i)
             {
-                Thread.Sleep(this.random.Next(1000, 3000));
+                Thread.Sleep(random.Next(1000, 3000));
                 producer.Add(new float[1024]);
             }
         }

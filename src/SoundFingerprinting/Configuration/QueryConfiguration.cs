@@ -2,11 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
 
     /// <summary>
-    ///   Configuration options used during querying the data source
+    ///   Configuration options used when querying the data source
     /// </summary>
     public abstract class QueryConfiguration
     {
@@ -18,16 +18,13 @@
         /// </summary>
         public int ThresholdVotes
         {
-            get
-            {
-                return thresholdVotes;
-            }
+            get => thresholdVotes;
 
             set
             {
-                if (value < 0)
+                if (value < 1)
                 {
-                    throw new ArgumentException("ThresholdVotes cannot be less than 0", "value");
+                    throw new ArgumentException("ThresholdVotes cannot be less than 1", nameof(value));
                 }
 
                 thresholdVotes = value;
@@ -39,16 +36,13 @@
         /// </summary>
         public int MaxTracksToReturn
         {
-            get
-            {
-                return maxTracksToReturn;
-            }
+            get => maxTracksToReturn;
 
             set
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentException("MaxTracksToReturn cannot be less or equal to 0", "value");
+                    throw new ArgumentException("MaxTracksToReturn cannot be less or equal to 0", nameof(value));
                 }
 
                 maxTracksToReturn = value;
@@ -60,92 +54,69 @@
         /// </summary>
         public IStride Stride
         {
-            get
-            {
-                return FingerprintConfiguration.SpectrogramConfig.Stride;
-            }
+            get => FingerprintConfiguration.SpectrogramConfig.Stride;
 
-            set
-            {
-                FingerprintConfiguration.SpectrogramConfig.Stride = value;
-            }
+            set => FingerprintConfiguration.SpectrogramConfig.Stride = value;
         }
 
         /// <summary>
-        ///   Gets or sets Haar Wavelet norm. The universaly recognized norm is sqrt(2), though for acoustic fingerprinting 1 works very well for noisy scenarious
-        /// </summary>
-        public double HaarWaveletNorm
-        {
-            get
-            {
-                return FingerprintConfiguration.HaarWaveletNorm;
-            }
-            set
-            {
-                FingerprintConfiguration.HaarWaveletNorm = value;
-            }
-        }
-
-        /// <summary>
-        ///  Scaling function used in spectral image creation
+        ///  Gets or sets the scaling function used in spectral image creation
         /// </summary>
         public Func<float, float, float> ScalingFunction
         {
-            get
-            {
-                return FingerprintConfiguration.ScalingFunction;
-            }
-            set
-            {
-                FingerprintConfiguration.ScalingFunction = value;
-            }
+            get => FingerprintConfiguration.ScalingFunction;
+
+            set => FingerprintConfiguration.ScalingFunction = value;
         }
 
         /// <summary>
-        ///  Number of top wavelets to analyze
+        ///  Gets or sets the number of top wavelets to analyze
         /// </summary>
         public int TopWavelets
         {
-            get
-            {
-                return FingerprintConfiguration.TopWavelets;
-            }
-            set
-            {
-                FingerprintConfiguration.TopWavelets = value;
-            }
+            get => FingerprintConfiguration.TopWavelets;
+
+            set => FingerprintConfiguration.TopWavelets = value;
         }
 
         /// <summary>
-        ///  Frequency range to analyze when creating the fingerprint
+        ///  Gets or sets frequency range to analyze when creating the fingerprint
         /// </summary>
         public FrequencyRange FrequencyRange
         {
-            get
-            {
-                return FingerprintConfiguration.FrequencyRange;
-            }
-            set
-            {
-                FingerprintConfiguration.FrequencyRange = value;
-            }
+            get => FingerprintConfiguration.FrequencyRange;
+
+            set => FingerprintConfiguration.FrequencyRange = value;
         }
 
         /// <summary>
-        ///  Gets or sets list of clusters to consider when querying the datasource for potential candidates
-        /// </summary>
-        public IEnumerable<string> Clusters { get; set; }
-
-        /// <summary>
-        ///  Allows multiple matches of the same track to be found in the query. Useful when you have a long query which may contain same track multiple times.
-        ///  Use cautiously, since aligning same track on a single query multiple times may result in a performance penalty. Default false.
+        ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 
+        ///  Useful when you have a long query which may contain same track multiple times scattered across the query.
+        ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
         public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
 
         /// <summary>
-        /// Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
-        /// It doesnt have to be exposed to the outside framework users.
+        ///  Permitted gap between consecutive matches. If 2 consecutive matches are further away than permitted gap, they will be reported as 2 different matches.
+        ///  Handy when tracks slightly differ in certain locations. The algorithm then can ignore this differences. Only works with AllowMultipleMatchesOfTheSameTrackInQuery set to true.
         /// </summary>
-        internal FingerprintConfiguration FingerprintConfiguration { get; set; }
+        public double PermittedGap { get; set; }
+
+        /// <summary>
+        ///  Gets or sets meta fields that are passed to the storage when querying. Useful for second stage filtering.
+        ///  Example: TrackInfo has meta field "Region: USA". You can specify "Region: USA".
+        /// </summary>
+        public IDictionary<string, string> MetaFieldsFilter { get; set; }
+
+        /// <summary>
+        ///  Gets or sets query media type.
+        ///  Source of fingerprints is either audio or video, set the corresponding type so that the ModelService is aware where to look for matches
+        /// </summary>
+        public MediaType QueryMediaType { get; set; }
+
+        /// <summary>
+        ///  Gets or sets fingerprint configuration used during querying. This field will be used later on for internal purposes. 
+        /// </summary>
+        public FingerprintConfiguration FingerprintConfiguration { get; set; }
     }
 }

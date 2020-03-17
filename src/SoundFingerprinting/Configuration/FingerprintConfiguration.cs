@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
     using System.Collections.Generic;
-
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
 
     public abstract class FingerprintConfiguration
@@ -12,21 +12,10 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public IStride Stride
         {
-            get
-            {
-                return SpectrogramConfig.Stride;
-            }
+            get => SpectrogramConfig.Stride;
 
-            set
-            {
-                SpectrogramConfig.Stride = value;
-            }
+            set => SpectrogramConfig.Stride = value;
         }
-
-        /// <summary>
-        ///   Gets or sets the list of assigned clusters to all generated fingerprints
-        /// </summary>
-        public IEnumerable<string> Clusters { get; set; }
 
         /// <summary>
         ///   Gets or sets Haar Wavelet norm. The default value is Math.Sqrt(2)
@@ -38,14 +27,8 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public Func<float, float, float> ScalingFunction
         {
-            get
-            {
-                return SpectrogramConfig.ScalingFunction;
-            }
-            set
-            {
-                SpectrogramConfig.ScalingFunction = value;
-            } 
+            get => SpectrogramConfig.ScalingFunction;
+            set => SpectrogramConfig.ScalingFunction = value;
         }
 
         /// <summary>
@@ -53,14 +36,8 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public FrequencyRange FrequencyRange
         {
-            get
-            {
-                return SpectrogramConfig.FrequencyRange;
-            }
-            set
-            {
-                SpectrogramConfig.FrequencyRange = value;
-            }
+            get => SpectrogramConfig.FrequencyRange;
+            set => SpectrogramConfig.FrequencyRange = value;
         }
 
         /// <summary>
@@ -71,13 +48,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets number of audio samples read for one fingerprint
         /// </summary>
-        internal int SamplesPerFingerprint
-        {
-            get
-            {
-                return SpectrogramConfig.ImageLength * SpectrogramConfig.Overlap;
-            }
-        }
+        internal int SamplesPerFingerprint => SpectrogramConfig.ImageLength * SpectrogramConfig.Overlap;
 
         /// <summary>
         ///  Gets or sets number of top wavelets to consider during wavelet transformation
@@ -92,17 +63,16 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets hashing configuration parameters
         /// </summary>
-        internal HashingConfig HashingConfig { get; set; }
+        public HashingConfig HashingConfig { get; set; }
 
         /// <summary>
-        ///  Gets fingerprint length in seconds
+        ///  Gets or sets fingerprint length in seconds
         /// </summary>
-        internal double FingerprintLengthInSeconds
-        {
-            get
-            {
-                return (double)SamplesPerFingerprint / SampleRate;
-            }
-        }
+        public double FingerprintLengthInSeconds { get; set; }
+
+        /// <summary>
+        ///  Gets or sets the transformation for the original point that needs to be saved for second level cross-check
+        /// </summary>
+        public Func<Frame, byte[]> OriginalPointSaveTransform { get; set; }
     }
 }

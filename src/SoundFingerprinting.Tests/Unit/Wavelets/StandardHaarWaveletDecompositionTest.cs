@@ -7,33 +7,44 @@
     using SoundFingerprinting.Wavelets;
 
     [TestFixture]
-    public class StandardHaarWaveletDecompositionTest : AbstractTest
+    public class StandardHaarWaveletDecompositionTest
     {
-        private IWaveletDecomposition waveletDecomposition;
-
-        [SetUp]
-        public void SetUp()
-        {
-            waveletDecomposition = new StandardHaarWaveletDecomposition();
-        }
-
         [Test]
         public void StandardDecompositionTest()
         {
-            const int Rows = 128;
-            const int Cols = 32;
-            float[][] frames = new float[Rows][];
-            float[] concatenated = new float[Rows * Cols];
-            for (int i = 0; i < Rows; i++)
+            const int rows = 128;
+            const int cols = 32;
+            float[][] frames = new float[rows][];
+            float[] concatenated = new float[rows * cols];
+            for (int i = 0; i < rows; i++)
             {
-                frames[i] = TestUtilities.GenerateRandomSingleArray(Cols);
-                Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * Cols, sizeof(float) * Cols);
+                frames[i] = TestUtilities.GenerateRandomSingleArray(cols, i);
+                Buffer.BlockCopy(frames[i], 0, concatenated, sizeof(float) * i * cols, sizeof(float) * cols);
             }
 
-            AssertAreSame(Rows, Cols, frames, concatenated);
-            waveletDecomposition.DecomposeImageInPlace(concatenated, Rows, Cols, 1d);
+            AssertAreSame(rows, cols, frames, concatenated);
+            
+            var waveletDecomposition = new StandardHaarWaveletDecomposition();
+            waveletDecomposition.DecomposeImageInPlace(concatenated, rows, cols, 1d);
             DecomposeImageLocal(frames);
-            AssertAreSame(Rows, Cols, frames, concatenated);
+            AssertAreSame(rows, cols, frames, concatenated);
+        }
+
+        /// <summary>
+        ///  Example from https://www.eecis.udel.edu/~amer/CISC651/wavelets_for_computer_graphics_Stollnitz.pdf
+        ///  It may be worth exploring using Non-Standard Wavelet Transform where columns are processed first and then the rows
+        ///  More details here: https://dsp.stackexchange.com/questions/58843/what-is-the-correct-order-of-operations-for-a-2d-haar-wavelet-decomposition 
+        /// </summary>
+        [Test]
+        public void ShouldDecomposeAsExpected()
+        {
+            var wd = new StandardHaarWaveletDecomposition();
+
+            var floats = new[] {8f, 4, 1, 3};
+
+            wd.DecomposeImageInPlace(floats, 1, 4, 2d); // Let's use 2 as norm, to reconstruct the result more easily
+
+            CollectionAssert.AreEqual(new[] {4, 2, 2, -1}, floats);
         }
 
         private void AssertAreSame(int rows, int cols, float[][] frames, float[] concatenated)

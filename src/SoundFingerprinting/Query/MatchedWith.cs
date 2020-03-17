@@ -1,18 +1,38 @@
-﻿namespace SoundFingerprinting.Query
+﻿// ReSharper disable UnusedMember.Local
+namespace SoundFingerprinting.Query
 {
-    internal class MatchedWith
+    using ProtoBuf;
+
+    [ProtoContract]
+    public class MatchedWith
     {
-        public MatchedWith(float queryAt, float resultAt, int hammingSimilarity)
+        public MatchedWith(uint querySequenceNumber, float queryMatchAt, uint trackSequenceNumber, float trackMatchAt, double score)
         {
-            QueryAt = queryAt;
-            ResultAt = resultAt;
-            HammingSimilarity = hammingSimilarity;
+            QuerySequenceNumber = querySequenceNumber;
+            QueryMatchAt = queryMatchAt;
+            TrackMatchAt = trackMatchAt;
+            TrackSequenceNumber = trackSequenceNumber;
+            Score = score;
         }
 
-        public float QueryAt { get; }
+        private MatchedWith()
+        {
+            // left for proto-buf
+        }
 
-        public float ResultAt { get; }
+        [ProtoMember(1)]
+        public uint QuerySequenceNumber { get; }
 
-        public int HammingSimilarity { get; }
+        [ProtoMember(2)]
+        public float QueryMatchAt { get; }
+
+        [ProtoMember(3)]
+        public uint TrackSequenceNumber { get; }
+
+        [ProtoMember(4)]
+        public float TrackMatchAt { get; }
+
+        [ProtoMember(5)]
+        public double Score { get; }
     }
 }

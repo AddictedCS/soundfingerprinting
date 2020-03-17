@@ -6,32 +6,38 @@ namespace SoundFingerprinting.InMemory
     using DAO.Data;
     using Data;
 
-    internal interface IRAMStorage
+    public interface IRAMStorage
     {
-        IDictionary<int, TrackData> Tracks { get; }                         // key: track reference
+        IDictionary<IModelReference, TrackData> Tracks { get; }                         // key: track reference
 
-        void AddSubfingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
+        int SubFingerprintsCount { get; }
 
-        List<ulong> GetSubFingerprintsByHashTableAndHash(int table, int hash);
+        IEnumerable<int> HashCountsPerTable { get; }
+
+        SubFingerprintData AddHashedFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
+
+        void AddSubFingerprint(SubFingerprintData subFingerprintData);
+
+        List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash);
 
         void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
 
         IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
 
-        int NumberOfHashTables { get; }
-
-        void Reset(int numberOfHashTables);
-
         void InitializeFromFile(string path);
 
         void Snapshot(string path);
 
-        IModelReference AddTrack(TrackData track);
+        TrackData AddTrack(TrackInfo track, double durationInSeconds);
+
+        TrackData AddTrack(TrackData track);
 
         int DeleteTrack(IModelReference trackReference);
 
-        SubFingerprintData ReadSubFingerprintById(ulong id);
+        SubFingerprintData ReadSubFingerprintById(uint id);
 
         IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference);
+        
+        int DeleteSubFingerprintsByTrackReference(IModelReference trackReference);
     }
 }

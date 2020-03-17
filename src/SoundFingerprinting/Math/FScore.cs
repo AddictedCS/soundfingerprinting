@@ -15,33 +15,15 @@
             this.falseNegatives = falseNegatives;
         }
 
-        public double Precision
-        {
-            get
-            {
-                return (double)truePositives / (truePositives + falsePositives);
-            }
-        }
+        public double Precision => (double)truePositives / (truePositives + falsePositives);
 
-        public double Recall
-        {
-            get
-            {
-                return (double)truePositives / (truePositives + falseNegatives);
-            }
-        }
+        public double Recall => (double)truePositives / (truePositives + falseNegatives);
 
-        public double F1
-        {
-            get
-            {
-                return 2 * (Precision * Recall) / (Precision + Recall);
-            }
-        }
+        public double F1 => 2 * (Precision * Recall) / (Precision + Recall);
 
         public override string ToString()
         {
-            return $"Precision: {Precision}, Recall: {Recall}, F1: {F1}";
+            return $"Precision: {Precision:0.000}, Recall: {Recall:0.000}, F1: {F1:0.000}";
         }
     }
 }

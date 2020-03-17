@@ -10,7 +10,7 @@
     public class HammingDistanceResultStatisticsTest
     {
         [Test]
-        public void ShouldCalculatePercentilesCorrenctly()
+        public void ShouldCalculatePercentilesCorrectly()
         {
             var stats = HammingDistanceResultStatistics.From(
                 new ConcurrentBag<int> { 5, 4, 3, 2, 1 },

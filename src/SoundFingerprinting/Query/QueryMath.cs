@@ -5,10 +5,9 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
-    internal class QueryMath : IQueryMath
+    public class QueryMath : IQueryMath
     {
         private readonly IQueryResultCoverageCalculator queryResultCoverageCalculator;
         private readonly IConfidenceCalculator confidenceCalculator;
@@ -19,17 +18,19 @@
             this.confidenceCalculator = confidenceCalculator;
         }
 
+        public static QueryMath Instance { get; } = new QueryMath(new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence()), new ConfidenceCalculator());
+
         public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration)
         {
-            var trackIds = groupedQueryResults.GetTopTracksByHammingSimilarity(maxNumberOfMatchesToReturn).ToList();
+            var trackIds = groupedQueryResults.GetTopTracksByScore(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
-            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration)).ToList();
+            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration))
+                .OrderByDescending(entry => entry.Score)
+                .ToList();
         }
 
-        public bool IsCandidatePassingThresholdVotes(HashedFingerprint queryFingerprint, SubFingerprintData candidate, int thresholdVotes)
+        public static bool IsCandidatePassingThresholdVotes(int[] query, int[] result, int thresholdVotes)
         {
-            int[] query = queryFingerprint.HashBins;
-            int[] result = candidate.Hashes;
             int count = 0;
             for (int i = 0; i < query.Length; ++i)
             {
@@ -52,23 +53,10 @@
             var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
             return coverages.Select(coverage =>
                {
-                    double confidence = confidenceCalculator.CalculateConfidence(
-                        coverage.SourceMatchStartsAt,
-                        coverage.SourceMatchLength,
-                        coverage.QueryLength,
-                        coverage.OriginMatchStartsAt,
-                        track.Length);
-
-                    return new ResultEntry(
-                        track,
-                        coverage.SourceMatchStartsAt,
-                        coverage.SourceMatchLength,
-                        coverage.SourceCoverageLength,
-                        coverage.OriginMatchStartsAt,
-                        coverage.TrackStartsAt,
-                        confidence,
-                        groupedQueryResults.GetHammingSimilaritySumForTrack(track.TrackReference),
-                        coverage.QueryLength);
+                    double confidence = confidenceCalculator.CalculateConfidence(coverage);
+                    return new ResultEntry(track, confidence, groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
+                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
+                        coverage);
                });
         }
     }

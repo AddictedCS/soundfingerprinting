@@ -47,10 +47,10 @@
 
         private void RunTest(IEnumerable<float[]> pool, FingerprintDescriptor descriptor)
         {
-            const int TopWavelets = 200;
+            const int topWavelets = 200;
             foreach (var floats in pool)
             {
-                descriptor.ExtractTopWavelets(floats, TopWavelets, RangeUtils.GetRange(floats.Length));
+                descriptor.ExtractTopWavelets(floats, topWavelets, RangeUtils.GetRange(floats.Length));
             }
         }
 

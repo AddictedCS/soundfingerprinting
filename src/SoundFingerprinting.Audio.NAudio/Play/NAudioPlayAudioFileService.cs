@@ -4,8 +4,7 @@
     {
         private readonly INAudioPlayAudioFactory audioFactory;
 
-        public NAudioPlayAudioFileService()
-            : this(new NAudioPlayAudioFactory())
+        public NAudioPlayAudioFileService(): this(new NAudioPlayAudioFactory())
         {
         }
 
@@ -25,8 +24,7 @@
 
         public void StopPlayingFile(object playFileAttributes)
         {
-            var attributes = playFileAttributes as PlayFileAttributes;
-            if (attributes != null)
+            if (playFileAttributes is PlayFileAttributes attributes)
             {
                 attributes.WavePlayer.Stop();
                 attributes.WaveStream.Close();

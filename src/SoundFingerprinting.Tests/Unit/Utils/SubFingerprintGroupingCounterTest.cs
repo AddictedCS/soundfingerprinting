@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace SoundFingerprinting.Tests.Unit.Utils
+﻿namespace SoundFingerprinting.Tests.Unit.Utils
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
@@ -15,10 +15,10 @@ namespace SoundFingerprinting.Tests.Unit.Utils
         {
             var tablesCount = 25;
             var count = 100;
-            var lists = new List<ulong>[tablesCount];
+            var lists = new List<uint>[tablesCount];
             for (int i = 0; i < lists.Length; i++)
             {
-                lists[i] = Enumerable.Range(0, count).ToList().Select(entry => (ulong)entry).ToList();
+                lists[i] = Enumerable.Range(0, count).ToList().Select(entry => (uint)entry).ToList();
             }
 
             var groupingResult = SubFingerprintGroupingCounter.GroupByAndCount(lists, 5).ToList();
