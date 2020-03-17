@@ -9,12 +9,12 @@
     [ProtoContract]
     public class TrackInfo
     {
-        public TrackInfo(string id, string title, string artist) : this(id, title, artist, new Dictionary<string, string>(), MediaType.Audio)
+        public TrackInfo(string id, string title, string artist) : this(id, title, artist, new Dictionary<string, string>())
         {
             // no op
         }
         
-        public TrackInfo(string id, string title, string artist, IDictionary<string, string> metaFields, MediaType mediaType)
+        public TrackInfo(string id, string title, string artist, IDictionary<string, string> metaFields, MediaType mediaType = MediaType.Audio)
         {
             Id = id;
             Title = title;

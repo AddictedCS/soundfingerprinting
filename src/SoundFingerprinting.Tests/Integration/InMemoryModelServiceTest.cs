@@ -25,7 +25,7 @@
         {
             var track = new TrackInfo("id", "title", "artist");
 
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f) }, 1.48));
 
             Assert.IsNotNull(modelService.ReadTrackById("id"));
         }
@@ -34,7 +34,7 @@
         public void ReadTrackByTrackIdTest()
         {
             var track = new TrackInfo("id", "title", "artist");
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f) }, 1.48));
             
             var first = modelService.ReadTrackById("id");
             AssertTracksAreEqual(track, first);
@@ -50,7 +50,7 @@
         {
             var track = new TrackInfo("id", "title", "artist");
 
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48d));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f) }, 1.48d));
 
             var actualTracks = modelService.ReadTrackByTitle("title").ToList();
 
@@ -65,7 +65,7 @@
             for (int i = 0; i < numberOfTracks; i++)
             {
                 var track = new TrackInfo($"id{i}", "title", "artist");
-                modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48d));
+                modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f) }, 1.48d));
             }
 
             var actualTracks = modelService.ReadAllTracks().ToList();
@@ -77,7 +77,7 @@
         public void DeleteTrackTest()
         {
             var track = new TrackInfo("id", "title", "artist");
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f) }, 1.48));
 
             modelService.DeleteTrack("id");
 
@@ -93,7 +93,7 @@
         public void InsertHashDataTest()
         {
             var expectedTrack = new TrackInfo("id", "title", "artist");
-            modelService.Insert(expectedTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>()) }, 1.48));
+            modelService.Insert(expectedTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f) }, 1.48));
 
             var subFingerprints = modelService.Query(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
                                               .ToList();
@@ -113,8 +113,8 @@
             int[] firstTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             int[] secondTrackBuckets = { 2, 2, 4, 5, 6, 7, 7, 9, 10, 11, 12, 13, 14, 14, 16, 17, 18, 19, 20, 20, 22, 23, 24, 25, 26 };
 
-            var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f, Enumerable.Empty<string>());
-            var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f, Enumerable.Empty<string>());
+            var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f);
+            var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f);
 
             modelService.Insert(t1, new Hashes(new[] { firstHashData }, 1.48d));
             modelService.Insert(t2, new Hashes(new[] { secondHashData }, 1.48d));
@@ -131,12 +131,12 @@
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdWithClustersTest()
         {
-            var firstTrack = new TrackInfo("id1", "title", "artist");
-            var secondTrack = new TrackInfo("id2", "title", "artist");
+            var firstTrack = new TrackInfo("id1", "title", "artist", new Dictionary<string, string>{{ "group-id", "first-group-id" }});
+            var secondTrack = new TrackInfo("id2", "title", "artist", new Dictionary<string, string>{{ "group-id", "second-group-id" }});
             int[] firstTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             int[] secondTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
-            var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f, new[] { "first-group-id" });
-            var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f, new[] { "second-group-id" });
+            var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f);
+            var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f);
 
             modelService.Insert(firstTrack, new Hashes(new[] { firstHashData }, 1.48d));
             modelService.Insert(secondTrack, new Hashes(new[] { secondHashData }, 1.48d));
@@ -144,9 +144,12 @@
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
 
-            var set = new HashSet<string>(new[] { "first-group-id" });
-            var subFingerprints = modelService.Query(new[] { queryBuckets }, new DefaultQueryConfiguration { 
-                    Clusters = set}).ToList();
+            var subFingerprints = modelService.Query(
+                new[] { queryBuckets }, 
+                new DefaultQueryConfiguration 
+                { 
+                    MetaFieldsFilter = new Dictionary<string, string> {{"group-id", "first-group-id"}}
+                }).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
         }

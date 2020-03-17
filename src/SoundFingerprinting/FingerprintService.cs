@@ -44,7 +44,7 @@ namespace SoundFingerprinting
             var hashes = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
                 .AsParallel()
                 .ToList()
-                .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig, configuration.Clusters))
+                .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
             return new Hashes(hashes, samples.Duration);
@@ -55,12 +55,12 @@ namespace SoundFingerprinting
             var frames = imageFrames.ToList();
             var hashes = CreateOriginalFingerprintsFromFrames(frames, configuration)
                 .AsParallel()
-                .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig, configuration.Clusters))
+                .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList()
                 .Join(frames, hashed => hashed.SequenceNumber, frame => frame.SequenceNumber, (hash, frame) =>
                 {
                     byte[] transformed = configuration.OriginalPointSaveTransform != null ? configuration.OriginalPointSaveTransform(frame) : Array.Empty<byte>();
-                    return new HashedFingerprint(hash.HashBins, hash.SequenceNumber, hash.StartsAt, hash.Clusters, transformed);
+                    return new HashedFingerprint(hash.HashBins, hash.SequenceNumber, hash.StartsAt, transformed);
                 })
                 .ToList();
 

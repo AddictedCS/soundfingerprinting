@@ -34,7 +34,7 @@
         [Test]
         public void ShouldSerialize()
         {
-            var sub = new SubFingerprintData(new[] { 1, 2, 3 }, 1, 1f, new[] { "1", "2" }, new ModelReference<int>(1), new ModelReference<int>(2));
+            var sub = new SubFingerprintData(new[] { 1, 2, 3 }, 1, 1f, new ModelReference<int>(1), new ModelReference<int>(2));
 
             using (var stream = new MemoryStream())
             {
@@ -70,7 +70,7 @@
         [Test]
         public void ShouldSerializeHashes()
         {
-            var hashes = new Hashes(new [] { new HashedFingerprint(new [] {1,2,3,4,5}, 0, 0, Enumerable.Empty<string>())} , 1.48);
+            var hashes = new Hashes(new [] { new HashedFingerprint(new [] {1,2,3,4,5}, 0, 0)} , 1.48);
 
             byte[] serialized;
             using (var stream = new MemoryStream())

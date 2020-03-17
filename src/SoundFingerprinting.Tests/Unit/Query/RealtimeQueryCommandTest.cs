@@ -31,15 +31,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
                                                 .From(concatenated)
-                                                .WithFingerprintConfig(config => 
-                                                { 
-                                                    config.Clusters = new [] { "USA" };
-                                                    return config;
-                                                })
                                                 .UsingServices(audioService)
                                                 .Hash();
 
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", new Dictionary<string, string>{{ "country", "USA" }}), hashes);
             
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             var wrong = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
@@ -48,7 +43,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               {
                                                     config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
                                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithWrongClusters);
-                                                    config.Clusters = new HashSet<string>(new[] {"CANADA"});
+                                                    config.MetaFieldsFilter = new Dictionary<string, string> {{"country", "CANADA"}};
                                                     return config;
                                               })
                                               .UsingServices(modelService)
@@ -60,7 +55,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                 {
                                     config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithClusters);
-                                    config.Clusters = new HashSet<string>(new[] {"USA"});
+                                    config.MetaFieldsFilter = new Dictionary<string, string> {{"country", "USA"}};
                                     return config;
                                 })
                                 .UsingServices(modelService)
@@ -151,7 +146,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 1.48d,
                 0d,
                 (int)(10240d/5512) * 1000,
-                new HashSet<string>());
+                new Dictionary<string, string>());
 
              var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             

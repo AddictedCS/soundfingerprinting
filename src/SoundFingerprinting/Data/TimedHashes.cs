@@ -115,23 +115,23 @@ namespace SoundFingerprinting.Data
                 if (i == first.Count)
                 {
                     var startAt = diff.TotalSeconds + second[j].StartsAt;
-                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].Clusters));
+                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt));
                     ++j;
                 }
                 else if (j == second.Count)
                 {
-                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt, first[i].Clusters));
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt));
                     ++i;
                 }
                 else if (firstStartsAt.AddSeconds(first[i].StartsAt) <= secondStartsAt.AddSeconds(second[j].StartsAt))
                 {
-                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt, first[i].Clusters));
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt));
                     ++i;
                 }
                 else
                 {
                     var startAt = diff.TotalSeconds + second[j].StartsAt;
-                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].Clusters));
+                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt));
                     ++j;
                 }
             }

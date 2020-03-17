@@ -118,8 +118,8 @@
                 for (int j = 0; j < simulationRuns; ++j)
                 {
                     var arrays = TestUtilities.GenerateSimilarFingerprints(random, howSimilar, topWavelets, vectorLength);
-                    var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), hashingConfig, new List<string>());
-                    var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), hashingConfig, new List<string>());
+                    var hashed1 = lsh.Hash(new Fingerprint(arrays.Item1, 0, 0), hashingConfig);
+                    var hashed2 = lsh.Hash(new Fingerprint(arrays.Item2, 0, 0), hashingConfig);
                     int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
                     if (agreeCount > 0)
                     {

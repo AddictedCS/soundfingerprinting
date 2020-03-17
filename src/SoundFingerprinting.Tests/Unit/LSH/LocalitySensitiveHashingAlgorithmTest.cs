@@ -33,11 +33,11 @@
             int runs = 10000;
             for (int i = 0; i < 10000; ++i)
             {
-                var tinyFingerprint = TestUtilities.GenerateRandomFingerprint(random, (int) 200, width, height);
+                var tinyFingerprint = TestUtilities.GenerateRandomFingerprint(random, 200, width, height);
  
                 var fingerprint = new Fingerprint(tinyFingerprint, 0, 0);
 
-                var hashedFingerprint = lshAlgorithm.Hash(fingerprint, hashingConfig, Enumerable.Empty<string>());
+                var hashedFingerprint = lshAlgorithm.Hash(fingerprint, hashingConfig);
 
                 for (int table = 0; table < tables.Length; ++table)
                 {
@@ -46,9 +46,9 @@
                 }
             }
 
-            for (int i = 0; i < tables.Length; ++i)
+            foreach (var table in tables)
             {
-                Assert.IsTrue(tables[i].Count > runs * 0.9);
+                Assert.IsTrue(table.Count > runs * 0.9);
             }
         }
 
@@ -85,7 +85,7 @@
  
                 var fingerprint = new Fingerprint(tinyFingerprint, 0, 0);
 
-                var hashedFingerprint = lshAlgorithm.HashImage(fingerprint, hashingConfig, Enumerable.Empty<string>());
+                var hashedFingerprint = lshAlgorithm.HashImage(fingerprint, hashingConfig);
 
                 for (int table = 0; table < tables.Length; ++table)
                 {
@@ -95,9 +95,9 @@
             }
 
             Console.WriteLine(string.Join(",", tables.Select(t => t.Count)));
-            for (int i = 0; i < tables.Length; ++i)
+            foreach (var table in tables)
             {
-                Assert.IsTrue(tables[i].Count > runs * 0.9);
+                Assert.IsTrue(table.Count > runs * 0.9);
             }
         }
         
@@ -117,14 +117,14 @@
             for (int i = 0; i < 100; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config, Enumerable.Empty<string>());
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config);
                 storage.AddHashedFingerprint(hash, track);
             }
 
             for (int i = 0; i < 10; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config, Enumerable.Empty<string>());
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config);
                 for (int j = 0; j < 25; ++j)
                 {
                     var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j]);
@@ -150,7 +150,7 @@
             for (int i = 0; i < l; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config, Enumerable.Empty<string>());
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config);
                 storage.AddHashedFingerprint(hash, track);
             }
 
@@ -191,8 +191,8 @@
                     var fingerprints = TestUtilities.GenerateSimilarFingerprints(random, howSimilar, topWavelets, width * height * 2);
                     int hammingDistance = similarity.CalculateHammingDistance(fingerprints.Item1.ToBools(), fingerprints.Item2.ToBools());
                     hammingDistances.Add(hammingDistance);
-                    var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0), hashingConfig, Enumerable.Empty<string>());
-                    var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0), hashingConfig, Enumerable.Empty<string>());
+                    var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0), hashingConfig);
+                    var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0), hashingConfig);
                     int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
                     agreeOn.Add(agreeCount);
                 }

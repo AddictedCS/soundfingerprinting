@@ -65,7 +65,7 @@
                 }
             });
 
-            return ResolveFromIds(allSubs.Keys, queryConfiguration.Clusters);
+            return ResolveFromIds(allSubs.Keys, queryConfiguration.MetaFieldsFilter);
         }
 
         public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
@@ -85,12 +85,24 @@
             return groupingCounter.GroupByAndCount(results, thresholdVotes);
         }
         
-        private IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids, ISet<string> clusters)
+        private IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids, IDictionary<string, string> metaFieldsFilter)
         {
-            if (clusters.Any())
+            if (metaFieldsFilter.Any())
             {
                 return ids.Select(storage.ReadSubFingerprintById)
-                          .Where(data => data.Clusters.Any(clusters.Contains));
+                    .GroupBy(subFingerprint => subFingerprint.TrackReference)
+                    .Where(group =>
+                    {
+                        if(storage.Tracks.TryGetValue(group.Key, out var trackData))
+                        {
+                            return trackData.MetaFields
+                                    .Join(metaFieldsFilter, _ => _.Key, _ => _.Key, (a, b) => a.Value.Equals(b.Value))
+                                    .Any(x => x);
+                        }
+
+                        return false;
+                    })
+                    .SelectMany(x =>x.ToList());
             }
 
             return ids.Select(storage.ReadSubFingerprintById);

@@ -1,8 +1,6 @@
 ﻿namespace SoundFingerprinting.DAO.Data
 {
     using System;
-    using System.Collections.Generic;
-
     using DAO;
 
     using ProtoBuf;
@@ -11,25 +9,23 @@
     [ProtoContract]
     public class SubFingerprintData
     {
-        public SubFingerprintData(int[] hashes, uint sequenceNumber, float sequenceAt, IEnumerable<string> clusters, IModelReference subFingerprintReference, IModelReference trackReference) 
-            : this(hashes, sequenceNumber, sequenceAt, clusters, subFingerprintReference, trackReference, new byte[0])
+        public SubFingerprintData(int[] hashes, uint sequenceNumber, float sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference) 
+            : this(hashes, sequenceNumber, sequenceAt, subFingerprintReference, trackReference, new byte[0])
         {
         }
         
-        public SubFingerprintData(int[] hashes, uint sequenceNumber, float sequenceAt, IEnumerable<string> clusters, IModelReference subFingerprintReference, IModelReference trackReference, byte[] originalPoint) : this()
+        public SubFingerprintData(int[] hashes, uint sequenceNumber, float sequenceAt, IModelReference subFingerprintReference, IModelReference trackReference, byte[] originalPoint) : this()
         {
             Hashes = hashes;
             SubFingerprintReference = subFingerprintReference;
             TrackReference = trackReference;
             SequenceNumber = sequenceNumber;
             SequenceAt = sequenceAt;
-            Clusters = clusters;
             OriginalPoint = originalPoint;
         }
 
-        public SubFingerprintData()
+        private SubFingerprintData()
         {
-            Clusters = new List<string>();
         }
 
         [IgnoreBinding]
@@ -41,10 +37,6 @@
 
         [ProtoMember(3)]
         public float SequenceAt { get; }
-
-        [IgnoreBinding]
-        [ProtoMember(4)]
-        public IEnumerable<string> Clusters { get; }
 
         public byte[] OriginalPoint { get; }
 

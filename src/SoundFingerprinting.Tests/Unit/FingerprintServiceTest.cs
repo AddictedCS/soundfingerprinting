@@ -10,7 +10,6 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -23,7 +22,6 @@
         private Mock<ISpectrumService> spectrumService;
         private Mock<IWaveletDecomposition> waveletDecomposition;
         private Mock<ILocalitySensitiveHashingAlgorithm> localitySensitiveHashingAlgorithm;
-        private Mock<IImageService> imageService;
 
         [SetUp]
         public void SetUp()
@@ -32,7 +30,6 @@
             spectrumService = new Mock<ISpectrumService>(MockBehavior.Strict);
             waveletDecomposition = new Mock<IWaveletDecomposition>(MockBehavior.Strict);
             localitySensitiveHashingAlgorithm = new Mock<ILocalitySensitiveHashingAlgorithm>(MockBehavior.Strict);
-            imageService = new Mock<IImageService>(MockBehavior.Strict);
             fingerprintService = new FingerprintService(
                 spectrumService.Object,
                 localitySensitiveHashingAlgorithm.Object,
@@ -58,8 +55,8 @@
             spectrumService.Setup(service => service.CreateLogSpectrogram(samples, It.IsAny<DefaultSpectrogramConfig>())).Returns(dividedLogSpectrum);
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, fingerprintConfig.HaarWaveletNorm));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192).SetTrueAt(0, 1));
-            localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig, It.IsAny<IEnumerable<string>>()))
-                .Returns(new HashedFingerprint(new int[0], 1, 0f, Enumerable.Empty<string>()));
+            localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig))
+                .Returns(new HashedFingerprint(new int[0], 1, 0f));
 
             var fingerprints = fingerprintService.CreateFingerprintsFromAudioSamples(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)

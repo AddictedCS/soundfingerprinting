@@ -37,12 +37,12 @@
             const int numberOfHashBins = 100;
             var trackReference = trackDao.InsertTrack(track, 200).TrackReference;
             var genericHashBuckets = GenericHashBuckets();
-            var hashedFingerprints = Enumerable.Range(0, numberOfHashBins).Select(
-                sequenceNumber => new HashedFingerprint(
+            var hashedFingerprints = Enumerable
+                .Range(0, numberOfHashBins)
+                .Select(sequenceNumber => new HashedFingerprint(
                     genericHashBuckets,
                     (uint)sequenceNumber,
-                    sequenceNumber * 0.928f,
-                    Enumerable.Empty<string>()));
+                    sequenceNumber * 0.928f));
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
@@ -84,8 +84,8 @@
         [Test]
         public async Task ReadByTrackGroupIdWorksAsExpectedTest()
         {
-            var firstTrack = new TrackInfo("id", "title", "artist");
-            var secondTrack = new TrackInfo("id", "title", "artist");
+            var firstTrack = new TrackInfo("id", "title", "artist", new Dictionary<string, string>{{ "group-id", "first-group-id"}});
+            var secondTrack = new TrackInfo("id", "title", "artist", new Dictionary<string, string>{{ "group-id",  "second-group-id"}});
 
             var firstTrackReference = trackDao.InsertTrack(firstTrack, 120).TrackReference;
             var secondTrackReference = trackDao.InsertTrack(secondTrack, 120).TrackReference;
@@ -93,11 +93,6 @@
             var hashedFingerprintsForFirstTrack = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
-                .WithFingerprintConfig(config =>
-                {
-                    config.Clusters = new[] { "first-group-id" };
-                    return config;
-                })
                 .UsingServices(audioService)
                 .Hash();
 
@@ -106,11 +101,6 @@
             var hashedFingerprintsForSecondTrack = await FingerprintCommandBuilder.Instance
                .BuildFingerprintCommand()
                .From(GetAudioSamples())
-               .WithFingerprintConfig(config =>
-               {
-                   config.Clusters = new[] { "second-group-id" };
-                   return config;
-               })
                .UsingServices(audioService)
                .Hash();
 
@@ -125,7 +115,7 @@
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = thresholdVotes,
-                            Clusters = new HashSet<string>(new[] { "first-group-id" })
+                            MetaFieldsFilter = new Dictionary<string, string>{{ "group-id", "first-group-id" }}
                         }).ToList();
 
                 Assert.AreEqual(1, subFingerprintData.Count);
@@ -136,13 +126,14 @@
                     new DefaultQueryConfiguration
                         {
                             ThresholdVotes = thresholdVotes,
-                            Clusters = new HashSet<string>(new[] { "second-group-id" })
+                            MetaFieldsFilter = new Dictionary<string, string>{{ "group-id", "second-group-id" }}
                         }).ToList();
 
                 Assert.AreEqual(1, subFingerprintData.Count);
                 Assert.AreEqual(secondTrackReference, subFingerprintData[0].TrackReference);
 
-                subFingerprintData = subFingerprintDao.ReadSubFingerprints(new[] { hashedFingerprint.HashBins }, new DefaultQueryConfiguration { ThresholdVotes = thresholdVotes })
+                subFingerprintData = subFingerprintDao
+                        .ReadSubFingerprints(new[] { hashedFingerprint.HashBins }, new DefaultQueryConfiguration { ThresholdVotes = thresholdVotes })
                         .ToList();
 
                 Assert.AreEqual(2, subFingerprintData.Count);
@@ -189,11 +180,7 @@
 
         private static Func<SubFingerprintData, HashedFingerprint> ToHashedFingerprint()
         {
-            return subFingerprint => new HashedFingerprint(
-                subFingerprint.Hashes,
-                subFingerprint.SequenceNumber,
-                subFingerprint.SequenceAt,
-                subFingerprint.Clusters);
+            return _ => new HashedFingerprint(_.Hashes, _.SequenceNumber, _.SequenceAt);
         }
 
         private void InsertHashedFingerprintsForTrack(IEnumerable<HashedFingerprint> hashedFingerprints, IModelReference trackReference)

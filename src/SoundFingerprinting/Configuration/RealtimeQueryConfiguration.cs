@@ -24,7 +24,7 @@ namespace SoundFingerprinting.Configuration
             double permittedGap,
             double downtimeCapturePeriod,
             int millisecondsDelay,
-            ISet<string> clusters)
+            IDictionary<string, string> metaFieldFilters)
         {
             QueryConfiguration = new DefaultQueryConfiguration
             {
@@ -36,7 +36,7 @@ namespace SoundFingerprinting.Configuration
                         Stride = stride
                     }
                 },
-                Clusters = clusters,
+                MetaFieldsFilter = metaFieldFilters,
                 PermittedGap = permittedGap
             };
                 
@@ -120,12 +120,12 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///  Gets or sets list of clusters to consider when querying the data source for potential candidates
+        ///  Gets or sets list of meta fields to consider when querying the data source for potential candidates
         /// </summary>
-        public ISet<string> Clusters
+        public IDictionary<string, string> MetaFieldsFilter
         {
-            get => QueryConfiguration.Clusters;
-            set => QueryConfiguration.Clusters = value;
+            get => QueryConfiguration.MetaFieldsFilter;
+            set => QueryConfiguration.MetaFieldsFilter = value;
         }
 
         /// <summary>

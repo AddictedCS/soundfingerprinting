@@ -2,7 +2,6 @@ namespace SoundFingerprinting.Tests.Unit.Data
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -20,17 +19,17 @@ namespace SoundFingerprinting.Tests.Unit.Data
             float one = 8192f / 5512;
             var a = new TimedHashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(new[] {1}, 1, one, new string[0]),
-                    new HashedFingerprint(new[] {1}, 2, 2 * one, new string[0]),
-                    new HashedFingerprint(new[] {1}, 0, 0, new string[0]),
+                    new HashedFingerprint(new[] {1}, 1, one),
+                    new HashedFingerprint(new[] {1}, 2, 2 * one),
+                    new HashedFingerprint(new[] {1}, 0, 0),
                 },
                 DateTime.Parse("01/15/2019 10:00:00", dtfi));
 
             var b = new TimedHashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(new[] {2}, 1, one, new string[0]),
-                    new HashedFingerprint(new[] {2}, 2, 2 * one, new string[0]),
-                    new HashedFingerprint(new[] {2}, 0, 0, new string[0]),
+                    new HashedFingerprint(new[] {2}, 1, one),
+                    new HashedFingerprint(new[] {2}, 2, 2 * one),
+                    new HashedFingerprint(new[] {2}, 0, 0)
                 },
                 DateTime.Parse("01/15/2019 10:00:01", dtfi));
 
@@ -49,9 +48,9 @@ namespace SoundFingerprinting.Tests.Unit.Data
             float acc = 8192 / 5512f;
             var a = TimedHashes.Empty;
             var dateTime = DateTime.Now;
-            var b = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {1}, 0, 0, new string[0])}), dateTime);
-            var c = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {2}, 0, 0f, new string[0])}), dateTime.AddSeconds(acc));
-            var d = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {3}, 0, 0f, new string[0])}), dateTime.AddSeconds(2 * acc));
+            var b = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {1}, 0, 0)}), dateTime);
+            var c = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {2}, 0, 0f)}), dateTime.AddSeconds(acc));
+            var d = new TimedHashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {3}, 0, 0f)}), dateTime.AddSeconds(2 * acc));
 
             Assert.IsTrue(a.MergeWith(b, out var x));
             Assert.IsTrue(x.MergeWith(c, out var y));
@@ -72,8 +71,8 @@ namespace SoundFingerprinting.Tests.Unit.Data
             float one = 8192f / 5512;
             for (int i = 0; i < 100; ++i)
             {
-                first.Add(new HashedFingerprint(new[] {1}, (uint) i, i * one, new[] {"USA"}));
-                second.Add(new HashedFingerprint(new[] {2}, (uint) i, i * one, new[] {"Canada"}));
+                first.Add(new HashedFingerprint(new[] {1}, (uint) i, i * one));
+                second.Add(new HashedFingerprint(new[] {2}, (uint) i, i * one));
             }
 
             var r = new Random();
@@ -88,13 +87,11 @@ namespace SoundFingerprinting.Tests.Unit.Data
                 {
                     Assert.AreEqual(one * (i / 2), c.HashedFingerprints[i].StartsAt, 0.0001);
                     CollectionAssert.AreEqual(new[] {1}, c.HashedFingerprints[i].HashBins);
-                    CollectionAssert.AreEqual(new[] {"USA"}, c.HashedFingerprints[i].Clusters);
                 }
                 else
                 {
                     Assert.AreEqual(1.3f + one * (i / 2), c.HashedFingerprints[i].StartsAt, 0.0001);
                     CollectionAssert.AreEqual(new[] {2}, c.HashedFingerprints[i].HashBins);
-                    CollectionAssert.AreEqual(new[] {"Canada"}, c.HashedFingerprints[i].Clusters);
                 }
             }
         }
@@ -102,16 +99,16 @@ namespace SoundFingerprinting.Tests.Unit.Data
         [Test]
         public void CantMergeSinceTheGapIsTooBig()
         {
-            DateTimeFormatInfo dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
+            var dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
             var a = new TimedHashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(new[] {1}, 0, 0, new string[0]),
+                    new HashedFingerprint(new[] {1}, 0, 0)
                 },
                 DateTime.Parse("01/15/2019 10:00:00", dtfi));
 
             var b = new TimedHashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(new[] {2}, 0, 0, new string[0]),
+                    new HashedFingerprint(new[] {2}, 0, 0)
                 },
                 DateTime.Parse("01/15/2019 10:01:00", dtfi));
             
@@ -177,7 +174,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                     hashes[j] = hash;
                 }
 
-                list.Add(new HashedFingerprint(hashes, (uint) (i + 1), i * 1.48f, Enumerable.Empty<string>()));
+                list.Add(new HashedFingerprint(hashes, (uint) (i + 1), i * 1.48f));
             }
 
             return list;

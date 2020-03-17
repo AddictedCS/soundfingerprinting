@@ -18,11 +18,6 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///   Gets or sets the list of assigned clusters to all generated fingerprints
-        /// </summary>
-        public IEnumerable<string> Clusters { get; set; }
-
-        /// <summary>
         ///   Gets or sets Haar Wavelet norm. The default value is Math.Sqrt(2)
         /// </summary>
         public double HaarWaveletNorm { get; set; }

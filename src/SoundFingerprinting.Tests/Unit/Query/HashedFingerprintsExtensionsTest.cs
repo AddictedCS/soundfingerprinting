@@ -19,7 +19,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var bag = new ConcurrentBag<HashedFingerprint>();
             Parallel.For(0, runs, i =>
             {
-                var hashed = new HashedFingerprint(new int[0], (uint)i, i * delta, new string[0]);
+                var hashed = new HashedFingerprint(new int[0], (uint)i, i * delta);
                 bag.Add(hashed);
             });
 

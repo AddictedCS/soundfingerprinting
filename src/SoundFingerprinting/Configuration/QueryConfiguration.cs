@@ -90,11 +90,6 @@
         }
 
         /// <summary>
-        ///  Gets or sets list of clusters to consider when querying the data source for potential candidates
-        /// </summary>
-        public ISet<string> Clusters { get; set; }
-
-        /// <summary>
         ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 
         ///  Useful when you have a long query which may contain same track multiple times scattered across the query.
         ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
@@ -108,9 +103,10 @@
         public double PermittedGap { get; set; }
 
         /// <summary>
-        ///  Gets or sets meta fields that are passed to the storage when querying. Useful for statistics gathering and such.
+        ///  Gets or sets meta fields that are passed to the storage when querying. Useful for second stage filtering.
+        ///  Example: TrackInfo has meta field "Region: USA". You can specify "Region: USA".
         /// </summary>
-        public IDictionary<string, string> MetaFields { get; set; }
+        public IDictionary<string, string> MetaFieldsFilter { get; set; }
 
         /// <summary>
         ///  Gets or sets query media type.

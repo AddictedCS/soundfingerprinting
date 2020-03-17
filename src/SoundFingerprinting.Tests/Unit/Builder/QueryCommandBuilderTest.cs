@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using Moq;
@@ -63,9 +62,9 @@
             var hashedFingerprints =new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
-                            new HashedFingerprint(GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2, Enumerable.Empty<string>())
+                            new HashedFingerprint(GenericHashBuckets(), 0, 0),
+                            new HashedFingerprint(GenericHashBuckets(), 1, 0.928f),
+                            new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2)
                         }), 0.928 * 3);
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
@@ -91,9 +90,9 @@
             var hashDatas = new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
-                            new HashedFingerprint(GenericHashBuckets(), 0, 0, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Enumerable.Empty<string>()),
-                            new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2, Enumerable.Empty<string>())
+                            new HashedFingerprint(GenericHashBuckets(), 0, 0),
+                            new HashedFingerprint(GenericHashBuckets(), 1, 0.928f),
+                            new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2)
                         }), 0.928 * 3);
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(pathToFile, secondsToQuery, startAtSecond)).Returns(withAlgorithmConfiguration.Object);

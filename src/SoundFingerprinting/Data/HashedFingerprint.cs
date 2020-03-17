@@ -1,26 +1,22 @@
 ﻿namespace SoundFingerprinting.Data
 {
     using System;
-    using System.Collections.Generic;
-
     using ProtoBuf;
 
     [Serializable]
     [ProtoContract]
     public class HashedFingerprint 
     {
-        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters) 
-            : this(hashBins, sequenceNumber, startsAt, clusters, new byte[0])
+        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt) : this(hashBins, sequenceNumber, startsAt, new byte[0])
         {
             
         }
         
-        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, IEnumerable<string> clusters, byte[] originalPoint)
+        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, byte[] originalPoint)
         {
             HashBins = hashBins;
             SequenceNumber = sequenceNumber;
             StartsAt = startsAt;
-            Clusters = clusters;
             OriginalPoint = originalPoint;
         }
 
@@ -38,10 +34,7 @@
         [ProtoMember(3)]
         public float StartsAt { get; }
 
-        [ProtoMember(4)]
-        public IEnumerable<string> Clusters { get; }
-        
         [ProtoMember(5)] 
-        public byte[] OriginalPoint { get; set; }
+        public byte[] OriginalPoint { get; }
     }
 }

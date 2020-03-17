@@ -94,7 +94,6 @@
                 hashedFingerprint.HashBins,
                 hashedFingerprint.SequenceNumber,
                 hashedFingerprint.StartsAt,
-                hashedFingerprint.Clusters,
                 subFingerprintReference,
                 trackReference,
                 hashedFingerprint.OriginalPoint);

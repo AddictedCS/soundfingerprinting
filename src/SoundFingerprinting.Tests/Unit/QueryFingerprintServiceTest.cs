@@ -35,26 +35,26 @@
         [Test]
         public void MaximumNumberOfReturnedTracksIsLessThanAnalyzedCandidatesResultsTest()
         {
-            var queryHash = new HashedFingerprint(GenericHashBuckets(), 1, 0, Enumerable.Empty<string>());
-            const int DefaultThreshold = 5;
-            const int FirstTrackId = 20;
-            const int SecondTrackId = 21;
-            const int ThirdTrackId = 22;
-            const int FirstSubFingerprintId = 10;
-            const int SecondSubFingerprintId = 11;
-            var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            var secondTrackReference = new ModelReference<int>(SecondTrackId);
-            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, Enumerable.Empty<string>(),
-                new ModelReference<int>(FirstSubFingerprintId),
+            var queryHash = new HashedFingerprint(GenericHashBuckets(), 1, 0);
+            const int defaultThreshold = 5;
+            const int firstTrackId = 20;
+            const int secondTrackId = 21;
+            const int thirdTrackId = 22;
+            const int firstSubFingerprintId = 10;
+            const int secondSubFingerprintId = 11;
+            var firstTrackReference = new ModelReference<int>(firstTrackId);
+            var secondTrackReference = new ModelReference<int>(secondTrackId);
+            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0,
+                new ModelReference<int>(firstSubFingerprintId),
                 firstTrackReference);
-            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, Enumerable.Empty<string>(),
-                new ModelReference<int>(SecondSubFingerprintId),
+            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f,
+                new ModelReference<int>(secondSubFingerprintId),
                 secondTrackReference);
-            var thirdResult = new SubFingerprintData(GenericHashBuckets(), 3, 0.928f * 2, Enumerable.Empty<string>(),
-                new ModelReference<int>(SecondSubFingerprintId),
-                new ModelReference<int>(ThirdTrackId));
+            var thirdResult = new SubFingerprintData(GenericHashBuckets(), 3, 0.928f * 2,
+                new ModelReference<int>(secondSubFingerprintId),
+                new ModelReference<int>(thirdTrackId));
 
-            var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 2, ThresholdVotes = DefaultThreshold };
+            var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 2, ThresholdVotes = defaultThreshold };
 
             modelService
                 .Setup(service => service.Query(It.IsAny<IEnumerable<int[]>>(), customQueryConfiguration))
@@ -82,7 +82,7 @@
         [Test]
         public void NoResultsReturnedFromUnderlyingStorageTest()
         {
-            var queryHash = new HashedFingerprint(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0, Enumerable.Empty<string>());
+            var queryHash = new HashedFingerprint(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0);
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
             modelService.Setup(service => service.Query(It.IsAny<IEnumerable<int[]>>(), customQueryConfiguration))
                 .Returns(new List<SubFingerprintData>());
@@ -95,15 +95,15 @@
         }
 
         [Test]
-        public void HammingSimilarityIsSummedUpAccrossAllSubFingerprintsTest()
+        public void HammingSimilarityIsSummedUpAcrossAllSubFingerprintsTest()
         {
-            var queryHash = new HashedFingerprint(GenericHashBuckets(), 0, 0, Enumerable.Empty<string>());
-            const int FirstTrackId = 20;
-            const int FirstSubFingerprintId = 10;
-            const int SecondSubFingerprintId = 11;
-            var firstTrackReference = new ModelReference<int>(FirstTrackId);
-            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, Enumerable.Empty<string>(), new ModelReference<int>(FirstSubFingerprintId), firstTrackReference);
-            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, Enumerable.Empty<string>(), new ModelReference<int>(SecondSubFingerprintId), firstTrackReference);
+            var queryHash = new HashedFingerprint(GenericHashBuckets(), 0, 0);
+            const int firstTrackId = 20;
+            const int firstSubFingerprintId = 10;
+            const int secondSubFingerprintId = 11;
+            var firstTrackReference = new ModelReference<int>(firstTrackId);
+            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, new ModelReference<int>(firstSubFingerprintId), firstTrackReference);
+            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, new ModelReference<int>(secondSubFingerprintId), firstTrackReference);
             var defaultQueryConfiguration = new DefaultQueryConfiguration();
 
             modelService.Setup(service => service.Query(
@@ -141,7 +141,7 @@
             queryFingerprintService.Query(
                 new List<HashedFingerprint>
                     {
-                        new HashedFingerprint(GenericHashBuckets(), 0, 0f, Enumerable.Empty<string>())
+                        new HashedFingerprint(GenericHashBuckets(), 0, 0f)
                     },
                 new DefaultQueryConfiguration(),
                 DateTime.Now,
