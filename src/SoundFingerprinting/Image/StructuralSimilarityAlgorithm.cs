@@ -18,6 +18,7 @@ namespace SoundFingerprinting.Image
         /// <param name="areaThreshold">How big should be the area of the contour, before it is considered relevant (min value 2)</param>
         /// <param name="kernelSize">Gaussian blur kernel size (i.e. 11)</param>
         /// <param name="sigma">Gaussian kernel sigma over X and Y directions (i.e. 1.5)</param>
+        /// <param name="borderWidth">Allowed border width (i.e. 5)</param>
         /// <returns>List of contours, thresholded and SSIM image</returns>
         public SSIM FindContours(GrayImage img1, GrayImage img2,
             int differenceThreshold,

@@ -28,8 +28,7 @@
             float f2 = 1400;
             for (int t = 0; t < samples.Length; ++t)
             {
-                samples[t] = (float)System.Math.Sin(2 * System.Math.PI * f1 / Fs * t)
-                             + (float)System.Math.Sin(2 * System.Math.PI * f2 / Fs * t);
+                samples[t] = (float)System.Math.Sin(2 * System.Math.PI * f1 / Fs * t) + (float)System.Math.Sin(2 * System.Math.PI * f2 / Fs * t);
             }
 
             var audio = new AudioSamples(samples, "410Hz", 5512);

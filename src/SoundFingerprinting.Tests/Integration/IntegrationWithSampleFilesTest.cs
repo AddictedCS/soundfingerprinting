@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization.Formatters.Binary;
@@ -19,20 +18,20 @@
 
         protected void AssertHashDatasAreTheSame(Hashes h1, Hashes h2)
         {
-            var firstHashDatas = h1.ToList();
-            var secondHashDatas = h2.ToList();
+            var firstHashes = h1.ToList();
+            var secondHashes = h2.ToList();
             Assert.AreEqual(h1.DurationInSeconds, h2.DurationInSeconds);
-            Assert.AreEqual(firstHashDatas.Count, secondHashDatas.Count);
+            Assert.AreEqual(firstHashes.Count, secondHashes.Count);
          
             // hashes are not ordered as parallel computation is involved
-            firstHashDatas = SortHashesBySequenceNumber(firstHashDatas);
-            secondHashDatas = SortHashesBySequenceNumber(secondHashDatas);
+            firstHashes = SortHashesBySequenceNumber(firstHashes);
+            secondHashes = SortHashesBySequenceNumber(secondHashes);
 
-            for (int i = 0; i < firstHashDatas.Count; i++)
+            for (int i = 0; i < firstHashes.Count; i++)
             {
-                Assert.AreEqual(firstHashDatas[i].SequenceNumber, secondHashDatas[i].SequenceNumber);
-                Assert.AreEqual(firstHashDatas[i].StartsAt, secondHashDatas[i].StartsAt, 0.0001);
-                CollectionAssert.AreEqual(firstHashDatas[i].HashBins, secondHashDatas[i].HashBins);
+                Assert.AreEqual(firstHashes[i].SequenceNumber, secondHashes[i].SequenceNumber);
+                Assert.AreEqual(firstHashes[i].StartsAt, secondHashes[i].StartsAt, 0.0001);
+                CollectionAssert.AreEqual(firstHashes[i].HashBins, secondHashes[i].HashBins);
             }
         }
 
@@ -58,14 +57,12 @@
             lock (this)
             {
                 var serializer = new BinaryFormatter();
-                using (Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read))
-                {
-                    return (AudioSamples)serializer.Deserialize(stream);
-                }
+                using Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read);
+                return (AudioSamples)serializer.Deserialize(stream);
             }
         }
 
-        private List<HashedFingerprint> SortHashesBySequenceNumber(IEnumerable<HashedFingerprint> hashDatasFromFile)
+        private static List<HashedFingerprint> SortHashesBySequenceNumber(IEnumerable<HashedFingerprint> hashDatasFromFile)
         {
             return hashDatasFromFile.OrderBy(hashData => hashData.SequenceNumber).ToList();
         }

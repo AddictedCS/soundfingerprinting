@@ -4,7 +4,6 @@
     using System.Linq;
 
     using NUnit.Framework;
-    using NUnit.Framework.Internal;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;

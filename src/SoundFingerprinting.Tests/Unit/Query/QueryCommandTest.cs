@@ -4,12 +4,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using System.Threading.Tasks;
     using NUnit.Framework;
-    using NUnit.Framework.Internal.Commands;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
     [TestFixture]
@@ -68,7 +66,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 1);
 
-            float[] withJitter = AddJitter(match, 15, 20, 15, 2);
+            float[] withJitter = AddJitter(match, 15, 20);
 
             var modelService = new InMemoryModelService();
             var audioService = new SoundFingerprintingAudioService();
@@ -110,7 +108,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 1);
 
-            float[] withJitter = AddJitter(match, 15, 20, 15, 2);
+            float[] withJitter = AddJitter(match, 15, 20);
 
             var modelService = new InMemoryModelService();
             var audioService = new SoundFingerprintingAudioService();
@@ -153,7 +151,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(45d, entries[1].TrackMatchStartsAt, 1f);
         }
 
-        private float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15, int seed = 0)
+        private float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15)
         {
             float[] before = TestUtilities.GenerateRandomFloatArray(beforeSec * 5512);
             float[] between = TestUtilities.GenerateRandomFloatArray(betweenSec * 5512);

@@ -113,14 +113,7 @@
             modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference })).Returns(
                 new List<TrackData>
                     {
-                        new TrackData(
-                            "isrc",
-                            string.Empty,
-                            string.Empty,
-                            string.Empty,
-                            0,
-                            0d,
-                            firstTrackReference)
+                        new TrackData("isrc", string.Empty, string.Empty, string.Empty, 0, 0d, firstTrackReference)
                     });
 
             var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, DateTime.Now, modelService.Object);

@@ -1,9 +1,9 @@
-﻿using NUnit.Framework;
-using SoundFingerprinting.DAO;
-using System;
-
-namespace SoundFingerprinting.Tests.Unit.DAO
+﻿namespace SoundFingerprinting.Tests.Unit.DAO
 {
+    using NUnit.Framework;
+    using SoundFingerprinting.DAO;
+    using System;
+
     [TestFixture]
     public class CompoundModelReferenceTest
     {

@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Tests.Unit.LCS
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
@@ -8,30 +7,30 @@ namespace SoundFingerprinting.Tests.Unit.LCS
     using SoundFingerprinting.Query;
 
     [TestFixture]
-    public class LISTest
+    public class LongestIncreasingSequenceTest
     {
         [Test]
         public void ShouldFindLongestIncreasingSequenceEmpty()
         {
             var result = LisNew.GetIncreasingSequences(Enumerable.Empty<MatchedWith>());
-            
+
             Assert.IsFalse(result.Any());
         }
-        
+
         [Test]
         public void ShouldFindLongestIncreasingSequenceTrivial()
         {
             var pairs = new[] {(1, 1, 0d)};
             var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
-            
+
             AssertResult(pairs, result);
         }
-        
+
         [Test]
         public void ShouldFindLongestIncreasingSequence0()
         {
             /*
-             * q         1 2 3 
+             * q         1 2 3
              * t         1 2 3
              * expected  x x x
              */
@@ -44,9 +43,9 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         [Test]
         public void ShouldFindLongestIncreasingSequence1()
         {
-            /* s         4 3 2 1   
+            /* s         4 3 2 1
              * q         1 2 3 4
-             * t         1 1 1 2    
+             * t         1 1 1 2
              * expected  x     x
              * max       1 2 3 4
              * case max' is decreasing, t stays the same last 3 elements (need to pick only one)
@@ -65,7 +64,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             /*
              *      pick best score
              *           |
-             * score     3 2 1 1 
+             * score     3 2 1 1
              * q         1 1 1 4
              * t         1 2 3 4
              * expected  x     x
@@ -85,7 +84,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         public void ShouldFindLongestIncreasingSequence3()
         {
             /* reversed pick best score
-             * 
+             *
              * score     0 1 2 3
              * q         1 2 3 4
              * t         4 3 2 1
@@ -105,7 +104,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         [Test]
         public void ShouldFindLongestIncreasingSequence4()
         {
-            /*         ignore reverse   
+            /*         ignore reverse
              *               |
              * score     1 1 2 1 1
              * q         1 2 0 3 4
@@ -155,7 +154,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              *   pick best scoring option for first encounter
              *                 |
              * s          0  0 1 0 0  0 1
-             * q          1 20 2 3 21 3 22  
+             * q          1 20 2 3 21 3 22
              * t          1 1  2 2 2  3 3
              * expected   x y  x   y  x y
              * max        1 2  2 3 4  3 5
@@ -198,8 +197,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             /*
              * s
-             * q          20 1 2 21 3 22 4 0 5 
-             * t          1  1 2 2  3 3  4 4 5 
+             * q          20 1 2 21 3 22 4 0 5
+             * t          1  1 2 2  3 3  4 4 5
              * expected   y  x x y  x y  x   x
              * max        1  2 2 3  3 4  4 1 5
              * max (c.)   1  1 2 2  3 3  4 1 5
@@ -228,7 +227,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (1, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (6, 25, 0)};
             var results = LisNew.GetIncreasingSequences(Generate(pairs), 6).ToArray();
-            
+
             Assert.AreEqual(2, results.Length);
         }
 
@@ -239,20 +238,20 @@ namespace SoundFingerprinting.Tests.Unit.LCS
               * q        1 2 3 4 5 6 0  2  3  4  5  7
               * t        1 2 3 4 5 6 20 21 22 23 24 25
               * max (c.) 1 2 3 4 5 6 1  2  3  4  5  7
-              */ 
-            
+              */
+
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0), (6, 6, 0), (0, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (7, 25, 0)};
             var results = LisNew.GetIncreasingSequences(Generate(pairs), 7).ToArray();
-            
+
             Assert.AreEqual(2, results.Length);
         }
-        
+
         [Test]
         public void ShouldFindLongestIncreasingSequence11()
         {
             /*
               * q        1 2 0  1  2
-              * t        1 2 20 21 22  
+              * t        1 2 20 21 22
               * max (c.) 1 2 1  2  3
               */
 
@@ -262,7 +261,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0)};
             var expected2 = new[] {(0, 20, 0d)};
             Assert.AreEqual(2, results.Length);
-            
+
             AssertResult(expected1, results[0]);
             AssertResult(expected2, results[1]);
         }
@@ -280,7 +279,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var results = LisNew.GetIncreasingSequences(Generate(pairs), 5).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 4, 3)};
-            
+
             AssertResult(expected1, results[0]);
         }
 
@@ -297,18 +296,18 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var results = LisNew.GetIncreasingSequences(Generate(pairs), 5).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (3, 4, 0)};
-            
+
             AssertResult(expected1, results[0]);
         }
-        
+
         [Test]
         public void ShouldFindLongestIncreasingSequence14()
         {
             /*
             * s            0 0  0 1  0 0  0  0  0  0  0  0
-            * q            1 10 2 11 3 12 1  10 2  11 3  12  
+            * q            1 10 2 11 3 12 1  10 2  11 3  12
             * t            1 1  2 2  3 3  10 10 11 11 12 12
-             * max (c.)    1 2  2 3  3 4  1  4  2  5  3  6 
+             * max (c.)    1 2  2 3  3 4  1  4  2  5  3  6
             */
             var pairs = new[]
             {
@@ -318,7 +317,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var results = LisNew.GetIncreasingSequences(Generate(pairs), 12).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (10, 10, 0), (11, 11, 0), (12, 12, 0)};
-            
+
             AssertResult(expected1, results[0]);
         }
 
@@ -373,9 +372,9 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                 (185, 367, 78), (228, 368, 62), (248, 369, 90), (270, 370, 98), (293, 371, 80), (320, 372, 61), (336, 372, 65), (354, 373, 98),
                 (390, 374, 59), (410, 375, 83), (466, 377, 95), (488, 378, 74), (524, 379, 87)
             };
-            
+
             var results = LisNew.GetIncreasingSequences(Generate(pairs), 1000).ToArray();
-            
+
             Assert.AreEqual(1, results.Length);
         }
 
