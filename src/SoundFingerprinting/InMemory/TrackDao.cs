@@ -38,23 +38,6 @@
             return storage.Tracks.Values;
         }
 
-        public IEnumerable<TrackData> ReadTrackByTitle(string title)
-        {
-            return storage.Tracks
-                .Where(pair => pair.Value.Title == title)
-                .Select(pair => pair.Value);
-        }
-
-        public TrackData ReadTrack(IModelReference trackReference)
-        {
-            if (storage.Tracks.ContainsKey(trackReference))
-            {
-                return storage.Tracks[trackReference];
-            }
-
-            return null;
-        }
-
         public IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
             return references.Aggregate(new List<TrackData>(), (list, reference) =>

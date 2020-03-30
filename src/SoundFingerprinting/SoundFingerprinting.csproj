@@ -3,8 +3,9 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<Nullable>enable</Nullable>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-	<PackageVersion>7.2.0-beta3</PackageVersion>
+	<PackageVersion>7.2.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
@@ -15,6 +16,7 @@
 Version 4.0.0 comes with a list of improvements. New Haar wavelet transformation normalization factor is now set-up as the default one. It yields better recall and accuracy. Re-index fingerprints if you are migrating from v3.x. Most important update in v4 is an improved fingerprinting speed (2 mins of audio are fingerprinted in ~300 ms), with fever bytes used throughout the process. Similarly to v3.2.0  the InMemoryModelService can now be serialized to file system, and reloaded on application startup (useful for scenarios when you don't want to add external data storages). QueryResult now contains Stats information about the number of candidates analyzed during the query, as well as segregated query duration information: QueryDuration and FingerprintingDuration. Fingerprinting and Query configurations are simplified with various profiles available for choice: LowLatency, Default and HighPrecision configurations. Choose one that corresponds to your scenario. Check Solr data source for fast persistent storage for fingerprints https://github.com/AddictedCS/soundfingerprinting.solr. 
 Contact ciumac.sergiu@gmail.com for early access to specially designed fingerprinting storage that outperforms Solr.</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
+	<LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="protobuf-net" Version="2.4.4" />

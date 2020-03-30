@@ -21,6 +21,8 @@
             this.spectralImageDao = spectralImageDao;
         }
 
+        public abstract IEnumerable<TrackData> ReadTrackByTitle(string title);
+        
         public virtual void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
         {
             spectralImageDao.InsertSpectralImages(spectralImages, trackReference);
