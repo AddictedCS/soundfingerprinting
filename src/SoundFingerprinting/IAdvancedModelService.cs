@@ -14,5 +14,7 @@
         IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
 
         IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference);
+        
+        IEnumerable<TrackData> ReadTrackByTitle(string title);
     }
 }

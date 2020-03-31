@@ -1,6 +1,9 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Math;
 
     public class InMemoryModelService : AdvancedModelService
@@ -28,6 +31,13 @@
         public void Snapshot(string path)
         {
             ramStorage.Snapshot(path);
+        }
+
+        public override IEnumerable<TrackData> ReadTrackByTitle(string title)
+        {
+            return ramStorage.Tracks
+                .Where(pair => pair.Value.Title == title)
+                .Select(pair => pair.Value);
         }
     }
 }

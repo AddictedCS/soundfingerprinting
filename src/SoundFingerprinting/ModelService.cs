@@ -48,17 +48,12 @@
             return TrackDao.ReadAll();
         }
 
-        public virtual IEnumerable<TrackData> ReadTrackByTitle(string title)
-        {
-            return TrackDao.ReadTrackByTitle(title);
-        }
-
         public virtual IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
             return TrackDao.ReadTracksByReferences(references);
         }
 
-        public virtual TrackInfo ReadTrackById(string trackId)
+        public virtual TrackInfo? ReadTrackById(string trackId)
         {
             var trackData = TrackDao.ReadTrackById(trackId);
             if (trackData == null)

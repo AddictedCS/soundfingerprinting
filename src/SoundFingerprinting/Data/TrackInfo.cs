@@ -30,8 +30,7 @@
             MediaType = MediaType.Audio;
         }
 
-        [ProtoMember(1)]
-        public string Id { get; }
+        [ProtoMember(1)] public string Id { get; }
 
         [ProtoMember(2)]
         public string Title { get; }

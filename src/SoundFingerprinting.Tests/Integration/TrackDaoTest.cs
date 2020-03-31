@@ -80,27 +80,6 @@
         }
 
         [Test]
-        public void ReadTrackByTitleTest()
-        {
-            var track = GetTrack();
-            trackDao.InsertTrack(track, 10);
-
-            var tracks = trackDao.ReadTrackByTitle(track.Title).ToList();
-
-            Assert.IsNotNull(tracks);
-            Assert.IsTrue(tracks.Count == 1);
-            AssertTracksAreEqual(track, tracks[0]);
-        }
-
-        [Test]
-        public void ReadByNonExistentTitleTest()
-        {
-            var tracks = trackDao.ReadTrackByTitle("title");
-
-            Assert.IsFalse(tracks.Any());
-        }
-
-        [Test]
         public void ReadTrackByIdTest()
         {
             var expectedTrack = GetTrack();
