@@ -53,7 +53,7 @@ public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
 ### Fingerprints Storage
 The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code> class. If you plan to use an external persistent storage for audio fingerprints **Emy** is the preferred choice. It is a specialized storage developed for audio fingerprints. **Emy** provides a community version which is free for non-commercial use. You can try it with docker:
 
-    docker run -p 3399:3399 -p 3340:3340 addictedcs/soundfingerprinting.emy
+    docker run -d -v /persistent-dir:/app/data -p 3399:3399 -p 3340:3340 addictedcs/soundfingerprinting.emy:7.2.1-community
 
 **Emy** provides a backoffice interface which you can access on port :3340. 
 In order to insert and query **Emy** server please install [SoundFingerprinting.Emy](https://www.nuget.org/packages/SoundFingerprinting.Emy) NuGet package.
