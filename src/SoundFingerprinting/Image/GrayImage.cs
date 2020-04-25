@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Image
             }
         }
 
-        private GrayImage(float[][] image)
+        public GrayImage(float[][] image)
         {
             this.image = image;
         }
@@ -150,7 +150,7 @@ namespace SoundFingerprinting.Image
                 throw new ArgumentException(nameof(other.Height));
         }
 
-        private static float[][] Convolve(float[][] image, double[,] kernel)
+        public static float[][] Convolve(float[][] image, double[,] kernel)
         {
             int width = image[0].Length;
             int height = image.Length;
