@@ -63,7 +63,7 @@ namespace SoundFingerprinting.Data
             {
                 var result = Merge(this.hashes.OrderBy(h => h.SequenceNumber).ToList(), StartsAt, with.hashes.OrderBy(h => h.SequenceNumber).ToList(), with.StartsAt);
                 var length = result.Last().StartsAt + FingerprintCount;
-                var relativeTo = this.hashes.RelativeTo > with.hashes.RelativeTo ? this.hashes.RelativeTo : with.hashes.RelativeTo;
+                var relativeTo = hashes.RelativeTo < with.hashes.RelativeTo ? hashes.RelativeTo : with.hashes.RelativeTo;
                 var mergedHashes = new Hashes(result, length, relativeTo, hashes.Origin);
                 merged = new TimedHashes(mergedHashes, StartsAt);
                 return true;
