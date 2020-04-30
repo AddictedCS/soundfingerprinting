@@ -97,7 +97,7 @@
 
             var image = GetOneImage();
 
-            var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new[] {new Frame(image, 0, 0)}, new DefaultFingerprintConfiguration
+            var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, DateTime.Now, Enumerable.Empty<string>()), new DefaultFingerprintConfiguration
             {
                 OriginalPointSaveTransform = EncodeFrame
             });
@@ -113,20 +113,16 @@
 
         private static float[][] DecodeFrame(byte[] originalPoint, IImageService imageService)
         {
-            using (var memory = new MemoryStream(originalPoint))
-            {
-                var frame = Serializer.DeserializeWithLengthPrefix<Frame>(memory, PrefixStyle.Fixed32);
-                return imageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
-            }
+            using var memory = new MemoryStream(originalPoint);
+            var frame = Serializer.DeserializeWithLengthPrefix<Frame>(memory, PrefixStyle.Fixed32);
+            return imageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
         }
 
         private static byte[] EncodeFrame(Frame frame)
         {
-            using (var memory = new MemoryStream())
-            {
-                Serializer.SerializeWithLengthPrefix(memory, frame, PrefixStyle.Fixed32);
-                return memory.ToArray();
-            }
+            using var memory = new MemoryStream();
+            Serializer.SerializeWithLengthPrefix(memory, frame, PrefixStyle.Fixed32);
+            return memory.ToArray();
         }
 
         private static float[][] GetOneImage()

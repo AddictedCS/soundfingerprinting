@@ -14,6 +14,11 @@
                 9506, 10022, 10536, 11050, 11564, 12078, 12592, 13106
             };
 
+        protected Hashes GetGenericHashes()
+        {
+            return new Hashes(new[] {new HashedFingerprint(GenericHashBuckets(), 0, 0f)}, 1.48f);
+        }
+        
         protected int[] GenericHashBuckets()
         {
             return (int[])genericHashBucketsArray.Clone();

@@ -57,7 +57,7 @@
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 2, ThresholdVotes = defaultThreshold };
 
             modelService
-                .Setup(service => service.Query(It.IsAny<IEnumerable<int[]>>(), customQueryConfiguration))
+                .Setup(service => service.Query(It.IsAny<Hashes>(), customQueryConfiguration))
                 .Returns(new[] { firstResult, secondResult, thirdResult });
 
             modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference, secondTrackReference }))
@@ -67,7 +67,7 @@
                         new TrackData("isrc_1", string.Empty, string.Empty, string.Empty, 0, 0d, secondTrackReference)
                     });
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, DateTime.Now, modelService.Object);
+            var queryResult = queryFingerprintService.Query(new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f), customQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
@@ -84,14 +84,13 @@
         {
             var queryHash = new HashedFingerprint(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0);
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
-            modelService.Setup(service => service.Query(It.IsAny<IEnumerable<int[]>>(), customQueryConfiguration))
+            modelService.Setup(service => service.Query(It.IsAny<Hashes>(), customQueryConfiguration))
                 .Returns(new List<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, customQueryConfiguration, DateTime.Now, modelService.Object);
+            var queryResult = queryFingerprintService.Query(new Hashes(new List<HashedFingerprint> { queryHash }, 148f), customQueryConfiguration, modelService.Object);
 
             Assert.IsFalse(queryResult.ContainsMatches);
             Assert.IsNull(queryResult.BestMatch);
-            Assert.AreEqual(0, queryResult.ResultEntries.Count());
         }
 
         [Test]
@@ -107,7 +106,7 @@
             var defaultQueryConfiguration = new DefaultQueryConfiguration();
 
             modelService.Setup(service => service.Query(
-                        It.IsAny<IEnumerable<int[]>>(),
+                        It.IsAny<Hashes>(),
                         It.IsAny<QueryConfiguration>())).Returns(new[] { firstResult, secondResult });
 
             modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference })).Returns(
@@ -116,7 +115,7 @@
                         new TrackData("isrc", string.Empty, string.Empty, string.Empty, 0, 0d, firstTrackReference)
                     });
 
-            var queryResult = queryFingerprintService.Query(new List<HashedFingerprint> { queryHash }, defaultQueryConfiguration, DateTime.Now, modelService.Object);
+            var queryResult = queryFingerprintService.Query(new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f), defaultQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
@@ -128,16 +127,16 @@
         [Test]
         public void ShouldSelectProperStrategyAccordingToModelServiceSupportingBatchedQuery()
         {
-            modelService.Setup(service => service.Query(It.IsAny<IEnumerable<int[]>>(), It.IsAny<QueryConfiguration>()))
+            modelService.Setup(service => service.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()))
                 .Returns(new List<SubFingerprintData>());
 
             queryFingerprintService.Query(
+                new Hashes( 
                 new List<HashedFingerprint>
                     {
                         new HashedFingerprint(GenericHashBuckets(), 0, 0f)
-                    },
+                    }, 1.48f),
                 new DefaultQueryConfiguration(),
-                DateTime.Now,
                 modelService.Object);
         }
     }

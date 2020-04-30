@@ -232,7 +232,7 @@
             Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
             Assert.AreEqual(audioSamples.Duration, bestMatch.CoverageWithPermittedGapsLength, 1.48d);
             Assert.AreEqual(1d, bestMatch.RelativeCoverage, 0.005d);
-            Assert.AreEqual(1, bestMatch.Confidence, $"Confidence:{bestMatch.Confidence}");
+            Assert.AreEqual(1, bestMatch.Confidence, 0.01, $"Confidence:{bestMatch.Confidence}");
         }
 
         private static float[] GetQuerySamples(AudioSamples audioSamples, int startAtSecond, int secondsToProcess)

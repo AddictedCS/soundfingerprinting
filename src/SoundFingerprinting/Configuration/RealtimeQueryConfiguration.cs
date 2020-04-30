@@ -16,10 +16,10 @@ namespace SoundFingerprinting.Configuration
             IRealtimeResultEntryFilter resultEntryFilter,
             Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback,
-            Action<TimedHashes> queryFingerprintsCallback,
-            Action<Exception, TimedHashes> errorCallback,
+            Action<Hashes> queryFingerprintsCallback,
+            Action<Exception, Hashes> errorCallback,
             Action restoredAfterErrorCallback,
-            IEnumerable<TimedHashes> downtimeHashes,
+            IEnumerable<Hashes> downtimeHashes,
             IStride stride,
             double permittedGap,
             double downtimeCapturePeriod,
@@ -78,12 +78,12 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets timed hashes callback which allows to intercept fingerprints used during querying
         /// </summary>
-        public Action<TimedHashes> QueryFingerprintsCallback { get; set; }
+        public Action<Hashes> QueryFingerprintsCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute
         /// </summary>
-        public Action<Exception, TimedHashes> ErrorCallback { get; set; }
+        public Action<Exception, Hashes> ErrorCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error restore callback
@@ -93,7 +93,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets downtime hashes enumerable, that one can provide with hashes that were captured during downtime
         /// </summary>
-        public IEnumerable<TimedHashes> DowntimeHashes { get; set; }
+        public IEnumerable<Hashes> DowntimeHashes { get; set; }
 
         /// <summary>
         ///  Gets or sets downtime capture period, value which will instruct the framework to cache realtime

@@ -27,7 +27,8 @@ namespace SoundFingerprinting
         /// <param name="hashes">Computed hashes for query</param>
         /// <param name="config">Query configuration</param>
         /// <returns>List of matched fingerprints</returns>
-        IEnumerable<SubFingerprintData> Query(IEnumerable<int[]> hashes, QueryConfiguration config);
+        IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config);
+        
         
         /// <summary>
         ///  Read tracks by model references

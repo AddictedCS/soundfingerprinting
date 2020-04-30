@@ -9,9 +9,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using ProtoBuf;
     using SoundFingerprinting.Data;
 
-    public class OfflineStorage : IEnumerable<TimedHashes>
+    public class OfflineStorage : IEnumerable<Hashes>
     {
-        private readonly string dateFormat = "yyyy-MM-ddTHH-mm-ss.fffff";
+        private const string dateFormat = "yyyy-MM-ddTHH-mm-ss.fffff";
         private readonly string folder;
 
         public OfflineStorage(string folder)
@@ -28,26 +28,24 @@ namespace SoundFingerprinting.Tests.Unit.Query
             }
         }
         
-        public void Save(TimedHashes timedHashes)
+        public void Save(Hashes timedHashes)
         {
             if (timedHashes.IsEmpty)
             {
                 return;
             }
-            
-            using (var fileStream = new FileStream(Path.Combine(folder, timedHashes.StartsAt.ToString(dateFormat) + ".hash"), FileMode.CreateNew))
-            {
-                Serializer.SerializeWithLengthPrefix(fileStream, timedHashes, PrefixStyle.Fixed32);
-            }
+
+            using var fileStream = new FileStream(Path.Combine(folder, timedHashes.RelativeTo.ToString(dateFormat) + ".hash"), FileMode.CreateNew);
+            Serializer.SerializeWithLengthPrefix(fileStream, timedHashes, PrefixStyle.Fixed32);
         }
         
-        public IEnumerator<TimedHashes> GetEnumerator()
+        public IEnumerator<Hashes> GetEnumerator()
         {
             foreach (var file in Directory.GetFiles(folder, "*.hash").OrderBy(filename => DateTime.ParseExact(Path.GetFileNameWithoutExtension(filename), dateFormat, CultureInfo.InvariantCulture)))
             {
                 using (var stream = new FileStream(file, FileMode.Open))
                 {
-                    yield return Serializer.DeserializeWithLengthPrefix<TimedHashes>(stream, PrefixStyle.Fixed32);
+                    yield return Serializer.DeserializeWithLengthPrefix<Hashes>(stream, PrefixStyle.Fixed32);
                 }
                 
                 File.Delete(file); // or archive for
