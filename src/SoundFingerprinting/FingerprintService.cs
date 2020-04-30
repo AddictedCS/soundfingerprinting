@@ -64,7 +64,7 @@ namespace SoundFingerprinting
                 })
                 .ToList();
 
-            return new Hashes(hashes, GetDuration(hashes, configuration.FingerprintLengthInSeconds), imageFrames.RelativeTo, new[] { imageFrames.Origin });
+            return new Hashes(hashes, GetDuration(hashes, configuration.FingerprintLengthInSeconds), imageFrames.RelativeTo, imageFrames.Origin);
         }
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)

@@ -6,13 +6,13 @@ namespace SoundFingerprinting.Data
     using ProtoBuf;
 
     [Serializable]
-    [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
+    [ProtoContract(IgnoreListHandling = true)]
     public class Frames : IEnumerable<Frame>
     {
         [ProtoMember(1)]
         private readonly IEnumerable<Frame> frames;
 
-        public Frames(IEnumerable<Frame> frames, DateTime relativeTo, string origin)
+        public Frames(IEnumerable<Frame> frames, DateTime relativeTo, IEnumerable<string> origin)
         {
             RelativeTo = relativeTo;
             Origin = origin;
@@ -23,7 +23,7 @@ namespace SoundFingerprinting.Data
         public DateTime RelativeTo { get; }
         
         [ProtoMember(3)]
-        public string Origin { get; }
+        public IEnumerable<string> Origin { get; }
         
         public IEnumerator<Frame> GetEnumerator()
         {

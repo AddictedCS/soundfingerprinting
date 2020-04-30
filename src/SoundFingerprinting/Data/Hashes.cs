@@ -7,7 +7,7 @@ namespace SoundFingerprinting.Data
     using ProtoBuf;
 
     [Serializable]
-    [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
+    [ProtoContract(IgnoreListHandling = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
         private const double Accuracy = 1.48d;
@@ -26,6 +26,11 @@ namespace SoundFingerprinting.Data
             DurationInSeconds = durationInSeconds;
             Origin = origin;
             RelativeTo = relativeTo;
+        }
+
+        private Hashes()
+        {
+            // left for proto-buf
         }
 
         [ProtoMember(2)]

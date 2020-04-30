@@ -130,7 +130,6 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var deserialized = Deserialize(buffer);
             Assert.AreEqual(timed.Count, deserialized.Count);
             Assert.AreEqual(timed.RelativeTo, deserialized.RelativeTo);
-            CollectionAssert.AreEqual(timed.Origin, deserialized.Origin);
 
             for (int i = 0; i < timed.Count; ++i)
             {
