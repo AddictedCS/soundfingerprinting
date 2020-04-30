@@ -16,11 +16,11 @@ namespace SoundFingerprinting.Data
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds): this(fingerprints, durationInSeconds, DateTime.MinValue, string.Empty)
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds): this(fingerprints, durationInSeconds, DateTime.MinValue, Enumerable.Empty<string>())
         {
         }
         
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, string origin)
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, IEnumerable<string> origin)
         {
             this.fingerprints = fingerprints.ToList();
             DurationInSeconds = durationInSeconds;
@@ -32,12 +32,12 @@ namespace SoundFingerprinting.Data
         public double DurationInSeconds { get; }
 
         [ProtoMember(3)]
-        public string Origin { get; }
+        public IEnumerable<string> Origin { get; }
 
         [ProtoMember(4)]
         public DateTime RelativeTo { get; }
         
-        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, string.Empty);
+        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>());
         
         public DateTime EndsAt => IsEmpty ? DateTime.MinValue : RelativeTo.Add(TimeSpan.FromSeconds(DurationInSeconds));
 
@@ -55,7 +55,7 @@ namespace SoundFingerprinting.Data
             return GetEnumerator();
         }
         
-        public bool MergeWith(Hashes with, out Hashes merged)
+        public bool MergeWith(Hashes with, out Hashes? merged)
         {
             merged = null;
 
@@ -70,7 +70,7 @@ namespace SoundFingerprinting.Data
                 var result = Merge(fingerprints.OrderBy(h => h.SequenceNumber).ToList(), RelativeTo, with.fingerprints.OrderBy(h => h.SequenceNumber).ToList(), with.RelativeTo);
                 var length = result.Last().StartsAt + FingerprintCount;
                 var relativeTo = RelativeTo < with.RelativeTo ? RelativeTo : with.RelativeTo;
-                merged = new Hashes(result, length, relativeTo, Origin);
+                merged = new Hashes(result, length, relativeTo, new HashSet<string>(Origin.Concat(with.Origin)));
                 return true;
             }
             
@@ -86,8 +86,8 @@ namespace SoundFingerprinting.Data
                         var completed = stack.Pop();
                         if (completed.MergeWith(next, out var merged))
                         {
-                            stack.Push(merged);
-                            if (merged.DurationInSeconds >= length)
+                            stack.Push(merged!);
+                            if (merged!.DurationInSeconds >= length)
                             {
                                 stack.Push(Empty);
                             }
