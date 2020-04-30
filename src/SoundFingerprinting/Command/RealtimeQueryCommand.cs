@@ -103,7 +103,7 @@ namespace SoundFingerprinting.Command
 
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
-                InvokeHashedFingerprintsCallback(hashes.ToList(), prefixed.RelativeTo);
+                InvokeHashedFingerprintsCallback(hashes, prefixed.RelativeTo);
                 
                 if (!TryQuery(service, hashes, prefixed.RelativeTo, out var queryResults))
                 {
@@ -121,12 +121,11 @@ namespace SoundFingerprinting.Command
             return queryLength;
         }
 
-        private bool TryQuery(IQueryFingerprintService service, IEnumerable<HashedFingerprint> hashes, DateTime relativeTo, out IEnumerable<QueryResult> results)
+        private bool TryQuery(IQueryFingerprintService service, Hashes hashes, DateTime relativeTo, out IEnumerable<QueryResult> results)
         {
-            var hashedFingerprints = hashes.ToList();
             try
             {
-                var result = service.Query(hashedFingerprints, configuration.QueryConfiguration, relativeTo, modelService);
+                var result = service.Query(hashes, configuration.QueryConfiguration, modelService);
                 if (!downtimeHashes.Any())
                 {
                     results = new[] {result}.AsEnumerable();
@@ -142,7 +141,7 @@ namespace SoundFingerprinting.Command
             }
             catch (Exception e)
             {
-                var timedHashes = StoreDowntimeEntries(hashedFingerprints.ToList(), relativeTo);
+                var timedHashes = StoreDowntimeEntries(hashes, relativeTo);
                 InvokeExceptionCallback(e, timedHashes);
                 results = Enumerable.Empty<QueryResult>();
                 return false;
@@ -154,7 +153,7 @@ namespace SoundFingerprinting.Command
             configuration?.ErrorCallback(e, timedHashes);
         }
         
-        private void InvokeHashedFingerprintsCallback(List<HashedFingerprint> hashes, DateTime relativeTo)
+        private void InvokeHashedFingerprintsCallback(Hashes hashes, DateTime relativeTo)
         {
             configuration?.QueryFingerprintsCallback(new TimedHashes(hashes, relativeTo));
         }
@@ -184,7 +183,7 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private TimedHashes StoreDowntimeEntries(List<HashedFingerprint> hashes, DateTime relativeTo)
+        private TimedHashes StoreDowntimeEntries(Hashes hashes, DateTime relativeTo)
         {
             double length = downtimeHashes.Sum(hash => hash.TotalSeconds);
             var timedHashes = new TimedHashes(hashes, relativeTo);
@@ -202,7 +201,7 @@ namespace SoundFingerprinting.Command
             while (downtimeHashes.Any())
             {
                 var timedHashes = downtimeHashes.Dequeue();
-                yield return service.Query(timedHashes.HashedFingerprints, configuration.QueryConfiguration, timedHashes.StartsAt, modelService);
+                yield return service.Query(timedHashes.Hashes, configuration.QueryConfiguration, modelService);
             }
         }
 
@@ -215,7 +214,7 @@ namespace SoundFingerprinting.Command
                     continue;
                 }
                 
-                yield return service.Query(downtimeHash.HashedFingerprints, configuration.QueryConfiguration, downtimeHash.StartsAt, modelService);
+                yield return service.Query(downtimeHash.Hashes, configuration.QueryConfiguration, modelService);
             }
         }
     }

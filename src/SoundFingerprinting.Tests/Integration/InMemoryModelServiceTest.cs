@@ -80,9 +80,7 @@
 
             modelService.DeleteTrack("id");
 
-            var subFingerprints = modelService.Query(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
-                                              .ToList();
-
+            var subFingerprints = modelService.Query(GetGenericHashes(), new DefaultQueryConfiguration()).ToList();
             Assert.IsFalse(subFingerprints.Any());
             var actualTrack = modelService.ReadTrackById("id");
             Assert.IsNull(actualTrack);
@@ -94,8 +92,7 @@
             var expectedTrack = new TrackInfo("id", "title", "artist");
             modelService.Insert(expectedTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f) }, 1.48));
 
-            var subFingerprints = modelService.Query(new[] { GenericHashBuckets() }, new DefaultQueryConfiguration())
-                                              .ToList();
+            var subFingerprints = modelService.Query(GetGenericHashes(), new DefaultQueryConfiguration()).ToList();
 
             var trackReference = modelService.ReadTracksByReferences(subFingerprints.Select(s => s.TrackReference)).First().TrackReference;
             Assert.AreEqual(1, subFingerprints.Count);
@@ -120,9 +117,9 @@
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
+            var queryHashes = new Hashes(new[]{new HashedFingerprint(queryBuckets, 0, 0f), }, 1.48d);
 
-            var subFingerprints = modelService.Query(new[] { queryBuckets }, new LowLatencyQueryConfiguration())
-                                              .ToList();
+            var subFingerprints = modelService.Query(queryHashes, new LowLatencyQueryConfiguration()).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);
         }
@@ -142,9 +139,8 @@
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
-
-            var subFingerprints = modelService.Query(
-                new[] { queryBuckets }, 
+            var queryHashes = new Hashes(new[]{new HashedFingerprint(queryBuckets, 0, 0f), }, 1.48d);
+            var subFingerprints = modelService.Query(queryHashes, 
                 new DefaultQueryConfiguration 
                 { 
                     MetaFieldsFilter = new Dictionary<string, string> {{"group-id", "first-group-id"}}

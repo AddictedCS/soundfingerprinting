@@ -101,7 +101,7 @@
             long fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
 
             var queryStopwatch = Stopwatch.StartNew();
-            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, relativeTo, modelService);
+            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
             long queryDuration = queryStopwatch.ElapsedMilliseconds;
             if (queryResult.ContainsMatches)
             {

@@ -12,11 +12,11 @@ namespace SoundFingerprinting.Data
         private const double FingerprintCount = 8192.0d / 5512;
         
         [ProtoMember(1)]
-        private readonly List<HashedFingerprint> hashedFingerprints = new List<HashedFingerprint>();
+        private readonly Hashes hashes;
         
-        public TimedHashes(List<HashedFingerprint> hashedFingerprints, DateTime startsAt)
+        public TimedHashes(Hashes hashes, DateTime startsAt)
         {
-            this.hashedFingerprints = hashedFingerprints;
+            this.hashes = hashes;
             StartsAt = startsAt;
         }
 
@@ -25,14 +25,14 @@ namespace SoundFingerprinting.Data
             // left for proto-buf
         }
 
-        public static TimedHashes Empty => new TimedHashes(new List<HashedFingerprint>(), DateTime.MinValue);
+        public static TimedHashes Empty => new TimedHashes(new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, string.Empty), DateTime.MinValue);
 
-        public IList<HashedFingerprint> HashedFingerprints => hashedFingerprints;
+        public Hashes Hashes => hashes;
 
         [ProtoMember(2)]
         public DateTime StartsAt { get; }
 
-        public DateTime EndsAt => IsEmpty ? DateTime.MinValue : StartsAt.Add(TimeSpan.FromSeconds(hashedFingerprints.Last().StartsAt + FingerprintCount));
+        public DateTime EndsAt => IsEmpty ? DateTime.MinValue : StartsAt.Add(TimeSpan.FromSeconds(hashes.Last().StartsAt + FingerprintCount));
 
         public double TotalSeconds
         {
@@ -43,11 +43,11 @@ namespace SoundFingerprinting.Data
                     return 0d;
                 }
 
-                return hashedFingerprints.Last().StartsAt + FingerprintCount;
+                return hashes.Last().StartsAt + FingerprintCount;
             }
         }
 
-        public bool IsEmpty => !hashedFingerprints.Any();
+        public bool IsEmpty => !hashes.Any();
 
         public bool MergeWith(TimedHashes with, out TimedHashes merged)
         {
@@ -61,8 +61,11 @@ namespace SoundFingerprinting.Data
             
             if (StartsAt <= with.StartsAt && EndsAt >= with.StartsAt.Subtract(TimeSpan.FromSeconds(Accuracy)))
             {
-                var result = Merge(hashedFingerprints.OrderBy(h => h.SequenceNumber).ToList(), StartsAt, with.hashedFingerprints.OrderBy(h => h.SequenceNumber).ToList(), with.StartsAt);
-                merged = new TimedHashes(result, StartsAt);
+                var result = Merge(this.hashes.OrderBy(h => h.SequenceNumber).ToList(), StartsAt, with.hashes.OrderBy(h => h.SequenceNumber).ToList(), with.StartsAt);
+                var length = result.Last().StartsAt + FingerprintCount;
+                var relativeTo = this.hashes.RelativeTo > with.hashes.RelativeTo ? this.hashes.RelativeTo : with.hashes.RelativeTo;
+                var mergedHashes = new Hashes(result, length, relativeTo, hashes.Origin);
+                merged = new TimedHashes(mergedHashes, StartsAt);
                 return true;
             }
             

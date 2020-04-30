@@ -97,7 +97,7 @@
 
             var image = GetOneImage();
 
-            var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new[] {new Frame(image, 0, 0)}, new DefaultFingerprintConfiguration
+            var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, DateTime.Now, string.Empty), new DefaultFingerprintConfiguration
             {
                 OriginalPointSaveTransform = EncodeFrame
             });

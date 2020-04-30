@@ -7,25 +7,32 @@ namespace SoundFingerprinting.Data
     using ProtoBuf;
 
     [Serializable]
-    [ProtoContract(IgnoreListHandling = true)]
+    [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds)
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds): this(fingerprints,durationInSeconds, DateTime.MinValue, string.Empty)
+        {
+        }
+        
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, string origin)
         {
             this.fingerprints = fingerprints.ToList();
             DurationInSeconds = durationInSeconds;
+            Origin = origin;
+            RelativeTo = relativeTo;
         }
 
-        private Hashes()
-        {
-            // left for proto-buf
-        }
-        
         [ProtoMember(2)]
         public double DurationInSeconds { get; }
+
+        [ProtoMember(3)]
+        public string Origin { get; }
+
+        [ProtoMember(4)]
+        public DateTime RelativeTo { get; }
 
         public int Count => fingerprints.Count;
 

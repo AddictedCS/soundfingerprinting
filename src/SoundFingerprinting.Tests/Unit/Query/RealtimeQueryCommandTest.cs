@@ -95,7 +95,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .WithRealtimeQueryConfig(config =>
                                               {
                                                     config.Stride = new IncrementalStaticStride(staticStride);
-                                                    config.QueryFingerprintsCallback = fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.HashedFingerprints.Count);
+                                                    config.QueryFingerprintsCallback = fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Hashes.Count);
                                                     config.SuccessCallback = entry => Interlocked.Increment(ref found);
                                                     config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                                                     config.PermittedGap = permittedGap;
@@ -138,7 +138,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.CoverageWithPermittedGapsLength:0.000}, Query Length {entry.CoverageWithPermittedGapsLength:0.000}");
                     Interlocked.Increment(ref didNotPassThreshold);
                 },
-                fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.HashedFingerprints.Count),
+                fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Hashes.Count),
                 (error, _) => throw error,
                 () => throw new Exception("Downtime callback called"),
                 Enumerable.Empty<TimedHashes>(), 
@@ -260,15 +260,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService)
                 .Query(cancellationTokenSource.Token);
             
-            Assert.AreEqual(hashes.Count, list.Select(entry => entry.HashedFingerprints.Count).Sum());
+            Assert.AreEqual(hashes.Count, list.Select(entry => entry.Hashes.Count).Sum());
             var merged = TimedHashes.Aggregate(list, 20d).ToList();
             Assert.AreEqual(2, merged.Count);
-            Assert.AreEqual(hashes.Count, merged.Select(entry => entry.HashedFingerprints.Count).Sum());
+            Assert.AreEqual(hashes.Count, merged.Select(entry => entry.Hashes.Count).Sum());
 
             var aggregated = TimedHashes.Aggregate(list, double.MaxValue).ToList();
             Assert.AreEqual(1, aggregated.Count);
-            Assert.AreEqual(hashes.Count, aggregated[0].HashedFingerprints.Count);
-            foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0].HashedFingerprints, (a, b) => new { a, b }))
+            Assert.AreEqual(hashes.Count, aggregated[0].Hashes.Count);
+            foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0].Hashes, (a, b) => new { a, b }))
             {
                 Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 0.5d);
                 Assert.AreEqual(zipped.a.SequenceNumber, zipped.b.SequenceNumber);
@@ -315,7 +315,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, entries.Count);
             var aggregated = TimedHashes.Aggregate(fingerprints, 60d).ToList();
             var result = await QueryCommandBuilder.Instance.BuildQueryCommand()
-                .From(new Hashes(aggregated[0].HashedFingerprints, aggregated[0].TotalSeconds))
+                .From(new Hashes(aggregated[0].Hashes, aggregated[0].TotalSeconds, aggregated[0].Hashes.RelativeTo, aggregated[0].Hashes.Origin))
                 .UsingServices(modelService, audioService)
                 .Query(aggregated[0].StartsAt);
             
@@ -409,14 +409,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 this.goodOne = goodOne;
             }
             
-            public QueryResult Query(IEnumerable<HashedFingerprint> queryFingerprints, QueryConfiguration configuration, DateTime relativeTo, IModelService modelService)
+            public QueryResult Query(Hashes queryFingerprints, QueryConfiguration configuration, IModelService modelService)
             {
                 if (faultyCounts-- > 0)
                 {
                     throw new IOException("I/O exception");
                 }
 
-                return goodOne.Query(queryFingerprints, configuration, relativeTo, modelService);
+                return goodOne.Query(queryFingerprints, configuration, modelService);
             }
         }
     }

@@ -37,9 +37,9 @@
             SubFingerprintDao.InsertHashDataForTrack(fingerprints, trackReference);
         }
 
-        public virtual IEnumerable<SubFingerprintData> Query(IEnumerable<int[]> hashes, QueryConfiguration config)
+        public virtual IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config)
         {
-            var queryHashes = hashes.ToList();
+            var queryHashes = hashes.Select(_ => _.HashBins).ToList();
             return queryHashes.Any() ? SubFingerprintDao.ReadSubFingerprints(queryHashes, config) : Enumerable.Empty<SubFingerprintData>();
         }
 

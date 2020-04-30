@@ -47,10 +47,10 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new Hashes(hashes, samples.Duration);
+            return new Hashes(hashes, samples.Duration, samples.RelativeTo, samples.Origin);
         }
 
-        public Hashes CreateFingerprintsFromImageFrames(IEnumerable<Frame> imageFrames, FingerprintConfiguration configuration)
+        public Hashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
         {
             var frames = imageFrames.ToList();
             var hashes = CreateOriginalFingerprintsFromFrames(frames, configuration)
@@ -64,7 +64,7 @@ namespace SoundFingerprinting
                 })
                 .ToList();
 
-            return new Hashes(hashes, GetDuration(hashes, configuration.FingerprintLengthInSeconds));
+            return new Hashes(hashes, GetDuration(hashes, configuration.FingerprintLengthInSeconds), imageFrames.RelativeTo, imageFrames.Origin);
         }
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
