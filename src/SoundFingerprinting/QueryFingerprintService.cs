@@ -37,10 +37,9 @@
         private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)
         {
             var matchedSubFingerprints = modelService.Query(queryHashes, configuration);
-            double queryLength = queryHashes.QueryLength(configuration.FingerprintConfiguration);
             return queryHashes
                 .AsParallel()
-                .Aggregate(new GroupedQueryResults(queryLength, queryHashes.RelativeTo), (seed, queryFingerprint) =>
+                .Aggregate(new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo), (seed, queryFingerprint) =>
                 {
                     var matched = matchedSubFingerprints.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));
                     foreach (var subFingerprint in matched)
