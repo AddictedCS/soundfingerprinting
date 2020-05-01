@@ -1,6 +1,8 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Moq;
@@ -64,7 +66,7 @@
                             new HashedFingerprint(GenericHashBuckets(), 0, 0),
                             new HashedFingerprint(GenericHashBuckets(), 1, 0.928f),
                             new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2)
-                        }), 0.928 * 3);
+                        }), 0.928 * 3, DateTime.Now, Enumerable.Empty<string>());
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(pathToFile)).Returns(withAlgorithmConfiguration.Object);
@@ -92,7 +94,7 @@
                             new HashedFingerprint(GenericHashBuckets(), 0, 0),
                             new HashedFingerprint(GenericHashBuckets(), 1, 0.928f),
                             new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2)
-                        }), 0.928 * 3);
+                        }), 0.928 * 3, DateTime.Now, Enumerable.Empty<string>());
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(pathToFile, secondsToQuery, startAtSecond)).Returns(withAlgorithmConfiguration.Object);
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);

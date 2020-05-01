@@ -2,6 +2,7 @@ namespace SoundFingerprinting.Data
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using ProtoBuf;
@@ -10,22 +11,40 @@ namespace SoundFingerprinting.Data
     [ProtoContract(IgnoreListHandling = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
-        private const double Accuracy = 1.48d;
-        private const double FingerprintCount = 8192.0d / 5512;
-        
+        private const double MergeAccuracy = 1.48d;
+
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds): this(fingerprints, durationInSeconds, DateTime.MinValue, Enumerable.Empty<string>())
+        [ProtoMember(3)]
+        private readonly ConcurrentDictionary<string, string> properties;
+
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints,
+            double durationInSeconds,
+            DateTime relativeTo,
+            IEnumerable<string> origins) : this(fingerprints,
+            durationInSeconds,
+            relativeTo,
+            origins,
+            new Dictionary<string, string>())
         {
         }
-        
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, IEnumerable<string> origin)
+
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints,
+            double durationInSeconds,
+            DateTime relativeTo,
+            IEnumerable<string> origins,
+            IReadOnlyDictionary<string, string> properties)
         {
             this.fingerprints = fingerprints.ToList();
             DurationInSeconds = durationInSeconds;
-            Origin = origin;
             RelativeTo = relativeTo;
+            Origins = origins;
+            this.properties = new ConcurrentDictionary<string, string>();
+            foreach (var pair in properties)
+            {
+                this.properties.TryAdd(pair.Key, pair.Value);
+            }
         }
 
         private Hashes()
@@ -36,19 +55,48 @@ namespace SoundFingerprinting.Data
         [ProtoMember(2)]
         public double DurationInSeconds { get; }
 
-        [ProtoMember(3)]
-        public IEnumerable<string> Origin { get; }
+        public IReadOnlyDictionary<string, string> Properties => properties;
 
         [ProtoMember(4)]
         public DateTime RelativeTo { get; }
-        
-        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>());
-        
-        public DateTime EndsAt => IsEmpty ? DateTime.MinValue : RelativeTo.Add(TimeSpan.FromSeconds(DurationInSeconds));
+
+        [ProtoMember(5)]
+        public IEnumerable<string> Origins { get; }
+
+        public DateTime EndsAt
+        {
+            get
+            {
+                if (IsEmpty)
+                {
+                    throw new InvalidOperationException("Hashes are empty, EndsAt is undefined");
+                }
+
+                if (RelativeTo.Equals(DateTime.MinValue))
+                {
+                    throw new InvalidOperationException("RelativeTo was not supplied as a parameter to find EndsAt");
+                }
+                
+                return RelativeTo.Add(TimeSpan.FromSeconds(DurationInSeconds));
+            }
+        }
 
         public bool IsEmpty => !fingerprints.Any();
         
         public int Count => fingerprints.Count;
+
+        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.Now, new List<string>(), new Dictionary<string, string>());
+        
+        public Hashes WithNewProperty(string key, string value)
+        {
+            properties.AddOrUpdate(key, value, (key, old) => value);
+            return this;
+        }
+
+        public Hashes WithNewRelativeTo(DateTime relativeTo)
+        {
+            return new Hashes(fingerprints, DurationInSeconds, relativeTo, Origins, properties);
+        }
 
         public IEnumerator<HashedFingerprint> GetEnumerator()
         {
@@ -69,13 +117,22 @@ namespace SoundFingerprinting.Data
                 merged = with;
                 return true;
             }
+
+            if (with.IsEmpty)
+            {
+                merged = this;
+                return true;
+            }
             
-            if (RelativeTo <= with.RelativeTo && EndsAt >= with.RelativeTo.Subtract(TimeSpan.FromSeconds(Accuracy)))
+            if (RelativeTo <= with.RelativeTo && EndsAt >= with.RelativeTo.Subtract(TimeSpan.FromSeconds(MergeAccuracy)))
             {
                 var result = Merge(fingerprints.OrderBy(h => h.SequenceNumber).ToList(), RelativeTo, with.fingerprints.OrderBy(h => h.SequenceNumber).ToList(), with.RelativeTo);
-                var length = result.Last().StartsAt + FingerprintCount;
+                uint count = result.Last().SequenceNumber - result.First().SequenceNumber;
+                float length = result.Last().StartsAt - result.First().StartsAt;
+                float lengthOfOneHash = length / count;
+                float fullLength = result.Last().StartsAt + lengthOfOneHash;
                 var relativeTo = RelativeTo < with.RelativeTo ? RelativeTo : with.RelativeTo;
-                merged = new Hashes(result, length, relativeTo, new HashSet<string>(Origin.Concat(with.Origin)));
+                merged = new Hashes(result, fullLength, relativeTo, new HashSet<string>(Origins.Concat(with.Origins)), new ConcurrentDictionary<string, string>(Properties.Concat(with.Properties)));
                 return true;
             }
             

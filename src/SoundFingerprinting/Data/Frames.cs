@@ -3,28 +3,35 @@ namespace SoundFingerprinting.Data
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using ProtoBuf;
+    using System.Linq;
 
-    [Serializable]
-    [ProtoContract(IgnoreListHandling = true)]
     public class Frames : IEnumerable<Frame>
     {
-        [ProtoMember(1)]
-        private readonly IEnumerable<Frame> frames;
+        private readonly List<Frame> frames;
+        private readonly int frameRate;
 
-        public Frames(IEnumerable<Frame> frames, DateTime relativeTo, IEnumerable<string> origin)
+        public Frames(IEnumerable<Frame> frames, string origin, int frameRate)
         {
-            RelativeTo = relativeTo;
+            this.frames = frames.ToList();
+            RelativeTo = DateTime.Now.AddSeconds((double) this.frames.Count / frameRate);
+            this.frameRate = frameRate;
             Origin = origin;
-            this.frames = frames;
         }
 
-        [ProtoMember(2)]
+        public Frames(IEnumerable<Frame> frames, string origin, int frameRate, DateTime relativeTo)
+        {
+            RelativeTo = relativeTo;
+            this.frames = frames.ToList();
+            this.frameRate = frameRate;
+            Origin = origin; 
+        }
+        
         public DateTime RelativeTo { get; }
+
+        public double Duration => (double)frames.Count / frameRate;
         
-        [ProtoMember(3)]
-        public IEnumerable<string> Origin { get; }
-        
+        public string Origin { get; }
+
         public IEnumerator<Frame> GetEnumerator()
         {
             return frames.GetEnumerator();

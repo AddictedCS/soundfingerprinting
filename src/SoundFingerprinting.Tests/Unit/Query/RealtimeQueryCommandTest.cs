@@ -315,7 +315,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, entries.Count);
             var aggregated = Hashes.Aggregate(fingerprints, 60d).ToList();
             var result = await QueryCommandBuilder.Instance.BuildQueryCommand()
-                .From(new Hashes(aggregated[0], aggregated[0].DurationInSeconds, aggregated[0].RelativeTo, aggregated[0].Origin))
+                .From(new Hashes(aggregated[0], aggregated[0].DurationInSeconds, aggregated[0].RelativeTo, aggregated[0].Origins, aggregated[0].Properties))
                 .UsingServices(modelService, audioService)
                 .Query(aggregated[0].RelativeTo);
             
