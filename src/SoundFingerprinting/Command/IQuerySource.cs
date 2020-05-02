@@ -31,8 +31,8 @@
         /// <summary>
         ///   Create query from previously created fingerprints
         /// </summary>
-        /// <param name="hashedFingerprints">List of fingerprints</param>
+        /// <param name="hashes">List of fingerprints</param>
         /// <returns>Configuration selector. Keep in mind that all the configuration options related to fingerprint creation will be disregarded.</returns>
-        IWithQueryConfiguration From(Hashes hashedFingerprints);
+        IWithQueryConfiguration From(Hashes hashes);
     }
 }

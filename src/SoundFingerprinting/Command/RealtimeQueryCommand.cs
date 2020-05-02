@@ -105,7 +105,7 @@ namespace SoundFingerprinting.Command
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
                 InvokeHashedFingerprintsCallback(hashes);
                 
-                if (!TryQuery(service, hashes, prefixed.RelativeTo, out var queryResults))
+                if (!TryQuery(service, hashes, out var queryResults))
                 {
                     continue;
                 }
@@ -121,7 +121,7 @@ namespace SoundFingerprinting.Command
             return queryLength;
         }
 
-        private bool TryQuery(IQueryFingerprintService service, Hashes hashes, DateTime relativeTo, out IEnumerable<QueryResult> results)
+        private bool TryQuery(IQueryFingerprintService service, Hashes hashes, out IEnumerable<QueryResult> results)
         {
             try
             {
@@ -148,9 +148,9 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private void InvokeExceptionCallback(Exception e, Hashes timedHashes)
+        private void InvokeExceptionCallback(Exception e, Hashes hashes)
         {
-            configuration?.ErrorCallback(e, timedHashes);
+            configuration?.ErrorCallback(e, hashes);
         }
         
         private void InvokeHashedFingerprintsCallback(Hashes hashes)

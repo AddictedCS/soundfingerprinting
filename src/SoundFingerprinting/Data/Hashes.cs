@@ -85,7 +85,7 @@ namespace SoundFingerprinting.Data
         
         public int Count => fingerprints.Count;
 
-        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.Now, new List<string>(), new Dictionary<string, string>());
+        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>(), new Dictionary<string, string>());
         
         public Hashes WithNewProperty(string key, string value)
         {
@@ -126,7 +126,7 @@ namespace SoundFingerprinting.Data
             
             if (RelativeTo <= with.RelativeTo && EndsAt >= with.RelativeTo.Subtract(TimeSpan.FromSeconds(MergeAccuracy)))
             {
-                var result = Merge(fingerprints.OrderBy(h => h.SequenceNumber).ToList(), RelativeTo, with.fingerprints.OrderBy(h => h.SequenceNumber).ToList(), with.RelativeTo);
+                var result = Merge(this, with);
                 uint count = result.Last().SequenceNumber - result.First().SequenceNumber;
                 float length = result.Last().StartsAt - result.First().StartsAt;
                 float lengthOfOneHash = length / count;
@@ -174,8 +174,13 @@ namespace SoundFingerprinting.Data
                     });
         }
 
-        private static List<HashedFingerprint> Merge(IReadOnlyList<HashedFingerprint> first, DateTime firstStartsAt, IReadOnlyList<HashedFingerprint> second, DateTime secondStartsAt)
+        private static List<HashedFingerprint> Merge(Hashes left, Hashes right)
         {
+            var first = left.OrderBy(_ => _.SequenceNumber).ToList();
+            var firstStartsAt = left.RelativeTo;
+            var second = right.OrderBy(_ => _.SequenceNumber).ToList();
+            var secondStartsAt = right.RelativeTo;
+                
             var result = new List<HashedFingerprint>();
             int i = 0, j = 0;
             var diff = secondStartsAt.Subtract(firstStartsAt);

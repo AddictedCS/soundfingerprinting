@@ -51,9 +51,9 @@
             return this;
         }
 
-        public IWithQueryConfiguration From(Hashes hashedFingerprints)
+        public IWithQueryConfiguration From(Hashes hashes)
         {
-            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashedFingerprints);
+            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashes);
             return this;
         }
 
