@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.InMemory
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using NUnit.Framework;
     using ProtoBuf;
@@ -59,7 +58,7 @@
         {
             var fingerprints = new[] {new HashedFingerprint(new[] {1, 2, 3, 4, 5}, 0, 0)};
             var origins = new[] {"test"};
-            var hashes = new Hashes(fingerprints, 1.48, DateTime.Now, origins, new Dictionary<string, string> {{"key", "value"}});
+            var hashes = new Hashes(fingerprints, 1.48, DateTime.Now, origins, "CNN");
 
             byte[] serialized;
             using (var stream = new MemoryStream())
@@ -74,8 +73,8 @@
                 Assert.IsNotNull(data);
                 Assert.AreEqual(hashes.Count, data.Count);
                 Assert.AreEqual(hashes.DurationInSeconds, data.DurationInSeconds);
+                Assert.AreEqual(hashes.StreamId, data.StreamId);
                 CollectionAssert.AreEqual(hashes.Origins, data.Origins);
-                CollectionAssert.AreEquivalent(hashes.Properties, data.Properties);
             }
         }
     }

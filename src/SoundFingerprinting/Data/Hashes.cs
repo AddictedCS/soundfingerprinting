@@ -2,7 +2,6 @@ namespace SoundFingerprinting.Data
 {
     using System;
     using System.Collections;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using ProtoBuf;
@@ -16,35 +15,40 @@ namespace SoundFingerprinting.Data
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
 
-        [ProtoMember(3)]
-        private readonly ConcurrentDictionary<string, string> properties;
-
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints,
-            double durationInSeconds,
-            DateTime relativeTo,
-            IEnumerable<string> origins) : this(fingerprints,
-            durationInSeconds,
-            relativeTo,
-            origins,
-            new Dictionary<string, string>())
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds):
+            this(fingerprints,
+                durationInSeconds,
+                DateTime.Now,
+                Enumerable.Empty<string>(),
+                string.Empty)
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints,
-            double durationInSeconds,
-            DateTime relativeTo,
-            IEnumerable<string> origins,
-            IReadOnlyDictionary<string, string> properties)
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo):
+            this(fingerprints,
+                durationInSeconds,
+                relativeTo,
+                Enumerable.Empty<string>(),
+                string.Empty)
+        {
+        }
+
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, IEnumerable<string> origins):
+            this(fingerprints,
+                durationInSeconds,
+                relativeTo,
+                origins,
+                string.Empty)
+        {
+        }
+
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, IEnumerable<string> origins, string streamId)
         {
             this.fingerprints = fingerprints.ToList();
             DurationInSeconds = durationInSeconds;
             RelativeTo = relativeTo;
             Origins = origins;
-            this.properties = new ConcurrentDictionary<string, string>();
-            foreach (var pair in properties)
-            {
-                this.properties.TryAdd(pair.Key, pair.Value);
-            }
+            StreamId = streamId;
         }
 
         private Hashes()
@@ -55,7 +59,8 @@ namespace SoundFingerprinting.Data
         [ProtoMember(2)]
         public double DurationInSeconds { get; }
 
-        public IReadOnlyDictionary<string, string> Properties => properties;
+        [ProtoMember(3)] 
+        public string StreamId { get; }
 
         [ProtoMember(4)]
         public DateTime RelativeTo { get; }
@@ -85,17 +90,16 @@ namespace SoundFingerprinting.Data
         
         public int Count => fingerprints.Count;
 
-        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>(), new Dictionary<string, string>());
+        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>(), string.Empty);
         
-        public Hashes WithNewProperty(string key, string value)
+        public Hashes WithStreamId(string streamId)
         {
-            properties.AddOrUpdate(key, value, (key, old) => value);
-            return this;
+            return new Hashes(fingerprints, DurationInSeconds, RelativeTo, Origins, streamId);
         }
 
         public Hashes WithNewRelativeTo(DateTime relativeTo)
         {
-            return new Hashes(fingerprints, DurationInSeconds, relativeTo, Origins, properties);
+            return new Hashes(fingerprints, DurationInSeconds, relativeTo, Origins, StreamId);
         }
 
         public IEnumerator<HashedFingerprint> GetEnumerator()
@@ -123,7 +127,16 @@ namespace SoundFingerprinting.Data
                 merged = this;
                 return true;
             }
-            
+
+            string streamId = (StreamId, with.StreamId) switch
+            {
+                ("", "") => "",
+                (string left, "") => left,
+                ("", string right) => right,
+                (string left, string right) when (left.Equals(right)) => left,
+                _ => throw new NotSupportedException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
+            };
+
             if (RelativeTo <= with.RelativeTo && EndsAt >= with.RelativeTo.Subtract(TimeSpan.FromSeconds(MergeAccuracy)))
             {
                 var result = Merge(this, with);
@@ -132,10 +145,10 @@ namespace SoundFingerprinting.Data
                 float lengthOfOneHash = length / count;
                 float fullLength = result.Last().StartsAt + lengthOfOneHash;
                 var relativeTo = RelativeTo < with.RelativeTo ? RelativeTo : with.RelativeTo;
-                merged = new Hashes(result, fullLength, relativeTo, new HashSet<string>(Origins.Concat(with.Origins)), new ConcurrentDictionary<string, string>(Properties.Concat(with.Properties)));
+                merged = new Hashes(result, fullLength, relativeTo, new HashSet<string>(Origins.Concat(with.Origins)), streamId);
                 return true;
             }
-            
+
             return false;
         }
 
