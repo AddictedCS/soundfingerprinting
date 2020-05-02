@@ -8,13 +8,12 @@ namespace SoundFingerprinting.Data
     public class Frames : IEnumerable<Frame>
     {
         private readonly List<Frame> frames;
-        private readonly int frameRate;
 
         public Frames(IEnumerable<Frame> frames, string origin, int frameRate)
         {
             this.frames = frames.ToList();
             RelativeTo = DateTime.Now.AddSeconds((double) this.frames.Count / frameRate);
-            this.frameRate = frameRate;
+            FrameRate = frameRate;
             Origin = origin;
         }
 
@@ -22,15 +21,17 @@ namespace SoundFingerprinting.Data
         {
             RelativeTo = relativeTo;
             this.frames = frames.ToList();
-            this.frameRate = frameRate;
+            FrameRate = frameRate;
             Origin = origin; 
         }
         
         public DateTime RelativeTo { get; }
 
-        public double Duration => (double)frames.Count / frameRate;
+        public double Duration => (double)frames.Count / FrameRate;
         
         public string Origin { get; }
+
+        public int FrameRate { get; }
 
         public IEnumerator<Frame> GetEnumerator()
         {
