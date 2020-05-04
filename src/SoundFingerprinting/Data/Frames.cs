@@ -3,28 +3,46 @@ namespace SoundFingerprinting.Data
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using ProtoBuf;
+    using System.Linq;
 
-    [Serializable]
-    [ProtoContract(IgnoreListHandling = true)]
     public class Frames : IEnumerable<Frame>
     {
-        [ProtoMember(1)]
-        private readonly IEnumerable<Frame> frames;
+        private readonly List<Frame> frames;
 
-        public Frames(IEnumerable<Frame> frames, DateTime relativeTo, IEnumerable<string> origin)
+        public Frames(IEnumerable<Frame> frames, string origin, int frameRate)
         {
-            RelativeTo = relativeTo;
+            this.frames = frames.ToList();
+            if (this.frames.Any() && frameRate == 0)
+            {
+                throw new ArgumentException(nameof(frameRate));
+            }
+
+            RelativeTo = DateTime.Now.AddSeconds((double) this.frames.Count / frameRate);
+            FrameRate = frameRate;
             Origin = origin;
-            this.frames = frames;
         }
 
-        [ProtoMember(2)]
+        public Frames(IEnumerable<Frame> frames, string origin, int frameRate, DateTime relativeTo)
+        {
+            this.frames = frames.ToList();
+            if (this.frames.Any() && frameRate == 0)
+            {
+                throw new ArgumentException(nameof(frameRate));
+            }
+
+            RelativeTo = relativeTo;
+            FrameRate = frameRate;
+            Origin = origin;
+        }
+
         public DateTime RelativeTo { get; }
-        
-        [ProtoMember(3)]
-        public IEnumerable<string> Origin { get; }
-        
+
+        public double Duration => (double) frames.Count / FrameRate;
+
+        public string Origin { get; }
+
+        public int FrameRate { get; }
+
         public IEnumerator<Frame> GetEnumerator()
         {
             return frames.GetEnumerator();

@@ -51,9 +51,9 @@
             return this;
         }
 
-        public IWithQueryConfiguration From(Hashes hashedFingerprints)
+        public IWithQueryConfiguration From(Hashes hashes)
         {
-            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashedFingerprints);
+            createFingerprintCommand = () => new ExecutedFingerprintCommand(hashes);
             return this;
         }
 
@@ -91,7 +91,7 @@
 
         public async Task<QueryResult> Query()
         {
-            return await Query(DateTime.Now);
+            return await Query(DateTime.MinValue);
         }
 
         public async Task<QueryResult> Query(DateTime relativeTo)
@@ -101,7 +101,8 @@
             long fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
 
             var queryStopwatch = Stopwatch.StartNew();
-            var queryResult = queryFingerprintService.Query(hashes, queryConfiguration, modelService);
+            var queryHashes = relativeTo == DateTime.MinValue ? hashes : hashes.WithNewRelativeTo(relativeTo);
+            var queryResult = queryFingerprintService.Query(queryHashes, queryConfiguration, modelService);
             long queryDuration = queryStopwatch.ElapsedMilliseconds;
             if (queryResult.ContainsMatches)
             {

@@ -67,7 +67,8 @@
                         new TrackData("isrc_1", string.Empty, string.Empty, string.Empty, 0, 0d, secondTrackReference)
                     });
 
-            var queryResult = queryFingerprintService.Query(new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f), customQueryConfiguration, modelService.Object);
+            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, DateTime.Now, Enumerable.Empty<string>());
+            var queryResult = queryFingerprintService.Query(hashes, customQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
@@ -84,10 +85,10 @@
         {
             var queryHash = new HashedFingerprint(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0);
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
-            modelService.Setup(service => service.Query(It.IsAny<Hashes>(), customQueryConfiguration))
-                .Returns(new List<SubFingerprintData>());
+            modelService.Setup(service => service.Query(It.IsAny<Hashes>(), customQueryConfiguration)).Returns(new List<SubFingerprintData>());
 
-            var queryResult = queryFingerprintService.Query(new Hashes(new List<HashedFingerprint> { queryHash }, 148f), customQueryConfiguration, modelService.Object);
+            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 148f, DateTime.Now, Enumerable.Empty<string>());
+            var queryResult = queryFingerprintService.Query(hashes, customQueryConfiguration, modelService.Object);
 
             Assert.IsFalse(queryResult.ContainsMatches);
             Assert.IsNull(queryResult.BestMatch);
@@ -115,7 +116,8 @@
                         new TrackData("isrc", string.Empty, string.Empty, string.Empty, 0, 0d, firstTrackReference)
                     });
 
-            var queryResult = queryFingerprintService.Query(new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f), defaultQueryConfiguration, modelService.Object);
+            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, DateTime.Now, Enumerable.Empty<string>());
+            var queryResult = queryFingerprintService.Query(hashes, defaultQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
@@ -130,12 +132,10 @@
             modelService.Setup(service => service.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()))
                 .Returns(new List<SubFingerprintData>());
 
-            queryFingerprintService.Query(
-                new Hashes( 
-                new List<HashedFingerprint>
-                    {
-                        new HashedFingerprint(GenericHashBuckets(), 0, 0f)
-                    }, 1.48f),
+            queryFingerprintService.Query(new Hashes(new List<HashedFingerprint>
+                {
+                    new HashedFingerprint(GenericHashBuckets(), 0, 0f)
+                }, 1.48f, DateTime.Now, Enumerable.Empty<string>()),
                 new DefaultQueryConfiguration(),
                 modelService.Object);
         }

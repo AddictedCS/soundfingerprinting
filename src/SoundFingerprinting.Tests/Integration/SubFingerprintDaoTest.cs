@@ -169,13 +169,13 @@
                                                        .Select(ToHashedFingerprint())
                                                        .ToList();
 
-            AssertHashDatasAreTheSame(firstHashData, new Hashes(resultFirstHashData, firstHashData.DurationInSeconds));
+            AssertHashDatasAreTheSame(firstHashData, new Hashes(resultFirstHashData, firstHashData.DurationInSeconds, DateTime.Now, Enumerable.Empty<string>()));
 
             var resultSecondHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(secondTrackReference)
                                                         .Select(ToHashedFingerprint())
                                                         .ToList();
 
-            AssertHashDatasAreTheSame(secondHashData, new Hashes(resultSecondHashData, secondHashData.DurationInSeconds));
+            AssertHashDatasAreTheSame(secondHashData, new Hashes(resultSecondHashData, secondHashData.DurationInSeconds, DateTime.Now, Enumerable.Empty<string>()));
         }
 
         private static Func<SubFingerprintData, HashedFingerprint> ToHashedFingerprint()

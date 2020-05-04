@@ -303,9 +303,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.QueryFingerprintsCallback += timedHashes => fingerprints.Add(timedHashes);
+                    config.QueryFingerprintsCallback += queryHashes => fingerprints.Add(queryHashes);
                     config.SuccessCallback = entry => entries.Add(entry);
                     config.ResultEntryFilter = new CoverageLengthEntryFilter(0.8d);
+                    config.Stride = new IncrementalStaticStride(2048);
                     return config;
                 })
                 .UsingServices(modelService)
@@ -313,14 +314,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             Assert.IsTrue(entries.Any());
             Assert.AreEqual(1, entries.Count);
-            var aggregated = Hashes.Aggregate(fingerprints, 60d).ToList();
-            var result = await QueryCommandBuilder.Instance.BuildQueryCommand()
-                .From(new Hashes(aggregated[0], aggregated[0].DurationInSeconds, aggregated[0].RelativeTo, aggregated[0].Origin))
+            var realtimeResult = entries.First();
+            var aggregatedHashes = Hashes.Aggregate(fingerprints, 60d).First();
+            var nonRealtimeResult = await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(aggregatedHashes)
                 .UsingServices(modelService, audioService)
-                .Query(aggregated[0].RelativeTo);
+                .Query();
             
-            Assert.IsTrue(result.ContainsMatches);
-            Assert.AreEqual(entries[0].MatchedAt, result.BestMatch.MatchedAt);
+            Assert.IsTrue(nonRealtimeResult.ContainsMatches);
+            Assert.AreEqual(1, nonRealtimeResult.ResultEntries.Count());
+            Assert.AreEqual(realtimeResult.MatchedAt, aggregatedHashes.RelativeTo);
+            Assert.AreEqual(realtimeResult.MatchedAt, nonRealtimeResult.BestMatch.MatchedAt, $"Realtime vs NonRealtime {nonRealtimeResult.BestMatch.Coverage.BestPath.Count()} match time does not match");
         }
 
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
