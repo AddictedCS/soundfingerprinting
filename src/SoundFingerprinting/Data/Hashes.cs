@@ -45,6 +45,11 @@ namespace SoundFingerprinting.Data
         public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, IEnumerable<string> origins, string streamId)
         {
             this.fingerprints = fingerprints.ToList();
+            if (this.fingerprints.Any() && durationInSeconds <= 0)
+            {
+                throw new ArgumentException(nameof(durationInSeconds));
+            }
+            
             DurationInSeconds = durationInSeconds;
             RelativeTo = relativeTo;
             Origins = origins;
