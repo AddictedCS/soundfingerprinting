@@ -1,9 +1,11 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.FFT
 {
+    using System.Linq;
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
 
@@ -38,7 +40,8 @@
                                                Stride = new IncrementalStaticStride(5512)
                                            };
 
-            var spectralImages = spectrumService.CreateLogSpectrogram(audio, config);
+            var logNormalize = new LogSpectrumNormalization();
+            var spectralImages = logNormalize.Normalize(spectrumService.CreateLogSpectrogram(audio, config)).ToList();
 
             Assert.AreEqual((seconds * Fs - config.WdftSize) / Fs, spectralImages.Count);
 

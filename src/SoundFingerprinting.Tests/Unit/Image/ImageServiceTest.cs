@@ -6,6 +6,7 @@
     using NUnit.Framework;
     using ProtoBuf;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Image;
 
@@ -97,10 +98,13 @@
 
             var image = GetOneImage();
 
-            var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, string.Empty, 30), new DefaultFingerprintConfiguration
+            var configuration = new DefaultFingerprintConfiguration
             {
+                FrameNormalizationTransform = new NoFrameNormalization(),
                 OriginalPointSaveTransform = EncodeFrame
-            });
+            };
+
+            var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, string.Empty, 30), configuration);
 
             var decodedFrame = DecodeFrame(hashes.First().OriginalPoint, imageService);
             Assert.AreEqual(image.Length, decodedFrame.Length);
@@ -132,10 +136,9 @@
             for (int i = 0; i < 72; ++i)
             {
                 image[i] = new float[128];
-                for (int j = 0; j < 128; ++j)
-                {
-                    image[i][j] = (float) random.NextDouble();
-                }
+                byte[] buffer = new byte[128 * sizeof(float)];
+                random.NextBytes(buffer);
+                Buffer.BlockCopy(buffer, 0, image[i], 0, buffer.Length);
             }
 
             return image;
