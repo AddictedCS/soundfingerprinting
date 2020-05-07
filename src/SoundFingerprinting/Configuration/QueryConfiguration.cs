@@ -60,16 +60,6 @@
         }
 
         /// <summary>
-        ///  Gets or sets the scaling function used in spectral image creation
-        /// </summary>
-        public Func<float, float, float> ScalingFunction
-        {
-            get => FingerprintConfiguration.ScalingFunction;
-
-            set => FingerprintConfiguration.ScalingFunction = value;
-        }
-
-        /// <summary>
         ///  Gets or sets the number of top wavelets to analyze
         /// </summary>
         public int TopWavelets

@@ -3,12 +3,15 @@ namespace SoundFingerprinting
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
+    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -69,13 +72,21 @@ namespace SoundFingerprinting
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
         {
-            var fingerprints = new ConcurrentBag<Fingerprint>();
-            var images = frames.ToList();
+            var normalized = configuration.FrameNormalizationTransform.Normalize(frames);
+            var blurred = configuration.GaussianBlurConfiguration.GaussianFilter switch
+            {
+                GaussianFilter.None => normalized,
+                _ => BlurFrames(normalized, configuration.GaussianBlurConfiguration)
+            };
+
+
+            var images = blurred.ToList();
             if (!images.Any())
             {
                 return Enumerable.Empty<Fingerprint>();
             }
 
+            var fingerprints = new ConcurrentBag<Fingerprint>();
             var length = images.First().Length;
             Parallel.ForEach(images, () => new ushort[length], (frame, loop, cachedIndexes) =>
                 {
@@ -95,9 +106,18 @@ namespace SoundFingerprinting
             return fingerprints.ToList();
         }
 
-        private double GetDuration(IEnumerable<HashedFingerprint> hashes, double fingerprintLengthInSeconds)
+        private static IEnumerable<Frame> BlurFrames(IEnumerable<Frame> frames, GaussianBlurConfiguration blurConfiguration)
         {
-            return hashes.Max(h => h.StartsAt) + fingerprintLengthInSeconds;
+            double[,] kernel = GaussianBlurKernel.Kernel2D(blurConfiguration.Kernel, blurConfiguration.Sigma);
+            return frames
+                .AsParallel()
+                .Select(frame =>
+                {
+                    float[][] image = ImageService.Instance.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
+                    float[][] blurred = GrayImage.Convolve(image, kernel);
+                    return new Frame(blurred, frame.StartsAt, frame.SequenceNumber);
+                })
+                .ToList();
         }
     }
 }
