@@ -35,7 +35,7 @@
             {
                 var tinyFingerprint = TestUtilities.GenerateRandomFingerprint(random, 200, width, height);
  
-                var fingerprint = new Fingerprint(tinyFingerprint, 0, 0);
+                var fingerprint = new Fingerprint(tinyFingerprint, 0, 0, Array.Empty<byte>());
 
                 var hashedFingerprint = lshAlgorithm.Hash(fingerprint, hashingConfig);
 
@@ -83,7 +83,7 @@
             {
                 var tinyFingerprint = TestUtilities.GenerateRandomFingerprint(random, (int) (width * height * topWaveletsPercentage), width, height);
  
-                var fingerprint = new Fingerprint(tinyFingerprint, 0, 0);
+                var fingerprint = new Fingerprint(tinyFingerprint, 0, 0, Array.Empty<byte>());
 
                 var hashedFingerprint = lshAlgorithm.HashImage(fingerprint, hashingConfig);
 
@@ -117,14 +117,14 @@
             for (int i = 0; i < 100; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config);
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
                 storage.AddHashedFingerprint(hash, track);
             }
 
             for (int i = 0; i < 10; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config);
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
                 for (int j = 0; j < 25; ++j)
                 {
                     var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j]);
@@ -150,7 +150,7 @@
             for (int i = 0; i < l; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i), config);
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
                 storage.AddHashedFingerprint(hash, track);
             }
 
@@ -191,8 +191,8 @@
                     var fingerprints = TestUtilities.GenerateSimilarFingerprints(random, howSimilar, topWavelets, width * height * 2);
                     int hammingDistance = similarity.CalculateHammingDistance(fingerprints.Item1.ToBools(), fingerprints.Item2.ToBools());
                     hammingDistances.Add(hammingDistance);
-                    var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0), hashingConfig);
-                    var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0), hashingConfig);
+                    var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0, Array.Empty<byte>()), hashingConfig);
+                    var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0, Array.Empty<byte>()), hashingConfig);
                     int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
                     agreeOn.Add(agreeCount);
                 }

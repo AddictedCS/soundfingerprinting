@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -56,7 +57,7 @@
             waveletDecomposition.Setup(service => service.DecomposeImageInPlace(It.IsAny<float[]>(), 128, 32, fingerprintConfig.HaarWaveletNorm));
             fingerprintDescriptor.Setup(descriptor => descriptor.ExtractTopWavelets(It.IsAny<float[]>(), fingerprintConfig.TopWavelets, It.IsAny<ushort[]>())).Returns(new TinyFingerprintSchema(8192).SetTrueAt(0, 1));
             localitySensitiveHashingAlgorithm.Setup(service => service.Hash(It.IsAny<Fingerprint>(), fingerprintConfig.HashingConfig))
-                .Returns(new HashedFingerprint(new int[0], 1, 0f));
+                .Returns(new HashedFingerprint(new int[0], 1, 0f, Array.Empty<byte>()));
 
             var fingerprints = fingerprintService.CreateFingerprintsFromAudioSamples(samples, fingerprintConfig)
                                                  .OrderBy(f => f.SequenceNumber)

@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.InMemory
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@
                 var trackReference = new ModelReference<int>(i);
                 for (int j = 0; j < subFingerprintsPerTrack; ++j)
                 {
-                    var hashed = new HashedFingerprint(longs, (uint)j, j * one);
+                    var hashed = new HashedFingerprint(longs, (uint)j, j * one, Array.Empty<byte>());
                     storage.AddHashedFingerprint(hashed, trackReference);
                 }
             });

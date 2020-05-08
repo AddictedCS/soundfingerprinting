@@ -21,16 +21,16 @@ namespace SoundFingerprinting.Tests.Unit.Data
             float one = 8192f / 5512;
             var a = new Hashes(new List<HashedFingerprint>
             {
-                new HashedFingerprint(new[] {1}, 1, one),
-                new HashedFingerprint(new[] {1}, 2, 2 * one),
-                new HashedFingerprint(new[] {1}, 0, 0)
+                new HashedFingerprint(new[] {1}, 1, one, Array.Empty<byte>()),
+                new HashedFingerprint(new[] {1}, 2, 2 * one, Array.Empty<byte>()),
+                new HashedFingerprint(new[] {1}, 0, 0, Array.Empty<byte>())
             }, one * 3 + FingerprintCount, DateTime.Parse("01/15/2019 10:00:00", dtfi), Enumerable.Empty<string>());
 
             var b = new Hashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(new[] {2}, 1, one),
-                    new HashedFingerprint(new[] {2}, 2, 2 * one),
-                    new HashedFingerprint(new[] {2}, 0, 0)
+                    new HashedFingerprint(new[] {2}, 1, one, Array.Empty<byte>()),
+                    new HashedFingerprint(new[] {2}, 2, 2 * one, Array.Empty<byte>()),
+                    new HashedFingerprint(new[] {2}, 0, 0, Array.Empty<byte>())
                 },
                 one * 3 + FingerprintCount, DateTime.Parse("01/15/2019 10:00:01", dtfi), Enumerable.Empty<string>());
 
@@ -50,9 +50,9 @@ namespace SoundFingerprinting.Tests.Unit.Data
             float acc = 8192 / 5512f;
             var a = Hashes.Empty;
             var dateTime = DateTime.Now;
-            var b = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {1}, 0, 0)}), acc, dateTime, Enumerable.Empty<string>());
-            var c = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {2}, 0, 0f)}), acc, dateTime.AddSeconds(acc), Enumerable.Empty<string>());
-            var d = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {3}, 0, 0f)}), acc, dateTime.AddSeconds(2 * acc), Enumerable.Empty<string>());
+            var b = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {1}, 0, 0f, Array.Empty<byte>())}), acc, dateTime, Enumerable.Empty<string>());
+            var c = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {2}, 0, 0f, Array.Empty<byte>())}), acc, dateTime.AddSeconds(acc), Enumerable.Empty<string>());
+            var d = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {3}, 0, 0f, Array.Empty<byte>())}), acc, dateTime.AddSeconds(2 * acc), Enumerable.Empty<string>());
 
             Assert.IsTrue(a.MergeWith(b, out var x));
             Assert.IsTrue(x.MergeWith(c, out var y));
@@ -73,8 +73,8 @@ namespace SoundFingerprinting.Tests.Unit.Data
             float one = 8192f / 5512;
             for (int i = 0; i < 100; ++i)
             {
-                first.Add(new HashedFingerprint(new[] {1}, (uint) i, i * one));
-                second.Add(new HashedFingerprint(new[] {2}, (uint) i, i * one));
+                first.Add(new HashedFingerprint(new[] {1}, (uint) i, i * one, Array.Empty<byte>()));
+                second.Add(new HashedFingerprint(new[] {2}, (uint) i, i * one, Array.Empty<byte>()));
             }
 
             var r = new Random();
@@ -105,14 +105,14 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
             var a = new Hashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(new[] {1}, 0, 0)
+                    new HashedFingerprint(new[] {1}, 0, 0, Array.Empty<byte>())
                 },
                 FingerprintCount,
                 DateTime.Parse("01/15/2019 10:00:00", dtfi), Enumerable.Empty<string>());
 
             var b = new Hashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(new[] {2}, 0, 0)
+                    new HashedFingerprint(new[] {2}, 0, 0, Array.Empty<byte>())
                 },
                 FingerprintCount,
                 DateTime.Parse("01/15/2019 10:01:00", dtfi), Enumerable.Empty<string>());
@@ -170,7 +170,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                     hashes[j] = hash;
                 }
 
-                list.Add(new HashedFingerprint(hashes, (uint) (i + 1), i * 1.48f));
+                list.Add(new HashedFingerprint(hashes, (uint) (i + 1), i * 1.48f, Array.Empty<byte>()));
             }
 
             return list;

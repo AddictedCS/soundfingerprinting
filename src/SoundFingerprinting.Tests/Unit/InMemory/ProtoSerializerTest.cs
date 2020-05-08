@@ -56,7 +56,7 @@
         [Test]
         public void ShouldSerializeHashes()
         {
-            var fingerprints = new[] {new HashedFingerprint(new[] {1, 2, 3, 4, 5}, 0, 0)};
+            var fingerprints = new[] {new HashedFingerprint(new[] {1, 2, 3, 4, 5}, 0, 0, Array.Empty<byte>())};
             var origins = new[] {"test"};
             var hashes = new Hashes(fingerprints, 1.48, DateTime.Now, origins, "CNN");
 

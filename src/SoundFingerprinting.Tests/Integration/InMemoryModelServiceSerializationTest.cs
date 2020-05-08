@@ -56,7 +56,7 @@
             var modelService = new InMemoryModelService();
 
             var firstTrack = new TrackInfo("id1", "title", "artist");
-            modelService.Insert(firstTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(firstTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
@@ -64,7 +64,7 @@
             var fromFileService = new InMemoryModelService(tempFile);
 
             var secondTrack = new TrackInfo("id2", "title", "artist");
-            fromFileService.Insert(secondTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            fromFileService.Insert(secondTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
 
             var tracks = fromFileService.ReadAllTracks().ToList();
 

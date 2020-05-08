@@ -39,7 +39,8 @@
                                     .Select(subFingerprint => new HashedFingerprint(
                                                 subFingerprint.Hashes,
                                                 subFingerprint.SequenceNumber,
-                                                subFingerprint.SequenceAt))
+                                                subFingerprint.SequenceAt,
+                                                subFingerprint.OriginalPoint))
                                     .ToList();
         }
     }

@@ -7,11 +7,6 @@
     [ProtoContract]
     public class HashedFingerprint 
     {
-        public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt) : this(hashBins, sequenceNumber, startsAt, new byte[0])
-        {
-            
-        }
-        
         public HashedFingerprint(int[] hashBins, uint sequenceNumber, float startsAt, byte[] originalPoint)
         {
             HashBins = hashBins;
