@@ -15,13 +15,6 @@ namespace SoundFingerprinting.Configuration
             UseDynamicLogBase = true;
             Stride = Configs.FingerprintStrides.Default;
             Window = new HanningWindow();
-            ScalingFunction = (value, max) =>
-            {
-                float scaled = System.Math.Min(value / max, 1);
-                int domain = 255;
-                float c = (float)(1 / System.Math.Log(1 + domain));
-                return (float)(c * System.Math.Log(1 + scaled * domain));
-            };
         }
     }
 }

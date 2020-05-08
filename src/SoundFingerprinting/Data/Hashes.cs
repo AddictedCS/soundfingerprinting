@@ -208,23 +208,23 @@ namespace SoundFingerprinting.Data
                 if (i == first.Count)
                 {
                     var startAt = diff.TotalSeconds + second[j].StartsAt;
-                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt));
+                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].OriginalPoint));
                     ++j;
                 }
                 else if (j == second.Count)
                 {
-                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt));
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt, first[i].OriginalPoint));
                     ++i;
                 }
                 else if (firstStartsAt.AddSeconds(first[i].StartsAt) <= secondStartsAt.AddSeconds(second[j].StartsAt))
                 {
-                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt));
+                    result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt, first[i].OriginalPoint));
                     ++i;
                 }
                 else
                 {
                     var startAt = diff.TotalSeconds + second[j].StartsAt;
-                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt));
+                    result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].OriginalPoint));
                     ++j;
                 }
             }

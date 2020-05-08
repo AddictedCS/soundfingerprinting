@@ -1,7 +1,7 @@
 namespace SoundFingerprinting.Configuration
 {
     using System;
-    using System.Collections.Generic;
+    using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Strides;
 
@@ -13,7 +13,6 @@ namespace SoundFingerprinting.Configuration
         public IStride Stride
         {
             get => SpectrogramConfig.Stride;
-
             set => SpectrogramConfig.Stride = value;
         }
 
@@ -21,15 +20,6 @@ namespace SoundFingerprinting.Configuration
         ///   Gets or sets Haar Wavelet norm. The default value is Math.Sqrt(2)
         /// </summary>
         public double HaarWaveletNorm { get; set; }
-
-        /// <summary>
-        ///  Spectral image scaling function
-        /// </summary>
-        public Func<float, float, float> ScalingFunction
-        {
-            get => SpectrogramConfig.ScalingFunction;
-            set => SpectrogramConfig.ScalingFunction = value;
-        }
 
         /// <summary>
         ///  Frequency range to analyze when creating the fingerprints
@@ -73,6 +63,16 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets the transformation for the original point that needs to be saved for second level cross-check
         /// </summary>
-        public Func<Frame, byte[]> OriginalPointSaveTransform { get; set; }
+        public Func<Frame, byte[]>? OriginalPointSaveTransform { get; set; }
+
+        /// <summary>
+        ///  Gets or sets gaussian blur configuration applied on the frame before generating fingerprints
+        /// </summary>
+        public GaussianBlurConfiguration GaussianBlurConfiguration { get; set; }
+
+        /// <summary>
+        ///  Gets or sets frame normalization applied before generating fingerprints
+        /// </summary>
+        public IFrameNormalization FrameNormalizationTransform { get; set; }
     }
 }

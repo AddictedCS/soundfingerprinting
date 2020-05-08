@@ -42,7 +42,8 @@
                 .Select(sequenceNumber => new HashedFingerprint(
                     genericHashBuckets,
                     (uint)sequenceNumber,
-                    sequenceNumber * 0.928f));
+                    sequenceNumber * 0.928f, 
+                    Array.Empty<byte>()));
 
             InsertHashedFingerprintsForTrack(hashedFingerprints, trackReference);
 
@@ -180,7 +181,7 @@
 
         private static Func<SubFingerprintData, HashedFingerprint> ToHashedFingerprint()
         {
-            return _ => new HashedFingerprint(_.Hashes, _.SequenceNumber, _.SequenceAt);
+            return _ => new HashedFingerprint(_.Hashes, _.SequenceNumber, _.SequenceAt, _.OriginalPoint);
         }
 
         private void InsertHashedFingerprintsForTrack(IEnumerable<HashedFingerprint> hashedFingerprints, IModelReference trackReference)

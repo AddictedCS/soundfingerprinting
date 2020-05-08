@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Math;
@@ -34,7 +32,7 @@
             int hashBuckets = hashingConfig.HashBuckets;
             byte[] subFingerprint = minHashService.Hash(fingerprint.Schema, numberOfHashTables * numberOfHashKeysPerTable);
             int[] hashBins = GroupIntoHashTables(subFingerprint, numberOfHashTables, numberOfHashKeysPerTable, hashBuckets);
-            return new HashedFingerprint(hashBins, fingerprint.SequenceNumber, fingerprint.StartsAt);
+            return new HashedFingerprint(hashBins, fingerprint.SequenceNumber, fingerprint.StartsAt, fingerprint.OriginalPoint);
         }
 
         public HashedFingerprint HashImage(Fingerprint fingerprint, HashingConfig hashingConfig)
@@ -45,7 +43,7 @@
             var extendedMinHashService = extendedMinHashServices.GetOrAdd(width * height, key => new ExtendedMinHashService(new AdaptivePermutations(n, width, height)));
             int[] minHashes = extendedMinHashService.Hash(fingerprint.Schema, n);
             int[] hashed = HashMinHashes(minHashes, hashingConfig.NumberOfLSHTables, hashingConfig.NumberOfMinHashesPerTable);
-            return new HashedFingerprint(hashed, fingerprint.SequenceNumber, fingerprint.StartsAt);
+            return new HashedFingerprint(hashed, fingerprint.SequenceNumber, fingerprint.StartsAt, fingerprint.OriginalPoint);
         }
 
         /// <summary>

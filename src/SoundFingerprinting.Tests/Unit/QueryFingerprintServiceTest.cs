@@ -35,7 +35,7 @@
         [Test]
         public void MaximumNumberOfReturnedTracksIsLessThanAnalyzedCandidatesResultsTest()
         {
-            var queryHash = new HashedFingerprint(GenericHashBuckets(), 1, 0);
+            var queryHash = new HashedFingerprint(GenericHashBuckets(), 1, 0, Array.Empty<byte>());
             const int defaultThreshold = 5;
             const int firstTrackId = 20;
             const int secondTrackId = 21;
@@ -83,7 +83,7 @@
         [Test]
         public void NoResultsReturnedFromUnderlyingStorageTest()
         {
-            var queryHash = new HashedFingerprint(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0);
+            var queryHash = new HashedFingerprint(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 0, 0, Array.Empty<byte>());
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
             modelService.Setup(service => service.Query(It.IsAny<Hashes>(), customQueryConfiguration)).Returns(new List<SubFingerprintData>());
 
@@ -97,7 +97,7 @@
         [Test]
         public void HammingSimilarityIsSummedUpAcrossAllSubFingerprintsTest()
         {
-            var queryHash = new HashedFingerprint(GenericHashBuckets(), 0, 0);
+            var queryHash = new HashedFingerprint(GenericHashBuckets(), 0, 0, Array.Empty<byte>());
             const int firstTrackId = 20;
             const int firstSubFingerprintId = 10;
             const int secondSubFingerprintId = 11;
@@ -134,7 +134,7 @@
 
             queryFingerprintService.Query(new Hashes(new List<HashedFingerprint>
                 {
-                    new HashedFingerprint(GenericHashBuckets(), 0, 0f)
+                    new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())
                 }, 1.48f, DateTime.Now, Enumerable.Empty<string>()),
                 new DefaultQueryConfiguration(),
                 modelService.Object);

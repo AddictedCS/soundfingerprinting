@@ -24,7 +24,7 @@
 
             Parallel.For(0, runs, i =>
             {
-                var hashed = new HashedFingerprint(new int[0], (uint)i, i * 0.05f);
+                var hashed = new HashedFingerprint(new int[0], (uint)i, i * 0.05f, Array.Empty<byte>());
                 var candidate = new SubFingerprintData(new int[0], (uint)i, i * 0.07f, new ModelReference<uint>((uint)i), references[i % references.Length]);
                 groupedQueryResults.Add(hashed, candidate, i);
             });
@@ -66,7 +66,7 @@
 
             Parallel.For(0, runs, i =>
             {
-                var hashed = new HashedFingerprint(new int[0], (uint)i, i);
+                var hashed = new HashedFingerprint(new int[0], (uint)i, i, Array.Empty<byte>());
                 var candidate = new SubFingerprintData(new int[0], (uint)i, runs - i, new ModelReference<uint>((uint)i), reference);
                 groupedQueryResults.Add(hashed, candidate, i);
             });
@@ -91,7 +91,7 @@
             Parallel.For(0, runs, i =>
             {
                 counts[i] = random.Next(5, 10);
-                var queryPoint = new HashedFingerprint(new int[25], (uint)i, i * 1.48f);
+                var queryPoint = new HashedFingerprint(new int[25], (uint)i, i * 1.48f, Array.Empty<byte>());
                 for (int j = 0; j < counts[i]; ++j)
                 {
                     var dbPoint = new SubFingerprintData(new int[25], (uint)k, k * 0.01f, new ModelReference<uint>((uint)Interlocked.Increment(ref k)), trackRef);
