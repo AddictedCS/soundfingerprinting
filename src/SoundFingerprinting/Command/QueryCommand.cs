@@ -110,7 +110,9 @@
                 queryMatchRegistry.RegisterMatches(queryMatches, new Dictionary<string, string>());
             }
 
-            return new QueryResult(queryResult.ResultEntries, new QueryStats(queryResult.Stats.TotalTracksAnalyzed,
+            return new QueryResult(queryResult.ResultEntries, 
+                hashes,
+                new QueryStats(queryResult.Stats.TotalTracksAnalyzed,
                 queryResult.Stats.TotalFingerprintsAnalyzed,
                 queryDuration, fingerprintingDuration));
         }
