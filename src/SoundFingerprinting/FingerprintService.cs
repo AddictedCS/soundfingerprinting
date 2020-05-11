@@ -80,16 +80,17 @@ namespace SoundFingerprinting
 
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var length = images.First().Length;
-            var saveTransform = configuration.OriginalPointSaveTransform ?? (_ => Array.Empty<byte>());
+            var saveTransform = configuration.OriginalPointSaveTransform;
             Parallel.ForEach(images, () => new ushort[length], (frame, loop, cachedIndexes) =>
                 {
-                    float[] rowCols =  configuration.OriginalPointSaveTransform != null ? frame.GetImageRowColsCopy() : frame.ImageRowCols;
+                    byte[] originalPoint = saveTransform(frame);
+                    float[] rowCols = frame.ImageRowCols;
                     waveletDecomposition.DecomposeImageInPlace(rowCols, frame.Rows, frame.Cols, configuration.HaarWaveletNorm);
                     RangeUtils.PopulateIndexes(length, cachedIndexes);
                     var image = fingerprintDescriptor.ExtractTopWavelets(rowCols, configuration.TopWavelets, cachedIndexes);
                     if (!image.IsSilence())
                     {
-                        fingerprints.Add(new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, saveTransform(frame)));
+                        fingerprints.Add(new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, originalPoint));
                     }
 
                     return cachedIndexes;

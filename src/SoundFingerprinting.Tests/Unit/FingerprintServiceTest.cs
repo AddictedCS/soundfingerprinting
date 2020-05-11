@@ -121,7 +121,8 @@
                     return new Frame(frame, 128, 72, (float) index / 30, (uint) index);
                 })
                 .ToList();
-            var fs = new Frames(frames, string.Empty, 30);
+            
+            var fs = new Frames(frames.Select(frame => new Frame(frame.GetImageRowColsCopy(), frame.Rows, frame.Cols, frame.StartsAt, frame.SequenceNumber)), string.Empty, 30);
 
             var config = new DefaultFingerprintConfiguration
             {

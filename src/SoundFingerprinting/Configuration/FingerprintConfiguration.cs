@@ -63,7 +63,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets the transformation for the original point that needs to be saved for second level cross-check
         /// </summary>
-        public Func<Frame, byte[]>? OriginalPointSaveTransform { get; set; }
+        public Func<Frame, byte[]> OriginalPointSaveTransform { get; set; }
 
         /// <summary>
         ///  Gets or sets gaussian blur configuration applied on the frame before generating fingerprints
