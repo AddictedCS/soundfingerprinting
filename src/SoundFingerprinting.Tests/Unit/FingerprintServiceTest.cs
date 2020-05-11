@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     using Moq;
@@ -9,6 +10,7 @@
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
@@ -103,6 +105,50 @@
 
             Assert.IsNotEmpty(fingerprints);
             Assert.AreEqual(1, fingerprints.Count);
+        }
+
+        [Test]
+        public void ShouldSaveOriginalPoints()
+        {
+            var random = new Random();
+            var frames = Enumerable.Range(0, 100)
+                .Select(index =>
+                {
+                    byte[] bytes = new byte[128 * 72 * sizeof(float)];
+                    random.NextBytes(bytes);
+                    float[] frame = new float[128 * 72];
+                    Buffer.BlockCopy(bytes, 0, frame, 0, bytes.Length);
+                    return new Frame(frame, 128, 72, (float) index / 30, (uint) index);
+                })
+                .ToList();
+            var fs = new Frames(frames, string.Empty, 30);
+
+            var config = new DefaultFingerprintConfiguration
+            {
+                FrameNormalizationTransform = new NoFrameNormalization(),
+                GaussianBlurConfiguration = GaussianBlurConfiguration.None,
+                OriginalPointSaveTransform = frame =>
+                {
+                    byte[] original = new byte[frame.Length * sizeof(float)];
+                    Buffer.BlockCopy(frame.ImageRowCols, 0, original, 0, original.Length);
+                    return original;
+                }
+            };
+
+            var hashes = FingerprintService.Instance.CreateFingerprintsFromImageFrames(fs, config);
+            
+            Assert.AreEqual(hashes.Count, frames.Count);
+            var originalPoints = hashes
+                .OrderBy(_ => _.SequenceNumber)
+                .Select(_ => _.OriginalPoint)
+                .Select(point =>
+                {
+                    float[] pt = new float[point.Length / 4];
+                    Buffer.BlockCopy(point, 0, pt, 0, point.Length);
+                    return pt;
+                })
+                .ToList();
+            CollectionAssert.AreEqual(frames.Select(_ => _.ImageRowCols).ToList(), originalPoints);
         }
 
         private static List<Frame> GetDividedLogSpectrum()
