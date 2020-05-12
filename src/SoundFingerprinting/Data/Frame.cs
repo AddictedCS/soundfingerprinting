@@ -51,10 +51,12 @@
 
         public byte[] GetQuantizedCopy()
         {
+#if DEBUG
             if (ImageRowCols.Any(f => f > 1.0 || f < 0))
             {
                 throw new NotSupportedException("Frame contains entries outside of allowed interval [0, 1]");
             }
+#endif         
 
             return ImageRowCols.Select(f => (byte) (f * byte.MaxValue)).ToArray();
         }
