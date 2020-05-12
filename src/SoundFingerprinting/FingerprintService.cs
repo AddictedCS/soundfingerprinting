@@ -107,7 +107,7 @@ namespace SoundFingerprinting
                 .AsParallel()
                 .Select(frame =>
                 {
-                    float[][] image = ImageService.Instance.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
+                    float[][] image = ImageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
                     float[][] blurred = GrayImage.Convolve(image, kernel);
                     return new Frame(blurred, frame.StartsAt, frame.SequenceNumber);
                 })

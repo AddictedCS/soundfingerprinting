@@ -59,7 +59,7 @@ namespace SoundFingerprinting.Configuration
         ///  Gets or sets fingerprint length in seconds
         /// </summary>
         public double FingerprintLengthInSeconds { get; set; }
-
+        
         /// <summary>
         ///  Gets or sets the transformation for the original point that needs to be saved for second level cross-check
         /// </summary>

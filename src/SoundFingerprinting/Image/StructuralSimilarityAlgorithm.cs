@@ -64,19 +64,8 @@ namespace SoundFingerprinting.Image
                 .Select(x => x.Skip(borderWidth).Take(img1.Width - 2 * borderWidth).ToArray())
                 .ToArray();
 
-            ThresholdInvInPlace(thresholdInvImage, differenceThreshold, byte.MaxValue);
+            ImageService.ThresholdInvInPlace(thresholdInvImage, differenceThreshold, byte.MaxValue);
             return new SSIM(ssimImage, thresholdInvImage, Contour.FindContours(thresholdInvImage, byte.MaxValue, areaThreshold));
-        }
-
-        private static void ThresholdInvInPlace(byte[][] image, int threshold, byte maxValue)
-        {
-            foreach (byte[] row in image)
-            {
-                for (int j = 0; j < row.Length; ++j)
-                {
-                    row[j] = row[j] > threshold ? byte.MinValue : maxValue;
-                }
-            }
         }
     }
 }

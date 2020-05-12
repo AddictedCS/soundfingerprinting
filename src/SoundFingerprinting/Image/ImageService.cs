@@ -2,11 +2,9 @@
 {
     using System;
     
-    public class ImageService : IImageService
+    public static class ImageService
     {
-        public static ImageService Instance { get; } = new ImageService();
-
-        public float[] Image2RowCols(float[][] image)
+        public static float[] Image2RowCols(float[][] image)
         {
             int width = image[0].Length;
             int height = image.Length;
@@ -19,7 +17,7 @@
             return transformed;
         }
 
-        public float[][] RowCols2Image(float[] image, int rows, int cols)
+        public static float[][] RowCols2Image(float[] image, int rows, int cols)
         {
             float[][] transformed = new float[rows][];
             for (int i = 0; i < rows; ++i)
@@ -31,7 +29,7 @@
             return transformed;
         }
         
-        public byte[][] FloatsToByteImage(float[][] image, int max)
+        public static byte[][] FloatsToByteImage(float[][] image, int max)
         {
             byte[][] q = new byte[image.Length][];
             for (int i = 0; i < q.Length; ++i)
@@ -46,7 +44,7 @@
             return q;
         }
         
-        public float[][] BytesToFloatImage(byte[][] array, int max)
+        public static float[][] BytesToFloatImage(byte[][] array, int max)
         {
             float[][] floats = new float[array.Length][];
             for(int i = 0; i < array.Length; ++i)
@@ -59,6 +57,23 @@
             }
 
             return floats;
+        }
+        
+        /// <summary>
+        ///  Threshold image. Pixels that are bigger than threshold (i.e. 235) will be set to 0, otherwise set to max value
+        /// </summary>
+        /// <param name="image">Image to threshold</param>
+        /// <param name="threshold">Threshold value</param>
+        /// <param name="maxValue">Max value set on pixels that are less or equal to threshold</param>
+        public static void ThresholdInvInPlace(byte[][] image, int threshold, byte maxValue)
+        {
+            foreach (byte[] row in image)
+            {
+                for (int j = 0; j < row.Length; ++j)
+                {
+                    row[j] = row[j] > threshold ? byte.MinValue : maxValue;
+                }
+            }
         }
     }
 }

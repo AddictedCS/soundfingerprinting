@@ -16,11 +16,9 @@
         [Test]
         public void ShouldEncodedAndDecodeCorrectly0()
         {
-            var imageService = new ImageService();
-
             float[] array = TestUtilities.GenerateRandomFloatArray(128 * 72);
-            float[][] image = imageService.RowCols2Image(array, 72, 128);
-            float[] reconverted = imageService.Image2RowCols(image);
+            float[][] image = ImageService.RowCols2Image(array, 72, 128);
+            float[] reconverted = ImageService.Image2RowCols(image);
 
             CollectionAssert.AreEqual(array, reconverted);
         }
@@ -29,9 +27,8 @@
         public void ShouldEncodeAndDecodeCorrectly1()
         {
             var image = GetOneImage();
-            var imageService = new ImageService();
-            var encoded = imageService.Image2RowCols(image);
-            var decoded = imageService.RowCols2Image(encoded, 72, 128);
+            var encoded = ImageService.Image2RowCols(image);
+            var decoded = ImageService.RowCols2Image(encoded, 72, 128);
 
             for (int i = 0; i < image.Length; ++i)
             {
@@ -43,9 +40,8 @@
         public void ShouldEncodeAndDecodeCorrectly2()
         {
             var image = GetOneImage();
-            var imageService = new ImageService();
             var frame = new Frame(image, 0, 0);
-            var decoded = imageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
+            var decoded = ImageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
 
             for (int i = 0; i < image.Length; ++i)
             {
@@ -57,10 +53,9 @@
         public void ShouldEncodeAndDecodeCorrectly3()
         {
             float[] array = TestUtilities.GenerateRandomFloatArray(128 * 72);
-            var imageService = new ImageService();
             var frame = new Frame(array, 72, 128, 0, 0);
-            var decoded = imageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
-            var encoded = imageService.RowCols2Image(array, 72, 128);
+            var decoded = ImageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
+            var encoded = ImageService.RowCols2Image(array, 72, 128);
 
             CollectionAssert.AreEqual(array, frame.ImageRowCols);
             
@@ -75,13 +70,12 @@
         [Test]
         public void ShouldEncodeAndDecodeCorrectly4()
         {
-            var imageService = new ImageService();
             var image = GetOneImage();
             
             var frame = new Frame(image, 0, 0);
 
             var bytes = EncodeFrame(frame);
-            var decode = DecodeFrame(bytes, imageService);
+            var decode = DecodeFrame(bytes);
             
             Assert.AreEqual(image.Length, decode.Length);
             for (int i = 0; i < image.Length; ++i)
@@ -94,8 +88,6 @@
         public void ShouldSerializeDeserializeSameArray()
         {
             var fingerprintService = FingerprintService.Instance;
-            var imageService = new ImageService();
-
             var image = GetOneImage();
 
             var configuration = new DefaultFingerprintConfiguration
@@ -106,7 +98,7 @@
 
             var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, string.Empty, 30), configuration);
 
-            var decodedFrame = DecodeFrame(hashes.First().OriginalPoint, imageService);
+            var decodedFrame = DecodeFrame(hashes.First().OriginalPoint);
             Assert.AreEqual(image.Length, decodedFrame.Length);
             
             for (int i = 0; i < image.Length; ++i)
@@ -115,11 +107,11 @@
             }
         }
 
-        private static float[][] DecodeFrame(byte[] originalPoint, IImageService imageService)
+        private static float[][] DecodeFrame(byte[] originalPoint)
         {
             using var memory = new MemoryStream(originalPoint);
             var frame = Serializer.DeserializeWithLengthPrefix<Frame>(memory, PrefixStyle.Fixed32);
-            return imageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
+            return ImageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
         }
 
         private static byte[] EncodeFrame(Frame frame)

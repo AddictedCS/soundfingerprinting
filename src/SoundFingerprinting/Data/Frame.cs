@@ -9,8 +9,6 @@
     [ProtoContract]
     public class Frame
     {
-        private static readonly IImageService ImageService = new ImageService();
-        
         public Frame(float[][] image, float startsAt, uint sequenceNumber) : this(ImageService.Image2RowCols(image), (ushort)image.Length, (ushort)image[0].Length, startsAt, sequenceNumber)
         {
         }
