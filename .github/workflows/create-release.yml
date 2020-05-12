@@ -69,7 +69,7 @@ jobs:
       uses: rtCamp/action-slack-notify@v2.0.0
       env:
         SLACK_COLOR: '#3278BD'
-        SLACK_MESSAGE: 'SoundFingerprinting v${{ steps.define_variables.outputs.sf_core_version }} has been published to NuGet'
+        SLACK_MESSAGE: 'SoundFingerprinting has been published to NuGet'
         SLACK_USERNAME: rtCamp
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
     
