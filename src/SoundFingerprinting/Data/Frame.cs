@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Data
 {
     using System;
+    using System.Linq;
     using ProtoBuf;
     using SoundFingerprinting.Image;
 
@@ -8,8 +9,6 @@
     [ProtoContract]
     public class Frame
     {
-        private static readonly IImageService ImageService = new ImageService();
-        
         public Frame(float[][] image, float startsAt, uint sequenceNumber) : this(ImageService.Image2RowCols(image), (ushort)image.Length, (ushort)image[0].Length, startsAt, sequenceNumber)
         {
         }
@@ -48,6 +47,18 @@
             float[] copy = new float[ImageRowCols.Length];
             Buffer.BlockCopy(ImageRowCols, 0, copy, 0, ImageRowCols.Length * sizeof(float));
             return copy;
+        }
+
+        public byte[] GetQuantizedCopy()
+        {
+#if DEBUG
+            if (ImageRowCols.Any(f => f > 1.0 || f < 0))
+            {
+                throw new NotSupportedException("Frame contains entries outside of allowed interval [0, 1]");
+            }
+#endif         
+
+            return ImageRowCols.Select(f => (byte) (f * byte.MaxValue)).ToArray();
         }
     }
 }

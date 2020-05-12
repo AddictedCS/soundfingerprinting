@@ -25,13 +25,13 @@
 
             if (!groupedQueryResults.ContainsMatches)
             {
-                return QueryResult.Empty;
+                return QueryResult.Empty(hashes);
             }
 
             var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount;
-            return QueryResult.NonEmptyResult(resultEntries, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
+            return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
         }
 
         private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)

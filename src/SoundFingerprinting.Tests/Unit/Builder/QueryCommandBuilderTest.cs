@@ -59,7 +59,7 @@
         public async Task QueryIsBuiltFromFileCorrectly()
         {
             const string pathToFile = "path-to-file";
-            var dummyResult = new QueryResult(new List<ResultEntry>(), new QueryStats(0, 0, 0, 0));
+            var dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.Empty, new QueryStats(0, 0, 0, 0));
             var hashedFingerprints =new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
@@ -87,8 +87,8 @@
             const string pathToFile = "path-to-file";
             const int startAtSecond = 120;
             const int secondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), new QueryStats(0, 0, 0, 0));
-            var hashDatas = new Hashes(new List<HashedFingerprint>(
+            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.Empty, new QueryStats(0, 0, 0, 0));
+            var hashes = new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
                             new HashedFingerprint(GenericHashBuckets(), 0, 0, Array.Empty<byte>()),
@@ -99,8 +99,8 @@
             fingerprintingSource.Setup(source => source.From(pathToFile, secondsToQuery, startAtSecond)).Returns(withAlgorithmConfiguration.Object);
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
-            fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashDatas));
-            queryFingerprintService.Setup(service => service.Query(hashDatas, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
+            fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashes));
+            queryFingerprintService.Setup(service => service.Query(hashes, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
 
             _ = await queryCommandBuilder.BuildQueryCommand()
                                    .From(pathToFile, secondsToQuery, startAtSecond)
