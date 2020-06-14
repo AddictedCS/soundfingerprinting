@@ -43,9 +43,9 @@
             return queryHashes.Any() ? SubFingerprintDao.ReadSubFingerprints(queryHashes, config) : Enumerable.Empty<SubFingerprintData>();
         }
 
-        public virtual IEnumerable<TrackData> ReadAllTracks()
+        public virtual IEnumerable<string> GetTrackIds()
         {
-            return TrackDao.ReadAll();
+            return TrackDao.GetTrackIds();
         }
 
         public virtual IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)

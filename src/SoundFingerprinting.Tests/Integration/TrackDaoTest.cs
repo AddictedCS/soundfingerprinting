@@ -54,17 +54,17 @@
         }
 
         [Test]
-        public void ReadAllTracksTest()
+        public void GetTrackIdsTest()
         {
             const int trackCount = 5;
             var expectedTracks = InsertTracks(trackCount);
 
-            var tracks = trackDao.ReadAll().ToList();
+            var tracks = trackDao.GetTrackIds().ToList();
 
             Assert.AreEqual(trackCount, tracks.Count);
             foreach (var expectedTrack in expectedTracks)
             {
-                Assert.IsTrue(tracks.Any(track => track.Id == expectedTrack.Id));
+                Assert.IsTrue(tracks.Any(trackId => trackId == expectedTrack.Id));
             }
         }
 
@@ -74,7 +74,7 @@
             const int trackCount = 100;
             var tracks = InsertTracks(trackCount);
 
-            var actualTracks = trackDao.ReadAll().ToList();
+            var actualTracks = trackDao.GetTrackIds().ToList();
 
             Assert.AreEqual(tracks.Count, actualTracks.Count);
         }
@@ -96,15 +96,16 @@
             const int numberOfTracks = 10;
             InsertTracks(numberOfTracks);
 
-            var allTracks = trackDao.ReadAll().ToList();
+            var allTracks = trackDao.GetTrackIds().ToList();
 
             Assert.IsTrue(allTracks.Count == numberOfTracks);
-            foreach (var track in allTracks)
+            foreach (var track in allTracks.Select(trackId => trackDao.ReadTrackById(trackId)))
             {
+                Assert.IsNotNull(track);
                 trackDao.DeleteTrack(track.TrackReference);
             }
 
-            Assert.IsFalse(trackDao.ReadAll().Any());
+            Assert.IsFalse(trackDao.GetTrackIds().Any());
         }
 
         [Test]

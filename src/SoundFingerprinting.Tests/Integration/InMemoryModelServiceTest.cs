@@ -68,7 +68,7 @@
                 modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48d, DateTime.Now, Enumerable.Empty<string>()));
             }
 
-            var actualTracks = modelService.ReadAllTracks().ToList();
+            var actualTracks = modelService.GetTrackIds().ToList();
 
             Assert.AreEqual(numberOfTracks, actualTracks.Count);
         }

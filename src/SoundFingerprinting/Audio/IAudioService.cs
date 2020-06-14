@@ -3,7 +3,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    ///  Audio service used to read and resample audio from a datasource
+    ///  Audio service used to read and resample audio from a data source
     /// </summary>
     public interface IAudioService
     {
@@ -29,12 +29,5 @@
         /// <param name="sampleRate">Target sample rate</param>
         /// <returns>Audio samples</returns>
         AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate);
-
-        /// <summary>
-        ///  Returns a usually accurate estimate for the length of the file
-        /// </summary>
-        /// <param name="pathToSourceFile">Path to audio source to get it's length from</param>
-        /// <returns>Length in seconds</returns>
-        float GetLengthInSeconds(string pathToSourceFile);
     }
 }

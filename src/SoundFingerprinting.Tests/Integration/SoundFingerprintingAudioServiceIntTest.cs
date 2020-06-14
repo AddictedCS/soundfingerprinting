@@ -7,11 +7,11 @@
     [TestFixture]
     public class SoundFingerprintingAudioServiceIntTest : IntegrationWithSampleFilesTest
     {
-        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
-
         [Test]
         public void ShouldEstimateLengthCorrectly()
         {
+            var audioService = new SoundFingerprintingAudioService();
+                
             var duration = audioService.GetLengthInSeconds(PathToWav);
 
             Assert.AreEqual(10.0f, duration, 0.1);

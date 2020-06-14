@@ -66,15 +66,12 @@
             var secondTrack = new TrackInfo("id2", "title", "artist");
             fromFileService.Insert(secondTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
 
-            var tracks = fromFileService.ReadAllTracks().ToList();
+            var tracks = fromFileService.GetTrackIds().ToList();
 
             File.Delete(tempFile);
 
-            var ref1 = tracks.First(track => track.Id == "id1").TrackReference;
-            var ref2 = tracks.First(track => track.Id == "id2").TrackReference;
-            Assert.IsTrue(tracks.Any(track => track.Id == "id1"));
-            Assert.IsTrue(tracks.Any(track => track.Id == "id2"));
-            Assert.IsTrue(!ref1.Equals(ref2));
+            Assert.IsTrue(tracks.Any(track => track == "id1"));
+            Assert.IsTrue(tracks.Any(track => track == "id2"));
         }
 
         [Test]
