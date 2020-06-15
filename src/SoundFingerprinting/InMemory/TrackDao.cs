@@ -38,6 +38,11 @@
             return storage.Tracks.Values.Select(_ => _.Id);
         }
 
+        public IEnumerable<TrackData> ReadAll()
+        {
+            return storage.Tracks.Values;
+        }
+
         public IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
             return references.Aggregate(new List<TrackData>(), (list, reference) =>
