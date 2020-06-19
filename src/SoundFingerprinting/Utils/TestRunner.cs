@@ -351,15 +351,15 @@
 
         private void DeleteAll()
         {
-            var tracks = modelService.ReadAllTracks().ToList();
+            var trackIds = modelService.GetTrackIds().ToList();
             int deleted = 0;
-            foreach (var track in tracks)
+            foreach (var id in trackIds)
             {
-                modelService.DeleteTrack(track.Id);
+                modelService.DeleteTrack(id);
                 OnTestRunnerEvent(OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {
-                            Message = $"Deleted {Interlocked.Increment(ref deleted)} out of {tracks.Count} tracks from storage"
+                            Message = $"Deleted {Interlocked.Increment(ref deleted)} out of {trackIds.Count} tracks from storage"
                         });
             }
         }

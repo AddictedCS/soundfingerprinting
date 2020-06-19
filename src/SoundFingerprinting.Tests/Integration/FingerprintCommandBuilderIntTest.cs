@@ -15,7 +15,7 @@
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
     {
         private readonly DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
-        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
+        private readonly SoundFingerprintingAudioService audioService = new SoundFingerprintingAudioService();
 
         [Test]
         public async Task CreateFingerprintsFromFileAndAssertNumberOfFingerprints()
