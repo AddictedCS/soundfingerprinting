@@ -20,5 +20,7 @@ namespace SoundFingerprinting.DAO
         TrackData? ReadTrackById(string id);
 
         IEnumerable<TrackData> ReadAll();
+        
+        IEnumerable<string> GetTrackIds();
     }
 }

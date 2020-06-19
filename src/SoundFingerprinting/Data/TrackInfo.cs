@@ -52,5 +52,21 @@
                    $"MediaType {MediaType}, " +
                    $"MetaFields {string.Join(",", MetaFields.Select(pair => $"{pair.Key}:{pair.Value}"))}";
         }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (!(obj is TrackInfo trackInfo))
+                return false;
+
+            return Id.Equals(trackInfo.Id) && MediaType.Equals(trackInfo.MediaType);
+        }
     }
 }

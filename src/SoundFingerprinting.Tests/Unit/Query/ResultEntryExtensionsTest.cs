@@ -12,9 +12,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldNotMergeAsTracksDoNotMatch()
         {
-            var a = new ResultEntry(new TrackData("123", "artist", "title", "album", 0, 120d, new ModelReference<int>(1)), 0.9d, 120, DateTime.Now, 10d, 0d, 10, 10, 5d, -5d);
+            var a = new ResultEntry(new TrackData("123", "artist", "title", 120d, new ModelReference<int>(1)), 0.9d, 120, DateTime.Now, 10d, 0d, 10, 10, 5d, -5d);
             
-            var b = new ResultEntry(new TrackData("123", "artist", "title", "album", 0, 120d, new ModelReference<int>(2)), 0.9d, 120, DateTime.Now, 10d, 0d, 10, 10, 5d, -5d);
+            var b = new ResultEntry(new TrackData("123", "artist", "title", 120d, new ModelReference<int>(2)), 0.9d, 120, DateTime.Now, 10d, 0d, 10, 10, 5d, -5d);
 
             Assert.Throws<ArgumentException>(() => a.MergeWith(b));
         }
@@ -27,7 +27,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
              * a ------
              * b      ------
              */
-            var data = new TrackData("123", "artist", "title", "album", 0, 120d, new ModelReference<int>(1));
+            var data = new TrackData("123", "artist", "title", 120d, new ModelReference<int>(1));
             var a = new ResultEntry(data, 0.9d, 120, DateTime.Now, 10d, 0d, 10, 10, 5d, -5d);
             var b = new ResultEntry(data, 0.9d, 120, DateTime.Now, 10d, 0d, 7, 7, 13d, -13d);
 
@@ -48,7 +48,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
              * a ------
              * b           ------
              */
-            var data = new TrackData("123", "artist", "title", "album", 0, 120d, new ModelReference<int>(1));
+            var data = new TrackData("123", "artist", "title", 120d, new ModelReference<int>(1));
             var a = new ResultEntry(data, 0.9d, 120, DateTime.Now, 15d, 0d, 10, 10, 5d, -5d);
             var b = new ResultEntry(data, 0.9d, 120, DateTime.Now, 15d, 0d, 10, 10, 30d, -30d);
 
@@ -69,7 +69,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
              * a ----------
              * b   ------
              */
-            var data = new TrackData("123", "artist", "title", "album", 0, 120d, new ModelReference<int>(1));
+            var data = new TrackData("123", "artist", "title", 120d, new ModelReference<int>(1));
             var a = new ResultEntry(data, 0.9d, 120, DateTime.Now, 15d, 0d, 10, 15, 15d, -15d);
             var b = new ResultEntry(data, 0.9d, 120, DateTime.Now, 10d, 0d, 10, 5, 20d, -20d);
 

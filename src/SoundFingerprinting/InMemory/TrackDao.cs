@@ -33,6 +33,11 @@
             return storage.Tracks.FirstOrDefault(pair => pair.Value.Id == id).Value;
         }
 
+        public IEnumerable<string> GetTrackIds()
+        {
+            return storage.Tracks.Values.Select(_ => _.Id);
+        }
+
         public IEnumerable<TrackData> ReadAll()
         {
             return storage.Tracks.Values;

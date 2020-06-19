@@ -29,7 +29,6 @@ namespace SoundFingerprinting
         /// <returns>List of matched fingerprints</returns>
         IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config);
         
-        
         /// <summary>
         ///  Read tracks by model references
         /// </summary>
@@ -52,9 +51,9 @@ namespace SoundFingerprinting
         TrackInfo? ReadTrackById(string trackId);
         
         /// <summary>
-        ///  Read all tracks from the storage
+        ///  Read all track ids from the storage
         /// </summary>
-        /// <returns>List of all inserted tracks</returns>
-        IEnumerable<TrackData> ReadAllTracks();
+        /// <returns>List of all inserted track ids</returns>
+        IEnumerable<string> GetTrackIds();
     }
 }

@@ -95,7 +95,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         
         private static TrackData GetTrack()
         {
-            return new TrackData("1234", "Queen", "Bohemian Rhapsody", string.Empty, 0, 120d, new ModelReference<int>(1));
+            return new TrackData("1234", "Queen", "Bohemian Rhapsody", 120d, new ModelReference<int>(1));
         }
     }
 }
