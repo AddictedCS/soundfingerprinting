@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             var qrc = new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence());
 
-            var track = new TrackData("1234", "artist", "title", "album", 1986, 120d, new ModelReference<int>(1));
+            var track = new TrackData("1234", "artist", "title", 120d, new ModelReference<int>(1));
 
             var coverages = qrc.GetCoverages(track, new GroupedQueryResults(10d, DateTime.Now), new DefaultQueryConfiguration());
             

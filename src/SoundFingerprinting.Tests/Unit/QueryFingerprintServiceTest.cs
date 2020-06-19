@@ -63,15 +63,15 @@
             modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference, secondTrackReference }))
                 .Returns(new List<TrackData>
                     {
-                        new TrackData("isrc", string.Empty, string.Empty, string.Empty, 0, 0d, firstTrackReference),
-                        new TrackData("isrc_1", string.Empty, string.Empty, string.Empty, 0, 0d, secondTrackReference)
+                        new TrackData("id", string.Empty, string.Empty, 0d, firstTrackReference),
+                        new TrackData("id_1", string.Empty, string.Empty, 0d, secondTrackReference)
                     });
 
             var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, DateTime.Now, Enumerable.Empty<string>());
             var queryResult = queryFingerprintService.Query(hashes, customQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
-            Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
+            Assert.AreEqual("id", queryResult.BestMatch.Track.Id);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
             Assert.AreEqual(100, queryResult.BestMatch.Score);
             Assert.AreEqual(2, queryResult.ResultEntries.Count());
@@ -113,14 +113,14 @@
             modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference })).Returns(
                 new List<TrackData>
                     {
-                        new TrackData("isrc", string.Empty, string.Empty, string.Empty, 0, 0d, firstTrackReference)
+                        new TrackData("id", string.Empty, string.Empty, 0d, firstTrackReference)
                     });
 
             var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, DateTime.Now, Enumerable.Empty<string>());
             var queryResult = queryFingerprintService.Query(hashes, defaultQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
-            Assert.AreEqual("isrc", queryResult.BestMatch.Track.Id);
+            Assert.AreEqual("id", queryResult.BestMatch.Track.Id);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
             Assert.AreEqual(200, queryResult.BestMatch.Score);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
