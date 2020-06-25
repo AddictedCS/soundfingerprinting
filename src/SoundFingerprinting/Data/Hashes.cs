@@ -15,6 +15,10 @@ namespace SoundFingerprinting.Data
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
 
+        [ProtoIgnore]
+        private List<HashedFingerprint> Fingerprints =>
+            fingerprints ?? Enumerable.Empty<HashedFingerprint>().ToList();
+
         public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds):
             this(fingerprints,
                 durationInSeconds,
@@ -91,25 +95,25 @@ namespace SoundFingerprinting.Data
             }
         }
 
-        public bool IsEmpty => !fingerprints.Any();
+        public bool IsEmpty => !Fingerprints.Any();
         
-        public int Count => fingerprints.Count;
+        public int Count => Fingerprints.Count;
 
         public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>(), string.Empty);
         
         public Hashes WithStreamId(string streamId)
         {
-            return new Hashes(fingerprints, DurationInSeconds, RelativeTo, Origins, streamId);
+            return new Hashes(Fingerprints, DurationInSeconds, RelativeTo, Origins, streamId);
         }
 
         public Hashes WithNewRelativeTo(DateTime relativeTo)
         {
-            return new Hashes(fingerprints, DurationInSeconds, relativeTo, Origins, StreamId);
+            return new Hashes(Fingerprints, DurationInSeconds, relativeTo, Origins, StreamId);
         }
 
         public IEnumerator<HashedFingerprint> GetEnumerator()
         {
-            return fingerprints.GetEnumerator();
+            return Fingerprints.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
