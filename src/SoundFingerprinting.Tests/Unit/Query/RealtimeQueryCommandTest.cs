@@ -270,7 +270,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(hashes.Count, aggregated[0].Count);
             foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0], (a, b) => new { a, b }))
             {
-                Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 0.5d);
+                Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 1d);
                 Assert.AreEqual(zipped.a.SequenceNumber, zipped.b.SequenceNumber);
                 CollectionAssert.AreEqual(zipped.a.HashBins, zipped.b.HashBins);
             }
