@@ -56,7 +56,7 @@ The default storage, which comes bundled with _soundfingerprinting_ NuGet packag
     docker run -d -v /persistent-dir:/app/data -p 3399:3399 -p 3340:3340 addictedcs/soundfingerprinting.emy:latest
 
 **Emy** provides a backoffice interface which you can access on port :3340. 
-In order to insert and query **Emy** server please install [SoundFingerprinting.Emy](https://www.nuget.org/packages/SoundFingerprinting.Emy) NuGet package.
+In order to insert and query **Emy** server please install [SoundFingerprinting.Emy][emy-nuget] NuGet package.
 
     Install-Package SoundFingerprinting.Emy
     
@@ -76,6 +76,8 @@ emyModelService.RegisterMatches(queryResult.ResultEntries);
 ```
 Registering matches is now possible with <code>EmyModelService</code>. The results will be displayed in the **Emy** dashboard.
 
+Similarly, [SoundFingerprinting.Emy][emy-nuget] provides `FFmpegAudioService`, which supports a wide variety of formats for both audio and video fingerprinting. More details about `FFmpegAudioService` can be found below.
+
 <img src="https://i.imgur.com/lhqUY74.png" width="800">
 
 If you plan to use **Emy** storage in a commercial project please contact sergiu@emysound.com for details. Enterprise version is ~12.5x faster when number of tracks exceeds ~10K, supports clustering, replication and much more. By using **Emy** you will also support core SoundFingerprinting library and its ongoing development.
@@ -84,6 +86,9 @@ Previous storages are now considered deprecate, as **Emy** is now considered the
 
 - ***Solr*** non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). MIT licensed, useful when the number of tracks does not exceed 5000 tracks [deprecated].
 - ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql) [deprecated]. MIT licensed.
+
+### Supported audio formats
+Read [Supported Audio Formats](https://github.com/AddictedCS/soundfingerprinting/wiki/Supported-Audio-Formats) page for details about different audio services and how you can use them in various operating systems.
 
 ### Query result details
 Every `ResultEntry` object will contain the following information:
@@ -117,11 +122,6 @@ Starting from version 5.1.0 the fingerprints signature has changed to be more re
 ### Version 5.0.0
 Starting from version 5.0.0 _soundfingerprinting_ library supports .NET Standard 2.0. You can run the application not only on Window environment but on any other .NET Standard [compliant](https://docs.microsoft.com/en-us/dotnet/standard/net-standard) runtime.
 
-### List of additional soundfingerprinting integrations
-Default `SoundFingerprintingAudioService` supports only wave file at the input. If you would like to process other formats, consider using below extensions:
-- [SoundFingerprinting.Audio.NAudio](https://www.nuget.org/packages/SoundFingerprinting.Audio.NAudio) - replacement for default `SoundFingerprintingAudioService` audio service. Provides support for *.mp3* audio processing. Runs only on Windows as it uses [NAudio](https://github.com/naudio/NAudio) framework for underlying decoding and resampling.
-- [SoundFingerprinting.Audio.Bass](https://www.nuget.org/packages/SoundFingerprinting.Audio.Bass) - Bass.Net audio library integration, comes as a replacement for default service. Works faster than the default or NAudio, more accurate resampling, supports multiple audio formats (*.wav*, *.ogg*, *.mp3*, *.flac*). [Bass](http://www.un4seen.com) is free for non-comercial use. Recommended for enterprise users.
-- All demo apps are now located in separate git repositories, [duplicates detector](https://github.com/AddictedCS/soundfingerprinting.duplicatesdetector), [sound tools](https://github.com/AddictedCS/soundfingerprinting.soundtools).
 
 ### Algorithm configuration
 Fingerprinting and Querying algorithms can be easily parametrized with corresponding configuration objects passed as parameters on command creation.
@@ -198,4 +198,7 @@ If you want to contribute you are welcome to open issues or discuss on [issues](
 ### License
 The framework is provided under [MIT](https://opensource.org/licenses/MIT) license agreement.
 
-&copy; Soundfingerprinting, 2010-2019, sergiu@emysound.com
+&copy; Soundfingerprinting, 2010-2020, sergiu@emysound.com
+
+
+[emy-nuget]: https://www.nuget.org/packages/SoundFingerprinting.Emy
