@@ -95,6 +95,19 @@ namespace SoundFingerprinting.Data
             }
         }
 
+        private float LengthOfOneFingerprint
+        {
+            get
+            {
+                if (IsEmpty)
+                {
+                    return 0;
+                }
+
+                return (float)DurationInSeconds - Fingerprints.Last().StartsAt;
+            }
+        }
+
         public bool IsEmpty => !Fingerprints.Any();
         
         public int Count => Fingerprints.Count;
@@ -119,6 +132,27 @@ namespace SoundFingerprinting.Data
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public Hashes GetRange(DateTime startsAt, float length)
+        {
+            var endsAt = startsAt.AddSeconds(length);
+            var filtered = fingerprints.Where(fingerprint =>
+            {
+                var fingerprintStartsAt = RelativeTo.AddSeconds(fingerprint.StartsAt);
+                var fingerprintEndsAt = RelativeTo.AddSeconds(fingerprint.StartsAt + LengthOfOneFingerprint);
+                return fingerprintStartsAt >= startsAt && fingerprintEndsAt <= endsAt;
+            })
+            .ToList();
+
+            if (!filtered.Any())
+            {
+                return new Hashes(Enumerable.Empty<HashedFingerprint>(), 0, startsAt);
+            }
+
+            var relativeTo = RelativeTo.AddSeconds(filtered.First().StartsAt);
+            var duration = filtered.Last().StartsAt - filtered.First().StartsAt + LengthOfOneFingerprint;
+            return new Hashes(filtered, duration, relativeTo, Origins, StreamId);
         }
         
         public bool MergeWith(Hashes with, out Hashes? merged)
