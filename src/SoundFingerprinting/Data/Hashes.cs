@@ -10,8 +10,6 @@ namespace SoundFingerprinting.Data
     [ProtoContract(IgnoreListHandling = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
-        private const double MergeAccuracy = 1.48d;
-
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
 
@@ -154,11 +152,11 @@ namespace SoundFingerprinting.Data
             var duration = filtered.Last().StartsAt - filtered.First().StartsAt + LengthOfOneFingerprint;
             return new Hashes(filtered, duration, relativeTo, Origins, StreamId);
         }
-        
-        public bool MergeWith(Hashes with, out Hashes? merged)
+
+        public bool MergeWith(Hashes with, out Hashes? merged, double allowedGap = 1.48f)
         {
             merged = null;
-
+            
             if (IsEmpty)
             {
                 merged = with;
@@ -180,19 +178,16 @@ namespace SoundFingerprinting.Data
                 _ => throw new NotSupportedException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
             };
 
-            if (RelativeTo <= with.RelativeTo && EndsAt >= with.RelativeTo.Subtract(TimeSpan.FromSeconds(MergeAccuracy)))
+            if (RelativeTo > with.RelativeTo || EndsAt < with.RelativeTo.Subtract(TimeSpan.FromSeconds(allowedGap)))
             {
-                var result = Merge(this, with);
-                uint count = result.Last().SequenceNumber - result.First().SequenceNumber;
-                float length = result.Last().StartsAt - result.First().StartsAt;
-                float lengthOfOneHash = length / count;
-                float fullLength = result.Last().StartsAt + lengthOfOneHash;
-                var relativeTo = RelativeTo < with.RelativeTo ? RelativeTo : with.RelativeTo;
-                merged = new Hashes(result, fullLength, relativeTo, new HashSet<string>(Origins.Concat(with.Origins)), streamId);
-                return true;
+                return false;
             }
 
-            return false;
+            var result = Merge(this, with);
+            float fullLength = result.Last().StartsAt + LengthOfOneFingerprint;
+            var relativeTo = RelativeTo < with.RelativeTo ? RelativeTo : with.RelativeTo;
+            merged = new Hashes(result, fullLength, relativeTo, new HashSet<string>(Origins.Concat(with.Origins)), streamId);
+            return true;
         }
 
         public static IEnumerable<Hashes> Aggregate(IEnumerable<Hashes> hashes, double length)

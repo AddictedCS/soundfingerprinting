@@ -34,7 +34,7 @@ namespace SoundFingerprinting
         /// </summary>
         /// <param name="trackId">Track identifier</param>
         /// <returns>List of hashes corresponding to track by ID</returns>
-        IEnumerable<HashedFingerprint> ReadHashesByTrackId(string trackId);
+        Hashes ReadHashesByTrackId(string trackId);
 
         /// <summary>
         ///  Read tracks by model references

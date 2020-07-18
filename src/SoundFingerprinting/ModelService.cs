@@ -43,16 +43,18 @@
             return queryHashes.Any() ? SubFingerprintDao.ReadSubFingerprints(queryHashes, config) : Enumerable.Empty<SubFingerprintData>();
         }
 
-        public IEnumerable<HashedFingerprint> ReadHashesByTrackId(string trackId)
+        public Hashes ReadHashesByTrackId(string trackId)
         {
             var track = TrackDao.ReadTrackById(trackId);
             if (track == null)
             {
-                return Enumerable.Empty<HashedFingerprint>();
+                return Hashes.Empty;
             }
 
-            return SubFingerprintDao.ReadHashedFingerprintsByTrackReference(track.TrackReference)
+            var fingerprints = SubFingerprintDao
+                .ReadHashedFingerprintsByTrackReference(track.TrackReference)
                 .Select(ToHashedFingerprint);
+            return new Hashes(fingerprints, track.Length);
         }
 
         public virtual IEnumerable<string> GetTrackIds()
