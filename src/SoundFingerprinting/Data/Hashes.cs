@@ -108,7 +108,7 @@ namespace SoundFingerprinting.Data
 
         public bool IsEmpty => !Fingerprints.Any();
         
-        public int Count => Fingerprints.Count;
+        public int Count => IsEmpty ? 0: Fingerprints.Count;
 
         public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>(), string.Empty);
         
@@ -188,6 +188,11 @@ namespace SoundFingerprinting.Data
             var relativeTo = RelativeTo < with.RelativeTo ? RelativeTo : with.RelativeTo;
             merged = new Hashes(result, fullLength, relativeTo, new HashSet<string>(Origins.Concat(with.Origins)), streamId);
             return true;
+        }
+
+        public override string ToString()
+        {
+            return $"Hashes[Count:{Count}, Length:{DurationInSeconds:0.00}]";
         }
 
         public static IEnumerable<Hashes> Aggregate(IEnumerable<Hashes> hashes, double length)
