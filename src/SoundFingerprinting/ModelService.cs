@@ -43,6 +43,18 @@
             return queryHashes.Any() ? SubFingerprintDao.ReadSubFingerprints(queryHashes, config) : Enumerable.Empty<SubFingerprintData>();
         }
 
+        public IEnumerable<HashedFingerprint> ReadHashesByTrackId(string trackId)
+        {
+            var track = TrackDao.ReadTrackById(trackId);
+            if (track == null)
+            {
+                return Enumerable.Empty<HashedFingerprint>();
+            }
+
+            return SubFingerprintDao.ReadHashedFingerprintsByTrackReference(track.TrackReference)
+                .Select(ToHashedFingerprint);
+        }
+
         public virtual IEnumerable<string> GetTrackIds()
         {
             return TrackDao.GetTrackIds();
@@ -81,6 +93,11 @@
         private static IDictionary<string, string> CopyMetaFields(IDictionary<string, string> metaFields)
         {
             return metaFields == null ? new Dictionary<string, string>() : metaFields.ToDictionary(pair => pair.Key, pair => pair.Value);
+        }
+
+        private static HashedFingerprint ToHashedFingerprint(SubFingerprintData subFingerprint)
+        {
+            return new HashedFingerprint(subFingerprint.Hashes, subFingerprint.SequenceNumber, subFingerprint.SequenceAt, subFingerprint.OriginalPoint);
         }
     }
 }

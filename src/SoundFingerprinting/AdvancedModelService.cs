@@ -1,11 +1,8 @@
 ﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
-    using System.Linq;
-
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
 
     public abstract class AdvancedModelService : ModelService, IAdvancedModelService 
     {
@@ -31,17 +28,6 @@
         public virtual IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
         {
             return spectralImageDao.GetSpectralImagesByTrackReference(trackReference);
-        }
-
-        public IList<HashedFingerprint> ReadHashedFingerprintsByTrack(IModelReference trackReference)
-        {
-            return SubFingerprintDao.ReadHashedFingerprintsByTrackReference(trackReference)
-                                    .Select(subFingerprint => new HashedFingerprint(
-                                                subFingerprint.Hashes,
-                                                subFingerprint.SequenceNumber,
-                                                subFingerprint.SequenceAt,
-                                                subFingerprint.OriginalPoint))
-                                    .ToList();
         }
     }
 }
