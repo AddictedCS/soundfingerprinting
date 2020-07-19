@@ -150,16 +150,35 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
             int count = 80;
             var aStartsAt = DateTime.Parse("01/15/2019 10:00:00", dtfi);
-            var a = new Hashes(GetHashedFingerprints(count), count * 1.48f + 1.48f, aStartsAt);
+            var a = new Hashes(GetHashedFingerprints(count), count * 1.48f, aStartsAt);
             var bStartsAt = DateTime.Parse("01/15/2019 10:02:00", dtfi);
-            var b = new Hashes(GetHashedFingerprints(count), count * 1.48f + 1.48f, bStartsAt);
+            var b = new Hashes(GetHashedFingerprints(count), count * 1.48f, bStartsAt);
             
-            Assert.IsTrue(a.MergeWith(b, out var c));
+            Assert.IsTrue(a.MergeWith(b, out var c, 2 * 1.48f));
             Assert.AreEqual(count * 2, c.Count);
+            
+            AssertInvariantsForHashes(c, aStartsAt);
             var rangeA = c.GetRange(aStartsAt, 120);
             AssertHashesAreEqual(a, rangeA);
+            AssertInvariantsForHashes(rangeA, aStartsAt);
             var rangeB = c.GetRange(bStartsAt, 120);
             AssertHashesAreEqual(b, rangeB);
+            AssertInvariantsForHashes(rangeB, bStartsAt);
+        }
+
+        private static void AssertInvariantsForHashes(Hashes hashes, DateTime startsAt)
+        {
+            Assert.AreEqual(startsAt, hashes.RelativeTo);
+            var list = hashes.ToList();
+            Assert.AreEqual(0, list.First().StartsAt);
+            Assert.AreEqual(0, list.First().SequenceNumber);
+            for (int i = 1; i < hashes.Count; ++i)
+            {
+                Assert.IsTrue(list[i].StartsAt >= list[i - 1].StartsAt);
+                Assert.IsTrue(list[i].SequenceNumber >= list[i - 1].SequenceNumber);
+            }
+
+            Assert.AreEqual(hashes.DurationInSeconds, list.Last().StartsAt - list.First().StartsAt + 1.48f, 0.1f);
         }
 
         private static void AssertHashesAreEqual(Hashes a, Hashes b)

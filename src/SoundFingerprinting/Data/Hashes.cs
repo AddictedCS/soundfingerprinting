@@ -136,7 +136,7 @@ namespace SoundFingerprinting.Data
                 return fingerprintStartsAt >= startsAt && fingerprintEndsAt <= endsAt;
             })
             .ToList();
-
+            
             if (!filtered.Any())
             {
                 return new Hashes(Enumerable.Empty<HashedFingerprint>(), 0, startsAt);
@@ -144,7 +144,20 @@ namespace SoundFingerprinting.Data
 
             var relativeTo = RelativeTo.AddSeconds(filtered.First().StartsAt);
             var duration = filtered.Last().StartsAt - filtered.First().StartsAt + lengthOfOneFingerprint;
-            return new Hashes(filtered, duration, relativeTo, Origins, StreamId);
+            var shifted = ShiftStartsAtAccordingToSelectedRange(filtered);
+            return new Hashes(shifted, duration, relativeTo, Origins, StreamId);
+        }
+
+        private static List<HashedFingerprint> ShiftStartsAtAccordingToSelectedRange(List<HashedFingerprint> filtered)
+        {
+            var startsAtShift = filtered.First().StartsAt;
+            var shifted = filtered.Select((fingerprint,
+                    index) => new HashedFingerprint(fingerprint.HashBins,
+                    (uint) index,
+                    fingerprint.StartsAt - startsAtShift,
+                    fingerprint.OriginalPoint))
+                .ToList();
+            return shifted;
         }
 
         public bool MergeWith(Hashes with, out Hashes? merged, double allowedGap = 1.48f)
