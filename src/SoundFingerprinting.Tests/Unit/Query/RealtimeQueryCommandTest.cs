@@ -262,7 +262,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             Assert.AreEqual(hashes.Count, list.Select(entry => entry.Count).Sum());
             var merged = Hashes.Aggregate(list, 20d).ToList();
-            Assert.AreEqual(2, merged.Count);
+            Assert.AreEqual(2, merged.Count, $"Hashes:{string.Join(",", merged.Select(_ => $"{_.RelativeTo},{_.DurationInSeconds:0.00}"))}");
             Assert.AreEqual(hashes.Count, merged.Select(entry => entry.Count).Sum());
 
             var aggregated = Hashes.Aggregate(list, double.MaxValue).ToList();

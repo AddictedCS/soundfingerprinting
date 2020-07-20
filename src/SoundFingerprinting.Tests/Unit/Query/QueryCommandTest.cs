@@ -8,11 +8,39 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Query;
 
     [TestFixture]
     public class QueryCommandTest
     {
+        /**
+         * query repeats consecutively two times in the track, without any pause
+         * t     -----10-----
+         * track 111111011111
+         * query 111111
+         */
+        [Test]
+        public async Task ShouldIdentifyConsecutiveRepeatingSequencesInTrack()
+        {
+            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512);
+            float[] twoCopies = new float[match.Length * 2];
+            match.CopyTo(twoCopies, 0);
+            match.CopyTo(twoCopies, match.Length);
+
+            var modelService = new InMemoryModelService();
+            var audioService = new SoundFingerprintingAudioService();
+            await InsertFingerprints(twoCopies, audioService, modelService);
+
+            var result = await GetQueryResult(match, audioService, modelService);
+
+            Assert.AreEqual(2, result.ResultEntries.Count());
+            foreach (var entry in result.ResultEntries)
+            {
+                Assert.AreEqual(0.95, entry.Confidence, 0.05);
+                Assert.AreEqual(10, entry.CoverageWithPermittedGapsLength, 1);
+            }
+        }
+
         /**
          * Long queries, long matches
          * t     -----15-----25-----35-----45-----
@@ -23,30 +51,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public async Task ShouldIdentifyOnlyOneMatch()
         {
             float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512);
-
             float[] withJitter = AddJitter(match);
 
             var modelService = new InMemoryModelService();
             var audioService = new SoundFingerprintingAudioService();
 
-            var hashes = await FingerprintCommandBuilder.Instance
-                                    .BuildFingerprintCommand()
-                                    .From(new AudioSamples(withJitter, "Queen", 5512))
-                                    .UsingServices(audioService)
-                                    .Hash();
-
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, withJitter.Length / 5512f, DateTime.Now, Enumerable.Empty<string>()));
-
-            var result = await QueryCommandBuilder.Instance
-                                    .BuildQueryCommand()
-                                    .From(new AudioSamples(withJitter, "cnn", 5512))
-                                    .WithQueryConfig(config =>
-                                    {
-                                        config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
-                                        return config;
-                                    })
-                                    .UsingServices(modelService, audioService)
-                                    .Query();
+            await InsertFingerprints(withJitter, audioService, modelService);
+            var result = await GetQueryResult(withJitter, audioService, modelService);
             
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.QueryMatchStartsAt).ToList();
@@ -71,28 +82,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
             var audioService = new SoundFingerprintingAudioService();
 
-            var hashes = await FingerprintCommandBuilder.Instance
-                .BuildFingerprintCommand()
-                .From(new AudioSamples(match, "Queen", 5512))
-                .UsingServices(audioService)
-                .Hash();
+            await InsertFingerprints(match, audioService, modelService);
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, match.Length / 5512f, DateTime.Now, Enumerable.Empty<string>()));
+            var result = await GetQueryResult(withJitter, audioService, modelService);
 
-            var result = await QueryCommandBuilder.Instance
-                .BuildQueryCommand()
-                .From(new AudioSamples(withJitter, "cnn", 5512))
-                .WithQueryConfig(config =>
-                {
-                    config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
-                    return config;
-                })
-                .UsingServices(modelService, audioService)
-                .Query();
-            
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.QueryMatchStartsAt).ToList();
-            
             Assert.AreEqual(2, entries.Count);
             Assert.AreEqual(15d, entries[0].QueryMatchStartsAt, 1f);
             Assert.AreEqual(45d, entries[1].QueryMatchStartsAt, 1f);
@@ -113,25 +108,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
             var audioService = new SoundFingerprintingAudioService();
 
-            var hashes = await FingerprintCommandBuilder.Instance
-                                    .BuildFingerprintCommand()
-                                    .From(new AudioSamples(withJitter, "Queen", 5512))
-                                    .UsingServices(audioService)
-                                    .Hash();
+            await InsertFingerprints(withJitter, audioService, modelService);
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, withJitter.Length / 5512f, DateTime.Now, Enumerable.Empty<string>()));
-
-            var result = await QueryCommandBuilder.Instance
-                .BuildQueryCommand()
-                .From(new AudioSamples(match, "cnn", 5512))
-                .WithQueryConfig(config =>
-                {
-                    config.Stride = new IncrementalStaticStride(256);
-                    config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
-                    return config;
-                })
-                .UsingServices(modelService, audioService)
-                .Query();
+            var result = await GetQueryResult(match, audioService, modelService);
             
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
@@ -151,7 +130,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(45d, entries[1].TrackMatchStartsAt, 1f);
         }
 
-        private float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15)
+        private static float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15)
         {
             float[] before = TestUtilities.GenerateRandomFloatArray(beforeSec * 5512);
             float[] between = TestUtilities.GenerateRandomFloatArray(betweenSec * 5512);
@@ -164,6 +143,31 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Buffer.BlockCopy(match, 0, total, sizeof(float) * (before.Length + match.Length + between.Length), sizeof(float) * match.Length);
             Buffer.BlockCopy(after, 0, total, sizeof(float) * (before.Length + 2 * match.Length + between.Length), sizeof(float) * after.Length);
             return total;
+        }
+
+        private static async Task<QueryResult> GetQueryResult(float[] match, IAudioService audioService, IModelService modelService)
+        {
+            return await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(new AudioSamples(match, "cnn", 5512))
+                .WithQueryConfig(config =>
+                {
+                    config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
+                    return config;
+                })
+                .UsingServices(modelService, audioService)
+                .Query();
+        }
+
+        private static async Task InsertFingerprints(float[] audioSamples, IAudioService audioService, IModelService modelService)
+        {
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(new AudioSamples(audioSamples, "Queen", 5512))
+                .UsingServices(audioService)
+                .Hash();
+
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, audioSamples.Length / 5512f, DateTime.Now, Enumerable.Empty<string>()));
         }
     }
 }
