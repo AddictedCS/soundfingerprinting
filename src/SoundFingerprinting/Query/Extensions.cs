@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
     using System.Collections.Generic;
-    
+
     public static class Extensions
     {
         private const double PermittedGapZero = 1e-5;
@@ -21,6 +21,38 @@
             }
 
             return ret;
+        }
+
+        public static IEnumerable<IEnumerable<MatchedWith>> SplitTrackMatchedRegions(this IEnumerable<MatchedWith> entries, double permittedGap, double fingerprintLength)
+        {
+            var list = new List<IEnumerable<MatchedWith>>();
+            var ordered =  entries.OrderBy(_ => _.TrackMatchAt).ToList();
+            if (!ordered.Any())
+            {
+                return list;
+            }
+
+            var stack = new Stack<MatchedWith>();
+            stack.Push(ordered.First());
+            foreach (var matchedWith in ordered.Skip(1))
+            {
+                var prev = stack.Peek();
+                if (SubFingerprintsToSeconds.GapLengthToSeconds(matchedWith.TrackMatchAt, prev.TrackMatchAt, fingerprintLength) > permittedGap)
+                {
+                    list.Add(GetMatchedWithsFromStack(stack));
+                    stack = new Stack<MatchedWith>();
+                }
+
+                stack.Push(matchedWith);
+            }
+
+            list.Add(GetMatchedWithsFromStack(stack));
+            return list;
+        }
+
+        private static IEnumerable<MatchedWith> GetMatchedWithsFromStack(Stack<MatchedWith> stack)
+        {
+            return ((IEnumerable<MatchedWith>) stack.ToList()).Reverse().ToList();
         }
 
         public static IEnumerable<Gap> FindQueryGaps(this IEnumerable<MatchedWith> entries, double permittedGap, double fingerprintLength)

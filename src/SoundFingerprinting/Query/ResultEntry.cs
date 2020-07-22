@@ -70,11 +70,22 @@ namespace SoundFingerprinting.Query
         public Coverage Coverage { get; }
 
         /// <summary>
+        ///  Gets the total track length that was covered by the query. Exact length of matched fingerprints, not necessary consecutive.
+        /// </summary>
+        public double CoverageLength => Coverage.CoverageLength;
+
+        /// <summary>
         /// Gets query coverage length with permitted gaps 
         /// </summary>
         [ProtoMember(3)]
         public double CoverageWithPermittedGapsLength { get; }
         
+        /// <summary>
+        ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query
+        /// </summary>
+        [ProtoMember(11)]
+        public double DiscreteCoverageLength { get; }
+
         /// <summary>
         ///  Gets the exact position in seconds where resulting track started to match in the query
         /// </summary>
@@ -136,11 +147,7 @@ namespace SoundFingerprinting.Query
         [ProtoMember(10)]
         public double Score { get; }
 
-        /// <summary>
-        ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query
-        /// </summary>
-        [ProtoMember(11)]
-        public double DiscreteCoverageLength { get; }
+
 
         /// <summary>
         ///  Gets information about gaps in the result entry coverage
