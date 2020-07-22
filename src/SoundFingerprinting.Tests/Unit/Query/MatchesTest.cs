@@ -125,19 +125,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             float fingerprintLengthInSeconds = 1f;
             double permittedGap = 2.5;
-            var trackRegions = matches.SplitTrackMatchedRegions(permittedGap, fingerprintLengthInSeconds).ToList();
+            var coverages = matches.SplitTrackMatchedRegions(permittedGap, fingerprintLengthInSeconds).ToList();
 
-            Assert.AreEqual(2, trackRegions.Count);
-
-
-            var coverages = trackRegions.Select(trackRegion =>
-            {
-                var matchedWiths = trackRegion.ToList();
-                var queryLength = SubFingerprintsToSeconds.MatchLengthToSeconds(matchedWiths.Last().QueryMatchAt, matchedWiths.First().QueryMatchAt, fingerprintLengthInSeconds);
-                var trackLength = SubFingerprintsToSeconds.MatchLengthToSeconds(matchedWiths.Last().TrackMatchAt, matchedWiths.First().TrackMatchAt, fingerprintLengthInSeconds);
-                return matchedWiths.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap);
-            }).ToList();
-
+            Assert.AreEqual(2, coverages.Count);
             Assert.AreEqual(10 + fingerprintLengthInSeconds, coverages.First().CoverageWithPermittedGapsLength);
             Assert.AreEqual(20 + fingerprintLengthInSeconds, coverages.Last().CoverageWithPermittedGapsLength);
         }
