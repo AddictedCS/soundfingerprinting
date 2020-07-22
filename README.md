@@ -97,7 +97,6 @@ Every `ResultEntry` object will contain the following information:
 - `QueryMatchStartsAt` - returns time position where resulting track started to match in the query
 - `TrackMatchStartsAt` - returns time position where the query started to match in the resulting track
 - `TrackStartsAt` - returns an approximation where does the matched track starts, always relative to the query
-- `Coverage` - returns a value between [0, 1], informing how much the query covered the resulting track (i.e. a 2 minutes query found a 30 seconds track within it, starting at 100th second, coverage will be equal to (120 - 100)/30 ~= 0.66)
 - `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
 - `MatchedAt` - returns timestamp showing at what time did the match occured. Usefull for realtime queries.
 
@@ -106,6 +105,8 @@ Every `ResultEntry` object will contain the following information:
 - `FingerprintingDuration` - time in milliseconds spent generating the acousting fingerprints from the media file.
 - `TotalTracksAnalyzed` - total # of tracks analyzed during query time. If this number exceeds 50, try optimizing your configuration.
 - `TotalFingerprintsAnalyzed` - total # of fingerprints analyzed during query time. If this number exceeds 500, try optimizing your configuration.
+
+Read [Different Types of Coverage](https://github.com/AddictedCS/soundfingerprinting/wiki/Different-Types-of-Coverage) to understand how query coverage is calculated.
 
 ### Version 6.2.0
 Version 6.2.0 provides ability to query realtime datasources. Usefull for scenarious when you would like to monitor a realtime stream and get matching results as fast as possible.

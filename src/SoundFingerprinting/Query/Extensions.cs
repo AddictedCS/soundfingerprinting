@@ -3,7 +3,8 @@
     using System;
     using System.Linq;
     using System.Collections.Generic;
-    
+    using SoundFingerprinting.LCS;
+
     public static class Extensions
     {
         private const double PermittedGapZero = 1e-5;
@@ -21,6 +22,41 @@
             }
 
             return ret;
+        }
+
+        public static IEnumerable<Coverage> SplitTrackMatchedRegions(this IEnumerable<MatchedWith> entries, double permittedGap, double fingerprintLength)
+        {
+            var list = new List<Coverage>();
+            var ordered =  entries.OrderBy(_ => _.TrackMatchAt).ToList();
+            if (!ordered.Any())
+            {
+                return list;
+            }
+
+            var stack = new Stack<MatchedWith>();
+            stack.Push(ordered.First());
+            foreach (var matchedWith in ordered.Skip(1))
+            {
+                var prev = stack.Peek();
+                if (SubFingerprintsToSeconds.GapLengthToSeconds(matchedWith.TrackMatchAt, prev.TrackMatchAt, fingerprintLength) > permittedGap)
+                {
+                    list.Add(GetMatchedWithsFromStack(stack, permittedGap, fingerprintLength));
+                    stack = new Stack<MatchedWith>();
+                }
+
+                stack.Push(matchedWith);
+            }
+
+            list.Add(GetMatchedWithsFromStack(stack, permittedGap, fingerprintLength));
+            return list;
+        }
+
+        private static Coverage GetMatchedWithsFromStack(Stack<MatchedWith> stack, double permittedGap, double fingerprintLengthInSeconds)
+        {
+            var matchedWiths = ((IEnumerable<MatchedWith>) stack.ToList()).Reverse().ToList();
+            var queryLength = SubFingerprintsToSeconds.MatchLengthToSeconds(matchedWiths.Last().QueryMatchAt, matchedWiths.First().QueryMatchAt, fingerprintLengthInSeconds);
+            var trackLength = SubFingerprintsToSeconds.MatchLengthToSeconds(matchedWiths.Last().TrackMatchAt, matchedWiths.First().TrackMatchAt, fingerprintLengthInSeconds);
+            return matchedWiths.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap);
         }
 
         public static IEnumerable<Gap> FindQueryGaps(this IEnumerable<MatchedWith> entries, double permittedGap, double fingerprintLength)
