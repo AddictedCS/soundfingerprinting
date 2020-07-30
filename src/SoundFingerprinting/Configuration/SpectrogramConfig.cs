@@ -13,7 +13,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets overlap between the consecutively computed spectrum images 
         /// </summary>
-        /// <remarks>64 at 5512 sample rate is aproximatelly 11.6ms</remarks>
+        /// <remarks>64 at 5512 sample rate is approximately 11.6ms</remarks>
         public ushort Overlap { get; set; }
 
         /// <summary>

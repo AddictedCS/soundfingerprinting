@@ -376,6 +376,18 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             var results = LisNew.GetIncreasingSequences(Generate(pairs), 1000).ToArray();
 
             Assert.AreEqual(1, results.Length);
+
+            var matchedWiths = results.First().ToList();
+            var noSideEffects = LisNew.GetIncreasingSequences(matchedWiths).First().ToList();
+            
+            Assert.AreEqual(matchedWiths.Count, noSideEffects.Count);
+            foreach (var pair in matchedWiths.Zip(noSideEffects, (a, b) => (a, b)))
+            {
+                Assert.AreEqual(pair.a.QueryMatchAt, pair.b.QueryMatchAt);
+                Assert.AreEqual(pair.a.TrackMatchAt, pair.b.TrackMatchAt);
+                Assert.AreEqual(pair.a.QuerySequenceNumber, pair.b.QuerySequenceNumber);
+                Assert.AreEqual(pair.a.TrackSequenceNumber, pair.b.TrackSequenceNumber);
+            }
         }
 
         private static void AssertResult((int q, int t, double s)[] pairs, IEnumerable<MatchedWith> result)
