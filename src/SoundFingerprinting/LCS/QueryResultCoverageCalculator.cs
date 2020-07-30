@@ -23,7 +23,7 @@
 
             if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
             {
-                matches.EstimateIncreasingCoverages(queryLength, trackData.Length,
+                return matches.EstimateIncreasingCoverages(queryLength, trackData.Length,
                     fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap);
             }
 
