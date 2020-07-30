@@ -7,6 +7,8 @@ namespace SoundFingerprinting.Query
 
     public static class MatchedWithExtensions
     {
+        private static readonly ILongestIncreasingTrackSequence LongestIncreasingTrackSequence = new LongestIncreasingTrackSequence();
+        
         /// <summary>
         ///  Estimates track coverage assuming there is only one match of the target Track in the query.
         ///  i.e. [----xxx----] but never [----xxxx-----xxxx] where x is 'complete' match.
@@ -30,10 +32,8 @@ namespace SoundFingerprinting.Query
         public static IEnumerable<Coverage> EstimateIncreasingCoverages(this IEnumerable<MatchedWith> matches, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
             double allowedGap = System.Math.Min(trackLength, queryLength);
-
-            var sequences = new LongestIncreasingTrackSequence().FindAllIncreasingTrackSequences(matches, allowedGap);
-            return sequences.Select(sequence => new Coverage(sequence, queryLength, trackLength,
-                fingerprintLength, permittedGap));
+            var sequences = LongestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, allowedGap);
+            return sequences.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap));
         }
     }
 }
