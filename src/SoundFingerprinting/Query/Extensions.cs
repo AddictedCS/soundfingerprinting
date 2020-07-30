@@ -41,22 +41,22 @@
                 var prev = stack.Peek();
                 if (SubFingerprintsToSeconds.GapLengthToSeconds(matchedWith.TrackMatchAt, prev.TrackMatchAt, fingerprintLength) > permittedGap)
                 {
-                    list.Add(GetMatchedWithsFromStack(stack, queryLength, trackLength, fingerprintLength, permittedGap));
+                    list.AddRange(GetMatchedWithsFromStack(stack, queryLength, trackLength, fingerprintLength, permittedGap));
                     stack = new Stack<MatchedWith>();
                 }
 
                 stack.Push(matchedWith);
             }
 
-            list.Add(GetMatchedWithsFromStack(stack, queryLength, trackLength, fingerprintLength, permittedGap));
+            list.AddRange(GetMatchedWithsFromStack(stack, queryLength, trackLength, fingerprintLength, permittedGap));
             return list;
         }
 
-        private static Coverage GetMatchedWithsFromStack(Stack<MatchedWith> stack,
+        private static IEnumerable<Coverage> GetMatchedWithsFromStack(Stack<MatchedWith> stack,
             double queryLength, double trackLength, double fingerprintLengthInSeconds, double permittedGap)
         {
             var matchedWiths = ((IEnumerable<MatchedWith>) stack.ToList()).Reverse().ToList();
-            return matchedWiths.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap);
+            return matchedWiths.EstimateIncreasingCoverages(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap);
         }
 
         public static IEnumerable<Gap> FindQueryGaps(this IEnumerable<MatchedWith> entries, double permittedGap, double fingerprintLength)
