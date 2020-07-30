@@ -15,7 +15,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         [Test]
         public void ShouldNotFailWithEmptyEntries()
         {
-            var qrc = new QueryResultCoverageCalculator(new LongestIncreasingTrackSequence());
+            var qrc = new QueryResultCoverageCalculator();
 
             var track = new TrackData("1234", "artist", "title", 120d, new ModelReference<int>(1));
 

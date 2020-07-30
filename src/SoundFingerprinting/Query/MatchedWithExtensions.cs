@@ -1,4 +1,6 @@
-﻿namespace SoundFingerprinting.Query
+﻿using System.Linq;
+
+namespace SoundFingerprinting.Query
 {
     using SoundFingerprinting.LCS;
     using System.Collections.Generic;
@@ -23,6 +25,15 @@
         {
             var bestPath = LisOld.GetBestPath(matchedEntries, queryLength, trackLength, fingerprintLength);
             return new Coverage(bestPath, queryLength, trackLength, fingerprintLength, permittedGap);
+        }
+        
+        public static IEnumerable<Coverage> EstimateIncreasingCoverages(this IEnumerable<MatchedWith> matches, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
+        {
+            double allowedGap = System.Math.Min(trackLength, queryLength);
+
+            var sequences = new LongestIncreasingTrackSequence().FindAllIncreasingTrackSequences(matches, allowedGap);
+            return sequences.Select(sequence => new Coverage(sequence, queryLength, trackLength,
+                fingerprintLength, permittedGap));
         }
     }
 }
