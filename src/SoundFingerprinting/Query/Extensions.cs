@@ -24,7 +24,8 @@
             return ret;
         }
 
-        public static IEnumerable<Coverage> SplitTrackMatchedRegions(this IEnumerable<MatchedWith> entries, double permittedGap, double fingerprintLength)
+        public static IEnumerable<Coverage> SplitTrackMatchedRegions(this IEnumerable<MatchedWith> entries,
+            double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
             var list = new List<Coverage>();
             var ordered =  entries.OrderBy(_ => _.TrackMatchAt).ToList();
@@ -40,22 +41,21 @@
                 var prev = stack.Peek();
                 if (SubFingerprintsToSeconds.GapLengthToSeconds(matchedWith.TrackMatchAt, prev.TrackMatchAt, fingerprintLength) > permittedGap)
                 {
-                    list.Add(GetMatchedWithsFromStack(stack, permittedGap, fingerprintLength));
+                    list.Add(GetMatchedWithsFromStack(stack, queryLength, trackLength, fingerprintLength, permittedGap));
                     stack = new Stack<MatchedWith>();
                 }
 
                 stack.Push(matchedWith);
             }
 
-            list.Add(GetMatchedWithsFromStack(stack, permittedGap, fingerprintLength));
+            list.Add(GetMatchedWithsFromStack(stack, queryLength, trackLength, fingerprintLength, permittedGap));
             return list;
         }
 
-        private static Coverage GetMatchedWithsFromStack(Stack<MatchedWith> stack, double permittedGap, double fingerprintLengthInSeconds)
+        private static Coverage GetMatchedWithsFromStack(Stack<MatchedWith> stack,
+            double queryLength, double trackLength, double fingerprintLengthInSeconds, double permittedGap)
         {
             var matchedWiths = ((IEnumerable<MatchedWith>) stack.ToList()).Reverse().ToList();
-            var queryLength = SubFingerprintsToSeconds.MatchLengthToSeconds(matchedWiths.Last().QueryMatchAt, matchedWiths.First().QueryMatchAt, fingerprintLengthInSeconds);
-            var trackLength = SubFingerprintsToSeconds.MatchLengthToSeconds(matchedWiths.Last().TrackMatchAt, matchedWiths.First().TrackMatchAt, fingerprintLengthInSeconds);
             return matchedWiths.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap);
         }
 
