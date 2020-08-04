@@ -117,6 +117,11 @@ namespace SoundFingerprinting.Query
         ///  Gets the percentage of how much the query match covered the original track
         /// </summary>
         public double RelativeCoverage => CoverageWithPermittedGapsLength / Track.Length;
+        
+        /// <summary>
+        ///  Gets the percentage of how much the track match covered the original query
+        /// </summary>
+        public double QueryRelativeCoverage => Coverage.QueryCoverageWithPermittedGapsLength / QueryLength;
 
         /// <summary>
         ///  Gets the estimated percentage of how much the resulting track got covered by the query
@@ -146,8 +151,6 @@ namespace SoundFingerprinting.Query
         /// </summary>
         [ProtoMember(10)]
         public double Score { get; }
-
-
 
         /// <summary>
         ///  Gets information about gaps in the result entry coverage
