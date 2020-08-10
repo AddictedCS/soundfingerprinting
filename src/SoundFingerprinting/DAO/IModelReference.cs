@@ -7,13 +7,9 @@
         ProtoInclude(102, typeof(ModelReference<uint>)),
         ProtoInclude(103, typeof(CompoundModelReference<string>)),
         ProtoInclude(104, typeof(CompoundModelReference<int>))]
+    
     public interface IModelReference
     {
-        object Id { get; }
-    }
-
-    public interface IModelReference<out T> : IModelReference
-    {
-        new T Id { get; }
+        T Get<T>();
     }
 }
