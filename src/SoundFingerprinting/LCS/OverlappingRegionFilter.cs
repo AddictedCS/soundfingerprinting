@@ -4,8 +4,30 @@
     using System.Linq;
     using SoundFingerprinting.Query;
 
-    internal static class OverlappingRegionFilter
+    public static class OverlappingRegionFilter
     {
+        public static IEnumerable<Coverage> FilterContainedCoverages(IEnumerable<Coverage> sequences)
+        {
+            var coverages = sequences
+                .OrderByDescending(_ => _.CoverageWithPermittedGapsLength)
+                .ThenByDescending(_ => _.QueryCoverageWithPermittedGapsLength)
+                .ToList();
+            
+            bool[] within = new bool[coverages.Count];
+            for (int i = 0; i < coverages.Count - 1; ++i)
+            {
+                for (int j = i + 1; j < coverages.Count; ++j)
+                {
+                    if (coverages[i].Contains(coverages[j]))
+                    {
+                        within[j] = true;
+                    }
+                }
+            }
+
+            return coverages.Where((_, index) => !within[index]).ToList();
+        }
+        
         public static IEnumerable<Matches> MergeOverlappingSequences(List<Matches> sequences, double permittedGap)
         {
             for (int current = 0; current < sequences.Count; ++current)

@@ -8,6 +8,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
     [TestFixture]
@@ -31,7 +32,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             await InsertFingerprints(twoCopies, audioService, modelService);
 
-            var result = await GetQueryResult(match, audioService, modelService);
+            var result = await GetQueryResult(match, audioService, modelService, 0.5);
 
             Assert.AreEqual(2, result.ResultEntries.Count());
             foreach (var entry in result.ResultEntries)
@@ -113,6 +114,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var result = await GetQueryResult(match, audioService, modelService);
             
             Assert.IsTrue(result.ContainsMatches);
+            Assert.AreEqual(2, result.ResultEntries.Count());
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
             CollectionAssert.IsOrdered(entries[1]
                             .Coverage
@@ -145,7 +147,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return total;
         }
 
-        private static async Task<QueryResult> GetQueryResult(float[] match, IAudioService audioService, IModelService modelService)
+        private static async Task<QueryResult> GetQueryResult(float[] match, IAudioService audioService, IModelService modelService, double permittedGap = 2)
         {
             return await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
@@ -153,6 +155,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .WithQueryConfig(config =>
                 {
                     config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
+                    config.PermittedGap = permittedGap;
                     return config;
                 })
                 .UsingServices(modelService, audioService)
