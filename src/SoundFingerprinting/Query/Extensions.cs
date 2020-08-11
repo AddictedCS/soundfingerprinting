@@ -39,7 +39,9 @@
             foreach (var matchedWith in ordered.Skip(1))
             {
                 var prev = stack.Peek();
-                if (SubFingerprintsToSeconds.GapLengthToSeconds(matchedWith.TrackMatchAt, prev.TrackMatchAt, fingerprintLength) > permittedGap)
+                var trackGap = SubFingerprintsToSeconds.GapLengthToSeconds(matchedWith.TrackMatchAt, prev.TrackMatchAt, fingerprintLength);
+                var queryGap = SubFingerprintsToSeconds.GapLengthToSeconds(matchedWith.QueryMatchAt, prev.QueryMatchAt, fingerprintLength);
+                if (trackGap > permittedGap || queryGap > permittedGap)
                 {
                     list.AddRange(GetMatchedWithsFromStack(stack, queryLength, trackLength, fingerprintLength, permittedGap));
                     stack = new Stack<MatchedWith>();
