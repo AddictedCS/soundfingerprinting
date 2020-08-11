@@ -234,7 +234,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.IsTrue(a.Contains(b));
             Assert.IsFalse(b.Contains(a));
 
-            var results = OverlappingRegionFilter.FilterContainedCoverages(new[] {a, b}).ToList();
+            var results = OverlappingRegionFilter.FilterCrossMatchedCoverages(new[] {a, b}).ToList();
             
             Assert.AreEqual(1, results.Count);
             Assert.AreSame(a, results.First());
