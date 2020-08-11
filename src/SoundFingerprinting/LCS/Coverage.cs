@@ -175,6 +175,13 @@ namespace SoundFingerprinting.LCS
         {
             return new Coverage(newBestPath, QueryLength, TrackLength, FingerprintLength, PermittedGap);
         }
+        
+        public bool Contains(Coverage other)
+        {
+            return (TrackMatchStartsAt <= other.TrackMatchStartsAt && TrackMatchStartsAt + CoverageWithPermittedGapsLength >= other.TrackMatchStartsAt + other.CoverageWithPermittedGapsLength)
+                   &&
+                   (QueryMatchStartsAt <= other.QueryMatchStartsAt && QueryMatchStartsAt + QueryCoverageWithPermittedGapsLength >= other.QueryMatchStartsAt + other.QueryCoverageWithPermittedGapsLength);
+        }
 
         [ProtoMember(4)]
         internal double FingerprintLength { get; }
