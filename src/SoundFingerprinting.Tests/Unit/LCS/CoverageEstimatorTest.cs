@@ -4,6 +4,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
     using NUnit.Framework;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
     [TestFixture]
@@ -217,6 +218,26 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.AreEqual(shift * fingerprintLength, firstGap.End);
             
             Assert.IsEmpty(matchedWiths.FindQueryGaps(permittedGap, fingerprintLength));
+        }
+
+        [Test]
+        public void ShouldIdentifyThatItIsContainedWithinItself()
+        {
+            // a ------------
+            // b    ---
+
+            var a = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+                .EstimateCoverage(10, 10, 1, 1);
+            var b = TestUtilities.GetMatchedWith(new[] {4, 5, 6}, new[] {4, 5, 6})
+                .EstimateCoverage(3, 3, 1, 1);
+
+            Assert.IsTrue(a.Contains(b));
+            Assert.IsFalse(b.Contains(a));
+
+            var results = OverlappingRegionFilter.FilterCrossMatchedCoverages(new[] {a, b}).ToList();
+            
+            Assert.AreEqual(1, results.Count);
+            Assert.AreSame(a, results.First());
         }
     }
 }

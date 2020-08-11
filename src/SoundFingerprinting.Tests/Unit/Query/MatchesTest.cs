@@ -50,6 +50,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsFalse(a.TryCollapseWith(b, 1.48d, out _));
             Assert.IsTrue(a.Contains(b));
             Assert.IsFalse(b.Contains(a));
+            Assert.IsFalse(b.TryCollapseWith(a, 1.48, out _));
         }
 
         [Test]
