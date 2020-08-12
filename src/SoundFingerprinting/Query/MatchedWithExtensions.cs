@@ -31,9 +31,9 @@ namespace SoundFingerprinting.Query
         
         public static IEnumerable<Coverage> EstimateIncreasingCoverages(this IEnumerable<MatchedWith> matches, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
-            double allowedGap = System.Math.Min(trackLength, queryLength);
-            var sequences = LongestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, allowedGap);
-            return sequences.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap));
+            var sequences = LongestIncreasingTrackSequence.FindAllIncreasingTrackSequences(matches, permittedGap);
+            var coverages = sequences.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap));
+            return OverlappingRegionFilter.FilterCrossMatchedCoverages(coverages);
         }
     }
 }
