@@ -4,7 +4,6 @@ namespace SoundFingerprinting.DAO
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
 
     public interface ISubFingerprintDao
     {
