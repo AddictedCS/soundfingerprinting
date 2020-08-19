@@ -1,15 +1,13 @@
 ﻿namespace SoundFingerprinting
 {
     using System.Collections.Generic;
-
-    using DAO;
     using DAO.Data;
 
     public interface IAdvancedModelService : IModelService
     {
-        void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
+        void InsertSpectralImages(IEnumerable<float[]> spectralImages, string trackId);
 
-        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
+        IEnumerable<SpectralImageData> GetSpectralImagesByTrackId(string trackId);
 
         IEnumerable<TrackData> ReadTrackByTitle(string title);
     }

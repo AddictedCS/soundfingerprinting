@@ -8,38 +8,20 @@
     using System.Linq;
     using DAO;
     using DAO.Data;
-    using Data;
-
     using ProtoBuf;
 
     [Serializable]
     [ProtoContract]
     public class RAMStorage : IRAMStorage
     {
-        [ProtoMember(1)]
-        private UIntModelReferenceProvider subFingerprintReferenceProvider;
-
-        [ProtoMember(2)]
-        private IModelReferenceProvider trackReferenceProvider;
-
-        [ProtoMember(6)]
-        private IModelReferenceProvider spectralReferenceProvider;
-
         private ConcurrentDictionary<uint, SubFingerprintData> subFingerprints;
 
-        public RAMStorage(int numberOfHashTables, IModelReferenceProvider trackReferenceProvider)
+        public RAMStorage(int numberOfHashTables, string initializeFrom = "")
         {
-            this.trackReferenceProvider = trackReferenceProvider;
-            subFingerprintReferenceProvider = new UIntModelReferenceProvider();
-            spectralReferenceProvider = new UIntModelReferenceProvider();
-
             Initialize(numberOfHashTables);
+            InitializeFromFile(initializeFrom);
         }
 
-        public RAMStorage(int numberOfHashTables) : this(numberOfHashTables, new IntModelReferenceProvider())
-        {
-        }
-        
         private RAMStorage()
         {
             // left for proto-buf
@@ -87,32 +69,10 @@
         [ProtoMember(7)]
         private IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; set; }
 
-        public SubFingerprintData AddHashedFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference)
-        {
-            var subFingerprintReference = subFingerprintReferenceProvider.Next();
-            var subFingerprintData = new SubFingerprintData(
-                hashedFingerprint.HashBins,
-                hashedFingerprint.SequenceNumber,
-                hashedFingerprint.StartsAt,
-                subFingerprintReference,
-                trackReference,
-                hashedFingerprint.OriginalPoint);
-
-            AddSubFingerprint(subFingerprintData);
-            InsertHashes(hashedFingerprint.HashBins, (uint)subFingerprintReference.Id);
-            return subFingerprintData;
-        }
-
         public void AddSubFingerprint(SubFingerprintData subFingerprintData)
         {
             SubFingerprints[(uint)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
-        }
-
-        public TrackData AddTrack(TrackInfo track, double durationInSeconds)
-        {
-            var trackReference = trackReferenceProvider.Next();
-            var trackData = new TrackData(track.Id, track.Artist, track.Title, durationInSeconds, trackReference, track.MetaFields, track.MediaType);
-            return AddTrack(trackData);
+            InsertHashes(subFingerprintData.Hashes, (uint)subFingerprintData.SubFingerprintReference.Id);
         }
 
         public TrackData AddTrack(TrackData track)
@@ -183,27 +143,25 @@
             Initialize(numberOfHashTables);
         }
 
-        public void InitializeFromFile(string path)
+        private void InitializeFromFile(string path)
         {
-            using (var file = File.OpenRead(path))
+            if (!File.Exists(path))
             {
-                var obj = Serializer.Deserialize<RAMStorage>(file);
-                trackReferenceProvider = obj.trackReferenceProvider;
-                subFingerprintReferenceProvider = obj.subFingerprintReferenceProvider;
-                spectralReferenceProvider = obj.spectralReferenceProvider;
-                NumberOfHashTables = obj.NumberOfHashTables;
-                Tracks = obj.Tracks;
-                SubFingerprints = obj.SubFingerprints;
-                SpectralImages = obj.SpectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
+                return;
             }
+            
+            using var file = File.OpenRead(path);
+            var obj = Serializer.Deserialize<RAMStorage>(file);
+            NumberOfHashTables = obj.NumberOfHashTables;
+            Tracks = obj.Tracks;
+            SubFingerprints = obj.SubFingerprints;
+            SpectralImages = obj.SpectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
         }
 
         public void Snapshot(string path)
         {
-            using (var file = File.Create(path))
-            {
-                Serializer.Serialize(file, this);
-            }
+            using var file = File.Create(path);
+            Serializer.Serialize(file, this);
         }
 
         private void Initialize(int numberOfHashTables)
@@ -249,28 +207,22 @@
             }
         }
 
-        public void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
+        public void AddSpectralImages(IEnumerable<SpectralImageData> spectralImages)
         {
-            int orderNumber = 0;
-            var dtos = spectralImages.Select(spectralImage => new SpectralImageData(
-                                spectralImage,
-                                orderNumber++,
-                                spectralReferenceProvider.Next(),
-                                trackReference))
-                            .ToList();
-
+            var images = spectralImages.ToList();
+            var trackReference = images.First().TrackReference;
             lock (SpectralImages)
             {
                 if (SpectralImages.TryGetValue(trackReference, out var existing))
                 {
-                    foreach (var dto in dtos)
+                    foreach (var dto in images)
                     {
                         existing.Add(dto);
                     }
                 }
                 else
                 {
-                    SpectralImages[trackReference] = dtos;
+                    SpectralImages[trackReference] = images;
                 }
             }
         }

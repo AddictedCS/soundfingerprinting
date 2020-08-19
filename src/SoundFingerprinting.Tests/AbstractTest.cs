@@ -3,8 +3,6 @@
     using System;
     using System.Linq;
     using NUnit.Framework;
-
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
@@ -51,11 +49,18 @@
                 Assert.AreEqual(val, value);
             }
         }
-
-        protected void AssertModelReferenceIsInitialized(IModelReference modelReference)
+        
+        protected void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
         {
-            Assert.IsNotNull(modelReference);
-            Assert.IsTrue(modelReference.GetHashCode() != 0);
+            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
+            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
+            Assert.AreEqual(expectedTrack.Id, actualTrack.Id);
+            Assert.AreEqual(expectedTrack.MediaType, actualTrack.MediaType);
+            foreach ((string key, string val) in expectedTrack.MetaFields)
+            {
+                Assert.IsTrue(actualTrack.MetaFields.TryGetValue(key, out string value));
+                Assert.AreEqual(val, value);
+            }
         }
     }
 }

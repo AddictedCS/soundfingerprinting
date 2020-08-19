@@ -5,9 +5,8 @@
     using System.Threading.Tasks;
 
     using NUnit.Framework;
-
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Math;
 
@@ -28,11 +27,11 @@
             float one = 8192f / 5512;
             Parallel.For(0, tracksCount, i =>
             {
-                var trackReference = new ModelReference<int>(i);
+                var trackReference = new ModelReference<uint>((uint)i);
                 for (int j = 0; j < subFingerprintsPerTrack; ++j)
                 {
-                    var hashed = new HashedFingerprint(longs, (uint)j, j * one, Array.Empty<byte>());
-                    storage.AddHashedFingerprint(hashed, trackReference);
+                    var subFingerprintData = new SubFingerprintData(longs, (uint)j, j * one, new ModelReference<uint>((uint)j), trackReference, Array.Empty<byte>());
+                    storage.AddSubFingerprint(subFingerprintData);
                 }
             });
 

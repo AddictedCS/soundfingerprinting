@@ -6,7 +6,7 @@
 
     public interface ISpectralImageDao
     {
-        void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
+        void InsertSpectralImages(IEnumerable<SpectralImageData> spectralImages);
 
         IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
     }
