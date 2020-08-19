@@ -54,8 +54,7 @@
             return list;
         }
 
-        private static IEnumerable<Coverage> GetMatchedWithsFromStack(Stack<MatchedWith> stack,
-            double queryLength, double trackLength, double fingerprintLengthInSeconds, double permittedGap)
+        private static IEnumerable<Coverage> GetMatchedWithsFromStack(Stack<MatchedWith> stack, double queryLength, double trackLength, double fingerprintLengthInSeconds, double permittedGap)
         {
             var matchedWiths = ((IEnumerable<MatchedWith>) stack.ToList()).Reverse().ToList();
             return matchedWiths.EstimateIncreasingCoverages(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap);

@@ -26,8 +26,8 @@
         public void SavesProperties()
         {
             Assert.AreEqual("prefix", prefix421.Prefix);
-            Assert.AreEqual(42, prefix421.Reference.Id);
-            Assert.AreEqual(42, prefix421.Id);
+            Assert.AreEqual(42, prefix421.Reference.Get<int>());
+            Assert.AreEqual(42, prefix421.Get<int>());
         }
 
         [Test]

@@ -40,7 +40,7 @@
             if (ramStorage.Tracks.Any())
             {
                 (lastTrackReference, maxTrackId) = ramStorage.Tracks.Keys
-                    .Select(_ => (_, (uint) _.Id))
+                    .Select(_ => (_, _.Get<uint>()))
                     .OrderByDescending(_ => _.Item2)
                     .First();
             }
@@ -50,7 +50,7 @@
             {
                 maxSubFingerprintId = ramStorage
                     .ReadSubFingerprintByTrackReference(lastTrackReference)
-                    .Max(_ => (uint) _.SubFingerprintReference.Id);
+                    .Max(_ => _.SubFingerprintReference.Get<uint>());
             }
             
             modelReferenceTracker = new UIntModelReferenceTracker(maxTrackId, maxSubFingerprintId);
@@ -61,7 +61,7 @@
                 var spectralImages =  ramStorage.GetSpectralImagesByTrackReference(lastTrackReference).ToList();
                 if (spectralImages.Any())
                 {
-                    maxSpectralImageId = spectralImages.Max(_ => (uint) _.SpectralImageReference.Id);
+                    maxSpectralImageId = spectralImages.Max(_ => _.SpectralImageReference.Get<uint>());
                 }
             }
 

@@ -71,8 +71,8 @@
 
         public void AddSubFingerprint(SubFingerprintData subFingerprintData)
         {
-            SubFingerprints[(uint)subFingerprintData.SubFingerprintReference.Id] = subFingerprintData;
-            InsertHashes(subFingerprintData.Hashes, (uint)subFingerprintData.SubFingerprintReference.Id);
+            SubFingerprints[subFingerprintData.SubFingerprintReference.Get<uint>()] = subFingerprintData;
+            InsertHashes(subFingerprintData.Hashes, subFingerprintData.SubFingerprintReference.Get<uint>());
         }
 
         public TrackData AddTrack(TrackData track)
@@ -84,7 +84,7 @@
         {
             var all = from @ref in SubFingerprints.Values
                 where @ref.TrackReference.Equals(trackReference)
-                select (uint)@ref.SubFingerprintReference.Id;
+                select @ref.SubFingerprintReference.Get<uint>();
 
             var references = new HashSet<uint>(all);
 

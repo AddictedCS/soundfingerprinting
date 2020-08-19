@@ -63,8 +63,8 @@ namespace SoundFingerprinting.Tests.Unit.DAO
 
                 var (trackData, subFingerprints) = modelReferenceTracker.AssignModelReferences(trackInfo, hashes);
                 
-                trackRefs.Add((uint)trackData.TrackReference.Id);
-                foreach (uint subId in subFingerprints.Select(data => (uint)data.SubFingerprintReference.Id))
+                trackRefs.Add(trackData.TrackReference.Get<uint>());
+                foreach (uint subId in subFingerprints.Select(data => data.SubFingerprintReference.Get<uint>()))
                 {
                     subFingerprintRefs.Add(subId);
                 }
