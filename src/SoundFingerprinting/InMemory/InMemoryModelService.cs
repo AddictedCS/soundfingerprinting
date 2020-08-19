@@ -91,7 +91,7 @@
                 return;
             }
 
-            var (trackData, subFingerprints) = modelReferenceTracker.AssignReferences(track, hashes);
+            var (trackData, subFingerprints) = modelReferenceTracker.AssignModelReferences(track, hashes);
             TrackDao.InsertTrack(trackData);
             SubFingerprintDao.InsertSubFingerprints(subFingerprints);
         }

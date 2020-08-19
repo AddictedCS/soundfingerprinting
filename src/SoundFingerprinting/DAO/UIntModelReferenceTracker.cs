@@ -37,7 +37,7 @@ namespace SoundFingerprinting.DAO
             return false;
         }
 
-        public LinkedDataModels AssignReferences(TrackInfo trackInfo, Hashes hashes)
+        public LinkedDataModels AssignModelReferences(TrackInfo trackInfo, Hashes hashes)
         {
             var trackRef = trackReferenceProvider.Next();
             var trackData = new TrackData(trackInfo.Id, trackInfo.Artist, trackInfo.Title, hashes.DurationInSeconds, trackRef, trackInfo.MetaFields, trackInfo.MediaType);

@@ -8,6 +8,6 @@ namespace SoundFingerprinting.DAO
         
         bool TryResetSubFingerprintRef(T maxSubFingerprintRef);
 
-        LinkedDataModels AssignReferences(TrackInfo trackInfo, Hashes hashes);
+        LinkedDataModels AssignModelReferences(TrackInfo trackInfo, Hashes hashes);
     }
 }

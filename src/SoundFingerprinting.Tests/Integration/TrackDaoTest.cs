@@ -114,7 +114,7 @@
                 .Hash();
 
             var modelReferenceTracker = new UIntModelReferenceTracker();
-            var (trackData, subFingerprintData) = modelReferenceTracker.AssignReferences(track, hashData);
+            var (trackData, subFingerprintData) = modelReferenceTracker.AssignModelReferences(track, hashData);
             trackDao.InsertTrack(trackData);
             subFingerprintDao.InsertSubFingerprints(subFingerprintData);
             

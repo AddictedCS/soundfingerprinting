@@ -158,7 +158,7 @@ namespace SoundFingerprinting.Tests.Integration
         private TrackData InsertTrackAndHashes(TrackInfo track, Hashes hashedFingerprints, UIntModelReferenceTracker? modelReferenceTracker = null)
         {
             modelReferenceTracker ??= new UIntModelReferenceTracker();
-            var (trackData, subFingerprints) = modelReferenceTracker.AssignReferences(track, hashedFingerprints);
+            var (trackData, subFingerprints) = modelReferenceTracker.AssignModelReferences(track, hashedFingerprints);
             trackDao.InsertTrack(trackData);
             subFingerprintDao.InsertSubFingerprints(subFingerprints);
             return trackData;

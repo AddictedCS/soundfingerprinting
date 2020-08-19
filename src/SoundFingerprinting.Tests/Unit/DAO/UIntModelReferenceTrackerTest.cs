@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Tests.Unit.DAO
             var track = new TrackInfo("id", "title", "artist", new Dictionary<string, string>(){{"key", "value"}}, MediaType.Audio | MediaType.Video);
             var hashes = GetHashes(1);
 
-            var (trackData, subFingerprints) = modelReferenceTracker.AssignReferences(track, hashes);
+            var (trackData, subFingerprints) = modelReferenceTracker.AssignModelReferences(track, hashes);
             
             AssertTracksAreEqual(track, trackData);
             var enumerable = subFingerprints as SubFingerprintData[] ?? subFingerprints.ToArray();
@@ -41,7 +41,7 @@ namespace SoundFingerprinting.Tests.Unit.DAO
             var track = new TrackInfo("id", string.Empty, string.Empty);
             var hashes = GetHashes(1000);
 
-            modelReferenceTracker.AssignReferences(track, hashes);
+            modelReferenceTracker.AssignModelReferences(track, hashes);
             
             Assert.IsFalse(modelReferenceTracker.TryResetTrackRef(1));
             Assert.IsTrue(modelReferenceTracker.TryResetTrackRef(2));
@@ -61,7 +61,7 @@ namespace SoundFingerprinting.Tests.Unit.DAO
                 var trackInfo = new TrackInfo(Guid.NewGuid().ToString(), string.Empty, string.Empty);
                 var hashes = GetHashes(numberOfHashBins);
 
-                var (trackData, subFingerprints) = modelReferenceTracker.AssignReferences(trackInfo, hashes);
+                var (trackData, subFingerprints) = modelReferenceTracker.AssignModelReferences(trackInfo, hashes);
                 
                 trackRefs.Add((uint)trackData.TrackReference.Id);
                 foreach (uint subId in subFingerprints.Select(data => (uint)data.SubFingerprintReference.Id))
