@@ -186,15 +186,11 @@
             foreach (var hashBin in hashBins)
             {
                 var hashTable = HashTables[table];
-                hashTable.AddOrUpdate(hashBin, _ => new List<uint> {subFingerprintId},
-                    (_, ids) =>
-                    {
-                        lock (ids)
-                        {
-                            ids.Add(subFingerprintId);
-                            return ids;
-                        }
-                    });
+                var ids = hashTable.GetOrAdd(hashBin, _ => new List<uint>());
+                lock (ids)
+                {
+                    ids.Add(subFingerprintId);
+                }
 
                 table++;
             }
