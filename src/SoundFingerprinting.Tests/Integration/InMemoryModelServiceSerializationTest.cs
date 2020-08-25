@@ -11,7 +11,6 @@
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
@@ -84,8 +83,12 @@
                 .ToList();
 
             var modelService = new InMemoryModelService();
-            var trackReference = new ModelReference<int>(10);
-            modelService.InsertSpectralImages(spectrums, trackReference);
+
+            var track = new TrackInfo("id", string.Empty, string.Empty);
+            var hashes = new Hashes(GetGenericHashes(), 10);
+            
+            modelService.Insert(track, hashes);
+            modelService.InsertSpectralImages(spectrums, "id");
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
@@ -94,7 +97,7 @@
 
             File.Delete(tempFile);
 
-            var allSpectrums = fromFileService.GetSpectralImagesByTrackReference(trackReference).ToList();
+            var allSpectrums = fromFileService.GetSpectralImagesByTrackId("id").ToList();
 
             Assert.AreEqual(spectrums.Count, allSpectrums.Count);
         }

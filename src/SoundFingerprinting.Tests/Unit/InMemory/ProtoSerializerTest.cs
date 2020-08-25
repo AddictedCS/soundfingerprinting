@@ -50,7 +50,7 @@
             using var streamFinal = new MemoryStream(serialized);
             var deserialized = Serializer.DeserializeWithLengthPrefix<UIntModelReferenceProvider>(streamFinal, PrefixStyle.Fixed32);
 
-            Assert.AreEqual(11, (uint)deserialized.Next().Id);
+            Assert.AreEqual(11, deserialized.Next().Get<uint>());
         }
 
         [Test]

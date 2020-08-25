@@ -18,11 +18,6 @@
 
         public int Count => storage.Tracks.Count;
 
-        public TrackData InsertTrack(TrackInfo track, double durationInSeconds)
-        {
-            return storage.AddTrack(track, durationInSeconds);
-        }
-
         public void InsertTrack(TrackData track)
         {
             storage.AddTrack(track);

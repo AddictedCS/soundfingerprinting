@@ -14,9 +14,9 @@
             this.ramStorage = ramStorage;
         }
 
-        public void InsertSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference)
+        public void InsertSpectralImages(IEnumerable<SpectralImageData> spectralImages)
         {
-            ramStorage.AddSpectralImages(spectralImages, trackReference);
+            ramStorage.AddSpectralImages(spectralImages);
         }
 
         public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
