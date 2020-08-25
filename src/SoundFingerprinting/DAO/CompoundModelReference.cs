@@ -11,14 +11,17 @@ namespace SoundFingerprinting.DAO
 
         [ProtoMember(2)]
         public IModelReference Reference { get; }
-
-        public object Id => Reference.Id;
-
+        
         private CompoundModelReference()
         {
             // left for proto-buf
         }
 
+        public TOut Get<TOut>()
+        {
+            return Reference.Get<TOut>();
+        }
+        
         public CompoundModelReference(T prefix, IModelReference reference)
         {
             if (prefix == null)
@@ -36,8 +39,8 @@ namespace SoundFingerprinting.DAO
             {
                 return false;
             }
-            return Prefix.Equals(other.Prefix)
-                && Reference.Equals(other.Reference);
+            
+            return Prefix.Equals(other.Prefix) && Reference.Equals(other.Reference);
         }
 
         public override int GetHashCode()

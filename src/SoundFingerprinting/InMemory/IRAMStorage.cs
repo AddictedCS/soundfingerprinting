@@ -4,7 +4,6 @@ namespace SoundFingerprinting.InMemory
 
     using DAO;
     using DAO.Data;
-    using Data;
 
     public interface IRAMStorage
     {
@@ -14,21 +13,15 @@ namespace SoundFingerprinting.InMemory
 
         IEnumerable<int> HashCountsPerTable { get; }
 
-        SubFingerprintData AddHashedFingerprint(HashedFingerprint hashedFingerprint, IModelReference trackReference);
-
         void AddSubFingerprint(SubFingerprintData subFingerprintData);
 
         List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash);
 
-        void AddSpectralImages(IEnumerable<float[]> spectralImages, IModelReference trackReference);
+        void AddSpectralImages(IEnumerable<SpectralImageData> spectralImages);
 
         IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
 
-        void InitializeFromFile(string path);
-
         void Snapshot(string path);
-
-        TrackData AddTrack(TrackInfo track, double durationInSeconds);
 
         TrackData AddTrack(TrackData track);
 

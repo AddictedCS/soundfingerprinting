@@ -10,6 +10,7 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
@@ -108,7 +109,7 @@
 
             var random = new Random();
 
-            var storage = new RAMStorage(25, new IntModelReferenceProvider());
+            var storage = new RAMStorage(25);
             
             float one = 8192f / 5512;
             var config = new DefaultHashingConfig { NumberOfLSHTables = 25, NumberOfMinHashesPerTable = 4, HashBuckets = 0 };
@@ -118,7 +119,8 @@
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
-                storage.AddHashedFingerprint(hash, track);
+                var subFingerprint = new SubFingerprintData(hash.HashBins, hash.SequenceNumber, hash.StartsAt, new ModelReference<uint>((uint)i), track);
+                storage.AddSubFingerprint(subFingerprint);
             }
 
             for (int i = 0; i < 10; ++i)
@@ -140,7 +142,7 @@
 
             var random = new Random();
 
-            var storage = new RAMStorage(25, new IntModelReferenceProvider());
+            var storage = new RAMStorage(25);
             
             float one = 8192f / 5512;
             var config = new DefaultHashingConfig { NumberOfLSHTables = 25, NumberOfMinHashesPerTable = 4, HashBuckets = 0 };
@@ -151,7 +153,8 @@
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
-                storage.AddHashedFingerprint(hash, track);
+                var subFingerprint = new SubFingerprintData(hash.HashBins, hash.SequenceNumber, hash.StartsAt, new ModelReference<uint>((uint)i), track);
+                storage.AddSubFingerprint(subFingerprint);
             }
 
             var distribution = storage.HashCountsPerTable;

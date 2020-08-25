@@ -8,6 +8,7 @@
     using InMemory;
 
     using NUnit.Framework;
+    using SoundFingerprinting.DAO.Data;
 
     [TestFixture]
     public class SpectralImageDaoTest
@@ -25,14 +26,15 @@
         [Test]
         public void ShouldInsertSpectralImages()
         {
-            var images = new List<float[]> { new float[0], new float[0], new float[0] };
             var trackReference = new ModelReference<int>(10);
+            var images = new List<float[]> {new float[0], new float[0], new float[0]}
+                .Select((array, index) => new SpectralImageData(array, index, new ModelReference<uint>((uint)index + 1), trackReference));
 
-            spectralImageDao.InsertSpectralImages(images, trackReference);
+            spectralImageDao.InsertSpectralImages(images);
 
             Assert.AreEqual(3, spectralImageDao.GetSpectralImagesByTrackReference(trackReference).Count());
             var ids = spectralImageDao.GetSpectralImagesByTrackReference(trackReference)
-                    .Select(dto => (uint)dto.SpectralImageReference.Id)
+                    .Select(dto => dto.SpectralImageReference.Get<uint>())
                     .ToList();
             CollectionAssert.AreEqual(Enumerable.Range(1, 3), ids);
         }

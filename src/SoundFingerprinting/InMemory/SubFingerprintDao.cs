@@ -8,7 +8,6 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.Math;
 
     internal class SubFingerprintDao : ISubFingerprintDao
@@ -25,18 +24,6 @@
         public int SubFingerprintsCount => storage.SubFingerprintsCount;
 
         public IEnumerable<int> HashCountsPerTable => storage.HashCountsPerTable;
-
-        public IEnumerable<SubFingerprintData> InsertHashDataForTrack(IEnumerable<HashedFingerprint> hashes, IModelReference trackReference)
-        {
-            var subFingerprints = new List<SubFingerprintData>();
-            foreach (var hashedFingerprint in hashes)
-            {
-                var subFingerprint = storage.AddHashedFingerprint(hashedFingerprint, trackReference);
-                subFingerprints.Add(subFingerprint);
-            }
-
-            return subFingerprints;
-        }
 
         public void InsertSubFingerprints(IEnumerable<SubFingerprintData> subFingerprints)
         {
