@@ -9,9 +9,13 @@ namespace SoundFingerprinting.LCS
     [ProtoContract]
     public class Coverage
     {
+        [ProtoIgnore]
+        private readonly IEnumerable<MatchedWith> queryBestPath;
+        
         public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
             BestPath = bestPath.ToList();
+            queryBestPath = bestPath.OrderBy(mw => mw.QuerySequenceNumber).ToList();
             QueryLength = queryLength;
             TrackLength = trackLength;
             FingerprintLength = fingerprintLength;
@@ -26,7 +30,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Gets starting point of the query in seconds
         /// </summary>
-        public double QueryMatchStartsAt => BestPath.First().QueryMatchAt;
+        public double QueryMatchStartsAt => queryBestPath.First().QueryMatchAt;
 
         /// <summary>
         ///  Gets starting point of the track match in seconds
@@ -68,7 +72,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Gets the query match length including all query gaps (if any).
         /// </summary>
-        public double QueryDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().QueryMatchAt, QueryMatchStartsAt, FingerprintLength);
+        public double QueryDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(queryBestPath.Last().QueryMatchAt, QueryMatchStartsAt, FingerprintLength);
 
         /// <summary>
         ///  Gets the exact length of not covered portion of the query match in the database track
@@ -127,7 +131,7 @@ namespace SoundFingerprinting.LCS
         {
             get
             {
-                return BestPath.Select(m => m.QuerySequenceNumber).Distinct().Count();
+                return queryBestPath.Select(m => m.QuerySequenceNumber).Distinct().Count();
             }
         }
 
@@ -151,7 +155,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Gets query match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> QueryGaps => BestPath.FindQueryGaps(PermittedGap, FingerprintLength);
+        public IEnumerable<Gap> QueryGaps => queryBestPath.FindQueryGaps(PermittedGap, FingerprintLength);
 
         /// <summary>
         ///  Gets track match gaps from the best path
