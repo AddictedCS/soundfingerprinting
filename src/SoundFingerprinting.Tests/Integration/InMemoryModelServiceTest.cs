@@ -144,7 +144,7 @@
             var subFingerprints = modelService.Query(queryHashes, 
                 new DefaultQueryConfiguration 
                 { 
-                    MetaFieldsFilter = new Dictionary<string, string> {{"group-id", "first-group-id"}}
+                    YesMetaFieldsFilters = new Dictionary<string, string> {{"group-id", "first-group-id"}}
                 }).ToList();
 
             Assert.AreEqual(1, subFingerprints.Count);

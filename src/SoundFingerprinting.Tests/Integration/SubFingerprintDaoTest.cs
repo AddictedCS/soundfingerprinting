@@ -91,13 +91,13 @@ namespace SoundFingerprinting.Tests.Integration
             var queryConfigWithFirstGroupId = new DefaultQueryConfiguration
             {
                 ThresholdVotes = thresholdVotes,
-                MetaFieldsFilter = new Dictionary<string, string>{{ "group-id", "first-group-id" }}
+                YesMetaFieldsFilters = new Dictionary<string, string>{{ "group-id", "first-group-id" }}
             };
             
             var queryConfigWithSecondGroupId = new DefaultQueryConfiguration
             {
                 ThresholdVotes = thresholdVotes,
-                MetaFieldsFilter = new Dictionary<string, string>{{ "group-id", "second-group-id" }}
+                YesMetaFieldsFilters = new Dictionary<string, string>{{ "group-id", "second-group-id" }}
             };
             
             foreach (var hashedFingerprint in hashedFingerprintsForFirstTrack)

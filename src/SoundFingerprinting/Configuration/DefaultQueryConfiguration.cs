@@ -16,7 +16,8 @@
                                            Stride = Configs.QueryStrides.DefaultStride,
                                            FrequencyRange = Configs.FrequencyRanges.Default
                                        };
-            MetaFieldsFilter = new Dictionary<string, string>();
+            YesMetaFieldsFilters = new Dictionary<string, string>();
+            NoMetaFieldsFilters = new Dictionary<string, string>();
             QueryMediaType = MediaType.Audio;
         }
     }

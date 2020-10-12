@@ -36,7 +36,7 @@ namespace SoundFingerprinting.Configuration
                         Stride = stride
                     }
                 },
-                MetaFieldsFilter = metaFieldFilters,
+                YesMetaFieldsFilters = metaFieldFilters,
                 PermittedGap = permittedGap
             };
                 
@@ -124,8 +124,8 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public IDictionary<string, string> MetaFieldsFilter
         {
-            get => QueryConfiguration.MetaFieldsFilter;
-            set => QueryConfiguration.MetaFieldsFilter = value;
+            get => QueryConfiguration.YesMetaFieldsFilters;
+            set => QueryConfiguration.YesMetaFieldsFilters = value;
         }
 
         /// <summary>
