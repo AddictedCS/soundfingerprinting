@@ -7,7 +7,7 @@ namespace SoundFingerprinting.Data
     using ProtoBuf;
 
     [Serializable]
-    [ProtoContract(IgnoreListHandling = true)]
+    [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
         [ProtoMember(1)]
@@ -16,34 +16,37 @@ namespace SoundFingerprinting.Data
         [ProtoIgnore]
         private List<HashedFingerprint> Fingerprints => fingerprints ?? Enumerable.Empty<HashedFingerprint>().ToList();
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds):
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType):
             this(fingerprints,
                 durationInSeconds,
+                mediaType,
                 DateTime.Now,
                 Enumerable.Empty<string>(),
                 string.Empty)
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo):
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo):
             this(fingerprints,
                 durationInSeconds,
+                mediaType,
                 relativeTo,
                 Enumerable.Empty<string>(),
                 string.Empty)
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, IEnumerable<string> origins):
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo, IEnumerable<string> origins):
             this(fingerprints,
                 durationInSeconds,
+                mediaType,
                 relativeTo,
                 origins,
                 string.Empty)
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, DateTime relativeTo, IEnumerable<string> origins, string streamId)
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo, IEnumerable<string> origins, string streamId)
         {
             this.fingerprints = fingerprints.ToList();
             if (this.fingerprints.Any() && durationInSeconds <= 0)
@@ -57,11 +60,6 @@ namespace SoundFingerprinting.Data
             StreamId = streamId;
         }
 
-        private Hashes()
-        {
-            // left for proto-buf
-        }
-
         [ProtoMember(2)]
         public double DurationInSeconds { get; }
 
@@ -73,6 +71,9 @@ namespace SoundFingerprinting.Data
 
         [ProtoMember(5)]
         public IEnumerable<string> Origins { get; }
+
+        [ProtoMember(6)]
+        public MediaType MediaType { get; }
 
         public DateTime EndsAt
         {
@@ -96,16 +97,16 @@ namespace SoundFingerprinting.Data
         
         public int Count => IsEmpty ? 0: Fingerprints.Count;
 
-        public static Hashes Empty => new Hashes(new List<HashedFingerprint>(), 0, DateTime.MinValue, new List<string>(), string.Empty);
+        public static Hashes GetEmpty(MediaType mediaType) => new Hashes(new List<HashedFingerprint>(), 0, mediaType, DateTime.MinValue, new List<string>(), string.Empty);
         
         public Hashes WithStreamId(string streamId)
         {
-            return new Hashes(Fingerprints, DurationInSeconds, RelativeTo, Origins, streamId);
+            return new Hashes(Fingerprints, DurationInSeconds, MediaType, RelativeTo, Origins, streamId);
         }
 
         public Hashes WithNewRelativeTo(DateTime relativeTo)
         {
-            return new Hashes(Fingerprints, DurationInSeconds, relativeTo, Origins, StreamId);
+            return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId);
         }
 
         public IEnumerator<HashedFingerprint> GetEnumerator()
@@ -122,7 +123,7 @@ namespace SoundFingerprinting.Data
         {
             if (IsEmpty)
             {
-                return Empty;
+                return GetEmpty(MediaType);
             }
             
             var endsAt = startsAt.AddSeconds(length);
@@ -139,30 +140,34 @@ namespace SoundFingerprinting.Data
             
             if (!filtered.Any())
             {
-                return new Hashes(Enumerable.Empty<HashedFingerprint>(), 0, startsAt);
+                return new Hashes(Enumerable.Empty<HashedFingerprint>(), 0, MediaType, startsAt);
             }
 
             var relativeTo = RelativeTo.AddSeconds(filtered.First().StartsAt);
             var duration = filtered.Last().StartsAt - filtered.First().StartsAt + lengthOfOneFingerprint;
             var shifted = ShiftStartsAtAccordingToSelectedRange(filtered);
-            return new Hashes(shifted, duration, relativeTo, Origins, StreamId);
+            return new Hashes(shifted, duration, MediaType, relativeTo, Origins, StreamId);
         }
 
         private static List<HashedFingerprint> ShiftStartsAtAccordingToSelectedRange(List<HashedFingerprint> filtered)
         {
             var startsAtShift = filtered.First().StartsAt;
-            var shifted = filtered.Select((fingerprint,
+            return filtered.Select((fingerprint,
                     index) => new HashedFingerprint(fingerprint.HashBins,
                     (uint) index,
                     fingerprint.StartsAt - startsAtShift,
                     fingerprint.OriginalPoint))
                 .ToList();
-            return shifted;
         }
 
         public bool MergeWith(Hashes with, out Hashes? merged, double allowedGap = 1.48f)
         {
             merged = null;
+
+            if (MediaType != with.MediaType)
+            {
+                throw new ArgumentException($"Can't merge hashes with different media types {MediaType}!={with.MediaType}", nameof(with.MediaType));
+            }
             
             if (IsEmpty)
             {
@@ -201,9 +206,25 @@ namespace SoundFingerprinting.Data
 
         public static IEnumerable<Hashes> Aggregate(IEnumerable<Hashes> hashes, double length)
         {
-            return hashes
+            var list = hashes.ToList();
+
+            if (!list.Any())
+            {
+                return Enumerable.Empty<Hashes>();
+            }
+            
+            for (int i = 1; i < list.Count; ++i)
+            {
+                if (list[i].MediaType != list[i - 1].MediaType)
+                {
+                    throw new ArgumentException($"Cannot aggregate list of hashes with different media types", nameof(hashes));
+                }
+            }
+
+            var mediaType = list[0].MediaType;
+            return list
                 .OrderBy(entry => entry.RelativeTo)
-                .Aggregate(new Stack<Hashes>(new[] {Empty}), (stack, next) =>
+                .Aggregate(new Stack<Hashes>(new[] {GetEmpty(mediaType)}), (stack, next) =>
                     {
                         var completed = stack.Pop();
                         if (completed.MergeWith(next, out var merged))
@@ -211,7 +232,7 @@ namespace SoundFingerprinting.Data
                             stack.Push(merged!);
                             if (merged!.DurationInSeconds >= length)
                             {
-                                stack.Push(Empty);
+                                stack.Push(GetEmpty(mediaType));
                             }
                         }
                         else
@@ -277,7 +298,7 @@ namespace SoundFingerprinting.Data
             
             var relativeTo = left.RelativeTo < right.RelativeTo ? left.RelativeTo : right.RelativeTo;
             var fullLength = result.Last().StartsAt + tailLength;
-            return new Hashes(result, fullLength, relativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId);
+            return new Hashes(result, fullLength, left.MediaType, relativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId);
         }
     }
 }

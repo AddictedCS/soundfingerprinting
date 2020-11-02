@@ -45,7 +45,7 @@ namespace SoundFingerprinting.Tests.Integration
                     sequenceNumber * 0.928f, 
                     Array.Empty<byte>()));
 
-            var trackData = InsertTrackAndHashes(track, new Hashes(hashedFingerprints, (numberOfHashBins + 1) * 0.928f));
+            var trackData = InsertTrackAndHashes(track, new Hashes(hashedFingerprints, (numberOfHashBins + 1) * 0.928f, MediaType.Audio));
             var fingerprints = subFingerprintDao.ReadHashedFingerprintsByTrackReference(trackData.TrackReference)
                                                 .Select(ToHashedFingerprint())
                                                 .ToList();
@@ -132,13 +132,13 @@ namespace SoundFingerprinting.Tests.Integration
                                                        .Select(ToHashedFingerprint())
                                                        .ToList();
 
-            AssertHashDatasAreTheSame(firstHashData, new Hashes(resultFirstHashData, firstHashData.DurationInSeconds, DateTime.Now, Enumerable.Empty<string>()));
+            AssertHashDatasAreTheSame(firstHashData, new Hashes(resultFirstHashData, firstHashData.DurationInSeconds, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             var resultSecondHashData = subFingerprintDao.ReadHashedFingerprintsByTrackReference(secondTrack.TrackReference)
                                                         .Select(ToHashedFingerprint())
                                                         .ToList();
 
-            AssertHashDatasAreTheSame(secondHashData, new Hashes(resultSecondHashData, secondHashData.DurationInSeconds, DateTime.Now, Enumerable.Empty<string>()));
+            AssertHashDatasAreTheSame(secondHashData, new Hashes(resultSecondHashData, secondHashData.DurationInSeconds, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
         }
 
         private static Func<SubFingerprintData, HashedFingerprint> ToHashedFingerprint()

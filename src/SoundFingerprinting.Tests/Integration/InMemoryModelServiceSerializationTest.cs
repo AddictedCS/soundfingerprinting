@@ -55,7 +55,7 @@
             var modelService = new InMemoryModelService();
 
             var firstTrack = new TrackInfo("id1", "title", "artist");
-            modelService.Insert(firstTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(firstTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
@@ -63,7 +63,7 @@
             var fromFileService = new InMemoryModelService(tempFile);
 
             var secondTrack = new TrackInfo("id2", "title", "artist");
-            fromFileService.Insert(secondTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            fromFileService.Insert(secondTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             var tracks = fromFileService.GetTrackIds().ToList();
 
@@ -85,7 +85,7 @@
             var modelService = new InMemoryModelService();
 
             var track = new TrackInfo("id", string.Empty, string.Empty);
-            var hashes = new Hashes(GetGenericHashes(), 10);
+            var hashes = new Hashes(GetGenericHashes(), 10, MediaType.Audio);
             
             modelService.Insert(track, hashes);
             modelService.InsertSpectralImages(spectrums, "id");

@@ -16,7 +16,7 @@
 
         protected Hashes GetGenericHashes()
         {
-            return new Hashes(new[] {new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())}, 1.48f, DateTime.Now, Enumerable.Empty<string>());
+            return new Hashes(new[] {new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())}, 1.48f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
         }
         
         protected int[] GenericHashBuckets()

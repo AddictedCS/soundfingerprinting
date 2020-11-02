@@ -25,7 +25,7 @@
         {
             var track = new TrackInfo("id", "title", "artist");
 
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             Assert.IsNotNull(modelService.ReadTrackById("id"));
         }
@@ -34,7 +34,7 @@
         public void ReadTrackByTrackIdTest()
         {
             var track = new TrackInfo("id", "title", "artist");
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
             
             var first = modelService.ReadTrackById("id");
             AssertTracksAreEqual(track, first);
@@ -50,7 +50,7 @@
         {
             var track = new TrackInfo("id", "title", "artist");
 
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48d, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             var actualTracks = modelService.ReadTrackByTitle("title").ToList();
 
@@ -65,7 +65,7 @@
             for (int i = 0; i < numberOfTracks; i++)
             {
                 var track = new TrackInfo($"id{i}", "title", "artist");
-                modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48d, DateTime.Now, Enumerable.Empty<string>()));
+                modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
             }
 
             var actualTracks = modelService.GetTrackIds().ToList();
@@ -77,7 +77,7 @@
         public void DeleteTrackTest()
         {
             var track = new TrackInfo("id", "title", "artist");
-            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(track, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             modelService.DeleteTrack("id");
 
@@ -91,7 +91,7 @@
         public void InsertHashDataTest()
         {
             var expectedTrack = new TrackInfo("id", "title", "artist");
-            modelService.Insert(expectedTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(expectedTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             var subFingerprints = modelService.Query(GetGenericHashes(), new DefaultQueryConfiguration()).ToList();
 
@@ -113,12 +113,12 @@
             var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f, Array.Empty<byte>());
             var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f, Array.Empty<byte>());
 
-            modelService.Insert(t1, new Hashes(new[] { firstHashData }, 1.48d, DateTime.Now, Enumerable.Empty<string>()));
-            modelService.Insert(t2, new Hashes(new[] { secondHashData }, 1.48d, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(t1, new Hashes(new[] { firstHashData }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(t2, new Hashes(new[] { secondHashData }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
-            var queryHashes = new Hashes(new[]{new HashedFingerprint(queryBuckets, 0, 0f, Array.Empty<byte>()), }, 1.48d, DateTime.Now, Enumerable.Empty<string>());
+            var queryHashes = new Hashes(new[]{new HashedFingerprint(queryBuckets, 0, 0f, Array.Empty<byte>()), }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
 
             var subFingerprints = modelService.Query(queryHashes, new LowLatencyQueryConfiguration()).ToList();
 
@@ -135,12 +135,12 @@
             var firstHashData = new HashedFingerprint(firstTrackBuckets, 1, 0.928f, Array.Empty<byte>());
             var secondHashData = new HashedFingerprint(secondTrackBuckets, 1, 0.928f, Array.Empty<byte>());
 
-            modelService.Insert(firstTrack, new Hashes(new[] { firstHashData }, 1.48d, DateTime.Now, Enumerable.Empty<string>()));
-            modelService.Insert(secondTrack, new Hashes(new[] { secondHashData }, 1.48d, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(firstTrack, new Hashes(new[] { firstHashData }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(secondTrack, new Hashes(new[] { secondHashData }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
-            var queryHashes = new Hashes(new[]{new HashedFingerprint(queryBuckets, 0, 0f, Array.Empty<byte>()), }, 1.48d, DateTime.Now, Enumerable.Empty<string>());
+            var queryHashes = new Hashes(new[]{new HashedFingerprint(queryBuckets, 0, 0f, Array.Empty<byte>()), }, 1.48d, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             var subFingerprints = modelService.Query(queryHashes, 
                 new DefaultQueryConfiguration 
                 { 
