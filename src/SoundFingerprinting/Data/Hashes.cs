@@ -58,6 +58,7 @@ namespace SoundFingerprinting.Data
             RelativeTo = relativeTo;
             Origins = origins;
             StreamId = streamId;
+            MediaType = mediaType;
         }
 
         [ProtoMember(2)]
