@@ -59,14 +59,14 @@
         public async Task QueryIsBuiltFromFileCorrectly()
         {
             const string pathToFile = "path-to-file";
-            var dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.Empty, new QueryStats(0, 0, 0, 0));
+            var dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0));
             var hashedFingerprints =new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
                             new HashedFingerprint(GenericHashBuckets(), 0, 0, Array.Empty<byte>()),
                             new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Array.Empty<byte>()),
                             new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2, Array.Empty<byte>())
-                        }), 0.928 * 3, DateTime.Now, Enumerable.Empty<string>());
+                        }), 0.928 * 3, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
 
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(pathToFile)).Returns(withAlgorithmConfiguration.Object);
@@ -87,14 +87,14 @@
             const string pathToFile = "path-to-file";
             const int startAtSecond = 120;
             const int secondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.Empty, new QueryStats(0, 0, 0, 0));
+            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0));
             var hashes = new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
                             new HashedFingerprint(GenericHashBuckets(), 0, 0, Array.Empty<byte>()),
                             new HashedFingerprint(GenericHashBuckets(), 1, 0.928f, Array.Empty<byte>()),
                             new HashedFingerprint(GenericHashBuckets(), 2, 0.928f * 2, Array.Empty<byte>())
-                        }), 0.928 * 3, DateTime.Now, Enumerable.Empty<string>());
+                        }), 0.928 * 3, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             fingerprintCommandBuilder.Setup(builder => builder.BuildFingerprintCommand()).Returns(fingerprintingSource.Object);
             fingerprintingSource.Setup(source => source.From(pathToFile, secondsToQuery, startAtSecond)).Returns(withAlgorithmConfiguration.Object);
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);

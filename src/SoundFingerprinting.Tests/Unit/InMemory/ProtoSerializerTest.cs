@@ -58,7 +58,7 @@
         {
             var fingerprints = new[] {new HashedFingerprint(new[] {1, 2, 3, 4, 5}, 0, 0, Array.Empty<byte>())};
             var origins = new[] {"test"};
-            var hashes = new Hashes(fingerprints, 1.48, DateTime.Now, origins, "CNN");
+            var hashes = new Hashes(fingerprints, 1.48, MediaType.Audio, DateTime.Now, origins, "CNN");
 
             byte[] serialized;
             using (var stream = new MemoryStream())
