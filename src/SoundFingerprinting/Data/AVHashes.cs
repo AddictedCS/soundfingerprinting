@@ -25,7 +25,7 @@ namespace SoundFingerprinting.Data
             videoHashes = VideoHashes;
         }
         
-        public static AVHashes Empty => new AVHashes(Hashes.Empty, Hashes.Empty);
+        public static AVHashes Empty => new AVHashes(Hashes.GetEmpty(MediaType.Audio), Hashes.GetEmpty(MediaType.Video));
 
         public override string ToString()
         {

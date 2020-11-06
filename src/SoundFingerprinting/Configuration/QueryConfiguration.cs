@@ -93,10 +93,18 @@
         public double PermittedGap { get; set; }
 
         /// <summary>
-        ///  Gets or sets meta fields that are passed to the storage when querying. Useful for second stage filtering.
+        ///  Gets or sets meta fields filters that are passed to the storage when querying. Useful for second stage filtering.
+        ///  Once set, in order for the track to be considered as an eligible candidate it <b>MUST</b> contain same meta-fields (see <see cref="TrackInfo.MetaFields"/>). <br/>
         ///  Example: TrackInfo has meta field "Region: USA". You can specify "Region: USA".
         /// </summary>
-        public IDictionary<string, string> MetaFieldsFilter { get; set; }
+        public IDictionary<string, string> YesMetaFieldsFilters { get; set; }
+
+        /// <summary>
+        ///  Gets or sets meta fields filters that are passed to the storage when querying. Useful for second stage filtering.
+        ///  Once set, in order for the track to be considered as an eligible candidate it <b>MUST NOT</b> contain same meta-fields (see <see cref="TrackInfo.MetaFields"/>). <br/>
+        ///  Example: TrackInfo has meta field "Region: USA". You can specify "Region: USA" in order to remove all matches from USA.
+        /// </summary>
+        public IDictionary<string, string> NoMetaFieldsFilters { get; set; }
 
         /// <summary>
         ///  Gets or sets query media type.

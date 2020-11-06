@@ -67,7 +67,7 @@
                         new TrackData("id_1", string.Empty, string.Empty, 0d, secondTrackReference)
                     });
 
-            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, DateTime.Now, Enumerable.Empty<string>());
+            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             var queryResult = queryFingerprintService.Query(hashes, customQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
@@ -87,7 +87,7 @@
             var customQueryConfiguration = new DefaultQueryConfiguration { MaxTracksToReturn = 1, ThresholdVotes = 10, FingerprintConfiguration = new DefaultFingerprintConfiguration() };
             modelService.Setup(service => service.Query(It.IsAny<Hashes>(), customQueryConfiguration)).Returns(new List<SubFingerprintData>());
 
-            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 148f, DateTime.Now, Enumerable.Empty<string>());
+            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 148f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             var queryResult = queryFingerprintService.Query(hashes, customQueryConfiguration, modelService.Object);
 
             Assert.IsFalse(queryResult.ContainsMatches);
@@ -116,7 +116,7 @@
                         new TrackData("id", string.Empty, string.Empty, 0d, firstTrackReference)
                     });
 
-            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, DateTime.Now, Enumerable.Empty<string>());
+            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             var queryResult = queryFingerprintService.Query(hashes, defaultQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
@@ -135,7 +135,7 @@
             queryFingerprintService.Query(new Hashes(new List<HashedFingerprint>
                 {
                     new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())
-                }, 1.48f, DateTime.Now, Enumerable.Empty<string>()),
+                }, 1.48f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()),
                 new DefaultQueryConfiguration(),
                 modelService.Object);
         }

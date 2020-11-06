@@ -189,7 +189,7 @@ namespace SoundFingerprinting.Command
             if (length <= configuration.DowntimeCapturePeriod)
             {
                 downtimeHashes.Enqueue(hashes);
-                return Hashes.Empty;
+                return Hashes.GetEmpty(hashes.MediaType);
             }
             
             return hashes;

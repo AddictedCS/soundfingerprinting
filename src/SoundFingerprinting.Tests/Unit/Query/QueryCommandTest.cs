@@ -203,7 +203,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(audioService)
                 .Hash();
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, audioSamples.Length / 5512f, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, audioSamples.Length / 5512f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
         }
     }
 }

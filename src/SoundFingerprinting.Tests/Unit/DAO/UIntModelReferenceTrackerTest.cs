@@ -78,11 +78,8 @@ namespace SoundFingerprinting.Tests.Unit.DAO
         {
             return new Hashes(Enumerable
                 .Range(0, numberOfHashBins)
-                .Select(sequenceNumber => new HashedFingerprint(
-                    new[]{255},
-                    (uint) sequenceNumber,
-                    sequenceNumber * 0.928f,
-                    new byte[] {1})), (numberOfHashBins + 1) * 0.928f);
+                .Select(sequenceNumber => 
+                    new HashedFingerprint(new[]{255}, (uint) sequenceNumber, sequenceNumber * 0.928f, new byte[] {1})), (numberOfHashBins + 1) * 0.928f, MediaType.Audio);
         }
     }
 }

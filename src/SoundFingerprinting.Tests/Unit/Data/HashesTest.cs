@@ -24,7 +24,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                 new HashedFingerprint(new[] {1}, 1, one, Array.Empty<byte>()),
                 new HashedFingerprint(new[] {1}, 2, 2 * one, Array.Empty<byte>()),
                 new HashedFingerprint(new[] {1}, 0, 0, Array.Empty<byte>())
-            }, one * 3 + FingerprintCount, DateTime.Parse("01/15/2019 10:00:00", dtfi), Enumerable.Empty<string>());
+            }, one * 3 + FingerprintCount, MediaType.Audio, DateTime.Parse("01/15/2019 10:00:00", dtfi), Enumerable.Empty<string>());
 
             var b = new Hashes(new List<HashedFingerprint>
                 {
@@ -32,7 +32,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                     new HashedFingerprint(new[] {2}, 2, 2 * one, Array.Empty<byte>()),
                     new HashedFingerprint(new[] {2}, 0, 0, Array.Empty<byte>())
                 },
-                one * 3 + FingerprintCount, DateTime.Parse("01/15/2019 10:00:01", dtfi), Enumerable.Empty<string>());
+                one * 3 + FingerprintCount, MediaType.Audio, DateTime.Parse("01/15/2019 10:00:01", dtfi), Enumerable.Empty<string>());
 
             Assert.IsTrue(a.MergeWith(b, out var result));
             var mergedHashes = result.ToList();
@@ -48,11 +48,11 @@ namespace SoundFingerprinting.Tests.Unit.Data
         public void ShouldMergeCorrectly()
         {
             float acc = 8192 / 5512f;
-            var a = Hashes.Empty;
+            var a = Hashes.GetEmpty(MediaType.Audio);
             var dateTime = DateTime.Now;
-            var b = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {1}, 0, 0f, Array.Empty<byte>())}), acc, dateTime, Enumerable.Empty<string>());
-            var c = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {2}, 0, 0f, Array.Empty<byte>())}), acc, dateTime.AddSeconds(acc), Enumerable.Empty<string>());
-            var d = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {3}, 0, 0f, Array.Empty<byte>())}), acc, dateTime.AddSeconds(2 * acc), Enumerable.Empty<string>());
+            var b = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {1}, 0, 0f, Array.Empty<byte>())}), acc, MediaType.Audio, dateTime, Enumerable.Empty<string>());
+            var c = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {2}, 0, 0f, Array.Empty<byte>())}), acc, MediaType.Audio, dateTime.AddSeconds(acc), Enumerable.Empty<string>());
+            var d = new Hashes(new List<HashedFingerprint>(new[] {new HashedFingerprint(new[] {3}, 0, 0f, Array.Empty<byte>())}), acc, MediaType.Audio, dateTime.AddSeconds(2 * acc), Enumerable.Empty<string>());
 
             Assert.IsTrue(a.MergeWith(b, out var x));
             Assert.IsTrue(x.MergeWith(c, out var y));
@@ -78,8 +78,8 @@ namespace SoundFingerprinting.Tests.Unit.Data
             }
 
             var r = new Random();
-            var a = new Hashes(first.OrderBy(x => r.Next()).ToList(), first.Count * one + FingerprintCount, DateTime.Parse("01/15/2019 10:00:00", dtfi), Enumerable.Empty<string>());
-            var b = new Hashes(second.OrderBy(x => r.Next()).ToList(), second.Count * one + FingerprintCount, DateTime.Parse("01/15/2019 10:00:01.3", dtfi), Enumerable.Empty<string>());
+            var a = new Hashes(first.OrderBy(x => r.Next()).ToList(), first.Count * one + FingerprintCount, MediaType.Audio, DateTime.Parse("01/15/2019 10:00:00", dtfi), Enumerable.Empty<string>());
+            var b = new Hashes(second.OrderBy(x => r.Next()).ToList(), second.Count * one + FingerprintCount, MediaType.Audio, DateTime.Parse("01/15/2019 10:00:01.3", dtfi), Enumerable.Empty<string>());
 
             Assert.IsTrue(a.MergeWith(b, out var c));
             for (int i = 0; i < 200; ++i)
@@ -108,6 +108,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                     new HashedFingerprint(new[] {1}, 0, 0, Array.Empty<byte>())
                 },
                 FingerprintCount,
+                MediaType.Audio,
                 DateTime.Parse("01/15/2019 10:00:00", dtfi), Enumerable.Empty<string>());
 
             var b = new Hashes(new List<HashedFingerprint>
@@ -115,6 +116,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
                     new HashedFingerprint(new[] {2}, 0, 0, Array.Empty<byte>())
                 },
                 FingerprintCount,
+                MediaType.Audio,
                 DateTime.Parse("01/15/2019 10:01:00", dtfi), Enumerable.Empty<string>());
 
             Assert.IsFalse(a.MergeWith(b, out _));
@@ -125,7 +127,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
         {
             var list = GetHashedFingerprints();
 
-            var timed = new Hashes(list, list.Count * FingerprintCount, DateTime.Now, Enumerable.Empty<string>());
+            var timed = new Hashes(list, list.Count * FingerprintCount, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             var buffer = Serialize(timed);
             var deserialized = Deserialize(buffer);
             Assert.AreEqual(timed.Count, deserialized.Count);
@@ -150,9 +152,9 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
             int count = 80;
             var aStartsAt = DateTime.Parse("01/15/2019 10:00:00", dtfi);
-            var a = new Hashes(GetHashedFingerprints(count), count * 1.48f, aStartsAt);
+            var a = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio, aStartsAt);
             var bStartsAt = DateTime.Parse("01/15/2019 10:02:00", dtfi);
-            var b = new Hashes(GetHashedFingerprints(count), count * 1.48f, bStartsAt);
+            var b = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio, bStartsAt);
             
             Assert.IsTrue(a.MergeWith(b, out var c, 2 * 1.48f));
             Assert.AreEqual(count * 2, c.Count);
