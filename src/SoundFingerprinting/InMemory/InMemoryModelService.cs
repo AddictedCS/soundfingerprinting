@@ -96,6 +96,25 @@
             SubFingerprintDao.InsertSubFingerprints(subFingerprints);
         }
 
+        public void UpdateTrack(TrackInfo trackInfo)
+        {
+            var track = TrackDao.ReadTrackById(trackInfo.Id);
+            if (track == null)
+            {
+                throw new ArgumentException($"Could not find track {trackInfo.Id} to update", nameof(trackInfo.Id));
+            }
+
+            if (trackInfo.MediaType != track.MediaType)
+            {
+                throw new ArgumentException($"Can't update media type from {trackInfo.MediaType} to {track.MediaType}. Delete {track.Id} and reinsert with new media type.");
+            }
+
+            var subFingerprints = SubFingerprintDao.ReadHashedFingerprintsByTrackReference(track.TrackReference);
+            var hashes = new Hashes(subFingerprints.Select(subFingerprint => new HashedFingerprint(subFingerprint.Hashes, subFingerprint.SequenceNumber, subFingerprint.SequenceAt, subFingerprint.OriginalPoint)), track.Length, track.MediaType);
+            DeleteTrack(trackInfo.Id);
+            Insert(trackInfo, hashes);
+        }
+
         public IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config)
         {
             var queryHashes = hashes.Select(_ => _.HashBins).ToList();

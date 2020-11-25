@@ -5,7 +5,7 @@ namespace SoundFingerprinting.Tests
     using System.Linq;
 
     using Audio;
-
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Utils;
 
@@ -73,6 +73,29 @@ namespace SoundFingerprinting.Tests
             return Tuple.Create(first, second);
         }
         
+        public static Hashes GetRandomHashes(int count, Random random, bool withOriginalPoints = false, float fingerprintLengthInSeconds = 1.48f)
+        {
+            var fingerprints = new List<HashedFingerprint>();
+            for (int i = 0; i < count; ++i)
+            {
+                var hashes = new byte[sizeof(int) * 25];
+                random.NextBytes(hashes);
+                int[] intHashes = new int[25];
+                Buffer.BlockCopy(hashes, 0, intHashes, 0, sizeof(int) * 25);
+                byte[] originalPoint = Array.Empty<byte>();
+                if (withOriginalPoints)
+                {
+                    originalPoint = new byte[100]; // small footprint for tests
+                    random.NextBytes(originalPoint);
+                }
+
+                var hashData = new HashedFingerprint(intHashes, (uint) i, i * fingerprintLengthInSeconds, originalPoint);
+                fingerprints.Add(hashData);
+            }
+
+            return new Hashes(fingerprints, fingerprints.Max(f => f.StartsAt + fingerprintLengthInSeconds), MediaType.Audio);
+        }
+
         public static TinyFingerprintSchema GenerateRandomFingerprint(Random random, int topWavelets, int width, int height)
         {
             int length = width * height * 2;

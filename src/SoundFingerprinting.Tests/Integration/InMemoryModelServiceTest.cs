@@ -149,5 +149,28 @@
 
             Assert.AreEqual(1, subFingerprints.Count);
         }
+
+        [Test]
+        public void ShouldUpdateTrackMetadata()
+        {
+            var track = new TrackInfo("id1", "title", "artist", new Dictionary<string, string>{{ "group-id", "first-group-id" }});
+            var hashes = TestUtilities.GetRandomHashes(100, new Random(), true);
+
+            modelService.Insert(track, hashes);
+            var oldTrack = modelService.ReadTrackById(track.Id);
+            Assert.IsNotNull(oldTrack);
+
+            var updateTrack = new TrackInfo(track.Id, "new_title", "new_artist", new Dictionary<string, string> {{"group-id", "second-group-id"}});
+            modelService.UpdateTrack(updateTrack);
+
+            var newTrack = modelService.ReadTrackById(track.Id);
+            Assert.IsNotNull(newTrack);
+            Assert.AreEqual("new_title", newTrack.Title);
+            Assert.AreEqual("new_artist", newTrack.Artist);
+            Assert.AreEqual("second-group-id", newTrack.MetaFields["group-id"]);
+
+            var result = modelService.Query(hashes, new DefaultQueryConfiguration());
+            Assert.AreEqual(100, result.Count());
+        }
     }
 }
