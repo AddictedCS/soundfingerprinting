@@ -1,7 +1,6 @@
 namespace SoundFingerprinting
 {
     using System.Collections.Generic;
-
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -20,6 +19,13 @@ namespace SoundFingerprinting
         /// <param name="trackInfo">Track information</param>
         /// <param name="hashes">Associated hashes computed by SoundFingerprinting algorithm</param>
         void Insert(TrackInfo trackInfo, Hashes hashes);
+
+        /// <summary>
+        ///  Updates track info <see cref="TrackInfo.Id"/> is used as the key to the object to update.
+        ///  Fields that will be updated: <see cref="TrackInfo.Title"/>, <see cref="TrackInfo.Artist"/>, <see cref="TrackInfo.MetaFields"/>.
+        /// </summary>
+        /// <param name="trackInfo"></param>
+        void UpdateTrack(TrackInfo trackInfo);
 
         /// <summary>
         ///  Queries the underlying storage with hashes and query configuration
@@ -47,7 +53,7 @@ namespace SoundFingerprinting
         ///  Removes a track and associated hashes from the storage by track ID
         /// </summary>
         /// <param name="trackId"></param>
-        /// <returns></returns>
+        /// <returns>Number of modified fields.</returns>
         int DeleteTrack(string trackId);
 
         /// <summary>

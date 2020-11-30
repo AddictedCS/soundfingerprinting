@@ -187,7 +187,7 @@ _soundfingerprinting_ employs computer vision techniques to generate audio finge
 
 ![Spectrums](https://i.imgur.com/yuOY9Jh.png)
 
-After a list of subsequent transformations these are converted into hashes, which are stored and used at query time. The fingerprints are robust to degradations to a certain degree. The `DefaultFingerprintConfiguration` class can be successfully used for radio stream monitoring. It handles well different audio formats, aliased signals and sampling differences accross tracks. Ambient noise is a different beast and you will probably need `HighPrecisionFingerprintConfiguration` to deal with it.
+After a list of subsequent transformations these are converted into hashes, which are stored and used at query time. The fingerprints are robust to degradations to a certain degree. The `DefaultFingerprintConfiguration` class can be successfully used for radio stream monitoring. It handles well different audio formats, aliased signals and sampling differences accross tracks. More detailed article about how it works can be found on [my blog][emysound-how-it-works].
     
 ### Demo
 My description of the algorithm alogside with the demo project can be found on [CodeProject](http://www.codeproject.com/Articles/206507/Duplicates-detector-via-audio-fingerprinting). The article is from 2011, and may be outdated.
@@ -203,3 +203,4 @@ The framework is provided under [MIT](https://opensource.org/licenses/MIT) licen
 
 
 [emy-nuget]: https://www.nuget.org/packages/SoundFingerprinting.Emy
+[emysound-how-it-works]: https://emysound.com/blog/open-source/2020/06/12/how-audio-fingerprinting-works.html
