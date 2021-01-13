@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sergiu Ciumac")]
 [assembly: AssemblyProduct("SoundFingerprinting")]
-[assembly: AssemblyCopyright("Copyright © Sergiu Ciumac 2020")]
+[assembly: AssemblyCopyright("Copyright © Sergiu Ciumac 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
@@ -19,5 +19,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 
-[assembly: AssemblyVersion("7.4.19.100")]
-[assembly: AssemblyInformationalVersion("7.4.19.100")]
+[assembly: AssemblyVersion("7.5.2.100")]
+[assembly: AssemblyInformationalVersion("7.5.2.100")]
