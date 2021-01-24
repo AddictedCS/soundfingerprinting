@@ -6,9 +6,20 @@ namespace SoundFingerprinting.LCS
     using ProtoBuf;
     using SoundFingerprinting.Query;
 
-    [ProtoContract]
+    /// <summary>
+    ///  Object containing information about query match coverage
+    /// </summary>
+    [ProtoContract(SkipConstructor = true)]
     public class Coverage
     {
+        /// <summary>
+        ///  Instantiates new coverage object.
+        /// </summary>
+        /// <param name="bestPath">Best path between query and track, calculated by <see cref="LisNew"/> or <see cref="LisOld"/> (default LisOld).</param>
+        /// <param name="queryLength">Query length in seconds.</param>
+        /// <param name="trackLength">Track length in seconds.</param>
+        /// <param name="fingerprintLength">Fingerprint length in seconds.</param>
+        /// <param name="permittedGap">Length of the permitted gap.</param>
         public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
         {
             BestPath = bestPath.ToList();
@@ -18,34 +29,29 @@ namespace SoundFingerprinting.LCS
             PermittedGap = permittedGap;
         }
 
-        private Coverage()
-        {
-            // left for proto-buf
-        }
-
         /// <summary>
-        ///  Gets starting point of the query in seconds
+        ///  Gets the starting point of the query match. Measured in seconds.
         /// </summary>
         public double QueryMatchStartsAt => BestPath.First().QueryMatchAt;
 
         /// <summary>
-        ///  Gets starting point of the track match in seconds
+        ///  Gets the starting point of the track match. Measured in seconds.
         /// </summary>
         public double TrackMatchStartsAt => BestPath.First().TrackMatchAt;
 
         /// <summary>
         ///  Gets the total track length that was covered by the query. Exact length of matched fingerprints, not necessary consecutive.
         /// </summary>
-        public double CoverageLength => DiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, 0, FingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
+        public double TrackCoverageLength => TrackDiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, 0, FingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
 
         /// <summary>
-        ///  Gets coverage length sum in seconds, allowing gaps specified by permitted gap query parameter
+        ///  Gets track coverage length sum in seconds, allowing gaps specified by permitted gap query parameter.
         /// </summary>
-        public double CoverageWithPermittedGapsLength
+        public double TrackCoverageWithPermittedGapsLength
         {
             get
             {
-                return DiscreteCoverageLength - TrackGaps.Where(g => !g.IsOnEdge).Sum(d => d.LengthInSeconds);
+                return TrackDiscreteCoverageLength - TrackGaps.Where(g => !g.IsOnEdge).Sum(d => d.LengthInSeconds);
             }
         }
         
@@ -63,7 +69,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Gets the track match length including all track gaps (if any).
         /// </summary>
-        public double DiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, FingerprintLength);
+        public double TrackDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().TrackMatchAt, TrackMatchStartsAt, FingerprintLength);
 
         /// <summary>
         ///  Gets the query match length including all query gaps (if any).
@@ -71,10 +77,10 @@ namespace SoundFingerprinting.LCS
         public double QueryDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().QueryMatchAt, QueryMatchStartsAt, FingerprintLength);
 
         /// <summary>
-        ///  Gets the exact length of not covered portion of the query match in the database track
+        ///  Gets the exact length of not covered portion of the query match in the track
         /// </summary>
         /// <returns>Seconds of not covered length</returns>
-        public double GapsCoverageLength
+        public double TrackGapsCoverageLength
         {
             get
             {
@@ -178,7 +184,7 @@ namespace SoundFingerprinting.LCS
         
         public bool Contains(Coverage other)
         {
-            return (TrackMatchStartsAt <= other.TrackMatchStartsAt && TrackMatchStartsAt + CoverageWithPermittedGapsLength >= other.TrackMatchStartsAt + other.CoverageWithPermittedGapsLength)
+            return (TrackMatchStartsAt <= other.TrackMatchStartsAt && TrackMatchStartsAt + TrackCoverageWithPermittedGapsLength >= other.TrackMatchStartsAt + other.TrackCoverageWithPermittedGapsLength)
                    &&
                    (QueryMatchStartsAt <= other.QueryMatchStartsAt && QueryMatchStartsAt + QueryCoverageWithPermittedGapsLength >= other.QueryMatchStartsAt + other.QueryCoverageWithPermittedGapsLength);
         }

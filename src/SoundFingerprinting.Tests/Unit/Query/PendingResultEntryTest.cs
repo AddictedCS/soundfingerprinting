@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsTrue(collapsed1.TryCollapse(entry3, 1.48, out var collapsed2));
 
             var result = collapsed2.Entry;
-            Assert.AreEqual(3 * 1.48, result.CoverageWithPermittedGapsLength, 0.0001);
+            Assert.AreEqual(3 * 1.48, result.TrackCoverageWithPermittedGapsLength, 0.0001);
             Assert.AreEqual(3 * 1.48, result.QueryLength, 0.0001);
         }
 
@@ -59,7 +59,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             entry1.TryCollapse(entry2, 1.48, out var collapsed);
 
-            Assert.AreEqual(5, collapsed.Entry.CoverageWithPermittedGapsLength);
+            Assert.AreEqual(5, collapsed.Entry.TrackCoverageWithPermittedGapsLength);
         }
         
         [Test]
@@ -72,7 +72,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             entry1.TryCollapse(entry2, 1.48, out var collapsed);
 
-            Assert.AreEqual(6, collapsed.Entry.CoverageWithPermittedGapsLength);
+            Assert.AreEqual(6, collapsed.Entry.TrackCoverageWithPermittedGapsLength);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             Assert.IsTrue(entry1.TryCollapse(entry2, 1.48, out var collapsed));
 
-            Assert.AreEqual(3, collapsed.Entry.CoverageWithPermittedGapsLength); 
+            Assert.AreEqual(3, collapsed.Entry.TrackCoverageWithPermittedGapsLength); 
         }
     }
 }

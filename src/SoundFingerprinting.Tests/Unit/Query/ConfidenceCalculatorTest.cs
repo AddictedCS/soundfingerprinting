@@ -7,8 +7,6 @@
     [TestFixture]
     public class ConfidenceCalculatorTest
     {
-        private readonly ConfidenceCalculator confidenceCalculator = new ConfidenceCalculator();
-
         /* Query: ----------
          * Track: -----
          */
@@ -70,7 +68,7 @@
             double trackMatchStartsAt, double trackLength,
             double coverageWithPermittedGapsLength)
         {
-            return confidenceCalculator.CalculateConfidence(
+            return ConfidenceCalculator.CalculateConfidence(
                 queryMatchStartsAt,
                 queryLength,
                 trackMatchStartsAt,
@@ -169,7 +167,7 @@
             double trackMatchStartsAt, double trackLength,
             double coverageWithPermittedGapsLength)
         {
-            return confidenceCalculator.CalculateConfidence(
+            return ConfidenceCalculator.CalculateConfidence(
                 queryMatchStartsAt,
                 queryLength,
                 trackMatchStartsAt,
@@ -232,7 +230,7 @@
             double trackMatchStartsAt, double trackLength,
             double coverageWithPermittedGapsLength)
         {
-            return confidenceCalculator.CalculateConfidence(
+            return ConfidenceCalculator.CalculateConfidence(
                 queryMatchStartsAt,
                 queryLength,
                 trackMatchStartsAt,
@@ -284,7 +282,7 @@
             double coverageWithPermittedGapsLength,
             double queryDiscreteCoverageLength, double trackDiscreteCoverageLength)
         {
-            return confidenceCalculator.CalculateConfidence(
+            return ConfidenceCalculator.CalculateConfidence(
                 queryMatchStartsAt,
                 queryLength,
                 trackMatchStartsAt,

@@ -9,7 +9,7 @@
         public static IEnumerable<Coverage> FilterCrossMatchedCoverages(IEnumerable<Coverage> sequences)
         {
             var coverages = sequences
-                .OrderByDescending(_ => _.CoverageWithPermittedGapsLength)
+                .OrderByDescending(_ => _.TrackCoverageWithPermittedGapsLength)
                 .ThenByDescending(_ => _.QueryCoverageWithPermittedGapsLength)
                 .ToList();
             

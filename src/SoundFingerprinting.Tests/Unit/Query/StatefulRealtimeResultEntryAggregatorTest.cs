@@ -70,9 +70,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             Assert.AreEqual(2, success.Count);
             Assert.AreEqual(1, filtered.Count);
-            Assert.IsTrue(success[0].CoverageWithPermittedGapsLength > 5d);
-            Assert.IsTrue(success[1].CoverageWithPermittedGapsLength > 5d);
-            Assert.IsTrue(filtered[0].CoverageWithPermittedGapsLength < 5d);
+            Assert.IsTrue(success[0].TrackCoverageWithPermittedGapsLength > 5d);
+            Assert.IsTrue(success[1].TrackCoverageWithPermittedGapsLength > 5d);
+            Assert.IsTrue(filtered[0].TrackCoverageWithPermittedGapsLength < 5d);
         }
 
         private static void SimulateEmptyResults(StatefulRealtimeResultEntryAggregator aggregator, ICollection<ResultEntry> success, ICollection<ResultEntry> filtered)

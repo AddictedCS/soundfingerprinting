@@ -13,7 +13,7 @@ namespace SoundFingerprinting.Command
         
         public bool Pass(ResultEntry entry)
         {
-            return entry.RelativeCoverage > coverage;
+            return entry.TrackRelativeCoverage > coverage;
         }
     }
 }
