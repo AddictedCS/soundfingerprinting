@@ -49,15 +49,10 @@
         private IEnumerable<ResultEntry> BuildResultEntries(TrackData track, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
-            return coverages.Select(coverage =>
-               {
-                    double confidence = ConfidenceCalculator.CalculateConfidence(coverage);
-                    return new ResultEntry(track,
-                        confidence,
-                        groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
-                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
-                        coverage);
-               });
+            return coverages.Select(coverage => new ResultEntry(track,
+                groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
+                groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
+                coverage));
         }
     }
 }

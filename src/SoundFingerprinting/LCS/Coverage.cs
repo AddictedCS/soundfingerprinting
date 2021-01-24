@@ -30,6 +30,19 @@ namespace SoundFingerprinting.LCS
         }
 
         /// <summary>
+        ///  Gets calculated confidence of the coverage object.
+        ///  A value between [0, 1) equaling the probability that the query match is correct.
+        /// </summary>
+        public double Confidence =>
+            ConfidenceCalculator.CalculateConfidence(QueryMatchStartsAt,
+                QueryLength,
+                TrackMatchStartsAt,
+                TrackLength,
+                TrackCoverageWithPermittedGapsLength,
+                QueryDiscreteCoverageLength,
+                TrackDiscreteCoverageLength);
+
+        /// <summary>
         ///  Gets the starting point of the query match. Measured in seconds.
         /// </summary>
         public double QueryMatchStartsAt => BestPath.First().QueryMatchAt;
@@ -176,12 +189,22 @@ namespace SoundFingerprinting.LCS
             double avg = list.Average(m => m.Score);
             return list.Where(match => match.Score < avg - sigma * stdDev);
         }
-
-        public Coverage NewBestPath(IEnumerable<MatchedWith> newBestPath)
+        
+        /// <summary>
+        ///  Recalculate Coverage object from provided best path.
+        /// </summary>
+        /// <param name="bestPath">Newly defined best path.</param>
+        /// <returns>Instance of <see cref="Coverage"/>.</returns>
+        public Coverage WithBestPath(IEnumerable<MatchedWith> bestPath)
         {
-            return new Coverage(newBestPath, QueryLength, TrackLength, FingerprintLength, PermittedGap);
+            return new Coverage(bestPath, QueryLength, TrackLength, FingerprintLength, PermittedGap);
         }
         
+        /// <summary>
+        ///  Checks if this coverage contains other coverage.
+        /// </summary>
+        /// <param name="other">Instance of other coverage.</param>
+        /// <returns>True if contains, otherwise false.</returns>
         public bool Contains(Coverage other)
         {
             return (TrackMatchStartsAt <= other.TrackMatchStartsAt && TrackMatchStartsAt + TrackCoverageWithPermittedGapsLength >= other.TrackMatchStartsAt + other.TrackCoverageWithPermittedGapsLength)

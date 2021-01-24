@@ -1,4 +1,3 @@
-// ReSharper disable UnusedMember.Local
 namespace SoundFingerprinting.Query
 {
     using System;
@@ -13,9 +12,9 @@ namespace SoundFingerprinting.Query
     [ProtoContract(SkipConstructor = true)]
     public class ResultEntry
     {
-        public ResultEntry(TrackData track, double confidence, double score, DateTime matchedAt, Coverage coverage)
+        public ResultEntry(TrackData track, double score, DateTime matchedAt, Coverage coverage)
             : this(track,
-                confidence,
+                coverage.Confidence,
                 score,
                 matchedAt,
                 coverage.QueryLength,

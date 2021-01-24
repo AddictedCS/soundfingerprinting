@@ -252,8 +252,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             foreach (var coverage in coverages)
             { 
-                double confidence = ConfidenceCalculator.CalculateConfidence(coverage);
-                Assert.AreEqual(1, confidence);
+                Assert.AreEqual(1, coverage.Confidence);
             }
         }
     }
