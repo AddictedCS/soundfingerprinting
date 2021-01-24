@@ -4,50 +4,27 @@ namespace SoundFingerprinting.Query
     using System.Linq;
     using ProtoBuf;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
     /// <summary>
-    ///  Represents an instance of result entry object containing information about the resulting match
+    ///  Represents an instance of result entry object containing information about the resulting match.
     /// </summary>
     [ProtoContract(SkipConstructor = true)]
     public class ResultEntry
     {
         public ResultEntry(TrackData track, double score, DateTime matchedAt, Coverage coverage)
-            : this(track,
-                coverage.Confidence,
-                score,
-                matchedAt,
-                coverage.QueryLength,
-                coverage.QueryMatchStartsAt,
-                coverage.TrackCoverageWithPermittedGapsLength,
-                coverage.TrackDiscreteCoverageLength,
-                coverage.TrackMatchStartsAt,
-                coverage.TrackStartsAt)
         {
             Coverage = coverage;
-        }
-
-        [Obsolete("Left for unit tests")]
-        public ResultEntry(TrackData track,
-            double confidence,
-            double score,
-            DateTime matchedAt,
-            double queryLength,
-            double queryMatchStartsAt,
-            double trackCoverageWithPermittedGapsLength,
-            double discreteTrackCoverageLength,
-            double trackMatchStartsAt,
-            double trackStartsAt)
-        {
             Track = track;
-            QueryMatchStartsAt = queryMatchStartsAt;
-            TrackCoverageWithPermittedGapsLength = trackCoverageWithPermittedGapsLength;
-            DiscreteTrackCoverageLength = discreteTrackCoverageLength;
-            TrackMatchStartsAt = trackMatchStartsAt;
-            Confidence = confidence;
+            QueryMatchStartsAt = Coverage.QueryMatchStartsAt;
+            TrackCoverageWithPermittedGapsLength = Coverage.TrackCoverageWithPermittedGapsLength;
+            DiscreteTrackCoverageLength = Coverage.TrackDiscreteCoverageLength;
+            TrackMatchStartsAt = Coverage.TrackMatchStartsAt;
+            Confidence = Coverage.Confidence;
             Score = score;
-            TrackStartsAt = trackStartsAt;
-            QueryLength = queryLength;
+            TrackStartsAt = Coverage.TrackStartsAt;
+            QueryLength = Coverage.QueryLength;
             MatchedAt = matchedAt;
         }
 
@@ -140,5 +117,15 @@ namespace SoundFingerprinting.Query
         ///  Gets information about gaps in the result entry coverage
         /// </summary>
         public bool NoGaps => !Coverage.TrackGaps.Any() && !Coverage.QueryGaps.Any();
+
+        /// <summary>
+        ///  Convert ResultEntry to an instance of <see cref="QueryMatch"/>.
+        /// </summary>
+        /// <returns>Instance of <see cref="QueryMatch"/>.</returns>
+        public QueryMatch ToQueryMatch()
+        {
+            var trackInfo = new TrackInfo(Track.Id, Track.Title, Track.Artist, Track.MetaFields, Track.MediaType);
+            return new QueryMatch(Guid.NewGuid().ToString(), trackInfo, Coverage, MatchedAt);
+        }
     }
 }

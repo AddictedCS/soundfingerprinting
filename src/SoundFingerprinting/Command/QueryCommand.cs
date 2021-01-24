@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
@@ -106,7 +107,7 @@
             long queryDuration = queryStopwatch.ElapsedMilliseconds;
             if (queryResult.ContainsMatches)
             {
-                var queryMatches = queryResult.ResultEntries.ToQueryMatches();
+                var queryMatches = queryResult.ResultEntries.Select(_ => _.ToQueryMatch()).ToList();
                 queryMatchRegistry.RegisterMatches(queryMatches, new Dictionary<string, string>());
             }
 

@@ -12,80 +12,73 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldCollapse()
         {
+            double permittedGap = 1d;
             var track = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(1));
+            
+            var entry1 = new PendingResultEntry(new ResultEntry(track, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {1, 2, 3}).EstimateCoverage(3, 9, 1, permittedGap)));
+            var entry2 = new PendingResultEntry(new ResultEntry(track, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {4, 5, 6}).EstimateCoverage(3, 9, 1, permittedGap)));
+            var entry3 = new PendingResultEntry(new ResultEntry(track, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {7, 8, 9}).EstimateCoverage(3, 9, 1, permittedGap)));
 
-            var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 10d, -10));
-            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 10d + 1.48d, -10 + 1.48));
-            var entry3 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 10d + 2 * 1.48d, -10 + 2 * 1.48));
-
-            Assert.IsTrue(entry1.TryCollapse(entry2, 1.48, out var collapsed1));
-            Assert.IsTrue(collapsed1.TryCollapse(entry3, 1.48, out var collapsed2));
+            Assert.IsTrue(entry1.TryCollapse(entry2, permittedGap, out var collapsed1));
+            Assert.IsTrue(collapsed1.TryCollapse(entry3, permittedGap, out var collapsed2));
 
             var result = collapsed2.Entry;
-            Assert.AreEqual(3 * 1.48, result.TrackCoverageWithPermittedGapsLength, 0.0001);
-            Assert.AreEqual(3 * 1.48, result.QueryLength, 0.0001);
+            Assert.AreEqual(9, result.TrackCoverageWithPermittedGapsLength, 0.0001);
+            Assert.AreEqual(9, result.QueryLength, 0.0001);
         }
 
         [Test]
         public void ShouldNotCollapseAsTracksAreDifferent()
         {
+            double permittedGap = 1d;
             var track1 = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(1));
             var track2 = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(2));
             
-            var entry1 = new PendingResultEntry(new ResultEntry(track1, 0d, 100, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 10d, -10));
-            var entry2 = new PendingResultEntry(new ResultEntry(track2, 0d, 100, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 10d + 1.48d, -10 + 1.48));
+            var entry1 = new PendingResultEntry(new ResultEntry(track1, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {1, 2, 3}).EstimateCoverage(3, 9, 1, permittedGap)));
+            var entry2 = new PendingResultEntry(new ResultEntry(track2, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {4, 5, 6}).EstimateCoverage(3, 9, 1, permittedGap)));
 
-            Assert.IsFalse(entry1.TryCollapse(entry2, 1.48, out _));
+            Assert.IsFalse(entry1.TryCollapse(entry2, permittedGap, out _));
         }
 
         [Test]
         public void ShouldNotCollapseAsTheStretchBetweenMatchesIsTooLong()
         {
-            var track = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(1));
+            double permittedGap = 1d;
+            var track1 = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(1));
 
-            var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 10d, -10));
-            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 30d, -10 + 1.48));
+            var entry1 = new PendingResultEntry(new ResultEntry(track1, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {1, 2, 3}).EstimateCoverage(3, 9, 1, permittedGap)));
+            var entry2 = new PendingResultEntry(new ResultEntry(track1, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {10, 11, 12}).EstimateCoverage(3, 9, 1, permittedGap)));
             
-            Assert.IsFalse(entry1.TryCollapse(entry2, 1.48, out _));
+            Assert.IsFalse(entry1.TryCollapse(entry2, permittedGap, out _));
         }
 
         [Test]
         public void IsCompletedAsTheMatchIsLongerThanTheThreshold()
         {
+            double permittedGap = 3d;
             var track = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(1));
 
-            var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 3d, 0d, 3d, 3d, 10d, -10));
-            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 3d, 0d, 3d, 3d, 12d, -10 + 2));
+            var entry1 = new PendingResultEntry(new ResultEntry(track, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {1, 2, 3}).EstimateCoverage(3, 9, 1, permittedGap)));
+            var entry2 = new PendingResultEntry(new ResultEntry(track, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {6, 7, 8}).EstimateCoverage(3, 9, 1, permittedGap)));
+            
+            entry1.TryCollapse(entry2, permittedGap, out var collapsed);
 
-            entry1.TryCollapse(entry2, 1.48, out var collapsed);
-
-            Assert.AreEqual(5, collapsed.Entry.TrackCoverageWithPermittedGapsLength);
+            Assert.AreEqual(8, collapsed.Entry.TrackCoverageWithPermittedGapsLength);
+            Assert.AreEqual(8, collapsed.Entry.DiscreteTrackCoverageLength);
         }
         
         [Test]
-        public void IsCompletedAsTheMatchIsLongerThanTheThreshold2()
-        {
-            var track = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(1));
-
-            var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 3d, 0d, 3d, 3d, 10d, -10));
-            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 3d, 0d, 3d, 3d, 14d, -10 + 2));
-
-            entry1.TryCollapse(entry2, 1.48, out var collapsed);
-
-            Assert.AreEqual(6, collapsed.Entry.TrackCoverageWithPermittedGapsLength);
-        }
-
-        [Test]
         public void ShouldSwallowEntryWithinEntry()
         {
+            double permittedGap = 3d;
             var track = new TrackData("1", "artist", "title", 120, new ModelReference<uint>(1));
 
-            var entry1 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 3d, 0d, 3d, 3d, 10d, -10));
-            var entry2 = new PendingResultEntry(new ResultEntry(track, 0d, 100, DateTime.Now, 2.5d, 0d, 2.5d, 2.5d, 10.5d, -10 + 2.5));
+            var entry1 = new PendingResultEntry(new ResultEntry(track, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7}, new[] {1, 2, 3, 4, 5, 6, 7}).EstimateCoverage(7, 7, 1, permittedGap)));
+            var entry2 = new PendingResultEntry(new ResultEntry(track, 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {3, 4, 5}).EstimateCoverage(3, 7, 1, permittedGap)));
+            
+            Assert.IsTrue(entry1.TryCollapse(entry2, permittedGap, out var collapsed));
 
-            Assert.IsTrue(entry1.TryCollapse(entry2, 1.48, out var collapsed));
-
-            Assert.AreEqual(3, collapsed.Entry.TrackCoverageWithPermittedGapsLength); 
+            Assert.AreEqual(7, collapsed.Entry.TrackCoverageWithPermittedGapsLength); 
         }
     }
 }

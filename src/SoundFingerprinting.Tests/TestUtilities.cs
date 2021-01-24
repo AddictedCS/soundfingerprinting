@@ -44,8 +44,7 @@ namespace SoundFingerprinting.Tests
         {
             for (int sequenceNumber = 0; sequenceNumber < queryAt.Length; ++sequenceNumber)
             {
-                yield return new MatchedWith((uint)queryAt[sequenceNumber], queryAt[sequenceNumber] * fingerprintLength, 
-                    (uint)trackAt[sequenceNumber], trackAt[sequenceNumber] * fingerprintLength, score);
+                yield return new MatchedWith((uint)queryAt[sequenceNumber], queryAt[sequenceNumber] * fingerprintLength, (uint)trackAt[sequenceNumber], trackAt[sequenceNumber] * fingerprintLength, score);
             }
         }
 
