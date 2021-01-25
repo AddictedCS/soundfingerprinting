@@ -8,7 +8,7 @@
     using SoundFingerprinting.Data;
 
     [Serializable]
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class TrackData
     {
         public TrackData(string id, string artist, string title, double length, IModelReference trackReference, IDictionary<string, string> metaFields, MediaType mediaType)
@@ -24,13 +24,6 @@
 
         public TrackData(string id, string artist, string title, double length, IModelReference trackReference) : this(id, artist, title, length, trackReference, new Dictionary<string, string>(), MediaType.Audio)
         {
-        }
-
-        public TrackData()
-        {
-            // left for proto-buf
-            MetaFields = new Dictionary<string, string>();
-            MediaType = MediaType.Audio;
         }
 
         [ProtoMember(3)]
