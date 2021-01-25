@@ -1,59 +1,30 @@
-// ReSharper disable UnusedMember.Local
 namespace SoundFingerprinting.Query
 {
     using System;
     using System.Linq;
     using ProtoBuf;
     using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
     /// <summary>
-    ///  Represents an instance of result entry object containing information about the resulting match
+    ///  Represents an instance of result entry object containing information about the resulting match.
     /// </summary>
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class ResultEntry
     {
-        public ResultEntry(TrackData track, double confidence, double score, DateTime matchedAt, Coverage coverage)
-            : this(track,
-                confidence,
-                score,
-                matchedAt,
-                coverage.QueryLength,
-                coverage.QueryMatchStartsAt,
-                coverage.CoverageWithPermittedGapsLength,
-                coverage.DiscreteCoverageLength,
-                coverage.TrackMatchStartsAt,
-                coverage.TrackStartsAt)
+        public ResultEntry(TrackData track, double score, DateTime matchedAt, Coverage coverage)
         {
             Coverage = coverage;
-        }
-
-        private ResultEntry()
-        {
-            // left for proto-buf
-        }
-
-        [Obsolete("Left for unit tests")]
-        public ResultEntry(TrackData track,
-            double confidence,
-            double score,
-            DateTime matchedAt,
-            double queryLength,
-            double queryMatchStartsAt,
-            double coverageWithPermittedGapsLength,
-            double discreteCoverageLength,
-            double trackMatchStartsAt,
-            double trackStartsAt)
-        {
             Track = track;
-            QueryMatchStartsAt = queryMatchStartsAt;
-            CoverageWithPermittedGapsLength = coverageWithPermittedGapsLength;
-            DiscreteCoverageLength = discreteCoverageLength;
-            TrackMatchStartsAt = trackMatchStartsAt;
-            Confidence = confidence;
+            QueryMatchStartsAt = Coverage.QueryMatchStartsAt;
+            TrackCoverageWithPermittedGapsLength = Coverage.TrackCoverageWithPermittedGapsLength;
+            DiscreteTrackCoverageLength = Coverage.TrackDiscreteCoverageLength;
+            TrackMatchStartsAt = Coverage.TrackMatchStartsAt;
+            Confidence = Coverage.Confidence;
             Score = score;
-            TrackStartsAt = trackStartsAt;
-            QueryLength = queryLength;
+            TrackStartsAt = Coverage.TrackStartsAt;
+            QueryLength = Coverage.QueryLength;
             MatchedAt = matchedAt;
         }
 
@@ -70,21 +41,16 @@ namespace SoundFingerprinting.Query
         public Coverage Coverage { get; }
 
         /// <summary>
-        ///  Gets the total track length that was covered by the query. Exact length of matched fingerprints, not necessary consecutive.
-        /// </summary>
-        public double CoverageLength => Coverage.CoverageLength;
-
-        /// <summary>
         /// Gets query coverage length with permitted gaps 
         /// </summary>
         [ProtoMember(3)]
-        public double CoverageWithPermittedGapsLength { get; }
+        public double TrackCoverageWithPermittedGapsLength { get; }
         
         /// <summary>
         ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query
         /// </summary>
         [ProtoMember(11)]
-        public double DiscreteCoverageLength { get; }
+        public double DiscreteTrackCoverageLength { get; }
 
         /// <summary>
         ///  Gets the exact position in seconds where resulting track started to match in the query
@@ -116,17 +82,12 @@ namespace SoundFingerprinting.Query
         /// <summary>
         ///  Gets the percentage of how much the query match covered the original track
         /// </summary>
-        public double RelativeCoverage => CoverageWithPermittedGapsLength / Track.Length;
+        public double TrackRelativeCoverage => TrackCoverageWithPermittedGapsLength / Track.Length;
         
         /// <summary>
         ///  Gets the percentage of how much the track match covered the original query
         /// </summary>
         public double QueryRelativeCoverage => Coverage.QueryCoverageWithPermittedGapsLength / QueryLength;
-
-        /// <summary>
-        ///  Gets the estimated percentage of how much the resulting track got covered by the query
-        /// </summary>
-        public double DiscreteCoverage => DiscreteCoverageLength / Track.Length;
 
         /// <summary>
         ///  Gets the value [0, 1) of how confident is the framework that query match corresponds to result track
@@ -156,5 +117,15 @@ namespace SoundFingerprinting.Query
         ///  Gets information about gaps in the result entry coverage
         /// </summary>
         public bool NoGaps => !Coverage.TrackGaps.Any() && !Coverage.QueryGaps.Any();
+
+        /// <summary>
+        ///  Convert ResultEntry to an instance of <see cref="QueryMatch"/>.
+        /// </summary>
+        /// <returns>Instance of <see cref="QueryMatch"/>.</returns>
+        public QueryMatch ToQueryMatch()
+        {
+            var trackInfo = new TrackInfo(Track.Id, Track.Title, Track.Artist, Track.MetaFields, Track.MediaType);
+            return new QueryMatch(Guid.NewGuid().ToString(), trackInfo, Coverage, MatchedAt);
+        }
     }
 }

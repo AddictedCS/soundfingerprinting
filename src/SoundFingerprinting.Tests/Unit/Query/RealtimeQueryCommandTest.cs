@@ -130,12 +130,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var realtimeConfig = new RealtimeQueryConfiguration(thresholdVotes, new QueryMatchLengthFilter(10), 
                 entry =>
                 {
-                    Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.CoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
+                    Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
                     Interlocked.Increment(ref found);
                 },
                 entry =>
                 {
-                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.CoverageWithPermittedGapsLength:0.000}, Query Length {entry.CoverageWithPermittedGapsLength:0.000}");
+                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
                     Interlocked.Increment(ref didNotPassThreshold);
                 },
                 fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count),

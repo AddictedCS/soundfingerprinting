@@ -10,15 +10,13 @@
     public class QueryMath : IQueryMath
     {
         private readonly IQueryResultCoverageCalculator queryResultCoverageCalculator;
-        private readonly IConfidenceCalculator confidenceCalculator;
 
-        internal QueryMath(IQueryResultCoverageCalculator queryResultCoverageCalculator, IConfidenceCalculator confidenceCalculator)
+        internal QueryMath(IQueryResultCoverageCalculator queryResultCoverageCalculator)
         {
             this.queryResultCoverageCalculator = queryResultCoverageCalculator;
-            this.confidenceCalculator = confidenceCalculator;
         }
 
-        public static QueryMath Instance { get; } = new QueryMath(new QueryResultCoverageCalculator(), new ConfidenceCalculator());
+        public static QueryMath Instance { get; } = new QueryMath(new QueryResultCoverageCalculator());
 
         public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration)
         {
@@ -51,13 +49,10 @@
         private IEnumerable<ResultEntry> BuildResultEntries(TrackData track, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
-            return coverages.Select(coverage =>
-               {
-                    double confidence = confidenceCalculator.CalculateConfidence(coverage);
-                    return new ResultEntry(track, confidence, groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
-                        groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
-                        coverage);
-               });
+            return coverages.Select(coverage => new ResultEntry(track,
+                groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
+                groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
+                coverage));
         }
     }
 }

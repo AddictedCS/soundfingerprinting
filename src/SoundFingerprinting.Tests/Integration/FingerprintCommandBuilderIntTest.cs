@@ -66,7 +66,7 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual("id", bestMatch.Track.Id);
-            Assert.IsTrue(bestMatch.CoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
+            Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
         }
@@ -173,7 +173,7 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual("1234", bestMatch.Track.Id);
-            Assert.IsTrue(bestMatch.CoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
+            Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.5, $"Confidence:{bestMatch.Confidence}");
         }
@@ -230,8 +230,8 @@
             var bestMatch = queryResult.BestMatch;
             Assert.AreEqual("4321", bestMatch.Track.Id);
             Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
-            Assert.AreEqual(audioSamples.Duration, bestMatch.CoverageWithPermittedGapsLength, 1.48d);
-            Assert.AreEqual(1d, bestMatch.RelativeCoverage, 0.005d);
+            Assert.AreEqual(audioSamples.Duration, bestMatch.TrackCoverageWithPermittedGapsLength, 1.48d);
+            Assert.AreEqual(1d, bestMatch.TrackRelativeCoverage, 0.005d);
             Assert.AreEqual(1, bestMatch.Confidence, 0.01, $"Confidence:{bestMatch.Confidence}");
         }
 

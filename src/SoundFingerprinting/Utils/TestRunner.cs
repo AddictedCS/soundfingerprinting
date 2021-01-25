@@ -289,8 +289,8 @@
                 {
                     actualTrack, ToTrackString(recognizedTrack.Artist, recognizedTrack.Title), isSuccessful,
                     bestMatch.Score, bestMatch.Confidence,
-                    bestMatch.RelativeCoverage,
-                    bestMatch.CoverageWithPermittedGapsLength, bestMatch.TrackStartsAt
+                    bestMatch.TrackRelativeCoverage,
+                    bestMatch.TrackCoverageWithPermittedGapsLength, bestMatch.TrackStartsAt
                 };
         }
 

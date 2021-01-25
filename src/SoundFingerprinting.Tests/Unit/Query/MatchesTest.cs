@@ -131,8 +131,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var coverages = matches.SplitTrackMatchedRegions(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap).ToList();
 
             Assert.AreEqual(2, coverages.Count);
-            Assert.AreEqual(10 + fingerprintLengthInSeconds, coverages.First().CoverageWithPermittedGapsLength);
-            Assert.AreEqual(20 + fingerprintLengthInSeconds, coverages.Last().CoverageWithPermittedGapsLength);
+            Assert.AreEqual(10 + fingerprintLengthInSeconds, coverages.First().TrackCoverageWithPermittedGapsLength);
+            Assert.AreEqual(20 + fingerprintLengthInSeconds, coverages.Last().TrackCoverageWithPermittedGapsLength);
         }
 
         private static Matches GetMatches(float startQueryAt, float startTrackAt, double length, float stride, int startIndex = 0)

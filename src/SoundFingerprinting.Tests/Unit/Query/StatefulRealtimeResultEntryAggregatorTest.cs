@@ -26,8 +26,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldWaitAsGapPermits()
         {
-            var aggregator = new StatefulRealtimeResultEntryAggregator(new QueryMatchLengthFilter(10d), 2d);
-            var first = aggregator.Consume(new[] { new ResultEntry(GetTrack(), .95d, 120, DateTime.Now, 5d, 0d, 2d, 2d, 10d, -10d) }, 5d);
+            double permittedGap = 2d;
+            var aggregator = new StatefulRealtimeResultEntryAggregator(new QueryMatchLengthFilter(10d), permittedGap);
+            var first = aggregator.Consume(new[] { new ResultEntry(GetTrack(), 100, DateTime.Now,  TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {1, 2, 3}).EstimateCoverage(5, 3, 1, permittedGap)) }, 5d);
 
             Assert.IsFalse(first.SuccessEntries.Any());
             Assert.IsFalse(first.DidNotPassThresholdEntries.Any());
@@ -49,7 +50,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldMergeResults()
         {
-            var aggregator = new StatefulRealtimeResultEntryAggregator(new QueryMatchLengthFilter(5d), 1.48d);
+            double permittedGap = 1d;
+            var aggregator = new StatefulRealtimeResultEntryAggregator(new QueryMatchLengthFilter(5d), permittedGap);
 
             var success = new List<ResultEntry>();
             var filtered = new List<ResultEntry>();
@@ -60,19 +62,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             for (int i = 0; i < 10; ++i)
             {
-                var entry = new ResultEntry(GetTrack(), 0.01233, 0, DateTime.Now, 1.48d, 0d, 1.48d, 1.48d, 10d + i * 1.48d, -10d - i * 1.48d);
-                var aggregated = aggregator.Consume(new[] { entry }, 1.48d);
+                var entry = new ResultEntry(GetTrack(), 0, DateTime.Now, TestUtilities.GetMatchedWith(new[] { i }, new[] { i }).EstimateCoverage(1, 10, 1, permittedGap));
+                var aggregated = aggregator.Consume(new[] { entry }, 1);
                 AddAll(aggregated.SuccessEntries, success);
                 AddAll(aggregated.DidNotPassThresholdEntries, filtered);
             }
             
             SimulateEmptyResults(aggregator, success, filtered);
             
-            Assert.AreEqual(2, success.Count);
+            Assert.AreEqual(1, success.Count);
             Assert.AreEqual(1, filtered.Count);
-            Assert.IsTrue(success[0].CoverageWithPermittedGapsLength > 5d);
-            Assert.IsTrue(success[1].CoverageWithPermittedGapsLength > 5d);
-            Assert.IsTrue(filtered[0].CoverageWithPermittedGapsLength < 5d);
+            Assert.IsTrue(success[0].TrackCoverageWithPermittedGapsLength > 5d);
+            Assert.IsTrue(filtered[0].TrackCoverageWithPermittedGapsLength < 5d);
         }
 
         private static void SimulateEmptyResults(StatefulRealtimeResultEntryAggregator aggregator, ICollection<ResultEntry> success, ICollection<ResultEntry> filtered)
