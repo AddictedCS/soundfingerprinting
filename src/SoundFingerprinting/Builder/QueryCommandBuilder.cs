@@ -7,6 +7,8 @@
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
 
+        public static IQueryCommandBuilder Instance { get; } = new QueryCommandBuilder();
+        
         public QueryCommandBuilder(): this(FingerprintCommandBuilder.Instance, QueryFingerprintService.Instance)
         {
         }
@@ -26,7 +28,5 @@
         {
             return new RealtimeQueryCommand(fingerprintCommandBuilder, queryFingerprintService);
         }
-
-        public static IQueryCommandBuilder Instance { get; } = new QueryCommandBuilder();
     }
 }

@@ -79,7 +79,7 @@ namespace SoundFingerprinting.Command
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
 
             double queryLength = 0d;
-            while (!realtimeCollection.IsFinished && !cancellationToken.IsCancellationRequested)
+            while (!realtimeCollection.IsFinished)
             {
                 AudioSamples audioSamples;
                 try
@@ -91,7 +91,7 @@ namespace SoundFingerprinting.Command
                 }
                 catch (OperationCanceledException)
                 {
-                    return queryLength;
+                    break;
                 }
 
                 if (audioSamples.SampleRate != SupportedFrequency)
@@ -118,6 +118,9 @@ namespace SoundFingerprinting.Command
                 }
             }
 
+            var purged = resultsAggregator.Consume(Enumerable.Empty<ResultEntry>(), double.MaxValue);
+            InvokeSuccessHandler(purged);
+            InvokeDidNotPassFilterHandler(purged); 
             return queryLength;
         }
 

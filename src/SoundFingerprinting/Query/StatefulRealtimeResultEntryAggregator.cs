@@ -1,10 +1,11 @@
 namespace SoundFingerprinting.Query
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.Command;
 
-    public class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
+    public sealed class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
     {
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
         private readonly double permittedGap;
@@ -65,8 +66,7 @@ namespace SoundFingerprinting.Query
             double queryLength, 
             double permittedGap)
         {
-            var newArrivals = newResultEntries.Select(candidate => new PendingResultEntry(candidate))
-                                              .ToList();
+            var newArrivals = newResultEntries.Select(candidate => new PendingResultEntry(candidate)).ToList();
 
             var cartesian = from newArrival in newArrivals
                 from pending in oldResultEntries
