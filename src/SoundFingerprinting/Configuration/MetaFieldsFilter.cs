@@ -24,7 +24,7 @@ namespace SoundFingerprinting.Configuration
             return true;
         }
         
-        private static bool ContainsMetaFields(IDictionary<string, string> metadata, IDictionary<string, string> filter)
+        private static bool ContainsMetaFields(IEnumerable<KeyValuePair<string, string>> metadata, IEnumerable<KeyValuePair<string, string>> filter)
         {
             return metadata
                 .Join(filter, _ => _.Key, _ => _.Key, (a, b) => string.Equals(a.Value, b.Value, StringComparison.InvariantCulture))
