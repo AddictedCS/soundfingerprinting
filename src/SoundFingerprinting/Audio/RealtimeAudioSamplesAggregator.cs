@@ -5,8 +5,8 @@ namespace SoundFingerprinting.Audio
 
     public class RealtimeAudioSamplesAggregator : IRealtimeAudioSamplesAggregator
     {
-        private readonly float[] buffer;
-        private int left;
+        private readonly float[] tailBuffer;
+        private int tailLength;
         private DateTime relativeTo;
         private readonly object lockObject = new object();
         private long inc = -1;
@@ -16,7 +16,7 @@ namespace SoundFingerprinting.Audio
             Stride = stride;
             MinSize = minSize;
             
-            buffer = new float[minSize];
+            tailBuffer = new float[minSize];
         }
         
         public AudioSamples Aggregate(AudioSamples chunk)
@@ -43,18 +43,18 @@ namespace SoundFingerprinting.Audio
 
         private AudioSamples Copy(AudioSamples chunk)
         {
-            float[] withCached = new float[left + chunk.Samples.Length];
-            Buffer.BlockCopy(buffer, 0, withCached, 0, sizeof(float) * left);
-            Buffer.BlockCopy(chunk.Samples, 0, withCached, sizeof(float) * left, sizeof(float) * chunk.Samples.Length);
+            float[] withCached = new float[tailLength + chunk.Samples.Length];
+            Buffer.BlockCopy(tailBuffer, 0, withCached, 0, sizeof(float) * tailLength);
+            Buffer.BlockCopy(chunk.Samples, 0, withCached, sizeof(float) * tailLength, sizeof(float) * chunk.Samples.Length);
             return new AudioSamples(withCached, chunk.Origin, chunk.SampleRate, relativeTo);
         }
 
         private void Cache(AudioSamples chunk)
         {
             int nextStride = Stride.NextStride;
-            left = chunk.Samples.Length - nextStride;
-            relativeTo = chunk.RelativeTo.AddSeconds((double)(nextStride) / chunk.SampleRate);
-            Buffer.BlockCopy(chunk.Samples, sizeof(float) * (nextStride), buffer, 0, sizeof(float) * left);
+            tailLength = tailBuffer.Length - nextStride;
+            relativeTo = chunk.RelativeTo.AddSeconds((double)(chunk.Samples.Length - tailLength) / chunk.SampleRate);
+            Buffer.BlockCopy(chunk.Samples,  sizeof(float) * (chunk.Samples.Length - tailLength), tailBuffer, 0, sizeof(float) * tailLength);
         }
 
         public IStride Stride { get; }

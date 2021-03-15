@@ -50,6 +50,16 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
         }
         
         [Test]
+        public void ShouldApplyPositiveFilter2()
+        {
+            var metaFields = new Dictionary<string, string> {{"COUNTRY", "US"}};
+            var yesFilters = new Dictionary<string, string> {{"COUNTRY", "NZ"}};
+            var noFilters = new Dictionary<string, string>();
+
+            Assert.IsFalse(metadataFilter.PassesFilters(metaFields, yesFilters, noFilters));
+        }
+        
+        [Test]
         public void ShouldApplyNegativeFilter()
         {
             var metaFields = new Dictionary<string, string> {{"COUNTRY", "US"}};

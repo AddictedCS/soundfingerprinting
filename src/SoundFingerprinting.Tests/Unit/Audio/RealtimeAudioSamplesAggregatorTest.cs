@@ -46,22 +46,22 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             // the length of 1 fingerprint is 10240 as this is the minimal length that will allow generating full 128 * 32 log-image
             var stride = new IncrementalStaticStride(256);
             
-            var minSize = 10240;
+            const int minSize = 10240;
             var realtimeAggregator = new RealtimeAudioSamplesAggregator(stride, minSize);
 
             float[] prev = new float[minSize];
             for (int i = 0; i < 100; ++i)
             {
                 float[] next = TestUtilities.GenerateRandomFloatArray(minSize);
-                var toProcess = realtimeAggregator.Aggregate(new AudioSamples(next, "cnn", 5512));
+                var audioSamples = realtimeAggregator.Aggregate(new AudioSamples(next, "cnn", 5512));
                 if (i == 0)
                 {
-                    Assert.AreSame(toProcess.Samples, next);
+                    Assert.AreSame(audioSamples.Samples, next);
                     prev = next;
                     continue;
                 }
                 
-                VerifyEndingsAreAttached(prev, next, toProcess, minSize, stride.NextStride);
+                VerifyEndingsAreAttached(prev, next, audioSamples, minSize, stride.NextStride);
                 prev = next;
             }
         }

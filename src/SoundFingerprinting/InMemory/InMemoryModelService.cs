@@ -83,6 +83,7 @@
         
         public IEnumerable<ModelServiceInfo> Info => new[] { new ModelServiceInfo(Id, TrackDao.Count, SubFingerprintDao.SubFingerprintsCount, SubFingerprintDao.HashCountsPerTable.ToArray()) };
 
+        /// <inheritdoc cref="IModelService.Insert"/>
         public void Insert(TrackInfo track, Hashes hashes)
         {
             var fingerprints = hashes.ToList();
@@ -96,6 +97,7 @@
             SubFingerprintDao.InsertSubFingerprints(subFingerprints);
         }
 
+        /// <inheritdoc cref="IModelService.UpdateTrack"/>
         public void UpdateTrack(TrackInfo trackInfo)
         {
             var track = TrackDao.ReadTrackById(trackInfo.Id);
@@ -115,12 +117,14 @@
             Insert(trackInfo, hashes);
         }
 
+        /// <inheritdoc cref="IModelService.Query"/>
         public IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config)
         {
             var queryHashes = hashes.Select(_ => _.HashBins).ToList();
             return queryHashes.Any() ? SubFingerprintDao.ReadSubFingerprints(queryHashes, config) : Enumerable.Empty<SubFingerprintData>();
         }
 
+        /// <inheritdoc cref="IModelService.ReadHashesByTrackId"/>
         public AVHashes ReadHashesByTrackId(string trackId)
         {
             var track = TrackDao.ReadTrackById(trackId);
@@ -135,16 +139,19 @@
             return new AVHashes(new Hashes(fingerprints, track.Length, MediaType.Audio), Hashes.GetEmpty(MediaType.Video));
         }
 
+        /// <inheritdoc cref="IModelService.GetTrackIds"/>
         public IEnumerable<string> GetTrackIds()
         {
             return TrackDao.GetTrackIds();
         }
 
+        /// <inheritdoc cref="IModelService.ReadTracksByReferences"/>
         public IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
         {
             return TrackDao.ReadTracksByReferences(references);
         }
 
+        /// <inheritdoc cref="IModelService.ReadTrackById"/>
         public TrackInfo? ReadTrackById(string trackId)
         {
             var trackData = TrackDao.ReadTrackById(trackId);
@@ -158,16 +165,18 @@
             return new TrackInfo(trackData.Id, trackData.Title, trackData.Artist, metaFields, trackData.MediaType);
         }
 
-        public int DeleteTrack(string trackId)
+        /// <inheritdoc cref="IModelService.DeleteTrack"/>
+        public void DeleteTrack(string trackId)
         {
             var track = TrackDao.ReadTrackById(trackId);
             if (track == null)
             {
-                return 0;
+                return;
             }
 
             var trackReference = track.TrackReference;
-            return SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference) + TrackDao.DeleteTrack(trackReference);
+            SubFingerprintDao.DeleteSubFingerprintsByTrackReference(trackReference);
+            TrackDao.DeleteTrack(trackReference);
         }
 
         public IEnumerable<TrackData> ReadTrackByTitle(string title)
@@ -200,7 +209,7 @@
             return SpectralImageDao.GetSpectralImagesByTrackReference(track.TrackReference);
         }
         
-        private static IDictionary<string, string> CopyMetaFields(IDictionary<string, string> metaFields)
+        private static IDictionary<string, string> CopyMetaFields(IDictionary<string, string>? metaFields)
         {
             return metaFields == null ? new Dictionary<string, string>() : metaFields.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
@@ -213,13 +222,12 @@
         private List<SpectralImageData> AssignModelReferences(IEnumerable<float[]> spectralImages, TrackData track)
         {
             int orderNumber = 0;
-            var images = spectralImages.Select(spectralImage => new SpectralImageData(
+            return spectralImages.Select(spectralImage => new SpectralImageData(
                     spectralImage,
                     orderNumber++,
                     spectralReferenceProvider.Next(),
                     track.TrackReference))
                 .ToList();
-            return images;
         }
     }
 }
