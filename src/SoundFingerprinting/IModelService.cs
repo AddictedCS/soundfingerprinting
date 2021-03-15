@@ -6,6 +6,9 @@ namespace SoundFingerprinting
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
+    /// <summary>
+    ///  Model service interface providing access to various SoundFingerprinting storages.
+    /// </summary>
     public interface IModelService
     {
         /// <summary>
@@ -24,8 +27,14 @@ namespace SoundFingerprinting
         ///  Updates track info <see cref="TrackInfo.Id"/> is used as the key to the object to update.
         ///  Fields that will be updated: <see cref="TrackInfo.Title"/>, <see cref="TrackInfo.Artist"/>, <see cref="TrackInfo.MetaFields"/>.
         /// </summary>
-        /// <param name="trackInfo"></param>
+        /// <param name="trackInfo">Track to update.</param>
         void UpdateTrack(TrackInfo trackInfo);
+        
+        /// <summary>
+        ///  Removes a track and associated hashes from the storage by track ID
+        /// </summary>
+        /// <param name="trackId">Track ID to remove.</param>
+        void DeleteTrack(string trackId);
 
         /// <summary>
         ///  Queries the underlying storage with hashes and query configuration
@@ -48,13 +57,6 @@ namespace SoundFingerprinting
         /// <param name="references">List of model references to read</param>
         /// <returns>List of tracks</returns>
         IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
-        
-        /// <summary>
-        ///  Removes a track and associated hashes from the storage by track ID
-        /// </summary>
-        /// <param name="trackId"></param>
-        /// <returns>Number of modified fields.</returns>
-        int DeleteTrack(string trackId);
 
         /// <summary>
         ///  Read track by ID
