@@ -39,7 +39,7 @@ namespace SoundFingerprinting.Command
 
         public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
         {
-            realtimeCollection = new RealtimeCollection(audioSamples);
+            realtimeCollection = new BlockingRealtimeCollection(audioSamples);
             return this;
         }
 
@@ -79,21 +79,9 @@ namespace SoundFingerprinting.Command
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
 
             double queryLength = 0d;
-            while (!realtimeCollection.IsFinished)
+            AudioSamples? audioSamples;
+            while ((audioSamples = await realtimeCollection.TryReadAsync(cancellationToken)) != null)
             {
-                AudioSamples audioSamples;
-                try
-                {
-                    if (!realtimeCollection.TryTake(out audioSamples, configuration.MillisecondsDelay, cancellationToken))
-                    {
-                        continue;
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-
                 if (audioSamples.SampleRate != SupportedFrequency)
                 {
                     throw new ArgumentException($"{nameof(audioSamples)} should be provided down sampled to {SupportedFrequency}Hz");
