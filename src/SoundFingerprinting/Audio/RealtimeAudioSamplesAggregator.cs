@@ -8,7 +8,6 @@ namespace SoundFingerprinting.Audio
         private readonly float[] tailBuffer;
         private int tailLength;
         private DateTime relativeTo;
-        private readonly object lockObject = new object();
         private long inc = -1;
         
         public RealtimeAudioSamplesAggregator(IStride stride, int minSize)
@@ -18,7 +17,7 @@ namespace SoundFingerprinting.Audio
             
             tailBuffer = new float[minSize];
         }
-        
+
         public AudioSamples Aggregate(AudioSamples chunk)
         {
             if (chunk.Samples.Length < MinSize)
@@ -26,19 +25,16 @@ namespace SoundFingerprinting.Audio
                 throw new ArgumentException($"{nameof(chunk)} cannot be less than {MinSize}");
             }
 
-            lock (lockObject)
+            inc++;
+            if (inc == 0)
             {
-                inc++;
-                if (inc == 0)
-                {
-                    Cache(chunk);
-                    return chunk;
-                }
-
-                var cached = Copy(chunk);
                 Cache(chunk);
-                return cached;
+                return chunk;
             }
+
+            var cached = Copy(chunk);
+            Cache(chunk);
+            return cached;
         }
 
         private AudioSamples Copy(AudioSamples chunk)
@@ -46,7 +42,7 @@ namespace SoundFingerprinting.Audio
             float[] withCached = new float[tailLength + chunk.Samples.Length];
             Buffer.BlockCopy(tailBuffer, 0, withCached, 0, sizeof(float) * tailLength);
             Buffer.BlockCopy(chunk.Samples, 0, withCached, sizeof(float) * tailLength, sizeof(float) * chunk.Samples.Length);
-            return new AudioSamples(withCached, chunk.Origin, chunk.SampleRate, relativeTo);
+            return new AudioSamples(withCached, chunk.Origin, chunk.SampleRate, relativeTo, -(double)tailLength / chunk.SampleRate);
         }
 
         private void Cache(AudioSamples chunk)
