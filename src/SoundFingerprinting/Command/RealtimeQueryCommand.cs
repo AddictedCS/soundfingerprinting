@@ -37,12 +37,6 @@ namespace SoundFingerprinting.Command
                 e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
         }
 
-        public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
-        {
-            realtimeCollection = new BlockingRealtimeCollection(audioSamples);
-            return this;
-        }
-
         public IWithRealtimeQueryConfiguration From(IRealtimeCollection collection)
         {
             realtimeCollection = collection;
