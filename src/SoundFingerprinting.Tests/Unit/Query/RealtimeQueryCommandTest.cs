@@ -391,14 +391,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .ToList();
         }
 
-        private static BlockingCollection<AudioSamples> SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength, Func<double, TimeSpan> waitTime)
+        private static IRealtimeCollection SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength, Func<double, TimeSpan> waitTime)
         {
             var collection = new BlockingCollection<AudioSamples>();
             Task.Factory.StartNew(() =>
             {
                 if (jitterLength > 0)
                 {
-                    Jitter(collection, jitterLength, waitTime);
+                    Jitter(collection, jitterLength);
                 }
 
                 foreach (var audioSample in audioSamples)
@@ -408,16 +408,16 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                 if (jitterLength > 0)
                 {
-                    Jitter(collection, jitterLength, waitTime);
+                    Jitter(collection, jitterLength);
                 }
 
                 collection.CompleteAdding();
             });
 
-            return collection;
+            return new BlockingRealtimeCollection(collection);
         }
 
-        private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength, Func<double, TimeSpan> waitTime)
+        private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength)
         {
             double sum = 0d;
             do
