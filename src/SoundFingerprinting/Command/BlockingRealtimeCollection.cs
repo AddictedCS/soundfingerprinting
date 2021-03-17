@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeCollection.TryReadAsync"/>
         public async Task<AudioSamples?> TryReadAsync(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested && !(collection.IsAddingCompleted && collection.Count == 0))
             {
                 try
                 {

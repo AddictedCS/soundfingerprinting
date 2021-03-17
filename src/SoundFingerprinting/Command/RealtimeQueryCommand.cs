@@ -76,7 +76,7 @@ namespace SoundFingerprinting.Command
         private async Task<double> QueryAndHash(CancellationToken cancellationToken, IQueryFingerprintService service)
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride, MinSamplesForOneFingerprint);
-            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
+            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.QueryConfiguration);
 
             double queryLength = 0d;
             AudioSamples? audioSamples;
@@ -100,13 +100,13 @@ namespace SoundFingerprinting.Command
 
                 foreach (var queryResult in queryResults)
                 {
-                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, prefixed.Duration);
+                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, hashes.DurationInSeconds, prefixed.Offset);
                     InvokeSuccessHandler(aggregatedResult);
                     InvokeDidNotPassFilterHandler(aggregatedResult);
                 }
             }
 
-            var purged = resultsAggregator.Consume(Enumerable.Empty<ResultEntry>(), double.MaxValue);
+            var purged = resultsAggregator.Consume(Enumerable.Empty<ResultEntry>(), 0, 0);
             InvokeSuccessHandler(purged);
             InvokeDidNotPassFilterHandler(purged); 
             return queryLength;
