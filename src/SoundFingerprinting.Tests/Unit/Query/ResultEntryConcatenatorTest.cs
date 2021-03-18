@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 PermittedGap = 2.9
             };
 
-            concatenator = new ResultEntryConcatenator(config);
+            concatenator = new ResultEntryConcatenator();
         }
 
         [Test]

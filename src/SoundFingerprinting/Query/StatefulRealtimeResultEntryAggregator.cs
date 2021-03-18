@@ -18,7 +18,7 @@ namespace SoundFingerprinting.Query
         {
             this.realtimeResultEntryFilter = realtimeResultEntryFilter;
             completionStrategy = new ResultEntryCompletionStrategy(queryConfiguration.PermittedGap);
-            concatenator = new ResultEntryConcatenator(queryConfiguration);
+            concatenator = new ResultEntryConcatenator();
         }
         
         public RealtimeQueryResult Consume(IEnumerable<ResultEntry>? candidates, double queryLength, double queryOffset)
