@@ -319,6 +319,22 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
 
         [Test]
+        public void ShouldStitchMatchThatHappensOnTheEdge()
+        {
+            var first  = CreateEntry(queryOffset: 5, trackOffset:  0, matchLength: 5, trackLength: 10, queryLength: 10); 
+            var second  = CreateEntry(queryOffset: 0, trackOffset:  5, matchLength: 5, trackLength: 10, queryLength: 10); 
+            
+            var concatenated = concatenator.Concat(first, second);
+            
+            Assert.AreEqual(1, concatenated.TrackRelativeCoverage, 0.01);
+            Assert.AreEqual(0.5, concatenated.QueryRelativeCoverage, 0.01);
+            Assert.AreEqual(20, concatenated.QueryLength);
+            Assert.AreEqual(5, concatenated.QueryMatchStartsAt);
+            Assert.AreEqual(0, concatenated.TrackMatchStartsAt);
+            Assert.AreEqual(10, concatenated.TrackCoverageWithPermittedGapsLength, 0.01);
+        }
+        
+        [Test]
         public void ShouldStitchTwoFullMatches()
         {
             int matchLength = 10;
@@ -332,6 +348,32 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(20, concatenated.QueryLength);
             Assert.AreEqual(0, concatenated.QueryMatchStartsAt);
             Assert.AreEqual(0, concatenated.TrackMatchStartsAt);
+
+            var bestPath = concatenated.Coverage.BestPath.ToList();
+            for (int i = 1; i < bestPath.Count; ++i)
+            {
+                var current = bestPath[i];
+                var prev = bestPath[i - 1];
+                Assert.AreEqual(0.1, current.QueryMatchAt - prev.QueryMatchAt, 0.00001);
+                Assert.AreEqual(1, current.QuerySequenceNumber - prev.QuerySequenceNumber, 0.00001);
+            }
+        }
+
+        [Test]
+        public void ShouldStitchTwoFullMatchesWithAQueryAndTrackGap()
+        {
+            int matchLength = 10;
+            var first  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength, trackLength: 20, queryLength: 10);
+            var second = CreateEntry(queryOffset: 3, trackOffset: 13, 7, trackLength: 20, queryLength: 10);
+            
+            var concatenated = concatenator.Concat(first, second);
+            
+            Assert.AreEqual(20, concatenated.QueryLength);
+            Assert.AreEqual(0, concatenated.QueryMatchStartsAt);
+            Assert.AreEqual(0, concatenated.TrackMatchStartsAt); 
+            Assert.IsFalse(concatenated.NoGaps);
+            Assert.AreEqual(1, concatenated.Coverage.TrackGaps.Count());
+            AssertDiscontinuity(10, 13, concatenated.Coverage.TrackGaps.First());
         }
         
         /**
