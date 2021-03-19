@@ -8,7 +8,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
-    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
     [TestFixture]
@@ -32,12 +31,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             await InsertFingerprints(twoCopies, audioService, modelService);
 
-            var result = await GetQueryResult(match, audioService, modelService, 0.5);
+            var result = await GetQueryResult(match, audioService, modelService, permittedGap: 0.5);
 
             Assert.AreEqual(2, result.ResultEntries.Count());
             foreach (var entry in result.ResultEntries)
             {
-                Assert.AreEqual(0.95, entry.Confidence, 0.05);
+                Assert.AreEqual(1, entry.Confidence, 0.01);
                 Assert.AreEqual(10, entry.TrackCoverageWithPermittedGapsLength, 1);
             }
         }
