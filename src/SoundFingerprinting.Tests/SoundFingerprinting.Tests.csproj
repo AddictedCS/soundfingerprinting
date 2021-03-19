@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	<LangVersion>8</LangVersion>
+	<LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="Moq" Version="4.16.1" />

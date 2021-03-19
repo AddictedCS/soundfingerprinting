@@ -65,7 +65,8 @@
             double sanitizedPermittedGap = permittedGap > 0 ? permittedGap : PermittedGapZero;
             return entries
                 .OrderBy(entry => entry.QueryMatchAt)
-                .Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt)).FindGaps(sanitizedPermittedGap, fingerprintLength);
+                .Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt))
+                .FindGaps(sanitizedPermittedGap, fingerprintLength);
         }
 
         public static IEnumerable<Gap> FindTrackGaps(this IEnumerable<MatchedWith> entries, double trackLength, double permittedGap, double fingerprintLength)

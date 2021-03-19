@@ -249,7 +249,11 @@ namespace SoundFingerprinting.Data
                         var result = new List<Hashes>();
                         while (stack.Any())
                         {
-                            result.Add(stack.Pop());
+                            var aggregated = stack.Pop();
+                            if (!aggregated.IsEmpty)
+                            {
+                                result.Add(aggregated);
+                            }
                         }
 
                         return result;

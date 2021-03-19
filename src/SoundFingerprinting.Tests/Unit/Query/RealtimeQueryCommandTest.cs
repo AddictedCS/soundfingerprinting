@@ -7,7 +7,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Moq;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
@@ -117,7 +116,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
             const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
-            int count = (int)(totalTrackLength / minSizeChunk), testWaitTime = 5000, fingerprintsCount = 0, queryMatchLength = 10;
+            int count = (int)(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10;
             var data = GenerateRandomAudioChunks(count, seed: 1);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -303,7 +302,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             Assert.AreEqual(hashes.Count, list.Select(entry => entry.Count).Sum());
             var merged = Hashes.Aggregate(list, concatenated.Duration).ToList();
-            Assert.AreEqual(2, merged.Count, $"Hashes:{string.Join(",", merged.Select(_ => $"{_.RelativeTo},{_.DurationInSeconds:0.00}"))}");
+            Assert.AreEqual(1, merged.Count, $"Hashes:{string.Join(",", merged.Select(_ => $"{_.RelativeTo},{_.DurationInSeconds:0.00}"))}");
             Assert.AreEqual(hashes.Count, merged.Select(entry => entry.Count).Sum());
 
             var aggregated = Hashes.Aggregate(list, double.MaxValue).ToList();
@@ -392,14 +391,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .ToList();
         }
 
-        private static BlockingCollection<AudioSamples> SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength, Func<double, TimeSpan> waitTime)
+        private static IRealtimeCollection SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength, Func<double, TimeSpan> waitTime)
         {
             var collection = new BlockingCollection<AudioSamples>();
             Task.Factory.StartNew(() =>
             {
                 if (jitterLength > 0)
                 {
-                    Jitter(collection, jitterLength, waitTime);
+                    Jitter(collection, jitterLength);
                 }
 
                 foreach (var audioSample in audioSamples)
@@ -409,16 +408,16 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                 if (jitterLength > 0)
                 {
-                    Jitter(collection, jitterLength, waitTime);
+                    Jitter(collection, jitterLength);
                 }
 
                 collection.CompleteAdding();
             });
 
-            return collection;
+            return new BlockingRealtimeCollection(collection);
         }
 
-        private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength, Func<double, TimeSpan> waitTime)
+        private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength)
         {
             double sum = 0d;
             do

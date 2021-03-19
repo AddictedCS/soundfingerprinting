@@ -5,14 +5,16 @@
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-	<PackageVersion>7.7.0</PackageVersion>
+	<PackageVersion>7.8.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		DeleteTrack will now return void as nobody is really using number of modified rows to aknowledge the Delete operation.
+		Adjusting length of the Hashes object, will now correspond to the actual length of the created fingerprints
+		Adding ICompletionStrategy, IResultEntryConcatenator that will be reused in both core library and SoundFingerprinting.Emy.
+		Getting rid of PendintResultEntry, changing to a much clearer aggregation and purge logic.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>8</LangVersion>

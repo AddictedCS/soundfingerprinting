@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Command
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -37,12 +36,6 @@ namespace SoundFingerprinting.Command
                 e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
         }
 
-        public IWithRealtimeQueryConfiguration From(BlockingCollection<AudioSamples> audioSamples)
-        {
-            realtimeCollection = new RealtimeCollection(audioSamples);
-            return this;
-        }
-
         public IWithRealtimeQueryConfiguration From(IRealtimeCollection collection)
         {
             realtimeCollection = collection;
@@ -76,24 +69,12 @@ namespace SoundFingerprinting.Command
         private async Task<double> QueryAndHash(CancellationToken cancellationToken, IQueryFingerprintService service)
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride, MinSamplesForOneFingerprint);
-            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.PermittedGap);
+            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.QueryConfiguration);
 
             double queryLength = 0d;
-            while (!realtimeCollection.IsFinished)
+            AudioSamples? audioSamples;
+            while ((audioSamples = await realtimeCollection.TryReadAsync(cancellationToken)) != null)
             {
-                AudioSamples audioSamples;
-                try
-                {
-                    if (!realtimeCollection.TryTake(out audioSamples, configuration.MillisecondsDelay, cancellationToken))
-                    {
-                        continue;
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-
                 if (audioSamples.SampleRate != SupportedFrequency)
                 {
                     throw new ArgumentException($"{nameof(audioSamples)} should be provided down sampled to {SupportedFrequency}Hz");
@@ -112,13 +93,13 @@ namespace SoundFingerprinting.Command
 
                 foreach (var queryResult in queryResults)
                 {
-                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, prefixed.Duration);
+                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, hashes.DurationInSeconds, audioSamples.Duration - prefixed.Duration);
                     InvokeSuccessHandler(aggregatedResult);
                     InvokeDidNotPassFilterHandler(aggregatedResult);
                 }
             }
 
-            var purged = resultsAggregator.Consume(Enumerable.Empty<ResultEntry>(), double.MaxValue);
+            var purged = resultsAggregator.Consume(Enumerable.Empty<ResultEntry>(), 0, 0);
             InvokeSuccessHandler(purged);
             InvokeDidNotPassFilterHandler(purged); 
             return queryLength;

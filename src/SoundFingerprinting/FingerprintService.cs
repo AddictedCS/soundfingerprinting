@@ -49,7 +49,8 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin});
+            double length = GetLength(configuration, hashes);
+            return new Hashes(hashes, length, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin});
         }
 
         public Hashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
@@ -60,7 +61,8 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin});
+            double length = GetLength(configuration, hashes);
+            return new Hashes(hashes, length, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin});
         }
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
@@ -98,6 +100,11 @@ namespace SoundFingerprinting
                 cachedIndexes => { });
 
             return fingerprints.ToList();
+        }
+        
+        private static double GetLength(FingerprintConfiguration configuration, IReadOnlyCollection<HashedFingerprint> hashes)
+        {
+            return hashes.Any() ? hashes.Max(_ => _.StartsAt) + configuration.FingerprintLengthInSeconds : 0d;
         }
 
         private static IEnumerable<Frame> BlurFrames(IEnumerable<Frame> frames, GaussianBlurConfiguration blurConfiguration)

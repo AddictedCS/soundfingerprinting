@@ -7,17 +7,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/dotnet/sdk:5.0
+
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.100
     - name: Run Tests
       run: dotnet test src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -v n
     - name: Slack Failure Notification
       if: failure()
-      uses: rtCamp/action-slack-notify@v2.0.0
+      uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_COLOR: '#3278BD'
         SLACK_MESSAGE: 'SoundFingerprinting core library build failed on master branch'
@@ -39,7 +37,7 @@ jobs:
         draft: false
         prerelease: false
     - name: Slack Success Notification
-      uses: rtCamp/action-slack-notify@v2.0.0
+      uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_COLOR: '#3278BD'
         SLACK_MESSAGE: 'SoundFingerprinting v${{ steps.define_variables.outputs.sf_core_version }} core library GitHub release created'
@@ -48,12 +46,9 @@ jobs:
   publish-nuget:
     needs: build
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/dotnet/sdk:5.0
     steps:
     - uses: actions/checkout@master
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
     - name: Publish to NuGet
       uses: rohith/publish-nuget@v2
       with:
@@ -66,7 +61,7 @@ jobs:
         # PACKAGE_NAME: NuGet package name, required when it's different from project name. Defaults to project name
         INCLUDE_SYMBOLS: false # do not publish symbols
     - name: Slack Notification
-      uses: rtCamp/action-slack-notify@v2.0.0
+      uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_COLOR: '#3278BD'
         SLACK_MESSAGE: 'SoundFingerprinting has been published to NuGet'

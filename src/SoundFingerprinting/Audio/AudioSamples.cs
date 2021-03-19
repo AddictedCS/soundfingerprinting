@@ -13,6 +13,13 @@
             // no op
         }
 
+        /// <summary>
+        ///  Creates new instance of AudioSamples class.
+        /// </summary>
+        /// <param name="samples">Audio samples.</param>
+        /// <param name="origin">Source origin (i.e., filename, URI).</param>
+        /// <param name="sampleRate">Sample rate.</param>
+        /// <param name="relativeTo">Relative to a particular date time offset.</param> 
         public AudioSamples(float[] samples, string origin, int sampleRate, DateTime relativeTo)
         {
             Samples = samples;
@@ -20,7 +27,7 @@
             SampleRate = sampleRate;
             RelativeTo = relativeTo;
         }
-
+ 
         private AudioSamples()
         {
             // left for serializers
@@ -47,7 +54,7 @@
         public DateTime RelativeTo { get; }
 
         /// <summary>
-        ///  Gets the duration of the audio samples
+        ///  Gets the duration in seconds of the audio samples
         /// </summary>
         public double Duration => (double)Samples.Length / SampleRate;
     }
