@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task ShouldIdentifyConsecutiveRepeatingSequencesInTrack()
         {
-            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512);
+            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 123);
             float[] twoCopies = new float[match.Length * 2];
             match.CopyTo(twoCopies, 0);
             match.CopyTo(twoCopies, match.Length);
