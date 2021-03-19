@@ -189,17 +189,7 @@ namespace SoundFingerprinting.LCS
             double avg = list.Average(m => m.Score);
             return list.Where(match => match.Score < avg - sigma * stdDev);
         }
-        
-        /// <summary>
-        ///  Recalculate Coverage object from provided best path.
-        /// </summary>
-        /// <param name="bestPath">Newly defined best path.</param>
-        /// <returns>Instance of <see cref="Coverage"/>.</returns>
-        public Coverage WithBestPath(IEnumerable<MatchedWith> bestPath)
-        {
-            return new Coverage(bestPath, QueryLength, TrackLength, FingerprintLength, PermittedGap);
-        }
-        
+
         /// <summary>
         ///  Checks if this coverage contains other coverage.
         /// </summary>
