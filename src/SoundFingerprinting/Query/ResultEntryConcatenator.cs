@@ -68,7 +68,7 @@ namespace SoundFingerprinting.Query
         {
             var lastMatch = left.Coverage.BestPath.Last();
             float endsAt = lastMatch.QueryMatchAt + fingerprintLength;
-            return (float)Math.Max(left.Coverage.QueryLength - endsAt, 0);
+            return (float)left.Coverage.QueryLength - endsAt;
         }
     }
 }
