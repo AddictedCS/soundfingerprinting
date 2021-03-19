@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Command
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -94,7 +93,7 @@ namespace SoundFingerprinting.Command
 
                 foreach (var queryResult in queryResults)
                 {
-                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, hashes.DurationInSeconds, prefixed.Offset);
+                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, hashes.DurationInSeconds, audioSamples.Duration - prefixed.Duration);
                     InvokeSuccessHandler(aggregatedResult);
                     InvokeDidNotPassFilterHandler(aggregatedResult);
                 }

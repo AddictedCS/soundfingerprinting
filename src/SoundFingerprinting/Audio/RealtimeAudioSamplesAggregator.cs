@@ -42,7 +42,7 @@ namespace SoundFingerprinting.Audio
             float[] withCached = new float[tailLength + chunk.Samples.Length];
             Buffer.BlockCopy(tailBuffer, 0, withCached, 0, sizeof(float) * tailLength);
             Buffer.BlockCopy(chunk.Samples, 0, withCached, sizeof(float) * tailLength, sizeof(float) * chunk.Samples.Length);
-            return new AudioSamples(withCached, chunk.Origin, chunk.SampleRate, relativeTo, -(double)tailLength / chunk.SampleRate);
+            return new AudioSamples(withCached, chunk.Origin, chunk.SampleRate, relativeTo);
         }
 
         private void Cache(AudioSamples chunk)
