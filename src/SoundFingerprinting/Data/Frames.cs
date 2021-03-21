@@ -17,9 +17,10 @@ namespace SoundFingerprinting.Data
                 throw new ArgumentException(nameof(frameRate));
             }
 
-            RelativeTo = DateTime.Now.AddSeconds((double) this.frames.Count / frameRate);
             FrameRate = frameRate;
             Origin = origin;
+            Duration = this.frames.Max(_ => _.StartsAt) + 1d / frameRate;
+            RelativeTo = DateTime.Now.AddSeconds(-Duration);
         }
 
         public Frames(IEnumerable<Frame> frames, string origin, int frameRate, DateTime relativeTo)
@@ -30,14 +31,15 @@ namespace SoundFingerprinting.Data
                 throw new ArgumentException(nameof(frameRate));
             }
 
-            RelativeTo = relativeTo;
             FrameRate = frameRate;
             Origin = origin;
+            Duration = this.frames.Max(_ => _.StartsAt) + 1d / frameRate;
+            RelativeTo = relativeTo;
         }
 
         public DateTime RelativeTo { get; }
 
-        public double Duration => (double) frames.Count / FrameRate;
+        public double Duration { get; }
 
         public string Origin { get; }
 
