@@ -391,7 +391,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .ToList();
         }
 
-        private static IRealtimeCollection SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength, Func<double, TimeSpan> waitTime)
+        private static IAsyncEnumerable<AudioSamples> SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength, Func<double, TimeSpan> waitTime)
         {
             var collection = new BlockingCollection<AudioSamples>();
             Task.Factory.StartNew(() =>
@@ -414,7 +414,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 collection.CompleteAdding();
             });
 
-            return new BlockingRealtimeCollection(collection);
+            return new BlockingRealtimeCollection<AudioSamples>(collection);
         }
 
         private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength)

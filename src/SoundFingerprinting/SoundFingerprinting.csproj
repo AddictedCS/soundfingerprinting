@@ -5,20 +5,21 @@
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-	<PackageVersion>7.8.1</PackageVersion>
+	<PackageVersion>7.9.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Adjusting length of the Frames object, as well as RelativeTo information.
+		IRealtimeCollection can be generic.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>8</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="protobuf-net" Version="2.4.6" />
+	  <PackageReference Include="protobuf-net" Version="2.4.6" />
+	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" /> 
   </ItemGroup>
 </Project>
