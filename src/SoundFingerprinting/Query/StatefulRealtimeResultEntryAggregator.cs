@@ -53,7 +53,7 @@ namespace SoundFingerprinting.Query
                 if (!completionStrategy.CanContinueInNextQuery(pair.Value) && trackEntries.TryRemove(pair.Key, out var entry))
                 {
                     // can't continue in the next query
-                    if (realtimeResultEntryFilter.Pass(entry))
+                    if (realtimeResultEntryFilter.Pass(entry, false))
                     {
                         // passed entry filter
                         completed.Add(entry);
@@ -64,7 +64,7 @@ namespace SoundFingerprinting.Query
                         cantWaitAnymore.Add(entry);
                     }
                 }
-                else if (realtimeResultEntryFilter.Pass(pair.Value) && trackEntries.TryRemove(pair.Key, out _))
+                else if (realtimeResultEntryFilter.Pass(pair.Value, true) && trackEntries.TryRemove(pair.Key, out _))
                 {
                     // can continue, but realtime result entry filter takes precedence
                     completed.Add(pair.Value);

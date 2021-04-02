@@ -4,6 +4,6 @@ namespace SoundFingerprinting.Command
 
     public interface IRealtimeResultEntryFilter
     {
-        bool Pass(ResultEntry entry);
+        bool Pass(ResultEntry entry, bool canContinueInTheNextQuery);
     }
 }

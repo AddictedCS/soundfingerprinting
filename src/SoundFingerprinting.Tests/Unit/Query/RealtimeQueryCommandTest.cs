@@ -41,7 +41,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .From(SimulateRealtimeQueryData(data, jitterLength: 0, TimeSpan.FromMilliseconds))
                                               .WithRealtimeQueryConfig(config =>
                                               {
-                                                    config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
+                                                    config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
                                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithWrongClusters);
                                                     config.MetaFieldsFilter = new Dictionary<string, string> {{"country", "CANADA"}};
                                                     return config;
@@ -53,7 +53,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                 .From(SimulateRealtimeQueryData(data, jitterLength: 0, TimeSpan.FromMilliseconds))
                                 .WithRealtimeQueryConfig(config =>
                                 {
-                                    config.ResultEntryFilter = new QueryMatchLengthFilter(15d);
+                                    config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithClusters);
                                     config.MetaFieldsFilter = new Dictionary<string, string> {{"country", "USA"}};
                                     return config;
@@ -134,7 +134,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var successMatches = new List<ResultEntry>();
             var didNotGetToContiguousQueryMatchLengthMatch = new List<ResultEntry>();
             
-            var realtimeConfig = new RealtimeQueryConfiguration(thresholdVotes: 4, new QueryMatchLengthFilter(queryMatchLength), 
+            var realtimeConfig = new RealtimeQueryConfiguration(thresholdVotes: 4, new TrackMatchLengthEntryFilter(queryMatchLength), 
                 successCallback: entry =>
                 {
                     Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
@@ -247,7 +247,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                          offlineStorage.Save(timedHashes);
                      };
                      
-                     config.ResultEntryFilter = new QueryMatchLengthFilter(10);
+                     config.ResultEntryFilter = new TrackMatchLengthEntryFilter(10);
                      config.RestoredAfterErrorCallback = () => restoreCalled[0] = true;
                      config.PermittedGap = 1.48d;
                      config.ThresholdVotes = thresholdVotes;
@@ -345,7 +345,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 {
                     config.QueryFingerprintsCallback += queryHashes => fingerprints.Add(queryHashes);
                     config.SuccessCallback = entry => entries.Add(entry);
-                    config.ResultEntryFilter = new CoverageLengthEntryFilter(0.8d);
+                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.8d);
                     config.Stride = new IncrementalStaticStride(2048);
                     return config;
                 })
