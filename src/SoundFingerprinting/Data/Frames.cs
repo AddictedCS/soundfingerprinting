@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Data
             FrameRate = frameRate;
             Origin = origin;
             Duration = this.frames.Max(_ => _.StartsAt) + 1d / frameRate;
-            RelativeTo = DateTime.Now.AddSeconds(-Duration);
+            RelativeTo = DateTime.UtcNow.AddSeconds(-Duration);
         }
 
         public Frames(IEnumerable<Frame> frames, string origin, int frameRate, DateTime relativeTo)
