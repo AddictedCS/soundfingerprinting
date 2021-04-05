@@ -19,7 +19,7 @@ namespace SoundFingerprinting.Command
         private const int MinSamplesForOneFingerprint = 10240;
         private const int SupportedFrequency = 5512;
 
-        private IRealtimeCollection realtimeCollection;
+        private IAsyncEnumerable<AudioSamples> realtimeCollection;
         private readonly Queue<Hashes> downtimeHashes;
         private RealtimeQueryConfiguration configuration;
         private IModelService modelService;
@@ -36,7 +36,7 @@ namespace SoundFingerprinting.Command
                 e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
         }
 
-        public IWithRealtimeQueryConfiguration From(IRealtimeCollection collection)
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> collection)
         {
             realtimeCollection = collection;
             return this;
@@ -72,8 +72,7 @@ namespace SoundFingerprinting.Command
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, configuration.QueryConfiguration);
 
             double queryLength = 0d;
-            AudioSamples? audioSamples;
-            while ((audioSamples = await realtimeCollection.TryReadAsync(cancellationToken)) != null)
+            await foreach (var audioSamples in realtimeCollection.WithCancellation(cancellationToken))
             {
                 if (audioSamples.SampleRate != SupportedFrequency)
                 {

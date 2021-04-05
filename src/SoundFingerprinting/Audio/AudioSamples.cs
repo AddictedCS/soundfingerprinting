@@ -8,7 +8,7 @@
     [Serializable]
     public class AudioSamples
     {
-        public AudioSamples(float[] samples, string origin, int sampleRate) : this(samples, origin, sampleRate, DateTime.Now.AddSeconds(-(double)samples.Length / sampleRate))
+        public AudioSamples(float[] samples, string origin, int sampleRate) : this(samples, origin, sampleRate, DateTime.UtcNow.AddSeconds(-(double)samples.Length / sampleRate))
         {
             // no op
         }

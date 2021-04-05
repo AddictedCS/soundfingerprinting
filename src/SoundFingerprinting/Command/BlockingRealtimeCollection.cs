@@ -2,29 +2,53 @@ namespace SoundFingerprinting.Command
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using SoundFingerprinting.Audio;
 
     /// <summary>
     ///  Blocking realtime collection implementation of realtime audio samples gathering.
     /// </summary>
-    public class BlockingRealtimeCollection : IRealtimeCollection
+    public class BlockingRealtimeCollection<T> : IAsyncEnumerable<T> where T : class
     {
-        private readonly TimeSpan delay =  TimeSpan.FromMilliseconds(1_000);
-        private readonly BlockingCollection<AudioSamples> collection;
+        private readonly TimeSpan delay;
+        private readonly BlockingCollection<T> collection;
 
         /// <summary>
         ///  Creates new instance of BlockingRealtimeCollection class.
         /// </summary>
-        /// <param name="collection"></param>
-        public BlockingRealtimeCollection(BlockingCollection<AudioSamples> collection)
+        /// <param name="collection">Instance of blocking collection to iterate over.</param>
+        public BlockingRealtimeCollection(BlockingCollection<T> collection) : this(collection, TimeSpan.FromMilliseconds(1_000))
         {
-            this.collection = collection;
+            // no op
         }
 
-        /// <inheritdoc cref="IRealtimeCollection.TryReadAsync"/>
-        public async Task<AudioSamples?> TryReadAsync(CancellationToken cancellationToken)
+        /// <summary>
+        ///  Creates new instance of BlockingRealtimeCollection class.
+        /// </summary>
+        /// <param name="collection">Instance of blocking collection to iterate over.</param>
+        /// <param name="delay">Delay to use between consecutive polling of the inner collection.</param>
+        public BlockingRealtimeCollection(BlockingCollection<T> collection, TimeSpan delay)
+        {
+            this.collection = collection;
+            this.delay = delay;
+        }
+
+        /// <summary>
+        ///  Gets async enumerable allowing async iteration over the realtime collection.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel iteration.</param>
+        /// <returns>Instance of async enumerable.</returns>
+        public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken)
+        {
+            T? result;
+            while ((result = await TryReadAsync(cancellationToken)) != null)
+            {
+                yield return result;
+            }
+        }
+        
+        private async Task<T?> TryReadAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested && !(collection.IsAddingCompleted && collection.Count == 0))
             {

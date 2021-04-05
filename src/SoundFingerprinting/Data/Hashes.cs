@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Data
             this(fingerprints,
                 durationInSeconds,
                 mediaType,
-                DateTime.Now,
+                DateTime.UtcNow,
                 Enumerable.Empty<string>(),
                 string.Empty)
         {
