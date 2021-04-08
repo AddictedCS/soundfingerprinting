@@ -8,15 +8,35 @@ namespace SoundFingerprinting.Configuration
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
+    /// <summary>
+    ///  Default realtime query configuration used to configure query options for realtime queries.
+    /// </summary>
     public class DefaultRealtimeQueryConfiguration : RealtimeQueryConfiguration
     {
+        /// <summary>
+        ///  Creates new instance of DefaultRealtimeQueryConfiguration
+        /// </summary>
+        /// <param name="successCallback">Success callback invoked when result entry filter is passed.</param>
+        /// <param name="didNotPassFilterCallback">Callback for items that did not pass result entry filter.</param>
+        /// <param name="queryFingerprintsCallback">Query fingerprints callback, invoked with hashes that have been used for querying.</param>
+        /// <param name="onError">Error callback.</param>
+        /// <param name="restoredAfterErrorCallback">When connection to storage is restored, this callback is invoked.</param>
         public DefaultRealtimeQueryConfiguration(Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback, Action<Hashes> queryFingerprintsCallback,
             Action<Exception, Hashes> onError, Action restoredAfterErrorCallback) :
-            base(4, new TrackMatchLengthEntryFilter(5d), successCallback, didNotPassFilterCallback,
-                queryFingerprintsCallback, onError, restoredAfterErrorCallback, Enumerable.Empty<Hashes>(),
-                new IncrementalRandomStride(256, 512), 2d, 0d,
-                (int) (10240d / 5512) * 1000, new Dictionary<string, string>())
+            base(thresholdVotes: 4,
+                new TrackMatchLengthEntryFilter(5d),
+                successCallback,
+                didNotPassFilterCallback,
+                queryFingerprintsCallback,
+                onError,
+                restoredAfterErrorCallback,
+                Enumerable.Empty<Hashes>(),
+                new IncrementalRandomStride(256, 512),
+                permittedGap: 2d,
+                downtimeCapturePeriod: 0d,
+                new Dictionary<string, string>(),
+                new Dictionary<string, string>())
         {
         }
     }
