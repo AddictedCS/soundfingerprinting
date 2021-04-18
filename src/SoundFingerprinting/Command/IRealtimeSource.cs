@@ -6,5 +6,7 @@ namespace SoundFingerprinting.Command
     public interface IRealtimeSource
     {
         IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> realtimeCollection);
+
+        IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> realtimeCollection, string streamId);
     }
 }
