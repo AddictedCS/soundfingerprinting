@@ -43,7 +43,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               {
                                                     config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
                                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithWrongClusters);
-                                                    config.MetaFieldsFilter = new Dictionary<string, string> {{"country", "CANADA"}};
+                                                    config.YesMetaFieldsFilter = new Dictionary<string, string> {{"country", "CANADA"}};
                                                     return config;
                                               })
                                               .UsingServices(modelService)
@@ -55,7 +55,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                 {
                                     config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
                                     config.SuccessCallback = entry => Interlocked.Increment(ref foundWithClusters);
-                                    config.MetaFieldsFilter = new Dictionary<string, string> {{"country", "USA"}};
+                                    config.YesMetaFieldsFilter = new Dictionary<string, string> {{"country", "USA"}};
                                     return config;
                                 })
                                 .UsingServices(modelService)
@@ -152,8 +152,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 stride: new IncrementalRandomStride(256, 512), 
                 permittedGap: 2d,
                 downtimeCapturePeriod: 0d,
-                millisecondsDelay:(int)(10240d/5512) * 1000,
-                metaFieldFilters: new Dictionary<string, string>());
+                yesMetaFieldFilters: new Dictionary<string, string>(),
+                noMetaFieldsFilters: new Dictionary<string, string>());
 
             // simulating realtime query, starting in the middle of the track ~1 min 45 seconds (105 seconds).
             // and we query for 35 seconds

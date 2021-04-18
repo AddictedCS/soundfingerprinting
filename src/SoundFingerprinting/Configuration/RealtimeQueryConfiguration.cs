@@ -23,8 +23,8 @@ namespace SoundFingerprinting.Configuration
             IStride stride,
             double permittedGap,
             double downtimeCapturePeriod,
-            int millisecondsDelay,
-            IDictionary<string, string> metaFieldFilters)
+            IDictionary<string, string> yesMetaFieldFilters,
+            IDictionary<string, string> noMetaFieldsFilters)
         {
             QueryConfiguration = new DefaultQueryConfiguration
             {
@@ -36,7 +36,8 @@ namespace SoundFingerprinting.Configuration
                         Stride = stride
                     }
                 },
-                YesMetaFieldsFilters = metaFieldFilters,
+                YesMetaFieldsFilters = yesMetaFieldFilters,
+                NoMetaFieldsFilters = noMetaFieldsFilters,
                 PermittedGap = permittedGap
             };
                 
@@ -48,7 +49,6 @@ namespace SoundFingerprinting.Configuration
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
             DowntimeHashes = downtimeHashes;
             DowntimeCapturePeriod = downtimeCapturePeriod;
-            MillisecondsDelay = millisecondsDelay;
         }
 
         /// <summary>
@@ -120,18 +120,22 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///  Gets or sets list of meta fields to consider when querying the data source for potential candidates
+        ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates
         /// </summary>
-        public IDictionary<string, string> MetaFieldsFilter
+        public IDictionary<string, string> YesMetaFieldsFilter
         {
             get => QueryConfiguration.YesMetaFieldsFilters;
             set => QueryConfiguration.YesMetaFieldsFilters = value;
         }
 
         /// <summary>
-        ///  Gets or sets milliseconds delay between consecutive poll operations from the underlying blocking collection
+        ///  Gets or sets list of negative meta fields to consider when querying the data source for potential candidates
         /// </summary>
-        public int MillisecondsDelay { get; set; }
+        public IDictionary<string, string> NoMetaFieldsFilter
+        {
+            get => QueryConfiguration.NoMetaFieldsFilters;
+            set => QueryConfiguration.NoMetaFieldsFilters = value;
+        }
 
         internal QueryConfiguration QueryConfiguration { get; }
     }
