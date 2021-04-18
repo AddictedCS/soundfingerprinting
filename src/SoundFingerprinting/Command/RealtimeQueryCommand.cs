@@ -24,6 +24,7 @@ namespace SoundFingerprinting.Command
         private RealtimeQueryConfiguration configuration;
         private IModelService modelService;
         private IAudioService audioService;
+        private string streamId = string.Empty;
 
         public RealtimeQueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
@@ -36,9 +37,15 @@ namespace SoundFingerprinting.Command
                 e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
         }
 
-        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> collection)
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> realtimeCollection)
         {
-            realtimeCollection = collection;
+            return From(realtimeCollection, string.Empty);
+        }
+        
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> realtimeCollection, string streamId)
+        {
+            this.realtimeCollection = realtimeCollection;
+            this.streamId = streamId;
             return this;
         }
 
@@ -82,7 +89,7 @@ namespace SoundFingerprinting.Command
                 queryLength += audioSamples.Duration;
 
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
-                var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
+                var hashes = (await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed)).WithStreamId(streamId);
                 InvokeHashedFingerprintsCallback(hashes);
                 
                 if (!TryQuery(service, hashes, out var queryResults))
