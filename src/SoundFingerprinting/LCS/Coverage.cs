@@ -202,10 +202,16 @@ namespace SoundFingerprinting.LCS
                    (QueryMatchStartsAt <= other.QueryMatchStartsAt && QueryMatchStartsAt + QueryCoverageWithPermittedGapsLength >= other.QueryMatchStartsAt + other.QueryCoverageWithPermittedGapsLength);
         }
 
+        /// <summary>
+        ///  Gets fingerprint length used in calculating coverage information.
+        /// </summary>
         [ProtoMember(4)]
-        internal double FingerprintLength { get; }
+        public double FingerprintLength { get; }
 
+        /// <summary>
+        ///  Gets permitted gap used in calculating coverage information.
+        /// </summary>
         [ProtoMember(5)]
-        internal double PermittedGap { get; }
+        public double PermittedGap { get; }
     }
 }
