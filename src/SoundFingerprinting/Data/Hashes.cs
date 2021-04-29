@@ -188,8 +188,8 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Adds new additional property to hashes object.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
+        /// <param name="key">Property key.</param>
+        /// <param name="value">Property value.</param>
         /// <returns></returns>
         public Hashes WithProperty(string key, string value)
         {
@@ -218,11 +218,11 @@ namespace SoundFingerprinting.Data
         }
 
         /// <summary>
-        ///  Gets new
+        ///  Gets new range from the current hashes object.
         /// </summary>
-        /// <param name="startsAt"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
+        /// <param name="startsAt">Start at (as relative to <see cref="RelativeTo"/>.</param>
+        /// <param name="length">Length in seconds of the new <see cref="Hashes"/> object.</param>
+        /// <returns>New hashes object.</returns>
         public Hashes GetRange(DateTime startsAt, float length)
         {
             if (IsEmpty)
