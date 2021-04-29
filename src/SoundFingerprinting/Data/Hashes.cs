@@ -6,13 +6,16 @@ namespace SoundFingerprinting.Data
     using System.Linq;
     using ProtoBuf;
 
+    /// <summary>
+    ///  Hashes class representing audio/video fingerprints.
+    /// </summary>
     [Serializable]
     [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
-
+        
         [ProtoIgnore]
         private List<HashedFingerprint> Fingerprints => fingerprints ?? Enumerable.Empty<HashedFingerprint>().ToList();
 
@@ -61,21 +64,46 @@ namespace SoundFingerprinting.Data
             MediaType = mediaType;
         }
 
+        /// <summary>
+        ///  Hashes duration in seconds.
+        /// </summary>
+        /// <remarks>
+        ///  Is equal to actual length of hashes in seconds, not necessarily equal to the length of the original media file.
+        ///  Up to v7.8.0 is equal to length of the original media file.
+        /// </remarks>
         [ProtoMember(2)]
         public double DurationInSeconds { get; }
 
+        /// <summary>
+        ///  Gets the stream ID associated with this instance.
+        /// </summary>
         [ProtoMember(3)] 
         public string StreamId { get; }
 
+        /// <summary>
+        ///  Gets an actual point in time reference of when these hashes have been generated.
+        /// </summary>
         [ProtoMember(4)]
         public DateTime RelativeTo { get; }
 
+        /// <summary>
+        ///  Gets a list of origins of the hashes.
+        /// </summary>
         [ProtoMember(5)]
         public IEnumerable<string> Origins { get; }
 
+        /// <summary>
+        ///  Gets the media type associated with this hashes object.
+        /// </summary>
         [ProtoMember(6)]
         public MediaType MediaType { get; }
 
+        /// <summary>
+        ///  Gets an actual time reference when these hashes end.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        ///  If hashes are empty of <see cref="RelativeTo"/> property is not set.
+        /// </exception>
         public DateTime EndsAt
         {
             get
@@ -94,27 +122,53 @@ namespace SoundFingerprinting.Data
             }
         }
 
+        /// <summary>
+        ///  Gets a value indicating whether hashes object is empty.
+        /// </summary>
         public bool IsEmpty => !Fingerprints.Any();
         
+        /// <summary>
+        ///  Gets number of contained fingerprints.
+        /// </summary>
         public int Count => IsEmpty ? 0: Fingerprints.Count;
 
+        /// <summary>
+        ///  Creates a new empty hashes object.
+        /// </summary>
+        /// <param name="mediaType">Media type to associated empty hashes with.</param>
+        /// <returns>Empty instance of <see cref="Hashes"/> class.</returns>
         public static Hashes GetEmpty(MediaType mediaType) => new Hashes(new List<HashedFingerprint>(), 0, mediaType, DateTime.MinValue, new List<string>(), string.Empty);
         
+        /// <summary>
+        ///  Add a stream identifier to hashes object.
+        /// </summary>
+        /// <param name="streamId">Stream ID.</param>
+        /// <returns>New instance of <see cref="Hashes"/> class.</returns>
         public Hashes WithStreamId(string streamId)
         {
             return new Hashes(Fingerprints, DurationInSeconds, MediaType, RelativeTo, Origins, streamId);
         }
 
+        /// <summary>
+        ///  Overrides current <see cref="RelativeTo"/> with a new one.
+        /// </summary>
+        /// <param name="relativeTo">New relative to property.</param>
+        /// <returns>New instance of <see cref="Hashes"/> object with newly set <see cref="RelativeTo"/> property </returns>
         public Hashes WithNewRelativeTo(DateTime relativeTo)
         {
             return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId);
         }
 
+        /// <summary>
+        ///  Gets enumerator over actual fingerprints.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<HashedFingerprint> GetEnumerator()
         {
             return Fingerprints.GetEnumerator();
         }
 
+        /// <inheritdoc cref="GetEnumerator"/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
