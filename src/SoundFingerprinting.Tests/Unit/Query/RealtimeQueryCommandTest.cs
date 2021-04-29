@@ -95,11 +95,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .WithRealtimeQueryConfig(config =>
                                               {
                                                     config.Stride = new IncrementalStaticStride(staticStride);
-                                                    config.QueryFingerprintsCallback = fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count);
                                                     config.SuccessCallback = entry => Interlocked.Increment(ref found);
                                                     config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                                                     config.PermittedGap = permittedGap;
                                                     return config;
+                                              })
+                                              .Intercept(fingerprints =>
+                                              {
+                                                  Interlocked.Add(ref fingerprintsCount, fingerprints.Count);
+                                                  return fingerprints;
                                               })
                                               .UsingServices(modelService)
                                               .Query(cancellationTokenSource.Token);
@@ -145,7 +149,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
                     didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
                 },
-                queryFingerprintsCallback: fingerprints => Interlocked.Add(ref fingerprintsCount, fingerprints.Count),
                 errorCallback: (error, _) => throw error,
                 restoredAfterErrorCallback: () => throw new Exception("Downtime callback called"),
                 downtimeHashes: Enumerable.Empty<Hashes>(), 
@@ -175,6 +178,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                             .BuildRealtimeQueryCommand()
                                             .From(collection)
                                             .WithRealtimeQueryConfig(realtimeConfig)
+                                            .Intercept(fingerprints =>
+                                            {
+                                                Interlocked.Add(ref fingerprintsCount, fingerprints.Count);
+                                                return fingerprints;
+                                            })
                                             .UsingServices(modelService)
                                             .Query(CancellationToken.None);
 
@@ -235,11 +243,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                          resultEntries.Add(entry);
                      };
 
-                     config.QueryFingerprintsCallback = fingerprints =>
-                     {
-                         Console.WriteLine(hashes.RelativeTo);
-                         Interlocked.Increment(ref fingerprintsCount);
-                     };
                      config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
                      config.ErrorCallback = (exception, timedHashes) =>
                      {
@@ -254,6 +257,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      config.DowntimeHashes = offlineStorage;
                      config.DowntimeCapturePeriod = 3d;
                      return config;
+                 })
+                 .Intercept(fingerprints =>
+                 {
+                     Console.WriteLine(hashes.RelativeTo);
+                     Interlocked.Increment(ref fingerprintsCount);
+                     return fingerprints;
                  })
                  .UsingServices(modelService)
                  .Query(CancellationToken.None);
@@ -293,9 +302,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.QueryFingerprintsCallback += timedHashes => list.Add(timedHashes);
                     config.Stride = new IncrementalStaticStride(512);
                     return config;
+                })
+                .Intercept(timedHashes =>
+                {
+                    list.Add(timedHashes);
+                    return timedHashes;
                 })
                 .UsingServices(modelService)
                 .Query(CancellationToken.None);
@@ -343,11 +356,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.QueryFingerprintsCallback += queryHashes => fingerprints.Add(queryHashes);
                     config.SuccessCallback = entry => entries.Add(entry);
                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.8d);
                     config.Stride = new IncrementalStaticStride(2048);
                     return config;
+                })
+                .Intercept(queryHashes =>
+                {
+                    fingerprints.Add(queryHashes);
+                    return queryHashes;
                 })
                 .UsingServices(modelService)
                 .Query(cancellationTokenSource.Token);
