@@ -11,7 +11,7 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
-    public class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration, IUsingRealtimeQueryServices, IRealtimeQueryCommand
+    public class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration, IRealtimeQueryCommand
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
@@ -25,6 +25,7 @@ namespace SoundFingerprinting.Command
         private IModelService modelService;
         private IAudioService audioService;
         private string streamId = string.Empty;
+        private Func<Hashes, Hashes> hashesInterceptor = _ => _;
 
         public RealtimeQueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
@@ -34,7 +35,7 @@ namespace SoundFingerprinting.Command
             
             configuration = new DefaultRealtimeQueryConfiguration(
                 e => { /* do nothing */ }, 
-                e => { /* do nothing */ }, fingerprints => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
+                e => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
         }
 
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> realtimeCollection)
@@ -49,13 +50,13 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IUsingRealtimeQueryServices WithRealtimeQueryConfig(RealtimeQueryConfiguration realtimeQueryConfiguration)
+        public IInterceptRealtimeHashes WithRealtimeQueryConfig(RealtimeQueryConfiguration realtimeQueryConfiguration)
         {
             configuration = realtimeQueryConfiguration;
             return this;
         }
 
-        public IUsingRealtimeQueryServices WithRealtimeQueryConfig(Func<RealtimeQueryConfiguration, RealtimeQueryConfiguration> amendQueryFunctor)
+        public IInterceptRealtimeHashes WithRealtimeQueryConfig(Func<RealtimeQueryConfiguration, RealtimeQueryConfiguration> amendQueryFunctor)
         {
             configuration = amendQueryFunctor(configuration);
             return this;
@@ -72,7 +73,13 @@ namespace SoundFingerprinting.Command
             audioService = new SoundFingerprintingAudioService();
             return this;
         }
-        
+
+        public IUsingRealtimeQueryServices Intercept(Func<Hashes, Hashes> hashesInterceptor)
+        {
+            this.hashesInterceptor = hashesInterceptor;
+            return this;
+        }
+
         private async Task<double> QueryAndHash(CancellationToken cancellationToken, IQueryFingerprintService service)
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride, MinSamplesForOneFingerprint);
@@ -90,7 +97,7 @@ namespace SoundFingerprinting.Command
 
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                 var hashes = (await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed)).WithStreamId(streamId);
-                InvokeHashedFingerprintsCallback(hashes);
+                hashes = hashesInterceptor(hashes);
                 
                 if (!TryQuery(service, hashes, out var queryResults))
                 {
@@ -143,11 +150,6 @@ namespace SoundFingerprinting.Command
             configuration?.ErrorCallback(e, hashes);
         }
         
-        private void InvokeHashedFingerprintsCallback(Hashes hashes)
-        {
-            configuration?.QueryFingerprintsCallback(hashes);
-        }
-
         private async Task<Hashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
         {
             return await commandBuilder.BuildFingerprintCommand()

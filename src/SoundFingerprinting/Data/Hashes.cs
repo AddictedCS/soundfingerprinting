@@ -6,13 +6,21 @@ namespace SoundFingerprinting.Data
     using System.Linq;
     using ProtoBuf;
 
+    /// <summary>
+    ///  Hashes class representing audio/video fingerprints.
+    /// </summary>
     [Serializable]
     [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
+        private static IDictionary<string, string> emptyDictionary = new Dictionary<string, string>();
+
         [ProtoMember(1)]
         private readonly List<HashedFingerprint> fingerprints;
 
+        [ProtoMember(7)]
+        private readonly Dictionary<string, string>? additionalProperties;
+        
         [ProtoIgnore]
         private List<HashedFingerprint> Fingerprints => fingerprints ?? Enumerable.Empty<HashedFingerprint>().ToList();
 
@@ -22,7 +30,8 @@ namespace SoundFingerprinting.Data
                 mediaType,
                 DateTime.UtcNow,
                 Enumerable.Empty<string>(),
-                string.Empty)
+                string.Empty,
+                emptyDictionary)
         {
         }
 
@@ -32,7 +41,8 @@ namespace SoundFingerprinting.Data
                 mediaType,
                 relativeTo,
                 Enumerable.Empty<string>(),
-                string.Empty)
+                string.Empty,
+                emptyDictionary)
         {
         }
 
@@ -42,17 +52,31 @@ namespace SoundFingerprinting.Data
                 mediaType,
                 relativeTo,
                 origins,
-                string.Empty)
+                string.Empty,
+                emptyDictionary)
+        {
+        }
+        
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo, IEnumerable<string> origins, string streamId):
+            this(fingerprints,
+                durationInSeconds,
+                mediaType,
+                relativeTo,
+                origins,
+                streamId,
+                emptyDictionary)
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo, IEnumerable<string> origins, string streamId)
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo, IEnumerable<string> origins, string streamId, IDictionary<string, string> additionalProperties)
         {
             this.fingerprints = fingerprints.ToList();
             if (this.fingerprints.Any() && durationInSeconds <= 0)
             {
                 throw new ArgumentException(nameof(durationInSeconds));
             }
+
+            this.additionalProperties = new Dictionary<string, string>(additionalProperties);
             
             DurationInSeconds = durationInSeconds;
             RelativeTo = relativeTo;
@@ -61,21 +85,51 @@ namespace SoundFingerprinting.Data
             MediaType = mediaType;
         }
 
+        /// <summary>
+        ///  Hashes duration in seconds.
+        /// </summary>
+        /// <remarks>
+        ///  Is equal to actual length of hashes in seconds, not necessarily equal to the length of the original media file.
+        ///  Up to v7.8.0 is equal to length of the original media file.
+        /// </remarks>
         [ProtoMember(2)]
         public double DurationInSeconds { get; }
 
+        /// <summary>
+        ///  Gets the stream ID associated with this instance.
+        /// </summary>
         [ProtoMember(3)] 
         public string StreamId { get; }
 
+        /// <summary>
+        ///  Gets an actual point in time reference of when these hashes have been generated.
+        /// </summary>
         [ProtoMember(4)]
         public DateTime RelativeTo { get; }
 
+        /// <summary>
+        ///  Gets a list of origins of the hashes.
+        /// </summary>
         [ProtoMember(5)]
         public IEnumerable<string> Origins { get; }
 
+        /// <summary>
+        ///  Gets the media type associated with this hashes object.
+        /// </summary>
         [ProtoMember(6)]
         public MediaType MediaType { get; }
 
+        /// <summary>
+        ///  Gets additional properties associated with provided hashes object.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Properties => additionalProperties ?? new Dictionary<string, string>();
+
+        /// <summary>
+        ///  Gets an actual time reference when these hashes end.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        ///  If hashes are empty of <see cref="RelativeTo"/> property is not set.
+        /// </exception>
         public DateTime EndsAt
         {
             get
@@ -94,32 +148,81 @@ namespace SoundFingerprinting.Data
             }
         }
 
+        /// <summary>
+        ///  Gets a value indicating whether hashes object is empty.
+        /// </summary>
         public bool IsEmpty => !Fingerprints.Any();
         
+        /// <summary>
+        ///  Gets number of contained fingerprints.
+        /// </summary>
         public int Count => IsEmpty ? 0: Fingerprints.Count;
 
-        public static Hashes GetEmpty(MediaType mediaType) => new Hashes(new List<HashedFingerprint>(), 0, mediaType, DateTime.MinValue, new List<string>(), string.Empty);
+        /// <summary>
+        ///  Creates a new empty hashes object.
+        /// </summary>
+        /// <param name="mediaType">Media type to associated empty hashes with.</param>
+        /// <returns>Empty instance of <see cref="Hashes"/> class.</returns>
+        public static Hashes GetEmpty(MediaType mediaType) => new Hashes(new List<HashedFingerprint>(), 0, mediaType, DateTime.MinValue, new List<string>(), string.Empty, emptyDictionary);
         
+        /// <summary>
+        ///  Add a stream identifier to hashes object.
+        /// </summary>
+        /// <param name="streamId">Stream ID.</param>
+        /// <returns>New instance of <see cref="Hashes"/> class.</returns>
         public Hashes WithStreamId(string streamId)
         {
-            return new Hashes(Fingerprints, DurationInSeconds, MediaType, RelativeTo, Origins, streamId);
+            return new Hashes(Fingerprints, DurationInSeconds, MediaType, RelativeTo, Origins, streamId, additionalProperties ?? emptyDictionary);
         }
 
+        /// <summary>
+        ///  Overrides current <see cref="RelativeTo"/> with a new one.
+        /// </summary>
+        /// <param name="relativeTo">New relative to property.</param>
+        /// <returns>New instance of <see cref="Hashes"/> object with newly set <see cref="RelativeTo"/> property </returns>
         public Hashes WithNewRelativeTo(DateTime relativeTo)
         {
-            return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId);
+            return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary);
         }
 
+        /// <summary>
+        ///  Adds new additional property to hashes object.
+        /// </summary>
+        /// <param name="key">Property key.</param>
+        /// <param name="value">Property value.</param>
+        /// <returns></returns>
+        public Hashes WithProperty(string key, string value)
+        {
+            if (additionalProperties == null)
+            {
+                return new Hashes(Fingerprints, DurationInSeconds, MediaType, RelativeTo, Origins, StreamId, new Dictionary<string, string> {{key, value}});
+            }
+            
+            additionalProperties[key] = value;
+            return this;
+        }
+
+        /// <summary>
+        ///  Gets enumerator over actual fingerprints.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<HashedFingerprint> GetEnumerator()
         {
             return Fingerprints.GetEnumerator();
         }
 
+        /// <inheritdoc cref="GetEnumerator"/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
 
+        /// <summary>
+        ///  Gets new range from the current hashes object.
+        /// </summary>
+        /// <param name="startsAt">Start at (as relative to <see cref="RelativeTo"/>.</param>
+        /// <param name="length">Length in seconds of the new <see cref="Hashes"/> object.</param>
+        /// <returns>New hashes object.</returns>
         public Hashes GetRange(DateTime startsAt, float length)
         {
             if (IsEmpty)
@@ -147,7 +250,7 @@ namespace SoundFingerprinting.Data
             var relativeTo = RelativeTo.AddSeconds(filtered.First().StartsAt);
             var duration = filtered.Last().StartsAt - filtered.First().StartsAt + lengthOfOneFingerprint;
             var shifted = ShiftStartsAtAccordingToSelectedRange(filtered);
-            return new Hashes(shifted, duration, MediaType, relativeTo, Origins, StreamId);
+            return new Hashes(shifted, duration, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary);
         }
 
         private static List<HashedFingerprint> ShiftStartsAtAccordingToSelectedRange(List<HashedFingerprint> filtered)
@@ -161,6 +264,20 @@ namespace SoundFingerprinting.Data
                 .ToList();
         }
 
+        /// <summary>
+        ///  Merge current object with provided hashes.
+        /// </summary>
+        /// <param name="with">Hashes to merge with.</param>
+        /// <param name="merged">Merged instance of <see cref="Hashes"/> class.</param>
+        /// <param name="allowedGap">Permitted gap between consecutive fingerprints.</param>
+        /// <returns>
+        ///  True if merge succeeded, otherwise false. <br/>
+        ///  Merge will fail if objects cannot be merged without gaps (as defined by <see cref="allowedGap"/> parameter. <br/>
+        ///  Gaps are only verified between <see cref="RelativeTo"/> properties.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        ///  Thrown when <see cref="MediaType"/> between merged hashes is not the same, or stream IDs are not the same.
+        /// </exception>
         public bool MergeWith(Hashes with, out Hashes? merged, double allowedGap = 1.48f)
         {
             merged = null;
@@ -188,7 +305,7 @@ namespace SoundFingerprinting.Data
                 (string left, "") => left,
                 ("", string right) => right,
                 (string left, string right) when (left.Equals(right)) => left,
-                _ => throw new NotSupportedException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
+                _ => throw new ArgumentException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
             };
 
             if (RelativeTo > with.RelativeTo || EndsAt < with.RelativeTo.Subtract(TimeSpan.FromSeconds(allowedGap)))
@@ -200,11 +317,12 @@ namespace SoundFingerprinting.Data
             return true;
         }
 
+        /// <inheritdoc cref="Object.ToString"/>
         public override string ToString()
         {
             return $"Hashes[Count:{Count}, Length:{DurationInSeconds:0.00}]";
         }
-
+        
         public static IEnumerable<Hashes> Aggregate(IEnumerable<Hashes> hashes, double length)
         {
             var list = hashes.ToList();
@@ -303,7 +421,14 @@ namespace SoundFingerprinting.Data
             
             var relativeTo = left.RelativeTo < right.RelativeTo ? left.RelativeTo : right.RelativeTo;
             var fullLength = result.Last().StartsAt + tailLength;
-            return new Hashes(result, fullLength, left.MediaType, relativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId);
+
+            var additionalProperties = new Dictionary<string, string>();
+            foreach (var kv in left.Properties.Concat(right.Properties))
+            {
+                additionalProperties[kv.Key] = kv.Value;
+            }
+            
+            return new Hashes(result, fullLength, left.MediaType, relativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId, additionalProperties);
         }
     }
 }

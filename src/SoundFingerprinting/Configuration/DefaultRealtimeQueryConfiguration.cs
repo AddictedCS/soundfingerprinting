@@ -18,17 +18,15 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         /// <param name="successCallback">Success callback invoked when result entry filter is passed.</param>
         /// <param name="didNotPassFilterCallback">Callback for items that did not pass result entry filter.</param>
-        /// <param name="queryFingerprintsCallback">Query fingerprints callback, invoked with hashes that have been used for querying.</param>
         /// <param name="onError">Error callback.</param>
         /// <param name="restoredAfterErrorCallback">When connection to storage is restored, this callback is invoked.</param>
         public DefaultRealtimeQueryConfiguration(Action<ResultEntry> successCallback,
-            Action<ResultEntry> didNotPassFilterCallback, Action<Hashes> queryFingerprintsCallback,
+            Action<ResultEntry> didNotPassFilterCallback,
             Action<Exception, Hashes> onError, Action restoredAfterErrorCallback) :
             base(thresholdVotes: 4,
                 new TrackMatchLengthEntryFilter(5d),
                 successCallback,
                 didNotPassFilterCallback,
-                queryFingerprintsCallback,
                 onError,
                 restoredAfterErrorCallback,
                 Enumerable.Empty<Hashes>(),
