@@ -264,6 +264,20 @@ namespace SoundFingerprinting.Data
                 .ToList();
         }
 
+        /// <summary>
+        ///  Merge current object with provided hashes.
+        /// </summary>
+        /// <param name="with">Hashes to merge with.</param>
+        /// <param name="merged">Merged instance of <see cref="Hashes"/> class.</param>
+        /// <param name="allowedGap">Permitted gap between consecutive fingerprints.</param>
+        /// <returns>
+        ///  True if merge succeeded, otherwise false. <br/>
+        ///  Merge will fail if objects cannot be merged without gaps (as defined by <see cref="allowedGap"/> parameter. <br/>
+        ///  Gaps are only verified between <see cref="RelativeTo"/> properties.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        ///  Thrown when <see cref="MediaType"/> between merged hashes is not the same, or stream IDs are not the same.
+        /// </exception>
         public bool MergeWith(Hashes with, out Hashes? merged, double allowedGap = 1.48f)
         {
             merged = null;
@@ -291,7 +305,7 @@ namespace SoundFingerprinting.Data
                 (string left, "") => left,
                 ("", string right) => right,
                 (string left, string right) when (left.Equals(right)) => left,
-                _ => throw new NotSupportedException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
+                _ => throw new ArgumentException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
             };
 
             if (RelativeTo > with.RelativeTo || EndsAt < with.RelativeTo.Subtract(TimeSpan.FromSeconds(allowedGap)))
@@ -303,11 +317,12 @@ namespace SoundFingerprinting.Data
             return true;
         }
 
+        /// <inheritdoc cref="Object.ToString"/>
         public override string ToString()
         {
             return $"Hashes[Count:{Count}, Length:{DurationInSeconds:0.00}]";
         }
-
+        
         public static IEnumerable<Hashes> Aggregate(IEnumerable<Hashes> hashes, double length)
         {
             var list = hashes.ToList();
