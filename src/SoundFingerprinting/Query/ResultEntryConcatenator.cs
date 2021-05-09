@@ -15,7 +15,8 @@ namespace SoundFingerprinting.Query
         /// <param name="left">First result entry.</param>
         /// <param name="right">Consecutive result entry.</param>
         /// <param name="queryOffset">
-        ///   Shortens or lengthens (positive or negative offset) query length (affecting coverage info), in case if result entries come from overlaid queries. <see cref="RealtimeAudioSamplesAggregator"/>.
+        ///   Lengthens or shortens (positive or negative offset) query length (affecting coverage info, <see cref="MatchedWith.QueryMatchAt"/> and <see cref="MatchedWith.QuerySequenceNumber"/>),
+        ///   in case if result entries come from overlaid queries. <see cref="RealtimeAudioSamplesAggregator.Aggregate"/>.
         /// </param>
         /// <returns>Concatenated result entry</returns>
         /// <exception cref="ArgumentException">
