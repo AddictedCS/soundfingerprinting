@@ -21,13 +21,35 @@ namespace SoundFingerprinting.Query
             concatenator = new ResultEntryConcatenator();
         }
         
+        /// <inheritdoc cref="IRealtimeResultEntryAggregator.Consume"/>
         public RealtimeQueryResult Consume(IEnumerable<ResultEntry>? candidates, double queryLength, double queryOffset)
         {
             var resultEntries = candidates?.ToList() ?? new List<ResultEntry>();
             SaveNewEntries(resultEntries, queryOffset);
             return PurgeCompleted(resultEntries, queryLength, queryOffset);
         }
-        
+
+        /// <inheritdoc cref="IRealtimeResultEntryAggregator.Purge"/>
+        public RealtimeQueryResult Purge()
+        {
+            var completed = new List<ResultEntry>();
+            var didNotPassFilter = new HashSet<ResultEntry>();
+            foreach (var resultEntry in trackEntries)
+            {
+                // we are purging the results hence the match cannot continue in the next query
+                if (realtimeResultEntryFilter.Pass(resultEntry.Value, canContinueInTheNextQuery: false))
+                {
+                    completed.Add(resultEntry.Value);
+                }
+                else
+                {
+                    didNotPassFilter.Add(resultEntry.Value);
+                }
+            }
+
+            return new RealtimeQueryResult(Sorted(completed), Sorted(didNotPassFilter));
+        }
+
         private void SaveNewEntries(IEnumerable<ResultEntry> entries, double queryOffset)
         {
             foreach (var nextEntry in entries)
@@ -53,7 +75,7 @@ namespace SoundFingerprinting.Query
                 if (!completionStrategy.CanContinueInNextQuery(pair.Value) && trackEntries.TryRemove(pair.Key, out var entry))
                 {
                     // can't continue in the next query
-                    if (realtimeResultEntryFilter.Pass(entry, false))
+                    if (realtimeResultEntryFilter.Pass(entry, canContinueInTheNextQuery: false))
                     {
                         // passed entry filter
                         completed.Add(entry);
@@ -64,7 +86,7 @@ namespace SoundFingerprinting.Query
                         cantWaitAnymore.Add(entry);
                     }
                 }
-                else if (realtimeResultEntryFilter.Pass(pair.Value, true) && trackEntries.TryRemove(pair.Key, out _))
+                else if (realtimeResultEntryFilter.Pass(pair.Value, canContinueInTheNextQuery: true) && trackEntries.TryRemove(pair.Key, out _))
                 {
                     // can continue, but realtime result entry filter takes precedence
                     completed.Add(pair.Value);

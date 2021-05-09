@@ -389,6 +389,39 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(realtimeResult.MatchedAt, nonRealtimeResult.BestMatch.MatchedAt, $"Realtime vs NonRealtime {nonRealtimeResult.BestMatch.Coverage.BestPath.Count()} match time does not match");
         }
 
+        [Test]
+        public async Task ShouldPurgeCompletedMatchWhenAsyncCollectionIsExhausted()
+        {
+            var modelService = new InMemoryModelService();
+
+            const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
+            const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
+
+            var data = GenerateRandomAudioChunks((int)(totalTrackLength / minSizeChunk), seed: 1);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(concatenated)
+                .UsingServices(new SoundFingerprintingAudioService())
+                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
+
+            var list = new List<ResultEntry>();
+            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                .From(SimulateRealtimeQueryData(data, jitterLength: 0))
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.5, true);
+                    config.SuccessCallback = entry => { list.Add(entry); };
+                    return config;
+                })
+                .UsingServices(modelService)
+                .Query(CancellationToken.None);
+
+            Assert.AreEqual(1, list.Count);
+        }
+
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
         {
             int length = data.Sum(samples => samples.Samples.Length);

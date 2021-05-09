@@ -112,7 +112,7 @@ namespace SoundFingerprinting.Command
                 }
             }
 
-            var purged = resultsAggregator.Consume(Enumerable.Empty<ResultEntry>(), 0, 0);
+            var purged = resultsAggregator.Purge();
             InvokeSuccessHandler(purged);
             InvokeDidNotPassFilterHandler(purged); 
             return queryLength;
