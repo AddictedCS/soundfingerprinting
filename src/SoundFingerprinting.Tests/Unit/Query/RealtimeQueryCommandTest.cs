@@ -277,7 +277,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, resultEntries.Count);
             var result = resultEntries.First();
             Assert.AreEqual(totalTrackLength, result.Coverage.TrackCoverageWithPermittedGapsLength, 1);
-            Assert.AreEqual(start.ToString("G"), result.MatchedAt.ToString("G"));
+            Assert.IsTrue(Math.Abs(start.Subtract(result.MatchedAt).TotalSeconds) < 2, $"Matched At {result.MatchedAt:o}");
         }
 
         [Test]
@@ -433,8 +433,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 Array.Copy(audioSamples.Samples, 0, concatenated, dest, audioSamples.Samples.Length);
                 dest += audioSamples.Samples.Length;
             }
-            
-            return new AudioSamples(concatenated, "Queen", 5512);
+
+            var first = data.First();
+            return new AudioSamples(concatenated, first.Origin, first.SampleRate, first.RelativeTo);
         }
 
         private static List<AudioSamples> GenerateRandomAudioChunks(int count, int seed, DateTime relativeTo)
@@ -458,7 +459,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             {
                 if (jitterLength > 0)
                 {
-                    Jitter(collection, jitterLength);
+                    var startAt = audioSamples.First()?.RelativeTo.AddSeconds(-jitterLength) ?? DateTime.UtcNow;
+                    Jitter(collection, jitterLength, startAt);
                 }
 
                 foreach (var audioSample in audioSamples)
@@ -468,7 +470,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                 if (jitterLength > 0)
                 {
-                    Jitter(collection, jitterLength);
+                    var endsAt = audioSamples.Last()?.RelativeTo ?? DateTime.UtcNow;
+                    Jitter(collection, jitterLength, endsAt);
                 }
 
                 collection.CompleteAdding();
@@ -477,13 +480,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return new BlockingRealtimeCollection<AudioSamples>(collection);
         }
 
-        private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength)
+        private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength, DateTime dateTime)
         {
             double sum = 0d;
             do
             {
                 var audioSample = TestUtilities.GenerateRandomAudioSamples((int)(jitterLength * 5512));
-                collection.Add(audioSample);
+                collection.Add(new AudioSamples(audioSample.Samples, audioSample.Origin, audioSample.SampleRate, dateTime));
                 sum += audioSample.Duration;
             } 
             while (sum < jitterLength);

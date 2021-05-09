@@ -11,6 +11,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
     public class OfflineStorage : IEnumerable<Hashes>
     {
+        private const string Format = ".fp";
         private const string DateFormat = "yyyy-MM-ddTHH-mm-ss";
         private readonly string folder;
 
@@ -22,7 +23,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 Directory.CreateDirectory(folder);
             }
 
-            foreach (var previousFiles in Directory.GetFiles(folder, "*.hash"))
+            foreach (var previousFiles in GetPreviousFiles(folder))
             {
                 File.Delete(previousFiles);
             }
@@ -35,13 +36,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 return;
             }
 
-            using var fileStream = new FileStream(Path.Combine(folder, timedHashes.RelativeTo.ToString(DateFormat) + ".hash"), FileMode.CreateNew);
+            using var fileStream = new FileStream(Path.Combine(folder, timedHashes.RelativeTo.ToString(DateFormat) + Format), FileMode.CreateNew);
             Serializer.SerializeWithLengthPrefix(fileStream, timedHashes, PrefixStyle.Fixed32);
         }
         
         public IEnumerator<Hashes> GetEnumerator()
         {
-            foreach (var file in Directory.GetFiles(folder, "*.hash").OrderBy(filename => DateTime.ParseExact(Path.GetFileNameWithoutExtension(filename), DateFormat, CultureInfo.InvariantCulture)))
+            foreach (var file in GetPreviousFiles(folder))
             {
                 using (var stream = new FileStream(file, FileMode.Open))
                 {
@@ -50,6 +51,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 
                 File.Delete(file); // or archive for
             }
+        }
+
+        private IEnumerable<string> GetPreviousFiles(string path)
+        {
+            return Directory.GetFiles(path, $"*{Format}").OrderBy(filename => DateTime.ParseExact(Path.GetFileNameWithoutExtension(filename), DateFormat, CultureInfo.InvariantCulture));
         }
 
         IEnumerator IEnumerable.GetEnumerator()
