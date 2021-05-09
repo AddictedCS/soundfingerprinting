@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
             int count = 10, foundWithClusters = 0, foundWithWrongClusters = 0, testWaitTime = 3000;
-            var data = GenerateRandomAudioChunks(count, 1);
+            var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
@@ -42,7 +42,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .WithRealtimeQueryConfig(config =>
                                               {
                                                     config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
-                                                    config.SuccessCallback = entry => Interlocked.Increment(ref foundWithWrongClusters);
+                                                    config.SuccessCallback = _ => Interlocked.Increment(ref foundWithWrongClusters);
                                                     config.YesMetaFieldsFilter = new Dictionary<string, string> {{"country", "CANADA"}};
                                                     return config;
                                               })
@@ -54,7 +54,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                 .WithRealtimeQueryConfig(config =>
                                 {
                                     config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
-                                    config.SuccessCallback = entry => Interlocked.Increment(ref foundWithClusters);
+                                    config.SuccessCallback = _ => Interlocked.Increment(ref foundWithClusters);
                                     config.YesMetaFieldsFilter = new Dictionary<string, string> {{"country", "USA"}};
                                     return config;
                                 })
@@ -77,7 +77,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             double permittedGap = (double) minSize / 5512;
             int count = 10, found = 0, didNotPassThreshold = 0, fingerprintsCount = 0;
             int testWaitTime = 3000;
-            var data = GenerateRandomAudioChunks(count, 1);
+            var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
@@ -95,8 +95,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .WithRealtimeQueryConfig(config =>
                                               {
                                                     config.Stride = new IncrementalStaticStride(staticStride);
-                                                    config.SuccessCallback = entry => Interlocked.Increment(ref found);
-                                                    config.DidNotPassFilterCallback = entry => Interlocked.Increment(ref didNotPassThreshold);
+                                                    config.SuccessCallback = _ => Interlocked.Increment(ref found);
+                                                    config.DidNotPassFilterCallback = _ => Interlocked.Increment(ref didNotPassThreshold);
                                                     config.PermittedGap = permittedGap;
                                                     return config;
                                               })
@@ -121,7 +121,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
             const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
             int count = (int)(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10;
-            var data = GenerateRandomAudioChunks(count, seed: 1);
+            var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
@@ -223,7 +223,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             int trackCount = (int)(totalTrackLength / minSizeChunk), fingerprintsCount = 0, errored = 0, didNotPassThreshold = 0, jitterChunks = 2;
             
-            var data = GenerateRandomAudioChunks(trackCount, seed: 1);
+            var start = new DateTime(2021, 5, 1, 0, 0, 0, DateTimeKind.Utc);
+            var data = GenerateRandomAudioChunks(trackCount, seed: 1, start);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
@@ -238,7 +239,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var offlineStorage = new OfflineStorage(Path.GetTempPath());
             var restoreCalled = new bool[1];
-            var start = new DateTime(2021, 5, 1, 0, 0, 0, DateTimeKind.Utc);
             double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance))
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
@@ -277,6 +277,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, resultEntries.Count);
             var result = resultEntries.First();
             Assert.AreEqual(totalTrackLength, result.Coverage.TrackCoverageWithPermittedGapsLength, 1);
+            Assert.AreEqual(start.ToString("G"), result.MatchedAt.ToString("G"));
         }
 
         [Test]
@@ -286,7 +287,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
 
             int count = 20;
-            var data = GenerateRandomAudioChunks(count, seed: 1);
+            var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -340,7 +341,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
 
             int count = 20, testWaitTime = 5000;
-            var data = GenerateRandomAudioChunks(count, 1);
+            var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -397,7 +398,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
             const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
 
-            var data = GenerateRandomAudioChunks((int)(totalTrackLength / minSizeChunk), seed: 1);
+            var data = GenerateRandomAudioChunks((int)(totalTrackLength / minSizeChunk), seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -436,12 +437,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return new AudioSamples(concatenated, "Queen", 5512);
         }
 
-        private static List<AudioSamples> GenerateRandomAudioChunks(int count, int seed)
+        private static List<AudioSamples> GenerateRandomAudioChunks(int count, int seed, DateTime relativeTo)
         {
-            var now = DateTime.Now;
             return Enumerable
                 .Range(0, count)
-                .Select(index => GetMinSizeOfAudioSamples(seed * index, now.AddSeconds(index * 1.877)))
+                .Select(index => GetMinSizeOfAudioSamples(seed * index, relativeTo.AddSeconds(index * 1.877)))
                 .ToList();
         }
 
