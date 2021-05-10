@@ -89,7 +89,7 @@ namespace SoundFingerprinting.Configuration
         public IEnumerable<Hashes> DowntimeHashes { get; set; }
 
         /// <summary>
-        ///  Gets or sets downtime capture period, value which will instruct the framework to cache realtime
+        ///  Gets or sets downtime capture period (in seconds), value which will instruct the framework to cache realtime
         ///  hashes for later processing in case if an unsuccessful request is made to Emy
         /// </summary>
         public double DowntimeCapturePeriod { get; set; }
