@@ -12,7 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Accepting a streamId parameter in realtime collection generation.
+		Adding TimeOffset to Hashes class to be able to use it during realtime queries.
+		Adjusted offset to a more precise value equal to actual hashes length rather than prefixed audio length.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>8</LangVersion>
