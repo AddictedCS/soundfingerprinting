@@ -150,7 +150,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
                     didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
                 },
-                new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: minSizeChunk),
+                new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d),
                 ongoingSuccessCallback: _ => { Interlocked.Increment(ref ongoingCalls); },
                 errorCallback: (error, _) => throw error,
                 restoredAfterErrorCallback: () => throw new Exception("Downtime callback called"),
