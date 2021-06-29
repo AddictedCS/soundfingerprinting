@@ -19,5 +19,5 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW")]
 [assembly: InternalsVisibleTo("SoundFingerprinting.FFT.FFTW.Tests")]
 
-[assembly: AssemblyVersion("7.9.9.100")]
-[assembly: AssemblyInformationalVersion("7.9.9.100")]
+[assembly: AssemblyVersion("7.10.0.100")]
+[assembly: AssemblyInformationalVersion("7.10.0.100")]
