@@ -1,23 +1,30 @@
 namespace SoundFingerprinting.Query
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.LCS;
 
     public sealed class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
     {
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
+        private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;
+        private readonly Action<ResultEntry> ongoingCallback;
         private readonly ICompletionStrategy<ResultEntry> completionStrategy;
         private readonly IResultEntryConcatenator concatenator;
         private readonly ConcurrentDictionary<string, ResultEntry> trackEntries = new ConcurrentDictionary<string, ResultEntry>();
 
-        public StatefulRealtimeResultEntryAggregator(IRealtimeResultEntryFilter realtimeResultEntryFilter, QueryConfiguration queryConfiguration)
+        public StatefulRealtimeResultEntryAggregator(IRealtimeResultEntryFilter realtimeResultEntryFilter, 
+            IRealtimeResultEntryFilter ongoingResultEntryFilter,
+            Action<ResultEntry> ongoingCallback,
+            double permittedGap)
         {
             this.realtimeResultEntryFilter = realtimeResultEntryFilter;
-            completionStrategy = new ResultEntryCompletionStrategy(queryConfiguration.PermittedGap);
+            this.ongoingResultEntryFilter = ongoingResultEntryFilter;
+            this.ongoingCallback = ongoingCallback;
+            completionStrategy = new ResultEntryCompletionStrategy(permittedGap);
             concatenator = new ResultEntryConcatenator();
         }
         
@@ -72,7 +79,14 @@ namespace SoundFingerprinting.Query
             var cantWaitAnymore = new HashSet<ResultEntry>();
             foreach (KeyValuePair<string, ResultEntry> pair in trackEntries)
             {
-                if (!completionStrategy.CanContinueInNextQuery(pair.Value) && trackEntries.TryRemove(pair.Key, out var entry))
+                bool canContinueInNextQuery = completionStrategy.CanContinueInNextQuery(pair.Value);
+                if (ongoingResultEntryFilter.Pass(pair.Value, canContinueInNextQuery))
+                {
+                    // invoke ongoing callback
+                    ongoingCallback(pair.Value);
+                }
+                
+                if (!canContinueInNextQuery && trackEntries.TryRemove(pair.Key, out var entry))
                 {
                     // can't continue in the next query
                     if (realtimeResultEntryFilter.Pass(entry, canContinueInTheNextQuery: false))

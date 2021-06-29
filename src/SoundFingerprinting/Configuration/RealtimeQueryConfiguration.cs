@@ -16,6 +16,8 @@ namespace SoundFingerprinting.Configuration
             IRealtimeResultEntryFilter resultEntryFilter,
             Action<ResultEntry> successCallback,
             Action<ResultEntry> didNotPassFilterCallback,
+            IRealtimeResultEntryFilter ongoingResultEntryFilter,
+            Action<ResultEntry> ongoingSuccessCallback,
             Action<Exception, Hashes> errorCallback,
             Action restoredAfterErrorCallback,
             IEnumerable<Hashes> downtimeHashes,
@@ -43,6 +45,8 @@ namespace SoundFingerprinting.Configuration
             ResultEntryFilter = resultEntryFilter;
             SuccessCallback = successCallback;
             DidNotPassFilterCallback = didNotPassFilterCallback;
+            OngoingResultEntryFilter = ongoingResultEntryFilter;
+            OngoingSuccessCallback = ongoingSuccessCallback;
             ErrorCallback = errorCallback;
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
             DowntimeHashes = downtimeHashes;
@@ -72,6 +76,16 @@ namespace SoundFingerprinting.Configuration
         ///  Gets or sets callback invoked when a candidate did not pass result entry filter, but has been considered a candidate
         /// </summary>
         public Action<ResultEntry> DidNotPassFilterCallback { get; set; }
+
+        /// <summary>
+        ///  Gets or sets ongoing result entry filter that will be invoked for every result entry filter that is captured by the aggregator
+        /// </summary>
+        public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }
+        
+        /// <summary>
+        ///  Gets or sets ongoing success callback that will be invoked once ongoing result entry filter is passed
+        /// </summary>
+        public Action<ResultEntry> OngoingSuccessCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute

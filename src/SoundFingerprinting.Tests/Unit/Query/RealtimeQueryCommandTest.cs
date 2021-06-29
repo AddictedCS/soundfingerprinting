@@ -5,6 +5,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices.ComTypes;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -120,7 +121,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
             const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
-            int count = (int)(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10;
+            int count = (int)(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -149,6 +150,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
                     didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
                 },
+                new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: minSizeChunk),
+                ongoingSuccessCallback: _ => { Interlocked.Increment(ref ongoingCalls); },
                 errorCallback: (error, _) => throw error,
                 restoredAfterErrorCallback: () => throw new Exception("Downtime callback called"),
                 downtimeHashes: Enumerable.Empty<Hashes>(), 
@@ -208,6 +211,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             {
                 Assert.AreEqual(trackMatches[i], successMatches[i].TrackMatchStartsAt, 2.5);
             }
+            
+            // ongoing calls have to be called every time when realtime chunk is sent since ongoing query match filter is equal to min-size chunk
+            Assert.AreEqual(realtimeQuery.Length, ongoingCalls);
         }
 
         [Test]

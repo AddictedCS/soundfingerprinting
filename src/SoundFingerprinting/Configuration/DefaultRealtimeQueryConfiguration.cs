@@ -27,6 +27,8 @@ namespace SoundFingerprinting.Configuration
                 new TrackMatchLengthEntryFilter(5d),
                 successCallback,
                 didNotPassFilterCallback,
+                new NoPassRealtimeResultEntryFilter(),
+                ongoingSuccessCallback: _ => { },
                 onError,
                 restoredAfterErrorCallback,
                 Enumerable.Empty<Hashes>(),
