@@ -5,7 +5,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using NUnit.Framework;
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Query;
@@ -16,7 +15,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldNotFailWithNullObjectPass()
         {
-            var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d), GetConfigWithPermittedGap(2d));
+            var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d), 
+                new NoPassRealtimeResultEntryFilter(),
+                _ => { },
+                2d);
 
             var result = aggregator.Consume(null, 0, 0);
             
@@ -28,7 +30,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public void ShouldWaitAsGapPermits()
         {
             double permittedGap = 5d;
-            var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(10d), GetConfigWithPermittedGap(permittedGap));
+            var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(10d),
+                new NoPassRealtimeResultEntryFilter(),
+                _ => { },
+                permittedGap);
             int firstQueryLength = 5;
             int trackLength = 5;
             var first = aggregator.Consume(new[]
@@ -57,7 +62,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public void ShouldMergeResults()
         {
             double permittedGap = 2d;
-            var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d), GetConfigWithPermittedGap(permittedGap));
+            var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d), 
+                new NoPassRealtimeResultEntryFilter(),
+                _ => { },
+                permittedGap);
 
             var success = new List<ResultEntry>();
             var filtered = new List<ResultEntry>();
@@ -84,18 +92,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, filtered.Count);
             Assert.IsTrue(success[0].TrackCoverageWithPermittedGapsLength > 5d);
             Assert.IsTrue(filtered[0].TrackCoverageWithPermittedGapsLength < 5d);
-        }
-
-        private static QueryConfiguration GetConfigWithPermittedGap(double permittedGap)
-        {
-            return new DefaultQueryConfiguration
-            {
-                PermittedGap = permittedGap,
-                FingerprintConfiguration = new DefaultFingerprintConfiguration
-                {
-                    FingerprintLengthInSeconds = 1d
-                }
-            };
         }
 
         private static void SimulateEmptyResults(StatefulRealtimeResultEntryAggregator aggregator, ICollection<ResultEntry> success, ICollection<ResultEntry> filtered)
