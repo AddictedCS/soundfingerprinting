@@ -17,10 +17,16 @@ namespace SoundFingerprinting.Command
 
         private FingerprintConfiguration fingerprintConfiguration;
 
+        /// <summary>
+        ///  Initializes a new instance of the <see cref="FingerprintCommand"/> class.
+        /// </summary>
+        /// <param name="fingerprintService"><see cref="IFingerprintService"/> service to use for fingerprinting.</param>
         public FingerprintCommand(IFingerprintService fingerprintService)
         {
             this.fingerprintService = fingerprintService;
+            audioService = new SoundFingerprintingAudioService();
             fingerprintConfiguration = new DefaultFingerprintConfiguration();
+            createFingerprintsMethod = () => Hashes.GetEmpty(MediaType.Audio);
         }
 
         /// <inheritdoc cref="IFingerprintCommand.Hash"/>
