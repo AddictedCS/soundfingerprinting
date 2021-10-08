@@ -48,7 +48,6 @@
             var fingerprints = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
                                             .From(PathToWav)
-                                            .WithFingerprintConfig(new HighPrecisionFingerprintConfiguration())
                                             .UsingServices(audioService)
                                             .Hash();
 
@@ -58,7 +57,6 @@
             var queryResult = await QueryCommandBuilder.Instance
                                .BuildQueryCommand()
                                .From(PathToWav, secondsToProcess, startAtSecond)
-                               .WithQueryConfig(new HighPrecisionQueryConfiguration())
                                .UsingServices(modelService, audioService)
                                .Query();
 
