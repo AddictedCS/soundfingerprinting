@@ -101,7 +101,7 @@
                 .From(PathToWav)
                 .WithFingerprintConfig(configuration =>
                       {
-                          configuration.Stride = new StaticStride(0);
+                          configuration.Stride = new IncrementalStaticStride(8192);
                           return configuration;
                       })
                 .UsingServices(audioService)

@@ -3,8 +3,12 @@
     using System.Collections.Generic;
     using SoundFingerprinting.Data;
 
+    /// <inheritdoc cref="QueryConfiguration"/>
     public class DefaultQueryConfiguration : QueryConfiguration
     {
+        /// <summary>
+        ///  Initializes a new instance of the <see cref="DefaultQueryConfiguration"/> class.
+        /// </summary>
         public DefaultQueryConfiguration()
         {
             ThresholdVotes = Configs.Threshold.Default;
