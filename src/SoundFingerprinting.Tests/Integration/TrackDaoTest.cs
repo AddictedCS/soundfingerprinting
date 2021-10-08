@@ -107,7 +107,7 @@
                 .From(GetAudioSamples())
                 .WithFingerprintConfig(config =>
                 {
-                    config.Stride = new StaticStride(0);
+                    config.Stride = new IncrementalStaticStride(8192);
                     return config;
                 })
                 .UsingServices(audioService)

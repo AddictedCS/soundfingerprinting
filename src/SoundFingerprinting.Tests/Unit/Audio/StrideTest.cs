@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Audio
 {
     using System;
-
     using NUnit.Framework;
 
     using SoundFingerprinting.Strides;
@@ -10,14 +9,6 @@
     public class StrideClassesTest
     {
         [Test]
-        public void StaticStrideClassTest()
-        {
-            const int value = 5115;
-            StaticStride stride = new StaticStride(value);
-            Assert.AreEqual(8192 + value, stride.NextStride);
-        }
-
-        [Test]
         public void IncrementalStaticStrideTest()
         {
             IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115);
@@ -25,24 +16,24 @@
         }
 
         [Test]
-        public void RandomStrideClassTest()
+        public void IncrementalRandomStrideTest()
         {
             const int min = 0;
             const int max = 253;
-            RandomStride randomStride = new RandomStride(min, max, 0);
+            var randomStride = new IncrementalRandomStride(min, max);
             const int count = 1024;
             for (int i = 0; i < count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.IsTrue(skip <= 8192 + max);
-                Assert.IsTrue(skip >= 8192 + min);
+                Assert.IsTrue(skip <= max);
+                Assert.IsTrue(skip >= min);
             }
         }
 
         [Test]
-        public void RandomStrideClassBadMinMaxTest()
+        public void ShouldThrowOnInvalidArguments()
         {
-            Assert.Throws<ArgumentException>(() => new RandomStride(253, 0, 0));
+            Assert.Throws<ArgumentException>(() => new IncrementalRandomStride(100, 0));
         }
     }
 }
