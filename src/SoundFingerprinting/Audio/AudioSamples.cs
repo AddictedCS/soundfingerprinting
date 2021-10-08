@@ -3,18 +3,24 @@
     using System;
 
     /// <summary>
-    ///  Audio samples that can be used for fingerprinting
+    ///  Audio samples that can be used for fingerprinting.
     /// </summary>
     [Serializable]
     public class AudioSamples
     {
+        /// <summary>
+        ///  Initializes a new instance of the <see cref="AudioSamples"/> class.
+        /// </summary>
+        /// <param name="samples">Audio samples.</param>
+        /// <param name="origin">Origin identifier (i.e., filename).</param>
+        /// <param name="sampleRate">Sample rate of the provided audio samples.</param>
         public AudioSamples(float[] samples, string origin, int sampleRate) : this(samples, origin, sampleRate, DateTime.UtcNow.AddSeconds(-(double)samples.Length / sampleRate))
         {
             // no op
         }
 
         /// <summary>
-        ///  Creates new instance of AudioSamples class.
+        ///  Initializes a new instance of the <see cref="AudioSamples"/> class.
         /// </summary>
         /// <param name="samples">Audio samples.</param>
         /// <param name="origin">Source origin (i.e., filename, URI).</param>
@@ -27,34 +33,34 @@
             SampleRate = sampleRate;
             RelativeTo = relativeTo;
         }
- 
+
         private AudioSamples()
         {
             // left for serializers
         }
 
         /// <summary>
-        ///  Gets audio samples in Ieee32 format
+        ///  Gets audio samples in Ieee32 format.
         /// </summary>
         public float[] Samples { get; }
 
         /// <summary>
-        ///  Gets the origin of the audio samples
+        ///  Gets the origin of the audio samples.
         /// </summary>
         public string Origin { get; }
 
         /// <summary>
-        ///  Gets sample rate at which the audio has been sampled
+        ///  Gets sample rate at which the audio has been sampled.
         /// </summary>
         public int SampleRate { get; }
 
         /// <summary>
-        ///  Gets relative to time location when the audio samples have been generated
+        ///  Gets relative to time location when the audio samples have been generated.
         /// </summary>
         public DateTime RelativeTo { get; }
 
         /// <summary>
-        ///  Gets the duration in seconds of the audio samples
+        ///  Gets the duration in seconds of the audio samples.
         /// </summary>
         public double Duration => (double)Samples.Length / SampleRate;
     }
