@@ -72,7 +72,7 @@
             return spectralImages;
         }
 
-        private unsafe void ExtractLogBins(float* spectrum, ushort[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
+        private static unsafe void ExtractLogBins(float* spectrum, ushort[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
         {
             int width = wdftSize / 2; /* 1024 */
             for (int i = 0; i < logBins; i++)
@@ -91,13 +91,13 @@
             }
         }
 
-        private int GetFrequencyIndexLocationOfAudioSamples(int audioSamples, int overlap)
+        private static int GetFrequencyIndexLocationOfAudioSamples(int audioSamples, int overlap)
         {
             // There are 64 audio samples in 1 unit of spectrum due to FFT window overlap (which is 64)
             return (int)((float)audioSamples / overlap);
         }
 
-        private unsafe void CopyAndWindow(float* fftArray, float[] samples, int prefix, float[] window)
+        private static unsafe void CopyAndWindow(float* fftArray, float[] samples, int prefix, float[] window)
         {
             for (int j = 0; j < window.Length; ++j)
             {
