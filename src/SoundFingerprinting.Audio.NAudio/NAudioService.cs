@@ -22,9 +22,9 @@
             this.downSamplingQuality = downSamplingQuality;
         }
 
-        public override float GetLengthInSeconds(string pathToSourceFile)
+        public override float GetLengthInSeconds(string file)
         {
-            using (var mediaFoundationReader = new MediaFoundationReader(pathToSourceFile))
+            using (var mediaFoundationReader = new MediaFoundationReader(file))
             {
                 return (float)mediaFoundationReader.TotalTime.TotalSeconds;
             }
