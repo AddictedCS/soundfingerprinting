@@ -4,9 +4,16 @@ namespace SoundFingerprinting.Command
     using System.Threading.Tasks;
 
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
 
+    /// <summary>
+    ///  Fingerprint command class that configures and builds the fingerprints from a source content file.
+    /// </summary>
+    /// <remarks>
+    ///  Create and configure with <see cref="FingerprintCommandBuilder"/> class.
+    /// </remarks>
     public sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
     {
         private readonly IFingerprintService fingerprintService;
@@ -17,11 +24,7 @@ namespace SoundFingerprinting.Command
 
         private FingerprintConfiguration fingerprintConfiguration;
 
-        /// <summary>
-        ///  Initializes a new instance of the <see cref="FingerprintCommand"/> class.
-        /// </summary>
-        /// <param name="fingerprintService"><see cref="IFingerprintService"/> service to use for fingerprinting.</param>
-        public FingerprintCommand(IFingerprintService fingerprintService)
+        internal FingerprintCommand(IFingerprintService fingerprintService)
         {
             this.fingerprintService = fingerprintService;
             audioService = new SoundFingerprintingAudioService();

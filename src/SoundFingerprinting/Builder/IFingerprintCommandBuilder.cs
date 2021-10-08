@@ -3,14 +3,14 @@ namespace SoundFingerprinting.Builder
     using SoundFingerprinting.Command;
     
     /// <summary>
-    ///  Acoustic fingerprinting command builder
+    ///  Fingerprinting command builder.
     /// </summary>
     public interface IFingerprintCommandBuilder
     {
         /// <summary>
-        ///   Start building acoustic fingerprinting command
+        ///   Start building fingerprinting command.
         /// </summary>
-        /// <returns>Source selector</returns>
+        /// <returns>Source selector.</returns>
         ISourceFrom BuildFingerprintCommand();
     }
 }
