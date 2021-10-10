@@ -21,8 +21,6 @@ namespace SoundFingerprinting.Command
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         private readonly Queue<Hashes> downtimeHashes;
-        
-        private const int MinSamplesForOneFingerprint = 10240;
 
         private IAsyncEnumerable<AudioSamples> realtimeCollection;
         private RealtimeQueryConfiguration configuration;

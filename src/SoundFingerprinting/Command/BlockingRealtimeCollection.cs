@@ -19,7 +19,7 @@ namespace SoundFingerprinting.Command
         ///  Initializes a new instance of the <see cref="BlockingRealtimeCollection{T}"/> class.
         /// </summary>
         /// <param name="collection">Instance of blocking collection to iterate over.</param>
-        public BlockingRealtimeCollection(BlockingCollection<T> collection) : this(collection, TimeSpan.FromMilliseconds(1_000))
+        public BlockingRealtimeCollection(BlockingCollection<T> collection) : this(collection, TimeSpan.FromMilliseconds(30_000))
         {
             // no op
         }
@@ -55,7 +55,7 @@ namespace SoundFingerprinting.Command
             {
                 try
                 {
-                    if (collection.TryTake(out var samples, (int) delay.TotalMilliseconds, cancellationToken))
+                    if (collection.TryTake(out var samples, (int)delay.TotalMilliseconds, cancellationToken))
                     {
                         return await Task.FromResult(samples);
                     }
