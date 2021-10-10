@@ -23,7 +23,6 @@ namespace SoundFingerprinting.Command
         private readonly Queue<Hashes> downtimeHashes;
         
         private const int MinSamplesForOneFingerprint = 10240;
-        private const int SupportedFrequency = 5512;
 
         private IAsyncEnumerable<AudioSamples> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
@@ -51,7 +50,14 @@ namespace SoundFingerprinting.Command
             realtimeCollection = source;
             return this;
         }
-        
+
+        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string})"/>
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files)
+        {
+            realtimeCollection = ReadHashesAsync(files);
+            return this;
+        }
+
         /// <inheritdoc cref="IWithRealtimeQueryConfiguration.WithRealtimeQueryConfig(RealtimeQueryConfiguration)"/>
         public IInterceptRealtimeHashes WithRealtimeQueryConfig(RealtimeQueryConfiguration realtimeQueryConfiguration)
         {
@@ -85,6 +91,14 @@ namespace SoundFingerprinting.Command
         {
             this.hashesInterceptor = hashesInterceptor;
             return this;
+        }
+        
+        private async IAsyncEnumerable<AudioSamples> ReadHashesAsync(IAsyncEnumerable<string> files)
+        {
+            await foreach (var file in files)
+            {
+                yield return audioService.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.SampleRate);
+            }
         }
 
         private async Task<double> QueryAndHash(IQueryFingerprintService service, CancellationToken cancellationToken)
@@ -157,7 +171,8 @@ namespace SoundFingerprinting.Command
         
         private async Task<Hashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
         {
-            return await commandBuilder.BuildFingerprintCommand()
+            return await commandBuilder
+                .BuildFingerprintCommand()
                 .From(prefixed)
                 .WithFingerprintConfig(configuration.QueryConfiguration.FingerprintConfiguration)
                 .UsingServices(audioService)

@@ -13,7 +13,7 @@ namespace SoundFingerprinting.LCS
     public class Coverage
     {
         /// <summary>
-        ///  Instantiates new coverage object.
+        ///  Initializes a new instance of the <see cref="Coverage"/> class.
         /// </summary>
         /// <param name="bestPath">Best path between query and track, calculated by <see cref="LisNew"/> or <see cref="LisOld"/> (default LisOld).</param>
         /// <param name="queryLength">Query length in seconds.</param>
