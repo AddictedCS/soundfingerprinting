@@ -1,13 +1,15 @@
 namespace SoundFingerprinting.Audio
 {
-    using SoundFingerprinting.Strides;
-
+    /// <summary>
+    ///  Realtime samples aggregator.
+    /// </summary>
     public interface IRealtimeAudioSamplesAggregator
     {
-        AudioSamples Aggregate(AudioSamples chunk);
-        
-        IStride Stride { get; }
-        
-        int MinSize { get; }
+        /// <summary>
+        /// Aggregates audio samples chunks before issuing a query request.
+        /// </summary>
+        /// <param name="chunk">Chunk to aggregate.</param>
+        /// <returns>If minimum size is reached, instance of <see cref="AudioSamples"/> is returned for the query.</returns>
+        AudioSamples? Aggregate(AudioSamples chunk);
     }
 }
