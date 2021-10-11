@@ -14,7 +14,7 @@ namespace SoundFingerprinting.Command
     /// <remarks>
     ///  Create and configure with <see cref="FingerprintCommandBuilder"/> class.
     /// </remarks>
-    public sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration, IFingerprintCommand
+    public sealed class FingerprintCommand : ISourceFrom, IWithFingerprintConfiguration
     {
         private readonly IFingerprintService fingerprintService;
 

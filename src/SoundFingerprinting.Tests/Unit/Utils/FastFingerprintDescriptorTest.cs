@@ -35,7 +35,6 @@
                     new StandardHaarWaveletDecomposition(),
                     new FastFingerprintDescriptor()));
 
-            var audioService = new SoundFingerprintingAudioService();
             var audioSamples = GetAudioSamples();
 
             int runs = 5;
@@ -43,12 +42,10 @@
             {
                 var hashDatas0 = await fcbWithOldFingerprintDescriptor.BuildFingerprintCommand()
                     .From(audioSamples)
-                    .UsingServices(audioService)
                     .Hash();
 
                 var hashDatas1 = await fcbWithFastFingerprintDescriptor.BuildFingerprintCommand()
                     .From(audioSamples)
-                    .UsingServices(audioService)
                     .Hash();
 
                 AssertHashDatasAreTheSame(hashDatas0, hashDatas1);

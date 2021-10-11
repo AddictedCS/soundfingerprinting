@@ -6,8 +6,6 @@ namespace SoundFingerprinting.Tests.Integration
     using System.Linq;
     using System.Threading.Tasks;
     using NUnit.Framework;
-
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
@@ -19,7 +17,6 @@ namespace SoundFingerprinting.Tests.Integration
     [TestFixture]
     public class SubFingerprintDaoTest : IntegrationWithSampleFilesTest
     {
-        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
         private ISubFingerprintDao subFingerprintDao;
         private ITrackDao trackDao;
 
@@ -151,7 +148,6 @@ namespace SoundFingerprinting.Tests.Integration
             return await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(GetAudioSamples())
-                .UsingServices(audioService)
                 .Hash();
         }
         

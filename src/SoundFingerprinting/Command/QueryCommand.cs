@@ -12,16 +12,19 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
-    public sealed class QueryCommand : IQuerySource, IWithQueryConfiguration, IQueryCommand
+    /// <summary>
+    ///  Query command.
+    /// </summary>
+    public sealed class QueryCommand : IQuerySource, IWithQueryConfiguration 
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         
         private IModelService modelService;
+        private IAudioService audioService;
         private IQueryMatchRegistry queryMatchRegistry;
         
-        private Func<IWithFingerprintConfiguration> fingerprintingMethodFromSelector;
-        private Func<IFingerprintCommand> createFingerprintCommand;
+        private Func<IWithFingerprintConfiguration> createFingerprintCommand;
 
         private QueryConfiguration queryConfiguration;
 
@@ -31,74 +34,91 @@
             this.queryFingerprintService = queryFingerprintService;
             queryConfiguration = new DefaultQueryConfiguration();
             queryMatchRegistry = NoOpQueryMatchRegistry.NoOp;
+            this.audioService = new SoundFingerprintingAudioService();
         }
 
+        /// <inheritdoc cref="IQuerySource.From(string)"/>
         public IWithQueryConfiguration From(string pathToAudioFile)
         {
-            fingerprintingMethodFromSelector = () => fingerprintCommandBuilder.BuildFingerprintCommand().From(pathToAudioFile);
+            createFingerprintCommand = () => fingerprintCommandBuilder.BuildFingerprintCommand().From(pathToAudioFile);
             return this;
         }
 
+        /// <inheritdoc cref="IQuerySource.From(string,double,double)"/>
         public IWithQueryConfiguration From(string pathToAudioFile, double secondsToProcess, double startAtSecond)
         {
-            fingerprintingMethodFromSelector = () => fingerprintCommandBuilder.BuildFingerprintCommand()
-                                                                              .From(pathToAudioFile, secondsToProcess, startAtSecond);
+            createFingerprintCommand = () => fingerprintCommandBuilder.BuildFingerprintCommand()
+                                                                      .From(pathToAudioFile, secondsToProcess, startAtSecond);
             return this;
         }
 
+        /// <inheritdoc cref="IQuerySource.From(AudioSamples)"/>
         public IWithQueryConfiguration From(AudioSamples audioSamples)
         {
-            fingerprintingMethodFromSelector = () => fingerprintCommandBuilder.BuildFingerprintCommand().From(audioSamples);
+            createFingerprintCommand = () => fingerprintCommandBuilder.BuildFingerprintCommand().From(audioSamples);
             return this;
         }
 
+        /// <inheritdoc cref="IQuerySource.From(Hashes)"/>
         public IWithQueryConfiguration From(Hashes hashes)
         {
             createFingerprintCommand = () => new ExecutedFingerprintCommand(hashes);
             return this;
         }
 
+        /// <inheritdoc cref="IWithQueryConfiguration.WithQueryConfig(QueryConfiguration)"/>
         public IUsingQueryServices WithQueryConfig(QueryConfiguration config)
         {
             queryConfiguration = config;
             return this;
         }
 
+        /// <inheritdoc cref="IWithQueryConfiguration.WithQueryConfig(Func{QueryConfiguration,QueryConfiguration})"/>
         public IUsingQueryServices WithQueryConfig(Func<QueryConfiguration, QueryConfiguration> amendQueryConfigFunctor)
         {
             queryConfiguration = amendQueryConfigFunctor(queryConfiguration);
             return this;
         }
 
-        public IQueryCommand UsingServices(IModelService service, IAudioService audioService)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService)"/>
+        public IQueryCommand UsingServices(IModelService modelService)
         {
-            return UsingServices(service, audioService, NoOpQueryMatchRegistry.NoOp);
-        }
-        
-        public IQueryCommand UsingServices(IModelService service, IAudioService audioService, IQueryMatchRegistry registry)
-        {
-            modelService = service;
-            queryMatchRegistry = registry;
-            
-            if (createFingerprintCommand == null)
-            {
-                createFingerprintCommand = () => fingerprintingMethodFromSelector()
-                    .WithFingerprintConfig(queryConfiguration.FingerprintConfiguration)
-                    .UsingServices(audioService);
-            }
-
+            this.modelService = modelService;
             return this;
         }
 
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IAudioService)"/>
+        public IQueryCommand UsingServices(IModelService modelService, IAudioService audioService)
+        {
+            this.modelService = modelService;
+            this.audioService = audioService;
+            return this;
+        }
+        
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IAudioService,IQueryMatchRegistry)"/>
+        public IQueryCommand UsingServices(IModelService modelService, IAudioService audioService, IQueryMatchRegistry queryMatchRegistry)
+        {
+            this.modelService = modelService;
+            this.audioService = audioService;
+            this.queryMatchRegistry = queryMatchRegistry;
+            return this;
+        }
+
+        /// <inheritdoc cref="IQueryCommand.Query()"/>
         public async Task<QueryResult> Query()
         {
             return await Query(DateTime.MinValue);
         }
 
+        /// <inheritdoc cref="IQueryCommand.Query(DateTime)"/>
         public async Task<QueryResult> Query(DateTime relativeTo)
         {
             var fingerprintingStopwatch = Stopwatch.StartNew();
-            var hashes = await createFingerprintCommand().Hash();
+            var hashes = await createFingerprintCommand()
+                .WithFingerprintConfig(queryConfiguration.FingerprintConfiguration)
+                .UsingServices(audioService)
+                .Hash();
+            
             long fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
 
             var queryHashes = relativeTo == DateTime.MinValue ? hashes : hashes.WithNewRelativeTo(relativeTo);

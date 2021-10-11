@@ -5,7 +5,7 @@ namespace SoundFingerprinting.Command
     /// <summary>
     /// Fingerprint services selector.
     /// </summary>
-    public interface IUsingFingerprintServices
+    public interface IUsingFingerprintServices : IFingerprintCommand
     {
         /// <summary>
         ///  Sets the audio service used in fingerprinting the source.

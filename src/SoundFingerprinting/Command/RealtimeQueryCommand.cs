@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Command
     /// <summary>
     ///  Realtime command used to query the underlying data storage in realtime.
     /// </summary>
-    public sealed class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration, IRealtimeQueryCommand
+    public sealed class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
@@ -77,11 +77,18 @@ namespace SoundFingerprinting.Command
             return await QueryAndHash(queryFingerprintService, cancellationToken);
         }
 
-        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices"/>
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService)"/>
         public IRealtimeQueryCommand UsingServices(IModelService service)
         {
             modelService = service;
-            audioService = new SoundFingerprintingAudioService();
+            return this;
+        }
+
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IAudioService)"/>
+        public IRealtimeQueryCommand UsingServices(IModelService modelService, IAudioService audioService)
+        {
+            this.modelService = modelService;
+            this.audioService = audioService;
             return this;
         }
 

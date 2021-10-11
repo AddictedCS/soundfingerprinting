@@ -14,8 +14,8 @@
     [TestFixture]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
     {
-        private readonly DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
-        private readonly SoundFingerprintingAudioService audioService = new SoundFingerprintingAudioService();
+        private readonly DefaultFingerprintConfiguration config = new ();
+        private readonly SoundFingerprintingAudioService audioService = new ();
 
         [Test]
         public async Task CreateFingerprintsFromFileAndAssertNumberOfFingerprints()
@@ -24,10 +24,10 @@
 
             var fingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = new IncrementalStaticStride(staticStride) };
 
-            var command = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
-                                        .From(PathToWav)
-                                        .WithFingerprintConfig(fingerprintConfiguration)
-                                        .UsingServices(audioService);
+            var command = FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(PathToWav)
+                .WithFingerprintConfig(fingerprintConfiguration);
 
             double seconds = audioService.GetLengthInSeconds(PathToWav);
             int samples = (int)(seconds * fingerprintConfiguration.SampleRate);
@@ -48,7 +48,6 @@
             var fingerprints = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
                                             .From(PathToWav)
-                                            .UsingServices(audioService)
                                             .Hash();
 
             var modelService = new InMemoryModelService();
@@ -57,7 +56,7 @@
             var queryResult = await QueryCommandBuilder.Instance
                                .BuildQueryCommand()
                                .From(PathToWav, secondsToProcess, startAtSecond)
-                               .UsingServices(modelService, audioService)
+                               .UsingServices(modelService)
                                .Query();
 
             Assert.IsTrue(queryResult.ContainsMatches);
@@ -86,7 +85,6 @@
             var hashDatasFromSamples = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
                                         .From(samples)
-                                        .UsingServices(audioService)
                                         .Hash();
 
             AssertHashDatasAreTheSame(hashDatasFromFile, hashDatasFromSamples);

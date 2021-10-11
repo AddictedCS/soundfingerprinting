@@ -20,13 +20,13 @@
         private IModelService modelService;
         private readonly IAudioService audioService = new SoundFingerprintingAudioService();
 
-        private readonly Mock<TestRunnerEvent> nfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
-        private readonly Mock<TestRunnerEvent> nnfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
-        private readonly Mock<TestRunnerEvent> pfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
-        private readonly Mock<TestRunnerEvent> pnfe = new Mock<TestRunnerEvent>(MockBehavior.Strict);
-        private readonly Mock<TestRunnerEvent> tife = new Mock<TestRunnerEvent>(MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> nfe = new (MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> nnfe = new (MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> pfe = new (MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> pnfe = new (MockBehavior.Strict);
+        private readonly Mock<TestRunnerEvent> tife = new (MockBehavior.Strict);
 
-        private readonly Mock<ITagService> tagService = new Mock<ITagService>(MockBehavior.Strict);
+        private readonly Mock<ITagService> tagService = new (MockBehavior.Strict);
 
         [SetUp]
         public void SetUp()

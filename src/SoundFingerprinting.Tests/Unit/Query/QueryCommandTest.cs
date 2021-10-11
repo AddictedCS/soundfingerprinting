@@ -28,10 +28,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             match.CopyTo(twoCopies, match.Length);
 
             var modelService = new InMemoryModelService();
-            var audioService = new SoundFingerprintingAudioService();
-            await InsertFingerprints(twoCopies, audioService, modelService);
+            await InsertFingerprints(twoCopies, modelService);
 
-            var result = await GetQueryResult(match, audioService, modelService, permittedGap: 0.5);
+            var result = await GetQueryResult(match, modelService, permittedGap: 0.5);
 
             Assert.AreEqual(2, result.ResultEntries.Count());
             foreach (var entry in result.ResultEntries)
@@ -54,10 +53,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             float[] withJitter = AddJitter(match);
 
             var modelService = new InMemoryModelService();
-            var audioService = new SoundFingerprintingAudioService();
 
-            await InsertFingerprints(withJitter, audioService, modelService);
-            var result = await GetQueryResult(withJitter, audioService, modelService);
+            await InsertFingerprints(withJitter, modelService);
+            var result = await GetQueryResult(withJitter, modelService);
             
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.QueryMatchStartsAt).ToList();
@@ -81,10 +79,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             float[] query = AddJitter(match, beforeSec: 15, betweenSec: 0, afterSec: 15);
 
             var modelService = new InMemoryModelService();
-            var audioService = new SoundFingerprintingAudioService();
 
-            await InsertFingerprints(track, audioService, modelService);
-            var result = await GetQueryResult(query, audioService, modelService);
+            await InsertFingerprints(track, modelService);
+            var result = await GetQueryResult(query, modelService);
             
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
@@ -109,11 +106,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
             float[] withJitter = AddJitter(match, 15, 20);
 
             var modelService = new InMemoryModelService();
-            var audioService = new SoundFingerprintingAudioService();
 
-            await InsertFingerprints(match, audioService, modelService);
+            await InsertFingerprints(match, modelService);
 
-            var result = await GetQueryResult(withJitter, audioService, modelService);
+            var result = await GetQueryResult(withJitter, modelService);
 
             Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.QueryMatchStartsAt).ToList();
@@ -135,11 +131,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
             float[] withJitter = AddJitter(match, 15, 20);
 
             var modelService = new InMemoryModelService();
-            var audioService = new SoundFingerprintingAudioService();
 
-            await InsertFingerprints(withJitter, audioService, modelService);
+            await InsertFingerprints(withJitter, modelService);
 
-            var result = await GetQueryResult(match, audioService, modelService);
+            var result = await GetQueryResult(match, modelService);
             
             Assert.IsTrue(result.ContainsMatches);
             Assert.AreEqual(2, result.ResultEntries.Count());
@@ -179,7 +174,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return total;
         }
 
-        private static async Task<QueryResult> GetQueryResult(float[] match, IAudioService audioService, IModelService modelService, double permittedGap = 2)
+        private static async Task<QueryResult> GetQueryResult(float[] match, IModelService modelService, double permittedGap = 2)
         {
             return await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
@@ -190,16 +185,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     config.PermittedGap = permittedGap;
                     return config;
                 })
-                .UsingServices(modelService, audioService)
+                .UsingServices(modelService)
                 .Query();
         }
 
-        private static async Task InsertFingerprints(float[] audioSamples, IAudioService audioService, IModelService modelService)
+        private static async Task InsertFingerprints(float[] audioSamples, IModelService modelService)
         {
             var hashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(new AudioSamples(audioSamples, "Queen", 5512))
-                .UsingServices(audioService)
                 .Hash();
 
             modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, audioSamples.Length / 5512f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));

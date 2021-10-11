@@ -5,22 +5,22 @@
     using SoundFingerprinting.Configuration;
 
     /// <summary>
-    ///   Query configuration interface
+    ///   Query configuration interface.
     /// </summary>
     public interface IWithQueryConfiguration : IUsingQueryServices
     {
         /// <summary>
-        ///   Sets query configuration
+        ///   Sets query configuration.
         /// </summary>
-        /// <param name="queryConfiguration">Query configuration to use</param>
-        /// <returns>Query services selector</returns>
+        /// <param name="queryConfiguration">Query configuration object to use.</param>
+        /// <returns>Query services selector.</returns>
         IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration);
 
         /// <summary>
-        ///   Sets query configuration parameters
+        ///   Sets query configuration parameters.
         /// </summary>
-        /// <param name="amendQueryConfigFunctor">Functor</param>
-        /// <returns>Query services selector</returns>
+        /// <param name="amendQueryConfigFunctor">Amend functor.</param>
+        /// <returns>Query services selector.</returns>
         IUsingQueryServices WithQueryConfig(Func<QueryConfiguration, QueryConfiguration> amendQueryConfigFunctor);
     }
 }

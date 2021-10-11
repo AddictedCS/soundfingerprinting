@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Tests.Integration
 {
     using NUnit.Framework;
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -17,7 +16,6 @@
     [TestFixture]
     public class TrackDaoTest : IntegrationWithSampleFilesTest
     {
-        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
         private ITrackDao trackDao;
         private ISubFingerprintDao subFingerprintDao;
 
@@ -110,7 +108,6 @@
                     config.Stride = new IncrementalStaticStride(8192);
                     return config;
                 })
-                .UsingServices(audioService)
                 .Hash();
 
             var modelReferenceTracker = new UIntModelReferenceTracker();
