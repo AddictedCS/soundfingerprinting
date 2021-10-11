@@ -1,6 +1,5 @@
 namespace SoundFingerprinting
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
@@ -49,8 +48,7 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            double length = GetLength(configuration, hashes);
-            return new Hashes(hashes, length, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin});
+            return new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin});
         }
 
         public Hashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
@@ -61,8 +59,7 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            double length = GetLength(configuration, hashes);
-            return new Hashes(hashes, length, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin});
+            return new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin});
         }
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
@@ -102,11 +99,6 @@ namespace SoundFingerprinting
             return fingerprints.ToList();
         }
         
-        private static double GetLength(FingerprintConfiguration configuration, IReadOnlyCollection<HashedFingerprint> hashes)
-        {
-            return hashes.Any() ? hashes.Max(_ => _.StartsAt) + configuration.FingerprintLengthInSeconds : 0d;
-        }
-
         private static IEnumerable<Frame> BlurFrames(IEnumerable<Frame> frames, GaussianBlurConfiguration blurConfiguration)
         {
             double[,] kernel = GaussianBlurKernel.Kernel2D(blurConfiguration.Kernel, blurConfiguration.Sigma);
