@@ -101,21 +101,15 @@
             var hashes = await createFingerprintCommand().Hash();
             long fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
 
-            var queryStopwatch = Stopwatch.StartNew();
             var queryHashes = relativeTo == DateTime.MinValue ? hashes : hashes.WithNewRelativeTo(relativeTo);
             var queryResult = queryFingerprintService.Query(queryHashes, queryConfiguration, modelService);
-            long queryDuration = queryStopwatch.ElapsedMilliseconds;
             if (queryResult.ContainsMatches)
             {
                 var queryMatches = queryResult.ResultEntries.Select(_ => _.ToQueryMatch()).ToList();
                 queryMatchRegistry.RegisterMatches(queryMatches, new Dictionary<string, string>());
             }
 
-            return new QueryResult(queryResult.ResultEntries, 
-                hashes,
-                new QueryStats(queryResult.Stats.TotalTracksAnalyzed,
-                queryResult.Stats.TotalFingerprintsAnalyzed,
-                queryDuration, fingerprintingDuration));
+            return new QueryResult(queryResult.ResultEntries, hashes, queryResult.CommandStats.WithFingerprintingDurationMilliseconds(fingerprintingDuration));
         }
     }
 }

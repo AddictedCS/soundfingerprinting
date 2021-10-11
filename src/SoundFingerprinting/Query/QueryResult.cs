@@ -14,12 +14,12 @@
         /// </summary>
         /// <param name="results">Actual result entries</param>
         /// <param name="queryHashes">Query hashes, used for querying</param>
-        /// <param name="queryStats">Query statistics</param>
-        public QueryResult(IEnumerable<ResultEntry> results, Hashes queryHashes, QueryStats queryStats)
+        /// <param name="queryCommandStats">Query statistics</param>
+        public QueryResult(IEnumerable<ResultEntry> results, Hashes queryHashes, QueryCommandStats queryCommandStats)
         {
             ResultEntries = results;
             QueryHashes = queryHashes;
-            Stats = queryStats;
+            CommandStats = queryCommandStats;
         }
 
         /// <summary>
@@ -43,18 +43,19 @@
         public ResultEntry? BestMatch => ContainsMatches ? ResultEntries.First() : null;
 
         /// <summary>
-        ///  Gets query statistics.
+        ///  Gets query command statistics.
         /// </summary>
-        public QueryStats Stats { get; }
+        public QueryCommandStats CommandStats { get; }
 
         /// <summary>
         ///  Gets empty query result.
         /// </summary>
         /// <param name="hashes">Hashes used for querying.</param>
+        /// <param name="queryTimeMilliseconds">Query time in milliseconds.</param>
         /// <returns>An empty instance of the <see cref="QueryResult"/> class. </returns>
-        public static QueryResult Empty(Hashes hashes)
+        public static QueryResult Empty(Hashes hashes, long queryTimeMilliseconds)
         {
-            return new QueryResult(Enumerable.Empty<ResultEntry>(), hashes, new QueryStats(0, 0, 0, 0));
+            return new QueryResult(Enumerable.Empty<ResultEntry>(), hashes, new QueryCommandStats(0, 0, queryTimeMilliseconds, 0));
         }
 
         /// <summary>
@@ -64,10 +65,11 @@
         /// <param name="hashes">Query hashes used for querying.</param>
         /// <param name="totalTracksCandidates">Total track candidates analyzed during query.</param>
         /// <param name="totalSubFingerprintCandidates">Total sub-fingerprint candidates analyzed during query.</param>
+        /// <param name="queryTimeMilliseconds">Query time milliseconds.</param>
         /// <returns>Instance of QueryResult class.</returns>
-        public static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, Hashes hashes, int totalTracksCandidates, int totalSubFingerprintCandidates)
+        public static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, Hashes hashes, int totalTracksCandidates, int totalSubFingerprintCandidates, long queryTimeMilliseconds)
         {
-            return new QueryResult(results, hashes, new QueryStats(totalTracksCandidates, totalSubFingerprintCandidates, 0, 0));
+            return new QueryResult(results, hashes, new QueryCommandStats(totalTracksCandidates, totalSubFingerprintCandidates, 0, queryTimeMilliseconds));
         }
     }
 }

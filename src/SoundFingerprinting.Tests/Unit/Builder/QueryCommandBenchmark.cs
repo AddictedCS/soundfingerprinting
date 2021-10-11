@@ -43,9 +43,9 @@
                     .UsingServices(modelService, audioService)
                     .Query();
 
-                Console.WriteLine("{0,10}ms{1,15}ms{2,15}", queryResult.Stats.FingerprintingDuration, queryResult.Stats.QueryDuration, queryResult.Stats.TotalFingerprintsAnalyzed);
-                avgFingerprinting += queryResult.Stats.FingerprintingDuration;
-                avgQuery += queryResult.Stats.QueryDuration;
+                Console.WriteLine("{0,10}ms{1,15}ms{2,15}", queryResult.CommandStats.FingerprintingDurationMilliseconds, queryResult.CommandStats.QueryDurationMilliseconds, queryResult.CommandStats.TotalFingerprintsAnalyzed);
+                avgFingerprinting += queryResult.CommandStats.FingerprintingDurationMilliseconds;
+                avgQuery += queryResult.CommandStats.QueryDurationMilliseconds;
             }
 
             Console.WriteLine("Avg. Fingerprinting: {0,0:000}ms, Avg. Query: {1, 0:000}ms", avgFingerprinting / totalRuns, avgQuery / totalRuns);

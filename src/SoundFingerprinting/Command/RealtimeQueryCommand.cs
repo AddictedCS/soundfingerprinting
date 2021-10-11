@@ -3,6 +3,7 @@ namespace SoundFingerprinting.Command
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -117,10 +118,11 @@ namespace SoundFingerprinting.Command
                 {
                     continue;
                 }
-                
+
+                var fingerprintingStopwatch = Stopwatch.StartNew();
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
                 hashes = hashesInterceptor(hashes).WithTimeOffset(audioSamples.Duration - hashes.DurationInSeconds);
-                
+                var fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
                 if (!TryQuery(service, hashes, out var queryResults))
                 {
                     continue;
@@ -129,14 +131,15 @@ namespace SoundFingerprinting.Command
                 foreach (var queryResult in queryResults)
                 {
                     var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, queryResult.QueryHashes.DurationInSeconds, queryResult.QueryHashes.TimeOffset);
-                    InvokeSuccessHandler(aggregatedResult.SuccessEntries, queryResult.QueryHashes, queryResult.Stats);
-                    InvokeDidNotPassFilterHandler(aggregatedResult.DidNotPassThresholdEntries, queryResult.QueryHashes, queryResult.Stats);
+                    var queryCommandStats = queryResult.CommandStats.WithFingerprintingDurationMilliseconds(fingerprintingDuration);
+                    InvokeSuccessHandler(aggregatedResult.SuccessEntries, queryResult.QueryHashes, queryCommandStats);
+                    InvokeDidNotPassFilterHandler(aggregatedResult.DidNotPassThresholdEntries, queryResult.QueryHashes, queryCommandStats);
                 }
             }
 
             var purged = resultsAggregator.Purge();
-            InvokeSuccessHandler(purged.SuccessEntries, Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0));
-            InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries, Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0)); 
+            InvokeSuccessHandler(purged.SuccessEntries, Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
+            InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries, Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0)); 
             return queryLength;
         }
 
@@ -182,20 +185,20 @@ namespace SoundFingerprinting.Command
                 .Hash();
         }
 
-        private void InvokeDidNotPassFilterHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryStats queryStats)
+        private void InvokeDidNotPassFilterHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryCommandStats queryCommandStats)
         {
             if (resultEntries.Any())
             {
-                var result = new QueryResult(resultEntries, hashes, queryStats);
+                var result = new QueryResult(resultEntries, hashes, queryCommandStats);
                 configuration?.DidNotPassFilterCallback(result);
             }
         }
 
-        private void InvokeSuccessHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryStats queryStats)
+        private void InvokeSuccessHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryCommandStats queryCommandStats)
         {
             if (resultEntries.Any())
             {
-                var result = new QueryResult(resultEntries, hashes, queryStats);
+                var result = new QueryResult(resultEntries, hashes, queryCommandStats);
                 configuration?.SuccessCallback(result);
             }
         }

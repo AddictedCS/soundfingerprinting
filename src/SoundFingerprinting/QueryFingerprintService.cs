@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
+    using System.Diagnostics;
     using System.Linq;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
@@ -21,17 +22,18 @@
 
         public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService)
         {
+            var queryStopwatch = Stopwatch.StartNew();
             var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(hashes, configuration, modelService);
-
+            var queryTimeMilliseconds = queryStopwatch.ElapsedMilliseconds;
             if (!groupedQueryResults.ContainsMatches)
             {
-                return QueryResult.Empty(hashes);
+                return QueryResult.Empty(hashes, queryTimeMilliseconds);
             }
 
             var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount;
-            return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed);
+            return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed, queryTimeMilliseconds);
         }
 
         private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)

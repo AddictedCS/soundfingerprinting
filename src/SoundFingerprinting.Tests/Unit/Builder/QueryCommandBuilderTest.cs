@@ -59,7 +59,7 @@
         public async Task QueryIsBuiltFromFileCorrectly()
         {
             const string pathToFile = "path-to-file";
-            var dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0));
+            var dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
             var hashedFingerprints =new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
@@ -87,7 +87,7 @@
             const string pathToFile = "path-to-file";
             const int startAtSecond = 120;
             const int secondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0));
+            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
             var hashes = new Hashes(new List<HashedFingerprint>(
                     new[]
                         {
