@@ -7,7 +7,7 @@ namespace SoundFingerprinting.Query
     using SoundFingerprinting.Command;
     using SoundFingerprinting.LCS;
 
-    public sealed class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
+    internal sealed class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
     {
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
         private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;
@@ -110,7 +110,7 @@ namespace SoundFingerprinting.Query
             return new RealtimeQueryResult(Sorted(completed), Sorted(cantWaitAnymore));
         }
 
-        private static IEnumerable<ResultEntry> Sorted(IEnumerable<ResultEntry> entries)
+        private static List<ResultEntry> Sorted(IEnumerable<ResultEntry> entries)
         {
             return entries
                 .OrderByDescending(e => e.Confidence)

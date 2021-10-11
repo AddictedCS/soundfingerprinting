@@ -8,14 +8,14 @@ namespace SoundFingerprinting.Configuration
     using SoundFingerprinting.Strides;
 
     /// <summary>
-    ///   Configuration options used when querying the data source in realtime
+    ///   Configuration options used when querying the data source in realtime.
     /// </summary>
     public class RealtimeQueryConfiguration
     {
         public RealtimeQueryConfiguration(int thresholdVotes,
             IRealtimeResultEntryFilter resultEntryFilter,
-            Action<ResultEntry> successCallback,
-            Action<ResultEntry> didNotPassFilterCallback,
+            Action<QueryResult> successCallback,
+            Action<QueryResult> didNotPassFilterCallback,
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
             Action<ResultEntry> ongoingSuccessCallback,
             Action<Exception, Hashes> errorCallback,
@@ -63,53 +63,53 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///  Gets or sets result entry filter
+        ///  Gets or sets result entry filter.
         /// </summary>
         public IRealtimeResultEntryFilter ResultEntryFilter { get; set; }
 
         /// <summary>
-        ///   Gets or sets success callback invoked when a candidate passes result entry filter
+        ///   Gets or sets success callback invoked when a candidate passes result entry filter.
         /// </summary>
-        public Action<ResultEntry> SuccessCallback { get; set; }
+        public Action<QueryResult> SuccessCallback { get; set; }
         
         /// <summary>
-        ///  Gets or sets callback invoked when a candidate did not pass result entry filter, but has been considered a candidate
+        ///  Gets or sets callback invoked when a candidate did not pass result entry filter, but has been considered a candidate.
         /// </summary>
-        public Action<ResultEntry> DidNotPassFilterCallback { get; set; }
+        public Action<QueryResult> DidNotPassFilterCallback { get; set; }
 
         /// <summary>
-        ///  Gets or sets ongoing result entry filter that will be invoked for every result entry filter that is captured by the aggregator
+        ///  Gets or sets ongoing result entry filter that will be invoked for every result entry filter that is captured by the aggregator.
         /// </summary>
         public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }
         
         /// <summary>
-        ///  Gets or sets ongoing success callback that will be invoked once ongoing result entry filter is passed
+        ///  Gets or sets ongoing success callback that will be invoked once ongoing result entry filter is passed.
         /// </summary>
         public Action<ResultEntry> OngoingSuccessCallback { get; set; }
 
         /// <summary>
-        ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute
+        ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute.
         /// </summary>
         public Action<Exception, Hashes> ErrorCallback { get; set; }
 
         /// <summary>
-        ///  Gets or sets error restore callback
+        ///  Gets or sets error restore callback.
         /// </summary>
         public Action RestoredAfterErrorCallback { get; set; }
 
         /// <summary>
-        ///  Gets or sets downtime hashes enumerable, that one can provide with hashes that were captured during downtime
+        ///  Gets or sets downtime hashes enumerable, that one can provide with hashes that were captured during downtime.
         /// </summary>
         public IEnumerable<Hashes> DowntimeHashes { get; set; }
 
         /// <summary>
         ///  Gets or sets downtime capture period (in seconds), value which will instruct the framework to cache realtime
-        ///  hashes for later processing in case if an unsuccessful request is made to Emy
+        ///  hashes for later processing in case if an unsuccessful request is made to Emy.
         /// </summary>
         public double DowntimeCapturePeriod { get; set; }
 
         /// <summary>
-        ///  Gets or sets stride between 2 consecutive fingerprints used during querying
+        ///  Gets or sets stride between 2 consecutive fingerprints used during querying.
         /// </summary>
         public IStride Stride
         {
@@ -118,7 +118,7 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///  Gets or sets permitted gap between consecutive candidate so that they are glued together
+        ///  Gets or sets permitted gap between consecutive candidate so that they are glued together.
         /// </summary>
         public double PermittedGap
         {
@@ -127,7 +127,7 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates
+        ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates.
         /// </summary>
         public IDictionary<string, string> YesMetaFieldsFilter
         {
@@ -136,7 +136,7 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///  Gets or sets list of negative meta fields to consider when querying the data source for potential candidates
+        ///  Gets or sets list of negative meta fields to consider when querying the data source for potential candidates.
         /// </summary>
         public IDictionary<string, string> NoMetaFieldsFilter
         {

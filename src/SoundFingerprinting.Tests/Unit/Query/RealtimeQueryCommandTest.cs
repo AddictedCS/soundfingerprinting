@@ -139,15 +139,21 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var didNotGetToContiguousQueryMatchLengthMatch = new List<ResultEntry>();
             
             var realtimeConfig = new RealtimeQueryConfiguration(thresholdVotes: 4, new TrackMatchLengthEntryFilter(queryMatchLength), 
-                successCallback: entry =>
+                successCallback: result =>
                 {
-                    Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
-                    successMatches.Add(entry);
+                    foreach (var entry in result.ResultEntries)
+                    {
+                        Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
+                        successMatches.Add(entry);
+                    }
                 },
-                didNotPassFilterCallback: entry =>
+                didNotPassFilterCallback: result =>
                 {
-                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
-                    didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
+                    foreach (var entry in result.ResultEntries)
+                    {
+                        Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
+                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
+                    }
                 },
                 new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d),
                 ongoingSuccessCallback: _ => { Interlocked.Increment(ref ongoingCalls); },
@@ -250,7 +256,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                  {
                      config.SuccessCallback = entry =>
                      {
-                         resultEntries.Add(entry);
+                         resultEntries.AddRange(entry.ResultEntries);
                      };
 
                      config.DidNotPassFilterCallback = _ => Interlocked.Increment(ref didNotPassThreshold);
@@ -366,7 +372,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.SuccessCallback = entry => entries.Add(entry);
+                    config.SuccessCallback = entry => entries.AddRange(entry.ResultEntries);
                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.8d);
                     config.Stride = new IncrementalStaticStride(2048);
                     return config;
@@ -419,7 +425,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .WithRealtimeQueryConfig(config =>
                 {
                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.5, true);
-                    config.SuccessCallback = entry => { list.Add(entry); };
+                    config.SuccessCallback = entry => { list.AddRange(entry.ResultEntries); };
                     return config;
                 })
                 .UsingServices(modelService)

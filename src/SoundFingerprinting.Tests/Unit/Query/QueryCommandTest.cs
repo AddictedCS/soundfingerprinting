@@ -36,7 +36,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(2, result.ResultEntries.Count());
             foreach (var entry in result.ResultEntries)
             {
-                Assert.AreEqual(1, entry.Confidence, 0.02);
+                Assert.AreEqual(1, entry.Confidence, 0.1);
                 Assert.AreEqual(10, entry.TrackCoverageWithPermittedGapsLength, 1);
             }
         }

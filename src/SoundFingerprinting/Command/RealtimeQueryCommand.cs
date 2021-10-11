@@ -129,14 +129,14 @@ namespace SoundFingerprinting.Command
                 foreach (var queryResult in queryResults)
                 {
                     var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, queryResult.QueryHashes.DurationInSeconds, queryResult.QueryHashes.TimeOffset);
-                    InvokeSuccessHandler(aggregatedResult);
-                    InvokeDidNotPassFilterHandler(aggregatedResult);
+                    InvokeSuccessHandler(aggregatedResult.SuccessEntries, queryResult.QueryHashes, queryResult.Stats);
+                    InvokeDidNotPassFilterHandler(aggregatedResult.DidNotPassThresholdEntries, queryResult.QueryHashes, queryResult.Stats);
                 }
             }
 
             var purged = resultsAggregator.Purge();
-            InvokeSuccessHandler(purged);
-            InvokeDidNotPassFilterHandler(purged); 
+            InvokeSuccessHandler(purged.SuccessEntries, Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0));
+            InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries, Hashes.GetEmpty(MediaType.Audio), new QueryStats(0, 0, 0, 0)); 
             return queryLength;
         }
 
@@ -182,18 +182,20 @@ namespace SoundFingerprinting.Command
                 .Hash();
         }
 
-        private void InvokeDidNotPassFilterHandler(RealtimeQueryResult realtimeQueryResult)
+        private void InvokeDidNotPassFilterHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryStats queryStats)
         {
-            foreach (var result in realtimeQueryResult.DidNotPassThresholdEntries)
+            if (resultEntries.Any())
             {
+                var result = new QueryResult(resultEntries, hashes, queryStats);
                 configuration?.DidNotPassFilterCallback(result);
             }
         }
 
-        private void InvokeSuccessHandler(RealtimeQueryResult realtimeQueryResult)
+        private void InvokeSuccessHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryStats queryStats)
         {
-            foreach (var result in realtimeQueryResult.SuccessEntries)
+            if (resultEntries.Any())
             {
+                var result = new QueryResult(resultEntries, hashes, queryStats);
                 configuration?.SuccessCallback(result);
             }
         }
