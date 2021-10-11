@@ -52,7 +52,7 @@
         /// <returns>New instance of <see cref="QueryCommandStats"/> class.</returns>
         public QueryCommandStats WithFingerprintingDurationMilliseconds(long fingerprintingDurationMilliseconds)
         {
-            return new QueryCommandStats(TotalTracksAnalyzed, TotalFingerprintsAnalyzed, QueryDurationMilliseconds, FingerprintingDurationMilliseconds);
+            return new QueryCommandStats(TotalTracksAnalyzed, TotalFingerprintsAnalyzed, QueryDurationMilliseconds, fingerprintingDurationMilliseconds);
         }
     }
 }
