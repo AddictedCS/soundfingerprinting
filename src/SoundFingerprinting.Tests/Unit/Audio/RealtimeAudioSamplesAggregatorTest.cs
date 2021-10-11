@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Tests.Unit.Audio
 {
+    using System;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Strides;
@@ -7,6 +8,17 @@ namespace SoundFingerprinting.Tests.Unit.Audio
     [TestFixture]
     public class RealtimeAudioSamplesAggregatorTest
     {
+        [Test]
+        public void ShouldIgnoreEmptyDataArraysIfTheyArrive()
+        {
+            var realtimeAggregator = new RealtimeAudioSamplesAggregator(new IncrementalStaticStride(551 * 2));
+            for(int i = 0; i < 10; ++i)
+            {
+                var result = realtimeAggregator.Aggregate(new AudioSamples(Array.Empty<float>(), string.Empty, 5512));
+                Assert.IsNull(result);
+            }
+        }
+        
         /**
          * Size of one buffer is 5512 * 100 / 1_000 = 551
          * First 10_240 / 551 = 18, iterations no audio samples will be purged, then every second iteration an element will be purged
@@ -17,23 +29,35 @@ namespace SoundFingerprinting.Tests.Unit.Audio
         {
             var realtimeAggregator = new RealtimeAudioSamplesAggregator(new IncrementalStaticStride(551 * 2));
 
-            int sampleRate = 5512, bufferSizeMilliseconds = 100, totalLengthMilliseconds = 10 * 1000, nonNull = 0;
+            int minFingerprintSize = 10_240, sampleRate = 5512, bufferSizeMilliseconds = 100, totalLengthMilliseconds = 10 * 1000, nonNull = 0;
             for (int i = 0; i < totalLengthMilliseconds / bufferSizeMilliseconds; ++i)
             {
                 var buffer = TestUtilities.GenerateRandomFloatArray(bufferSizeMilliseconds * sampleRate / 1000);
-                var aggregated = realtimeAggregator.Aggregate(new AudioSamples(buffer, string.Empty, sampleRate));
+                var relativeTo = DateTime.UnixEpoch.AddMilliseconds(bufferSizeMilliseconds * i);
+                var aggregated = realtimeAggregator.Aggregate(new AudioSamples(buffer, string.Empty, sampleRate, relativeTo));
                 if (aggregated == null)
                 {
                     // first 18 and every second input buffer will not return results to the caller
-                    Assert.IsTrue(i < 18 || i % 2 == 1, $"{i}");
+                    Assert.IsTrue(i < 19 || i % 2 == 1, $"{i}");
                 }
                 else
                 {
                     nonNull++;
+                    if (nonNull == 1)
+                    {
+                        int overshot = 19 * 551; // buffer is 551 samples long
+                        Assert.AreEqual(0, Math.Abs(DateTime.UnixEpoch.Subtract(aggregated.RelativeTo).TotalMilliseconds), delta: 1);
+                        Assert.AreEqual(overshot, aggregated.Samples.Length);
+                    }
+                    else
+                    {
+                        int expectedTail = ((minFingerprintSize - 551) * 1000) / sampleRate;
+                        Assert.AreEqual(expectedTail, relativeTo.Subtract(aggregated.RelativeTo).TotalMilliseconds, delta: 1);
+                    }
                 }
             }
             
-            Assert.AreEqual(System.Math.Round((10 * 5512 - 10240f) / (551 * 2)), nonNull);
+            Assert.AreEqual(Math.Round((10f * sampleRate - minFingerprintSize) / (551 * 2)), nonNull);
         }
 
         [Test]
