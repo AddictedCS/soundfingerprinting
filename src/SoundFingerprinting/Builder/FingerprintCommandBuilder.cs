@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Builder
     using SoundFingerprinting.Command;
 
     /// <summary>
-    ///  Fingerprint command builder class.
+    ///  Fingerprint command builder.
     /// </summary>
     public sealed class FingerprintCommandBuilder : IFingerprintCommandBuilder
     {

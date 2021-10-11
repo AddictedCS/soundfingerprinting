@@ -18,7 +18,7 @@ namespace SoundFingerprinting.Command
         /// <summary>
         ///  Sets realtime query configuration parameters.
         /// </summary>
-        /// <param name="amendQueryFunctor">Amend functor for and instance of <see cref="RealtimeQueryConfiguration"/>.</param>
+        /// <param name="amendQueryFunctor">Amend functor for and instance of <see cref="DefaultRealtimeQueryConfiguration"/>.</param>
         /// <returns>Query services selector.</returns>
         IInterceptRealtimeHashes WithRealtimeQueryConfig(Func<RealtimeQueryConfiguration, RealtimeQueryConfiguration> amendQueryFunctor);
     }
