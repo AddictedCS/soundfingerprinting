@@ -63,13 +63,16 @@
         /// </summary>
         /// <param name="results">Result entries.</param>
         /// <param name="hashes">Query hashes used for querying.</param>
-        /// <param name="totalTracksCandidates">Total track candidates analyzed during query.</param>
-        /// <param name="totalSubFingerprintCandidates">Total sub-fingerprint candidates analyzed during query.</param>
+        /// <param name="totalTracksAnalyzed">Total track candidates analyzed during query.</param>
+        /// <param name="totalFingerprintsAnalyzed">Total sub-fingerprint candidates analyzed during query.</param>
         /// <param name="queryTimeMilliseconds">Query time milliseconds.</param>
         /// <returns>Instance of QueryResult class.</returns>
-        public static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, Hashes hashes, int totalTracksCandidates, int totalSubFingerprintCandidates, long queryTimeMilliseconds)
+        public static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, Hashes hashes, int totalTracksAnalyzed, int totalFingerprintsAnalyzed, long queryTimeMilliseconds)
         {
-            return new QueryResult(results, hashes, new QueryCommandStats(totalTracksCandidates, totalSubFingerprintCandidates, queryTimeMilliseconds, 0));
+            return new QueryResult(results, hashes, new QueryCommandStats(totalTracksAnalyzed: totalTracksAnalyzed, 
+                totalFingerprintsAnalyzed: totalFingerprintsAnalyzed, 
+                queryDurationMilliseconds: queryTimeMilliseconds, 
+                fingerprintingDurationMilliseconds: 0));
         }
     }
 }

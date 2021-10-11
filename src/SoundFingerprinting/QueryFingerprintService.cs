@@ -24,16 +24,15 @@
         {
             var queryStopwatch = Stopwatch.StartNew();
             var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(hashes, configuration, modelService);
-            var queryTimeMilliseconds = queryStopwatch.ElapsedMilliseconds;
             if (!groupedQueryResults.ContainsMatches)
             {
-                return QueryResult.Empty(hashes, queryTimeMilliseconds);
+                return QueryResult.Empty(hashes,  queryStopwatch.ElapsedMilliseconds);
             }
 
             var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount;
-            return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed, queryTimeMilliseconds);
+            return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed,  queryStopwatch.ElapsedMilliseconds);
         }
 
         private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)
