@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Strides;
 
     /// <summary>
@@ -16,6 +17,11 @@
         /// <summary>
         ///   Gets or sets vote count for a track to be considered a potential match (i.e. [1; 25]).
         /// </summary>
+        /// <remarks>
+        ///  Each fingerprints contains a predefined number of integers that describe it <see cref="HashedFingerprint.HashBins"/> (by default 25 integers).
+        ///  Threshold votes control how many of those integers have to match to report a successful match.
+        ///  The higher the number the more precise the content from the query and track have to be (default = 4).
+        /// </remarks>
         public int ThresholdVotes
         {
             get => thresholdVotes;
@@ -52,6 +58,11 @@
         /// <summary>
         ///  Gets or sets stride between 2 consecutive fingerprints used during querying.
         /// </summary>
+        /// <remarks>
+        ///  You don't have to use the same stride when inserting and querying.
+        ///  It is better to use a randomized query stride to minimize the probability of unlucky alignments between query and target track.
+        ///  Default is <see cref="IncrementalRandomStride"/> with 256-512 range.
+        /// </remarks>
         public IStride Stride
         {
             get => FingerprintConfiguration.SpectrogramConfig.Stride;
@@ -70,26 +81,41 @@
         }
 
         /// <summary>
-        ///  Gets or sets frequency range to analyze when creating the fingerprint.
+        ///  Gets or sets frequency range to analyze when creating the fingerprint (default 318-2000 Hz).
         /// </summary>
+        /// <remarks>
+        ///  The same frequency range have to be used when generating fingerprints for insert and query for the algorithm to be able to cross-match them.
+        /// </remarks>
         public FrequencyRange FrequencyRange
         {
             get => FingerprintConfiguration.FrequencyRange;
 
-            set => FingerprintConfiguration.FrequencyRange = value;
+            set
+            {
+                if (value.Max > FingerprintConfiguration.SampleRate / 2)
+                {
+                    throw new ArgumentException($"Max frequency can't exceed Nyquist frequency {FingerprintConfiguration.SampleRate / 2}", nameof(FrequencyRange.Max));
+                }
+                
+                FingerprintConfiguration.FrequencyRange = value;
+            }
         }
 
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 
-        ///  Useful when you have a long query which may contain same track multiple times scattered across the query.
+        ///  Useful when you have a long query containing the same track multiple times scattered across the query.
         ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
         public bool AllowMultipleMatchesOfTheSameTrackInQuery { get; set; }
 
         /// <summary>
-        ///  Gets or sets permitted gap between consecutive matches of the same track.
+        ///  Gets or sets permitted gap between consecutive matches of the same track (as defined by the <see cref="Coverage.BestPath"/> property).
         ///  A gap indicates the difference between query and target track, permitted gap defines the length of the gap to be ignored.
         /// </summary>
+        /// <remarks>
+        ///  <see cref="Coverage" /> describes in detail when the match occurred, including any gaps that happened along the way.
+        ///  Permitted gap instructs the algorithm to ignore gaps of a certain length.
+        /// </remarks>
         public double PermittedGap { get; set; }
 
         /// <summary>

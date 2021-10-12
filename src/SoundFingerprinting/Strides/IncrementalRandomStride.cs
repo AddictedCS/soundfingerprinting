@@ -8,15 +8,15 @@
     public class IncrementalRandomStride : IStride
     {
         private readonly Random random;
-        
+
         /// <summary>
-        ///  Creates new instance of <see cref="IncrementalRandomStride"/>.
+        /// Initializes a new instance of the <see cref="IncrementalRandomStride"/> class.
         /// </summary>
         /// <param name="minStride">Size of the minimum stride measured in audio samples, used between two consecutive fingerprints.</param>
         /// <param name="maxStride">Size of the maximum stride measured in audio samples, used between two consecutive fingerprints.</param>
         /// <param name="seed">Seed used stride the track. If set to zero, random seed will be used.</param>
         /// <exception cref="ArgumentException">MinStride should always be less or equal to MaxStride.</exception>
-        public IncrementalRandomStride(int minStride, int maxStride, int seed = 0) 
+        public IncrementalRandomStride(int minStride, int maxStride, int seed = 0)
         {
             if (minStride > maxStride)
             {
