@@ -1,5 +1,6 @@
 namespace SoundFingerprinting
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
@@ -41,6 +42,11 @@ namespace SoundFingerprinting
 
         public Hashes CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
         {
+            if (samples.SampleRate != configuration.SampleRate)
+            {
+                throw new ArgumentException($"Provided samples are not sampled in the required sample rate {configuration.SampleRate}", nameof(samples));
+            }
+            
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             var hashes = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
                 .AsParallel()
