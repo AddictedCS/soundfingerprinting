@@ -5,7 +5,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Runtime.InteropServices.ComTypes;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -24,7 +23,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task RealtimeQueryShouldMatchOnlySelectedClusters()
         {
-            var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
             int count = 10, foundWithClusters = 0, foundWithWrongClusters = 0, testWaitTime = 3000;
             var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
@@ -32,7 +30,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
                                                 .From(concatenated)
-                                                .UsingServices(audioService)
                                                 .Hash();
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", new Dictionary<string, string>{{ "country", "USA" }}), hashes);
@@ -50,7 +47,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .UsingServices(modelService)
                                               .Query(cancellationTokenSource.Token);
             
-            var right = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+            var right = QueryCommandBuilder.Instance
+                                .BuildRealtimeQueryCommand()
                                 .From(SimulateRealtimeQueryData(data, jitterLength: 0))
                                 .WithRealtimeQueryConfig(config =>
                                 {
@@ -71,7 +69,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task RealtimeQueryStrideShouldBeUsed()
         {
-            var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
             int minSize = 8192 + 2048;
             int staticStride = 1024;
@@ -83,7 +80,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
                                                 .From(concatenated)
-                                                .UsingServices(audioService)
                                                 .Hash();
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
@@ -116,7 +112,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task ShouldQueryInRealtime()
         {
-            var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
             const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
@@ -127,7 +122,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
                                                 .From(concatenated)
-                                                .UsingServices(audioService)
                                                 .Hash();
 
             // hashes have to be equal to total track length +- 1 second
@@ -140,21 +134,27 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var didNotGetToContiguousQueryMatchLengthMatch = new List<ResultEntry>();
             
             var realtimeConfig = new RealtimeQueryConfiguration(thresholdVotes: 4, new TrackMatchLengthEntryFilter(queryMatchLength), 
-                successCallback: entry =>
+                successCallback: result =>
                 {
-                    Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
-                    successMatches.Add(entry);
+                    foreach (var entry in result.ResultEntries)
+                    {
+                        Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
+                        successMatches.Add(entry);
+                    }
                 },
-                didNotPassFilterCallback: entry =>
+                didNotPassFilterCallback: result =>
                 {
-                    Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
-                    didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
+                    foreach (var entry in result.ResultEntries)
+                    {
+                        Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
+                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
+                    }
                 },
                 new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d),
                 ongoingSuccessCallback: _ => { Interlocked.Increment(ref ongoingCalls); },
                 errorCallback: (error, _) => throw error,
                 restoredAfterErrorCallback: () => throw new Exception("Downtime callback called"),
-                downtimeHashes: Enumerable.Empty<Hashes>(), 
+                offlineStorage: new EmptyOfflineStorage(), 
                 stride: new IncrementalRandomStride(256, 512), 
                 permittedGap: 2d,
                 downtimeCapturePeriod: 0d,
@@ -219,7 +219,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task ShouldNotLoseAudioSamplesInCaseIfExceptionIsThrown()
         {
-            var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
             const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
@@ -235,7 +234,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var hashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
                                                 .From(concatenated)
-                                                .UsingServices(audioService)
                                                 .Hash();
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
@@ -251,7 +249,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                  {
                      config.SuccessCallback = entry =>
                      {
-                         resultEntries.Add(entry);
+                         resultEntries.AddRange(entry.ResultEntries);
                      };
 
                      config.DidNotPassFilterCallback = _ => Interlocked.Increment(ref didNotPassThreshold);
@@ -263,7 +261,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                      config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.4, waitTillCompletion: true);
                      config.RestoredAfterErrorCallback = () => restoreCalled[0] = true;
-                     config.DowntimeHashes = offlineStorage;              // store the other half of the fingerprints in the downtime hashes storage
+                     config.OfflineStorage = offlineStorage;              // store the other half of the fingerprints in the downtime hashes storage
                      config.DowntimeCapturePeriod = totalQueryLength / 2; // store half of the fingerprints in the offline storage
                      return config;
                  })
@@ -289,7 +287,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task HashesShouldMatchExactlyWhenAggregated()
         {
-            var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
             int count = 20;
@@ -303,7 +300,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     config.Stride = new IncrementalStaticStride(512);
                     return config;
                 })
-                .UsingServices(audioService)
                 .Hash();
             
             var collection = SimulateRealtimeQueryData(data, jitterLength: 0);
@@ -343,7 +339,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public async Task QueryingWithAggregatedHashesShouldResultInTheSameMatches()
         {
-            var audioService = new SoundFingerprintingAudioService();
             var modelService = new InMemoryModelService();
 
             int count = 20, testWaitTime = 5000;
@@ -353,7 +348,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BuildFingerprintCommand()
                 .From(concatenated)
                 .WithFingerprintConfig(config => config)
-                .UsingServices(audioService)
                 .Hash();
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
@@ -367,7 +361,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.SuccessCallback = entry => entries.Add(entry);
+                    config.SuccessCallback = entry => entries.AddRange(entry.ResultEntries);
                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.8d);
                     config.Stride = new IncrementalStaticStride(2048);
                     return config;
@@ -387,7 +381,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var nonRealtimeResult = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(aggregatedHashes)
-                .UsingServices(modelService, audioService)
+                .UsingServices(modelService)
                 .Query();
             
             Assert.IsTrue(nonRealtimeResult.ContainsMatches);
@@ -409,7 +403,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var hashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(concatenated)
-                .UsingServices(new SoundFingerprintingAudioService())
                 .Hash();
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
@@ -420,7 +413,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .WithRealtimeQueryConfig(config =>
                 {
                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.5, true);
-                    config.SuccessCallback = entry => { list.Add(entry); };
+                    config.SuccessCallback = entry => { list.AddRange(entry.ResultEntries); };
                     return config;
                 })
                 .UsingServices(modelService)

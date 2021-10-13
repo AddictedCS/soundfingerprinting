@@ -6,6 +6,7 @@ namespace SoundFingerprinting
     using System.Linq;
     using System.Threading.Tasks;
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Data;
@@ -15,6 +16,12 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
+    /// <summary>
+    ///  Fingerprint service.
+    /// </summary>
+    /// <remarks>
+    ///  Class responsible for fingerprint generation. It is advised though to create fingerprints via <see cref="FingerprintCommandBuilder"/>.
+    /// </remarks>
     public class FingerprintService : IFingerprintService
     {
         private readonly ISpectrumService spectrumService;
@@ -34,14 +41,23 @@ namespace SoundFingerprinting
             this.fingerprintDescriptor = fingerprintDescriptor;
         }
 
+        /// <summary>
+        ///  Gets an instance of the <see cref="FingerprintService"/> class.
+        /// </summary>
         public static FingerprintService Instance { get; } = new FingerprintService(
             new SpectrumService(new LomontFFT(), new LogUtility()),
             LocalitySensitiveHashingAlgorithm.Instance,
             new StandardHaarWaveletDecomposition(),
             new FastFingerprintDescriptor());
 
+        /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromAudioSamples"/>
         public Hashes CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
         {
+            if (samples.SampleRate != configuration.SampleRate)
+            {
+                throw new ArgumentException($"Provided samples are not sampled in the required sample rate {configuration.SampleRate}", nameof(samples));
+            }
+            
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
             var hashes = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
                 .AsParallel()
@@ -49,10 +65,10 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            double length = GetLength(configuration, hashes);
-            return new Hashes(hashes, length, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin});
+            return new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin});
         }
 
+        /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromImageFrames"/>
         public Hashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
         {
             var frames = imageFrames.ToList();
@@ -61,8 +77,7 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            double length = GetLength(configuration, hashes);
-            return new Hashes(hashes, length, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin});
+            return new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin});
         }
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
@@ -102,11 +117,6 @@ namespace SoundFingerprinting
             return fingerprints.ToList();
         }
         
-        private static double GetLength(FingerprintConfiguration configuration, IReadOnlyCollection<HashedFingerprint> hashes)
-        {
-            return hashes.Any() ? hashes.Max(_ => _.StartsAt) + configuration.FingerprintLengthInSeconds : 0d;
-        }
-
         private static IEnumerable<Frame> BlurFrames(IEnumerable<Frame> frames, GaussianBlurConfiguration blurConfiguration)
         {
             double[,] kernel = GaussianBlurKernel.Kernel2D(blurConfiguration.Kernel, blurConfiguration.Sigma);

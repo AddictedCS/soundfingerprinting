@@ -3,15 +3,15 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Audio;
 
     /// <summary>
-    /// Fingerprint services selector
+    /// Fingerprint services selector.
     /// </summary>
-    public interface IUsingFingerprintServices
+    public interface IUsingFingerprintServices : IFingerprintCommand
     {
         /// <summary>
-        ///  Sets the audio service used in fingerprinting the source
+        ///  Sets the audio service used in fingerprinting the source.
         /// </summary>
-        /// <param name="audioService">Audio service to use while fingerprinting</param>
-        /// <returns>Fingerprint command</returns>
+        /// <param name="audioService">Audio service to use while fingerprinting.</param>
+        /// <returns>Fingerprint command.</returns>
         IFingerprintCommand UsingServices(IAudioService audioService);
     }
 }

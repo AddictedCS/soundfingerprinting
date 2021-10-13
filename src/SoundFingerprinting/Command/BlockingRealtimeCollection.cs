@@ -9,22 +9,23 @@ namespace SoundFingerprinting.Command
     /// <summary>
     ///  Blocking realtime collection implementation of realtime audio samples gathering.
     /// </summary>
+    /// <typeparam name="T">Enclosing T type of the collection.</typeparam>
     public class BlockingRealtimeCollection<T> : IAsyncEnumerable<T> where T : class
     {
         private readonly TimeSpan delay;
         private readonly BlockingCollection<T> collection;
 
         /// <summary>
-        ///  Creates new instance of BlockingRealtimeCollection class.
+        ///  Initializes a new instance of the <see cref="BlockingRealtimeCollection{T}"/> class.
         /// </summary>
         /// <param name="collection">Instance of blocking collection to iterate over.</param>
-        public BlockingRealtimeCollection(BlockingCollection<T> collection) : this(collection, TimeSpan.FromMilliseconds(1_000))
+        public BlockingRealtimeCollection(BlockingCollection<T> collection) : this(collection, TimeSpan.FromMilliseconds(30_000))
         {
             // no op
         }
 
         /// <summary>
-        ///  Creates new instance of BlockingRealtimeCollection class.
+        ///  Initializes a new instance of the <see cref="BlockingRealtimeCollection{T}"/> class.
         /// </summary>
         /// <param name="collection">Instance of blocking collection to iterate over.</param>
         /// <param name="delay">Delay to use between consecutive polling of the inner collection.</param>
@@ -54,7 +55,7 @@ namespace SoundFingerprinting.Command
             {
                 try
                 {
-                    if (collection.TryTake(out var samples, (int) delay.TotalMilliseconds, cancellationToken))
+                    if (collection.TryTake(out var samples, (int)delay.TotalMilliseconds, cancellationToken))
                     {
                         return await Task.FromResult(samples);
                     }

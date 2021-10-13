@@ -2,6 +2,9 @@ namespace SoundFingerprinting.Command
 {
     using SoundFingerprinting.Query;
 
+    /// <summary>
+    ///  Contract for realtime result entry filter.
+    /// </summary>
     public interface IRealtimeResultEntryFilter
     {
         /// <summary>

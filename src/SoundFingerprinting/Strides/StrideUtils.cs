@@ -4,14 +4,16 @@
 
     internal static class StrideUtils
     {
+        private const int DefaultSamplesPerFingerprint = 128 * 64;
+        
         public static IStride ToStride(string strideType, int min, int max)
         {
             switch (strideType)
             {
                 case "Static":
-                    return new StaticStride(max);
+                    return new IncrementalStaticStride(DefaultSamplesPerFingerprint + max);
                 case "Random":
-                    return new RandomStride(min, max, 0);
+                    return new IncrementalRandomStride(DefaultSamplesPerFingerprint + min, DefaultSamplesPerFingerprint + max);
                 case "IncrementalStatic":
                     return new IncrementalStaticStride(max);
                 case "IncrementalRandom":

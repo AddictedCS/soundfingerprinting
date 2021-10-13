@@ -7,8 +7,6 @@
     using System.Threading.Tasks;
 
     using NUnit.Framework;
-
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
@@ -18,8 +16,6 @@
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
     {
-        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
-
         [Test]
         public async Task ShouldSerializeAndDeserialize()
         {
@@ -27,7 +23,6 @@
 
             var hashedFingerprints = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
-                .UsingServices(audioService)
                 .Hash();
 
             var trackData = new TrackInfo("id", "title", "artist", new Dictionary<string, string> {{"key", "value"}}, MediaType.Audio);
@@ -39,7 +34,7 @@
 
             var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
-                .UsingServices(new InMemoryModelService(tempFile), audioService)
+                .UsingServices(new InMemoryModelService(tempFile))
                 .Query();
 
             File.Delete(tempFile);

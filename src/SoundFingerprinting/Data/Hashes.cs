@@ -25,8 +25,13 @@ namespace SoundFingerprinting.Data
         [ProtoIgnore]
         private List<HashedFingerprint> Fingerprints => fingerprints ?? Enumerable.Empty<HashedFingerprint>().ToList();
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType):
-            this(fingerprints,
+        /// <summary>
+        ///  Initializes a new instance of the <see cref="Hashes"/> class.
+        /// </summary>
+        /// <param name="fingerprints">Fingerprints.</param>
+        /// <param name="durationInSeconds">Duration in seconds of the media from which the fingerprints have been generated.</param>
+        /// <param name="mediaType">Media type.</param>
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType) : this(fingerprints,
                 durationInSeconds,
                 mediaType,
                 DateTime.UtcNow,
@@ -37,8 +42,7 @@ namespace SoundFingerprinting.Data
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo):
-            this(fingerprints,
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo): this(fingerprints,
                 durationInSeconds,
                 mediaType,
                 relativeTo,
@@ -99,12 +103,8 @@ namespace SoundFingerprinting.Data
         }
 
         /// <summary>
-        ///  Hashes duration in seconds.
+        ///  Gets hashes duration in seconds, equal to the length of the original media file.
         /// </summary>
-        /// <remarks>
-        ///  Is equal to actual length of hashes in seconds, not necessarily equal to the length of the original media file.
-        ///  Up to v7.8.0 is equal to length of the original media file.
-        /// </remarks>
         [ProtoMember(2)]
         public double DurationInSeconds { get; }
 
@@ -178,7 +178,7 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Gets number of contained fingerprints.
         /// </summary>
-        public int Count => IsEmpty ? 0: Fingerprints.Count;
+        public int Count => IsEmpty ? 0 : Fingerprints.Count;
 
         /// <summary>
         ///  Creates a new empty hashes object.
@@ -237,7 +237,7 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Gets enumerator over actual fingerprints.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Instance of the <see cref="IEnumerable{HashedFingerprint}"/> interface.</returns>
         public IEnumerator<HashedFingerprint> GetEnumerator()
         {
             return Fingerprints.GetEnumerator();
@@ -290,7 +290,7 @@ namespace SoundFingerprinting.Data
             var startsAtShift = filtered.First().StartsAt;
             return filtered.Select((fingerprint,
                     index) => new HashedFingerprint(fingerprint.HashBins,
-                    (uint) index,
+                    (uint)index,
                     fingerprint.StartsAt - startsAtShift,
                     fingerprint.OriginalPoint))
                 .ToList();
@@ -336,7 +336,7 @@ namespace SoundFingerprinting.Data
                 ("", "") => "",
                 (string left, "") => left,
                 ("", string right) => right,
-                (string left, string right) when (left.Equals(right)) => left,
+                (string left, string right) when left.Equals(right) => left,
                 _ => throw new ArgumentException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
             };
 
@@ -349,7 +349,7 @@ namespace SoundFingerprinting.Data
             return true;
         }
 
-        /// <inheritdoc cref="Object.ToString"/>
+        /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
             return $"Hashes[Count:{Count}, Length:{DurationInSeconds:0.00}]";

@@ -14,28 +14,39 @@
     [TestFixture]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
     {
-        private readonly DefaultFingerprintConfiguration config = new DefaultFingerprintConfiguration();
-        private readonly SoundFingerprintingAudioService audioService = new SoundFingerprintingAudioService();
+        private readonly SoundFingerprintingAudioService audioService = new ();
 
         [Test]
         public async Task CreateFingerprintsFromFileAndAssertNumberOfFingerprints()
         {
-            const int staticStride = 5096;
+            var fingerprints = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(PathToWav)
+                .Hash();
 
-            var fingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = new IncrementalStaticStride(staticStride) };
-
-            var command = FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
-                                        .From(PathToWav)
-                                        .WithFingerprintConfig(fingerprintConfiguration)
-                                        .UsingServices(audioService);
-
-            double seconds = audioService.GetLengthInSeconds(PathToWav);
-            int samples = (int)(seconds * fingerprintConfiguration.SampleRate);
-            int expectedFingerprints = (samples - fingerprintConfiguration.SamplesPerFingerprint) / staticStride;
-
-            var fingerprints = await command.Hash();
+            var config = new DefaultFingerprintConfiguration();
+            int samples = (int)(fingerprints.DurationInSeconds * config.SampleRate);
+            int expectedFingerprints = (int)Math.Round(((double)(samples - (config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize)) / config.Stride.NextStride));
 
             Assert.AreEqual(expectedFingerprints, fingerprints.Count);
+        }
+
+        [Test]
+        public async Task CreateFingerprintsWithModifiedStride()
+        {
+            var fingerprints = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(PathToWav)
+                .WithFingerprintConfig(config =>
+                {
+                    config.Stride = new IncrementalStaticStride(config.SamplesPerFingerprint);
+                    return config;
+                })
+                .Hash();
+
+            var config = new DefaultFingerprintConfiguration();
+            int expected = (int)((fingerprints.DurationInSeconds * config.SampleRate) / config.SamplesPerFingerprint);
+            Assert.AreEqual(expected, fingerprints.Count); 
         }
 
         [Test]
@@ -48,8 +59,6 @@
             var fingerprints = await FingerprintCommandBuilder.Instance
                                             .BuildFingerprintCommand()
                                             .From(PathToWav)
-                                            .WithFingerprintConfig(new HighPrecisionFingerprintConfiguration())
-                                            .UsingServices(audioService)
                                             .Hash();
 
             var modelService = new InMemoryModelService();
@@ -58,8 +67,7 @@
             var queryResult = await QueryCommandBuilder.Instance
                                .BuildQueryCommand()
                                .From(PathToWav, secondsToProcess, startAtSecond)
-                               .WithQueryConfig(new HighPrecisionQueryConfiguration())
-                               .UsingServices(modelService, audioService)
+                               .UsingServices(modelService)
                                .Query();
 
             Assert.IsTrue(queryResult.ContainsMatches);
@@ -88,7 +96,6 @@
             var hashDatasFromSamples = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
                                         .From(samples)
-                                        .UsingServices(audioService)
                                         .Hash();
 
             AssertHashDatasAreTheSame(hashDatasFromFile, hashDatasFromSamples);
@@ -97,13 +104,14 @@
         [Test]
         public async Task CheckFingerprintCreationAlgorithmTest()
         {
+            var config = new DefaultFingerprintConfiguration();
             var format = WaveFormat.FromFile(PathToWav);
             var list = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(PathToWav)
                 .WithFingerprintConfig(configuration =>
                       {
-                          configuration.Stride = new StaticStride(0);
+                          configuration.Stride = new IncrementalStaticStride(8192);
                           return configuration;
                       })
                 .UsingServices(audioService)
@@ -136,6 +144,7 @@
         [Test]
         public async Task CreateFingerprintFromSamplesWhichAreExactlyEqualToMinimumLength()
         {
+            var config = new DefaultFingerprintConfiguration();
             var samples = GenerateRandomAudioSamples(config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize);
 
             var hash = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()

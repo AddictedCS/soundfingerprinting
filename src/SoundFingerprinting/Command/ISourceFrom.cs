@@ -3,31 +3,31 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Audio;
 
     /// <summary>
-    ///    Source object which allows you to select the source to build the fingerprints from
+    ///    Source object which allows you to select the source to build the fingerprints from.
     /// </summary>
     public interface ISourceFrom
     {
         /// <summary>
-        ///   Build fingerprints from an audio file
+        ///   Build fingerprints from a file.
         /// </summary>
-        /// <param name="pathToAudioFile">Full path to audio file</param>
-        /// <returns>Configuration selector object</returns>
-        IWithFingerprintConfiguration From(string pathToAudioFile);
+        /// <param name="file">Full path to content file.</param>
+        /// <returns>Configuration selector object.</returns>
+        IWithFingerprintConfiguration From(string file);
 
         /// <summary>
-        ///   Build fingerprints directly from audio samples. This is a handy method to build the fingerprints from sources like microphone or streaming URL
+        ///   Build fingerprints directly from audio samples.
         /// </summary>
-        /// <param name="audioSamples">Audio samples to build the fingerprints from</param>
-        /// <returns>Configuration selector object</returns>
+        /// <param name="audioSamples">Audio samples to build the fingerprints from.</param>
+        /// <returns>Configuration selector object.</returns>
         IWithFingerprintConfiguration From(AudioSamples audioSamples);
 
         /// <summary>
-        ///   Build fingerprints from an audio file
+        ///   Build fingerprints from a file.
         /// </summary>
-        /// <param name="pathToAudioFile">Full path to audio file</param>
-        /// <param name="secondsToProcess">Number of seconds to process</param>
-        /// <param name="startAtSecond">Start at second</param>
-        /// <returns>Configuration selector object</returns>
-        IWithFingerprintConfiguration From(string pathToAudioFile, double secondsToProcess, double startAtSecond);
+        /// <param name="file">Full path to content file.</param>
+        /// <param name="secondsToProcess">Number of seconds to process.</param>
+        /// <param name="startAtSecond">Start at second.</param>
+        /// <returns>Configuration selector object.</returns>
+        IWithFingerprintConfiguration From(string file, double secondsToProcess, double startAtSecond);
     }
 }

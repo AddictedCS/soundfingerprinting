@@ -6,7 +6,7 @@
     public interface IStride
     {
         /// <summary>
-        ///   Gets the first stride
+        ///   Gets the size of the first stride in samples
         /// </summary>
         int FirstStride { get; }
 

@@ -96,7 +96,7 @@
             switch (sourceSampleRate)
             {
                 case 96000:
-                    //96Khz -> 48Khz then to 5512Khz
+                    // 96Khz -> 48Khz then to 5512Khz
                     var f48Khz =  Resample(samples, samples.Length / 2, 2, LpFilter96KhzTo48Khz);
                     return ResampleNonIntegerFactor(f48Khz, 7, 61, LpFilter336KHz128);
                 case 48000:

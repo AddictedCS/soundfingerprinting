@@ -12,8 +12,6 @@
     [TestFixture]
     public class QueryCommandBenchmark
     {
-        private readonly IAudioService audioService = new SoundFingerprintingAudioService();
-
         [Test]
         public async Task ShouldFingerprintAndQuerySuccessfully()
         {
@@ -22,9 +20,9 @@
             for (int i = 0; i < 30; ++i)
             {
                 var samples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(120 * 5512), "${i}", 5512);
-                var hashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+                var hashes = await FingerprintCommandBuilder.Instance
+                    .BuildFingerprintCommand()
                     .From(samples)
-                    .UsingServices(audioService)
                     .Hash();
 
                 var track = new TrackInfo($"{i}", string.Empty, string.Empty);
@@ -38,14 +36,15 @@
             for (int i = 0; i < totalRuns; ++i)
             {
                 var samples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(120 * 5512), "${i}", 5512);
-                var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+                var queryResult = await QueryCommandBuilder.Instance
+                    .BuildQueryCommand()
                     .From(samples)
-                    .UsingServices(modelService, audioService)
+                    .UsingServices(modelService)
                     .Query();
 
-                Console.WriteLine("{0,10}ms{1,15}ms{2,15}", queryResult.Stats.FingerprintingDuration, queryResult.Stats.QueryDuration, queryResult.Stats.TotalFingerprintsAnalyzed);
-                avgFingerprinting += queryResult.Stats.FingerprintingDuration;
-                avgQuery += queryResult.Stats.QueryDuration;
+                Console.WriteLine("{0,10}ms{1,15}ms{2,15}", queryResult.CommandStats.FingerprintingDurationMilliseconds, queryResult.CommandStats.QueryDurationMilliseconds, queryResult.CommandStats.TotalFingerprintsAnalyzed);
+                avgFingerprinting += queryResult.CommandStats.FingerprintingDurationMilliseconds;
+                avgQuery += queryResult.CommandStats.QueryDurationMilliseconds;
             }
 
             Console.WriteLine("Avg. Fingerprinting: {0,0:000}ms, Avg. Query: {1, 0:000}ms", avgFingerprinting / totalRuns, avgQuery / totalRuns);

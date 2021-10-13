@@ -14,16 +14,15 @@ namespace SoundFingerprinting.Configuration
     public class DefaultRealtimeQueryConfiguration : RealtimeQueryConfiguration
     {
         /// <summary>
-        ///  Creates new instance of DefaultRealtimeQueryConfiguration
+        ///  Initializes a new instance of the <see cref="DefaultRealtimeQueryConfiguration"/> class.
         /// </summary>
         /// <param name="successCallback">Success callback invoked when result entry filter is passed.</param>
         /// <param name="didNotPassFilterCallback">Callback for items that did not pass result entry filter.</param>
         /// <param name="onError">Error callback.</param>
         /// <param name="restoredAfterErrorCallback">When connection to storage is restored, this callback is invoked.</param>
-        public DefaultRealtimeQueryConfiguration(Action<ResultEntry> successCallback,
-            Action<ResultEntry> didNotPassFilterCallback,
-            Action<Exception, Hashes> onError, Action restoredAfterErrorCallback) :
-            base(thresholdVotes: 4,
+        public DefaultRealtimeQueryConfiguration(Action<QueryResult> successCallback,
+            Action<QueryResult> didNotPassFilterCallback,
+            Action<Exception, Hashes> onError, Action restoredAfterErrorCallback) : base(thresholdVotes: 4,
                 new TrackMatchLengthEntryFilter(5d),
                 successCallback,
                 didNotPassFilterCallback,
@@ -31,7 +30,7 @@ namespace SoundFingerprinting.Configuration
                 ongoingSuccessCallback: _ => { },
                 onError,
                 restoredAfterErrorCallback,
-                Enumerable.Empty<Hashes>(),
+                new EmptyOfflineStorage(),
                 new IncrementalRandomStride(256, 512),
                 permittedGap: 2d,
                 downtimeCapturePeriod: 0d,

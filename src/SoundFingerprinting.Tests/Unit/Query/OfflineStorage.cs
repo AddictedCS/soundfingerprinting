@@ -7,9 +7,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.IO;
     using System.Linq;
     using ProtoBuf;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
 
-    public class OfflineStorage : IEnumerable<Hashes>
+    public class OfflineStorage : IOfflineStorage
     {
         private const string Format = ".fp";
         private const string DateFormat = "yyyy-MM-ddTHH-mm-ss";
