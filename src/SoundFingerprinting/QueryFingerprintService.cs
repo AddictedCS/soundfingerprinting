@@ -2,24 +2,41 @@
 {
     using System.Diagnostics;
     using System.Linq;
+    using SoundFingerprinting.Builder;
+    using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
+    /// <summary>
+    ///  Query fingerprint service.
+    /// </summary>
+    /// <remarks>
+    /// Please use <see cref="QueryCommandBuilder"/> for creating <see cref="QueryCommand"/> objects that will issue query to the provided <see cref="IModelService"/>.
+    /// </remarks>
     public class QueryFingerprintService : IQueryFingerprintService
     {
         private readonly IScoreAlgorithm scoreAlgorithm;
         private readonly IQueryMath queryMath;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryFingerprintService"/> class.
+        /// </summary>
+        /// <param name="scoreAlgorithm">Scoring algorithm instance.</param>
+        /// <param name="queryMath">Query match instance.</param>
         public QueryFingerprintService(IScoreAlgorithm scoreAlgorithm, IQueryMath queryMath)
         {
             this.scoreAlgorithm = scoreAlgorithm;
             this.queryMath = queryMath;
         }
 
+        /// <summary>
+        ///  Gets an instance of the <see cref="QueryFingerprintService"/> class.
+        /// </summary>
         public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(new HammingSimilarityScoreAlgorithm(new SimilarityUtility()), QueryMath.Instance);
 
+        /// <inheritdoc cref="IQueryFingerprintService.Query"/>
         public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService)
         {
             var queryStopwatch = Stopwatch.StartNew();

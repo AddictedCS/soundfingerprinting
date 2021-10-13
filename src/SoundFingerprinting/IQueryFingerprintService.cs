@@ -4,6 +4,9 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
+    /// <summary>
+    ///  Query fingerprint service interface.
+    /// </summary>
     public interface IQueryFingerprintService
     {
         /// <summary>
