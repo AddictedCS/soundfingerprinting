@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Configuration
             Action<ResultEntry> ongoingSuccessCallback,
             Action<Exception, Hashes> errorCallback,
             Action restoredAfterErrorCallback,
-            IEnumerable<Hashes> downtimeHashes,
+            IOfflineStorage offlineStorage,
             IStride stride,
             double permittedGap,
             double downtimeCapturePeriod,
@@ -49,7 +49,7 @@ namespace SoundFingerprinting.Configuration
             OngoingSuccessCallback = ongoingSuccessCallback;
             ErrorCallback = errorCallback;
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
-            DowntimeHashes = downtimeHashes;
+            OfflineStorage = offlineStorage;
             DowntimeCapturePeriod = downtimeCapturePeriod;
         }
 
@@ -80,11 +80,17 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets ongoing result entry filter that will be invoked for every result entry filter that is captured by the aggregator.
         /// </summary>
+        /// <remarks>
+        ///  Experimental, may change in the future.
+        /// </remarks>
         public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }
         
         /// <summary>
         ///  Gets or sets ongoing success callback that will be invoked once ongoing result entry filter is passed.
         /// </summary>
+        /// <remarks>
+        ///  Experimental, may change in the future.
+        /// </remarks>
         public Action<ResultEntry> OngoingSuccessCallback { get; set; }
 
         /// <summary>
@@ -98,14 +104,19 @@ namespace SoundFingerprinting.Configuration
         public Action RestoredAfterErrorCallback { get; set; }
 
         /// <summary>
-        ///  Gets or sets downtime hashes enumerable, that one can provide with hashes that were captured during downtime.
+        ///  Gets or sets offline storage for hashes.
         /// </summary>
-        public IEnumerable<Hashes> DowntimeHashes { get; set; }
+        /// <remarks>
+        ///  Experimental, can be used to store hashes during the time the storage is not available. Will be consumed, after RestoredAfterErrorCallback invocation.
+        /// </remarks>
+        public IOfflineStorage OfflineStorage { get; set; }
 
         /// <summary>
-        ///  Gets or sets downtime capture period (in seconds), value which will instruct the framework to cache realtime
-        ///  hashes for later processing in case if an unsuccessful request is made to Emy.
+        ///  Gets or sets downtime capture period (in seconds), value which will instruct the framework to cache realtime hashes for later processing in case if an unsuccessful request is made to Emy.
         /// </summary>
+        /// <remarks>
+        ///  Experimental.
+        /// </remarks>
         public double DowntimeCapturePeriod { get; set; }
 
         /// <summary>

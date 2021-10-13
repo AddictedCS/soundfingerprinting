@@ -154,7 +154,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 ongoingSuccessCallback: _ => { Interlocked.Increment(ref ongoingCalls); },
                 errorCallback: (error, _) => throw error,
                 restoredAfterErrorCallback: () => throw new Exception("Downtime callback called"),
-                downtimeHashes: Enumerable.Empty<Hashes>(), 
+                offlineStorage: new EmptyOfflineStorage(), 
                 stride: new IncrementalRandomStride(256, 512), 
                 permittedGap: 2d,
                 downtimeCapturePeriod: 0d,
@@ -261,7 +261,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                      config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.4, waitTillCompletion: true);
                      config.RestoredAfterErrorCallback = () => restoreCalled[0] = true;
-                     config.DowntimeHashes = offlineStorage;              // store the other half of the fingerprints in the downtime hashes storage
+                     config.OfflineStorage = offlineStorage;              // store the other half of the fingerprints in the downtime hashes storage
                      config.DowntimeCapturePeriod = totalQueryLength / 2; // store half of the fingerprints in the offline storage
                      return config;
                  })

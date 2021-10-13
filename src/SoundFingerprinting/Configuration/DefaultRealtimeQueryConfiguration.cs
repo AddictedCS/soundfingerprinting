@@ -30,7 +30,7 @@ namespace SoundFingerprinting.Configuration
                 ongoingSuccessCallback: _ => { },
                 onError,
                 restoredAfterErrorCallback,
-                Enumerable.Empty<Hashes>(),
+                new EmptyOfflineStorage(),
                 new IncrementalRandomStride(256, 512),
                 permittedGap: 2d,
                 downtimeCapturePeriod: 0d,

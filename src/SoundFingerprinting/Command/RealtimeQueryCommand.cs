@@ -238,7 +238,7 @@ namespace SoundFingerprinting.Command
         private IEnumerable<QueryResult> ConsumeExternalDowntimeHashes(IQueryFingerprintService service)
         {
             var list = new List<QueryResult>();
-            foreach (var downtimeHash in configuration.DowntimeHashes)
+            foreach (var downtimeHash in configuration.OfflineStorage)
             {
                 if (downtimeHash.IsEmpty)
                 {
