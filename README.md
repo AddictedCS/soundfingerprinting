@@ -10,6 +10,8 @@ Paired with [SoundFingerprinting.Emy][emy-nuget] it can be used to generate fing
 
 ## Documentation
 
+Full documentation is available on the [Wiki][wiki-page] page.
+
 Below code snippet shows how to extract acoustic fingerprints from an audio file and later use them as identifiers to recognize unknown audio query. These _fingerprints_ will be stored in a configurable datastore.
 
 ```csharp
@@ -110,10 +112,6 @@ Every `ResultEntry` object will contain the following information:
 
 Read [Different Types of Coverage](https://github.com/AddictedCS/soundfingerprinting/wiki/Different-Types-of-Coverage) to understand how query coverage is calculated.
 
-
-### Substituting audio or model services
-Most critical parts of the _soundfingerprinting_ framework are interchangeable with extensions. If you want to use `NAudio` as the underlying audio processing library just install `SoundFingerprinting.Audio.NAudio` package and substitute `IAudioService` with `NAudioService`. Same holds for database storages. Install the extensions which you want to use (i.e. `SoundFingerprinting.Solr`) and provide new `ModelService` where needed.
-
 ### FAQ
 - Can I apply this algorithm for speech recognition purposes?
 > No. The granularity of one fingerprint is roughly ~1.46 seconds.
@@ -159,3 +157,4 @@ The framework is provided under [MIT](https://opensource.org/licenses/MIT) licen
 [emysound-how-it-works]: https://emysound.com/blog/open-source/2020/06/12/how-audio-fingerprinting-works.html
 [emysound-video-fingerprinting]: https://emysound.com/blog/open-source/2021/08/01/video-fingerprinting.html
 [emysound]: https://emysound.com
+[wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki
