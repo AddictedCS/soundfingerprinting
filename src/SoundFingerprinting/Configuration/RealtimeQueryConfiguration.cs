@@ -18,14 +18,15 @@ namespace SoundFingerprinting.Configuration
             Action<QueryResult> didNotPassFilterCallback,
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
             Action<ResultEntry> ongoingSuccessCallback,
-            Action<Exception, Hashes> errorCallback,
+            Action<Exception, Hashes?> errorCallback,
             Action restoredAfterErrorCallback,
             IOfflineStorage offlineStorage,
             IStride stride,
             double permittedGap,
             double downtimeCapturePeriod,
             IDictionary<string, string> yesMetaFieldFilters,
-            IDictionary<string, string> noMetaFieldsFilters)
+            IDictionary<string, string> noMetaFieldsFilters, 
+            IBackoffPolicy errorBackoffPolicy)
         {
             QueryConfiguration = new DefaultQueryConfiguration
             {
@@ -51,6 +52,7 @@ namespace SoundFingerprinting.Configuration
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
             OfflineStorage = offlineStorage;
             DowntimeCapturePeriod = downtimeCapturePeriod;
+            ErrorBackoffPolicy = errorBackoffPolicy;
         }
 
         /// <summary>
@@ -94,10 +96,22 @@ namespace SoundFingerprinting.Configuration
         public Action<ResultEntry> OngoingSuccessCallback { get; set; }
 
         /// <summary>
-        ///  Gets or sets error callback which will be invoked in case if realtime command fails to execute.
+        ///  Gets or sets error callback which will be invoked in case if an error occurs during query time.
         /// </summary>
-        public Action<Exception, Hashes> ErrorCallback { get; set; }
+        /// <remarks>
+        ///  Instance of the <see cref="Hashes"/> will be null in case if the error occured before hashes were generated, typically connection error to the realtime source. <br/>
+        ///  If you need to stop querying immediately after an error occured, invoke token cancellation in the callback.
+        /// </remarks>
+        public Action<Exception, Hashes?> ErrorCallback { get; set; }
 
+        /// <summary>
+        ///  Gets or sets on error backoff policy that will be invoked before retrying to read from the realtime source.
+        /// </summary>
+        /// <remarks>
+        ///  Default retry policy on streaming error is default <see cref="RandomExponentialBackoffPolicy"/>.
+        /// </remarks>
+        public IBackoffPolicy ErrorBackoffPolicy { get; set; }
+        
         /// <summary>
         ///  Gets or sets error restore callback.
         /// </summary>

@@ -5,20 +5,15 @@
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-	<PackageVersion>7.12.0</PackageVersion>
+	<PackageVersion>7.13.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Bringing back the the way we store QueryLength on Hashes object as the original media query, as it may be used for calculating the time offset.
-		Removing Static and Random stride classes, as these are not used and can be interpreted via IncrementalRandom and IncrementalStatic stride.
-		Removing HighPrecisionFingerprintConfiguration as well as its query counterpart as they are not actually useful at all.
-		Adding a ton of XML comments.
-		Outputing QueryResult in the success callback of the RealtimeQueryCommand, to have access to stats and hashes object.
-		Adjusting RealtimeQueryConfiguration class to better capture the API intent.
-		Adjusting command builder interface, making IAudioService optional, as it is indeed not used for certain interface methods (when AudioSamples are passed to the command).
+		RealtimeQueryCommand will query the realtime source indefinitely, until provided cancellation token is not canceled.
+		Adding a backoff policy for connection retry on realtime query source.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>8</LangVersion>
