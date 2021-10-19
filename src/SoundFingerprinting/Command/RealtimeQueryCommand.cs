@@ -29,6 +29,9 @@ namespace SoundFingerprinting.Command
         private IAudioService audioService;
         private Func<Hashes, Hashes> hashesInterceptor = _ => _;
 
+        private bool errored = false;
+        private double queryLength = 0;
+
         internal RealtimeQueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
@@ -115,11 +118,43 @@ namespace SoundFingerprinting.Command
                 configuration.OngoingSuccessCallback,
                 configuration.QueryConfiguration.PermittedGap);
 
-            double queryLength = 0d;
+            while (true)
+            {
+                try
+                {
+                    return await QueryRealtimeSource(service, realtimeSamplesAggregator, resultsAggregator, cancellationToken);
+                }
+                catch (Exception e) when (e is OperationCanceledException || e is ObjectDisposedException)
+                {
+                    return queryLength;
+                }
+                catch (Exception e)
+                {
+                    
+                    
+                    errored = true;
+                    configuration.ErrorCallback(e, null);
+                    configuration.ErrorBackoffPolicy.Failure();
+                    try
+                    {
+                        await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
+                    }
+                    catch (Exception delayException) when (delayException is OperationCanceledException || delayException is ObjectDisposedException)
+                    {
+                        return queryLength;
+                    }
+                }
+            }
+        }
+
+        private async Task<double> QueryRealtimeSource(IQueryFingerprintService service, 
+            IRealtimeAudioSamplesAggregator realtimeSamplesAggregator,
+            IRealtimeResultEntryAggregator resultsAggregator, 
+            CancellationToken cancellationToken)
+        {
             await foreach (var audioSamples in realtimeCollection.WithCancellation(cancellationToken))
             {
                 queryLength += audioSamples.Duration;
-
                 var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
                 if (prefixed == null)
                 {
@@ -146,7 +181,7 @@ namespace SoundFingerprinting.Command
 
             var purged = resultsAggregator.Purge();
             InvokeSuccessHandler(purged.SuccessEntries, Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
-            InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries, Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0)); 
+            InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries, Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
             return queryLength;
         }
 
@@ -155,6 +190,13 @@ namespace SoundFingerprinting.Command
             try
             {
                 var result = service.Query(hashes, configuration.QueryConfiguration, modelService);
+                if (errored)
+                {
+                    errored = false;
+                    configuration.RestoredAfterErrorCallback();
+                    configuration.ErrorBackoffPolicy.Success();
+                }
+                
                 if (!downtimeHashes.Any())
                 {
                     results = new[] {result}.AsEnumerable();
@@ -164,24 +206,20 @@ namespace SoundFingerprinting.Command
                 results = ConsumeDowntimeHashes(service)
                     .Concat(ConsumeExternalDowntimeHashes(service))
                     .Concat(new[] {result});
-                configuration?.RestoredAfterErrorCallback.Invoke();
-                return true;
 
+                return true;
             }
             catch (Exception e)
             {
+                errored = true;
                 var timedHashes = StoreDowntimeEntries(hashes);
-                InvokeExceptionCallback(e, timedHashes);
+                configuration.ErrorCallback(e, timedHashes);
+                configuration.ErrorBackoffPolicy.Failure();
                 results = Enumerable.Empty<QueryResult>();
                 return false;
             }
         }
 
-        private void InvokeExceptionCallback(Exception e, Hashes hashes)
-        {
-            configuration?.ErrorCallback(e, hashes);
-        }
-        
         private async Task<Hashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
         {
             return await commandBuilder

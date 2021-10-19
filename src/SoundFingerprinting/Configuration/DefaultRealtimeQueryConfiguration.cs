@@ -2,7 +2,6 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
@@ -22,7 +21,8 @@ namespace SoundFingerprinting.Configuration
         /// <param name="restoredAfterErrorCallback">When connection to storage is restored, this callback is invoked.</param>
         public DefaultRealtimeQueryConfiguration(Action<QueryResult> successCallback,
             Action<QueryResult> didNotPassFilterCallback,
-            Action<Exception, Hashes> onError, Action restoredAfterErrorCallback) : base(thresholdVotes: 4,
+            Action<Exception, Hashes?> onError, 
+            Action restoredAfterErrorCallback) : base(thresholdVotes: 4,
                 new TrackMatchLengthEntryFilter(5d),
                 successCallback,
                 didNotPassFilterCallback,
@@ -35,7 +35,8 @@ namespace SoundFingerprinting.Configuration
                 permittedGap: 2d,
                 downtimeCapturePeriod: 0d,
                 new Dictionary<string, string>(),
-                new Dictionary<string, string>())
+                new Dictionary<string, string>(),
+                new RandomExponentialBackoffPolicy())
         {
         }
     }

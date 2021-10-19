@@ -7,11 +7,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Moq;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Query;
@@ -159,7 +161,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 permittedGap: 2d,
                 downtimeCapturePeriod: 0d,
                 yesMetaFieldFilters: new Dictionary<string, string>(),
-                noMetaFieldsFilters: new Dictionary<string, string>());
+                noMetaFieldsFilters: new Dictionary<string, string>(),
+                errorBackoffPolicy: new RandomExponentialBackoffPolicy());
 
             // simulating realtime query, starting in the middle of the track ~1 min 45 seconds (105 seconds).
             // and we query for 35 seconds
@@ -420,6 +423,72 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(CancellationToken.None);
 
             Assert.AreEqual(1, list.Count);
+        }
+
+        [Test]
+        public async Task ShouldContinueQueryingEvenWhenAnErrorOccurs()
+        {
+            const int length = 60;
+            const int throwExceptionAfter = 3;
+            const int totalExceptions = 5;
+            int exceptions = 0, restored = 0;
+            var cancellationTokenSource = new CancellationTokenSource();
+            var indefiniteSource = GetSamplesIndefinitely(length, throwExceptionAfter);
+            var backoffPolicy = new Mock<IBackoffPolicy>(MockBehavior.Strict);
+            backoffPolicy.Setup(p => p.RemainingDelay).Returns(TimeSpan.Zero);
+            backoffPolicy.Setup(p => p.Failure());
+            backoffPolicy.Setup(p => p.Success());
+            
+            var modelService = new Mock<IModelService>(MockBehavior.Strict);
+            modelService.Setup(s => s.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Returns(Enumerable.Empty<SubFingerprintData>());
+
+            var queryLength = await QueryCommandBuilder.Instance
+                .BuildRealtimeQueryCommand()
+                .From(indefiniteSource)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.ErrorCallback = (_, _) =>
+                    {
+                        exceptions++;
+                        if (exceptions == totalExceptions)
+                        {
+                            cancellationTokenSource.Cancel();
+                        }
+                    };
+
+                    config.RestoredAfterErrorCallback = () => restored++;
+                    config.ErrorBackoffPolicy = backoffPolicy.Object;
+                    return config;
+                })
+                .UsingServices(modelService.Object)
+                .Query(cancellationTokenSource.Token);
+
+            int totalQueries = throwExceptionAfter * totalExceptions - totalExceptions;
+            
+            Assert.AreEqual(totalExceptions, exceptions);
+            Assert.AreEqual(totalExceptions - 1, restored);
+            Assert.AreEqual(totalQueries * length, queryLength);
+            
+            modelService.Verify(s => s.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(totalQueries));
+            backoffPolicy.Verify(b => b.Failure(), Times.Exactly(totalExceptions));
+            backoffPolicy.Verify(b => b.RemainingDelay, Times.Exactly(totalExceptions));
+            backoffPolicy.Verify(b => b.Success(), Times.Exactly(totalExceptions - 1));
+        }
+
+        private static async IAsyncEnumerable<AudioSamples> GetSamplesIndefinitely(int eachLengthSeconds, int throwExceptionAfter)
+        {
+            int count = 0;
+            while (true)
+            {
+                count++;
+                if (count % throwExceptionAfter == 0)
+                {
+                    throw new Exception("Error while reading samples from the source.");
+                }
+
+                await Task.Delay(TimeSpan.Zero);
+                yield return TestUtilities.GenerateRandomAudioSamples(eachLengthSeconds * 5512);
+            }
         }
 
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
