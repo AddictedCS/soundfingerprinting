@@ -19,6 +19,13 @@
 	<LangVersion>8</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
+	<ItemGroup>
+		<DocFile Include="bin\$(Configuration)\$(TargetFramework)\*.xml" />
+	</ItemGroup>
+	<Copy SourceFiles="@(DocFile)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
+  </Target>
   <ItemGroup>
 	  <PackageReference Include="protobuf-net" Version="2.4.6" />
 	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" /> 
