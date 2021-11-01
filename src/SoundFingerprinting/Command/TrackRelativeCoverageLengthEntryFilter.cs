@@ -9,7 +9,7 @@ namespace SoundFingerprinting.Command
     /// <remarks>
     ///  Filters all entries that have a shorter <see cref="ResultEntry.TrackRelativeCoverage"/> than the configured threshold.
     /// </remarks>
-    public class TrackRelativeCoverageLengthEntryFilter : IRealtimeResultEntryFilter
+    public class TrackRelativeCoverageLengthEntryFilter : IRealtimeResultEntryFilter<ResultEntry>
     {
         private readonly double coverage;
         private readonly bool waitTillCompletion;

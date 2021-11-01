@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Command
 {
     using SoundFingerprinting.Query;
 
-    public class OngoingRealtimeResultEntryFilter : IRealtimeResultEntryFilter
+    public class OngoingRealtimeResultEntryFilter : IRealtimeResultEntryFilter<ResultEntry>
     {
         private readonly double minCoverage;
         private readonly double minTrackLength;

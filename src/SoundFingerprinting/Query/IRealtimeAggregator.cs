@@ -2,7 +2,7 @@ namespace SoundFingerprinting.Query
 {
     using System.Collections.Generic;
 
-    internal interface IRealtimeResultEntryAggregator
+    public interface IRealtimeAggregator<T>
     {
         /// <summary>
         ///  Consume candidates returned from the <see cref="QueryFingerprintService.Query"/> invocation.
@@ -13,14 +13,14 @@ namespace SoundFingerprinting.Query
         ///   Query time offset (in seconds). For more details <see cref="ResultEntryConcatenator.Concat"/>.
         /// </param>
         /// <returns>
-        ///  Instance of <see cref="RealtimeQueryResult"/>.
+        ///  Instance of <see cref="RealtimeQueryResult{T}"/>.
         /// </returns>
-        RealtimeQueryResult Consume(IEnumerable<ResultEntry>? candidates, double queryLength, double queryOffset);
+        RealtimeQueryResult<T> Consume(IEnumerable<T>? candidates, double queryLength, double queryOffset);
 
         /// <summary>
         ///  Purge any pending results if any.
         /// </summary>
-        /// <returns>Instance of <see cref="RealtimeQueryResult"/>.</returns>
-        RealtimeQueryResult Purge();
+        /// <returns>Instance of <see cref="RealtimeQueryResult{T}"/>.</returns>
+        RealtimeQueryResult<T> Purge();
     }
 }

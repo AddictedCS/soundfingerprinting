@@ -113,10 +113,11 @@ namespace SoundFingerprinting.Command
         private async Task<double> QueryAndHash(IQueryFingerprintService service, CancellationToken cancellationToken)
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride);
-            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, 
+            var resultsAggregator = new StatefulRealtimeResultEntryAggregator<ResultEntry>(configuration.ResultEntryFilter, 
                 configuration.OngoingResultEntryFilter,
                 configuration.OngoingSuccessCallback,
-                configuration.QueryConfiguration.PermittedGap);
+                new ResultEntryCompletionStrategy( configuration.QueryConfiguration.PermittedGap),
+                new ResultEntryConcatenator(), _ => _.Track.Id);
 
             while (true)
             {
@@ -130,8 +131,6 @@ namespace SoundFingerprinting.Command
                 }
                 catch (Exception e)
                 {
-                    
-                    
                     errored = true;
                     configuration.ErrorCallback(e, null);
                     configuration.ErrorBackoffPolicy.Failure();
@@ -149,7 +148,7 @@ namespace SoundFingerprinting.Command
 
         private async Task<double> QueryRealtimeSource(IQueryFingerprintService service, 
             IRealtimeAudioSamplesAggregator realtimeSamplesAggregator,
-            IRealtimeResultEntryAggregator resultsAggregator, 
+            IRealtimeAggregator<ResultEntry> resultsAggregator, 
             CancellationToken cancellationToken)
         {
             await foreach (var audioSamples in realtimeCollection.WithCancellation(cancellationToken))
@@ -243,7 +242,8 @@ namespace SoundFingerprinting.Command
         {
             if (resultEntries.Any())
             {
-                var result = new QueryResult(resultEntries, hashes, queryCommandStats);
+                var entries = resultEntries.OrderByDescending(_ => _.Confidence).ThenBy(e => e.Track.Id).ToList();
+                var result = new QueryResult(entries, hashes, queryCommandStats);
                 configuration?.SuccessCallback(result);
             }
         }

@@ -13,10 +13,10 @@ namespace SoundFingerprinting.Configuration
     public class RealtimeQueryConfiguration
     {
         public RealtimeQueryConfiguration(int thresholdVotes,
-            IRealtimeResultEntryFilter resultEntryFilter,
+            IRealtimeResultEntryFilter<ResultEntry> resultEntryFilter,
             Action<QueryResult> successCallback,
             Action<QueryResult> didNotPassFilterCallback,
-            IRealtimeResultEntryFilter ongoingResultEntryFilter,
+            IRealtimeResultEntryFilter<ResultEntry> ongoingResultEntryFilter,
             Action<ResultEntry> ongoingSuccessCallback,
             Action<Exception, Hashes?> errorCallback,
             Action restoredAfterErrorCallback,
@@ -67,7 +67,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets result entry filter.
         /// </summary>
-        public IRealtimeResultEntryFilter ResultEntryFilter { get; set; }
+        public IRealtimeResultEntryFilter<ResultEntry> ResultEntryFilter { get; set; }
 
         /// <summary>
         ///   Gets or sets success callback invoked when a candidate passes result entry filter.
@@ -85,7 +85,7 @@ namespace SoundFingerprinting.Configuration
         /// <remarks>
         ///  Experimental, may change in the future.
         /// </remarks>
-        public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }
+        public IRealtimeResultEntryFilter<ResultEntry> OngoingResultEntryFilter { get; set; }
         
         /// <summary>
         ///  Gets or sets ongoing success callback that will be invoked once ongoing result entry filter is passed.

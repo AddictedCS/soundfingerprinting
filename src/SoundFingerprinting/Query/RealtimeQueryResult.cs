@@ -3,9 +3,9 @@ namespace SoundFingerprinting.Query
     using System.Collections.Generic;
     using SoundFingerprinting.Command;
 
-    internal class RealtimeQueryResult
+    public class RealtimeQueryResult<T>
     {
-        public RealtimeQueryResult(IReadOnlyCollection<ResultEntry> successEntries, IReadOnlyCollection<ResultEntry> didNotPassThresholdEntries)
+        public RealtimeQueryResult(IReadOnlyCollection<T> successEntries, IReadOnlyCollection<T> didNotPassThresholdEntries)
         {
             SuccessEntries = successEntries;
             DidNotPassThresholdEntries = didNotPassThresholdEntries;
@@ -14,14 +14,14 @@ namespace SoundFingerprinting.Query
         /// <summary>
         ///  Gets list of aggregated successful matches.
         /// </summary>
-        public IReadOnlyCollection<ResultEntry> SuccessEntries { get; }
+        public IReadOnlyCollection<T> SuccessEntries { get; }
         
         /// <summary>
         ///  Gets list of matches that did not pass the matches filter.
         /// </summary>
         /// <remarks>
-        ///  See implementations of <see cref="IRealtimeResultEntryFilter"/> interface.
+        ///  See implementations of <see cref="IRealtimeResultEntryFilter{T}"/> interface.
         /// </remarks>
-        public IReadOnlyCollection<ResultEntry> DidNotPassThresholdEntries { get; }
+        public IReadOnlyCollection<T> DidNotPassThresholdEntries { get; }
     }
 }

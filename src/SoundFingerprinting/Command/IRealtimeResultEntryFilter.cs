@@ -5,7 +5,7 @@ namespace SoundFingerprinting.Command
     /// <summary>
     ///  Contract for realtime result entry filter.
     /// </summary>
-    public interface IRealtimeResultEntryFilter
+    public interface IRealtimeResultEntryFilter<T>
     {
         /// <summary>
         ///  Checks if provided result entry passes the filter.
@@ -13,6 +13,6 @@ namespace SoundFingerprinting.Command
         /// <param name="entry">Instance of <see cref="ResultEntry"/> to check.</param>
         /// <param name="canContinueInTheNextQuery">Flag indicating whether the result entry can continue in the next query.</param>
         /// <returns>True if the result entry passes the filter, otherwise false.</returns>
-        bool Pass(ResultEntry entry, bool canContinueInTheNextQuery);
+        bool Pass(T entry, bool canContinueInTheNextQuery);
     }
 }

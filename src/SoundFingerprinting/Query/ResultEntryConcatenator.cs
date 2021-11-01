@@ -3,11 +3,12 @@ namespace SoundFingerprinting.Query
     using System;
     using System.Linq;
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.LCS;
 
     /// <summary>
     ///  ResultEntryConcatenator stitches result entries into a consecutive result entry.
     /// </summary>
-    public class ResultEntryConcatenator : IResultEntryConcatenator
+    public class ResultEntryConcatenator : IConcatenator<ResultEntry>
     {
         /// <summary>
         ///  Stitches two consecutive result entries creating a new one with aggregated information about best path and coverage.
@@ -64,7 +65,12 @@ namespace SoundFingerprinting.Query
             double score = left.Score + right.Score;
             return new ResultEntry(track, score, left.MatchedAt, coverage);
         }
-        
+
+        public ResultEntry WithExtendedQueryLength(ResultEntry old, double length)
+        {
+            return new ResultEntry(old.Track, old.Score, old.MatchedAt, new Coverage(old.Coverage.BestPath, old.Coverage.QueryLength + length, old.Coverage.TrackLength, old.Coverage.FingerprintLength, old.Coverage.PermittedGap));
+        }
+
         private static float GetGapSize(ResultEntry left, float fingerprintLength)
         {
             var lastMatch = left.Coverage.BestPath.Last();
