@@ -161,8 +161,9 @@ namespace SoundFingerprinting.Command
                 }
 
                 var fingerprintingStopwatch = Stopwatch.StartNew();
-                var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed);
-                hashes = hashesInterceptor(hashes).WithTimeOffset(audioSamples.Duration - hashes.DurationInSeconds);
+                double timeOffset = audioSamples.Duration - prefixed.Duration;
+                var hashes = (await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed)).WithTimeOffset(timeOffset);
+                hashes = hashesInterceptor(hashes);
                 var fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
                 if (!TryQuery(service, hashes, out var queryResults))
                 {

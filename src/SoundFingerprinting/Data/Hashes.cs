@@ -138,7 +138,7 @@ namespace SoundFingerprinting.Data
         public IReadOnlyDictionary<string, string> Properties => additionalProperties ?? new Dictionary<string, string>();
 
         /// <summary>
-        ///  Gets time offset used during query time, <see cref="ResultEntryConcatenator.Concat"/>.
+        ///  Gets time offset used during query time, <see cref="ResultEntryResultEntryConcatenator.Concat"/>.
         /// </summary>
         /// <remarks>
         ///  It is used only for query hashes.
@@ -201,7 +201,7 @@ namespace SoundFingerprinting.Data
         ///  Overrides current <see cref="RelativeTo"/> with a new one.
         /// </summary>
         /// <param name="relativeTo">New relative to property.</param>
-        /// <returns>New instance of <see cref="Hashes"/> object with newly set <see cref="RelativeTo"/> property </returns>
+        /// <returns>New instance of <see cref="Hashes"/> object with newly set <see cref="RelativeTo"/> property.</returns>
         public Hashes WithNewRelativeTo(DateTime relativeTo)
         {
             return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary, 0);
@@ -212,7 +212,7 @@ namespace SoundFingerprinting.Data
         /// </summary>
         /// <param name="key">Property key.</param>
         /// <param name="value">Property value.</param>
-        /// <returns></returns>
+        /// <returns>New instance of <see cref="Hashes"/> object with new additional properties object.</returns>
         public Hashes WithProperty(string key, string value)
         {
             if (additionalProperties == null)
@@ -300,37 +300,17 @@ namespace SoundFingerprinting.Data
         ///  Merge current object with provided hashes.
         /// </summary>
         /// <param name="with">Hashes to merge with.</param>
-        /// <param name="merged">Merged instance of <see cref="Hashes"/> class.</param>
-        /// <param name="allowedGap">Permitted gap between consecutive fingerprints.</param>
-        /// <returns>
-        ///  True if merge succeeded, otherwise false. <br/>
-        ///  Merge will fail if objects cannot be merged without gaps (as defined by <see cref="allowedGap"/> parameter. <br/>
-        ///  Gaps are only verified between <see cref="RelativeTo"/> properties.
-        /// </returns>
         /// <exception cref="ArgumentException">
         ///  Thrown when <see cref="MediaType"/> between merged hashes is not the same, or stream IDs are not the same.
         /// </exception>
-        public bool MergeWith(Hashes with, out Hashes? merged, double allowedGap = 1.48f)
+        /// <returns>Merged instance of <see cref="Hashes"/> class.</returns>
+        public Hashes MergeWith(Hashes with)
         {
-            merged = null;
-
             if (MediaType != with.MediaType)
             {
                 throw new ArgumentException($"Can't merge hashes with different media types {MediaType}!={with.MediaType}", nameof(with.MediaType));
             }
             
-            if (IsEmpty)
-            {
-                merged = with;
-                return true;
-            }
-
-            if (with.IsEmpty)
-            {
-                merged = this;
-                return true;
-            }
-
             string streamId = (StreamId, with.StreamId) switch
             {
                 ("", "") => "",
@@ -340,13 +320,17 @@ namespace SoundFingerprinting.Data
                 _ => throw new ArgumentException($"Can't merge two hash sequences that come with different streams {StreamId}, {with.StreamId}")
             };
 
-            if (RelativeTo > with.RelativeTo || EndsAt < with.RelativeTo.Subtract(TimeSpan.FromSeconds(allowedGap)))
+            if (IsEmpty)
             {
-                return false;
+                return with;
             }
 
-            merged = Merge(this, with, streamId);
-            return true;
+            if (with.IsEmpty)
+            {
+                return this;
+            }
+
+            return Merge(this, with, streamId);
         }
 
         /// <inheritdoc cref="object.ToString"/>
@@ -355,6 +339,13 @@ namespace SoundFingerprinting.Data
             return $"Hashes[Count:{Count}, Length:{DurationInSeconds:0.00}]";
         }
         
+        /// <summary>
+        ///  Aggregates list of <see cref="Hashes"/> into chunks of given length.
+        /// </summary>
+        /// <param name="hashes">List of hashes with chunks of given length.</param>
+        /// <param name="length">Required length of resulting hashes.</param>
+        /// <returns>List of <see cref="Hashes"/> object.</returns>
+        /// <exception cref="ArgumentException">All hashes must have the same media type and stream id.</exception>
         public static IEnumerable<Hashes> Aggregate(IEnumerable<Hashes> hashes, double length)
         {
             var list = hashes.ToList();
@@ -378,18 +369,11 @@ namespace SoundFingerprinting.Data
                 .Aggregate(new Stack<Hashes>(new[] {GetEmpty(mediaType)}), (stack, next) =>
                     {
                         var completed = stack.Pop();
-                        if (completed.MergeWith(next, out var merged))
+                        var merged = completed.MergeWith(next);
+                        stack.Push(merged);
+                        if (merged.DurationInSeconds >= length)
                         {
-                            stack.Push(merged!);
-                            if (merged!.DurationInSeconds >= length)
-                            {
-                                stack.Push(GetEmpty(mediaType));
-                            }
-                        }
-                        else
-                        {
-                            stack.Push(completed);
-                            stack.Push(next);
+                            stack.Push(GetEmpty(mediaType));
                         }
 
                         return stack;
@@ -413,10 +397,10 @@ namespace SoundFingerprinting.Data
         private static Hashes Merge(Hashes left, Hashes right, string streamId)
         {
             var first = left.OrderBy(_ => _.SequenceNumber).ToList();
-            double lengthOfLeftFingerprint = left.DurationInSeconds - first.Last().StartsAt;
+            double leftTail = left.DurationInSeconds - first.Last().StartsAt;
             var firstStartsAt = left.RelativeTo;
             var second = right.OrderBy(_ => _.SequenceNumber).ToList();
-            double lengthOfRightFingerprint = right.DurationInSeconds - second.Last().StartsAt;
+            double rightTail = right.DurationInSeconds - second.Last().StartsAt;
             var secondStartsAt = right.RelativeTo;
                 
             var result = new List<HashedFingerprint>();
@@ -430,13 +414,13 @@ namespace SoundFingerprinting.Data
                     var startAt = diff.TotalSeconds + second[j].StartsAt;
                     result.Add(new HashedFingerprint(second[j].HashBins, (uint)k, (float)startAt, second[j].OriginalPoint));
                     ++j;
-                    tailLength = lengthOfRightFingerprint;
+                    tailLength = rightTail;
                 }
                 else if (j == second.Count)
                 {
                     result.Add(new HashedFingerprint(first[i].HashBins, (uint)k, first[i].StartsAt, first[i].OriginalPoint));
                     ++i;
-                    tailLength = lengthOfLeftFingerprint;
+                    tailLength = leftTail;
                 }
                 else if (firstStartsAt.AddSeconds(first[i].StartsAt) <= secondStartsAt.AddSeconds(second[j].StartsAt))
                 {
@@ -459,8 +443,9 @@ namespace SoundFingerprinting.Data
             {
                 additionalProperties[kv.Key] = kv.Value;
             }
-            
-            return new Hashes(result, fullLength, left.MediaType, relativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId, additionalProperties, 0);
+
+            double offset = left.RelativeTo < right.RelativeTo ? left.TimeOffset : right.TimeOffset;
+            return new Hashes(result, fullLength, left.MediaType, relativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId, additionalProperties, offset);
         }
     }
 }
