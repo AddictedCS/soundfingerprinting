@@ -4,12 +4,15 @@ namespace SoundFingerprinting.Command
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Content;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Query;
@@ -21,14 +24,13 @@ namespace SoundFingerprinting.Command
     {
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
-        private readonly Queue<Hashes> downtimeHashes;
-
-        private IAsyncEnumerable<AudioSamples> realtimeCollection;
+        
+        private IAsyncEnumerable<AVHashes> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
         private IModelService modelService;
         private IAudioService audioService;
-        private Func<Hashes, Hashes> hashesInterceptor = _ => _;
-
+        private Func<AVHashes, AVHashes> hashesInterceptor = _ => _;
+        
         private bool errored = false;
         private double queryLength = 0;
 
@@ -36,12 +38,11 @@ namespace SoundFingerprinting.Command
         {
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
-            downtimeHashes = new Queue<Hashes>();
             
             configuration = new DefaultRealtimeQueryConfiguration(
                 e => { /* do nothing */ }, 
                 e => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
-            realtimeCollection = new BlockingRealtimeCollection<AudioSamples>(new BlockingCollection<AudioSamples>());
+            realtimeCollection = new BlockingRealtimeCollection<AVHashes>(new BlockingCollection<AVHashes>());
             modelService = new InMemoryModelService();
             audioService = new SoundFingerprintingAudioService();
         }
@@ -49,14 +50,28 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AudioSamples})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> source)
         {
-            realtimeCollection = source;
+            realtimeCollection = ConvertToAvHashes(ConvertToAvTrack(source));
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files)
         {
-            realtimeCollection = ReadHashesAsync(files);
+            realtimeCollection = ConvertToAvHashes(ConvertToAvTrack(ReadHashesAsync(files)));
+            return this;
+        }
+
+        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AVTrack})"/>
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AVTrack> tracks)
+        {
+            realtimeCollection = ConvertToAvHashes(tracks);
+            return this;
+        }
+
+        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AVHashes})"/>
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AVHashes> avHashes)
+        {
+            realtimeCollection = avHashes;
             return this;
         }
 
@@ -77,7 +92,15 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeQueryCommand.Query"/>
         public async Task<double> Query(CancellationToken cancellationToken)
         {
-            return await QueryAndHash(queryFingerprintService, cancellationToken);
+            try
+            {
+                await Task.Yield();
+                return await QueryRealtimeSource(queryFingerprintService, cancellationToken);
+            }
+            catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
+            {
+                return queryLength;
+            }
         }
 
         /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService)"/>
@@ -96,7 +119,7 @@ namespace SoundFingerprinting.Command
         }
 
         /// <inheritdoc cref="IInterceptRealtimeHashes.Intercept"/>
-        public IUsingRealtimeQueryServices Intercept(Func<Hashes, Hashes> hashesInterceptor)
+        public IUsingRealtimeQueryServices Intercept(Func<AVHashes, AVHashes> hashesInterceptor)
         {
             this.hashesInterceptor = hashesInterceptor;
             return this;
@@ -106,117 +129,188 @@ namespace SoundFingerprinting.Command
         {
             await foreach (var file in files)
             {
-                yield return audioService.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.SampleRate);
+                yield return audioService.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.Audio.FingerprintConfiguration.SampleRate);
+            }
+        }
+        
+        private static async IAsyncEnumerable<AVTrack> ConvertToAvTrack(IAsyncEnumerable<AudioSamples> source)
+        {
+            await foreach (var samples in source)
+            {
+                yield return new AVTrack(new AudioTrack(samples, samples.Duration), null);
             }
         }
 
-        private async Task<double> QueryAndHash(IQueryFingerprintService service, CancellationToken cancellationToken)
+        private async IAsyncEnumerable<AVHashes> ConvertToAvHashes(IAsyncEnumerable<AVTrack> source)
         {
-            var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.Stride);
-            var resultsAggregator = new StatefulRealtimeResultEntryAggregator<ResultEntry>(configuration.ResultEntryFilter, 
+            var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.QueryConfiguration.Audio.Stride);
+            await foreach (var (audioTrack, videoTrack) in source)
+            {
+                var prefixed = audioTrack != null ?  realtimeSamplesAggregator.Aggregate(audioTrack.Samples) : null;
+                var fingerprintingStopwatch = Stopwatch.StartNew();
+                double audioTimeOffset = (audioTrack?.Samples.Duration ?? 0) - (prefixed?.Duration ?? 0);
+                var audioHashes = prefixed != null ? (await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed)) : null;
+                audioHashes = audioHashes?.WithTimeOffset(audioTimeOffset);
+                long audioFingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
+                fingerprintingStopwatch.Restart();
+                var videoHashes = videoTrack?.Frames != null ? await CreateQueryFingerprints(fingerprintCommandBuilder, videoTrack.Frames) : null;
+                long videoFingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
+                var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, new AVFingerprintingStats(audioFingerprintingDuration, videoFingerprintingDuration)));
+                fingerprintingStopwatch.Stop();
+                yield return avHashes;
+            }
+        }
+
+        /// <summary>
+        ///  Query realtime source and associated <see cref="IOfflineStorage"/>.
+        /// </summary>
+        /// <param name="service">An instance of <see cref="IQueryFingerprintService"/> with configured <see cref="IModelService"/>.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Query length.</returns>
+        /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
+        /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
+        private async Task<double> QueryRealtimeSource(IQueryFingerprintService service, CancellationToken cancellationToken)
+        {
+            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, 
                 configuration.OngoingResultEntryFilter,
                 configuration.OngoingSuccessCallback,
-                new ResultEntryCompletionStrategy( configuration.QueryConfiguration.PermittedGap),
-                new ResultEntryConcatenator(), _ => _.Track.Id);
+                new AVResultEntryCompletionStrategy(configuration.QueryConfiguration),
+                new ResultEntryConcatenator(),
+                new StatefulQueryHashesConcatenator());
+
+            try
+            {
+                // lets check the offline storage immediately at startup
+                await foreach (var queryResult in QueryFromOfflineStorage(service, cancellationToken))
+                {
+                    ConsumeQueryResult(queryResult, resultsAggregator);
+                }
+            }
+            catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
+            {
+                // if operation has been cancelled re-throw to the calling thread.
+                throw;
+            }
+            catch (Exception e)
+            {
+                // if an offline storage exception occurs, let's continue consuming realtime data and storing it to the offline storage
+                await HandleQueryFailure(null, cancellationToken, e);
+            }
 
             while (true)
             {
                 try
                 {
-                    return await QueryRealtimeSource(service, realtimeSamplesAggregator, resultsAggregator, cancellationToken);
-                }
-                catch (Exception e) when (e is OperationCanceledException || e is ObjectDisposedException)
-                {
+                    await QueryFromRealtimeAndOffline(service, resultsAggregator, cancellationToken);
+                    var purged = resultsAggregator.Purge();
+                    InvokeSuccessHandler(purged.SuccessEntries);
+                    InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries);
                     return queryLength;
+                }
+                catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
+                {
+                    throw;
                 }
                 catch (Exception e)
                 {
-                    errored = true;
-                    configuration.ErrorCallback(e, null);
-                    configuration.ErrorBackoffPolicy.Failure();
-                    try
-                    {
-                        await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
-                    }
-                    catch (Exception delayException) when (delayException is OperationCanceledException || delayException is ObjectDisposedException)
-                    {
-                        return queryLength;
-                    }
+                    await HandleQueryFailure(null, cancellationToken, e);
                 }
             }
         }
 
-        private async Task<double> QueryRealtimeSource(IQueryFingerprintService service, 
-            IRealtimeAudioSamplesAggregator realtimeSamplesAggregator,
-            IRealtimeAggregator<ResultEntry> resultsAggregator, 
-            CancellationToken cancellationToken)
+        /// <summary>
+        ///  Query from realtime and offline sources.
+        /// </summary>
+        /// <param name="service">An instance of <see cref="IQueryFingerprintService"/> with configured <see cref="IModelService"/>.</param>
+        /// <param name="resultsAggregator">Results aggregator to use for query results aggregation.</param>
+        /// <param name="cancellationToken">Cancellation token to cancel querying.</param>
+        /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
+        /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
+        /// <exception cref="Exception">Any other exception that can occur during fingerprinting creation, and not fingerprinting querying.</exception>
+        private async Task QueryFromRealtimeAndOffline(IQueryFingerprintService service, IRealtimeAggregator resultsAggregator, CancellationToken cancellationToken)
         {
-            await foreach (var audioSamples in realtimeCollection.WithCancellation(cancellationToken))
+            await foreach (var avHashes in realtimeCollection.WithCancellation(cancellationToken))
             {
-                queryLength += audioSamples.Duration;
-                var prefixed = realtimeSamplesAggregator.Aggregate(audioSamples);
-                if (prefixed == null)
+                // lets check during every iteration if offline storage contains any more data
+                var avQueryResults = await TryQuery(service, avHashes, cancellationToken);
+                foreach (var queryResult in avQueryResults)
                 {
-                    continue;
-                }
-
-                var fingerprintingStopwatch = Stopwatch.StartNew();
-                double timeOffset = audioSamples.Duration - prefixed.Duration;
-                var hashes = (await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed)).WithTimeOffset(timeOffset);
-                hashes = hashesInterceptor(hashes);
-                var fingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
-                if (!TryQuery(service, hashes, out var queryResults))
-                {
-                    continue;
-                }
-
-                foreach (var queryResult in queryResults)
-                {
-                    var aggregatedResult = resultsAggregator.Consume(queryResult.ResultEntries, queryResult.QueryHashes.DurationInSeconds, queryResult.QueryHashes.TimeOffset);
-                    var queryCommandStats = queryResult.CommandStats.WithFingerprintingDurationMilliseconds(fingerprintingDuration);
-                    InvokeSuccessHandler(aggregatedResult.SuccessEntries, queryResult.QueryHashes, queryCommandStats);
-                    InvokeDidNotPassFilterHandler(aggregatedResult.DidNotPassThresholdEntries, queryResult.QueryHashes, queryCommandStats);
+                    ConsumeQueryResult(queryResult, resultsAggregator);
                 }
             }
-
-            var purged = resultsAggregator.Purge();
-            InvokeSuccessHandler(purged.SuccessEntries, Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
-            InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries, Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
-            return queryLength;
         }
 
-        private bool TryQuery(IQueryFingerprintService service, Hashes hashes, out IEnumerable<QueryResult> results)
+        private void ConsumeQueryResult(AVQueryResult queryResult, IRealtimeAggregator resultsAggregator)
+        {
+            var aggregatedResult = resultsAggregator.Consume(queryResult);
+            InvokeSuccessHandler(aggregatedResult.SuccessEntries);
+            InvokeDidNotPassFilterHandler(aggregatedResult.DidNotPassThresholdEntries);
+        }
+        
+        private async Task HandleQueryFailure(AVHashes? hashes, CancellationToken cancellationToken, Exception e)
+        {
+            errored = true;
+            configuration.ErrorCallback(e, hashes);
+            configuration.ErrorBackoffPolicy.Failure();
+            await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
+        }
+
+        /// <summary>
+        ///  Queries local or remote <see cref="IModelService"/> with <see cref="AVHashes"/> gathered from offline storage.
+        /// </summary>
+        /// <param name="service">An instance of <see cref="IQueryFingerprintService"/>.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Async enumerable with <see cref="AVQueryResult"/>.</returns>
+        /// <exception cref="IOException">Input/Output exception when querying the model service.</exception>> 
+        private async IAsyncEnumerable<AVQueryResult> QueryFromOfflineStorage(IQueryFingerprintService service, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var offlineStorage = configuration.OfflineStorage;
+            while (offlineStorage.Any())
+            {
+                var offlineHashes = offlineStorage.First();
+                yield return GetAVQueryResult(service, offlineHashes);
+                offlineStorage.Remove(offlineHashes);
+                await Task.Delay(configuration.DelayStrategy.Delay, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        ///  Tries querying associated <see cref="IModelService"/>.
+        /// </summary>
+        /// <param name="service">An instance of <see cref="IQueryFingerprintService"/>.</param>
+        /// <param name="hashes">An instance of <see cref="AVHashes"/>.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>List of query results</returns>
+        /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
+        /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
+        private async Task<IEnumerable<AVQueryResult>> TryQuery(IQueryFingerprintService service, AVHashes hashes, CancellationToken cancellationToken)
         {
             try
             {
-                var result = service.Query(hashes, configuration.QueryConfiguration, modelService);
+                var avQueryResult = GetAVQueryResult(service, hashes).WithFingerprintingDurationMilliseconds(hashes.Stats.Audio, hashes.Stats.Video);
                 if (errored)
                 {
                     errored = false;
                     configuration.RestoredAfterErrorCallback();
                     configuration.ErrorBackoffPolicy.Success();
                 }
-                
-                if (!downtimeHashes.Any())
+
+                var offlineResults = new List<AVQueryResult>();
+                await foreach (var offlineResult in QueryFromOfflineStorage(service, cancellationToken))
                 {
-                    results = new[] {result}.AsEnumerable();
-                    return true;
+                    offlineResults.Add(offlineResult);
                 }
 
-                results = ConsumeDowntimeHashes(service)
-                    .Concat(ConsumeExternalDowntimeHashes(service))
-                    .Concat(new[] {result});
-
-                return true;
+                return offlineResults.Concat(new[] { avQueryResult });
+            }
+            catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
+            {
+                throw;
             }
             catch (Exception e)
             {
-                errored = true;
-                var timedHashes = StoreDowntimeEntries(hashes);
-                configuration.ErrorCallback(e, timedHashes);
-                configuration.ErrorBackoffPolicy.Failure();
-                results = Enumerable.Empty<QueryResult>();
-                return false;
+                await HandleQueryFailure(hashes, cancellationToken, e);
+                return Enumerable.Empty<AVQueryResult>();
             }
         }
 
@@ -225,70 +319,49 @@ namespace SoundFingerprinting.Command
             return await commandBuilder
                 .BuildFingerprintCommand()
                 .From(prefixed)
-                .WithFingerprintConfig(configuration.QueryConfiguration.FingerprintConfiguration)
-                .UsingServices(audioService)
+                .WithFingerprintConfig(configuration.QueryConfiguration.Audio.FingerprintConfiguration)
                 .Hash();
         }
 
-        private void InvokeDidNotPassFilterHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryCommandStats queryCommandStats)
+        private async Task<Hashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, Frames frames)
         {
-            if (resultEntries.Any())
+            return await commandBuilder
+                .BuildFingerprintCommand()
+                .From(frames)
+                .WithFingerprintConfig(configuration.QueryConfiguration.Video.FingerprintConfiguration)
+                .Hash();
+        }
+
+        /// <summary>
+        ///  Gets an instance of <see cref="AVQueryResult"/> with query results from both Audio and Video queries.
+        /// </summary>
+        /// <param name="service">An instance of <see cref="IQueryFingerprintService"/> to use to query.</param>
+        /// <param name="hashes">An instance of <see cref="AVHashes"/>.</param>
+        /// <returns>An instance of <see cref="AVQueryResult"/>.</returns>
+        /// <exception cref="IOException">Input/Output exception when querying the model service.</exception>> 
+        private AVQueryResult GetAVQueryResult(IQueryFingerprintService service, AVHashes hashes)
+        {
+            var audio = hashes.Audio != null ? service.Query(hashes.Audio, configuration.QueryConfiguration.Audio, modelService) : null;
+            var video = hashes.Video != null ? service.Query(hashes.Video, configuration.QueryConfiguration.Video, modelService) : null;
+            queryLength += ((hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset) ?? hashes.Video?.DurationInSeconds) ?? 0;
+            var avResultEntries = AVQueryResult.JoinResultEntries(audio, video);
+            return new AVQueryResult(avResultEntries, hashes, new AVQueryCommandStats(audio?.CommandStats, video?.CommandStats));
+        }
+        
+        private void InvokeDidNotPassFilterHandler(IEnumerable<AVQueryResult> queryResults)
+        {
+            foreach (var queryResult in queryResults)
             {
-                var result = new QueryResult(resultEntries, hashes, queryCommandStats);
-                configuration?.DidNotPassFilterCallback(result);
+                configuration?.DidNotPassFilterCallback(queryResult);
             }
         }
 
-        private void InvokeSuccessHandler(IReadOnlyCollection<ResultEntry> resultEntries, Hashes hashes, QueryCommandStats queryCommandStats)
+        private void InvokeSuccessHandler(IEnumerable<AVQueryResult> queryResults)
         {
-            if (resultEntries.Any())
+            foreach (var queryResult in queryResults)
             {
-                var entries = resultEntries.OrderByDescending(_ => _.Confidence).ThenBy(e => e.Track.Id).ToList();
-                var result = new QueryResult(entries, hashes, queryCommandStats);
-                configuration?.SuccessCallback(result);
+                configuration?.SuccessCallback(queryResult);
             }
-        }
-
-        private Hashes StoreDowntimeEntries(Hashes hashes)
-        {
-            double length = downtimeHashes.Sum(hash => hash.DurationInSeconds);
-            if (length <= configuration.DowntimeCapturePeriod)
-            {
-                downtimeHashes.Enqueue(hashes);
-                return Hashes.GetEmpty(hashes.MediaType);
-            }
-            
-            return hashes;
-        }
-
-        private IEnumerable<QueryResult> ConsumeDowntimeHashes(IQueryFingerprintService service)
-        {
-            var list = new List<QueryResult>();
-            while (downtimeHashes.Any())
-            {
-                var timedHashes = downtimeHashes.Dequeue();
-                var results = service.Query(timedHashes, configuration.QueryConfiguration, modelService);
-                list.Add(results);
-            }
-
-            return list;
-        }
-
-        private IEnumerable<QueryResult> ConsumeExternalDowntimeHashes(IQueryFingerprintService service)
-        {
-            var list = new List<QueryResult>();
-            foreach (var downtimeHash in configuration.OfflineStorage)
-            {
-                if (downtimeHash.IsEmpty)
-                {
-                    continue;
-                }
-                
-                var results = service.Query(downtimeHash, configuration.QueryConfiguration, modelService);
-                list.Add(results);
-            }
-
-            return list;
         }
     }
 }
