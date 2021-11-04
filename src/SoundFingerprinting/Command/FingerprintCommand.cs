@@ -57,6 +57,13 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
+        /// <inheritdoc cref="ISourceFrom.From(Frames)"/>
+        public IWithFingerprintConfiguration From(Frames frames)
+        {
+            createFingerprintsMethod = () => fingerprintService.CreateFingerprintsFromImageFrames(frames, fingerprintConfiguration);
+            return this;
+        }
+
         /// <inheritdoc cref="ISourceFrom.From(string,double,double)"/>
         public IWithFingerprintConfiguration From(string file, double secondsToProcess, double startAtSecond)
         {
