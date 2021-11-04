@@ -16,7 +16,7 @@
 		Adding a backoff policy for connection retry on realtime query source.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
-	<LangVersion>8</LangVersion>
+	<LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
