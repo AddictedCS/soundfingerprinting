@@ -304,8 +304,13 @@ namespace SoundFingerprinting.Data
         ///  Thrown when <see cref="MediaType"/> between merged hashes is not the same, or stream IDs are not the same.
         /// </exception>
         /// <returns>Merged instance of <see cref="Hashes"/> class.</returns>
-        public Hashes MergeWith(Hashes with)
+        public Hashes MergeWith(Hashes? with)
         {
+            if (with == null)
+            {
+                return this;
+            }
+            
             if (MediaType != with.MediaType)
             {
                 throw new ArgumentException($"Can't merge hashes with different media types {MediaType}!={with.MediaType}", nameof(with.MediaType));
