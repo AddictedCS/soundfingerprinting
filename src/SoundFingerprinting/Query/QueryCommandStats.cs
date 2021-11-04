@@ -54,5 +54,32 @@
         {
             return new QueryCommandStats(TotalTracksAnalyzed, TotalFingerprintsAnalyzed, QueryDurationMilliseconds, fingerprintingDurationMilliseconds);
         }
+
+        /// <summary>
+        /// Sums this instance with provided instance.
+        /// </summary>
+        /// <param name="stats">Status to sum with.</param>
+        /// <returns>New  instance of <see cref="QueryCommandStats"/>.</returns>
+        public QueryCommandStats Sum(QueryCommandStats? stats)
+        {
+            if (stats == null)
+            {
+                return this;
+            }
+            
+            return new QueryCommandStats(TotalTracksAnalyzed + stats.TotalTracksAnalyzed, 
+                TotalFingerprintsAnalyzed + stats.TotalFingerprintsAnalyzed,
+                QueryDurationMilliseconds + stats.QueryDurationMilliseconds,
+                FingerprintingDurationMilliseconds + stats.FingerprintingDurationMilliseconds);
+        }
+
+        /// <summary>
+        ///  Returns a zeroed query stats object.
+        /// </summary>
+        /// <returns>An zeroed instance of the <see cref="QueryCommandStats"/> object.</returns>
+        public static QueryCommandStats Zero()
+        {
+            return new QueryCommandStats(0, 0, 0, 0);
+        }
     }
 }

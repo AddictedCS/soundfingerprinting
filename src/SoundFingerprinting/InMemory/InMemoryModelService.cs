@@ -136,7 +136,7 @@
             var fingerprints = SubFingerprintDao
                 .ReadHashedFingerprintsByTrackReference(track.TrackReference)
                 .Select(ToHashedFingerprint);
-            return new AVHashes(new Hashes(fingerprints, track.Length, MediaType.Audio), Hashes.GetEmpty(MediaType.Video));
+            return new AVHashes(new Hashes(fingerprints, track.Length, MediaType.Audio), Hashes.GetEmpty(MediaType.Video), AVFingerprintingStats.Zero());
         }
 
         /// <inheritdoc cref="IModelService.GetTrackIds"/>

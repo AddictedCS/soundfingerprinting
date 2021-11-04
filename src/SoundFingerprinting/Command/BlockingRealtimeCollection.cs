@@ -51,7 +51,7 @@ namespace SoundFingerprinting.Command
         
         private async Task<T?> TryReadAsync(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested && !(collection.IsAddingCompleted && collection.Count == 0))
+            while (!collection.IsAddingCompleted || collection.Count > 0)
             {
                 try
                 {
@@ -60,7 +60,7 @@ namespace SoundFingerprinting.Command
                         return await Task.FromResult(samples);
                     }
                 }
-                catch (Exception e) when (e is ObjectDisposedException || e is TaskCanceledException)
+                catch (Exception e) when (e is ObjectDisposedException or OperationCanceledException)
                 {
                     return null;
                 }
