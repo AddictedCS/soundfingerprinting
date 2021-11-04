@@ -24,37 +24,27 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 Directory.CreateDirectory(folder);
             }
 
-            foreach (var previousFiles in GetPreviousFiles(folder))
+            foreach (string previousFiles in GetPreviousFiles(folder))
             {
                 File.Delete(previousFiles);
             }
         }
         
-        public void Save(Hashes timedHashes)
-        {
-            if (timedHashes.IsEmpty)
-            {
-                return;
-            }
-
-            using var fileStream = new FileStream(Path.Combine(folder, timedHashes.RelativeTo.ToString(DateFormat) + Format), FileMode.CreateNew);
-            Serializer.SerializeWithLengthPrefix(fileStream, timedHashes, PrefixStyle.Fixed32);
-        }
-        
-        public IEnumerator<Hashes> GetEnumerator()
+        public IEnumerator<AVHashes> GetEnumerator()
         {
             foreach (var file in GetPreviousFiles(folder))
             {
-                using (var stream = new FileStream(file, FileMode.Open))
-                {
-                    yield return Serializer.DeserializeWithLengthPrefix<Hashes>(stream, PrefixStyle.Fixed32);
-                }
-                
-                File.Delete(file); // or archive for
+                yield return Deserialize(file);
             }
         }
 
-        private IEnumerable<string> GetPreviousFiles(string path)
+        private static AVHashes Deserialize(string file)
+        {
+            using var stream = new FileStream(file, FileMode.Open);
+            return Serializer.DeserializeWithLengthPrefix<AVHashes>(stream, PrefixStyle.Fixed32);
+        }
+
+        private static IEnumerable<string> GetPreviousFiles(string path)
         {
             return Directory.GetFiles(path, $"*{Format}").OrderBy(filename => DateTime.ParseExact(Path.GetFileNameWithoutExtension(filename), DateFormat, CultureInfo.InvariantCulture));
         }
@@ -62,6 +52,51 @@ namespace SoundFingerprinting.Tests.Unit.Query
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public void Add(AVHashes avHashes)
+        {
+            if (avHashes == null || avHashes.IsEmpty || Contains(avHashes))
+            {
+                return;
+            }
+            
+            using var fileStream = new FileStream(GetPath(avHashes.CaptureTime), FileMode.CreateNew);
+            Serializer.SerializeWithLengthPrefix(fileStream, avHashes, PrefixStyle.Fixed32);
+        }
+        
+        public bool Contains(DateTime captureTime)
+        {
+            var path = GetPath(captureTime);
+            return File.Exists(path);
+        }
+
+        public bool Contains(AVHashes avHashes)
+        {
+            return Contains(avHashes.CaptureTime);
+        }
+
+        public AVHashes? Get(DateTime captureTime)
+        {
+            if (!Contains(captureTime))
+            {
+                return null;
+            }
+            
+            return Deserialize(GetPath(captureTime));
+        }
+
+        public void Remove(AVHashes avHashes)
+        {
+            if (Contains(avHashes))
+            {
+                File.Delete(GetPath(avHashes.CaptureTime));
+            }
+        }
+        
+        private string GetPath(DateTime captureTime)
+        {
+            return Path.Combine(folder, captureTime.ToString(DateFormat) + Format);
         }
     }
 }
