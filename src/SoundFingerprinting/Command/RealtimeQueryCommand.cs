@@ -231,12 +231,7 @@ namespace SoundFingerprinting.Command
         {
             await foreach (var avHashes in realtimeCollection.WithCancellation(cancellationToken))
             {
-                // lets check during every iteration if offline storage contains any more data
-                var avQueryResults = await TryQuery(service, avHashes, cancellationToken);
-                foreach (var queryResult in avQueryResults)
-                {
-                    ConsumeQueryResult(queryResult, resultsAggregator);
-                }
+                await TryQuery(service, avHashes, resultsAggregator, cancellationToken);
             }
         }
 
@@ -279,11 +274,12 @@ namespace SoundFingerprinting.Command
         /// </summary>
         /// <param name="service">An instance of <see cref="IQueryFingerprintService"/>.</param>
         /// <param name="hashes">An instance of <see cref="AVHashes"/>.</param>
+        /// <param name="realtimeAggregator">Realtime aggregator.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>List of query results</returns>
+        /// <returns>True if query was successful, otherwise false</returns>
         /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
-        private async Task<IEnumerable<AVQueryResult>> TryQuery(IQueryFingerprintService service, AVHashes hashes, CancellationToken cancellationToken)
+        private async Task<bool> TryQuery(IQueryFingerprintService service, AVHashes hashes, IRealtimeAggregator realtimeAggregator, CancellationToken cancellationToken)
         {
             try
             {
@@ -295,13 +291,13 @@ namespace SoundFingerprinting.Command
                     configuration.ErrorBackoffPolicy.Success();
                 }
 
-                var offlineResults = new List<AVQueryResult>();
                 await foreach (var offlineResult in QueryFromOfflineStorage(service, cancellationToken))
                 {
-                    offlineResults.Add(offlineResult);
+                    ConsumeQueryResult(offlineResult, realtimeAggregator);
                 }
-
-                return offlineResults.Concat(new[] { avQueryResult });
+                
+                ConsumeQueryResult(avQueryResult, realtimeAggregator);
+                return true;
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
             {
@@ -310,7 +306,7 @@ namespace SoundFingerprinting.Command
             catch (Exception e)
             {
                 await HandleQueryFailure(hashes, cancellationToken, e);
-                return Enumerable.Empty<AVQueryResult>();
+                return false;
             }
         }
 
