@@ -7,7 +7,9 @@ namespace SoundFingerprinting.Tests.Unit.Data
     using System.Linq;
     using NUnit.Framework;
     using ProtoBuf;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Strides;
 
     [TestFixture]
     public class HashesTest
@@ -143,6 +145,17 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var rangeB = c.GetRange(bStartsAt, 120);
             AssertHashesAreEqual(b, rangeB);
             AssertInvariantsForHashes(rangeB, bStartsAt);
+        }
+
+        [Test]
+        public void ShouldMergeCorrectlyRealtimeHashes()
+        {
+            var prev = TestUtilities.GetRandomHashes(200).WithNewRelativeTo(DateTime.UnixEpoch);
+            var next = TestUtilities.GetRandomHashes(205).WithNewRelativeTo(DateTime.UnixEpoch.AddSeconds(195)).WithTimeOffset(-5);
+
+            var merged =  prev.MergeWith(next);
+            
+            Assert.AreEqual(400, merged.DurationInSeconds);
         }
 
         private static void AssertInvariantsForHashes(Hashes hashes, DateTime startsAt)

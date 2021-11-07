@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Audio
 {
     using System;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Strides;
 
     /// <summary>
@@ -8,15 +9,17 @@ namespace SoundFingerprinting.Audio
     /// </summary>
     public class RealtimeAudioSamplesAggregator : IRealtimeAudioSamplesAggregator
     {
-        private const int MinSizeOfOneFingerprint = 128 * 64 + 2048;
+        private readonly int minSamplesPerFingerprint;
         private float[] tail;
-        
+
         /// <summary>
         ///  Initializes a new instance of the <see cref="RealtimeAudioSamplesAggregator"/> class.
         /// </summary>
+        /// <param name="minSamplesPerFingerprint">Minimum number of sampler per one fingerprint (see <see cref="SpectrogramConfig"/>).</param>
         /// <param name="stride">Stride to use between consecutive fingerprints.</param>
-        public RealtimeAudioSamplesAggregator(IStride stride)
+        public RealtimeAudioSamplesAggregator(int minSamplesPerFingerprint, IStride stride)
         {
+            this.minSamplesPerFingerprint = minSamplesPerFingerprint;
             Stride = stride;
             tail = Array.Empty<float>();
         }
@@ -28,7 +31,7 @@ namespace SoundFingerprinting.Audio
         {
             var withPreviousTail = AttachNewChunk(chunk);
             CacheTail(withPreviousTail);
-            return withPreviousTail.Samples.Length >= MinSizeOfOneFingerprint ? withPreviousTail : null;
+            return withPreviousTail.Samples.Length >= minSamplesPerFingerprint ? withPreviousTail : null;
         }
 
         private AudioSamples AttachNewChunk(AudioSamples chunk)
@@ -43,12 +46,21 @@ namespace SoundFingerprinting.Audio
 
         private void CacheTail(AudioSamples samples)
         {
-            if (samples.Samples.Length >= MinSizeOfOneFingerprint)
+            if (samples.Samples.Length >= minSamplesPerFingerprint)
             {
                 int nextStride = Stride.NextStride;
-                if (nextStride < MinSizeOfOneFingerprint)
+                if (nextStride < minSamplesPerFingerprint)
                 {
-                    int tailSize = MinSizeOfOneFingerprint - nextStride;
+                    // this value is exact when we use IncrementalStaticStride which can tell exactly how much tail length we ignore because it is not evenly divisible by length
+                    // Example:
+                    // hash   |       |   |   |    = 3 hashes with
+                    // q      ------------------
+                    // stride |   |   |   |   |
+                    // cache               -----
+                    int estimatedIgnoredWindow = (samples.Samples.Length - minSamplesPerFingerprint) % nextStride;
+                    
+                    // tail size is always shorter than minSamplesPerFingerprint
+                    int tailSize = (minSamplesPerFingerprint - nextStride + estimatedIgnoredWindow);
                     tail = new float[tailSize];
                     Buffer.BlockCopy(samples.Samples, sizeof(float) * (samples.Samples.Length - tailSize), tail, 0, sizeof(float) * tailSize);
                 }

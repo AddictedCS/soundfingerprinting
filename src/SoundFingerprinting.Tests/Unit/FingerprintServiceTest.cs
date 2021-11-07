@@ -14,6 +14,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.LSH;
+    using SoundFingerprinting.Strides;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
 
@@ -99,12 +100,18 @@
         [Test]
         public void ShouldCreateOneFingerprint()
         {
-            var floats = TestUtilities.GenerateRandomFloatArray(8192 + 2048 - 64);
-
-            var fingerprints = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(new AudioSamples(floats, string.Empty, 5512), new DefaultFingerprintConfiguration()).ToList();
-
-            Assert.IsNotEmpty(fingerprints);
+            var configuration = new DefaultFingerprintConfiguration(){Stride = new IncrementalStaticStride(8192)};
+            
+            // first fingerprint needs the following minimum number of samples to create one fingerprint.
+            // SpectrogramConfig.ImageLength * SpectrogramConfig.Overlap + WDFT size - Overlap.
+            int minSize = configuration.SamplesPerFingerprint + configuration.SpectrogramConfig.WdftSize - configuration.SpectrogramConfig.Overlap;
+            var audioSamples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize), string.Empty, 5512);
+            var fingerprints = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
             Assert.AreEqual(1, fingerprints.Count);
+
+            audioSamples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize + configuration.SamplesPerFingerprint), string.Empty, 5512);
+            fingerprints = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
+            Assert.AreEqual(2, fingerprints.Count);
         }
 
         [Test]

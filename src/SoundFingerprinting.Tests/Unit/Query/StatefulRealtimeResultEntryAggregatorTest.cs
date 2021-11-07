@@ -1,14 +1,24 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using NUnit.Framework;
+    using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
+    using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Content;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.Strides;
+    using SoundFingerprinting.Tests.Integration;
 
     [TestFixture]
     public class StatefulRealtimeResultEntryAggregatorTest
@@ -105,7 +115,81 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsTrue(filtered[0].Audio.TrackCoverageWithPermittedGapsLength < 5d);
         }
 
-        private static void SimulateEmptyResults(StatefulRealtimeResultEntryAggregator aggregator, ICollection<AVResultEntry> success, ICollection<AVResultEntry> filtered)
+        [Test]
+        public async Task ShouldAggregateCorrectly()
+        {
+            const int seconds = 10, sampleRate = 5512;
+            var stride = new IncrementalStaticStride(512);
+            var samples = TestUtilities.GenerateRandomFloatArray(seconds * sampleRate, 1234);
+            var modelService = new InMemoryModelService();
+            var configuration = new DefaultFingerprintConfiguration { Stride = stride };
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(new AudioSamples(samples, string.Empty, sampleRate))
+                .WithFingerprintConfig(configuration)
+                .Hash();
+
+            var orderedHashes = hashes.OrderBy(_ => _.SequenceNumber).ToList();
+            
+            var track = new TrackInfo("1", string.Empty, string.Empty);
+            modelService.Insert(track, hashes);
+
+            var splits = new List<float[]>
+            {
+                samples.Take(seconds / 2 * sampleRate).ToArray(),
+                samples.Skip(seconds / 2 * sampleRate).ToArray()
+            };
+
+            var blocking = new BlockingCollection<AVTrack>();
+            var relativeTo = DateTime.UnixEpoch;
+            foreach (float[] split in splits)
+            {
+                blocking.Add(new AVTrack(new AudioTrack(new AudioSamples(split, string.Empty, 5512, relativeTo), seconds / 2d), null));
+                relativeTo = relativeTo.AddSeconds(seconds / 2d);
+            }
+            
+            blocking.CompleteAdding();
+            var realtimeCollection = new BlockingRealtimeCollection<AVTrack>(blocking);
+
+            var results = new List<ResultEntry>();
+            await QueryCommandBuilder.Instance
+                .BuildRealtimeQueryCommand()
+                .From(realtimeCollection)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.QueryConfiguration.Audio.Stride = stride;
+                    config.ResultEntryFilter = new NoPassRealtimeResultEntryFilter();
+                    config.OngoingResultEntryFilter = new NoPassRealtimeResultEntryFilter();
+                    config.DidNotPassFilterCallback = (avQueryResult) =>
+                    {
+                        foreach (var (entry, _) in avQueryResult.ResultEntries)
+                        {
+                            results.Add(entry);
+                        }
+                    };
+                    
+                    return config;
+                })
+                .UsingServices(modelService)
+                .Query(CancellationToken.None);
+
+            var resultEntry = results.FirstOrDefault();
+            Assert.IsNotNull(resultEntry);
+            Assert.IsEmpty(resultEntry.Coverage.QueryGaps);
+            Assert.IsEmpty(resultEntry.Coverage.TrackGaps);
+
+            var averageScore = resultEntry.Coverage.BestPath.Average(_ => _.Score);
+            Assert.AreEqual(100, averageScore, "Did not match exactly!");
+            CollectionAssert.AreEqual(orderedHashes.Select(_ => _.SequenceNumber).ToList(), resultEntry.Coverage.BestPath.Select(_ => _.TrackSequenceNumber));
+            CollectionAssert.AreEqual(orderedHashes.Select(_ => _.StartsAt), resultEntry.Coverage.BestPath.Select(_ => _.TrackMatchAt));
+            var zipped = orderedHashes.Select(_ => _.StartsAt).Zip(resultEntry.Coverage.BestPath.Select(_ => _.QueryMatchAt), (e, a) => new { Expected = e, Actual = a });
+            foreach (var p in zipped)
+            {
+                Assert.AreEqual(p.Expected, p.Actual, 0.00001);
+            }
+        }
+
+        private static void SimulateEmptyResults(IRealtimeAggregator aggregator, ICollection<AVResultEntry> success, ICollection<AVResultEntry> filtered)
         {
             for (int i = 0; i < 10; ++i)
             {
