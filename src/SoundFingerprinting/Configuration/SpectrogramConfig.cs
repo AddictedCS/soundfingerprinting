@@ -91,5 +91,10 @@ namespace SoundFingerprinting.Configuration
         ///  Gets or sets window function to apply before FFT-ing
         /// </summary>
         public IWindowFunction Window { get; set; }
+
+        /// <summary>
+        ///  Gets minimum number of samples required to generate one spectral image, which in turn will be used to generate one fingerprint.
+        /// </summary>
+        public int MinimumSamplesPerFingerprint => ImageLength * Overlap + WdftSize - Overlap;
     }
 }
