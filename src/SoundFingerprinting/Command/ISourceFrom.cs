@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Command
 {
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Data;
 
     /// <summary>
     ///    Source object which allows you to select the source to build the fingerprints from.
@@ -20,6 +21,13 @@ namespace SoundFingerprinting.Command
         /// <param name="audioSamples">Audio samples to build the fingerprints from.</param>
         /// <returns>Configuration selector object.</returns>
         IWithFingerprintConfiguration From(AudioSamples audioSamples);
+
+        /// <summary>
+        ///  Build fingerprints directly from video frames.
+        /// </summary>
+        /// <param name="frames">Frames to build the fingerprints from.</param>
+        /// <returns>Configuration selector object.</returns>
+        IWithFingerprintConfiguration From(Frames frames);
 
         /// <summary>
         ///   Build fingerprints from a file.

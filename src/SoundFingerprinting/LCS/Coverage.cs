@@ -213,5 +213,15 @@ namespace SoundFingerprinting.LCS
         /// </summary>
         [ProtoMember(5)]
         public double PermittedGap { get; }
+
+        /// <summary>
+        ///  Extend query length by provided extended by value.
+        /// </summary>
+        /// <param name="extendedBy">Query length to extend by.</param>
+        /// <returns>New instance of <see cref="Coverage"/> class.</returns>
+        public Coverage WithExtendedQueryLength(double extendedBy)
+        {
+            return new Coverage(BestPath, QueryLength + extendedBy, TrackLength, FingerprintLength, PermittedGap);
+        }
     }
 }

@@ -5,44 +5,26 @@ namespace SoundFingerprinting.Configuration
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
-    using SoundFingerprinting.Strides;
 
     /// <summary>
     ///   Configuration options used when querying the data source in realtime.
     /// </summary>
     public class RealtimeQueryConfiguration
     {
-        public RealtimeQueryConfiguration(int thresholdVotes,
+        public RealtimeQueryConfiguration(
+            AVQueryConfiguration queryConfiguration,
             IRealtimeResultEntryFilter resultEntryFilter,
-            Action<QueryResult> successCallback,
-            Action<QueryResult> didNotPassFilterCallback,
+            Action<AVQueryResult> successCallback,
+            Action<AVQueryResult> didNotPassFilterCallback,
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
-            Action<ResultEntry> ongoingSuccessCallback,
-            Action<Exception, Hashes?> errorCallback,
+            Action<AVResultEntry> ongoingSuccessCallback,
+            Action<Exception, AVHashes?> errorCallback,
             Action restoredAfterErrorCallback,
             IOfflineStorage offlineStorage,
-            IStride stride,
-            double permittedGap,
-            double downtimeCapturePeriod,
-            IDictionary<string, string> yesMetaFieldFilters,
-            IDictionary<string, string> noMetaFieldsFilters, 
-            IBackoffPolicy errorBackoffPolicy)
+            IBackoffPolicy errorBackoffPolicy,
+            IDelayStrategy delayStrategy)
         {
-            QueryConfiguration = new DefaultQueryConfiguration
-            {
-                ThresholdVotes = thresholdVotes,
-                FingerprintConfiguration = new DefaultFingerprintConfiguration
-                {
-                    SpectrogramConfig = new DefaultSpectrogramConfig
-                    {
-                        Stride = stride
-                    }
-                },
-                YesMetaFieldsFilters = yesMetaFieldFilters,
-                NoMetaFieldsFilters = noMetaFieldsFilters,
-                PermittedGap = permittedGap
-            };
-                
+            QueryConfiguration = queryConfiguration;
             ResultEntryFilter = resultEntryFilter;
             SuccessCallback = successCallback;
             DidNotPassFilterCallback = didNotPassFilterCallback;
@@ -51,19 +33,10 @@ namespace SoundFingerprinting.Configuration
             ErrorCallback = errorCallback;
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
             OfflineStorage = offlineStorage;
-            DowntimeCapturePeriod = downtimeCapturePeriod;
             ErrorBackoffPolicy = errorBackoffPolicy;
+            DelayStrategy = delayStrategy;
         }
-
-        /// <summary>
-        ///   Gets or sets vote count for a track to be considered a potential match (i.e. [1; 25]).
-        /// </summary>
-        public int ThresholdVotes
-        {
-            get => QueryConfiguration.ThresholdVotes;
-            set => QueryConfiguration.ThresholdVotes = value;
-        }
-
+        
         /// <summary>
         ///  Gets or sets result entry filter.
         /// </summary>
@@ -72,12 +45,12 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets success callback invoked when a candidate passes result entry filter.
         /// </summary>
-        public Action<QueryResult> SuccessCallback { get; set; }
+        public Action<AVQueryResult> SuccessCallback { get; set; }
         
         /// <summary>
         ///  Gets or sets callback invoked when a candidate did not pass result entry filter, but has been considered a candidate.
         /// </summary>
-        public Action<QueryResult> DidNotPassFilterCallback { get; set; }
+        public Action<AVQueryResult> DidNotPassFilterCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets ongoing result entry filter that will be invoked for every result entry filter that is captured by the aggregator.
@@ -93,16 +66,16 @@ namespace SoundFingerprinting.Configuration
         /// <remarks>
         ///  Experimental, may change in the future.
         /// </remarks>
-        public Action<ResultEntry> OngoingSuccessCallback { get; set; }
+        public Action<AVResultEntry> OngoingSuccessCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error callback which will be invoked in case if an error occurs during query time.
         /// </summary>
         /// <remarks>
-        ///  Instance of the <see cref="Hashes"/> will be null in case if the error occured before hashes were generated, typically connection error to the realtime source. <br/>
+        ///  Instance of the <see cref="AVHashes"/> will be null in case if the error occured before hashes were generated, typically connection error to the realtime source. <br/>
         ///  If you need to stop querying immediately after an error occured, invoke token cancellation in the callback.
         /// </remarks>
-        public Action<Exception, Hashes?> ErrorCallback { get; set; }
+        public Action<Exception, AVHashes?> ErrorCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets on error backoff policy that will be invoked before retrying to read from the realtime source.
@@ -111,7 +84,16 @@ namespace SoundFingerprinting.Configuration
         ///  Default retry policy on streaming error is default <see cref="RandomExponentialBackoffPolicy"/>.
         /// </remarks>
         public IBackoffPolicy ErrorBackoffPolicy { get; set; }
-        
+
+        /// <summary>
+        ///  Gets or sets delay strategy used when querying from the offline storage.
+        /// </summary>
+        /// <remarks>
+        ///  This will control the delay between consecutive calls with fingerprints read from the offline storage.
+        ///  It is meaningful to set a delay between consecutive calls, not to overwhelm the server with a queue for query requests after it comes back online.
+        /// </remarks>
+        public IDelayStrategy DelayStrategy { get; set; }
+
         /// <summary>
         ///  Gets or sets error restore callback.
         /// </summary>
@@ -126,38 +108,16 @@ namespace SoundFingerprinting.Configuration
         public IOfflineStorage OfflineStorage { get; set; }
 
         /// <summary>
-        ///  Gets or sets downtime capture period (in seconds), value which will instruct the framework to cache realtime hashes for later processing in case if an unsuccessful request is made to Emy.
-        /// </summary>
-        /// <remarks>
-        ///  Experimental.
-        /// </remarks>
-        public double DowntimeCapturePeriod { get; set; }
-
-        /// <summary>
-        ///  Gets or sets stride between 2 consecutive fingerprints used during querying.
-        /// </summary>
-        public IStride Stride
-        {
-            get => QueryConfiguration.Stride;
-            set => QueryConfiguration.Stride = value;
-        }
-
-        /// <summary>
-        ///  Gets or sets permitted gap between consecutive candidate so that they are glued together.
-        /// </summary>
-        public double PermittedGap
-        {
-            get => QueryConfiguration.PermittedGap;
-            set => QueryConfiguration.PermittedGap = value;
-        }
-
-        /// <summary>
         ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates.
         /// </summary>
         public IDictionary<string, string> YesMetaFieldsFilter
         {
-            get => QueryConfiguration.YesMetaFieldsFilters;
-            set => QueryConfiguration.YesMetaFieldsFilters = value;
+            get => QueryConfiguration.Audio.YesMetaFieldsFilters;
+            set
+            {
+                QueryConfiguration.Audio.YesMetaFieldsFilters = value;
+                QueryConfiguration.Video.YesMetaFieldsFilters = value;
+            }
         }
 
         /// <summary>
@@ -165,10 +125,17 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         public IDictionary<string, string> NoMetaFieldsFilter
         {
-            get => QueryConfiguration.NoMetaFieldsFilters;
-            set => QueryConfiguration.NoMetaFieldsFilters = value;
+            get => QueryConfiguration.Audio.NoMetaFieldsFilters;
+            set
+            {
+                QueryConfiguration.Audio.NoMetaFieldsFilters = value;
+                QueryConfiguration.Video.NoMetaFieldsFilters = value;
+            }
         }
 
-        internal QueryConfiguration QueryConfiguration { get; }
+        /// <summary>
+        ///  Gets or sets query configuration.
+        /// </summary>
+        public AVQueryConfiguration QueryConfiguration { get; set; }
     }
 }

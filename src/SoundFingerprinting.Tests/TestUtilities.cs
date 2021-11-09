@@ -72,6 +72,11 @@ namespace SoundFingerprinting.Tests
             return Tuple.Create(first, second);
         }
         
+        public static Hashes GetRandomHashes(float length)
+        {
+            return GetRandomHashes((int)length, new Random(), false, 1);
+        }
+        
         public static Hashes GetRandomHashes(int count, Random random, bool withOriginalPoints = false, float fingerprintLengthInSeconds = 1.48f)
         {
             var fingerprints = new List<HashedFingerprint>();

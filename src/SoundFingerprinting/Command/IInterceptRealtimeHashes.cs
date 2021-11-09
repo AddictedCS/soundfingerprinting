@@ -13,6 +13,6 @@ namespace SoundFingerprinting.Command
         /// </summary>
         /// <param name="hashes">Hashes interceptor that are used to query the storage.</param>
         /// <returns>Query services selector.</returns>
-        IUsingRealtimeQueryServices Intercept(Func<Hashes, Hashes> hashes);
+        IUsingRealtimeQueryServices Intercept(Func<AVHashes, AVHashes> hashes);
     }
 }

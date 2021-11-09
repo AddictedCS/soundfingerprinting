@@ -32,9 +32,9 @@ namespace SoundFingerprinting.Command
         }
 
         /// <inheritdoc cref="IRealtimeResultEntryFilter.Pass"/>
-        public bool Pass(ResultEntry entry, bool canContinueInTheNextQuery)
+        public bool Pass(AVResultEntry entry, bool canContinueInTheNextQuery)
         {
-            return !waitTillCompletion ? entry.TrackRelativeCoverage > coverage : entry.TrackRelativeCoverage > coverage && !canContinueInTheNextQuery;
+            return !waitTillCompletion ? (entry.Audio?.TrackRelativeCoverage > coverage || entry.Video?.TrackRelativeCoverage > coverage) : (entry.Audio?.TrackRelativeCoverage > coverage || entry.Video?.TrackRelativeCoverage > coverage) && !canContinueInTheNextQuery;
         }
     }
 }

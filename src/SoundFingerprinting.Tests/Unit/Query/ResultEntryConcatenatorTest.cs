@@ -15,7 +15,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         private const double Delta = 1E-3;
 
         private QueryConfiguration config;
-        private IResultEntryConcatenator concatenator;
+        private IConcatenator<ResultEntry> concatenator;
 
         [SetUp]
         public void SetUp()

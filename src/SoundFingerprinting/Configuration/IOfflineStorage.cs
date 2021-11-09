@@ -1,13 +1,22 @@
 namespace SoundFingerprinting.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using SoundFingerprinting.Data;
 
     /// <summary>
     ///  Offline storage for realtime hashes.
     /// </summary>
-    public interface IOfflineStorage : IEnumerable<Hashes>
+    public interface IOfflineStorage : IEnumerable<AVHashes>
     {
-        // no op, reserved for future use
+        void Add(AVHashes avHashes);
+
+        bool Contains(DateTime captureTime);
+
+        bool Contains(AVHashes fingerprints);
+
+        AVHashes? Get(DateTime captureTime);
+
+        void Remove(AVHashes fingerprints);
     }
 }

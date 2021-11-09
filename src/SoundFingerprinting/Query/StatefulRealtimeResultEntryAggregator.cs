@@ -5,42 +5,51 @@ namespace SoundFingerprinting.Query
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.LCS;
 
-    internal sealed class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
+    public sealed class StatefulRealtimeResultEntryAggregator : IRealtimeAggregator
     {
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
         private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;
-        private readonly Action<ResultEntry> ongoingCallback;
-        private readonly ICompletionStrategy<ResultEntry> completionStrategy;
-        private readonly IResultEntryConcatenator concatenator;
-        private readonly ConcurrentDictionary<string, ResultEntry> trackEntries = new ConcurrentDictionary<string, ResultEntry>();
+        private readonly Action<AVResultEntry> ongoingCallback;
+        private readonly ICompletionStrategy<AVResultEntry> completionStrategy;
+        private readonly IConcatenator<ResultEntry> resultEntryConcatenator;
+        
+        private readonly IQueryHashesConcatenator queryHashesConcatenator;
+        private readonly ConcurrentDictionary<string, AVResultEntry> trackEntries = new ();
 
-        public StatefulRealtimeResultEntryAggregator(IRealtimeResultEntryFilter realtimeResultEntryFilter, 
+        public StatefulRealtimeResultEntryAggregator(
+            IRealtimeResultEntryFilter realtimeResultEntryFilter, 
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
-            Action<ResultEntry> ongoingCallback,
-            double permittedGap)
+            Action<AVResultEntry> ongoingCallback,
+            ICompletionStrategy<AVResultEntry> completionStrategy,
+            IConcatenator<ResultEntry> resultEntryConcatenator,
+            IQueryHashesConcatenator queryHashesConcatenator)
         {
             this.realtimeResultEntryFilter = realtimeResultEntryFilter;
             this.ongoingResultEntryFilter = ongoingResultEntryFilter;
             this.ongoingCallback = ongoingCallback;
-            completionStrategy = new ResultEntryCompletionStrategy(permittedGap);
-            concatenator = new ResultEntryConcatenator();
+            this.completionStrategy = completionStrategy;
+            this.resultEntryConcatenator = resultEntryConcatenator;
+            this.queryHashesConcatenator = queryHashesConcatenator;
         }
         
-        /// <inheritdoc cref="IRealtimeResultEntryAggregator.Consume"/>
-        public RealtimeQueryResult Consume(IEnumerable<ResultEntry>? candidates, double queryLength, double queryOffset)
+        /// <inheritdoc cref="IRealtimeAggregator.Consume"/>
+        public RealtimeQueryResult Consume(AVQueryResult? queryResult)
         {
-            var resultEntries = candidates?.ToList() ?? new List<ResultEntry>();
-            SaveNewEntries(resultEntries, queryOffset);
-            return PurgeCompleted(resultEntries, queryLength, queryOffset);
+            if (queryResult == null)
+            {
+                return new RealtimeQueryResult(Enumerable.Empty<AVQueryResult>(), Enumerable.Empty<AVQueryResult>());
+            }
+            
+            SaveNewEntries(queryResult);
+            return PurgeCompleted();
         }
 
-        /// <inheritdoc cref="IRealtimeResultEntryAggregator.Purge"/>
+        /// <inheritdoc cref="IRealtimeAggregator.Purge"/>
         public RealtimeQueryResult Purge()
         {
-            var completed = new List<ResultEntry>();
-            var didNotPassFilter = new HashSet<ResultEntry>();
+            var completed = new List<AVResultEntry>();
+            var didNotPassFilter = new HashSet<AVResultEntry>();
             foreach (var resultEntry in trackEntries)
             {
                 // we are purging the results hence the match cannot continue in the next query
@@ -54,30 +63,54 @@ namespace SoundFingerprinting.Query
                 }
             }
 
-            return new RealtimeQueryResult(Sorted(completed), Sorted(didNotPassFilter));
+            return GetRealtimeQueryResult(completed, didNotPassFilter);
         }
 
-        private void SaveNewEntries(IEnumerable<ResultEntry> entries, double queryOffset)
+        private void SaveNewEntries(AVQueryResult queryResult)
         {
-            foreach (var nextEntry in entries)
+            var (audioHashes, videoHashes) = queryResult.QueryHashes;
+            double audioQueryOffset = audioHashes?.TimeOffset ?? 0;
+            double videoQueryOffset = videoHashes?.TimeOffset ?? 0;
+            
+            var newEntries = queryResult.ResultEntries.ToList();
+            foreach (var next in newEntries)
             {
-                trackEntries.AddOrUpdate(nextEntry.Track.Id, nextEntry, (_, currentEntry) => concatenator.Concat(currentEntry, nextEntry, queryOffset));
-            }
-        }
-        
-        private RealtimeQueryResult PurgeCompleted(IEnumerable<ResultEntry> entries, double queryLength, double queryOffset)
-        {
-            var set = new HashSet<string>(entries.Select(_ => _.Track.Id));
-            foreach (var entry in trackEntries.Where(_ => !set.Contains(_.Key)))
-            {
-                var old = entry.Value;
-                var updated = new ResultEntry(old.Track, old.Score, old.MatchedAt, new Coverage(old.Coverage.BestPath, old.Coverage.QueryLength + queryLength + queryOffset, old.Coverage.TrackLength, old.Coverage.FingerprintLength, old.Coverage.PermittedGap));
-                trackEntries.TryUpdate(entry.Key, updated, old);
+                var (nextAudio, nextVideo) = next;
+                trackEntries.AddOrUpdate(next.Track.Id, next, (_, prev) =>
+                {
+                    var (prevAudio, prevVideo) = prev;
+                    var audio = resultEntryConcatenator.Concat(prevAudio, nextAudio, audioQueryOffset);
+                    var video = resultEntryConcatenator.Concat(prevVideo, nextVideo, videoQueryOffset);
+                    return new AVResultEntry(audio, video);
+                });
             }
             
-            var completed = new List<ResultEntry>();
-            var cantWaitAnymore = new HashSet<ResultEntry>();
-            foreach (KeyValuePair<string, ResultEntry> pair in trackEntries)
+            // we need to extend the query length of those matches that haven't been purged on the previous call, and haven't been updated during this call.
+            var set = new HashSet<string>(newEntries.Select(_ => _.Track.Id));
+            double audioQueryLength = audioHashes?.DurationInSeconds ?? 0;
+            double videoQueryLength = videoHashes?.DurationInSeconds ?? 0;
+            foreach (var notUpdatedPair in trackEntries.Where(_ => !set.Contains(_.Key)))
+            {
+                var notUpdated = notUpdatedPair.Value;
+                var audio = ExtendResultEntryQueryLength(notUpdated.Audio, audioQueryLength, audioQueryOffset);
+                var video = ExtendResultEntryQueryLength(notUpdated.Video, videoQueryLength, videoQueryOffset);
+                trackEntries.TryUpdate(notUpdatedPair.Key, new AVResultEntry(audio, video), notUpdated);
+            }
+            
+            queryHashesConcatenator.UpdateHashesForTracks(trackEntries.Keys, queryResult.QueryHashes, queryResult.QueryCommandStats);
+        }
+
+        private static ResultEntry? ExtendResultEntryQueryLength(ResultEntry? notUpdated, double queryLength, double queryOffset)
+        {
+            double extendedBy = queryLength + queryOffset;
+            return notUpdated != null ? new ResultEntry(notUpdated.Track, notUpdated.Score, notUpdated.MatchedAt, notUpdated.Coverage.WithExtendedQueryLength(extendedBy)) : null;
+        }
+
+        private RealtimeQueryResult PurgeCompleted()
+        {
+            var completed = new List<AVResultEntry>();
+            var didNotPassFilter = new HashSet<AVResultEntry>();
+            foreach (KeyValuePair<string, AVResultEntry> pair in trackEntries)
             {
                 bool canContinueInNextQuery = completionStrategy.CanContinueInNextQuery(pair.Value);
                 if (ongoingResultEntryFilter.Pass(pair.Value, canContinueInNextQuery))
@@ -97,7 +130,7 @@ namespace SoundFingerprinting.Query
                     else
                     {
                         // did not pass filter
-                        cantWaitAnymore.Add(entry);
+                        didNotPassFilter.Add(entry);
                     }
                 }
                 else if (realtimeResultEntryFilter.Pass(pair.Value, canContinueInTheNextQuery: true) && trackEntries.TryRemove(pair.Key, out _))
@@ -107,15 +140,15 @@ namespace SoundFingerprinting.Query
                 }
             }
 
-            return new RealtimeQueryResult(Sorted(completed), Sorted(cantWaitAnymore));
+            return GetRealtimeQueryResult(completed, didNotPassFilter);
         }
 
-        private static List<ResultEntry> Sorted(IEnumerable<ResultEntry> entries)
+        private RealtimeQueryResult GetRealtimeQueryResult(IReadOnlyCollection<AVResultEntry> completed, HashSet<AVResultEntry> didNotPassFilter)
         {
-            return entries
-                .OrderByDescending(e => e.Confidence)
-                .ThenBy(e => e.Track.Id)
-                .ToList();
+            var completedGroups =  queryHashesConcatenator.GetQueryResults(completed);
+            var didNotPassGroups = queryHashesConcatenator.GetQueryResults(didNotPassFilter);
+            queryHashesConcatenator.Cleanup(completed.Concat(didNotPassFilter).Select(_ => _.Track.Id));
+            return new RealtimeQueryResult(completedGroups, didNotPassGroups);
         }
     }
 }
