@@ -54,7 +54,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return GetEnumerator();
         }
 
-        public void Add(AVHashes avHashes)
+        public void Add(AVHashes? avHashes)
         {
             if (avHashes == null || avHashes.IsEmpty || Contains(avHashes))
             {

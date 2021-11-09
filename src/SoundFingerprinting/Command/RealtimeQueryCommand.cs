@@ -252,11 +252,7 @@ namespace SoundFingerprinting.Command
             errored = true;
             configuration.ErrorCallback(e, hashes);
             configuration.ErrorBackoffPolicy.Failure();
-            if (hashes != null)
-            {
-                configuration.OfflineStorage.Add(hashes);
-            }
-
+            configuration.OfflineStorage.Add(hashes);
             await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
         }
 
