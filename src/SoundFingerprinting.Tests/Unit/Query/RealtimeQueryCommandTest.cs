@@ -263,10 +263,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      {
                          Interlocked.Increment(ref didNotPassThreshold);
                      };
-                     config.ErrorCallback = (_, timedHashes) =>
+                     config.ErrorCallback = (_, _) =>
                      {
                          Interlocked.Increment(ref errored);
-                         offlineStorage.Add(timedHashes);
                      };
 
                      config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.4, waitTillCompletion: true);
