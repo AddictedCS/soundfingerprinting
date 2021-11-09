@@ -155,6 +155,11 @@ namespace SoundFingerprinting.Command
                 fingerprintingStopwatch.Restart();
                 var videoHashes = videoTrack?.Frames != null ? await CreateQueryFingerprints(fingerprintCommandBuilder, videoTrack.Frames) : null;
                 long videoFingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
+                if (audioHashes == null && videoHashes == null)
+                {
+                    continue;
+                }
+                
                 var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, new AVFingerprintingStats(audioFingerprintingDuration, videoFingerprintingDuration)));
                 fingerprintingStopwatch.Stop();
                 yield return avHashes;

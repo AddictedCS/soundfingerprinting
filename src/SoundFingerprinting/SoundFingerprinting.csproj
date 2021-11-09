@@ -5,18 +5,14 @@
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
 	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-	<PackageVersion>7.14.0</PackageVersion>
+	<PackageVersion>7.14.1</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Adding Audio/Video support for RealtimeQueryCommand. Realtime query sources may now come from combined AVTrack.
-		Moving all the realtime/ongoing filters to  AVQueryResult/AVResultEntry support.
-		Enhancing IOfflineStorage with additional methods to support storage of the entries when Emy is offline.
-		Adding AVFingerprintConfiguration and AVQUeryConfiguration.
-		Enhacing StatefulRealtimeResultEntryAggregator to support Audio/Video result entry aggregation and query hashes aggregation.
+		Providing hotfix in RealtimeQueryCommand which resulted in both Audio and Video hashes being Null.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
