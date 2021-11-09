@@ -12,8 +12,11 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		RealtimeQueryCommand will query the realtime source indefinitely, until provided cancellation token is not canceled.
-		Adding a backoff policy for connection retry on realtime query source.
+		Adding Audio/Video support for RealtimeQueryCommand. Realtime query sources may now come from combined AVTrack.
+		Moving all the realtime/ongoing filters to  AVQueryResult/AVResultEntry support.
+		Enhancing IOfflineStorage with additional methods to support storage of the entries when Emy is offline.
+		Adding AVFingerprintConfiguration and AVQUeryConfiguration.
+		Enhacing StatefulRealtimeResultEntryAggregator to support Audio/Video result entry aggregation and query hashes aggregation.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
