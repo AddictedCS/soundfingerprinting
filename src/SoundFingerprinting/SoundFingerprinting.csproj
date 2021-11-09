@@ -4,7 +4,6 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
 	<PackageVersion>7.15.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
@@ -18,6 +17,7 @@
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<PackageLicenseFile>license.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
@@ -29,5 +29,12 @@
   <ItemGroup>
 	  <PackageReference Include="protobuf-net" Version="2.4.6" />
 	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" /> 
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Include="../license.txt">
+		<Pack>True</Pack>
+		<PackagePath></PackagePath>
+	</None>
   </ItemGroup>
 </Project>

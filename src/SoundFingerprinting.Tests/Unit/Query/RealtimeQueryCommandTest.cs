@@ -272,7 +272,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      config.RestoredAfterErrorCallback = () => restoreCalled[0] = true;
                      config.OfflineStorage = offlineStorage;                            // store the other half of the fingerprints in the downtime hashes storage
                      config.DelayStrategy = new NoDelayStrategy();
-                     config.ErrorBackoffPolicy = new NoBackoffPolicy();
                      return config;
                  })
                  .Intercept(fingerprints =>
