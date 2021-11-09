@@ -9,7 +9,7 @@ namespace SoundFingerprinting.Configuration
     /// </summary>
     public interface IOfflineStorage : IEnumerable<AVHashes>
     {
-        void Add(AVHashes avHashes);
+        void Add(AVHashes? avHashes);
 
         bool Contains(DateTime captureTime);
 

@@ -4,23 +4,21 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-	<PackageVersion>7.14.0</PackageVersion>
+	<PackageVersion>7.15.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Adding Audio/Video support for RealtimeQueryCommand. Realtime query sources may now come from combined AVTrack.
-		Moving all the realtime/ongoing filters to  AVQueryResult/AVResultEntry support.
-		Enhancing IOfflineStorage with additional methods to support storage of the entries when Emy is offline.
-		Adding AVFingerprintConfiguration and AVQUeryConfiguration.
-		Enhacing StatefulRealtimeResultEntryAggregator to support Audio/Video result entry aggregation and query hashes aggregation.
+		Providing hotfix in RealtimeQueryCommand which resulted in both Audio and Video hashes being Null for very small audio buffers.
+		Making sure we call IOfflineStorage.Add when an exception occurs and hashes are not empty.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<PackageLicenseFile>license.txt</PackageLicenseFile>
+    <PackageIcon>soundfingerprinting.png</PackageIcon>
   </PropertyGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
@@ -32,5 +30,16 @@
   <ItemGroup>
 	  <PackageReference Include="protobuf-net" Version="2.4.6" />
 	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" /> 
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Include="../../license.txt">
+		<Pack>True</Pack>
+		<PackagePath></PackagePath>
+	</None>
+    <None Include="../../soundfingerprinting.png">
+	   <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	</None>
   </ItemGroup>
 </Project>

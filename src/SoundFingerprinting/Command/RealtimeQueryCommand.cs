@@ -155,6 +155,11 @@ namespace SoundFingerprinting.Command
                 fingerprintingStopwatch.Restart();
                 var videoHashes = videoTrack?.Frames != null ? await CreateQueryFingerprints(fingerprintCommandBuilder, videoTrack.Frames) : null;
                 long videoFingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
+                if (audioHashes == null && videoHashes == null)
+                {
+                    continue;
+                }
+                
                 var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, new AVFingerprintingStats(audioFingerprintingDuration, videoFingerprintingDuration)));
                 fingerprintingStopwatch.Stop();
                 yield return avHashes;
@@ -194,7 +199,7 @@ namespace SoundFingerprinting.Command
             catch (Exception e)
             {
                 // if an offline storage exception occurs, let's continue consuming realtime data and storing it to the offline storage
-                await HandleQueryFailure(null, cancellationToken, e);
+                HandleQueryFailure(null, e);
             }
 
             while (true)
@@ -213,7 +218,8 @@ namespace SoundFingerprinting.Command
                 }
                 catch (Exception e)
                 {
-                    await HandleQueryFailure(null, cancellationToken, e);
+                    HandleQueryFailure(null, e);
+                    await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
                 }
             }
         }
@@ -242,12 +248,12 @@ namespace SoundFingerprinting.Command
             InvokeDidNotPassFilterHandler(aggregatedResult.DidNotPassThresholdEntries);
         }
         
-        private async Task HandleQueryFailure(AVHashes? hashes, CancellationToken cancellationToken, Exception e)
+        private void HandleQueryFailure(AVHashes? hashes, Exception e)
         {
             errored = true;
             configuration.ErrorCallback(e, hashes);
             configuration.ErrorBackoffPolicy.Failure();
-            await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
+            configuration.OfflineStorage.Add(hashes);
         }
 
         /// <summary>
@@ -305,7 +311,7 @@ namespace SoundFingerprinting.Command
             }
             catch (Exception e)
             {
-                await HandleQueryFailure(hashes, cancellationToken, e);
+                HandleQueryFailure(hashes, e);
                 return false;
             }
         }

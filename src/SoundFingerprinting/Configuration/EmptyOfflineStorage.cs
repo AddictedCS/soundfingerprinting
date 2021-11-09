@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Configuration
             return GetEnumerator();
         }
 
-        public void Add(AVHashes avHashes)
+        public void Add(AVHashes? avHashes)
         {
             // no op
         }

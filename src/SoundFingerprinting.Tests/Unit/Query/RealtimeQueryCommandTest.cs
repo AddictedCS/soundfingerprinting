@@ -263,17 +263,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      {
                          Interlocked.Increment(ref didNotPassThreshold);
                      };
-                     config.ErrorCallback = (_, timedHashes) =>
+                     config.ErrorCallback = (_, _) =>
                      {
                          Interlocked.Increment(ref errored);
-                         offlineStorage.Add(timedHashes);
                      };
 
                      config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.4, waitTillCompletion: true);
                      config.RestoredAfterErrorCallback = () => restoreCalled[0] = true;
                      config.OfflineStorage = offlineStorage;                            // store the other half of the fingerprints in the downtime hashes storage
                      config.DelayStrategy = new NoDelayStrategy();
-                     config.ErrorBackoffPolicy = new NoBackoffPolicy();
                      return config;
                  })
                  .Intercept(fingerprints =>
