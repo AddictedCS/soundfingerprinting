@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.Query
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
@@ -7,36 +8,26 @@ namespace SoundFingerprinting.Query
 
     public class StatefulQueryHashesConcatenator : IQueryHashesConcatenator
     {
-        private readonly ConcurrentDictionary<string, AVHashes> trackQueryHashes = new ();
-        private readonly ConcurrentDictionary<AVHashes, AVQueryCommandStats> trackQueryStats = new ();
+        private readonly ConcurrentDictionary<string, AVQueryHashes> trackQueryHashes = new ();
         
         public void UpdateHashesForTracks(IEnumerable<string> trackIds, AVHashes hashes, AVQueryCommandStats commandStats)
         {
-            var merged = new Dictionary<AVHashes, AVHashes>();
+            var merged = new Dictionary<AVHashes, AVQueryHashes>();
             foreach (var trackId in trackIds)
             {
                 // update ongoing track match with merged query hashes.
-                trackQueryHashes.AddOrUpdate(trackId, _ =>
-                {
-                    // if never seen before, insert hashes and query stats corresponding to hashes.
-                    trackQueryStats[hashes] = commandStats;
-                    return hashes;
-                },
-                (_, prev) =>
-                {
-                    if (merged.ContainsKey(prev))
+                trackQueryHashes.AddOrUpdate(trackId, _ => new AVQueryHashes(hashes, commandStats),
+                    (_, prev) =>
                     {
-                        // we have previously merged these hashes, let's return previous key, making sure we don't merge again
-                        return merged[prev];
-                    }
+                        var (prevHashes, prevStats) = prev;
+                        if (merged.TryGetValue(prevHashes, out var prevMerged))
+                        {
+                            // we have previously merged these hashes, let's return previous key, making sure we don't merge again
+                            return prevMerged;
+                        }
 
-                    var mergedHashes = merged[prev] = prev.MergeWith(hashes);
-
-                    // update query stats information
-                    trackQueryStats.TryRemove(prev, out var stats);
-                    trackQueryStats[mergedHashes] = stats.Sum(commandStats);
-                    return mergedHashes;
-                });
+                        return merged[prevHashes] = new AVQueryHashes(prevHashes.MergeWith(hashes), prevStats.Sum(commandStats));
+                    });
             }
         }
         
@@ -48,8 +39,8 @@ namespace SoundFingerprinting.Query
                 .Select(group =>
                 {
                     var entries = @group.Select(_ => _.ResultEntry).ToList();
-                    var stats = trackQueryStats[@group.Key];
-                    return new AVQueryResult(entries, @group.Key, stats);
+                    var (hashes, stats) = group.Key;
+                    return new AVQueryResult(entries, hashes, stats);
                 })
                 .ToList();
         }
@@ -58,15 +49,46 @@ namespace SoundFingerprinting.Query
         {
             foreach (var entry in purgedTrackIds)
             {
-                if (trackQueryHashes.TryRemove(entry, out var hashes))
-                {
-                    // is anyone referencing hashes same hashes object?
-                    // could happen when a match can continue in next query and a match that is purged is generated from the same query hashes
-                    if (!trackQueryHashes.Select(_ => _.Value).Any(h => h.Equals(hashes)))
-                    {
-                        trackQueryStats.TryRemove(hashes, out _);
-                    }
-                }
+                trackQueryHashes.TryRemove(entry, out _);
+            }
+        }
+
+        private class AVQueryHashes : IEquatable<AVQueryHashes>
+        {
+            public AVQueryHashes(AVHashes hashes, AVQueryCommandStats queryCommandStats)
+            {
+                Hashes = hashes;
+                QueryCommandStats = queryCommandStats;
+            }
+            
+            public AVHashes Hashes { get; }
+            
+            public AVQueryCommandStats QueryCommandStats { get; }
+
+            public bool Equals(AVQueryHashes? other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return Hashes.Equals(other.Hashes);
+            }
+
+            public override bool Equals(object? obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != this.GetType()) return false;
+                return Equals((AVQueryHashes)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return Hashes.GetHashCode();
+            }
+
+            public void Deconstruct(out AVHashes hashes, out AVQueryCommandStats queryCommandStats)
+            {
+                hashes = Hashes;
+                queryCommandStats = QueryCommandStats;
             }
         }
     }

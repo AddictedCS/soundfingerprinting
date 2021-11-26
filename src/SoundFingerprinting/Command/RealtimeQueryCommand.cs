@@ -207,9 +207,6 @@ namespace SoundFingerprinting.Command
                 try
                 {
                     await QueryFromRealtimeAndOffline(service, resultsAggregator, cancellationToken);
-                    var purged = resultsAggregator.Purge();
-                    InvokeSuccessHandler(purged.SuccessEntries);
-                    InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries);
                     return queryLength;
                 }
                 catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
@@ -218,8 +215,16 @@ namespace SoundFingerprinting.Command
                 }
                 catch (Exception e)
                 {
+                    // here we catch exceptions that occur while reading from the realtime source
                     HandleQueryFailure(null, e);
                     await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
+                }
+                finally
+                {
+                    // let's purge stateful results aggregator to safe-guard ourselves from memory issues when certain tracks get stuck in the aggregator
+                    var purged = resultsAggregator.Purge();
+                    InvokeSuccessHandler(purged.SuccessEntries);
+                    InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries); 
                 }
             }
         }
@@ -311,6 +316,7 @@ namespace SoundFingerprinting.Command
             }
             catch (Exception e)
             {
+                // here we catch exceptions that are related to server not reachable
                 HandleQueryFailure(hashes, e);
                 return false;
             }
