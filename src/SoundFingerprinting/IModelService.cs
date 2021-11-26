@@ -45,18 +45,18 @@ namespace SoundFingerprinting
         IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config);
 
         /// <summary>
-        ///  Gets hashes for a particular track
-        /// </summary>
-        /// <param name="trackId">Track identifier</param>
-        /// <returns>List of hashes corresponding to track by ID</returns>
-        AVHashes ReadHashesByTrackId(string trackId);
-
-        /// <summary>
         ///  Read tracks by model references
         /// </summary>
         /// <param name="references">List of model references to read</param>
         /// <returns>List of tracks</returns>
         IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
+        
+        /// <summary>
+        ///  Gets hashes for a particular track
+        /// </summary>
+        /// <param name="trackId">Track identifier</param>
+        /// <returns>List of hashes corresponding to track by ID</returns>
+        AVHashes ReadHashesByTrackId(string trackId);
 
         /// <summary>
         ///  Read track by ID
