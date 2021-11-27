@@ -25,7 +25,7 @@
         /// <param name="samples">Audio samples.</param>
         /// <param name="origin">Source origin (i.e., filename, URI).</param>
         /// <param name="sampleRate">Sample rate.</param>
-        /// <param name="relativeTo">Relative to a particular date time offset.</param> 
+        /// <param name="relativeTo">Relative to a particular date time.</param> 
         public AudioSamples(float[] samples, string origin, int sampleRate, DateTime relativeTo)
         {
             Samples = samples;

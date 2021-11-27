@@ -8,7 +8,7 @@ namespace SoundFingerprinting.Data
     using SoundFingerprinting.Query;
 
     /// <summary>
-    ///  Hashes class representing audio/video fingerprints.
+    ///  Hashes class representing fingerprints.
     /// </summary>
     [Serializable]
     [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
@@ -42,31 +42,56 @@ namespace SoundFingerprinting.Data
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo): this(fingerprints,
-                durationInSeconds,
-                mediaType,
-                relativeTo,
-                Enumerable.Empty<string>(),
-                string.Empty,
-                emptyDictionary,
-                0)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Hashes"/> class.
+        /// </summary>
+        /// <param name="fingerprints">Fingerprints.</param>
+        /// <param name="durationInSeconds">Duration in seconds of the media from which the fingerprints have been generated.</param>
+        /// <param name="mediaType">Media type.</param>
+        /// <param name="relativeTo">Relative to a particular date time.</param> 
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo) : this(
+            fingerprints,
+            durationInSeconds,
+            mediaType,
+            relativeTo,
+            Enumerable.Empty<string>(),
+            string.Empty,
+            emptyDictionary,
+            0)
         {
         }
 
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo, IEnumerable<string> origins):
-            this(fingerprints,
-                durationInSeconds,
-                mediaType,
-                relativeTo,
-                origins,
-                string.Empty,
-                emptyDictionary,
-                0)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Hashes"/> class.
+        /// </summary>
+        /// <param name="fingerprints">Fingerprints.</param>
+        /// <param name="durationInSeconds">Duration in seconds of the media from which the fingerprints have been generated.</param>
+        /// <param name="mediaType">Media type.</param>
+        /// <param name="relativeTo">Relative to a particular date time.</param>
+        /// <param name="origins">List of strings referring to the origin of the hashes.</param>
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo,
+            IEnumerable<string> origins) : this(fingerprints,
+            durationInSeconds,
+            mediaType,
+            relativeTo,
+            origins,
+            string.Empty,
+            emptyDictionary,
+            0)
         {
         }
-        
-        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo, IEnumerable<string> origins, string streamId):
-            this(fingerprints,
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Hashes"/> class.
+        /// </summary>
+        /// <param name="fingerprints">Fingerprints.</param>
+        /// <param name="durationInSeconds">Duration in seconds of the media from which the fingerprints have been generated.</param>
+        /// <param name="mediaType">Media type.</param>
+        /// <param name="relativeTo">Relative to a particular date time.</param>
+        /// <param name="origins">List of strings referring to the origin of the hashes.</param>
+        /// <param name="streamId">Stream from which the hashes originate.</param>
+        public Hashes(IEnumerable<HashedFingerprint> fingerprints, double durationInSeconds, MediaType mediaType, DateTime relativeTo,
+            IEnumerable<string> origins, string streamId) : this(fingerprints,
                 durationInSeconds,
                 mediaType,
                 relativeTo,
@@ -77,6 +102,17 @@ namespace SoundFingerprinting.Data
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Hashes"/> class.
+        /// </summary>
+        /// <param name="fingerprints">Fingerprints.</param>
+        /// <param name="durationInSeconds">Duration in seconds of the media from which the fingerprints have been generated.</param>
+        /// <param name="mediaType">Media type.</param>
+        /// <param name="relativeTo">Relative to a particular date time.</param>
+        /// <param name="origins">List of strings referring to the origin of the hashes.</param>
+        /// <param name="streamId">Stream from which the hashes originate.</param>
+        /// <param name="additionalProperties">Dictionary with additional properties.</param>
+        /// <param name="timeOffset">Time offset in seconds.</param>
         public Hashes(IEnumerable<HashedFingerprint> fingerprints,
             double durationInSeconds,
             MediaType mediaType,
@@ -138,7 +174,7 @@ namespace SoundFingerprinting.Data
         public IReadOnlyDictionary<string, string> Properties => additionalProperties ?? new Dictionary<string, string>();
 
         /// <summary>
-        ///  Gets time offset used during query time, <see cref="ResultEntryResultEntryConcatenator.Concat"/>.
+        ///  Gets time offset used during query time, <see cref="ResultEntryConcatenator.Concat"/>.
         /// </summary>
         /// <remarks>
         ///  It is used only for query hashes.

@@ -160,7 +160,7 @@ namespace SoundFingerprinting.Command
                     continue;
                 }
                 
-                var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, new AVFingerprintingStats(audioFingerprintingDuration, videoFingerprintingDuration)));
+                var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, new AVFingerprintingTime(audioFingerprintingDuration, videoFingerprintingDuration)));
                 fingerprintingStopwatch.Stop();
                 yield return avHashes;
             }
@@ -294,7 +294,7 @@ namespace SoundFingerprinting.Command
         {
             try
             {
-                var avQueryResult = GetAVQueryResult(service, hashes).WithFingerprintingDurationMilliseconds(hashes.Stats.Audio, hashes.Stats.Video);
+                var avQueryResult = GetAVQueryResult(service, hashes).WithFingerprintingDurationMilliseconds(hashes.FingerprintingTime.AudioMilliseconds, hashes.FingerprintingTime.VideoMilliseconds);
                 if (errored)
                 {
                     errored = false;
