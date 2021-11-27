@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using ProtoBuf;
     using SoundFingerprinting.Image;
 
     /// <summary>
@@ -10,6 +11,7 @@
     /// <remarks>
     ///  Since we store the image in a 2D array, only single channel images are allowed (grayscale).
     /// </remarks>
+    [ProtoContract(SkipConstructor = true)]
     public class Frame
     {
         /// <summary>
@@ -42,26 +44,31 @@
         /// <summary>
         ///  Gets encoded 2D image in row/cols format.
         /// </summary>
+        [ProtoMember(1)]
         public float[] ImageRowCols { get; }
 
         /// <summary>
         ///  Gets number of rows in the image.
         /// </summary>
+        [ProtoMember(2)]
         public ushort Rows { get; }
 
         /// <summary>
         ///  Gets number of cols in the image.
         /// </summary>
+        [ProtoMember(3)]
         public ushort Cols { get; }
 
         /// <summary>
         /// Gets sequence number.
         /// </summary>
+        [ProtoMember(4)]
         public uint SequenceNumber { get; }
 
         /// <summary>
         ///  Gets starts at reference point (measured in seconds).
         /// </summary>
+        [ProtoMember(5)]
         public float StartsAt { get; }
 
         /// <summary>
