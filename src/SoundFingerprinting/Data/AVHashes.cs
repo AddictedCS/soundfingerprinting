@@ -50,7 +50,7 @@ namespace SoundFingerprinting.Data
         public AVFingerprintingTime FingerprintingTime { get; }
 
         /// <summary>
-        ///  Gets relative to timestamp of current AVHashes instance.
+        ///  Gets relative to timestamp of the current <see cref="AVHashes"/> instance.
         /// </summary>
         public DateTime RelativeTo => Audio?.RelativeTo ?? Video?.RelativeTo ?? DateTime.MinValue;
 
