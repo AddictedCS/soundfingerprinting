@@ -15,13 +15,13 @@
         /// Initializes a new instance of the <see cref="Fingerprint"/> class.
         /// </summary>
         /// <param name="schema">Encoded fingerprint schema.</param>
-        /// <param name="startAt">Starts at (measured in seconds).</param>
+        /// <param name="startsAt">Starts at reference point (measured in seconds).</param>
         /// <param name="sequenceNumber">Sequence number.</param>
         /// <param name="originalPoint">Original point (if any).</param>
-        public Fingerprint(IEncodedFingerprintSchema schema, float startAt, uint sequenceNumber, byte[] originalPoint)
+        public Fingerprint(IEncodedFingerprintSchema schema, float startsAt, uint sequenceNumber, byte[] originalPoint)
         {
             Schema = schema;
-            StartsAt = startAt;
+            StartsAt = startsAt;
             SequenceNumber = sequenceNumber;
             OriginalPoint = originalPoint;
         }
