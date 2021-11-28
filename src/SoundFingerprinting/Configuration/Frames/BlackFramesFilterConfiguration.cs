@@ -1,5 +1,8 @@
-﻿namespace SoundFingerprinting.Emy.AudioVideo.Config.Video
+﻿namespace SoundFingerprinting.Configuration.Frames
 {
+    /// <summary>
+    ///  Class that defines black frame filter properties.
+    /// </summary>
     public class BlackFramesFilterConfiguration
     {
         /// <summary>

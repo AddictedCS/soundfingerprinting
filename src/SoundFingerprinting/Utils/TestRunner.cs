@@ -329,7 +329,7 @@
                                         .WithFingerprintConfig(
                                             config =>
                                             {
-                                                config.Stride = stride;
+                                                config.Audio.Stride = stride;
                                                 return config;
                                             })
                                         .UsingServices(audioService)

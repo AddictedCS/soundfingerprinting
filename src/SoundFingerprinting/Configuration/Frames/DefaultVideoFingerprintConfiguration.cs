@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration.Frames
 {
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Emy.AudioVideo.Config.Video;
 
     public class DefaultVideoFingerprintConfiguration : VideoFingerprintConfiguration
     {

@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
     using SoundFingerprinting.Configuration.Frames;
-    using SoundFingerprinting.Emy.AudioVideo.Config;
 
     public abstract class AVQueryConfiguration
     {

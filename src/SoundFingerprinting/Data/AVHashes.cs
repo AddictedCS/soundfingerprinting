@@ -57,7 +57,7 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Merges current instance of the AVHashes with provided one.
         /// </summary>
-        /// <param name="next">Next </param>
+        /// <param name="next">Next instance of <see cref="AVHashes"/>.</param>
         /// <returns>A merged instance of <see cref="AVHashes"/> class.</returns>
         /// <remarks>
         ///  This method is useful when you would like to concatenate hashes that come from the realtime stream. <br />
