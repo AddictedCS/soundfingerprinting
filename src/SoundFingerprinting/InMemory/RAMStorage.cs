@@ -1,96 +1,187 @@
 ﻿namespace SoundFingerprinting.InMemory
 {
     using System;
-    using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using System.Threading.Tasks;
-    using DAO;
-    using DAO.Data;
+    using Microsoft.Extensions.Logging;
     using ProtoBuf;
+    using SoundFingerprinting.DAO;
+    using SoundFingerprinting.DAO.Data;
+    using SoundFingerprinting.Data;
 
     [Serializable]
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class RAMStorage : IRAMStorage
     {
+        private readonly IModelReferenceTracker<uint> modelReferenceTracker;
+        private readonly IModelReferenceProvider spectralImagesTracker;
+        private readonly ILogger<RAMStorage> logger;
+        private readonly ConcurrentDictionary<int, List<uint>>[] hashTables;
+
+        [ProtoMember(3)] 
+        private int numberOfHashTables;
+
+        [ProtoMember(4)] 
+        private IDictionary<IModelReference, TrackData> tracks;
+        
+        [ProtoMember(5)]
         private ConcurrentDictionary<uint, SubFingerprintData> subFingerprints;
 
-        public RAMStorage(int numberOfHashTables, string initializeFrom = "")
+        [ProtoMember(7)] 
+        private IDictionary<IModelReference, List<SpectralImageData>> spectralImages;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RAMStorage"/> class.
+        /// </summary>
+        /// <param name="modelReferenceTracker">Model reference tracker.</param>
+        /// <param name="loggerFactory">Logger factory.</param>
+        /// <param name="initializeFrom">Initialize from file.</param>
+        /// <param name="numberOfHashTables">Number of hashes tables.</param>
+        public RAMStorage(IModelReferenceTracker<uint> modelReferenceTracker, ILoggerFactory loggerFactory, string initializeFrom = "", int numberOfHashTables = 25)
         {
-            Initialize(numberOfHashTables);
+            logger = loggerFactory.CreateLogger<RAMStorage>();
+            this.numberOfHashTables = numberOfHashTables;
+            this.modelReferenceTracker = modelReferenceTracker;
+            tracks = new ConcurrentDictionary<IModelReference, TrackData>();
+            spectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
+            subFingerprints = new ConcurrentDictionary<uint, SubFingerprintData>();
+            
+            logger.LogDebug("Initializing {0} hash tables.", numberOfHashTables);
+            hashTables = new ConcurrentDictionary<int, List<uint>>[numberOfHashTables];
+            for (int table = 0; table < numberOfHashTables; table++)
+            {
+                hashTables[table] = new ConcurrentDictionary<int, List<uint>>();
+            } 
+            
             InitializeFromFile(initializeFrom);
+
+            IModelReference? lastTrackReference = null;
+            uint maxTrackId = 0;
+            if (tracks.Any())
+            {
+                (lastTrackReference, maxTrackId) = tracks.Keys
+                    .Select(_ => (_, _.Get<uint>()))
+                    .OrderByDescending(_ => _.Item2)
+                    .First();
+            }
+
+            uint maxSubFingerprintId = 0;
+            if (lastTrackReference != null)
+            {
+                maxSubFingerprintId = ReadSubFingerprintByTrackReference(lastTrackReference).Max(_ => _.SubFingerprintReference.Get<uint>());
+            }
+
+            logger.LogDebug("Resetting track ref to {0}, fingerprints ref to {1}", maxTrackId, maxSubFingerprintId);
+            modelReferenceTracker.TryResetTrackRef(maxTrackId);
+            modelReferenceTracker.TryResetSubFingerprintRef(maxSubFingerprintId);
+
+            uint maxSpectralImageId = 0;
+            if (lastTrackReference != null)
+            {
+                var spectralImages = GetSpectralImagesByTrackReference(lastTrackReference).ToList();
+                if (spectralImages.Any())
+                {
+                    maxSpectralImageId = spectralImages.Max(_ => _.SpectralImageReference.Get<uint>());
+                }
+            }
+
+            logger.LogDebug("Spectral image reference reset to {0}", maxSpectralImageId);
+            spectralImagesTracker = new UIntModelReferenceProvider(maxSpectralImageId);
         }
 
-        private RAMStorage()
-        {
-            // left for proto-buf
-        }
-
+        /// <inheritdoc cref="IRAMStorage.HashCountsPerTable"/>
         public IEnumerable<int> HashCountsPerTable
         {
-            get { return HashTables.Select(table => table.Count); }
+            get { return hashTables.Select(table => table.Count); }
         }
 
-        [ProtoMember(3)] private int NumberOfHashTables { get; set; }
+        /// <inheritdoc cref="IRAMStorage.TracksCount"/>
+        public int TracksCount => tracks.Count;
 
-        [ProtoMember(4)] public IDictionary<IModelReference, TrackData> Tracks { get; private set; }
-
+        /// <inheritdoc cref="IRAMStorage.SubFingerprintsCount"/>
         public int SubFingerprintsCount => subFingerprints.Count;
 
-        public ConcurrentDictionary<int, List<uint>>[] HashTables { get; set; }
-
-        [ProtoMember(5)]
-        private ConcurrentDictionary<uint, SubFingerprintData> SubFingerprints
+        /// <inheritdoc cref="IRAMStorage.InsertTrack"/>
+        public void InsertTrack(TrackInfo track, AVHashes avHashes)
         {
-            get => subFingerprints;
-
-            set
+            var (audio, video) = avHashes;
+            if (audio != null && video != null)
             {
-                if (value == null)
-                {
-                    return;
-                }
+                throw new ArgumentException("RAM storage is designed to handle only one media type of for hashes. To keep both audio and video use AVRAMStorage", nameof(avHashes));
+            }
 
-                subFingerprints = value;
-                InitializeHashTablesIfNeedBe(NumberOfHashTables);
-                foreach (var pair in value)
-                {
-                    InsertHashes(pair.Value.Hashes, pair.Key);
-                }
+            var hashes = audio ?? video;
+            var (trackData, fingerprints) = modelReferenceTracker.AssignModelReferences(track, hashes!);
+            tracks[trackData.TrackReference] = trackData;
+            foreach (var subFingerprint in fingerprints)
+            {
+                AddSubFingerprint(subFingerprint);
             }
         }
 
-        [ProtoMember(7)] private IDictionary<IModelReference, List<SpectralImageData>> SpectralImages { get; set; }
-
+        /// <summary>
+        ///  Adds one sub-fingerprint to RAM storage.
+        /// </summary>
+        /// <param name="subFingerprintData">Sub-fingerprint to add.</param>
         public void AddSubFingerprint(SubFingerprintData subFingerprintData)
         {
-            SubFingerprints[subFingerprintData.SubFingerprintReference.Get<uint>()] = subFingerprintData;
+            subFingerprints[subFingerprintData.SubFingerprintReference.Get<uint>()] = subFingerprintData;
             InsertHashes(subFingerprintData.Hashes, subFingerprintData.SubFingerprintReference.Get<uint>());
         }
 
-        public TrackData AddTrack(TrackData track)
+        /// <inheritdoc cref="IRAMStorage.InsertTrack"/>
+        public AVHashes ReadAvHashesByTrackId(string trackId)
         {
-            return Tracks[track.TrackReference] = track;
+            var track = ReadByTrackId(trackId);
+            if (track == null)
+            {
+                return AVHashes.Empty;
+            }
+
+            var fingerprints = ReadSubFingerprintByTrackReference(track.TrackReference).Select(ToHashedFingerprint);
+            return track.MediaType switch
+            {
+                MediaType.Audio => new AVHashes(new Hashes(fingerprints, track.Length, track.MediaType), null, AVFingerprintingTime.Zero()),
+                MediaType.Video => new AVHashes(null, new Hashes(fingerprints, track.Length, track.MediaType), AVFingerprintingTime.Zero()),
+                _ => throw new InvalidOperationException($"Unknown track media type {track.MediaType}")
+            };
         }
 
-        public int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
+        private static HashedFingerprint ToHashedFingerprint(SubFingerprintData subFingerprint)
+        {
+            return new HashedFingerprint(subFingerprint.Hashes, subFingerprint.SequenceNumber, subFingerprint.SequenceAt, subFingerprint.OriginalPoint);
+        }
+
+        /// <inheritdoc cref="IRAMStorage.DeleteTrack"/>
+        public int DeleteTrack(IModelReference trackReference)
+        {
+            int modified = DeleteSubFingerprintsByTrackReference(trackReference);
+            if (tracks.Remove(trackReference))
+            {
+                return modified + 1;
+            }
+
+            return modified;
+        }
+
+        private int DeleteSubFingerprintsByTrackReference(IModelReference trackReference)
         {
             var all = ReadSubFingerprintByTrackReference(trackReference).ToList();
             foreach (var reference in all)
             {
-                SubFingerprints.TryRemove(reference.SubFingerprintReference.Get<uint>(), out _);
+                subFingerprints.TryRemove(reference.SubFingerprintReference.Get<uint>(), out _);
             }
 
             int totals = 0;
-            Parallel.ForEach(all, subFingerprintData =>
+            all.AsParallel().ForAll(subFingerprintData =>
             {
                 int[] hashes = subFingerprintData.Hashes;
                 for (int table = 0; table < hashes.Length; ++table)
                 {
-                    if (HashTables[table].TryGetValue(hashes[table], out var list))
+                    if (hashTables[table].TryGetValue(hashes[table], out var list))
                     {
                         lock (list)
                         {
@@ -104,39 +195,45 @@
             return totals + all.Count;
         }
 
-        public int DeleteTrack(IModelReference trackReference)
+        /// <inheritdoc cref="IRAMStorage.TryGetTrackByReference"/>
+        public bool TryGetTrackByReference(IModelReference trackReference, out TrackData track)
         {
-            if (Tracks.Remove(trackReference))
-            {
-                return 1;
-            }
-
-            return 0;
+            return tracks.TryGetValue(trackReference, out track);
         }
 
-        public List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash)
+        /// <inheritdoc cref="IRAMStorage.SearchByTitle"/>
+        public IEnumerable<TrackData> SearchByTitle(string title)
         {
-            if (HashTables[table].TryGetValue(hash, out var subFingerprintIds))
-            {
-                return subFingerprintIds;
-            }
-
-            return Enumerable.Empty<uint>().ToList();
+            return tracks
+                .Where(pair => pair.Value.Title == title)
+                .Select(pair => pair.Value);
         }
 
-        public SubFingerprintData ReadSubFingerprintById(uint id)
+        /// <inheritdoc cref="IRAMStorage.GetTrackIds"/>
+        public IEnumerable<string> GetTrackIds()
         {
-            return SubFingerprints[id];
+            return tracks.Values.Select(_ => _.Id);
         }
 
-        public IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference)
+        /// <inheritdoc cref="IRAMStorage.ReadByTrackId"/>
+        public TrackData? ReadByTrackId(string id)
         {
-            return SubFingerprints.Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Value).ToList();
+            return tracks.Values.FirstOrDefault(pair => pair.Id == id);
         }
 
-        public void Reset(int numberOfHashTables)
+        /// <inheritdoc cref="IRAMStorage.ReadSubFingerprintsByUid"/>
+        public IEnumerable<SubFingerprintData> ReadSubFingerprintsByUid(IEnumerable<uint> ids, MediaType mediaType)
         {
-            Initialize(numberOfHashTables);
+            return ids.AsParallel()
+                .Select(id => subFingerprints.TryGetValue(id, out var s) ? s : null)
+                .Where(s => s != null)
+                .Select(s => s!)
+                .ToList();
+        }
+
+        private IEnumerable<SubFingerprintData> ReadSubFingerprintByTrackReference(IModelReference trackReference)
+        {
+            return subFingerprints.Where(pair => pair.Value.TrackReference.Equals(trackReference)).Select(pair => pair.Value).ToList();
         }
 
         private void InitializeFromFile(string path)
@@ -145,39 +242,42 @@
             {
                 return;
             }
-
+            
             using var file = File.OpenRead(path);
             var obj = Serializer.Deserialize<RAMStorage>(file);
-            NumberOfHashTables = obj.NumberOfHashTables;
-            Tracks = obj.Tracks;
-            SubFingerprints = obj.SubFingerprints;
-            SpectralImages = obj.SpectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
+            numberOfHashTables = obj.numberOfHashTables;
+            tracks = obj.tracks;
+            subFingerprints = obj.subFingerprints;
+            foreach (KeyValuePair<uint, SubFingerprintData> pair in obj.subFingerprints)
+            {
+                InsertHashes(pair.Value.Hashes, pair.Key);
+            }
+            
+            spectralImages = obj.spectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
+            logger.LogInformation($"Reloaded storage from {path}, tracks={TracksCount}, fingerprints={SubFingerprintsCount}.");
         }
 
+        /// <inheritdoc cref="IRAMStorage.GetSubFingerprintsByHashTableAndHash"/>
+        public List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash, MediaType mediaType)
+        {
+            return GetSubFingerprintsByHashTableAndHash(table, hash);
+        }
+
+        private List<uint> GetSubFingerprintsByHashTableAndHash(int table, int hash)
+        {
+            if (hashTables[table].TryGetValue(hash, out var subFingerprintIds))
+            {
+                return subFingerprintIds;
+            }
+
+            return Enumerable.Empty<uint>().ToList();
+        }
+
+        /// <inheritdoc cref="IRAMStorage.Snapshot"/>
         public void Snapshot(string path)
         {
             using var file = File.Create(path);
             Serializer.Serialize(file, this);
-        }
-
-        private void Initialize(int numberOfHashTables)
-        {
-            NumberOfHashTables = numberOfHashTables;
-            Tracks = new ConcurrentDictionary<IModelReference, TrackData>();
-            SpectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
-            SubFingerprints = new ConcurrentDictionary<uint, SubFingerprintData>();
-        }
-
-        private void InitializeHashTablesIfNeedBe(int numberOfHashTables)
-        {
-            if (HashTables == null)
-            {
-                HashTables = new ConcurrentDictionary<int, List<uint>>[numberOfHashTables];
-                for (int table = 0; table < numberOfHashTables; table++)
-                {
-                    HashTables[table] = new ConcurrentDictionary<int, List<uint>>();
-                }
-            }
         }
 
         private void InsertHashes(int[] hashBins, uint subFingerprintId)
@@ -185,7 +285,7 @@
             int table = 0;
             foreach (var hashBin in hashBins)
             {
-                var hashTable = HashTables[table];
+                var hashTable = hashTables[table];
                 var ids = hashTable.GetOrAdd(hashBin, _ => new List<uint>());
                 lock (ids)
                 {
@@ -196,29 +296,35 @@
             }
         }
 
-        public void AddSpectralImages(IEnumerable<SpectralImageData> spectralImages)
+        /// <inheritdoc cref="IRAMStorage.AddSpectralImages"/>
+        public void AddSpectralImages(IModelReference trackReference, IEnumerable<float[]> images)
         {
-            var images = spectralImages.ToList();
-            var trackReference = images.First().TrackReference;
-            lock (SpectralImages)
+            var spectres = AssignModelReferences(images, trackReference);
+            if (spectralImages.TryGetValue(trackReference, out var existing))
             {
-                if (SpectralImages.TryGetValue(trackReference, out var existing))
-                {
-                    foreach (var dto in images)
-                    {
-                        existing.Add(dto);
-                    }
-                }
-                else
-                {
-                    SpectralImages[trackReference] = images;
-                }
+                existing.AddRange(spectres);
+            }
+            else
+            {
+                spectralImages[trackReference] = spectres;
             }
         }
+        
+        private List<SpectralImageData> AssignModelReferences(IEnumerable<float[]> images, IModelReference trackReference)
+        {
+            int orderNumber = 0;
+            return images.Select(spectralImage => new SpectralImageData(
+                    spectralImage,
+                    orderNumber++,
+                    spectralImagesTracker.Next(),
+                    trackReference))
+                .ToList();
+        }
 
+        /// <inheritdoc cref="IRAMStorage.GetSpectralImagesByTrackReference"/>
         public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
         {
-            if (SpectralImages.TryGetValue(trackReference, out var spectralImageDatas))
+            if (spectralImages.TryGetValue(trackReference, out var spectralImageDatas))
             {
                 return spectralImageDatas;
             }
