@@ -22,6 +22,17 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class RealtimeQueryCommandTest
     {
+        private readonly int sampleRate = 5512;
+        private readonly int minSamplesPerFingerprint;
+        private readonly double minSizeChunkDuration;
+        
+        public RealtimeQueryCommandTest()
+        {
+            var config = new DefaultFingerprintConfiguration();
+            minSamplesPerFingerprint = config.SpectrogramConfig.MinimumSamplesPerFingerprint;
+            minSizeChunkDuration = (double)minSamplesPerFingerprint / sampleRate;
+        }
+        
         [Test]
         public async Task RealtimeQueryShouldMatchOnlySelectedClusters()
         {
@@ -72,9 +83,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public async Task RealtimeQueryStrideShouldBeUsed()
         {
             var modelService = new InMemoryModelService();
-            int minSize = 8192 + 2048;
             int staticStride = 1024;
-            double permittedGap = (double) minSize / 5512;
+            double permittedGap = (double) minSamplesPerFingerprint / sampleRate;
             int count = 10, found = 0, didNotPassThreshold = 0, fingerprintsCount = 0;
             int testWaitTime = 3000;
             var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
@@ -107,8 +117,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .UsingServices(modelService)
                                               .Query(cancellationTokenSource.Token);
 
-            Assert.AreEqual((count - 1) * minSize / staticStride + 1, fingerprintsCount);
-            Assert.AreEqual((double)count * minSize / 5512, duration, 0.00001);
+            Assert.AreEqual((count - 1) * minSamplesPerFingerprint / staticStride + 1, fingerprintsCount);
+            Assert.AreEqual((double)count * minSamplesPerFingerprint / 5512, duration, 0.00001);
         }
         
         [Test]
@@ -116,9 +126,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             var modelService = new InMemoryModelService();
 
-            const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
+            double minSizeChunk = (double)minSamplesPerFingerprint / sampleRate; // length in seconds of one query chunk ~1.8577
             const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
-            int count = (int)(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
+            int count = (int)Math.Round(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -175,9 +185,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
             // track  ---------------------------- 210 seconds
             // query                ----           35 seconds
             // match starts at      |              105 second
-            var realtimeQuery = data.Skip(count / 2).Take((int)(queryLength/minSizeChunk) + 1).ToArray(); 
-            
-            Assert.AreEqual(queryLength, realtimeQuery.Sum(_ => _.Duration), 1); // asserting the total length of the query +- 1 second
+            var realtimeQuery = data.Skip(count / 2).Take((int)(queryLength/minSizeChunk) + 1).ToArray();
+
+            double duration = realtimeQuery.Sum(_ => _.Duration);
+            Assert.AreEqual(queryLength, duration, 1); // asserting the total length of the query +- 1 second
             
             // adding some jitter before and after the query which should not match
             // track           ---------------------------- 210 seconds
@@ -221,7 +232,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             }
             
             // ongoing calls have to be called every time when realtime chunk is sent since ongoing query match filter is equal to min-size chunk
-            Assert.AreEqual(realtimeQuery.Length, ongoingCalls);
+            Assert.AreEqual(realtimeQuery.Length + 1 /*jitter call since track can continue in the next query*/, ongoingCalls);
         }
 
         [Test]
@@ -229,8 +240,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             var modelService = new InMemoryModelService();
 
-            const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
-            const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
+            double minSizeChunk = (double)minSamplesPerFingerprint / sampleRate; // length in seconds of one query chunk ~1.8577
+            const double totalTrackLength = 210;                                 // length of the track 3 minutes 30 seconds.
             const double jitterLength = 10;
             double totalQueryLength = totalTrackLength + 2 * jitterLength;
             
@@ -282,7 +293,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                  .UsingServices(modelService)
                  .Query(CancellationToken.None);
 
-            Assert.AreEqual(totalQueryLength, processed, 1);
+            Assert.AreEqual(totalQueryLength, processed, minSizeChunkDuration);
             Assert.AreEqual(trackCount + jitterChunks - 1, errored);
             Assert.AreEqual(trackCount, fingerprintsCount - jitterChunks);
             Assert.IsTrue(restoreCalled[0]);
@@ -404,10 +415,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             var modelService = new InMemoryModelService();
 
-            const double minSizeChunk = 10240d / 5512; // length in seconds of one query chunk ~1.8577
             const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
 
-            var data = GenerateRandomAudioChunks((int)(totalTrackLength / minSizeChunk), seed: 1, DateTime.UtcNow);
+            var data = GenerateRandomAudioChunks((int)(totalTrackLength / minSizeChunkDuration), seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -515,11 +525,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return new AudioSamples(concatenated, first.Origin, first.SampleRate, first.RelativeTo);
         }
 
-        private static List<AudioSamples> GenerateRandomAudioChunks(int count, int seed, DateTime relativeTo)
+        private List<AudioSamples> GenerateRandomAudioChunks(int count, int seed, DateTime relativeTo)
         {
             return Enumerable
                 .Range(0, count)
-                .Select(index => GetMinSizeOfAudioSamples(seed * index, relativeTo.AddSeconds(index * 1.877)))
+                .Select(index => GetMinSizeOfAudioSamples(seed * index, relativeTo.AddSeconds(index * minSizeChunkDuration)))
                 .ToList();
         }
 
@@ -569,9 +579,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             while (sum < jitterLength);
         }
 
-        private static AudioSamples GetMinSizeOfAudioSamples(int seed, DateTime relativeTo)
+        private AudioSamples GetMinSizeOfAudioSamples(int seed, DateTime relativeTo)
         {
-            var samples = TestUtilities.GenerateRandomFloatArray(10240, seed);
+            var samples = TestUtilities.GenerateRandomFloatArray(minSamplesPerFingerprint, seed);
             return new AudioSamples(samples, "cnn", 5512, relativeTo);
         }
 
