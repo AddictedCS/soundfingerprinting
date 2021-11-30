@@ -82,6 +82,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.AreEqual(0, coverage.QueryMatchStartsAt);
         }
 
+        [Test]
         public void ShouldFindTrackDiscontinuities()
         {
             var count = 3;
