@@ -186,8 +186,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, entry.Coverage.TrackGaps.Count());
             double queryGap = entry.Coverage.QueryGaps.First().LengthInSeconds;
             double trackGap = entry.Coverage.TrackGaps.First().LengthInSeconds;
-            Assert.AreEqual(30, queryGap, 0.1);
-            Assert.AreEqual(30, trackGap, 0.1);
+            Assert.AreEqual(30, queryGap, 0.5);
+            Assert.AreEqual(30, trackGap, 0.5);
         }
 
         private static float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15)
