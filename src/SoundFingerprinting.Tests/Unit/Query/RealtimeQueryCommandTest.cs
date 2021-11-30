@@ -300,7 +300,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(0, didNotPassThreshold);
             Assert.AreEqual(1, resultEntries.Count);
             var (result, _) = resultEntries.First();
-            Assert.AreEqual(totalTrackLength, result.Coverage.TrackCoverageWithPermittedGapsLength, minSizeChunkDuration);
+            Assert.AreEqual(totalTrackLength, result.Coverage.TrackCoverageWithPermittedGapsLength, 2);
             Assert.IsTrue(Math.Abs(start.Subtract(result.MatchedAt).TotalSeconds) < 2, $"Matched At {result.MatchedAt:o}");
         }
 
