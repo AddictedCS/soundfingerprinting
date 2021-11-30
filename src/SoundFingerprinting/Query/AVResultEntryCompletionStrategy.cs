@@ -21,6 +21,7 @@ namespace SoundFingerprinting.Query
             // no-op
         }
 
+        /// <inheritdoc cref="ICompletionStrategy{T}.CanContinueInNextQuery"/>
         public bool CanContinueInNextQuery(AVResultEntry? entry)
         {
             if (entry == null)

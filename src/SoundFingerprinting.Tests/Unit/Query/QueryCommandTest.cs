@@ -155,6 +155,41 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(45d, entries[1].TrackMatchStartsAt, 1f);
         }
 
+        /**
+         * Query is a remix with a different 30 seconds piece.
+         * query  11110000003333300000
+         * stored 11110000002222200000
+         */
+        
+        [Test]
+        public async Task ShouldIdentifyTrackRemixAndNotGenerateTwoMatches()
+        {
+            float[] track = TestUtilities.GenerateRandomFloatArray(120 * 5512, 1);
+            float[] query = new float[track.Length];
+            Buffer.BlockCopy(track, 0, query, 0, track.Length * sizeof(float));
+            // query is different from second 60->90
+            for (int i = 60 * 5512; i < 90 * 5512; ++i)
+            {
+                query[i] = 0;
+            }
+            
+            var modelService = new InMemoryModelService();
+
+            await InsertFingerprints(track, modelService);
+
+            var result = await GetQueryResult(query, modelService, permittedGap: 5d, allowMultipleMatches: false);
+            
+            Assert.IsTrue(result.ContainsMatches);
+            Assert.AreEqual(1, result.ResultEntries.Count());
+            var entry = result.ResultEntries.First();
+            Assert.AreEqual(1, entry.Coverage.QueryGaps.Count());
+            Assert.AreEqual(1, entry.Coverage.TrackGaps.Count());
+            double queryGap = entry.Coverage.QueryGaps.First().LengthInSeconds;
+            double trackGap = entry.Coverage.TrackGaps.First().LengthInSeconds;
+            Assert.AreEqual(30, queryGap, 0.5);
+            Assert.AreEqual(30, trackGap, 0.5);
+        }
+
         private static float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15)
         {
             float[] before = TestUtilities.GenerateRandomFloatArray(beforeSec * 5512);
@@ -174,14 +209,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return total;
         }
 
-        private static async Task<QueryResult> GetQueryResult(float[] match, IModelService modelService, double permittedGap = 2)
+        private static async Task<QueryResult> GetQueryResult(float[] match, IModelService modelService, double permittedGap = 2, bool allowMultipleMatches = true)
         {
             return await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(new AudioSamples(match, "cnn", 5512))
                 .WithQueryConfig(config =>
                 {
-                    config.AllowMultipleMatchesOfTheSameTrackInQuery = true;
+                    config.AllowMultipleMatchesOfTheSameTrackInQuery = allowMultipleMatches;
                     config.PermittedGap = permittedGap;
                     return config;
                 })

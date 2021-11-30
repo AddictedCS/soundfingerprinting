@@ -61,7 +61,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 return;
             }
             
-            using var fileStream = new FileStream(GetPath(avHashes.CaptureTime), FileMode.CreateNew);
+            using var fileStream = new FileStream(GetPath(avHashes.RelativeTo), FileMode.CreateNew);
             Serializer.SerializeWithLengthPrefix(fileStream, avHashes, PrefixStyle.Fixed32);
         }
         
@@ -73,7 +73,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
         public bool Contains(AVHashes avHashes)
         {
-            return Contains(avHashes.CaptureTime);
+            return Contains(avHashes.RelativeTo);
         }
 
         public AVHashes? Get(DateTime captureTime)
@@ -90,7 +90,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             if (Contains(avHashes))
             {
-                File.Delete(GetPath(avHashes.CaptureTime));
+                File.Delete(GetPath(avHashes.RelativeTo));
             }
         }
         

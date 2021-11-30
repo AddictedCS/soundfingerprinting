@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System;
-    using System.Threading.Tasks;
     using Moq;
     using NUnit.Framework;
     using SoundFingerprinting.DAO;
@@ -60,6 +59,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             Assert.IsFalse(CanContinue(audio: false, video: false));
         }
+        
+        
 
         private bool CanContinue(bool audio, bool video)
         {
