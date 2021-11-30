@@ -81,10 +81,10 @@
             uint maxSpectralImageId = 0;
             if (lastTrackReference != null)
             {
-                var spectralImages = GetSpectralImagesByTrackReference(lastTrackReference).ToList();
-                if (spectralImages.Any())
+                var images = GetSpectralImagesByTrackReference(lastTrackReference).ToList();
+                if (images.Any())
                 {
-                    maxSpectralImageId = spectralImages.Max(_ => _.SpectralImageReference.Get<uint>());
+                    maxSpectralImageId = images.Max(_ => _.SpectralImageReference.Get<uint>());
                 }
             }
 
