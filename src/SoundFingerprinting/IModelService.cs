@@ -46,13 +46,13 @@ namespace SoundFingerprinting
         /// <summary>
         ///  Queries the underlying storage with hashes and query configuration.
         /// </summary>
-        /// <param name="hashes">Computed hashes for query.</param>
+        /// <param name="hashes">Computed hashes for the query.</param>
         /// <param name="config">Query configuration.</param>
         /// <returns>List of matched fingerprints.</returns>
         /// <remarks>
         ///  <see cref="Hashes.MediaType"/> is used to identify which hashes to query (audio or video).
         /// </remarks>
-        IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config);
+        AVSubFingerprints Query(AVHashes hashes, AVQueryConfiguration config);
 
         /// <summary>
         ///  Read tracks by model references.
@@ -69,7 +69,7 @@ namespace SoundFingerprinting
         AVHashes ReadHashesByTrackId(string trackId);
 
         /// <summary>
-        ///  Read track by ID
+        ///  Read track by ID.
         /// </summary>
         /// <param name="trackId">Track ID to read the track</param>
         /// <returns>TrackInfo if storage contains a track with provided ID, null otherwise</returns>

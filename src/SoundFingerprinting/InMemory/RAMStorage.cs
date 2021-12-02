@@ -21,6 +21,8 @@
         private readonly ILogger<RAMStorage> logger;
         private readonly ConcurrentDictionary<int, List<uint>>[] hashTables;
 
+        private readonly string id;
+
         [ProtoMember(3)] 
         private int numberOfHashTables;
 
@@ -36,13 +38,15 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="RAMStorage"/> class.
         /// </summary>
+        /// <param name="id">ID of the RAM storage.</param>
         /// <param name="modelReferenceTracker">Model reference tracker.</param>
         /// <param name="loggerFactory">Logger factory.</param>
-        /// <param name="initializeFrom">Initialize from file.</param>
+        /// <param name="loadFrom">Initialize from file.</param>
         /// <param name="numberOfHashTables">Number of hashes tables.</param>
-        public RAMStorage(IModelReferenceTracker<uint> modelReferenceTracker, ILoggerFactory loggerFactory, string initializeFrom = "", int numberOfHashTables = 25)
+        public RAMStorage(string id, IModelReferenceTracker<uint> modelReferenceTracker, ILoggerFactory loggerFactory, string loadFrom = "", int numberOfHashTables = 25)
         {
             logger = loggerFactory.CreateLogger<RAMStorage>();
+            this.id = id;
             this.numberOfHashTables = numberOfHashTables;
             this.modelReferenceTracker = modelReferenceTracker;
             tracks = new ConcurrentDictionary<IModelReference, TrackData>();
@@ -56,7 +60,7 @@
                 hashTables[table] = new ConcurrentDictionary<int, List<uint>>();
             } 
             
-            InitializeFromFile(initializeFrom);
+            InitializeFromFile(loadFrom);
 
             IModelReference? lastTrackReference = null;
             uint maxTrackId = 0;
@@ -91,18 +95,21 @@
             logger.LogDebug("Spectral image reference reset to {0}", maxSpectralImageId);
             spectralImagesTracker = new UIntModelReferenceProvider(maxSpectralImageId);
         }
-
-        /// <inheritdoc cref="IRAMStorage.HashCountsPerTable"/>
-        public IEnumerable<int> HashCountsPerTable
-        {
-            get { return hashTables.Select(table => table.Count); }
-        }
-
+        
         /// <inheritdoc cref="IRAMStorage.TracksCount"/>
         public int TracksCount => tracks.Count;
 
         /// <inheritdoc cref="IRAMStorage.SubFingerprintsCount"/>
         public int SubFingerprintsCount => subFingerprints.Count;
+
+        /// <inheritdoc cref="IRAMStorage.Info"/>
+        public IEnumerable<ModelServiceInfo> Info
+        {
+            get
+            {
+                return new[] { new ModelServiceInfo(id, TracksCount, SubFingerprintsCount, hashTables.Select(table => table.Count).ToArray()) };
+            }
+        }
 
         /// <inheritdoc cref="IRAMStorage.InsertTrack"/>
         public void InsertTrack(TrackInfo track, AVHashes avHashes)
@@ -114,6 +121,12 @@
             }
 
             var hashes = audio ?? video;
+
+            if (hashes?.IsEmpty ?? true)
+            {
+                return;
+            }
+            
             var (trackData, fingerprints) = modelReferenceTracker.AssignModelReferences(track, hashes!);
             tracks[trackData.TrackReference] = trackData;
             foreach (var subFingerprint in fingerprints)
@@ -199,14 +212,6 @@
         public bool TryGetTrackByReference(IModelReference trackReference, out TrackData track)
         {
             return tracks.TryGetValue(trackReference, out track);
-        }
-
-        /// <inheritdoc cref="IRAMStorage.SearchByTitle"/>
-        public IEnumerable<TrackData> SearchByTitle(string title)
-        {
-            return tracks
-                .Where(pair => pair.Value.Title == title)
-                .Select(pair => pair.Value);
         }
 
         /// <inheritdoc cref="IRAMStorage.GetTrackIds"/>

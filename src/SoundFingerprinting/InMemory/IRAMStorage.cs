@@ -4,7 +4,6 @@ namespace SoundFingerprinting.InMemory
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.MinHash;
 
     public interface IRAMStorage
     {
@@ -19,12 +18,9 @@ namespace SoundFingerprinting.InMemory
         int SubFingerprintsCount { get; }
 
         /// <summary>
-        ///  Gets total number of hashes per table.
+        ///  Gets statistical info about model service.
         /// </summary>
-        /// <remarks>
-        ///  Useful for finding best <see cref="IPermutations"/> with least number of collisions.
-        /// </remarks>
-        IEnumerable<int> HashCountsPerTable { get; }
+        IEnumerable<ModelServiceInfo> Info { get; }
 
         /// <summary>
         ///  Gets list of sub-fingerprints by hash-table and hash bin.
@@ -65,13 +61,6 @@ namespace SoundFingerprinting.InMemory
         /// <param name="track">If found an instance of <see cref="TrackData"/> will be returned.</param>
         /// <returns>True if found, otherwise false.</returns>
         bool TryGetTrackByReference(IModelReference trackReference, out TrackData track);
-
-        /// <summary>
-        ///  Searches tracks by title (exact match).
-        /// </summary>
-        /// <param name="title">Title to search for.</param>
-        /// <returns>List of matched tracks.</returns>
-        IEnumerable<TrackData> SearchByTitle(string title);
 
         /// <summary>
         ///  Get all tracks IDs.

@@ -4,49 +4,76 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Math;
 
+    /// <summary>
+    ///  Class that implements <see cref="IModelService"/> interface.
+    /// </summary>
+    /// <remarks>
+    ///  This implementation is intended to be used for testing purposes only.
+    /// </remarks>
     public class InMemoryModelService : IAdvancedModelService
     {
-        private readonly string id;
         private readonly IRAMStorage storage;
-        private readonly UIntModelReferenceTracker modelReferenceTracker;
-        private readonly IModelReferenceProvider spectralReferenceProvider;
         private readonly IGroupingCounter groupingCounter;
         private readonly IMetaFieldsFilter metaFieldsFilter = new MetaFieldsFilter();
 
-        public InMemoryModelService() : this(new RAMStorage(25), new StandardGroupingCounter())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InMemoryModelService"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">Implementation of <see cref="ILoggerFactory"/> interface.</param>
+        public InMemoryModelService(ILoggerFactory? loggerFactory = null) : this(
+            new AVRAMStorage(string.Empty, loggerFactory ?? new NullLoggerFactory()), new StandardGroupingCounter())
         {
         }
 
-        public InMemoryModelService(string loadFrom) : this(new RAMStorage(loadFrom, 25), new StandardGroupingCounter())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InMemoryModelService"/> class.
+        /// </summary>
+        /// <param name="loadFrom">Path to directory from which to load previously stored instance of <see cref="InMemoryModelService"/>.</param>
+        /// <param name="loggerFactory">Implementation of <see cref="ILoggerFactory"/> interface.</param>
+        /// <remarks>
+        ///  Previous to v8, path parameter was path to a file. Since v8 it has to be path to a directory.
+        ///  If you are migrating from previous version and want to migrate the snapshot as well, rename previous snapshots to "audio", and place it in the provided directory parameter.
+        /// </remarks>
+        public InMemoryModelService(string loadFrom, ILoggerFactory? loggerFactory = null) : this(
+            new AVRAMStorage(loadFrom, loggerFactory ?? new NullLoggerFactory()), new StandardGroupingCounter())
         {
         }
 
-        public InMemoryModelService(IRAMStorage storage, IGroupingCounter groupingCounter) : this(storage, groupingCounter)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InMemoryModelService"/> class.
+        /// </summary>
+        /// <param name="groupingCounter">Implementation of <see cref="IGroupingCounter"/> interface.</param>
+        /// <param name="loggerFactory">Implementation of <see cref="ILoggerFactory"/> interface.</param>
+        public InMemoryModelService(IGroupingCounter groupingCounter, ILoggerFactory? loggerFactory = null) : this(
+            new AVRAMStorage(string.Empty, loggerFactory ?? new NullLoggerFactory()), groupingCounter)
         {
         }
 
-        private InMemoryModelService(IRAMStorage storage, IGroupingCounter groupingCounter, IModelReferenceTracker<uint> modelReferenceTracker)
+        private InMemoryModelService(IRAMStorage storage, IGroupingCounter groupingCounter)
         {
             this.storage = storage;
-            id = "in-memory-model-service";
             this.groupingCounter = groupingCounter;
         }
 
+        /// <summary>
+        ///  Path to directory that will store files associated with this instance of <see cref="InMemoryModelService"/>.
+        /// </summary>
+        /// <param name="path">Path to directory.</param>
         public void Snapshot(string path)
         {
             storage.Snapshot(path);
         }
-        
-        public IEnumerable<ModelServiceInfo> Info => new[]
-        {
-            new ModelServiceInfo(id, storage.TracksCount, storage.SubFingerprintsCount, storage.HashCountsPerTable.ToArray())
-        };
+
+        /// <inheritdoc cref="IModelService.Info"/>
+        public IEnumerable<ModelServiceInfo> Info => storage.Info;
 
         /// <inheritdoc cref="IModelService.Insert"/>
         public void Insert(TrackInfo track, AVHashes avHashes)
@@ -74,10 +101,18 @@
         }
 
         /// <inheritdoc cref="IModelService.Query"/>
-        public IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config)
+        public AVSubFingerprints Query(AVHashes hashes, AVQueryConfiguration config)
         {
-            var queryHashes = hashes.Select(_ => _.HashBins).ToList();
-            return queryHashes.Any() ? ReadSubFingerprints(queryHashes, hashes.MediaType, config) : Enumerable.Empty<SubFingerprintData>();
+            var (audioHashes, videoHashes) = hashes;
+            var audioSubFingerprints = QueryHashesWithMediaType(audioHashes, config.Audio, MediaType.Audio);
+            var videoSubFingerprints = QueryHashesWithMediaType(videoHashes, config.Video, MediaType.Video);
+            return new AVSubFingerprints(audioSubFingerprints, videoSubFingerprints);
+        }
+
+        private IEnumerable<SubFingerprintData> QueryHashesWithMediaType(Hashes? hashes, QueryConfiguration config, MediaType mediaType)
+        {
+            var queryHashes = hashes?.Select(_ => _.HashBins).ToList() ?? Enumerable.Empty<int[]>().ToList();
+            return queryHashes.Any() ? ReadSubFingerprints(queryHashes, mediaType, config) : Enumerable.Empty<SubFingerprintData>();
         }
 
         /// <inheritdoc cref="IModelService.ReadHashesByTrackId"/>
@@ -139,11 +174,7 @@
             storage.DeleteTrack(trackReference);
         }
 
-        public IEnumerable<TrackData> ReadTrackByTitle(string title)
-        {
-            return storage.SearchByTitle(title);
-        }
-        
+        /// <inheritdoc cref="IAdvancedModelService.InsertSpectralImages"/>
         public void InsertSpectralImages(IEnumerable<float[]> spectralImages, string trackId)
         {
             var track = GetTrackById(trackId);
@@ -155,6 +186,7 @@
             storage.AddSpectralImages(track.TrackReference, spectralImages);
         }
 
+        /// <inheritdoc cref="IAdvancedModelService.GetSpectralImagesByTrackId"/>
         public IEnumerable<SpectralImageData> GetSpectralImagesByTrackId(string trackId)
         {
             var track = GetTrackById(trackId);

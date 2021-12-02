@@ -20,7 +20,6 @@
         /// </summary>
         public VideoFingerprintConfiguration Video { get; set; } = null!;
 
-
         /// <summary>
         ///  Gets an instance of <see cref="AVTrackReadConfiguration"/> used to read <see cref="AudioSamples"/> and <see cref="Frames"/> from the source.
         /// </summary>
