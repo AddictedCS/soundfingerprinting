@@ -3,6 +3,8 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Content;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Media;
+    using SoundFingerprinting.Video;
 
     /// <summary>
     ///   Source object which allows you to select the source to build the fingerprints from.
@@ -15,6 +17,9 @@ namespace SoundFingerprinting.Command
         /// <param name="file">Full path to content file.</param>
         /// <param name="mediaType">Media type to generate hashes for.</param>
         /// <returns>Configuration selector object.</returns>
+        /// <remarks>
+        ///  If you provide MediaType.Video flag for <paramref name="mediaType"/> makes sure to provide <see cref="IVideoService"/> or <see cref="IMediaService"/> at <see cref="IUsingQueryServices"/> method builder to be able to read <see cref="Frames"/> from the provided file.
+        /// </remarks>
         IWithFingerprintConfiguration From(string file, MediaType mediaType = MediaType.Audio);
         
         /// <summary>
@@ -25,6 +30,9 @@ namespace SoundFingerprinting.Command
         /// <param name="startAtSecond">Start at second.</param>
         /// <param name="mediaType">Media type to generate hashes for.</param>
         /// <returns>Configuration selector object.</returns>
+        /// <remarks>
+        ///  If you provide MediaType.Video flag for <paramref name="mediaType"/> makes sure to provide <see cref="IVideoService"/> or <see cref="IMediaService"/> at <see cref="IUsingQueryServices"/> method builder to be able to read <see cref="Frames"/> from the provided file.
+        /// </remarks>
         IWithFingerprintConfiguration From(string file, double secondsToProcess, double startAtSecond, MediaType mediaType = MediaType.Audio);
 
         /// <summary>

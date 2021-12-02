@@ -14,13 +14,13 @@
         /// </summary>
         /// <param name="queryConfiguration">Query configuration object to use.</param>
         /// <returns>Query services selector.</returns>
-        IUsingQueryServices WithQueryConfig(QueryConfiguration queryConfiguration);
+        IUsingQueryServices WithQueryConfig(AVQueryConfiguration queryConfiguration);
 
         /// <summary>
         ///   Sets query configuration parameters.
         /// </summary>
         /// <param name="amendQueryConfigFunctor">Amend functor.</param>
         /// <returns>Query services selector.</returns>
-        IUsingQueryServices WithQueryConfig(Func<QueryConfiguration, QueryConfiguration> amendQueryConfigFunctor);
+        IUsingQueryServices WithQueryConfig(Func<AVQueryConfiguration, AVQueryConfiguration> amendQueryConfigFunctor);
     }
 }

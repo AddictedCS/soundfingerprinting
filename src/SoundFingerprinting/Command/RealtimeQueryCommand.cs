@@ -3,12 +3,12 @@ namespace SoundFingerprinting.Command
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
@@ -22,6 +22,7 @@ namespace SoundFingerprinting.Command
     /// </summary>
     public sealed class RealtimeQueryCommand : IRealtimeSource, IWithRealtimeQueryConfiguration
     {
+        private readonly ILogger<RealtimeQueryCommand> logger;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         
@@ -34,8 +35,9 @@ namespace SoundFingerprinting.Command
         private bool errored = false;
         private double queryLength = 0;
 
-        internal RealtimeQueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
+        internal RealtimeQueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService, ILoggerFactory loggerFactory)
         {
+            this.logger = loggerFactory.CreateLogger<RealtimeQueryCommand>();
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
             
@@ -147,21 +149,19 @@ namespace SoundFingerprinting.Command
             await foreach (var (audioTrack, videoTrack) in source)
             {
                 var prefixed = audioTrack != null ?  realtimeSamplesAggregator.Aggregate(audioTrack.Samples) : null;
-                var fingerprintingStopwatch = Stopwatch.StartNew();
-                double audioTimeOffset = (audioTrack?.Samples.Duration ?? 0) - (prefixed?.Duration ?? 0);
-                var audioHashes = prefixed != null ? (await CreateQueryFingerprints(fingerprintCommandBuilder, prefixed)) : null;
-                audioHashes = audioHashes?.WithTimeOffset(audioTimeOffset);
-                long audioFingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
-                fingerprintingStopwatch.Restart();
-                var videoHashes = videoTrack?.Frames != null ? await CreateQueryFingerprints(fingerprintCommandBuilder, videoTrack.Frames) : null;
-                long videoFingerprintingDuration = fingerprintingStopwatch.ElapsedMilliseconds;
-                if (audioHashes == null && videoHashes == null)
+                if (prefixed == null && videoTrack == null)
                 {
+                    // can happen when there is not enough samples to generate a fingerprint
+                    logger.LogDebug("Both audio and video tracks are null or empty. Waiting until minimum number of samples are aggregated for a fingerprint to be generated.");
                     continue;
                 }
                 
-                var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, new AVFingerprintingTime(audioFingerprintingDuration, videoFingerprintingDuration)));
-                fingerprintingStopwatch.Stop();
+                double audioTimeOffset = (audioTrack?.Samples.Duration ?? 0) - (prefixed?.Duration ?? 0);
+                double estimatedTime = audioTrack?.TotalEstimatedDuration ?? 0 - audioTimeOffset; // prefixed is always longer than initial, hence time offset is negative
+                var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, new AVTrack(prefixed != null ? new AudioTrack(prefixed, estimatedTime) : null, videoTrack));
+                var (audioHashes, videoHashes) = hashes;
+                audioHashes = audioHashes?.WithTimeOffset(audioTimeOffset);
+                var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, hashes.FingerprintingTime));
                 yield return avHashes;
             }
         }
@@ -287,7 +287,7 @@ namespace SoundFingerprinting.Command
         /// <param name="hashes">An instance of <see cref="AVHashes"/>.</param>
         /// <param name="realtimeAggregator">Realtime aggregator.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>True if query was successful, otherwise false</returns>
+        /// <returns>True if query was successful, otherwise false.</returns>
         /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
         private async Task<bool> TryQuery(IQueryFingerprintService service, AVHashes hashes, IRealtimeAggregator realtimeAggregator, CancellationToken cancellationToken)
@@ -322,21 +322,12 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private async Task<Hashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AudioSamples prefixed)
+        private async Task<AVHashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AVTrack avTrack)
         {
             return await commandBuilder
                 .BuildFingerprintCommand()
-                .From(prefixed)
-                .WithFingerprintConfig(configuration.QueryConfiguration.Audio.FingerprintConfiguration)
-                .Hash();
-        }
-
-        private async Task<Hashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, Frames frames)
-        {
-            return await commandBuilder
-                .BuildFingerprintCommand()
-                .From(frames)
-                .WithFingerprintConfig(configuration.QueryConfiguration.Video.FingerprintConfiguration)
+                .From(avTrack)
+                .WithFingerprintConfig(configuration.QueryConfiguration.FingerprintConfiguration)
                 .Hash();
         }
 
@@ -352,8 +343,7 @@ namespace SoundFingerprinting.Command
             var audio = hashes.Audio != null ? service.Query(hashes.Audio, configuration.QueryConfiguration.Audio, modelService) : null;
             var video = hashes.Video != null ? service.Query(hashes.Video, configuration.QueryConfiguration.Video, modelService) : null;
             queryLength += ((hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset) ?? hashes.Video?.DurationInSeconds) ?? 0;
-            var avResultEntries = AVQueryResult.JoinResultEntries(audio, video);
-            return new AVQueryResult(avResultEntries, hashes, new AVQueryCommandStats(audio?.CommandStats, video?.CommandStats));
+            return new AVQueryResult(audio, video, hashes, new AVQueryCommandStats(audio?.CommandStats, video?.CommandStats));
         }
         
         private void InvokeDidNotPassFilterHandler(IEnumerable<AVQueryResult> queryResults)

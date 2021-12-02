@@ -294,17 +294,18 @@
                 };
         }
 
-        private Task<QueryResult> BuildQuery(IStride queryStride, int seconds, string positive, int startAt)
+        private async Task<QueryResult> BuildQuery(IStride queryStride, int seconds, string positive, int startAt)
         {
-            return qcb.BuildQueryCommand()
+            var (audio, _) = await qcb.BuildQueryCommand()
                 .From(positive, seconds, startAt)
                 .WithQueryConfig(queryConfig =>
                     {
-                        queryConfig.Stride = queryStride;
+                        queryConfig.Audio.Stride = queryStride;
                         return queryConfig;
                     })
                 .UsingServices(modelService, audioService)
                 .Query();
+            return audio!;
         }
 
         private void Insert(string folderWithSongs, IStride stride, StringBuilder sb)
