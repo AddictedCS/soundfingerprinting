@@ -101,15 +101,17 @@
         }
 
         /// <inheritdoc cref="IModelService.Query"/>
-        public AVSubFingerprints Query(AVHashes hashes, AVQueryConfiguration config)
+        public IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config)
         {
-            var (audioHashes, videoHashes) = hashes;
-            var audioSubFingerprints = QueryHashesWithMediaType(audioHashes, config.Audio, MediaType.Audio);
-            var videoSubFingerprints = QueryHashesWithMediaType(videoHashes, config.Video, MediaType.Video);
-            return new AVSubFingerprints(audioSubFingerprints, videoSubFingerprints);
+            return hashes.MediaType switch
+            {
+                MediaType.Audio => QueryHashesWithMediaType(hashes, config, MediaType.Audio),
+                MediaType.Video => QueryHashesWithMediaType(hashes, config, MediaType.Video),
+                _ => throw new ArgumentOutOfRangeException(nameof(hashes.MediaType))
+            };
         }
 
-        private IEnumerable<SubFingerprintData> QueryHashesWithMediaType(Hashes? hashes, QueryConfiguration config, MediaType mediaType)
+        private IEnumerable<SubFingerprintData> QueryHashesWithMediaType(Hashes hashes, QueryConfiguration config, MediaType mediaType)
         {
             var queryHashes = hashes?.Select(_ => _.HashBins).ToList() ?? Enumerable.Empty<int[]>().ToList();
             return queryHashes.Any() ? ReadSubFingerprints(queryHashes, mediaType, config) : Enumerable.Empty<SubFingerprintData>();

@@ -52,7 +52,7 @@ namespace SoundFingerprinting
         /// <remarks>
         ///  <see cref="Hashes.MediaType"/> is used to identify which hashes to query (audio or video).
         /// </remarks>
-        AVSubFingerprints Query(AVHashes hashes, AVQueryConfiguration config);
+        IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config);
 
         /// <summary>
         ///  Read tracks by model references.
