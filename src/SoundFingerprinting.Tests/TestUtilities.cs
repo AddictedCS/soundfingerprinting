@@ -72,12 +72,12 @@ namespace SoundFingerprinting.Tests
             return Tuple.Create(first, second);
         }
         
-        public static Hashes GetRandomHashes(float length)
+        public static Hashes GetRandomHashes(float length, MediaType mediaType = MediaType.Audio)
         {
-            return GetRandomHashes((int)length, new Random(), false, 1);
+            return GetRandomHashes((int)length, new Random(), false, 1, mediaType);
         }
         
-        public static Hashes GetRandomHashes(int count, Random random, bool withOriginalPoints = false, float fingerprintLengthInSeconds = 1.48f)
+        public static Hashes GetRandomHashes(int count, Random random, bool withOriginalPoints = false, float fingerprintLengthInSeconds = 1.48f, MediaType mediaType = MediaType.Audio)
         {
             var fingerprints = new List<HashedFingerprint>();
             for (int i = 0; i < count; ++i)
@@ -97,7 +97,7 @@ namespace SoundFingerprinting.Tests
                 fingerprints.Add(hashData);
             }
 
-            return new Hashes(fingerprints, fingerprints.Max(f => f.StartsAt + fingerprintLengthInSeconds), MediaType.Audio);
+            return new Hashes(fingerprints, fingerprints.Max(f => f.StartsAt + fingerprintLengthInSeconds), mediaType);
         }
 
         public static TinyFingerprintSchema GenerateRandomFingerprint(Random random, int topWavelets, int width, int height)
