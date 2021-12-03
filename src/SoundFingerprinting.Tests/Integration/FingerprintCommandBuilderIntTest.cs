@@ -19,7 +19,7 @@
         [Test]
         public async Task CreateFingerprintsFromFileAndAssertNumberOfFingerprints()
         {
-            var fingerprints = await FingerprintCommandBuilder.Instance
+            var (fingerprints, _) = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(PathToWav)
                 .Hash();
@@ -34,12 +34,12 @@
         [Test]
         public async Task CreateFingerprintsWithModifiedStride()
         {
-            var fingerprints = await FingerprintCommandBuilder.Instance
+            var (fingerprints, _) = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(PathToWav)
                 .WithFingerprintConfig(config =>
                 {
-                    config.Stride = new IncrementalStaticStride(config.SamplesPerFingerprint);
+                    config.Audio.Stride = new IncrementalStaticStride(config.Audio.SamplesPerFingerprint);
                     return config;
                 })
                 .Hash();
@@ -72,7 +72,8 @@
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
-            var bestMatch = queryResult.BestMatch;
+            Assert.IsNotNull(queryResult.BestMatch);
+            var (bestMatch, _) = queryResult.BestMatch;
             Assert.AreEqual("id", bestMatch.Track.Id);
             Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
@@ -87,18 +88,18 @@
 
             var samples = audioService.ReadMonoSamplesFromFile(PathToWav, 5512, secondsToProcess, startAtSecond);
 
-            var hashDatasFromFile = await FingerprintCommandBuilder.Instance
+            var (h1, _) = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
                                         .From(PathToWav, secondsToProcess, startAtSecond)
                                         .UsingServices(audioService)
                                         .Hash();
 
-            var hashDatasFromSamples = await FingerprintCommandBuilder.Instance
+            var (h2, _) = await FingerprintCommandBuilder.Instance
                                         .BuildFingerprintCommand()
                                         .From(samples)
                                         .Hash();
 
-            AssertHashDatasAreTheSame(hashDatasFromFile, hashDatasFromSamples);
+            AssertHashDatasAreTheSame(h1, h2);
         }
 
         [Test]
@@ -111,7 +112,7 @@
                 .From(PathToWav)
                 .WithFingerprintConfig(configuration =>
                       {
-                          configuration.Stride = new IncrementalStaticStride(8192);
+                          configuration.Audio.Stride = new IncrementalStaticStride(8192);
                           return configuration;
                       })
                 .UsingServices(audioService)
@@ -135,10 +136,10 @@
                                             .From(PathToWav, secondsToProcess, startAtSecond)
                                             .UsingServices(audioService);
 
-            var firstHashDatas = await fingerprintCommand.Hash();
-            var secondHashDatas = await fingerprintCommand.Hash();
+            var (h1, _) = await fingerprintCommand.Hash();
+            var (h2, _) = await fingerprintCommand.Hash();
 
-            AssertHashDatasAreTheSame(firstHashDatas, secondHashDatas);
+            AssertHashDatasAreTheSame(h1, h2);
         }
 
         [Test]
@@ -180,7 +181,8 @@
 
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
-            var bestMatch = queryResult.BestMatch;
+            Assert.IsNotNull(queryResult.BestMatch);
+            var (bestMatch, _) = queryResult.BestMatch;
             Assert.AreEqual("1234", bestMatch.Track.Id);
             Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
@@ -190,22 +192,22 @@
         [Test]
         public async Task ShouldCreateSameFingerprintsDuringDifferentParallelRuns()
         {
-            var hashDatas1 = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var (hashDatas1, _) = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                     .From(GetAudioSamples())
                     .UsingServices(audioService)
                     .Hash();
 
-            var hashDatas2 = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var (hashDatas2, _) = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash();
 
-            var hashDatas3 = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var (hashDatas3, _) = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash();
 
-            var hashDatas4 = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+            var (hashDatas4, _) = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(GetAudioSamples())
                 .UsingServices(audioService)
                 .Hash();
@@ -229,7 +231,7 @@
             var modelService = new InMemoryModelService();
             modelService.Insert(track, fingerprints);
 
-            var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+            var (queryResult, _) = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(fingerprints)
                 .UsingServices(modelService, audioService)
                 .Query();
@@ -237,7 +239,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
-            Assert.AreEqual("4321", bestMatch.Track.Id);
+            Assert.AreEqual("4321", bestMatch!.Track.Id);
             Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
             Assert.AreEqual(audioSamples.Duration, bestMatch.TrackCoverageWithPermittedGapsLength, 1.48d);
             Assert.AreEqual(1d, bestMatch.TrackRelativeCoverage, 0.005d);

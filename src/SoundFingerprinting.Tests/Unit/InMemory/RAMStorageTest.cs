@@ -39,7 +39,7 @@
             var audio = TestUtilities.GetRandomHashes(120, MediaType.Audio);
             var video = TestUtilities.GetRandomHashes(120, MediaType.Video);
 
-            Assert.Throws<ArgumentException>(() => storage.InsertTrack(track, new AVHashes(audio, video, AVFingerprintingTime.Zero())));
+            Assert.Throws<ArgumentException>(() => storage.InsertTrack(track, new AVHashes(audio, video)));
         }
         
         [Test]
@@ -242,7 +242,7 @@
 
             var hashes = new Hashes(hashedFingerprints, (numberOfHashBins + 1) * 0.928f, MediaType.Audio);
             
-            storage.InsertTrack(track, new AVHashes(hashes, null, AVFingerprintingTime.Zero()));
+            storage.InsertTrack(track, new AVHashes(hashes, null));
             var (readHashes, _) = storage.ReadAvHashesByTrackId(track.Id);
             
             Assert.AreEqual(numberOfHashBins, readHashes.Count);

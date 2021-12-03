@@ -32,15 +32,16 @@
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
 
-            var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+            var (queryResult, _) = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new InMemoryModelService(tempFile))
                 .Query();
 
             File.Delete(tempFile);
 
+            Assert.IsNotNull(queryResult);
             Assert.IsTrue(queryResult.ContainsMatches);
-            AssertTracksAreEqual(trackData, queryResult.BestMatch.Track);
+            AssertTracksAreEqual(trackData, queryResult.BestMatch!.Track);
             Assert.IsTrue(queryResult.BestMatch.Confidence > 0.9);
        }
 
@@ -50,7 +51,7 @@
             var modelService = new InMemoryModelService();
 
             var firstTrack = new TrackInfo("id1", "title", "artist");
-            modelService.Insert(firstTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(firstTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
 
             var tempFile = Path.GetTempFileName();
             modelService.Snapshot(tempFile);
@@ -58,7 +59,7 @@
             var fromFileService = new InMemoryModelService(tempFile);
 
             var secondTrack = new TrackInfo("id2", "title", "artist");
-            fromFileService.Insert(secondTrack, new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
+            fromFileService.Insert(secondTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
 
             var tracks = fromFileService.GetTrackIds().ToList();
 
@@ -82,7 +83,7 @@
             var track = new TrackInfo("id", string.Empty, string.Empty);
             var hashes = new Hashes(GetGenericHashes(), 10, MediaType.Audio);
             
-            modelService.Insert(track, hashes);
+            modelService.Insert(track, new AVHashes(hashes, null));
             modelService.InsertSpectralImages(spectrums, "id");
 
             var tempFile = Path.GetTempFileName();
