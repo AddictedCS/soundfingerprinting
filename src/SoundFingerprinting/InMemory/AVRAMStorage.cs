@@ -141,7 +141,7 @@ namespace SoundFingerprinting.InMemory
         /// <inheritdoc cref="IRAMStorage.ReadAvHashesByTrackId"/>
         public AVHashes ReadAvHashesByTrackId(string trackId)
         {
-            return new AVHashes(audio.ReadAvHashesByTrackId(trackId).Audio, video.ReadAvHashesByTrackId(trackId).Video, AVFingerprintingTime.Zero());
+            return new AVHashes(audio.ReadAvHashesByTrackId(trackId).Audio, video.ReadAvHashesByTrackId(trackId).Video);
         }
 
         /// <inheritdoc cref="IRAMStorage.AddSpectralImages"/>

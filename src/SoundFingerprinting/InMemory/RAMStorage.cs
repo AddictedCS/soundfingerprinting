@@ -156,8 +156,8 @@
             var fingerprints = ReadSubFingerprintByTrackReference(track.TrackReference).Select(ToHashedFingerprint);
             return track.MediaType switch
             {
-                MediaType.Audio => new AVHashes(new Hashes(fingerprints, track.Length, track.MediaType), null, AVFingerprintingTime.Zero()),
-                MediaType.Video => new AVHashes(null, new Hashes(fingerprints, track.Length, track.MediaType), AVFingerprintingTime.Zero()),
+                MediaType.Audio => new AVHashes(new Hashes(fingerprints, track.Length, track.MediaType), null),
+                MediaType.Video => new AVHashes(null, new Hashes(fingerprints, track.Length, track.MediaType)),
                 _ => throw new InvalidOperationException($"Unknown track media type {track.MediaType}")
             };
         }
