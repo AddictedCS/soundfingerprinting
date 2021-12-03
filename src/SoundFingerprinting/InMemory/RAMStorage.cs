@@ -115,13 +115,12 @@
         public void InsertTrack(TrackInfo track, AVHashes avHashes)
         {
             var (audio, video) = avHashes;
-            if (audio != null && video != null)
+            if (!(audio?.IsEmpty ?? true) && !(video?.IsEmpty ?? true))
             {
                 throw new ArgumentException("RAM storage is designed to handle only one media type of for hashes. To keep both audio and video use AVRAMStorage", nameof(avHashes));
             }
 
             var hashes = audio ?? video;
-
             if (hashes?.IsEmpty ?? true)
             {
                 return;

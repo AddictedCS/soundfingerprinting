@@ -50,6 +50,11 @@ namespace SoundFingerprinting.Data
         public AVFingerprintingTime FingerprintingTime { get; }
 
         /// <summary>
+        ///  Gets total count of audio/video hashes.
+        /// </summary>
+        public int Count => (Audio?.Count ?? 0) + (Video?.Count ?? 0);
+
+        /// <summary>
         ///  Gets relative to timestamp of the current <see cref="AVHashes"/> instance.
         /// </summary>
         public DateTime RelativeTo => Audio?.RelativeTo ?? Video?.RelativeTo ?? DateTime.MinValue;
