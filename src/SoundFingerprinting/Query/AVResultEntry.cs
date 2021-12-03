@@ -43,7 +43,7 @@ namespace SoundFingerprinting.Query
         /// This abstraction is not exactly right. MediaType is inferred from Audio/Video result entries, which may not be returned from the server when one of media types does not match. <br/>
         /// See IHintStrategy which deals with issues related to review hints.
         /// </remarks>
-        public TrackInfo TrackInfo => new TrackInfo(Track.Id, Track.Title, Track.Artist, Track.MetaFields, MediaType);
+        public TrackInfo Track => new TrackInfo(TrackData.Id, TrackData.Title, TrackData.Artist, TrackData.MetaFields, MediaType);
         
         /// <summary>
         ///  Gets matched at date.
@@ -97,7 +97,7 @@ namespace SoundFingerprinting.Query
             return new QueryMatch(Guid.NewGuid().ToString(), track, resultEntry.Coverage, resultEntry.MatchedAt);
         }
 
-        private TrackData Track => (Audio ?? Video)!.Track;
+        private TrackData TrackData => (Audio ?? Video)!.Track;
         
         private MediaType MediaType
         {

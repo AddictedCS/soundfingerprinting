@@ -56,19 +56,19 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var randomHashes = TestUtilities.GetRandomHashes(firstQueryLength);
             var audioResultEntry = new ResultEntry(GetTrack(trackLength), 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] { 0, 1, 2, 3, 4 }, new[] { 0, 1, 2, 3, 4 }).EstimateCoverage(firstQueryLength, trackLength, 1, permittedGap));
             var audioResult = new QueryResult(new[] { audioResultEntry }, randomHashes, QueryCommandStats.Zero());
-            var first = aggregator.Consume(new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null, AVFingerprintingTime.Zero()), new AVQueryCommandStats(QueryCommandStats.Zero(), null)));
+            var first = aggregator.Consume(new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null)));
 
             Assert.IsFalse(first.SuccessEntries.Any());
             Assert.IsFalse(first.DidNotPassThresholdEntries.Any());
             
             for (int i = 0; i < 5; ++i)
             {
-                var second = aggregator.Consume(AVQueryResult.Empty(new AVHashes(TestUtilities.GetRandomHashes(1), null, AVFingerprintingTime.Zero())));
+                var second = aggregator.Consume(AVQueryResult.Empty(new AVHashes(TestUtilities.GetRandomHashes(1), null)));
                 Assert.IsFalse(second.SuccessEntries.Any(), $"Iteration {i}");
                 Assert.IsFalse(second.DidNotPassThresholdEntries.Any(), $"Iteration {i}");
             }
 
-            var third = aggregator.Consume(AVQueryResult.Empty(new AVHashes(TestUtilities.GetRandomHashes(1), null, AVFingerprintingTime.Zero())));
+            var third = aggregator.Consume(AVQueryResult.Empty(new AVHashes(TestUtilities.GetRandomHashes(1), null)));
             
             Assert.IsFalse(third.SuccessEntries.Any());
             Assert.IsTrue(third.DidNotPassThresholdEntries.Any());
@@ -101,7 +101,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             {
                 var entry = new ResultEntry(GetTrack(trackLength), 0, DateTime.Now, TestUtilities.GetMatchedWith(new[] { 0 }, new[] { i }).EstimateCoverage(queryLength, trackLength, fingerprintLength, permittedGap));
                 var audioResult = new QueryResult(new[] { entry }, randomHashes, QueryCommandStats.Zero());
-                var avEntry = new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null, AVFingerprintingTime.Zero()), new AVQueryCommandStats(QueryCommandStats.Zero(), null));
+                var avEntry = new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null));
                 var aggregated = aggregator.Consume(avEntry);
                 AddAll(aggregated.SuccessEntries, success);
                 AddAll(aggregated.DidNotPassThresholdEntries, filtered);
@@ -202,7 +202,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             for (int i = 0; i < 10; ++i)
             {
                 var randomHashes = TestUtilities.GetRandomHashes(1);
-                var avResults = new AVQueryResult(QueryResult.Empty(randomHashes, 100), null, new AVHashes(randomHashes, null, AVFingerprintingTime.Zero()), new AVQueryCommandStats(QueryCommandStats.Zero(), null));
+                var avResults = new AVQueryResult(QueryResult.Empty(randomHashes, 100), null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null));
                 var aggregated = aggregator.Consume(avResults);
                 AddAll(aggregated.SuccessEntries, success);
                 AddAll(aggregated.DidNotPassThresholdEntries, filtered);
