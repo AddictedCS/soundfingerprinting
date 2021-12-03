@@ -17,6 +17,17 @@ namespace SoundFingerprinting.Data
         /// </summary>
         /// <param name="audio">Audio hashes (generated from  <see cref="AudioSamples"/>.</param>
         /// <param name="video">Video hashes (generated from <see cref="Frames"/>.</param>
+        /// <exception cref="ArgumentException">Audio and video hashes can't be both null at the same time.</exception>
+        public AVHashes(Hashes? audio, Hashes? video) : this(audio, video, AVFingerprintingTime.Zero())
+        {
+            // no op
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AVHashes"/> class.
+        /// </summary>
+        /// <param name="audio">Audio hashes (generated from  <see cref="AudioSamples"/>.</param>
+        /// <param name="video">Video hashes (generated from <see cref="Frames"/>.</param>
         /// <param name="fingerprintingTime">Instance of <see cref="AVFingerprintingTime"/> fingerprinting times.</param>
         /// <exception cref="ArgumentException">Audio and video hashes can't be both null at the same time.</exception>
         public AVHashes(Hashes? audio, Hashes? video, AVFingerprintingTime fingerprintingTime)

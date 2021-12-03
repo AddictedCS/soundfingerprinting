@@ -7,6 +7,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
@@ -131,16 +132,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int count = (int)Math.Round(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
-            var hashes = await FingerprintCommandBuilder.Instance
+            var avHashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
                                                 .From(concatenated)
                                                 .Hash();
 
+            Assert.NotNull(avHashes.Audio);
+            
             // hashes have to be equal to total track length +- 1 second
-            Assert.AreEqual(totalTrackLength, hashes.DurationInSeconds, delta: 1);
+            Assert.AreEqual(totalTrackLength, avHashes.Audio.DurationInSeconds, delta: 1);
             
             // store track data and associated hashes
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), avHashes);
 
             var successMatches = new List<ResultEntry>();
             var didNotGetToContiguousQueryMatchLengthMatch = new List<ResultEntry>();
@@ -261,7 +264,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var collection = SimulateRealtimeQueryData(data, jitterLength);
             var offlineStorage = new OfflineStorage(Path.GetTempPath());
             var restoreCalled = new bool[1];
-            double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance))
+            double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance), new NullLoggerFactory())
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
                  {
@@ -270,7 +273,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                          resultEntries.AddRange(entry.ResultEntries);
                      };
 
-                     config.DidNotPassFilterCallback = entry =>
+                     config.DidNotPassFilterCallback = _ =>
                      {
                          Interlocked.Increment(ref didNotPassThreshold);
                      };
@@ -312,12 +315,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int count = 20;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
-            var hashes = await FingerprintCommandBuilder.Instance
+            var (hashes, _) = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(concatenated)
                 .WithFingerprintConfig(config =>
                 {
-                    config.Stride = new IncrementalStaticStride(512);
+                    config.Audio.Stride = new IncrementalStaticStride(512);
                     return config;
                 })
                 .Hash();
@@ -398,9 +401,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, entries.Count);
             var (realtimeResult, _) = entries.First();
             var aggregatedHashes = Hashes.Aggregate(fingerprints.Select(_ => _.Audio), 60d).First();
-            var nonRealtimeResult = await QueryCommandBuilder.Instance
+            var (nonRealtimeResult, _) = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
-                .From(aggregatedHashes)
+                .From(new AVHashes(aggregatedHashes, null))
                 .UsingServices(modelService)
                 .Query();
             
