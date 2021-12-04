@@ -10,6 +10,8 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using SoundFingerprinting.Content;
+    using SoundFingerprinting.Query;
 
     [TestFixture]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
@@ -187,6 +189,73 @@
             Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.5, $"Confidence:{bestMatch.Confidence}");
+        }
+
+        [Test]
+        public void ShouldThrowWhenModelServiceIsNull()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => QueryCommandBuilder.Instance.BuildQueryCommand()
+                .From(TestUtilities.GenerateRandomAudioSamples(120))
+                .Query());
+        }
+
+        [Test]
+        public async Task ShouldQueryDifferentMediaTypesAndGetRightResults()
+        {
+            var modelService = new InMemoryModelService();
+            var track = new TrackInfo("1", string.Empty, string.Empty, MediaType.Audio | MediaType.Video);
+            var audio = TestUtilities.GenerateRandomAudioSamples(120);
+            var video = TestUtilities.GenerateRandomFrames(120);
+
+            var avTrack = new AVTrack(new AudioTrack(audio, 120), new VideoTrack(video, 120));
+            var avHashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+                .From(avTrack)
+                .Hash();
+            
+            modelService.Insert(track, avHashes);
+
+            var avResults = await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(avTrack)
+                .UsingServices(modelService)
+                .Query();
+
+            var (audioResult, videoResult) = avResults;
+            Assert.IsTrue(audioResult.ContainsMatches);
+            Assert.IsTrue(videoResult.ContainsMatches);
+            var audioBestMatch = audioResult.BestMatch;
+            AssertBestMatch(audioBestMatch);
+
+            var videoBestMatch = videoResult.BestMatch;
+            AssertBestMatch(videoBestMatch);
+            
+            (audioResult, videoResult) = await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(avTrack.Audio!.Samples)
+                .UsingServices(modelService)
+                .Query();
+            
+            Assert.IsNotNull(audioResult);
+            Assert.IsNull(videoResult);
+            AssertBestMatch(audioResult.BestMatch);
+            
+            (audioResult, videoResult) = await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(avTrack.Video!.Frames)
+                .UsingServices(modelService)
+                .Query(); 
+            
+            Assert.IsNull(audioResult);
+            Assert.IsNotNull(videoResult);
+            AssertBestMatch(videoResult.BestMatch);
+        }
+
+        private static void AssertBestMatch(ResultEntry bestMatch)
+        {
+            Assert.IsNotNull(bestMatch);
+            Assert.AreEqual(1, bestMatch.Confidence, 0.1);
+            Assert.AreEqual(1, bestMatch.QueryRelativeCoverage, 0.1);
+            Assert.AreEqual(1, bestMatch.TrackRelativeCoverage, 0.1);
         }
 
         [Test]

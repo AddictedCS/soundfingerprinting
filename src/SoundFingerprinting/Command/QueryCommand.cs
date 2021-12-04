@@ -21,7 +21,7 @@
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         
-        private IModelService modelService;
+        private IModelService? modelService;
         private IAudioService audioService;
         private IVideoService? videoService;
         private IMediaService? mediaService;
@@ -192,6 +192,11 @@
 
         private QueryResult? GetQueryResult(Hashes? hashes, QueryConfiguration configuration)
         {
+            if (modelService == null)
+            {
+                throw new ArgumentNullException(nameof(modelService), "Provide an instance of IModelService to query the storage via UsingServices(IModelService)");
+            }
+            
             return hashes != null ? queryFingerprintService.Query(hashes, configuration, modelService) : null;
         }
     }
