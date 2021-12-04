@@ -28,7 +28,7 @@ namespace SoundFingerprinting.Command
         
         private IAsyncEnumerable<AVHashes> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
-        private IModelService modelService;
+        private IModelService? modelService;
         private IAudioService audioService;
         private Func<AVHashes, AVHashes> hashesInterceptor = _ => _;
         
@@ -45,7 +45,6 @@ namespace SoundFingerprinting.Command
                 e => { /* do nothing */ }, 
                 e => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
             realtimeCollection = new BlockingRealtimeCollection<AVHashes>(new BlockingCollection<AVHashes>());
-            modelService = new InMemoryModelService();
             audioService = new SoundFingerprintingAudioService();
         }
 
@@ -340,6 +339,11 @@ namespace SoundFingerprinting.Command
         /// <exception cref="IOException">Input/Output exception when querying the model service.</exception>> 
         private AVQueryResult GetAVQueryResult(IQueryFingerprintService service, AVHashes hashes)
         {
+            if (modelService == null)
+            {
+                throw new ArgumentNullException(nameof(modelService), "Provide an instance of IModelService to query the storage via UsingServices(IModelService)");
+            } 
+            
             var audio = hashes.Audio != null ? service.Query(hashes.Audio, configuration.QueryConfiguration.Audio, modelService) : null;
             var video = hashes.Video != null ? service.Query(hashes.Video, configuration.QueryConfiguration.Video, modelService) : null;
             queryLength += ((hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset) ?? hashes.Video?.DurationInSeconds) ?? 0;
