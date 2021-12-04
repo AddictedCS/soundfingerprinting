@@ -29,15 +29,15 @@
 
             modelService.Insert(trackData, hashedFingerprints);
 
-            var tempFile = Path.GetTempFileName();
-            modelService.Snapshot(tempFile);
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "sftests");
+            modelService.Snapshot(tempDirectory);
 
             var (queryResult, _) = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
-                .UsingServices(new InMemoryModelService(tempFile))
+                .UsingServices(new InMemoryModelService(tempDirectory))
                 .Query();
 
-            File.Delete(tempFile);
+            Directory.Delete(tempDirectory, true);
 
             Assert.IsNotNull(queryResult);
             Assert.IsTrue(queryResult.ContainsMatches);
@@ -53,17 +53,17 @@
             var firstTrack = new TrackInfo("id1", "title", "artist");
             modelService.Insert(firstTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
 
-            var tempFile = Path.GetTempFileName();
-            modelService.Snapshot(tempFile);
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "sftests");
+            modelService.Snapshot(tempDirectory);
 
-            var fromFileService = new InMemoryModelService(tempFile);
+            var fromFileService = new InMemoryModelService(tempDirectory);
 
             var secondTrack = new TrackInfo("id2", "title", "artist");
             fromFileService.Insert(secondTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
 
             var tracks = fromFileService.GetTrackIds().ToList();
 
-            File.Delete(tempFile);
+            Directory.Delete(tempDirectory, true);
 
             Assert.IsTrue(tracks.Any(track => track == "id1"));
             Assert.IsTrue(tracks.Any(track => track == "id2"));
@@ -86,12 +86,12 @@
             modelService.Insert(track, new AVHashes(hashes, null));
             modelService.InsertSpectralImages(spectrums, "id");
 
-            var tempFile = Path.GetTempFileName();
-            modelService.Snapshot(tempFile);
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "sftests");
+            modelService.Snapshot(tempDirectory);
 
-            var fromFileService = new InMemoryModelService(tempFile);
+            var fromFileService = new InMemoryModelService(tempDirectory);
 
-            File.Delete(tempFile);
+            Directory.Delete(tempDirectory, true);
 
             var allSpectrums = fromFileService.GetSpectralImagesByTrackId("id").ToList();
 
