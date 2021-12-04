@@ -204,8 +204,8 @@
         {
             var modelService = new InMemoryModelService();
             var track = new TrackInfo("1", string.Empty, string.Empty, MediaType.Audio | MediaType.Video);
-            var audio = TestUtilities.GenerateRandomAudioSamples(120);
-            var video = TestUtilities.GenerateRandomFrames(120);
+            var audio = TestUtilities.GenerateRandomAudioSamples(120 * 5512);
+            var video = TestUtilities.GenerateRandomFrames(120 * 30);
 
             var avTrack = new AVTrack(new AudioTrack(audio, 120), new VideoTrack(video, 120));
             var avHashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()

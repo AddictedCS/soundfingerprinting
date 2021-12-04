@@ -12,15 +12,15 @@ namespace SoundFingerprinting.Tests
 
     internal static class TestUtilities
     {
-        public static AudioSamples GenerateRandomAudioSamples(int seconds)
+        public static AudioSamples GenerateRandomAudioSamples(int length)
         {
-            return new AudioSamples(GenerateRandomFloatArray(seconds * 5512), string.Empty, 5512);
+            return new AudioSamples(GenerateRandomFloatArray(length), string.Empty, 5512);
         }
 
-        public static Frames GenerateRandomFrames(int seconds)
+        public static Frames GenerateRandomFrames(int length)
         {
             int framesPerSecond = 30;
-            var frames = Enumerable.Range(0, seconds * framesPerSecond)
+            var frames = Enumerable.Range(0, length)
                 .Select(index => new Frame(GenerateRandomFloatArray(128 * 72).Select(_ => _ / 32767).ToArray(), 128, 72, (float)index / framesPerSecond, (uint)index))
                 .ToList();
 
