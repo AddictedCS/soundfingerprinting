@@ -24,20 +24,22 @@
         [Test]
         public void InsertTrackTest()
         {
-            var track = new TrackInfo("id", "title", "artist");
+            var track = new TrackInfo("id", "title", "artist", mediaType: MediaType.Audio | MediaType.Video);
             var audio = TestUtilities.GetRandomHashes(120, MediaType.Audio);
             var video = TestUtilities.GetRandomHashes(120, MediaType.Video);
             var avHashes = new AVHashes(audio, video);
 
             modelService.Insert(track, avHashes);
+
+            var readTrack = modelService.ReadTrackById(track.Id);
+            AssertTracksAreEqual(track, readTrack);
             
-            Assert.IsNotNull(modelService.ReadTrackById("id"));
             var (audioHashes, videoHashes) = modelService.ReadHashesByTrackId("id");
             Assert.IsNotNull(audioHashes);
             Assert.IsNotNull(videoHashes);
 
-            AssertHashesAreTheSame(audio, audioHashes);
-            AssertHashesAreTheSame(video, videoHashes);
+            TestUtilities.AssertHashesAreTheSame(audio, audioHashes);
+            TestUtilities.AssertHashesAreTheSame(video, videoHashes);
 
             var config = new DefaultQueryConfiguration();
             var audioResults =  modelService.Query(audio, config).ToList();
@@ -200,18 +202,6 @@
                 Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
                 CollectionAssert.AreEqual(first.HashBins, second.Hashes);
             } 
-        }
-        
-        private static void AssertHashesAreTheSame(Hashes expected, Hashes actual)
-        {
-            var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.SequenceNumber, (a, b) => (a, b)).ToList();
-            Assert.AreEqual(tuples.Count, expected.Count);
-            foreach (var (first, second) in tuples)
-            {
-                Assert.AreEqual(first.StartsAt, second.StartsAt);
-                Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
-                CollectionAssert.AreEqual(first.HashBins, second.HashBins);
-            }
         }
     }
 }

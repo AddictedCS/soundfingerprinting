@@ -114,6 +114,11 @@
         /// <inheritdoc cref="IRAMStorage.InsertTrack"/>
         public void InsertTrack(TrackInfo track, AVHashes avHashes)
         {
+            if (track.MediaType.HasFlag(MediaType.Audio | MediaType.Video))
+            {
+                throw new ArgumentException("RAM storage is designed to handle only one media type of tracks. To keep both audio and video user AVRAMStorage", nameof(track));
+            }
+            
             var (audio, video) = avHashes;
             if (!(audio?.IsEmpty ?? true) && !(video?.IsEmpty ?? true))
             {
@@ -121,11 +126,6 @@
             }
 
             var hashes = audio ?? video;
-            if (hashes?.IsEmpty ?? true)
-            {
-                return;
-            }
-            
             var (trackData, fingerprints) = modelReferenceTracker.AssignModelReferences(track, hashes!);
             tracks[trackData.TrackReference] = trackData;
             foreach (var subFingerprint in fingerprints)
@@ -147,7 +147,7 @@
         /// <inheritdoc cref="IRAMStorage.InsertTrack"/>
         public AVHashes ReadAvHashesByTrackId(string trackId)
         {
-            var track = ReadByTrackId(trackId);
+            var track = ReadTrackDataByTrackId(trackId);
             if (track == null)
             {
                 return AVHashes.Empty;
@@ -168,8 +168,15 @@
         }
 
         /// <inheritdoc cref="IRAMStorage.DeleteTrack"/>
-        public int DeleteTrack(IModelReference trackReference)
+        public int DeleteTrack(string id)
         {
+            var data = ReadTrackDataByTrackId(id);
+            if (data == null)
+            {
+                return 0;
+            }
+
+            var trackReference = data.TrackReference;
             int modified = DeleteSubFingerprintsByTrackReference(trackReference);
             if (tracks.Remove(trackReference))
             {
@@ -220,9 +227,15 @@
         }
 
         /// <inheritdoc cref="IRAMStorage.ReadByTrackId"/>
-        public TrackData? ReadByTrackId(string id)
+        public TrackInfo? ReadByTrackId(string id)
         {
-            return tracks.Values.FirstOrDefault(pair => pair.Id == id);
+            var data = ReadTrackDataByTrackId(id);
+            if (data == null)
+            {
+                return null;
+            }
+            
+            return new TrackInfo(data.Id, data.Title, data.Artist, data.MetaFields, data.MediaType);
         }
 
         /// <inheritdoc cref="IRAMStorage.ReadSubFingerprintsByUid"/>
@@ -250,9 +263,9 @@
             using var file = File.OpenRead(path);
             var obj = Serializer.Deserialize<RAMStorage>(file);
             numberOfHashTables = obj.numberOfHashTables;
-            tracks = obj.tracks;
-            subFingerprints = obj.subFingerprints;
-            foreach (KeyValuePair<uint, SubFingerprintData> pair in obj.subFingerprints)
+            tracks = obj.tracks ?? new ConcurrentDictionary<IModelReference, TrackData>();
+            subFingerprints = obj.subFingerprints ?? new ConcurrentDictionary<uint, SubFingerprintData>();
+            foreach (KeyValuePair<uint, SubFingerprintData> pair in subFingerprints)
             {
                 InsertHashes(pair.Value.Hashes, pair.Key);
             }
@@ -301,8 +314,15 @@
         }
 
         /// <inheritdoc cref="IRAMStorage.AddSpectralImages"/>
-        public void AddSpectralImages(IModelReference trackReference, IEnumerable<float[]> images)
+        public void AddSpectralImages(string trackId, IEnumerable<float[]> images)
         {
+            var track = ReadTrackDataByTrackId(trackId);
+            if (track == null)
+            {
+                throw new ArgumentException($"{nameof(trackId)} is not present in the storage");
+            }
+
+            var trackReference = track.TrackReference;
             var spectres = AssignModelReferences(images, trackReference);
             if (spectralImages.TryGetValue(trackReference, out var existing))
             {
@@ -326,7 +346,18 @@
         }
 
         /// <inheritdoc cref="IRAMStorage.GetSpectralImagesByTrackReference"/>
-        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
+        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(string trackId)
+        {
+            var track = ReadTrackDataByTrackId(trackId);
+            if (track == null)
+            {
+                return Enumerable.Empty<SpectralImageData>();
+            }
+            
+            return GetSpectralImagesByTrackReference(track.TrackReference);
+        }
+
+        private IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
         {
             if (spectralImages.TryGetValue(trackReference, out var spectralImageDatas))
             {
@@ -334,6 +365,11 @@
             }
 
             return Enumerable.Empty<SpectralImageData>().ToList();
+        }
+
+        private TrackData? ReadTrackDataByTrackId(string id)
+        {
+            return tracks.Values.FirstOrDefault(pair => pair.Id == id);
         }
     }
 }

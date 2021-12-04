@@ -152,15 +152,7 @@
         /// <inheritdoc cref="IModelService.ReadTrackById"/>
         public TrackInfo? ReadTrackById(string trackId)
         {
-            var trackData = GetTrackById(trackId);
-            if (trackData == null)
-            {
-                return null;
-            }
-
-            var metaFields = CopyMetaFields(trackData.MetaFields);
-            metaFields.Add("TrackLength", $"{trackData.Length: 0.000}");
-            return new TrackInfo(trackData.Id, trackData.Title, trackData.Artist, metaFields, trackData.MediaType);
+            return GetTrackById(trackId);
         }
 
         /// <inheritdoc cref="IModelService.DeleteTrack"/>
@@ -172,40 +164,22 @@
                 return;
             }
 
-            var trackReference = track.TrackReference;
-            storage.DeleteTrack(trackReference);
+            storage.DeleteTrack(track.Id);
         }
 
         /// <inheritdoc cref="IAdvancedModelService.InsertSpectralImages"/>
         public void InsertSpectralImages(IEnumerable<float[]> spectralImages, string trackId)
         {
-            var track = GetTrackById(trackId);
-            if (track == null)
-            {
-                throw new ArgumentException($"{nameof(trackId)} is not present in the storage");
-            }
-            
-            storage.AddSpectralImages(track.TrackReference, spectralImages);
+            storage.AddSpectralImages(trackId, spectralImages);
         }
 
         /// <inheritdoc cref="IAdvancedModelService.GetSpectralImagesByTrackId"/>
         public IEnumerable<SpectralImageData> GetSpectralImagesByTrackId(string trackId)
         {
-            var track = GetTrackById(trackId);
-            if (track == null)
-            {
-                throw new ArgumentException($"{nameof(trackId)} is not present in the storage");
-            }
-            
-            return storage.GetSpectralImagesByTrackReference(track.TrackReference);
-        }
-        
-        private static IDictionary<string, string> CopyMetaFields(IDictionary<string, string>? metaFields)
-        {
-            return metaFields == null ? new Dictionary<string, string>() : metaFields.ToDictionary(pair => pair.Key, pair => pair.Value);
+            return storage.GetSpectralImagesByTrackReference(trackId);
         }
 
-        private TrackData? GetTrackById(string trackId)
+        private TrackInfo? GetTrackById(string trackId)
         {
             return storage.ReadByTrackId(trackId);
         }

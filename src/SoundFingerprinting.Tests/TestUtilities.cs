@@ -5,6 +5,7 @@ namespace SoundFingerprinting.Tests
     using System.Linq;
 
     using Audio;
+    using NUnit.Framework;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Utils;
@@ -108,6 +109,18 @@ namespace SoundFingerprinting.Tests
                 .ToArray();
             
             return new TinyFingerprintSchema(length).SetTrueAt(trues);
+        }
+        
+        public static void AssertHashesAreTheSame(Hashes expected, Hashes actual)
+        {
+            var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.SequenceNumber, (a, b) => (a, b)).ToList();
+            Assert.AreEqual(tuples.Count, expected.Count);
+            foreach (var (first, second) in tuples)
+            {
+                Assert.AreEqual(first.StartsAt, second.StartsAt);
+                Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
+                CollectionAssert.AreEqual(first.HashBins, second.HashBins);
+            }
         }
 
         private static void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)

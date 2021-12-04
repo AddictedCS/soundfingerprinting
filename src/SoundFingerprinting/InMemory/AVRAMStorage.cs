@@ -87,8 +87,9 @@ namespace SoundFingerprinting.InMemory
             switch (track.MediaType)
             {
                 case MediaType.Audio | MediaType.Video:
-                    audio.InsertTrack(track, new AVHashes(audioHashes, null, hashes.FingerprintingTime));
-                    video.InsertTrack(track, new AVHashes(null, videoHashes, hashes.FingerprintingTime));
+                    
+                    audio.InsertTrack(new TrackInfo(track.Id, track.Title, track.Artist, track.MetaFields, MediaType.Audio), new AVHashes(audioHashes, null, hashes.FingerprintingTime));
+                    video.InsertTrack(new TrackInfo(track.Id, track.Title, track.Artist, track.MetaFields, MediaType.Video), new AVHashes(null, videoHashes, hashes.FingerprintingTime));
                     break;
                 
                 case MediaType.Audio:
@@ -103,10 +104,10 @@ namespace SoundFingerprinting.InMemory
             }
         }
 
-        /// <inheritdoc cref="IRAMStorage.InsertTrack"/>
-        public int DeleteTrack(IModelReference trackReference)
+        /// <inheritdoc cref="IRAMStorage.DeleteTrack"/>
+        public int DeleteTrack(string id)
         {
-            return audio.DeleteTrack(trackReference) + video.DeleteTrack(trackReference);
+            return audio.DeleteTrack(id) + video.DeleteTrack(id);
         }
 
         /// <inheritdoc cref="IRAMStorage.TryGetTrackByReference"/>
@@ -122,9 +123,11 @@ namespace SoundFingerprinting.InMemory
         }
 
         /// <inheritdoc cref="IRAMStorage.ReadByTrackId"/>
-        public TrackData? ReadByTrackId(string id)
+        public TrackInfo? ReadByTrackId(string id)
         {
-            return audio.ReadByTrackId(id) ?? video.ReadByTrackId(id);
+            var audioTrack = audio.ReadByTrackId(id);
+            var videoTrack = video.ReadByTrackId(id);
+            return TracksUtility.CombineTracks(audioTrack, videoTrack);
         }
 
         /// <inheritdoc cref="IRAMStorage.ReadSubFingerprintsByUid"/>
@@ -145,15 +148,15 @@ namespace SoundFingerprinting.InMemory
         }
 
         /// <inheritdoc cref="IRAMStorage.AddSpectralImages"/>
-        public void AddSpectralImages(IModelReference trackReference, IEnumerable<float[]> images)
+        public void AddSpectralImages(string trackId, IEnumerable<float[]> images)
         {
-            audio.AddSpectralImages(trackReference, images);
+            audio.AddSpectralImages(trackId, images);
         }
 
         /// <inheritdoc cref="IRAMStorage.GetSpectralImagesByTrackReference"/>
-        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
+        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(string trackId)
         {
-            return audio.GetSpectralImagesByTrackReference(trackReference);
+            return audio.GetSpectralImagesByTrackReference(trackId);
         }
     }
 }

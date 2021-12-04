@@ -50,9 +50,9 @@ namespace SoundFingerprinting.InMemory
         /// <summary>
         ///  Delete track by track reference.
         /// </summary>
-        /// <param name="trackReference">Track reference to remove.</param>
+        /// <param name="id">Track id to remove.</param>
         /// <returns>Number of modified rows.</returns>
-        int DeleteTrack(IModelReference trackReference);
+        int DeleteTrack(string id);
 
         /// <summary>
         /// Try get track by track reference.
@@ -73,7 +73,7 @@ namespace SoundFingerprinting.InMemory
         /// </summary>
         /// <param name="id">ID to read.</param>
         /// <returns>An instance of <see cref="TrackData"/> or null.</returns>
-        TrackData? ReadByTrackId(string id);
+        TrackInfo? ReadByTrackId(string id);
 
         /// <summary>
         ///  Reads sub-fingerprints by ID and media type.
@@ -93,15 +93,15 @@ namespace SoundFingerprinting.InMemory
         /// <summary>
         ///  Adds spectral images for track reference.
         /// </summary>
-        /// <param name="trackReference">Track associated with spectral images.</param>
+        /// <param name="trackId">Track associated with spectral images.</param>
         /// <param name="images">Spectral images to add.</param>
-        void AddSpectralImages(IModelReference trackReference, IEnumerable<float[]> images);
+        void AddSpectralImages(string trackId, IEnumerable<float[]> images);
 
         /// <summary>
         ///  Gets spectral images for track reference.
         /// </summary>
-        /// <param name="trackReference">Track reference.</param>
+        /// <param name="trackId">Track reference.</param>
         /// <returns>List of spectral images.</returns>
-        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference);
+        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(string trackId);
     }
 }

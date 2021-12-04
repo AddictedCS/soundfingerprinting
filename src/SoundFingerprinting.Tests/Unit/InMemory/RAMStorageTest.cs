@@ -26,6 +26,8 @@
             
             storage.InsertTrack(track, AVHashes.Empty);
 
+            var readTrack = storage.ReadByTrackId(track.Id);
+            Assert.IsNotNull(readTrack);
             var hashes = storage.ReadAvHashesByTrackId(track.Id);
             Assert.IsTrue(hashes.IsEmpty);
         }
@@ -46,12 +48,12 @@
         public void ShouldInsertSpectralImages()
         {
             var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
-            var trackReference = new ModelReference<int>(10);
             var images = new List<float[]> { Array.Empty<float>(), Array.Empty<float>(), Array.Empty<float>() };
             
-            storage.AddSpectralImages(trackReference, images);
+            storage.InsertTrack(new TrackInfo("10", string.Empty, string.Empty), AVHashes.Empty);
+            storage.AddSpectralImages("10", images);
 
-            var enumerable = storage.GetSpectralImagesByTrackReference(trackReference).ToList();
+            var enumerable = storage.GetSpectralImagesByTrackReference("10").ToList();
             Assert.AreEqual(3, enumerable.Count());
             var ids = enumerable.Select(dto => dto.SpectralImageReference.Get<uint>()).ToList();
             CollectionAssert.AreEqual(Enumerable.Range(1, 3), ids);
@@ -61,9 +63,8 @@
         public void ShouldReturnEmptySinceNoSpectralImagesArePresentForTrack()
         {
             var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory()); 
-            var trackReference = new ModelReference<int>(10);
 
-            var results = storage.GetSpectralImagesByTrackReference(trackReference);
+            var results = storage.GetSpectralImagesByTrackReference("10");
 
             Assert.IsEmpty(results);
         }
@@ -135,7 +136,7 @@
             foreach (var track in allTracks.Select(trackId => storage.ReadByTrackId(trackId)))
             {
                 Assert.IsNotNull(track);
-                storage.DeleteTrack(track.TrackReference);
+                storage.DeleteTrack(track.Id);
             }
 
             Assert.IsEmpty(storage.GetTrackIds());
@@ -147,12 +148,12 @@
             var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
             var track = GetTrack();
             storage.InsertTrack(track, AVHashes.Empty);
-            var trackData = storage.ReadByTrackId(track.Id);
+            var tracks = storage.ReadByTrackId(track.Id);
 
-            Assert.IsNotNull(trackData);
-            storage.DeleteTrack(trackData.TrackReference);
-
-            Assert.IsFalse(storage.TryGetTrackByReference(trackData.TrackReference, out _));
+            Assert.IsNotNull(tracks);
+            storage.DeleteTrack(tracks.Id);
+            Assert.IsNull(storage.ReadByTrackId(track.Id));
+            Assert.IsTrue(storage.ReadAvHashesByTrackId(track.Id).IsEmpty);
         }
 
         [Test]
@@ -177,7 +178,7 @@
             Assert.IsNotNull(actualTrack);
 
             // Act
-            int modifiedRows = storage.DeleteTrack(actualTrack.TrackReference);
+            int modifiedRows = storage.DeleteTrack(actualTrack.Id);
 
             Assert.IsNull(storage.ReadByTrackId(tagInfo.ISRC));
             Assert.IsTrue(storage.ReadAvHashesByTrackId(actualTrack.Id).IsEmpty);
@@ -189,13 +190,11 @@
         {
             var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
             var track = new TrackInfo(string.Empty, string.Empty, string.Empty);
-            storage.InsertTrack(track, AVHashes.Empty);
+            storage.InsertTrack(track, new AVHashes(TestUtilities.GetRandomHashes(10), null));
             var trackData = storage.ReadByTrackId(string.Empty);
             Assert.IsNotNull(trackData);
-
-            Assert.IsTrue(storage.TryGetTrackByReference(trackData.TrackReference, out var actualTrack));
- 
-            AssertTracksAreEqual(track, actualTrack);
+            AssertTracksAreEqual(track, trackData);
+            Assert.IsFalse(storage.ReadAvHashesByTrackId(track.Id).IsEmpty);
         }
 
         [Test]
@@ -206,6 +205,7 @@
             {
                 var track = new TrackInfo($"id-{index}", string.Empty, string.Empty);
                 var hashes = TestUtilities.GetRandomHashes(30, MediaType.Audio);
+                storage.InsertTrack(track, new AVHashes(hashes, null));
             }
             
             storage.Snapshot("audio-storage.bin");
@@ -219,8 +219,7 @@
             {
                 var (audioReloaded, _) = reload.ReadAvHashesByTrackId(id);
                 var (audioHashes, _) = storage.ReadAvHashesByTrackId(id);
-                
-                CollectionAssert.AreEqual(audioHashes, audioReloaded);
+                TestUtilities.AssertHashesAreTheSame(audioHashes, audioReloaded);
             }
             
             reload.InsertTrack(GetTrack(), AVHashes.Empty);
