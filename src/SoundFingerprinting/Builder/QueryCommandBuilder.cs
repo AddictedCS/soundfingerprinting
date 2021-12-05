@@ -36,7 +36,7 @@
         /// <inheritdoc cref="IQueryCommandBuilder.BuildQueryCommand"/>
         public IQuerySource BuildQueryCommand()
         {
-            return new QueryCommand(fingerprintCommandBuilder, queryFingerprintService);
+            return new QueryCommand(fingerprintCommandBuilder, queryFingerprintService, loggerFactory);
         }
 
         /// <inheritdoc cref="IQueryCommandBuilder.BuildRealtimeQueryCommand"/>

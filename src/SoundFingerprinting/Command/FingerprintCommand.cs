@@ -88,6 +88,7 @@ namespace SoundFingerprinting.Command
                 {
                     if (mediaService != null)
                     {
+                        logger.LogDebug("Using media service {0} to read AVTrack from file {1}", mediaService, file);
                         var avTrack = mediaService.ReadAVTrackFromFile(file, fingerprintConfiguration.GetTrackReadConfiguration(), secondsToProcess, startAtSecond, mediaType);
                         return GetAvHashes(avTrack);
                     }
@@ -101,6 +102,7 @@ namespace SoundFingerprinting.Command
                 {
                     // media service has precedence since audio service is set by default.
                     var serviceToUse = mediaService ?? audioService;
+                    logger.LogDebug("Using service {0} to read audio samples from file {1}", serviceToUse, file);
                     AudioSamples audioSamples = serviceToUse.ReadMonoSamplesFromFile(file, fingerprintConfiguration.Audio.SampleRate, secondsToProcess, startAtSecond);
                     return GetAvHashes(audioSamples); 
                 }
@@ -109,6 +111,7 @@ namespace SoundFingerprinting.Command
                 {
                     // media service is used by default.
                     var serviceToUse = mediaService ?? videoService;
+                    logger.LogDebug("Using service {0} to read frames from file {1}", serviceToUse, file);
                     var frames = serviceToUse!.ReadFramesFromFile(file, fingerprintConfiguration.GetTrackReadConfiguration().VideoConfig, secondsToProcess, startAtSecond);
                     return GetAvHashes(frames);
                 }
