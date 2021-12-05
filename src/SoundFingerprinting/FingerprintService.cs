@@ -65,7 +65,7 @@ namespace SoundFingerprinting
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin});
+            return new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin}, string.Empty, new Dictionary<string, string>(), samples.TimeOffset);
         }
 
         /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromImageFrames"/>
