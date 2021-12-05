@@ -25,7 +25,7 @@
         private IAudioService audioService;
         private IVideoService? videoService;
         private IMediaService? mediaService;
-        private IQueryMatchRegistry queryMatchRegistry;
+        private IQueryMatchRegistry? queryMatchRegistry;
         private Func<AVHashes, AVHashes> hashesInterceptor;
         
         private Func<IWithFingerprintConfiguration> createFingerprintCommand;
@@ -37,7 +37,6 @@
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
             queryConfiguration = new DefaultAVQueryConfiguration();
-            queryMatchRegistry = NoOpQueryMatchRegistry.NoOp;
             this.audioService = new SoundFingerprintingAudioService();
             hashesInterceptor = _ => _;
         }
@@ -183,7 +182,7 @@
             
             var (audioHashes, videoHashes) = hashesInterceptor(avHashes);
             var avQueryResult = GetAvQueryResult(audioHashes, videoHashes, hashes.FingerprintingTime);
-            if (avQueryResult.ContainsMatches)
+            if (avQueryResult.ContainsMatches && queryMatchRegistry != null)
             {
                 var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(audioHashes?.StreamId ?? videoHashes?.StreamId ?? string.Empty));
                 queryMatchRegistry.RegisterMatches(avQueryMatches);
