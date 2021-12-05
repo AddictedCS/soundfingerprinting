@@ -500,7 +500,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             double minAudioSizeChunk = (double)minSamplesPerFingerprint / sampleRate;
             const double totalTrackLength = 210;      
-            int audioCount = (int)Math.Round(totalTrackLength / minAudioSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
+            int audioCount = (int)Math.Round(totalTrackLength / minAudioSizeChunk), fingerprintsCount = 0, ongoingCalls = 0;
             var audioData = GenerateRandomAudioChunks(audioCount, seed: 1, DateTime.UtcNow);
             var concatenatedAudio = Concatenate(audioData);
             var videoData = GenerateRandomFrameChunks(audioCount, minAudioSizeChunk, DateTime.UtcNow);
