@@ -14,7 +14,6 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Content;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Query;
 
     /// <summary>
