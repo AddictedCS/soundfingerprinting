@@ -1,7 +1,10 @@
 ﻿namespace SoundFingerprinting.Command
 {
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Content;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Media;
+    using SoundFingerprinting.Video;
 
     /// <summary>
     ///  Contract for querying the <see cref="IModelService"/>.
@@ -9,29 +12,33 @@
     public interface IQuerySource
     {
         /// <summary>
-        ///   Source is a file.
+        ///   Build query fingerprints from a file.
         /// </summary>
-        /// <param name="pathToAudioFile">Full path to the file.</param>
+        /// <param name="file">Full path to content file.</param>
+        /// <param name="mediaType">Media type to generate query hashes for.</param>
         /// <returns>Configuration selector.</returns>
         /// <remarks>
         ///  Make sure provided <see cref="IAudioService"/> supports provided file format.
+        ///  If you provide MediaType.Video flag for <paramref name="mediaType"/> makes sure to provide <see cref="IVideoService"/> or <see cref="IMediaService"/> at <see cref="IUsingFingerprintServices"/> method builder to be able to read <see cref="Frames"/> from the provided file.
         /// </remarks>
-        IWithQueryConfiguration From(string pathToAudioFile);
+        IWithQueryConfiguration From(string file, MediaType mediaType = MediaType.Audio);
 
         /// <summary>
-        ///   Source is an audio file with parametrized <paramref name="startAtSecond"/> and <paramref name="secondsToProcess"/>.
+        ///   Build query fingerprints an audio file with parametrized <paramref name="startAtSecond"/> and <paramref name="secondsToProcess"/>.
         /// </summary>
-        /// <param name="pathToAudioFile">Full path to audio file.</param>
+        /// <param name="file">Full path to audio file.</param>
         /// <param name="secondsToProcess">Total number of seconds to fingerprint for querying.</param>
         /// <param name="startAtSecond">Start at second.</param>
+        /// <param name="mediaType">Media type to generate query hashes for.</param>
         /// <returns>Configuration selector.</returns>
         /// <remarks>
         ///  Make sure provided <see cref="IAudioService"/> supports provided file format.
+        ///  If you provide MediaType.Video flag for <paramref name="mediaType"/> makes sure to provide <see cref="IVideoService"/> or <see cref="IMediaService"/> at <see cref="IUsingFingerprintServices"/> method builder to be able to read <see cref="Frames"/> from the provided file.
         /// </remarks>
-        IWithQueryConfiguration From(string pathToAudioFile, double secondsToProcess, double startAtSecond);
+        IWithQueryConfiguration From(string file, double secondsToProcess, double startAtSecond, MediaType mediaType = MediaType.Audio);
 
         /// <summary>
-        ///   Source is an audio samples object.
+        ///   Build query fingerprints from an audio samples object.
         /// </summary>
         /// <param name="audioSamples">Audio samples to build the fingerprints from.</param>
         /// <returns>Configuration selector.</returns>
@@ -41,10 +48,27 @@
         IWithQueryConfiguration From(AudioSamples audioSamples);
 
         /// <summary>
+        ///  Build query fingerprints from frames.
+        /// </summary>
+        /// <param name="frames">Video frames to build fingerprints from.</param>
+        /// <returns>Configuration selector.</returns>
+        IWithQueryConfiguration From(Frames frames);
+
+        /// <summary>
+        ///  Build query fingerprints from an instance of <see cref="AVTrack"/> class.
+        /// </summary>
+        /// <param name="avTrack">AVTrack to build fingerprints from.</param>
+        /// <returns>Configuration selector.</returns>
+        IWithQueryConfiguration From(AVTrack avTrack);
+
+        /// <summary>
         ///   Create query from previously created fingerprints.
         /// </summary>
         /// <param name="hashes">Previously created fingerprints.</param>
-        /// <returns>Configuration selector. Keep in mind that all the configuration options related to fingerprint creation will be disregarded.</returns>
-        IWithQueryConfiguration From(Hashes hashes);
+        /// <returns>Configuration selector.</returns>
+        /// <remarks>
+        ///  All the configuration options related to fingerprint creation will be disregarded.
+        /// </remarks>
+        IWithQueryConfiguration From(AVHashes hashes);
     }
 }

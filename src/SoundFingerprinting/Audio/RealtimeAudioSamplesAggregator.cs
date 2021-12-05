@@ -39,7 +39,7 @@ namespace SoundFingerprinting.Audio
             float[] prefixed = new float[tail.Length + chunk.Samples.Length];
             Buffer.BlockCopy(tail, 0, prefixed, 0, sizeof(float) * tail.Length);
             Buffer.BlockCopy(chunk.Samples, 0, prefixed, sizeof(float) *  tail.Length, sizeof(float) * chunk.Samples.Length);
-            var samples = new AudioSamples(prefixed, chunk.Origin, chunk.SampleRate, chunk.RelativeTo.AddSeconds(-(float)tail.Length / chunk.SampleRate));
+            var samples = new AudioSamples(prefixed, chunk.Origin, chunk.SampleRate, chunk.RelativeTo.AddSeconds(-(float)tail.Length / chunk.SampleRate), -(double)tail.Length / chunk.SampleRate);
             tail = prefixed;
             return samples;
         }
@@ -60,7 +60,7 @@ namespace SoundFingerprinting.Audio
                     int estimatedIgnoredWindow = (samples.Samples.Length - minSamplesPerFingerprint) % nextStride;
                     
                     // tail size is always shorter than minSamplesPerFingerprint
-                    int tailSize = (minSamplesPerFingerprint - nextStride + estimatedIgnoredWindow);
+                    int tailSize = minSamplesPerFingerprint - nextStride + estimatedIgnoredWindow;
                     tail = new float[tailSize];
                     Buffer.BlockCopy(samples.Samples, sizeof(float) * (samples.Samples.Length - tailSize), tail, 0, sizeof(float) * tailSize);
                 }

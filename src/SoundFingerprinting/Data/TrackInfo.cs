@@ -18,7 +18,8 @@
         /// <param name="id">Track unique identifier.</param>
         /// <param name="title">Track title.</param>
         /// <param name="artist">Track artist.</param>
-        public TrackInfo(string id, string title, string artist) : this(id, title, artist, new Dictionary<string, string>())
+        /// <param name="mediaType">Media type.</param>
+        public TrackInfo(string id, string title, string artist, MediaType mediaType = MediaType.Audio) : this(id, title, artist, new Dictionary<string, string>(), mediaType)
         {
             // no op
         }

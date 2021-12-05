@@ -5,17 +5,19 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Media;
+    using SoundFingerprinting.Video;
 
     public class ExecutedFingerprintCommand : IWithFingerprintConfiguration
     {
-        private readonly Hashes result;
+        private readonly AVHashes result;
         
-        public ExecutedFingerprintCommand(Hashes result)
+        public ExecutedFingerprintCommand(AVHashes result)
         {
             this.result = result;
         }
 
-        public Task<Hashes> Hash()
+        public Task<AVHashes> Hash()
         {
             return Task.FromResult(result);
         }
@@ -25,12 +27,22 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig(FingerprintConfiguration configuration)
+        public IFingerprintCommand UsingServices(IVideoService videoService)
         {
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig(Func<FingerprintConfiguration, FingerprintConfiguration> amendFunctor)
+        public IFingerprintCommand UsingServices(IMediaService mediaService)
+        {
+            return this;
+        }
+
+        public IUsingFingerprintServices WithFingerprintConfig(AVFingerprintConfiguration configuration)
+        {
+            return this;
+        }
+
+        public IUsingFingerprintServices WithFingerprintConfig(Func<AVFingerprintConfiguration, AVFingerprintConfiguration> amendFunctor)
         {
             return this;
         }

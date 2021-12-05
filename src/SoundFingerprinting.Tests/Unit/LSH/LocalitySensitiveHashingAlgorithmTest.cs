@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging.Abstractions;
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
@@ -29,7 +30,7 @@
             int width = 128, height = 32;
 
             var hashingConfig = new DefaultHashingConfig();
-            var tables = Enumerable.Range(0, 25).Select(index => new ConcurrentDictionary<int, int>()).ToArray();
+            var tables = Enumerable.Range(0, 25).Select(_ => new ConcurrentDictionary<int, int>()).ToArray();
 
             int runs = 10000;
             for (int i = 0; i < 10000; ++i)
@@ -43,7 +44,7 @@
                 for (int table = 0; table < tables.Length; ++table)
                 {
                     int key = hashedFingerprint.HashBins[table];
-                    tables[table].AddOrUpdate(key, 1, (k, old) => old + 1);
+                    tables[table].AddOrUpdate(key, 1, (_, old) => old + 1);
                 }
             }
 
@@ -77,7 +78,7 @@
                 Width = width, Height = height
             };
             
-            var tables = Enumerable.Range(0, 25).Select(index => new ConcurrentDictionary<int, int>()).ToArray();
+            var tables = Enumerable.Range(0, 25).Select(_ => new ConcurrentDictionary<int, int>()).ToArray();
 
             int runs = 10000;
             for (int i = 0; i < 10000; ++i)
@@ -91,7 +92,7 @@
                 for (int table = 0; table < tables.Length; ++table)
                 {
                     int key = hashedFingerprint.HashBins[table];
-                    tables[table].AddOrUpdate(key, 1, (k, old) => old + 1);
+                    tables[table].AddOrUpdate(key, 1, (_, old) => old + 1);
                 }
             }
 
@@ -109,7 +110,7 @@
 
             var random = new Random();
 
-            var storage = new RAMStorage(25);
+            var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
             
             float one = 8192f / 5512;
             var config = new DefaultHashingConfig { NumberOfLSHTables = 25, NumberOfMinHashesPerTable = 4, HashBuckets = 0 };
@@ -129,7 +130,7 @@
                 var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
                 for (int j = 0; j < 25; ++j)
                 {
-                    var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j]);
+                    var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j], MediaType.Audio);
                     Assert.IsFalse(ids.Any());
                 }
             }
@@ -142,7 +143,7 @@
 
             var random = new Random();
 
-            var storage = new RAMStorage(25);
+            var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
             
             float one = 8192f / 5512;
             var config = new DefaultHashingConfig { NumberOfLSHTables = 25, NumberOfMinHashesPerTable = 4, HashBuckets = 0 };
@@ -157,7 +158,7 @@
                 storage.AddSubFingerprint(subFingerprint);
             }
 
-            var distribution = storage.HashCountsPerTable;
+            var distribution = storage.Info.First().HashCountsInTables;
 
             foreach (var hashPerTable in distribution)
             {

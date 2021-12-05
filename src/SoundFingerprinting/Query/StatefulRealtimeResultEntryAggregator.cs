@@ -76,7 +76,7 @@ namespace SoundFingerprinting.Query
             foreach (var next in newEntries)
             {
                 var (nextAudio, nextVideo) = next;
-                trackEntries.AddOrUpdate(next.Track.Id, next, (_, prev) =>
+                trackEntries.AddOrUpdate(next.TrackId, next, (_, prev) =>
                 {
                     var (prevAudio, prevVideo) = prev;
                     var audio = resultEntryConcatenator.Concat(prevAudio, nextAudio, audioQueryOffset);
@@ -86,7 +86,7 @@ namespace SoundFingerprinting.Query
             }
             
             // we need to extend the query length of those matches that haven't been purged on the previous call, and haven't been updated during this call.
-            var set = new HashSet<string>(newEntries.Select(_ => _.Track.Id));
+            var set = new HashSet<string>(newEntries.Select(_ => _.TrackId));
             double audioQueryLength = audioHashes?.DurationInSeconds ?? 0;
             double videoQueryLength = videoHashes?.DurationInSeconds ?? 0;
             foreach (var notUpdatedPair in trackEntries.Where(_ => !set.Contains(_.Key)))
@@ -147,7 +147,7 @@ namespace SoundFingerprinting.Query
         {
             var completedGroups =  queryHashesConcatenator.GetQueryResults(completed);
             var didNotPassGroups = queryHashesConcatenator.GetQueryResults(didNotPassFilter);
-            queryHashesConcatenator.Cleanup(completed.Concat(didNotPassFilter).Select(_ => _.Track.Id));
+            queryHashesConcatenator.Cleanup(completed.Concat(didNotPassFilter).Select(_ => _.TrackId));
             return new RealtimeQueryResult(completedGroups, didNotPassGroups);
         }
     }

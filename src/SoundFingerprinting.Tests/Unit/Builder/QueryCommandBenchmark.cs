@@ -36,7 +36,7 @@
             for (int i = 0; i < totalRuns; ++i)
             {
                 var samples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(120 * 5512), "${i}", 5512);
-                var queryResult = await QueryCommandBuilder.Instance
+                var (queryResult, _) = await QueryCommandBuilder.Instance
                     .BuildQueryCommand()
                     .From(samples)
                     .UsingServices(modelService)

@@ -1,5 +1,7 @@
 ﻿namespace SoundFingerprinting.Builder
 {
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using SoundFingerprinting.Command;
 
     /// <summary>
@@ -7,6 +9,7 @@
     /// </summary>
     public class QueryCommandBuilder : IQueryCommandBuilder
     {
+        private readonly ILoggerFactory loggerFactory;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
 
@@ -18,13 +21,14 @@
         /// <summary>
         ///  Initializes a new instance of the <see cref="QueryCommandBuilder"/> class.
         /// </summary>
-        public QueryCommandBuilder() : this(FingerprintCommandBuilder.Instance, QueryFingerprintService.Instance)
+        /// <param name="loggerFactory">Instance of <see cref="ILoggerFactory"/> interface.</param>
+        public QueryCommandBuilder(ILoggerFactory? loggerFactory = null) : this(FingerprintCommandBuilder.Instance, QueryFingerprintService.Instance, loggerFactory ?? new NullLoggerFactory())
         {
-            // no op
         }
 
-        internal QueryCommandBuilder(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService)
+        internal QueryCommandBuilder(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryFingerprintService queryFingerprintService, ILoggerFactory loggerFactory)
         {
+            this.loggerFactory = loggerFactory;
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryFingerprintService = queryFingerprintService;
         }
@@ -38,7 +42,7 @@
         /// <inheritdoc cref="IQueryCommandBuilder.BuildRealtimeQueryCommand"/>
         public IRealtimeSource BuildRealtimeQueryCommand()
         {
-            return new RealtimeQueryCommand(fingerprintCommandBuilder, queryFingerprintService);
+            return new RealtimeQueryCommand(fingerprintCommandBuilder, this, loggerFactory);
         }
     }
 }

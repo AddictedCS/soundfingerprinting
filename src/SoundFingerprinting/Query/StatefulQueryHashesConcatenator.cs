@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Query
     using System.Linq;
     using SoundFingerprinting.Data;
 
-    public class StatefulQueryHashesConcatenator : IQueryHashesConcatenator
+    internal class StatefulQueryHashesConcatenator : IQueryHashesConcatenator
     {
         private readonly ConcurrentDictionary<string, AVQueryHashes> trackQueryHashes = new ();
         
@@ -34,13 +34,15 @@ namespace SoundFingerprinting.Query
         public IEnumerable<AVQueryResult> GetQueryResults(IEnumerable<AVResultEntry> completed)
         {
             return completed
-                .Join(trackQueryHashes, _ => _.Track.Id, _ => _.Key, (p1, p2) => new { ResultEntry = p1, Hashes = p2.Value })
+                .Join(trackQueryHashes, _ => _.TrackId, _ => _.Key, (p1, p2) => new { ResultEntry = p1, Hashes = p2.Value })
                 .GroupBy(_ => _.Hashes)
                 .Select(group =>
                 {
                     var entries = @group.Select(_ => _.ResultEntry).ToList();
                     var (hashes, stats) = group.Key;
-                    return new AVQueryResult(entries, hashes, stats);
+                    var audioQueryMatch = new QueryResult(entries.Select(_ => _.Audio).Where(entry => entry != null).Select(entry => entry!), hashes.Audio ?? Hashes.GetEmpty(MediaType.Audio), stats.Audio ?? QueryCommandStats.Zero());
+                    var videoQueryMatch = new QueryResult(entries.Select(_ => _.Video).Where(entry => entry != null).Select(entry => entry!), hashes.Video ?? Hashes.GetEmpty(MediaType.Video), stats.Video ?? QueryCommandStats.Zero());
+                    return new AVQueryResult(audioQueryMatch, videoQueryMatch, entries, hashes, stats);
                 })
                 .ToList();
         }

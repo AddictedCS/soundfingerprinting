@@ -14,13 +14,13 @@
         ///  Query the underlying <see cref="IModelService"/>.
         /// </summary>
         /// <returns>Query result.</returns>
-        Task<QueryResult> Query();
+        Task<AVQueryResult> Query();
 
         /// <summary>
         ///  Query the underlying <see cref="IModelService"/>.
         /// </summary>
         /// <param name="relativeTo">The timestamp which is considered as a reference point of the query operation. Will be used to set exact <see cref="ResultEntry.MatchedAt"/> timestamp of the match.</param>
         /// <returns>Query result.</returns>
-        Task<QueryResult> Query(DateTime relativeTo);
+        Task<AVQueryResult> Query(DateTime relativeTo);
     }
 }

@@ -17,6 +17,17 @@ namespace SoundFingerprinting.Data
         /// </summary>
         /// <param name="audio">Audio hashes (generated from  <see cref="AudioSamples"/>.</param>
         /// <param name="video">Video hashes (generated from <see cref="Frames"/>.</param>
+        /// <exception cref="ArgumentException">Audio and video hashes can't be both null at the same time.</exception>
+        public AVHashes(Hashes? audio, Hashes? video) : this(audio, video, AVFingerprintingTime.Zero())
+        {
+            // no op
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AVHashes"/> class.
+        /// </summary>
+        /// <param name="audio">Audio hashes (generated from  <see cref="AudioSamples"/>.</param>
+        /// <param name="video">Video hashes (generated from <see cref="Frames"/>.</param>
         /// <param name="fingerprintingTime">Instance of <see cref="AVFingerprintingTime"/> fingerprinting times.</param>
         /// <exception cref="ArgumentException">Audio and video hashes can't be both null at the same time.</exception>
         public AVHashes(Hashes? audio, Hashes? video, AVFingerprintingTime fingerprintingTime)
@@ -50,6 +61,11 @@ namespace SoundFingerprinting.Data
         public AVFingerprintingTime FingerprintingTime { get; }
 
         /// <summary>
+        ///  Gets total count of audio/video hashes.
+        /// </summary>
+        public int Count => (Audio?.Count ?? 0) + (Video?.Count ?? 0);
+
+        /// <summary>
         ///  Gets relative to timestamp of the current <see cref="AVHashes"/> instance.
         /// </summary>
         public DateTime RelativeTo => Audio?.RelativeTo ?? Video?.RelativeTo ?? DateTime.MinValue;
@@ -57,7 +73,7 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Merges current instance of the AVHashes with provided one.
         /// </summary>
-        /// <param name="next">Next </param>
+        /// <param name="next">Next instance of <see cref="AVHashes"/>.</param>
         /// <returns>A merged instance of <see cref="AVHashes"/> class.</returns>
         /// <remarks>
         ///  This method is useful when you would like to concatenate hashes that come from the realtime stream. <br />
