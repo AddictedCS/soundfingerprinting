@@ -22,7 +22,7 @@
         ///  Initializes a new instance of the <see cref="QueryCommandBuilder"/> class.
         /// </summary>
         /// <param name="loggerFactory">Instance of <see cref="ILoggerFactory"/> interface.</param>
-        public QueryCommandBuilder(ILoggerFactory? loggerFactory = null) : this(FingerprintCommandBuilder.Instance, QueryFingerprintService.Instance, loggerFactory ?? new NullLoggerFactory())
+        public QueryCommandBuilder(ILoggerFactory? loggerFactory = null) : this(new FingerprintCommandBuilder(loggerFactory), QueryFingerprintService.Instance, loggerFactory ?? new NullLoggerFactory())
         {
         }
 
