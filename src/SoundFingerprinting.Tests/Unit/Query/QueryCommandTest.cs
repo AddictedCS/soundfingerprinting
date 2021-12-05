@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -13,6 +14,24 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class QueryCommandTest
     {
+        [Test]
+        public void ShouldThrowOnInvalidMediaTypeMediaServiceConfiguration()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(Path.GetTempPath(), MediaType.Audio | MediaType.Video)
+                .Query());
+        }
+        
+        [Test]
+        public void ShouldThrowArgumentNullExceptionSinceModelServiceIsNotSet()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(TestUtilities.GenerateRandomAudioSamples(10 * 5512))
+                .Query()); 
+        }
+        
         /**
          * query repeats consecutively two times in the track, without any pause
          * t     -----10-----
