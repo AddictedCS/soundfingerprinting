@@ -52,22 +52,6 @@ namespace SoundFingerprinting.Query
             }
         }
         
-        // TODO this abstraction is not exactly right
-        // MediaType is inferred from Audio/Video result entries, which may not be returned from the server due to various problems
-        // see IHintStrategy which deals with issues related to review hints
-        public MediaType MediaType 
-        {
-            get
-            {
-                return (Audio, Video) switch
-                {
-                    (null, _) => MediaType.Video,
-                    (_, null) => MediaType.Audio,
-                    (_, _) => MediaType.Audio | MediaType.Video
-                };
-            }
-        }
-        
         /// <summary>
         ///  Returns True if either of the matches Audio/Video passes track coverage threshold.
         ///  Returns False if current query match is considered a false positive, thus it can be safely discarded.

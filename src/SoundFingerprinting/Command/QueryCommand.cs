@@ -28,7 +28,7 @@
         private IQueryMatchRegistry? queryMatchRegistry;
         private Func<AVHashes, AVHashes> hashesInterceptor;
         
-        private Func<IWithFingerprintConfiguration> createFingerprintCommand;
+        private Func<IWithFingerprintConfiguration>? createFingerprintCommand;
 
         private AVQueryConfiguration queryConfiguration;
 

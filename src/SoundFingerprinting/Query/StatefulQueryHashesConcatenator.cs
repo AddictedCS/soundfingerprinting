@@ -34,7 +34,7 @@ namespace SoundFingerprinting.Query
         public IEnumerable<AVQueryResult> GetQueryResults(IEnumerable<AVResultEntry> completed)
         {
             return completed
-                .Join(trackQueryHashes, _ => _.Track.Id, _ => _.Key, (p1, p2) => new { ResultEntry = p1, Hashes = p2.Value })
+                .Join(trackQueryHashes, _ => _.TrackId, _ => _.Key, (p1, p2) => new { ResultEntry = p1, Hashes = p2.Value })
                 .GroupBy(_ => _.Hashes)
                 .Select(group =>
                 {

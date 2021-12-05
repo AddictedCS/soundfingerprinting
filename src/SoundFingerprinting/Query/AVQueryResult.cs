@@ -104,7 +104,7 @@ namespace SoundFingerprinting.Query
             var videoEntriesList = videoEntries.ToList();
             var pairs = audioEntriesList.Join(videoEntriesList, onTrackId, onTrackId,
                 (a, v) => new AVResultEntry(a, v)).ToList();
-            var pairIds = new HashSet<string>(pairs.Select(j => j.Track.Id));
+            var pairIds = new HashSet<string>(pairs.Select(j => j.TrackId));
             var audioOnly = audioEntriesList
                 .Where(a => !pairIds.Contains(a.Track.Id))
                 .Select(a => new AVResultEntry(a, null))
