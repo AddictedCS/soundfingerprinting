@@ -153,13 +153,11 @@ namespace SoundFingerprinting.Command
                     logger.LogDebug("Both audio and video tracks are null or empty. Waiting until minimum number of samples are aggregated for a fingerprint to be generated.");
                     continue;
                 }
-                
-                double audioTimeOffset = (audioTrack?.Samples.Duration ?? 0) - (prefixed?.Duration ?? 0);
+
+                double audioTimeOffset = prefixed?.TimeOffset ?? 0;
                 double estimatedTime = audioTrack?.TotalEstimatedDuration ?? 0 - audioTimeOffset; // prefixed is always longer than initial, hence time offset is negative
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, new AVTrack(prefixed != null ? new AudioTrack(prefixed, estimatedTime) : null, videoTrack));
-                var (audioHashes, videoHashes) = hashes;
-                audioHashes = audioHashes?.WithTimeOffset(audioTimeOffset);
-                var avHashes = hashesInterceptor(new AVHashes(audioHashes, videoHashes, hashes.FingerprintingTime));
+                var avHashes = hashesInterceptor(hashes);
                 yield return avHashes;
             }
         }
