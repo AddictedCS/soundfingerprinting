@@ -8,7 +8,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging.Abstractions;
-    using Microsoft.VisualBasic;
     using Moq;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
@@ -696,14 +695,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
         private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength, DateTime dateTime)
         {
-            double sum = 0d;
-            do
-            {
-                var audioSample = TestUtilities.GenerateRandomAudioSamples((int)(jitterLength * 5512), dateTime);
-                collection.Add(audioSample);
-                sum += audioSample.Duration;
-            } 
-            while (sum < jitterLength);
+            var audioSample = TestUtilities.GenerateRandomAudioSamples((int)(jitterLength * 5512), dateTime);
+            collection.Add(audioSample);
         }
 
         private AudioSamples GetMinSizeOfAudioSamples(int seed, DateTime relativeTo)
