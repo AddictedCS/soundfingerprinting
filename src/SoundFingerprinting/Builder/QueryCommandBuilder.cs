@@ -42,7 +42,7 @@
         /// <inheritdoc cref="IQueryCommandBuilder.BuildRealtimeQueryCommand"/>
         public IRealtimeSource BuildRealtimeQueryCommand()
         {
-            return new RealtimeQueryCommand(fingerprintCommandBuilder, queryFingerprintService, loggerFactory);
+            return new RealtimeQueryCommand(fingerprintCommandBuilder, this, loggerFactory);
         }
     }
 }

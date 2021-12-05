@@ -259,7 +259,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var collection = SimulateRealtimeAudioQueryData(data, jitterLength);
             var offlineStorage = new OfflineStorage(Path.GetTempPath());
             var restoreCalled = new bool[1];
-            double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance), new NullLoggerFactory())
+            double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new QueryCommandBuilder(FingerprintCommandBuilder.Instance, 
+                    new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance), new NullLoggerFactory()), new NullLoggerFactory())
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
                  {
