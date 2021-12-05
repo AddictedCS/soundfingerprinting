@@ -148,40 +148,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var successMatches = new List<ResultEntry>();
             var didNotGetToContiguousQueryMatchLengthMatch = new List<ResultEntry>();
 
-            var defaultAvQueryConfiguration = new DefaultAVQueryConfiguration
-            {
-                Audio =
-                {
-                    Stride = new IncrementalRandomStride(256, 512),
-                    PermittedGap = 2
-                }
-            };
-            
-            var realtimeConfig = new RealtimeQueryConfiguration(defaultAvQueryConfiguration, new TrackMatchLengthEntryFilter(queryMatchLength), 
-                successCallback: result =>
-                {
-                    foreach (var (entry, _) in result.ResultEntries)
-                    {
-                        Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
-                        successMatches.Add(entry);
-                    }
-                },
-                didNotPassFilterCallback: result =>
-                {
-                    foreach (var (entry, _) in result.ResultEntries)
-                    {
-                        Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
-                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
-                    }
-                },
-                new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d),
-                ongoingSuccessCallback: _ => { Interlocked.Increment(ref ongoingCalls); },
-                errorCallback: (error, _) => throw error,
-                restoredAfterErrorCallback: () => throw new Exception("Downtime callback called"),
-                offlineStorage: new EmptyOfflineStorage(), 
-                errorBackoffPolicy: new RandomExponentialBackoffPolicy(),
-                delayStrategy: new RandomDelayStrategy(1, 5));
-
             // simulating realtime query, starting in the middle of the track ~1 min 45 seconds (105 seconds).
             // and we query for 35 seconds
             const double queryLength = 35;
@@ -202,7 +168,35 @@ namespace SoundFingerprinting.Tests.Unit.Query
             double processed = await QueryCommandBuilder.Instance
                                             .BuildRealtimeQueryCommand()
                                             .From(collection)
-                                            .WithRealtimeQueryConfig(realtimeConfig)
+                                            .WithRealtimeQueryConfig(config =>
+                                            {
+                                                config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512);
+                                                config.QueryConfiguration.Audio.PermittedGap = 2;
+                                                config.ResultEntryFilter = new TrackMatchLengthEntryFilter(queryMatchLength);
+                                                config.OngoingResultEntryFilter = new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d);
+                                                config.SuccessCallback = result =>
+                                                {
+                                                    foreach (var (entry, _) in result.ResultEntries)
+                                                    {
+                                                        Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
+                                                        successMatches.Add(entry);
+                                                    }
+                                                };
+
+                                                config.DidNotPassFilterCallback = result =>
+                                                {
+                                                    foreach (var (entry, _) in result.ResultEntries)
+                                                    {
+                                                        Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
+                                                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
+                                                    }
+                                                };
+
+                                                config.OngoingSuccessCallback = _ => { Interlocked.Increment(ref ongoingCalls); };
+                                                config.ErrorCallback = (error, _) => throw error;
+                                                config.RestoredAfterErrorCallback = () => throw new Exception("Downtime callback called");
+                                                return config;
+                                            })
                                             .Intercept(fingerprints =>
                                             {
                                                 Interlocked.Add(ref fingerprintsCount, fingerprints.Audio?.Count + fingerprints.Video?.Count ?? 0);
