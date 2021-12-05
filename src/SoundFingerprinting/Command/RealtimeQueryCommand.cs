@@ -146,6 +146,7 @@ namespace SoundFingerprinting.Command
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.QueryConfiguration.Audio.FingerprintConfiguration.SpectrogramConfig.MinimumSamplesPerFingerprint, configuration.QueryConfiguration.Audio.Stride);
             await foreach (var (audioTrack, videoTrack) in source)
             {
+                logger.LogDebug("Retrieved audio track {0:0.00}, video track {1:0.00} from realtime query source.", audioTrack?.Duration ?? 0, videoTrack?.Duration ?? 0);
                 var prefixed = audioTrack != null ?  realtimeSamplesAggregator.Aggregate(audioTrack.Samples) : null;
                 if (prefixed == null && videoTrack == null)
                 {
@@ -268,6 +269,7 @@ namespace SoundFingerprinting.Command
             while (offlineStorage.Any())
             {
                 var offlineHashes = offlineStorage.First();
+                logger.LogDebug("Read AVHashes from offline storage audio {0:00}, video {1:0.00}. Querying storage.", offlineHashes.Audio?.DurationInSeconds ?? 0, offlineHashes.Video?.DurationInSeconds ?? 0);
                 yield return await GetAvQueryResult(offlineHashes);
                 offlineStorage.Remove(offlineHashes);
                 await Task.Delay(configuration.DelayStrategy.Delay, cancellationToken);
@@ -290,6 +292,7 @@ namespace SoundFingerprinting.Command
                 var avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(hashes.FingerprintingTime.AudioMilliseconds, hashes.FingerprintingTime.VideoMilliseconds);
                 if (errored)
                 {
+                    logger.LogDebug("Query restored from previous error.");
                     errored = false;
                     configuration.RestoredAfterErrorCallback();
                     configuration.ErrorBackoffPolicy.Success();
