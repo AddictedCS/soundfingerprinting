@@ -177,7 +177,7 @@ namespace SoundFingerprinting.Data
         ///  Gets time offset used during query time, <see cref="ResultEntryConcatenator.Concat"/>.
         /// </summary>
         /// <remarks>
-        ///  It is used only for query hashes.
+        ///  It is used only for realtime query hashes.
         /// </remarks>
         [ProtoMember(8)]
         public double TimeOffset { get; }
