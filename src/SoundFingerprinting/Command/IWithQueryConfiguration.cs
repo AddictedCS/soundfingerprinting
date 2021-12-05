@@ -7,20 +7,20 @@
     /// <summary>
     ///   Query configuration interface.
     /// </summary>
-    public interface IWithQueryConfiguration : IUsingQueryServices
+    public interface IWithQueryConfiguration : IInterceptHashes
     {
         /// <summary>
         ///   Sets query configuration.
         /// </summary>
         /// <param name="queryConfiguration">Query configuration object to use.</param>
         /// <returns>Query services selector.</returns>
-        IUsingQueryServices WithQueryConfig(AVQueryConfiguration queryConfiguration);
+        IInterceptHashes WithQueryConfig(AVQueryConfiguration queryConfiguration);
 
         /// <summary>
         ///   Sets query configuration parameters.
         /// </summary>
         /// <param name="amendQueryConfigFunctor">Amend functor.</param>
         /// <returns>Query services selector.</returns>
-        IUsingQueryServices WithQueryConfig(Func<AVQueryConfiguration, AVQueryConfiguration> amendQueryConfigFunctor);
+        IInterceptHashes WithQueryConfig(Func<AVQueryConfiguration, AVQueryConfiguration> amendQueryConfigFunctor);
     }
 }

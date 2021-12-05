@@ -26,6 +26,7 @@
         private IVideoService? videoService;
         private IMediaService? mediaService;
         private IQueryMatchRegistry queryMatchRegistry;
+        private Func<AVHashes, AVHashes> hashesInterceptor;
         
         private Func<IWithFingerprintConfiguration> createFingerprintCommand;
 
@@ -38,6 +39,7 @@
             queryConfiguration = new DefaultAVQueryConfiguration();
             queryMatchRegistry = NoOpQueryMatchRegistry.NoOp;
             this.audioService = new SoundFingerprintingAudioService();
+            hashesInterceptor = _ => _;
         }
 
         /// <inheritdoc cref="IQuerySource.From(string,MediaType)"/>
@@ -84,14 +86,14 @@
         }
 
         /// <inheritdoc cref="IWithQueryConfiguration.WithQueryConfig(AVQueryConfiguration)"/>
-        public IUsingQueryServices WithQueryConfig(AVQueryConfiguration config)
+        public IInterceptHashes WithQueryConfig(AVQueryConfiguration config)
         {
             queryConfiguration = config;
             return this;
         }
 
         /// <inheritdoc cref="IWithQueryConfiguration.WithQueryConfig(Func{AVQueryConfiguration,AVQueryConfiguration})"/>
-        public IUsingQueryServices WithQueryConfig(Func<AVQueryConfiguration, AVQueryConfiguration> amendQueryConfigFunctor)
+        public IInterceptHashes WithQueryConfig(Func<AVQueryConfiguration, AVQueryConfiguration> amendQueryConfigFunctor)
         {
             queryConfiguration = amendQueryConfigFunctor(queryConfiguration);
             return this;
@@ -155,6 +157,13 @@
             return this;
         }
 
+        /// <inheritdoc cref="IInterceptHashes.Intercept"/>
+        public IUsingQueryServices Intercept(Func<AVHashes, AVHashes> hashes)
+        {
+            hashesInterceptor = hashes;
+            return this;
+        }
+
         /// <inheritdoc cref="IQueryCommand.Query()"/>
         public async Task<AVQueryResult> Query()
         {
@@ -170,9 +179,10 @@
                 : usingFingerprintServices.UsingServices(audioService);
             
             var hashes = await fingerprintCommand.Hash();
-            var (audioHashes, videoHashes) = relativeTo == DateTime.MinValue ? hashes : new AVHashes(hashes.Audio?.WithNewRelativeTo(relativeTo), hashes.Video?.WithNewRelativeTo(relativeTo), hashes.FingerprintingTime);
+            var avHashes = relativeTo == DateTime.MinValue ? hashes : new AVHashes(hashes.Audio?.WithNewRelativeTo(relativeTo), hashes.Video?.WithNewRelativeTo(relativeTo), hashes.FingerprintingTime);
+            
+            var (audioHashes, videoHashes) = hashesInterceptor(avHashes);
             var avQueryResult = GetAvQueryResult(audioHashes, videoHashes, hashes.FingerprintingTime);
-
             if (avQueryResult.ContainsMatches)
             {
                 var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(audioHashes?.StreamId ?? videoHashes?.StreamId ?? string.Empty));
