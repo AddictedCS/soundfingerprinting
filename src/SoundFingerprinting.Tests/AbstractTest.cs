@@ -14,9 +14,9 @@
             9506, 10022, 10536, 11050, 11564, 12078, 12592, 13106
         };
 
-        protected Hashes GetGenericHashes()
+        protected Hashes GetGenericHashes(MediaType mediaType = MediaType.Audio)
         {
-            return new Hashes(new[] {new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())}, 1.48f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
+            return new Hashes(new[] {new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())}, 1.48f, mediaType, DateTime.Now, Enumerable.Empty<string>());
         }
         
         protected int[] GenericHashBuckets()

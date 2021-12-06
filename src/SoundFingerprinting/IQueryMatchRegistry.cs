@@ -1,15 +1,14 @@
 namespace SoundFingerprinting
 {
     using System.Collections.Generic;
-    using SoundFingerprinting.Data;
+    using SoundFingerprinting.Query;
 
     public interface IQueryMatchRegistry
     {
         /// <summary>
-        ///  Register successful matches
+        ///  Register successful matches.
         /// </summary>
-        /// <param name="queryMatches">Query matches to register as successful matches</param>
-        /// <param name="meta">Metadata related to query match</param>
-        void RegisterMatches(IEnumerable<QueryMatch> queryMatches, IDictionary<string, string> meta);
+        /// <param name="queryMatches">Query matches to register as successful matches.</param>
+        void RegisterMatches(IEnumerable<AVQueryMatch> queryMatches);
     }
 }

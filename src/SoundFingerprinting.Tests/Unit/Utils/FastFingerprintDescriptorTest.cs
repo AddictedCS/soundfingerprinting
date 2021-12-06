@@ -40,15 +40,15 @@
             int runs = 5;
             for (int i = 0; i < runs; ++i)
             {
-                var hashDatas0 = await fcbWithOldFingerprintDescriptor.BuildFingerprintCommand()
+                var (h1, _) = await fcbWithOldFingerprintDescriptor.BuildFingerprintCommand()
                     .From(audioSamples)
                     .Hash();
 
-                var hashDatas1 = await fcbWithFastFingerprintDescriptor.BuildFingerprintCommand()
+                var (h2, _) = await fcbWithFastFingerprintDescriptor.BuildFingerprintCommand()
                     .From(audioSamples)
                     .Hash();
 
-                AssertHashDatasAreTheSame(hashDatas0, hashDatas1);
+                AssertHashDatasAreTheSame(h1, h2);
             }
         }
 

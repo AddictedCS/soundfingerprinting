@@ -12,7 +12,7 @@
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        protected readonly string PathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
+        private readonly string pathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
         
         protected readonly string PathToWav = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopin_short.wav");
 
@@ -57,7 +57,7 @@
             lock (this)
             {
                 var serializer = new BinaryFormatter();
-                using Stream stream = new FileStream(PathToSamples, FileMode.Open, FileAccess.Read);
+                using Stream stream = new FileStream(pathToSamples, FileMode.Open, FileAccess.Read);
                 return (AudioSamples)serializer.Deserialize(stream);
             }
         }

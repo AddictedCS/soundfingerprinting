@@ -12,7 +12,7 @@ namespace SoundFingerprinting.Command
         /// <summary>
         ///   Generate hashes.
         /// </summary>
-        /// <returns>Hashed fingerprints which can be stored in the data source.</returns>
-        Task<Hashes> Hash();
+        /// <returns>An instance of <see cref="AVHashes"/> class.</returns>
+        Task<AVHashes> Hash();
     }
 }

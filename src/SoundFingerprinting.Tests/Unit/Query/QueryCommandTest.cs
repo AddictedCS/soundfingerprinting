@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -13,6 +14,24 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class QueryCommandTest
     {
+        [Test]
+        public void ShouldThrowOnInvalidMediaTypeMediaServiceConfiguration()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(Path.GetTempPath(), MediaType.Audio | MediaType.Video)
+                .Query());
+        }
+        
+        [Test]
+        public void ShouldThrowArgumentNullExceptionSinceModelServiceIsNotSet()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(TestUtilities.GenerateRandomAudioSamples(10 * 5512))
+                .Query()); 
+        }
+        
         /**
          * query repeats consecutively two times in the track, without any pause
          * t     -----10-----
@@ -211,17 +230,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
         private static async Task<QueryResult> GetQueryResult(float[] match, IModelService modelService, double permittedGap = 2, bool allowMultipleMatches = true)
         {
-            return await QueryCommandBuilder.Instance
+            var avQueryResult = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(new AudioSamples(match, "cnn", 5512))
                 .WithQueryConfig(config =>
                 {
-                    config.AllowMultipleMatchesOfTheSameTrackInQuery = allowMultipleMatches;
-                    config.PermittedGap = permittedGap;
+                    config.Audio.AllowMultipleMatchesOfTheSameTrackInQuery = allowMultipleMatches;
+                    config.Audio.PermittedGap = permittedGap;
                     return config;
                 })
                 .UsingServices(modelService)
                 .Query();
+            return avQueryResult.Audio;
         }
 
         private static async Task InsertFingerprints(float[] audioSamples, IModelService modelService)
@@ -231,7 +251,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(new AudioSamples(audioSamples, "Queen", 5512))
                 .Hash();
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), new Hashes(hashes, audioSamples.Length / 5512f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>()));
+            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), hashes);
         }
     }
 }

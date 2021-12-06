@@ -17,27 +17,25 @@
 
         public static WaveFormat FromFile(string pathToFileName)
         {
-            using (var fileStream = new FileStream(pathToFileName, FileMode.Open))
+            using var fileStream = new FileStream(pathToFileName, FileMode.Open);
+            byte[] header = new byte[44];
+            if (fileStream.Read(header, 0, 44) != 44)
             {
-                byte[] header = new byte[44];
-                if (fileStream.Read(header, 0, 44) != 44)
-                {
-                    throw new ArgumentException($"{pathToFileName} is not a valid wav file since it does not contain a header");
-                }
-
-                short channels = (short)(header[22] | header[23] << 8);
-                int sampleRate = header[24] | header[25] << 8 | header[26] << 16 | header[27] << 24;
-                short bitsPerSample = (short)(header[34] | header[35] << 8);
-                long bytes = fileStream.Length - 44;
-
-                return new WaveFormat
-                       {
-                           Channels = channels,
-                           SampleRate = sampleRate,
-                           BitsPerSample = bitsPerSample,
-                           Length = bytes
-                       };
+                throw new ArgumentException($"{pathToFileName} is not a valid wav file since it does not contain a header");
             }
+
+            short channels = (short)(header[22] | header[23] << 8);
+            int sampleRate = header[24] | header[25] << 8 | header[26] << 16 | header[27] << 24;
+            short bitsPerSample = (short)(header[34] | header[35] << 8);
+            long bytes = fileStream.Length - 44;
+
+            return new WaveFormat
+            {
+                Channels = channels,
+                SampleRate = sampleRate,
+                BitsPerSample = bitsPerSample,
+                Length = bytes
+            };
         }
 
         public override string ToString()

@@ -7,12 +7,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Content;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
@@ -49,7 +51,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             var wrong = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
-                                              .From(SimulateRealtimeQueryData(data, jitterLength: 0))
+                                              .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
                                               .WithRealtimeQueryConfig(config =>
                                               {
                                                     config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
@@ -62,7 +64,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var right = QueryCommandBuilder.Instance
                                 .BuildRealtimeQueryCommand()
-                                .From(SimulateRealtimeQueryData(data, jitterLength: 0))
+                                .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
                                 .WithRealtimeQueryConfig(config =>
                                 {
                                     config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
@@ -96,7 +98,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
             
-            var collection = SimulateRealtimeQueryData(data, jitterLength: 0);
+            var collection = SimulateRealtimeAudioQueryData(data, jitterLength: 0);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             
             double duration = await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
@@ -131,53 +133,21 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int count = (int)Math.Round(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
-            var hashes = await FingerprintCommandBuilder.Instance
+            var avHashes = await FingerprintCommandBuilder.Instance
                                                 .BuildFingerprintCommand()
                                                 .From(concatenated)
                                                 .Hash();
 
+            Assert.NotNull(avHashes.Audio);
+            
             // hashes have to be equal to total track length +- 1 second
-            Assert.AreEqual(totalTrackLength, hashes.DurationInSeconds, delta: 1);
+            Assert.AreEqual(totalTrackLength, avHashes.Audio.DurationInSeconds, delta: 1);
             
             // store track data and associated hashes
-            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), avHashes);
 
             var successMatches = new List<ResultEntry>();
             var didNotGetToContiguousQueryMatchLengthMatch = new List<ResultEntry>();
-
-            var defaultAvQueryConfiguration = new DefaultAVQueryConfiguration
-            {
-                Audio =
-                {
-                    Stride = new IncrementalRandomStride(256, 512),
-                    PermittedGap = 2
-                }
-            };
-            
-            var realtimeConfig = new RealtimeQueryConfiguration(defaultAvQueryConfiguration, new TrackMatchLengthEntryFilter(queryMatchLength), 
-                successCallback: result =>
-                {
-                    foreach (var (entry, _) in result.ResultEntries)
-                    {
-                        Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
-                        successMatches.Add(entry);
-                    }
-                },
-                didNotPassFilterCallback: result =>
-                {
-                    foreach (var (entry, _) in result.ResultEntries)
-                    {
-                        Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
-                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
-                    }
-                },
-                new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d),
-                ongoingSuccessCallback: _ => { Interlocked.Increment(ref ongoingCalls); },
-                errorCallback: (error, _) => throw error,
-                restoredAfterErrorCallback: () => throw new Exception("Downtime callback called"),
-                offlineStorage: new EmptyOfflineStorage(), 
-                errorBackoffPolicy: new RandomExponentialBackoffPolicy(),
-                delayStrategy: new RandomDelayStrategy(1, 5));
 
             // simulating realtime query, starting in the middle of the track ~1 min 45 seconds (105 seconds).
             // and we query for 35 seconds
@@ -195,11 +165,39 @@ namespace SoundFingerprinting.Tests.Unit.Query
             // q with jitter             ^^^----^^^         10 sec + 35 seconds + 10 sec = 55 sec
             // match starts at              |               105 second
             const double jitterLength = 10;
-            var collection = SimulateRealtimeQueryData(realtimeQuery, jitterLength);
+            var collection = SimulateRealtimeAudioQueryData(realtimeQuery, jitterLength);
             double processed = await QueryCommandBuilder.Instance
                                             .BuildRealtimeQueryCommand()
                                             .From(collection)
-                                            .WithRealtimeQueryConfig(realtimeConfig)
+                                            .WithRealtimeQueryConfig(config =>
+                                            {
+                                                config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512);
+                                                config.QueryConfiguration.Audio.PermittedGap = 2;
+                                                config.ResultEntryFilter = new TrackMatchLengthEntryFilter(queryMatchLength);
+                                                config.OngoingResultEntryFilter = new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d);
+                                                config.SuccessCallback = result =>
+                                                {
+                                                    foreach (var (entry, _) in result.ResultEntries)
+                                                    {
+                                                        Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
+                                                        successMatches.Add(entry);
+                                                    }
+                                                };
+
+                                                config.DidNotPassFilterCallback = result =>
+                                                {
+                                                    foreach (var (entry, _) in result.ResultEntries)
+                                                    {
+                                                        Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
+                                                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
+                                                    }
+                                                };
+
+                                                config.OngoingSuccessCallback = _ => { Interlocked.Increment(ref ongoingCalls); };
+                                                config.ErrorCallback = (error, _) => throw error;
+                                                config.RestoredAfterErrorCallback = () => throw new Exception("Downtime callback called");
+                                                return config;
+                                            })
                                             .Intercept(fingerprints =>
                                             {
                                                 Interlocked.Add(ref fingerprintsCount, fingerprints.Audio?.Count + fingerprints.Video?.Count ?? 0);
@@ -258,10 +256,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
 
             var resultEntries = new List<AVResultEntry>();
-            var collection = SimulateRealtimeQueryData(data, jitterLength);
+            var collection = SimulateRealtimeAudioQueryData(data, jitterLength);
             var offlineStorage = new OfflineStorage(Path.GetTempPath());
             var restoreCalled = new bool[1];
-            double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance))
+            double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new QueryCommandBuilder(FingerprintCommandBuilder.Instance, 
+                    new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance), new NullLoggerFactory()), new NullLoggerFactory())
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
                  {
@@ -270,7 +269,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                          resultEntries.AddRange(entry.ResultEntries);
                      };
 
-                     config.DidNotPassFilterCallback = entry =>
+                     config.DidNotPassFilterCallback = _ =>
                      {
                          Interlocked.Increment(ref didNotPassThreshold);
                      };
@@ -312,17 +311,17 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int count = 20;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
-            var hashes = await FingerprintCommandBuilder.Instance
+            var (hashes, _) = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(concatenated)
                 .WithFingerprintConfig(config =>
                 {
-                    config.Stride = new IncrementalStaticStride(512);
+                    config.Audio.Stride = new IncrementalStaticStride(512);
                     return config;
                 })
                 .Hash();
             
-            var collection = SimulateRealtimeQueryData(data, jitterLength: 0);
+            var collection = SimulateRealtimeAudioQueryData(data, jitterLength: 0);
             var list = new List<AVHashes>();
             
             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
@@ -372,7 +371,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
 
-            var collection = SimulateRealtimeQueryData(data, jitterLength: 0);
+            var collection = SimulateRealtimeAudioQueryData(data, jitterLength: 0);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             var fingerprints = new List<AVHashes>();
             var entries = new List<AVResultEntry>();
@@ -398,9 +397,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, entries.Count);
             var (realtimeResult, _) = entries.First();
             var aggregatedHashes = Hashes.Aggregate(fingerprints.Select(_ => _.Audio), 60d).First();
-            var nonRealtimeResult = await QueryCommandBuilder.Instance
+            var (nonRealtimeResult, _) = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
-                .From(aggregatedHashes)
+                .From(new AVHashes(aggregatedHashes, null))
                 .UsingServices(modelService)
                 .Query();
             
@@ -429,7 +428,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var success = new List<AVResultEntry>();
             var didNotPass = new List<AVResultEntry>();
             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
-                .From(SimulateRealtimeQueryData(data, jitterLength: 0))
+                .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
                 .WithRealtimeQueryConfig(config =>
                 {
                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.5, true);
@@ -494,6 +493,83 @@ namespace SoundFingerprinting.Tests.Unit.Query
             backoffPolicy.Verify(b => b.Success(), Times.Exactly(totalExceptions - 1));
         }
 
+        [Test]
+        public async Task ShouldQueryBothAudioAndVideo()
+        {
+            var modelService = new InMemoryModelService();
+
+            double minAudioSizeChunk = (double)minSamplesPerFingerprint / sampleRate;
+            const double totalTrackLength = 210;      
+            int audioCount = (int)Math.Round(totalTrackLength / minAudioSizeChunk), fingerprintsCount = 0, ongoingCalls = 0;
+            var audioData = GenerateRandomAudioChunks(audioCount, seed: 1, DateTime.UtcNow);
+            var concatenatedAudio = Concatenate(audioData);
+            var videoData = GenerateRandomFrameChunks(audioCount, minAudioSizeChunk, DateTime.UtcNow);
+            var concatenatedVideo = Concatenate(videoData);
+            Assert.AreEqual(concatenatedAudio.Duration, concatenatedVideo.Duration, minSamplesPerFingerprint);
+
+            var avHashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
+                .From(new AVTrack(new AudioTrack(concatenatedAudio, totalTrackLength), new VideoTrack(concatenatedVideo, totalTrackLength)))
+                .Hash();
+            
+            modelService.Insert(new TrackInfo("1", string.Empty, string.Empty, MediaType.Audio | MediaType.Video), avHashes);
+
+            var avTracks = audioData.Zip(videoData).Select(_ => new AVTrack(new AudioTrack(_.First, _.First.Duration), new VideoTrack(_.Second, _.Second.Duration))).ToList();
+            int jitterLength = 10;
+            var collection = SimulateRealtimeAudioVideoQueryData(avTracks, jitterLength);
+            
+            var successMatches = new List<AVResultEntry>();
+            var didNotGetToContiguousQueryMatchLengthMatch = new List<AVResultEntry>();
+            double processed = await QueryCommandBuilder.Instance
+                                            .BuildRealtimeQueryCommand()
+                                            .From(collection)
+                                            .WithRealtimeQueryConfig(config =>
+                                            {
+                                                config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512);
+                                                config.QueryConfiguration.Audio.PermittedGap = 2;
+                                                config.ResultEntryFilter = new CompletedRealtimeMatchResultEntryFilter();
+                                                config.OngoingResultEntryFilter = new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d);
+                                                config.SuccessCallback = result =>
+                                                {
+                                                    foreach (var entry in result.ResultEntries)
+                                                    {
+                                                        successMatches.Add(entry);
+                                                    }
+                                                };
+
+                                                config.DidNotPassFilterCallback = result =>
+                                                {
+                                                    foreach (var entry in result.ResultEntries)
+                                                    {
+                                                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
+                                                    }
+                                                };
+
+                                                config.OngoingSuccessCallback = _ => { Interlocked.Increment(ref ongoingCalls); };
+                                                config.ErrorCallback = (error, _) => throw error;
+                                                config.RestoredAfterErrorCallback = () => throw new Exception("Downtime callback called");
+                                                return config;
+                                            })
+                                            .Intercept(fingerprints =>
+                                            {
+                                                Interlocked.Add(ref fingerprintsCount, fingerprints.Audio?.Count + fingerprints.Video?.Count ?? 0);
+                                                return fingerprints;
+                                            })
+                                            .UsingServices(modelService)
+                                            .Query(CancellationToken.None);
+            
+            Assert.AreEqual(1, successMatches.Count);
+            var (audioResult, videoResult) = successMatches.First();
+            Assert.IsNotNull(audioResult);
+            Assert.IsNotNull(videoResult);
+            Assert.AreEqual(1, audioResult.Confidence, 0.01);
+            Assert.AreEqual(1, audioResult.TrackRelativeCoverage, 0.01);
+            Assert.AreEqual(1, videoResult.Confidence, 0.01);
+            Assert.AreEqual(1, videoResult.TrackRelativeCoverage, 0.01);
+            Assert.AreEqual(0, didNotGetToContiguousQueryMatchLengthMatch.Count);
+            Assert.AreEqual(avTracks.Count, ongoingCalls);
+            Assert.AreEqual(totalTrackLength + jitterLength + jitterLength, processed, 1);
+        }
+
         private static async IAsyncEnumerable<AudioSamples> GetSamplesIndefinitely(int eachLengthSeconds, int throwExceptionAfter)
         {
             int count = 0;
@@ -508,6 +584,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 await Task.Delay(TimeSpan.Zero);
                 yield return TestUtilities.GenerateRandomAudioSamples(eachLengthSeconds * 5512);
             }
+        }
+
+        private static Frames Concatenate(IEnumerable<Frames> data)
+        {
+            var frames = data.SelectMany(_ => _).Select((frame, index) => new Frame(frame.ImageRowCols, frame.Rows, frame.Cols, (float)index / 30, (uint)index));
+            return new Frames(frames, string.Empty, 30);
         }
 
         private static AudioSamples Concatenate(IReadOnlyList<AudioSamples> data)
@@ -533,13 +615,51 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .ToList();
         }
 
+        private List<Frames> GenerateRandomFrameChunks(int count, double chunkLength, DateTime relativeTo)
+        {
+            return Enumerable.Range(0, count)
+                .Select(index =>
+                {
+                    var frames = Enumerable.Range(0, (int)(chunkLength * 30)).Select(chunkIndex => new Frame(TestUtilities.GenerateRandomFloatArray(128 * 72).Select(_ => _ / 32767).ToArray(), 128, 72, ((float)chunkIndex) / 30, (uint)chunkIndex)).ToList();
+                    return new Frames(frames, string.Empty, 30, relativeTo.AddSeconds((float)(index * frames.Count) / 30));
+                }).ToList();
+        }
+
+        private static IAsyncEnumerable<AVTrack> SimulateRealtimeAudioVideoQueryData(IReadOnlyCollection<AVTrack> existingTrack, double jitterLength)
+        {
+            var collection = new BlockingCollection<AVTrack>();
+            Task.Factory.StartNew(() =>
+            {
+                if (jitterLength > 0)
+                {
+                    var relativeTo = existingTrack.First()?.Audio?.Samples.RelativeTo.AddSeconds(-jitterLength) ?? DateTime.UtcNow;
+                    Jitter(collection, jitterLength, relativeTo);
+                }
+
+                foreach (var avTrack in existingTrack)
+                {
+                    collection.Add(avTrack);
+                }
+
+                if (jitterLength > 0)
+                {
+                    var relativeTo = existingTrack.Last()?.Audio?.Samples.RelativeTo.AddSeconds(-jitterLength) ?? DateTime.UtcNow;
+                    Jitter(collection, jitterLength, relativeTo);
+                }
+
+                collection.CompleteAdding();
+            });
+
+            return new BlockingRealtimeCollection<AVTrack>(collection); 
+        }
+
         /// <summary>
         ///  Simulate realtime query data.
         /// </summary>
         /// <param name="audioSamples">Chunks of audio samples.</param>
         /// <param name="jitterLength">Jitter length in seconds, added at the beginning and at the end.</param>
         /// <returns>Async enumerable.</returns>
-        private static IAsyncEnumerable<AudioSamples> SimulateRealtimeQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength)
+        private static IAsyncEnumerable<AudioSamples> SimulateRealtimeAudioQueryData(IReadOnlyCollection<AudioSamples> audioSamples, double jitterLength)
         {
             var collection = new BlockingCollection<AudioSamples>();
             Task.Factory.StartNew(() =>
@@ -567,16 +687,17 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return new BlockingRealtimeCollection<AudioSamples>(collection);
         }
 
+        private static void Jitter(BlockingCollection<AVTrack> collection, double jitterLength, DateTime relativeTo)
+        {
+            var audioSample = TestUtilities.GenerateRandomAudioSamples((int)(jitterLength * 5512), relativeTo);
+            var frames = TestUtilities.GenerateRandomFrames((int)(jitterLength * 30), relativeTo);
+            collection.Add(new AVTrack(new AudioTrack(audioSample, jitterLength), new VideoTrack(frames, jitterLength)));
+        }
+
         private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength, DateTime dateTime)
         {
-            double sum = 0d;
-            do
-            {
-                var audioSample = TestUtilities.GenerateRandomAudioSamples((int)(jitterLength * 5512));
-                collection.Add(new AudioSamples(audioSample.Samples, audioSample.Origin, audioSample.SampleRate, dateTime));
-                sum += audioSample.Duration;
-            } 
-            while (sum < jitterLength);
+            var audioSample = TestUtilities.GenerateRandomAudioSamples((int)(jitterLength * 5512), dateTime);
+            collection.Add(audioSample);
         }
 
         private AudioSamples GetMinSizeOfAudioSamples(int seed, DateTime relativeTo)

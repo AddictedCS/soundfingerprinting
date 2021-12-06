@@ -5,15 +5,26 @@ namespace SoundFingerprinting.Tests
     using System.Linq;
 
     using Audio;
+    using NUnit.Framework;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Utils;
 
     internal static class TestUtilities
     {
-        public static AudioSamples GenerateRandomAudioSamples(int length)
+        public static AudioSamples GenerateRandomAudioSamples(int length, DateTime? relativeTo = null)
         {
-            return new AudioSamples(GenerateRandomFloatArray(length), string.Empty, 5512);
+            return new AudioSamples(GenerateRandomFloatArray(length), string.Empty, 5512, relativeTo ?? DateTime.UtcNow);
+        }
+
+        public static Frames GenerateRandomFrames(int length, DateTime? relativeTo = null)
+        {
+            int framesPerSecond = 30;
+            var frames = Enumerable.Range(0, length)
+                .Select(index => new Frame(GenerateRandomFloatArray(128 * 72).Select(_ => _ / 32767).ToArray(), 128, 72, (float)index / framesPerSecond, (uint)index))
+                .ToList();
+
+            return new Frames(frames, string.Empty, framesPerSecond, relativeTo ?? DateTime.UtcNow);
         }
 
         public static float[] GenerateRandomFloatArray(int length, int seed = 0)
@@ -72,12 +83,12 @@ namespace SoundFingerprinting.Tests
             return Tuple.Create(first, second);
         }
         
-        public static Hashes GetRandomHashes(float length)
+        public static Hashes GetRandomHashes(float length, MediaType mediaType = MediaType.Audio)
         {
-            return GetRandomHashes((int)length, new Random(), false, 1);
+            return GetRandomHashes((int)length, new Random(), false, 1, mediaType);
         }
         
-        public static Hashes GetRandomHashes(int count, Random random, bool withOriginalPoints = false, float fingerprintLengthInSeconds = 1.48f)
+        public static Hashes GetRandomHashes(int count, Random random, bool withOriginalPoints = false, float fingerprintLengthInSeconds = 1.48f, MediaType mediaType = MediaType.Audio)
         {
             var fingerprints = new List<HashedFingerprint>();
             for (int i = 0; i < count; ++i)
@@ -97,7 +108,7 @@ namespace SoundFingerprinting.Tests
                 fingerprints.Add(hashData);
             }
 
-            return new Hashes(fingerprints, fingerprints.Max(f => f.StartsAt + fingerprintLengthInSeconds), MediaType.Audio);
+            return new Hashes(fingerprints, fingerprints.Max(f => f.StartsAt + fingerprintLengthInSeconds), mediaType);
         }
 
         public static TinyFingerprintSchema GenerateRandomFingerprint(Random random, int topWavelets, int width, int height)
@@ -108,6 +119,18 @@ namespace SoundFingerprinting.Tests
                 .ToArray();
             
             return new TinyFingerprintSchema(length).SetTrueAt(trues);
+        }
+        
+        public static void AssertHashesAreTheSame(Hashes expected, Hashes actual)
+        {
+            var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.SequenceNumber, (a, b) => (a, b)).ToList();
+            Assert.AreEqual(tuples.Count, expected.Count);
+            foreach (var (first, second) in tuples)
+            {
+                Assert.AreEqual(first.StartsAt, second.StartsAt);
+                Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
+                CollectionAssert.AreEqual(first.HashBins, second.HashBins);
+            }
         }
 
         private static void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
