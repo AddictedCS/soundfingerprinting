@@ -76,13 +76,13 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="ISourceFrom.From(string,double,double,MediaType)"/>
         public IWithFingerprintConfiguration From(string file, double secondsToProcess, double startAtSecond, MediaType mediaType = MediaType.Audio)
         {
-            if (mediaType.HasFlag(MediaType.Video) && videoService == null && mediaService == null)
-            {
-                throw new ArgumentException("You need to specify a valid instance of IVideoService or IMediaService if you want to process video content from the file.");
-            }
-            
             createFingerprintsMethod = () =>
             {
+                if (mediaType.HasFlag(MediaType.Video) && videoService == null && mediaService == null)
+                {
+                    throw new ArgumentException("You need to specify a valid instance of IVideoService or IMediaService if you want to process video content from the file.");
+                }
+                
                 // both audio and video are requested.
                 if (mediaType.HasFlag(MediaType.Audio | MediaType.Video))
                 {
