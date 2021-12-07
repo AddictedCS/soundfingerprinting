@@ -21,8 +21,9 @@ namespace SoundFingerprinting.Command
         ///  Build fingerprints from the files that are continuously coming from the realtime collection.
         /// </summary>
         /// <param name="files">Realtime collection to fetch files from.</param>
+        /// <param name="mediaType">Media type to fingerprint from provided files.</param>
         /// <returns>Realtime query configuration selector.</returns>
-        IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files);
+        IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio);
 
         /// <summary>
         ///  Build fingerprints from <see cref="AVTrack"/>.

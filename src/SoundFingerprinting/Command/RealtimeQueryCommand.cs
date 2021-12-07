@@ -14,7 +14,9 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Content;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.Media;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.Video;
 
     /// <summary>
     ///  Realtime command used to query the underlying data storage in realtime.
@@ -28,6 +30,8 @@ namespace SoundFingerprinting.Command
         private IAsyncEnumerable<AVHashes> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
         private IModelService? modelService;
+        private IMediaService? mediaService;
+        private IVideoService? videoService;
         private IAudioService audioService;
         private Func<AVHashes, AVHashes> hashesInterceptor = _ => _;
         
@@ -54,10 +58,10 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string})"/>
-        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files)
+        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string},MediaType)"/>
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
-            realtimeCollection = ConvertToAvHashes(ConvertToAvTrack(ReadHashesAsync(files)));
+            realtimeCollection = ConvertToAvHashes(ReadHashesAsync(files, mediaType));
             return this;
         }
 
@@ -118,6 +122,22 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IMediaService)"/>
+        public IRealtimeQueryCommand UsingServices(IModelService modelService, IMediaService mediaService)
+        {
+            this.modelService = modelService;
+            this.mediaService = mediaService;
+            return this;
+        }
+
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IVideoService)"/>
+        public IRealtimeQueryCommand UsingServices(IModelService modelService, IVideoService videoService)
+        {
+            this.modelService = modelService;
+            this.videoService = videoService;
+            return this;
+        }
+
         /// <inheritdoc cref="IInterceptRealtimeHashes.Intercept"/>
         public IUsingRealtimeQueryServices Intercept(Func<AVHashes, AVHashes> hashesInterceptor)
         {
@@ -125,11 +145,36 @@ namespace SoundFingerprinting.Command
             return this;
         }
         
-        private async IAsyncEnumerable<AudioSamples> ReadHashesAsync(IAsyncEnumerable<string> files)
+        private async IAsyncEnumerable<AVTrack> ReadHashesAsync(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
             await foreach (var file in files)
             {
-                yield return audioService.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.Audio.FingerprintConfiguration.SampleRate);
+                if (mediaType.HasFlag(MediaType.Audio | MediaType.Video))
+                {
+                    if (mediaService == null)
+                    {
+                        throw new ArgumentException("Set IMediaService via UsingServices method to be able to create audio and video fingerprints");
+                    }
+
+                    yield return mediaService.ReadAVTrackFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration(), mediaType);
+                }
+
+                if (mediaType.HasFlag(MediaType.Video))
+                {
+                    var service = mediaService ?? videoService;
+                    if (service == null)
+                    {
+                        throw new ArgumentException("Set IMediaService or IVideoService via UsingServices method to be able to create video fingerprints");
+                    }
+
+                    var frames = service.ReadFramesFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration().VideoConfig);
+                    yield return new AVTrack(null, new VideoTrack(frames, frames.Duration));
+                }
+
+                var audioServiceToUse = mediaService ?? audioService;
+                
+                var samples = audioServiceToUse.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.Audio.FingerprintConfiguration.SampleRate);
+                yield return new AVTrack(new AudioTrack(samples, samples.Duration), null);
             }
         }
         
