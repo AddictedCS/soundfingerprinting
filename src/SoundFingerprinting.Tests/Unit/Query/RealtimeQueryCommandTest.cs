@@ -18,6 +18,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Media;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
@@ -568,6 +569,43 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(0, didNotGetToContiguousQueryMatchLengthMatch.Count);
             Assert.AreEqual(avTracks.Count, ongoingCalls);
             Assert.AreEqual(totalTrackLength + jitterLength + jitterLength, processed, 1);
+        }
+
+        [Test]
+        public async Task ShouldReadDirectlyFromMediaService()
+        {
+            var cancellationToken = CancellationToken.None;
+            var realtimeMediaService = new Mock<IRealtimeMediaService>();
+            var modelService = new InMemoryModelService();
+            const int sampleRate = 8192;
+            realtimeMediaService.Setup(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, cancellationToken))
+                .Callback((string url, double length, AVTrackReadConfiguration avTrackConfig, MediaType mediaType, CancellationToken token) =>
+                {
+                     Assert.AreEqual(sampleRate, avTrackConfig.AudioConfig.SampleRate);
+                })
+                .Returns(GetSamples(10, 60, sampleRate: sampleRate));
+
+           var length = await  QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                .From("http://localhost", 60, MediaType.Audio)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.QueryConfiguration.FingerprintConfiguration.Audio.SampleRate = sampleRate;
+                    return config;
+                })
+                .UsingServices(modelService, realtimeMediaService.Object)
+                .Query(cancellationToken);
+           
+           realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, cancellationToken), Times.Exactly(1));
+           Assert.AreEqual(60 * 10, length);
+        }
+
+        private static async IAsyncEnumerable<AVTrack> GetSamples(int count, int seconds, int sampleRate = 5512)
+        {
+            foreach (var track in Enumerable.Range(0, count).Select(index => new AVTrack(new AudioTrack(TestUtilities.GenerateRandomAudioSamples(seconds * sampleRate, sampleRate: sampleRate), 100), new VideoTrack(TestUtilities.GenerateRandomFrames(seconds * 30), 100))))
+            {
+                yield return track;
+                await Task.Delay(TimeSpan.Zero);
+            }
         }
 
         private static async IAsyncEnumerable<AudioSamples> GetSamplesIndefinitely(int eachLengthSeconds, int throwExceptionAfter)
