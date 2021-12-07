@@ -60,8 +60,11 @@ namespace SoundFingerprinting.Command
                 throw new ArgumentException("Set an instance of IRealtimeMediaService in UsingServices method to be able to generate fingerprints directly from broadcast URL");
             }
 
-            var avTrackReadConfiguration = configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration();
-            realtimeCollection = cancellationToken => ConvertToAvHashes(realtimeMediaService.ReadAVTrackFromRealtimeSource(url, chunkLength, avTrackReadConfiguration, mediaType, cancellationToken));
+            realtimeCollection = cancellationToken =>
+            {
+                var avTrackReadConfiguration = configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration();
+                return ConvertToAvHashes(realtimeMediaService.ReadAVTrackFromRealtimeSource(url, chunkLength, avTrackReadConfiguration, mediaType, cancellationToken));
+            };
             return this;
         }
 
