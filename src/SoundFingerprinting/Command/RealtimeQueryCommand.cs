@@ -27,7 +27,7 @@ namespace SoundFingerprinting.Command
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryCommandBuilder queryCommandBuilder;
         
-        private IAsyncEnumerable<AVHashes> realtimeCollection;
+        private Func<CancellationToken, IAsyncEnumerable<AVHashes>> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
         private IRealtimeMediaService? realtimeMediaService;
         private IModelService? modelService;
@@ -48,7 +48,7 @@ namespace SoundFingerprinting.Command
             configuration = new DefaultRealtimeQueryConfiguration(
                 e => { /* do nothing */ }, 
                 e => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
-            realtimeCollection = new BlockingRealtimeCollection<AVHashes>(new BlockingCollection<AVHashes>());
+            realtimeCollection = _ => new BlockingRealtimeCollection<AVHashes>(new BlockingCollection<AVHashes>());
             audioService = new SoundFingerprintingAudioService();
         }
         
@@ -60,35 +60,36 @@ namespace SoundFingerprinting.Command
                 throw new ArgumentException("Set an instance of IRealtimeMediaService in UsingServices method to be able to generate fingerprints directly from broadcast URL");
             }
 
-            realtimeCollection = ConvertToAvHashes(realtimeMediaService.ReadAVTrackFromRealtimeSource(url, chunkLength, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration(), mediaType, CancellationToken.None));
+            var avTrackReadConfiguration = configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration();
+            realtimeCollection = cancellationToken => ConvertToAvHashes(realtimeMediaService.ReadAVTrackFromRealtimeSource(url, chunkLength, avTrackReadConfiguration, mediaType, cancellationToken));
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AudioSamples})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> source)
         {
-            realtimeCollection = ConvertToAvHashes(ConvertToAvTrack(source));
+            realtimeCollection = cancellationToken => ConvertToAvHashes(ConvertToAvTrack(source));
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string},MediaType)"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
-            realtimeCollection = ConvertToAvHashes(ReadHashesAsync(files, mediaType));
+            realtimeCollection = cancellationToken => ConvertToAvHashes(ReadHashesAsync(files, mediaType));
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AVTrack})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AVTrack> tracks)
         {
-            realtimeCollection = ConvertToAvHashes(tracks);
+            realtimeCollection = cancellationToken => ConvertToAvHashes(tracks);
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AVHashes})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AVHashes> avHashes)
         {
-            realtimeCollection = avHashes;
+            realtimeCollection = _ => avHashes;
             return this;
         }
 
@@ -302,7 +303,7 @@ namespace SoundFingerprinting.Command
         /// <exception cref="Exception">Any other exception that can occur during fingerprinting creation, and not fingerprinting querying.</exception>
         private async Task QueryFromRealtimeAndOffline(IRealtimeAggregator resultsAggregator, CancellationToken cancellationToken)
         {
-            await foreach (var avHashes in realtimeCollection.WithCancellation(cancellationToken))
+            await foreach (var avHashes in realtimeCollection(cancellationToken).WithCancellation(cancellationToken))
             {
                 await TryQuery(avHashes, resultsAggregator, cancellationToken);
             }
