@@ -39,5 +39,13 @@ namespace SoundFingerprinting.Command
         /// <param name="videoService">VideoService to use for file processing.</param>
         /// <returns>Realtime command.</returns>
         IRealtimeQueryCommand UsingServices(IModelService modelService, IVideoService videoService);
+        
+        /// <summary>
+        ///  Sets the model service that will query the datasource, as well as the realtime media service used to create fingerprints directly from a given URL.
+        /// </summary>
+        /// <param name="modelService">ModelService to query.</param>
+        /// <param name="realtimeMediaService">Realtime media service to use.</param>
+        /// <returns>Realtime command.</returns>
+        IRealtimeQueryCommand UsingServices(IModelService modelService, IRealtimeMediaService realtimeMediaService);
     }
 }
