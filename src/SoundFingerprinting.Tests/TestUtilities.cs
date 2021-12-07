@@ -12,9 +12,9 @@ namespace SoundFingerprinting.Tests
 
     internal static class TestUtilities
     {
-        public static AudioSamples GenerateRandomAudioSamples(int length, DateTime? relativeTo = null)
+        public static AudioSamples GenerateRandomAudioSamples(int length, DateTime? relativeTo = null, int sampleRate = 5512)
         {
-            return new AudioSamples(GenerateRandomFloatArray(length), string.Empty, 5512, relativeTo ?? DateTime.UtcNow);
+            return new AudioSamples(GenerateRandomFloatArray(length), string.Empty, sampleRate, relativeTo ?? DateTime.UtcNow);
         }
 
         public static Frames GenerateRandomFrames(int length, DateTime? relativeTo = null)
