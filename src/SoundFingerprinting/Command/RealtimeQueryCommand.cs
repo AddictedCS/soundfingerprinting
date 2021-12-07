@@ -29,6 +29,7 @@ namespace SoundFingerprinting.Command
         
         private IAsyncEnumerable<AVHashes> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
+        private IRealtimeMediaService? realtimeMediaService;
         private IModelService? modelService;
         private IMediaService? mediaService;
         private IVideoService? videoService;
@@ -49,6 +50,18 @@ namespace SoundFingerprinting.Command
                 e => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
             realtimeCollection = new BlockingRealtimeCollection<AVHashes>(new BlockingCollection<AVHashes>());
             audioService = new SoundFingerprintingAudioService();
+        }
+        
+        /// <inheritdoc cref="IRealtimeSource.From(string,double,MediaType)"/>
+        public IWithRealtimeQueryConfiguration From(string url, double chunkLength, MediaType mediaType = MediaType.Audio)
+        {
+            if (realtimeMediaService == null)
+            {
+                throw new ArgumentException("Set an instance of IRealtimeMediaService in UsingServices method to be able to generate fingerprints directly from broadcast URL");
+            }
+
+            realtimeCollection = ConvertToAvHashes(realtimeMediaService.ReadAVTrackFromRealtimeSource(url, chunkLength, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration(), mediaType, CancellationToken.None));
+            return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AudioSamples})"/>
@@ -135,6 +148,14 @@ namespace SoundFingerprinting.Command
         {
             this.modelService = modelService;
             this.videoService = videoService;
+            return this;
+        }
+
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IRealtimeMediaService)"/>
+        public IRealtimeQueryCommand UsingServices(IModelService modelService, IRealtimeMediaService realtimeMediaService)
+        {
+            this.modelService = modelService;
+            this.realtimeMediaService = realtimeMediaService;
             return this;
         }
 
