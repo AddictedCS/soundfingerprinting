@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldThrowArgumentNullExceptionSinceModelServiceIsNotSet()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => QueryCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(10 * 5512))
                 .Query()); 

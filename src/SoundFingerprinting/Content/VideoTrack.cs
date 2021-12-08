@@ -6,22 +6,55 @@
     using SoundFingerprinting.Data;
     using static System.Math;
 
-    public class VideoTrack : Track
+    /// <summary>
+    ///  Class container for video frames.
+    /// </summary>
+    public class VideoTrack
     {
-        public Frames Frames { get; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VideoTrack"/> class.
+        /// </summary>
+        /// <param name="frames">Video frames.</param>
+        public VideoTrack(Frames frames) : this(frames, frames.Duration)
+        {
+            // no op
+        }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VideoTrack"/> class.
+        /// </summary>
+        /// <param name="frames">Video frames.</param>
+        /// <param name="totalEstimatedDuration">Total estimated duration of video frames.</param>
+        /// <remarks>
+        ///  Estimated duration is not always equal to <see cref="Frames.Duration"/> due to how it is estimated by the decoder.
+        /// </remarks>
         public VideoTrack(Frames frames, double totalEstimatedDuration)
         {
             Frames = frames;
             TotalEstimatedDuration = totalEstimatedDuration;
         }
 
-        public override MediaType Type => MediaType.Video;
+        /// <summary>
+        ///  Gets video frames.
+        /// </summary>
+        public Frames Frames { get; }
 
-        public override double Duration => Frames.Duration;
-        
-        public override double TotalEstimatedDuration { get; }
+        /// <summary>
+        ///  Gets frames duration.
+        /// </summary>
+        public double Duration => Frames.Duration;
 
+        /// <summary>
+        ///  Gets total estimated duration of video frames.
+        /// </summary>
+        public double TotalEstimatedDuration { get; }
+
+        /// <summary>
+        ///  Subtracts a part of the track according to start and length parameters.
+        /// </summary>
+        /// <param name="start">Start measured in seconds.</param>
+        /// <param name="length">Length measured in seconds.</param>
+        /// <returns>A new instance of the <see cref="VideoTrack"/> class.</returns>
         public VideoTrack SubTrack(double start, double length)
         {
             start = Max(start, 0);
@@ -31,34 +64,51 @@
             var subtracked = Frames
                 .Skip(skippedFrames)
                 .Take((int)(length * frameRate))
-                .Select(f => new Frame(f.ImageRowCols, f.Rows, f.Cols, (float)(f.SequenceNumber - skippedFrames) / frameRate, f.SequenceNumber - (uint)skippedFrames))
+                .Select(f => new Frame(f.ImageRowCols, f.Rows, f.Cols, (float)(f.SequenceNumber - skippedFrames) / frameRate,
+                    f.SequenceNumber - (uint)skippedFrames))
                 .ToList();
-            
+
             return new VideoTrack(new Frames(subtracked, Frames.Origin, Frames.FrameRate, Frames.RelativeTo.AddSeconds(start)), TotalEstimatedDuration);
         }
 
+        /// <summary>
+        ///  Cuts the video track from the beginning.
+        /// </summary>
+        /// <param name="length">Length measured in seconds to cut.</param>
+        /// <returns>A new instance of the <see cref="VideoTrack"/> class.</returns>
         public VideoTrack Head(double length)
         {
             return SubTrack(0, length);
         }
 
+        /// <summary>
+        ///  Cuts the audio track from the end.
+        /// </summary>
+        /// <param name="start">Start measured in seconds to start at.</param>
+        /// <returns>A new instance of the <see cref="VideoTrack"/> class.</returns>
         public VideoTrack Tail(double start)
         {
             return SubTrack(start, Duration - start);
         }
 
+        /// <summary>
+        ///  Concatenates multiple video tracks in one.
+        /// </summary>
+        /// <param name="tracks">Tracks to concatenate.</param>
+        /// <returns>A new instance of the <see cref="VideoTrack"/> class.</returns>
+        /// <exception cref="ArgumentException">Argument exception if the collection is empty.</exception>
         public static VideoTrack Concat(IReadOnlyCollection<VideoTrack> tracks)
         {
             if (!tracks.Any())
             {
                 throw new ArgumentException("Cannot concat empty set.", nameof(tracks));
             }
-            
+
             var first = tracks.First();
             var frameRate = first.Frames.FrameRate;
             var totalFrames = tracks.Sum(t => t.Frames.Count());
             var sequence = Enumerable.Range(0, totalFrames)
-                .Select(i => new { startsAt = (float)i / frameRate, sequenceNumber = (uint)i,  })
+                .Select(i => new { startsAt = (float)i / frameRate, sequenceNumber = (uint)i, })
                 .ToList();
             var frames = tracks
                 .SelectMany(t => t.Frames)

@@ -85,7 +85,7 @@
         /// </summary>
         /// <param name="tracks">Tracks to concatenate.</param>
         /// <returns>Concatenated instance of the <see cref="AVTrack"/> class.</returns>
-        /// <exception cref="ArgumentException">Argument exception of the collection is empty.</exception>
+        /// <exception cref="ArgumentException">Argument exception if the collection is empty.</exception>
         public static AVTrack Concat(IReadOnlyCollection<AVTrack> tracks)
         {
             if (!tracks.Any())

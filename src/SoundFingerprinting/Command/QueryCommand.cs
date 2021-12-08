@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Runtime.InteropServices.ComTypes;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using SoundFingerprinting.Audio;
@@ -224,7 +225,7 @@
         {
             if (modelService == null)
             {
-                throw new ArgumentNullException(nameof(modelService), "Provide an instance of IModelService to query the storage via UsingServices(IModelService)");
+                throw new ArgumentException("Provide an instance of IModelService to query the storage via UsingServices(IModelService)", nameof(modelService));
             }
             
             return hashes != null ? queryFingerprintService.Query(hashes, configuration, modelService) : null;

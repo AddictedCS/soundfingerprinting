@@ -194,7 +194,7 @@
         [Test]
         public void ShouldThrowWhenModelServiceIsNull()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => QueryCommandBuilder.Instance.BuildQueryCommand()
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(120))
                 .Query());
         }
