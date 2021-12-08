@@ -4,6 +4,7 @@ namespace SoundFingerprinting.Tests.Unit.Builder
     using System.Threading.Tasks;
     using Moq;
     using NUnit.Framework;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Content;
     using SoundFingerprinting.Data;
@@ -19,6 +20,12 @@ namespace SoundFingerprinting.Tests.Unit.Builder
             Assert.ThrowsAsync<ArgumentException>(() => FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
+                .Hash());
+            
+            Assert.ThrowsAsync<ArgumentException>(() => FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From("test.mp4", MediaType.Video)
+                .UsingServices(new SoundFingerprintingAudioService())
                 .Hash());
         }
         

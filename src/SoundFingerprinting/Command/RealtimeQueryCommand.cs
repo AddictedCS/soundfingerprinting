@@ -274,6 +274,7 @@ namespace SoundFingerprinting.Command
                 try
                 {
                     await QueryFromRealtimeAndOffline(resultsAggregator, cancellationToken);
+                    logger.LogInformation("Stopped querying realtime source after {0:00} seconds", queryLength);
                     return queryLength;
                 }
                 catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
