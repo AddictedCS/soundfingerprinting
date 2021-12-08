@@ -618,7 +618,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationTokenSource.Token);
            
             realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>()), Times.Exactly(1));
-            Assert.AreEqual(180, length); 
+            Assert.IsTrue(length <= 180, $"Length {length} is bigger than 180");
         }
 
         private static async IAsyncEnumerable<AVTrack> GetSamples(int count, int seconds, [EnumeratorCancellation] CancellationToken cancellationToken, int sampleRate = 5512, int delay = 0)
