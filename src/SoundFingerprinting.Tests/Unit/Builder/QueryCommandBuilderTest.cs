@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
@@ -12,7 +13,11 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.Content;
+    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Media;
     using SoundFingerprinting.Query;
 
     [TestFixture]
@@ -54,6 +59,52 @@
             queryFingerprintService.VerifyAll();
         }
 
+        [Test]
+        public void ShouldThrowOnMissingServices()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From("test.mp4", MediaType.Audio | MediaType.Video)
+                .UsingServices(new InMemoryModelService())
+                .Query());
+            
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(TestUtilities.GenerateRandomAudioSamples(100))
+                .Query());
+
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From("test.mp4", MediaType.Video)
+                .UsingServices(new InMemoryModelService(), new SoundFingerprintingAudioService())
+                .Query());
+        }
+
+        [Test]
+        public async Task ShouldQueryUsingAudioVideoHashes()
+        {
+            var modelService = new Mock<IModelService>();
+            var mediaService = new Mock<IMediaService>();
+
+            var avTrack = new AVTrack(new AudioTrack(TestUtilities.GenerateRandomAudioSamples(30 * 5512)), new VideoTrack(TestUtilities.GenerateRandomFrames(30 * 30)));
+            mediaService.Setup(_ => _.ReadAVTrackFromFile("test.mp4", It.IsAny<AVTrackReadConfiguration>(), 0, 0, MediaType.Audio | MediaType.Video)).Returns(avTrack);
+            modelService.Setup(_ => _.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Callback(
+                (Hashes hashes, QueryConfiguration configuration) =>
+                {
+                    Assert.AreEqual(30, hashes.DurationInSeconds, 0.001);
+                }).Returns(Enumerable.Empty<SubFingerprintData>());
+            
+            var avQueryResult = await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From("test.mp4", MediaType.Audio | MediaType.Video)
+                .UsingServices(modelService.Object, mediaService.Object)
+                .Query();
+            
+            Assert.IsFalse(avQueryResult.ContainsMatches);
+            
+            modelService.Verify(_ => _.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
+        }
+        
         [Test]
         public async Task QueryIsBuiltFromFileCorrectly()
         {
