@@ -34,6 +34,7 @@ namespace SoundFingerprinting.Command
         private IMediaService? mediaService;
         private IVideoService? videoService;
         private IAudioService audioService;
+        private Func<AVTrack, AVTrack> avTrackInterceptor = _ => _;
         private Func<AVHashes, AVHashes> hashesInterceptor = _ => _;
         
         private bool errored = false;
@@ -97,14 +98,14 @@ namespace SoundFingerprinting.Command
         }
 
         /// <inheritdoc cref="IWithRealtimeQueryConfiguration.WithRealtimeQueryConfig(RealtimeQueryConfiguration)"/>
-        public IInterceptRealtimeHashes WithRealtimeQueryConfig(RealtimeQueryConfiguration realtimeQueryConfiguration)
+        public IInterceptRealtimeSource WithRealtimeQueryConfig(RealtimeQueryConfiguration realtimeQueryConfiguration)
         {
             configuration = realtimeQueryConfiguration;
             return this;
         }
 
         /// <inheritdoc cref="IWithRealtimeQueryConfiguration.WithRealtimeQueryConfig(Func{RealtimeQueryConfiguration,RealtimeQueryConfiguration})"/>
-        public IInterceptRealtimeHashes WithRealtimeQueryConfig(Func<RealtimeQueryConfiguration, RealtimeQueryConfiguration> amendQueryFunctor)
+        public IInterceptRealtimeSource WithRealtimeQueryConfig(Func<RealtimeQueryConfiguration, RealtimeQueryConfiguration> amendQueryFunctor)
         {
             configuration = amendQueryFunctor(configuration);
             return this;
@@ -163,8 +164,15 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        /// <inheritdoc cref="IInterceptRealtimeHashes.Intercept"/>
-        public IUsingRealtimeQueryServices Intercept(Func<AVHashes, AVHashes> hashesInterceptor)
+        /// <inheritdoc cref="IInterceptRealtimeSource.InterceptAVTrack"/>
+        public IInterceptRealtimeSource InterceptAVTrack(Func<AVTrack, AVTrack> avTrackInterceptor)
+        {
+            this.avTrackInterceptor = avTrackInterceptor;
+            return this;
+        }
+
+        /// <inheritdoc cref="IInterceptRealtimeSource.InterceptHashes"/>
+        public IInterceptRealtimeSource InterceptHashes(Func<AVHashes, AVHashes> hashesInterceptor)
         {
             this.hashesInterceptor = hashesInterceptor;
             return this;
@@ -214,21 +222,23 @@ namespace SoundFingerprinting.Command
         private async IAsyncEnumerable<AVHashes> ConvertToAvHashes(IAsyncEnumerable<AVTrack> source)
         {
             var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.QueryConfiguration.Audio.FingerprintConfiguration.SpectrogramConfig.MinimumSamplesPerFingerprint, configuration.QueryConfiguration.Audio.Stride);
-            await foreach (var (audioTrack, videoTrack) in source)
+            await foreach (var track in source)
             {
-                logger.LogDebug("Retrieved audio track {0:0.00}, video track {1:0.00} from realtime query source.", audioTrack?.Duration ?? 0, videoTrack?.Duration ?? 0);
+                logger.LogDebug("Retrieved track {Track} from realtime query source", track);
+                var (audioTrack, videoTrack) = avTrackInterceptor(track);
                 var prefixed = audioTrack != null ?  realtimeSamplesAggregator.Aggregate(audioTrack.Samples) : null;
                 if (prefixed == null && videoTrack == null)
                 {
                     // can happen when there is not enough samples to generate a fingerprint
-                    logger.LogDebug("Both audio and video tracks are null or empty. Waiting until minimum number of samples are aggregated for a fingerprint to be generated.");
+                    logger.LogDebug("Both audio and video tracks are null or empty. Waiting until minimum number of samples are aggregated for a fingerprint to be generated");
                     continue;
                 }
 
                 double audioTimeOffset = prefixed?.TimeOffset ?? 0;
-                double estimatedTime = audioTrack?.TotalEstimatedDuration ?? 0 - audioTimeOffset; // prefixed is always longer than initial, hence time offset is negative
+                double estimatedTime = audioTrack?.TotalEstimatedDuration ?? 0 - audioTimeOffset; // prefixed is always longer than initial, hence time offset is always negative
                 var avTrack = new AVTrack(prefixed != null ? new AudioTrack(prefixed, estimatedTime) : null, videoTrack);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, avTrack);
+                logger.LogDebug("Created hashes {Hashes} from aggregated track {AVTrack}", hashes, avTrack);
                 var avHashes = hashesInterceptor(hashes);
                 yield return avHashes;
             }
