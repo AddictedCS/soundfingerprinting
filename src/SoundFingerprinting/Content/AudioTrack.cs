@@ -63,7 +63,7 @@
                 .Skip((int)(start * Samples.SampleRate))
                 .Take((int)(length * Samples.SampleRate))
                 .ToArray();
-            return new AudioTrack(new AudioSamples(samples, Samples.Origin, Samples.SampleRate, Samples.RelativeTo), TotalEstimatedDuration);
+            return new AudioTrack(new AudioSamples(samples, Samples.Origin, Samples.SampleRate, Samples.RelativeTo.AddSeconds(start)), TotalEstimatedDuration);
         }
 
         /// <summary>
