@@ -150,8 +150,8 @@ namespace SoundFingerprinting.Tests.Unit.Data
         [Test]
         public void ShouldMergeCorrectlyRealtimeHashes()
         {
-            var prev = TestUtilities.GetRandomHashes(200).WithNewRelativeTo(DateTime.UnixEpoch);
-            var next = TestUtilities.GetRandomHashes(205).WithNewRelativeTo(DateTime.UnixEpoch.AddSeconds(195)).WithTimeOffset(-5);
+            var prev = TestUtilities.GetRandomHashes(200).WithRelativeTo(DateTime.UnixEpoch);
+            var next = TestUtilities.GetRandomHashes(205).WithRelativeTo(DateTime.UnixEpoch.AddSeconds(195)).WithTimeOffset(-5);
 
             var merged =  prev.MergeWith(next);
             

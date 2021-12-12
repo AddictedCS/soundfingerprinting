@@ -155,7 +155,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var relativeTo = DateTime.UnixEpoch;
             foreach (float[] split in splits)
             {
-                blocking.Add(new AVTrack(new AudioTrack(new AudioSamples(split, string.Empty, 5512, relativeTo), seconds / 2d), null));
+                blocking.Add(new AVTrack(new AudioTrack(new AudioSamples(split, string.Empty, 5512, relativeTo)), null));
                 relativeTo = relativeTo.AddSeconds(seconds / 2d);
             }
             

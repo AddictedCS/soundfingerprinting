@@ -15,23 +15,9 @@
         /// Initializes a new instance of the <see cref="AudioTrack"/> class.
         /// </summary>
         /// <param name="samples">Audio samples.</param>
-        public AudioTrack(AudioSamples samples) : this(samples, samples.Duration)
-        {
-            // no op
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AudioTrack"/> class.
-        /// </summary>
-        /// <param name="samples">Audio samples.</param>
-        /// <param name="totalEstimatedDuration">Estimated duration of audio samples.</param>
-        /// <remarks>
-        ///  Estimated duration is not always equal to <see cref="AudioSamples.Duration"/> due to how it is estimated by the decoder.
-        /// </remarks>
-        public AudioTrack(AudioSamples samples, double totalEstimatedDuration)
+        public AudioTrack(AudioSamples samples)
         {
             Samples = samples;
-            TotalEstimatedDuration = totalEstimatedDuration;
         }
 
         /// <summary>
@@ -44,11 +30,6 @@
         /// </summary>
         public double Duration => Samples.Duration;
         
-        /// <summary>
-        ///  Gets total estimated duration.
-        /// </summary>
-        public double TotalEstimatedDuration { get; }
-
         /// <summary>
         ///  Subtracts a part of the track according to start and length parameters.
         /// </summary>
@@ -63,7 +44,7 @@
                 .Skip((int)(start * Samples.SampleRate))
                 .Take((int)(length * Samples.SampleRate))
                 .ToArray();
-            return new AudioTrack(new AudioSamples(samples, Samples.Origin, Samples.SampleRate, Samples.RelativeTo.AddSeconds(start)), TotalEstimatedDuration);
+            return new AudioTrack(new AudioSamples(samples, Samples.Origin, Samples.SampleRate, Samples.RelativeTo.AddSeconds(start)));
         }
 
         /// <summary>
@@ -105,7 +86,7 @@
                 .SelectMany(t => t.Samples.Samples)
                 .ToArray();
             var audioSamples = new AudioSamples(samples, first.Origin, first.SampleRate, first.RelativeTo);
-            return new AudioTrack(audioSamples, audioTrack.TotalEstimatedDuration);
+            return new AudioTrack(audioSamples);
         }
     }
 }

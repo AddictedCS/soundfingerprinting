@@ -238,7 +238,7 @@ namespace SoundFingerprinting.Data
         /// </summary>
         /// <param name="relativeTo">New relative to property.</param>
         /// <returns>New instance of <see cref="Hashes"/> object with newly set <see cref="RelativeTo"/> property.</returns>
-        public Hashes WithNewRelativeTo(DateTime relativeTo)
+        public Hashes WithRelativeTo(DateTime relativeTo)
         {
             return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary, 0);
         }

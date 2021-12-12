@@ -517,12 +517,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(concatenatedAudio.Duration, concatenatedVideo.Duration, minSamplesPerFingerprint);
 
             var avHashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
-                .From(new AVTrack(new AudioTrack(concatenatedAudio, totalTrackLength), new VideoTrack(concatenatedVideo, totalTrackLength)))
+                .From(new AVTrack(new AudioTrack(concatenatedAudio), new VideoTrack(concatenatedVideo)))
                 .Hash();
             
             modelService.Insert(new TrackInfo("1", string.Empty, string.Empty, MediaType.Audio | MediaType.Video), avHashes);
 
-            var avTracks = audioData.Zip(videoData).Select(_ => new AVTrack(new AudioTrack(_.First, _.First.Duration), new VideoTrack(_.Second, _.Second.Duration))).ToList();
+            var avTracks = audioData.Zip(videoData).Select(_ => new AVTrack(new AudioTrack(_.First), new VideoTrack(_.Second))).ToList();
             int jitterLength = 10;
             var collection = SimulateRealtimeAudioVideoQueryData(avTracks, jitterLength);
             
@@ -757,7 +757,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             var audioSample = TestUtilities.GenerateRandomAudioSamples((int)(jitterLength * 5512), relativeTo);
             var frames = TestUtilities.GenerateRandomFrames((int)(jitterLength * 30), relativeTo);
-            collection.Add(new AVTrack(new AudioTrack(audioSample, jitterLength), new VideoTrack(frames, jitterLength)));
+            collection.Add(new AVTrack(new AudioTrack(audioSample), new VideoTrack(frames)));
         }
 
         private static void Jitter(BlockingCollection<AudioSamples> collection, double jitterLength, DateTime dateTime)

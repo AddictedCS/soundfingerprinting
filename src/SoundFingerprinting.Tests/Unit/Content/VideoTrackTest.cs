@@ -10,7 +10,7 @@ namespace SoundFingerprinting.Tests.Unit.Content
         [Test]
         public void ShouldSubTrackFullSong()
         {
-            var videoTrack = new VideoTrack(TestUtilities.GenerateRandomFrames(30 * 30), 30);
+            var videoTrack = new VideoTrack(TestUtilities.GenerateRandomFrames(30 * 30));
 
             var subTracked = videoTrack.SubTrack(0, 0);
             
@@ -21,7 +21,7 @@ namespace SoundFingerprinting.Tests.Unit.Content
         public void ShouldSubTrackHalfOfTheTrack()
         {
             var frames = TestUtilities.GenerateRandomFrames(30 * 30);
-            var videoTrack = new VideoTrack(frames, 30);
+            var videoTrack = new VideoTrack(frames);
 
             var subTracked = videoTrack.SubTrack(0, 15);
             

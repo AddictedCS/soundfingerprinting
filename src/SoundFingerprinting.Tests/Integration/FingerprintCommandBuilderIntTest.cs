@@ -207,7 +207,7 @@
             var audio = TestUtilities.GenerateRandomAudioSamples(120 * 5512);
             var video = TestUtilities.GenerateRandomFrames(120 * 30);
 
-            var avTrack = new AVTrack(new AudioTrack(audio, 120), new VideoTrack(video, 120));
+            var avTrack = new AVTrack(new AudioTrack(audio), new VideoTrack(video));
             var avHashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
                 .From(avTrack)
                 .Hash();

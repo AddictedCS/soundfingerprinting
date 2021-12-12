@@ -72,21 +72,21 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AudioSamples})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> source)
         {
-            realtimeCollection = cancellationToken => ConvertToAvHashes(ConvertToAvTrack(source));
+            realtimeCollection = _ => ConvertToAvHashes(ConvertToAvTrack(source));
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string},MediaType)"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
-            realtimeCollection = cancellationToken => ConvertToAvHashes(ReadHashesAsync(files, mediaType));
+            realtimeCollection = _ => ConvertToAvHashes(ReadHashesAsync(files, mediaType));
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AVTrack})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AVTrack> tracks)
         {
-            realtimeCollection = cancellationToken => ConvertToAvHashes(tracks);
+            realtimeCollection = _ => ConvertToAvHashes(tracks);
             return this;
         }
 
@@ -201,13 +201,13 @@ namespace SoundFingerprinting.Command
                     }
 
                     var frames = service.ReadFramesFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration().VideoConfig);
-                    yield return new AVTrack(null, new VideoTrack(frames, frames.Duration));
+                    yield return new AVTrack(null, new VideoTrack(frames));
                 }
 
                 var audioServiceToUse = mediaService ?? audioService;
                 
                 var samples = audioServiceToUse.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.Audio.FingerprintConfiguration.SampleRate);
-                yield return new AVTrack(new AudioTrack(samples, samples.Duration), null);
+                yield return new AVTrack(new AudioTrack(samples), null);
             }
         }
         
@@ -215,7 +215,7 @@ namespace SoundFingerprinting.Command
         {
             await foreach (var samples in source)
             {
-                yield return new AVTrack(new AudioTrack(samples, samples.Duration), null);
+                yield return new AVTrack(new AudioTrack(samples), null);
             }
         }
 
@@ -234,9 +234,7 @@ namespace SoundFingerprinting.Command
                     continue;
                 }
 
-                double audioTimeOffset = prefixed?.TimeOffset ?? 0;
-                double estimatedTime = audioTrack?.TotalEstimatedDuration ?? 0 - audioTimeOffset; // prefixed is always longer than initial, hence time offset is always negative
-                var avTrack = new AVTrack(prefixed != null ? new AudioTrack(prefixed, estimatedTime) : null, videoTrack);
+                var avTrack = new AVTrack(prefixed != null ? new AudioTrack(prefixed) : null, videoTrack);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, avTrack);
                 logger.LogDebug("Created hashes {Hashes} from aggregated track {AVTrack}", hashes, avTrack);
                 var avHashes = hashesInterceptor(hashes);
@@ -284,7 +282,7 @@ namespace SoundFingerprinting.Command
                 try
                 {
                     await QueryFromRealtimeAndOffline(resultsAggregator, cancellationToken);
-                    logger.LogInformation("Stopped querying realtime source after {0:00} seconds", queryLength);
+                    logger.LogInformation("Stopped querying realtime source after {QueryLength:00} seconds", queryLength);
                     return queryLength;
                 }
                 catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
@@ -350,7 +348,7 @@ namespace SoundFingerprinting.Command
             while (offlineStorage.Any())
             {
                 var offlineHashes = offlineStorage.First();
-                logger.LogDebug("Read AVHashes from offline storage audio {0:00}, video {1:0.00}. Querying storage.", offlineHashes.Audio?.DurationInSeconds ?? 0, offlineHashes.Video?.DurationInSeconds ?? 0);
+                logger.LogDebug("Read AVHashes from offline storage {Hashes}. Querying storage", offlineHashes);
                 yield return await GetAvQueryResult(offlineHashes);
                 offlineStorage.Remove(offlineHashes);
                 await Task.Delay(configuration.DelayStrategy.Delay, cancellationToken);
@@ -373,7 +371,7 @@ namespace SoundFingerprinting.Command
                 var avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(hashes.FingerprintingTime.AudioMilliseconds, hashes.FingerprintingTime.VideoMilliseconds);
                 if (errored)
                 {
-                    logger.LogDebug("Query restored from previous error.");
+                    logger.LogDebug("Query restored from previous error");
                     errored = false;
                     configuration.RestoredAfterErrorCallback();
                     configuration.ErrorBackoffPolicy.Success();
