@@ -7,7 +7,7 @@ namespace SoundFingerprinting.Data
     /// <summary>
     ///  Class that describes a successful query match.
     /// </summary>
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class QueryMatch
     {
         /// <summary>
@@ -23,11 +23,6 @@ namespace SoundFingerprinting.Data
             Track = track;
             Coverage = coverage;
             MatchedAt = matchedAt;
-        }
-
-        private QueryMatch()
-        {
-            // left for proto-buf
         }
 
         /// <summary>

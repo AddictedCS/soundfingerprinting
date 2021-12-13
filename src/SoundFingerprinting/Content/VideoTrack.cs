@@ -96,8 +96,7 @@
                 .Zip(sequence, (f, s) => new Frame(f.ImageRowCols, f.Rows, f.Cols, s.startsAt, s.sequenceNumber))
                 .ToList();
 
-            var relativeTo = tracks.Select(_ => _.Frames.RelativeTo).Min();
-            return new VideoTrack(new Frames(frames, first.Frames.Origin, frameRate, relativeTo));
+            return new VideoTrack(new Frames(frames, first.Frames.Origin, frameRate, first.Frames.RelativeTo));
         }
     }
 }
