@@ -188,7 +188,7 @@
             {
                 string streamId = audioHashes?.StreamId ?? videoHashes?.StreamId ?? string.Empty;
                 logger.LogDebug("AVQueryResult contains {0} matches. Registering them with {1} for stream {2}", avQueryResult.ResultEntries.Count(), queryMatchRegistry, streamId);
-                var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(streamId));
+                var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(streamId: streamId));
                 queryMatchRegistry.RegisterMatches(avQueryMatches);
             }
 
