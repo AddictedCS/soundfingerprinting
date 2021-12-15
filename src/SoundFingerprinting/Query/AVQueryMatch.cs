@@ -18,9 +18,8 @@ namespace SoundFingerprinting.Query
         /// <param name="audio">Audio match information.</param>
         /// <param name="video">Video match information.</param>
         /// <param name="streamId">Stream ID information.</param>
-        /// <param name="playbackUrl">Playback URL for this match.</param>
         /// <param name="reviewStatus">Review status.</param>
-        public AVQueryMatch(string id, QueryMatch? audio, QueryMatch? video, string? streamId, string? playbackUrl, ReviewStatus reviewStatus = ReviewStatus.None)
+        public AVQueryMatch(string id, QueryMatch? audio, QueryMatch? video, string? streamId, ReviewStatus reviewStatus = ReviewStatus.None)
         {
             if (audio == null && video == null)
             {
@@ -31,7 +30,6 @@ namespace SoundFingerprinting.Query
             StreamId = streamId;
             Audio = audio;
             Video = video;
-            PlaybackUrl = playbackUrl;
             ReviewStatus = reviewStatus;
         }
 
@@ -77,13 +75,7 @@ namespace SoundFingerprinting.Query
         /// </remarks>
         [ProtoMember(5)] 
         public ReviewStatus ReviewStatus { get; }
-        
-        /// <summary>
-        ///  Gets playback URL for this match.
-        /// </summary>
-        [ProtoMember(6)]
-        public string? PlaybackUrl { get; }
-    
+
         /// <summary>
         /// Gets track id match information.
         /// </summary>

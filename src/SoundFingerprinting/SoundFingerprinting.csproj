@@ -13,7 +13,7 @@
 	<PackageReleaseNotes>
 		Providing the ability to generate and query with both types of fingerprints (Audio and Video).
 	</PackageReleaseNotes>
-	<PackageTags>Audio Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
+	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<PackageLicenseFile>license.txt</PackageLicenseFile>
