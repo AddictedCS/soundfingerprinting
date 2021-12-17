@@ -84,6 +84,12 @@ namespace SoundFingerprinting.Query
             video = Video;
         }
 
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"AVResultEntry[Audio={Audio},Video={Video}]";
+        }
+
         private static QueryMatch? ToQueryMatch(ResultEntry? resultEntry)
         {
             if (resultEntry == null)

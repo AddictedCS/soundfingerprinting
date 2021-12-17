@@ -179,7 +179,7 @@
             var fingerprintCommand = SelectMediaServiceForFingerprintCommand(usingFingerprintServices);
             
             var hashes = await fingerprintCommand.Hash();
-            var avHashes = relativeTo == DateTime.MinValue ? hashes : new AVHashes(hashes.Audio?.WithRelativeTo(relativeTo), hashes.Video?.WithRelativeTo(relativeTo), hashes.FingerprintingTime);
+            var avHashes = relativeTo == DateTime.MinValue ? hashes : hashes.WithRelativeTo(relativeTo);
             
             var (audioHashes, videoHashes) = hashesInterceptor(avHashes);
             var avQueryResult = GetAvQueryResult(audioHashes, videoHashes, hashes.FingerprintingTime);

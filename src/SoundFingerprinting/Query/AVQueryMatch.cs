@@ -100,6 +100,17 @@ namespace SoundFingerprinting.Query
                 };
             }
         }
+
+        /// <summary>
+        ///  Deconstructs instance of <see cref="AVQueryMatch"/> class.
+        /// </summary>
+        /// <param name="audio">Audio query match.</param>
+        /// <param name="video">Video query match.</param>
+        public void Deconstruct(out QueryMatch? audio, out QueryMatch? video)
+        {
+            audio = Audio;
+            video = Video;
+        }
         
         /// <summary>
         ///  Returns True if either of the matches Audio/Video passes track coverage threshold.

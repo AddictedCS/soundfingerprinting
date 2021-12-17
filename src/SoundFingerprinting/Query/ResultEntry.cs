@@ -71,7 +71,7 @@ namespace SoundFingerprinting.Query
         public double TrackStartsAt { get; }
 
         /// <summary>
-        ///  Gets the time position in seconds where the origin track started to match the query
+        ///  Gets the time position in seconds where the origin track started to match the query.
         /// </summary>
         /// <example>
         ///  Resulting track <c>A</c> in the data store is of 100 sec. The query started to match at 40th sec. <code>TrackMatchStartsAt</code> will be equal to 40.
@@ -126,6 +126,12 @@ namespace SoundFingerprinting.Query
         {
             var trackInfo = new TrackInfo(Track.Id, Track.Title, Track.Artist, Track.MetaFields, Track.MediaType);
             return new QueryMatch(Guid.NewGuid().ToString(), trackInfo, Coverage, MatchedAt);
+        }
+
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"ResultEntry[TrackId={Track.Id},TrackRelativeCoverage={TrackRelativeCoverage}]";
         }
     }
 }
