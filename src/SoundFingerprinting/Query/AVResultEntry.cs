@@ -59,16 +59,18 @@ namespace SoundFingerprinting.Query
                 };
             }
         }
- 
+
         /// <summary>
         ///  Converts to audio video query match object that you can register in the registry service <see cref="IQueryMatchRegistry"/>.
         /// </summary>
+        /// <param name="avQueryMatchId">Query match identifier.</param>
         /// <param name="streamId">Stream identifier.</param>
         /// <param name="reviewStatus">review status.</param>
         /// <returns>An instance of <see cref="AVQueryMatch"/>.</returns>
-        public AVQueryMatch ConvertToAvQueryMatch(string streamId = "", ReviewStatus reviewStatus = ReviewStatus.None)
+        public AVQueryMatch ConvertToAvQueryMatch(string avQueryMatchId = "", string streamId = "", ReviewStatus reviewStatus = ReviewStatus.None)
         {
-            return new AVQueryMatch(Guid.NewGuid().ToString(), streamId, ToQueryMatch(Audio), ToQueryMatch(Video), reviewStatus);
+            string id = string.IsNullOrEmpty(avQueryMatchId) ? Guid.NewGuid().ToString() : avQueryMatchId;
+            return new AVQueryMatch(id, ToQueryMatch(Audio), ToQueryMatch(Video), streamId, reviewStatus);
         }
         
         /// <summary>
@@ -80,6 +82,12 @@ namespace SoundFingerprinting.Query
         {
             audio = Audio;
             video = Video;
+        }
+
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"AVResultEntry[Audio={Audio},Video={Video}]";
         }
 
         private static QueryMatch? ToQueryMatch(ResultEntry? resultEntry)

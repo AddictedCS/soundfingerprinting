@@ -108,6 +108,37 @@ namespace SoundFingerprinting.Data
             audioHashes = Audio;
             videoHashes = Video;
         }
+
+        /// <summary>
+        ///  Overrides current <see cref="RelativeTo"/> on Audio/Video hashes object.
+        /// </summary>
+        /// <param name="relativeTo">Relative to.</param>
+        /// <returns>New instance of the <see cref="AVHashes"/> class.</returns>
+        public AVHashes WithRelativeTo(DateTime relativeTo)
+        {
+            return new AVHashes(Audio?.WithRelativeTo(relativeTo), Video?.WithRelativeTo(relativeTo), FingerprintingTime);
+        }
+
+        /// <summary>
+        ///  Adds a stream identifier to the Audio/Video hashes object.
+        /// </summary>
+        /// <param name="streamId">Stream ID.</param>
+        /// <returns>New instance of the <see cref="AVHashes"/> class.</returns>
+        public AVHashes WithStreamId(string streamId)
+        {
+            return new AVHashes(Audio?.WithStreamId(streamId), Video?.WithStreamId(streamId), FingerprintingTime);
+        }
+
+        /// <summary>
+        ///  Add an additional property to the Audio/Video hashes object.
+        /// </summary>
+        /// <param name="key">Property key.</param>
+        /// <param name="value">Property value.</param>
+        /// <returns>New instance of the <see cref="AVHashes"/> class.</returns>
+        public AVHashes WithProperty(string key, string value)
+        {
+            return new AVHashes(Audio?.WithProperty(key, value), Video?.WithProperty(key, value), FingerprintingTime);
+        }
         
         /// <summary>
         ///  Gets a new instance of empty hashes.

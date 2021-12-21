@@ -15,23 +15,9 @@
         /// Initializes a new instance of the <see cref="VideoTrack"/> class.
         /// </summary>
         /// <param name="frames">Video frames.</param>
-        public VideoTrack(Frames frames) : this(frames, frames.Duration)
-        {
-            // no op
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VideoTrack"/> class.
-        /// </summary>
-        /// <param name="frames">Video frames.</param>
-        /// <param name="totalEstimatedDuration">Total estimated duration of video frames.</param>
-        /// <remarks>
-        ///  Estimated duration is not always equal to <see cref="Frames.Duration"/> due to how it is estimated by the decoder.
-        /// </remarks>
-        public VideoTrack(Frames frames, double totalEstimatedDuration)
+        public VideoTrack(Frames frames)
         {
             Frames = frames;
-            TotalEstimatedDuration = totalEstimatedDuration;
         }
 
         /// <summary>
@@ -43,11 +29,6 @@
         ///  Gets frames duration.
         /// </summary>
         public double Duration => Frames.Duration;
-
-        /// <summary>
-        ///  Gets total estimated duration of video frames.
-        /// </summary>
-        public double TotalEstimatedDuration { get; }
 
         /// <summary>
         ///  Subtracts a part of the track according to start and length parameters.
@@ -68,7 +49,7 @@
                     f.SequenceNumber - (uint)skippedFrames))
                 .ToList();
 
-            return new VideoTrack(new Frames(subtracked, Frames.Origin, Frames.FrameRate, Frames.RelativeTo.AddSeconds(start)), TotalEstimatedDuration);
+            return new VideoTrack(new Frames(subtracked, Frames.Origin, Frames.FrameRate, Frames.RelativeTo.AddSeconds(start)));
         }
 
         /// <summary>
@@ -115,8 +96,7 @@
                 .Zip(sequence, (f, s) => new Frame(f.ImageRowCols, f.Rows, f.Cols, s.startsAt, s.sequenceNumber))
                 .ToList();
 
-            var relativeTo = tracks.Select(_ => _.Frames.RelativeTo).Min();
-            return new VideoTrack(new Frames(frames, first.Frames.Origin, frameRate, relativeTo), first.TotalEstimatedDuration);
+            return new VideoTrack(new Frames(frames, first.Frames.Origin, frameRate, first.Frames.RelativeTo));
         }
     }
 }

@@ -179,7 +179,7 @@
             var fingerprintCommand = SelectMediaServiceForFingerprintCommand(usingFingerprintServices);
             
             var hashes = await fingerprintCommand.Hash();
-            var avHashes = relativeTo == DateTime.MinValue ? hashes : new AVHashes(hashes.Audio?.WithNewRelativeTo(relativeTo), hashes.Video?.WithNewRelativeTo(relativeTo), hashes.FingerprintingTime);
+            var avHashes = relativeTo == DateTime.MinValue ? hashes : hashes.WithRelativeTo(relativeTo);
             
             var (audioHashes, videoHashes) = hashesInterceptor(avHashes);
             var avQueryResult = GetAvQueryResult(audioHashes, videoHashes, hashes.FingerprintingTime);
@@ -187,8 +187,8 @@
             if (avQueryResult.ContainsMatches && queryMatchRegistry != null)
             {
                 string streamId = audioHashes?.StreamId ?? videoHashes?.StreamId ?? string.Empty;
-                logger.LogDebug("AVQueryResult contains {0} matches. Registering them with {1} for stream {2}", avQueryResult.ResultEntries.Count(), queryMatchRegistry, streamId);
-                var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(streamId));
+                logger.LogDebug("AVQueryResult contains {Count} matches. Registering them with {QueryMatchRegistry} for stream {StreamId}", avQueryResult.ResultEntries.Count(), queryMatchRegistry, streamId);
+                var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(streamId: streamId));
                 queryMatchRegistry.RegisterMatches(avQueryMatches);
             }
 
