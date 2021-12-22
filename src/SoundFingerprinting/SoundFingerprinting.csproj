@@ -4,14 +4,23 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>8.0.0-beta4</PackageVersion>
+	<PackageVersion>8.0.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Providing the ability to generate and query with both types of fingerprints (Audio and Video).
+		Adding the ability to generate both audio/video fingerprints from a given track or media file.
+		A track can now be inserted with both audio/video hashes.
+		InMemoryModelService can now handle both types of fingerprints audio/video.
+		    Defining AVRAMStorage that can handle both types at the same time.
+		Defining IMediaService and IVideoService that are able to read VideoTrack from the underlying source.
+		QueryCommand now returns AVQueryResult containing both Audio/Video matches.
+		QueryCommandBuilder now specifies AVQueryConfiguration object at the input.
+		RealtimeQueryCommand can now retrieve matches for both Audio and Video tracks.
+		Removing ISpectralDao, ISubFingerprintDao and ITrackDao.
+		This release marks an important unification milestone - Core library is now capable of both generating and querying any storage with Audio/Video fingerprints.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
