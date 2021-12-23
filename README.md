@@ -62,16 +62,6 @@ Read [Supported Media Formats][audio-services-wiki-page] page for details about 
 Since `v8.0.0` video fingerprinting support has been added. Similarly to audio fingerprinting, video fingerprints are generated from video frames, and used to insert and later query the datastore for exact and similar matches. You can use `SoundFingerprinting` to fingerprint either audio or video content or both at the same time. More details about video fingerprinting are available [here][video-fingerprinting-wiki-page].
 
 
-### Query result details
-Every `ResultEntry` object will contain the following information:
-- `Track` - matched track from the datastore
-- `QueryMatchLength` - returns how many query seconds matched the resulting track
-- `QueryMatchStartsAt` - returns time position where resulting track started to match in the query
-- `TrackMatchStartsAt` - returns time position where the query started to match in the resulting track
-- `TrackStartsAt` - returns an approximation where does the matched track starts, always relative to the query
-- `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
-- `MatchedAt` - returns timestamp showing at what time did the match occured. Usefull for realtime queries.
-
 ### FAQ
 - Can I apply this algorithm for speech recognition purposes?
 > No. The granularity of one fingerprint is roughly ~1.46 seconds.
@@ -82,13 +72,6 @@ Every `ResultEntry` object will contain the following information:
 - How many tracks can I store in `InMemoryModelService`?
 > 100 hours of content with `DefaultFingerprintingConfiguration` will consume ~5GB of RAM.
 
-### Binaries
-
-    git clone git@github.com:AddictedCS/soundfingerprinting.git    
-    
-In order to build latest version of the **SoundFingerprinting** assembly run the following command from repository root.
-
-    .\build.cmd
 ### Get it on NuGet
 
     Install-Package SoundFingerprinting
