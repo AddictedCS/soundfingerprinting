@@ -3,7 +3,7 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Authors>Sergiu Ciumac</Authors>
-	<PackageVersion>8.0.0-beta3</PackageVersion>
+	<PackageVersion>8.0.0</PackageVersion>
 	<PackageProjectUrl>https://github.com/AddictedCS/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
@@ -17,7 +17,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.0.1" />
-    <PackageReference Include="SoundFingerprinting" Version="8.0.0-beta3" />
+    <PackageReference Include="SoundFingerprinting" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
 		<None Include="../../license.txt">
