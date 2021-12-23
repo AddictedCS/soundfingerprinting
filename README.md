@@ -1,12 +1,11 @@
-## Audio fingerprinting and recognition in .NET
+## Audio/Video fingerprinting and recognition in .NET
 
 [![Join the chat at https://gitter.im/soundfingerprinting/Lobby](https://badges.gitter.im/soundfingerprinting/Lobby.svg)](https://gitter.im/soundfingerprinting/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ![.NET Core](https://github.com/AddictedCS/soundfingerprinting/workflows/.NET%20Core/badge.svg)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](license.txt)
 [![NuGet](https://img.shields.io/nuget/dt/SoundFingerprinting.svg)](https://www.nuget.org/packages/SoundFingerprinting)
 
-_soundfingerprinting_ is a C# framework designed for companies, enthusiasts, researchers in the fields of audio and digital signal processing, data mining and audio recognition. It implements an efficient algorithm which provides fast insert and retrieval of acoustic fingerprints with high precision and recall rate.
-Paired with [SoundFingerprinting.Emy][emy-nuget] it can be used to generate fingerprints from video content as well.
+_soundfingerprinting_ is a C# framework designed for companies, enthusiasts, researchers in the fields of digital signal processing, data mining and audio/video recognition. It implements an efficient algorithm which provides fast insert and retrieval of acoustic and video fingerprints with high precision and recall rate.
 
 ## Documentation
 
@@ -18,19 +17,19 @@ Below code snippet shows how to extract acoustic fingerprints from an audio file
 private readonly IModelService modelService = new InMemoryModelService(); // store fingerprints in RAM
 private readonly IAudioService audioService = new SoundFingerprintingAudioService(); // default audio library
 
-public async Task StoreForLaterRetrieval(string pathToAudioFile)
+public async Task StoreForLaterRetrieval(string file)
 {
     var track = new TrackInfo("GBBKS1200164", "Skyfall", "Adele");
 
     // create fingerprints
-    var hashedFingerprints = await FingerprintCommandBuilder.Instance
+    var avHashes = await FingerprintCommandBuilder.Instance
                                 .BuildFingerprintCommand()
-                                .From(pathToAudioFile)
+                                .From(file)
                                 .UsingServices(audioService)
                                 .Hash();
 								
     // store hashes in the database for later retrieval
-    modelService.Insert(track, hashedFingerprints);
+    modelService.Insert(track, avHashes);
 }
 ```
 
@@ -39,14 +38,14 @@ Once you've inserted the fingerprints into the datastore, later you might want t
 
 ```csharp
 
-public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
+public async Task<TrackData> GetBestMatchForSong(string file)
 {
     int secondsToAnalyze = 10; // number of seconds to analyze from query file
     int startAtSecond = 0; // start at the begining
 	
     // query the underlying database for similar audio sub-fingerprints
     var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
-                                         .From(queryAudioFile, secondsToAnalyze, startAtSecond)
+                                         .From(file, secondsToAnalyze, startAtSecond)
                                          .UsingServices(modelService, audioService)
                                          .Query();
     
@@ -54,45 +53,14 @@ public async Task<TrackData> GetBestMatchForSong(string queryAudioFile)
 }
 ```
 ### Fingerprints Storage
-The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code> class. If you plan to use an external persistent storage for audio fingerprints **Emy** is the preferred choice. It is a specialized storage developed for audio fingerprints. **Emy** provides a community version which is free for non-commercial use. You can try it with docker:
+The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code> class. If you plan to use an external persistent storage for fingerprints **Emy** is the preferred choice. **Emy** provides a community version which is free for non-commercial use. More about **Emy** can be found [on wiki page][emy-wiki-page].
 
-    docker run -d -v /persistent-dir:/app/data -p 3399:3399 -p 3340:3340 addictedcs/soundfingerprinting.emy:latest
+### Supported audio/video formats
+Read [Supported Media Formats][audio-services-wiki-page] page for details about processing different file formats or realtime streams.
 
-**Emy** provides a backoffice interface which you can access on port :3340. 
-In order to insert and query **Emy** server please install [SoundFingerprinting.Emy][emy-nuget] NuGet package.
+### Video fingerprinting support since version 8.0.0
+Since `v8.0.0` video fingerprinting support has been added. Similarly to audio fingerprinting, video fingerprints are generated from video frames, and used to insert and later query the datastore for exact and similar matches. You can use `SoundFingerprinting` to fingerprint either audio or video content or both at the same time. More details about video fingerprinting are available [here][video-fingerprinting-wiki-page].
 
-    Install-Package SoundFingerprinting.Emy
-    
-The package will provide you with <code>EmyModelService</code> class, which can substitute default <code>InMemoryModelService</code>.
-```csharp
- // connect to Emy on port 3399
- var emyModelService = EmyModelService.NewInstance("localhost", 3399);
- 
- // query Emy database
- var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
-                                         .From(queryAudioFile, secondsToAnalyze, startAtSecond)
-                                         .UsingServices(modelService, audioService)
-                                         .Query();
-					
-// register matches s.t. they appear in the dashboard					
-emyModelService.RegisterMatches(queryResult.ResultEntries);
-```
-Registering matches is now possible with <code>EmyModelService</code>. The results will be displayed in the **Emy** dashboard.
-
-Similarly, [SoundFingerprinting.Emy][emy-nuget] provides `FFmpegAudioService`, which supports a wide variety of formats for both audio and video fingerprinting. More details about `FFmpegAudioService` can be found below.
-
-<img src="https://i.imgur.com/lhqUY74.png" width="800">
-
-If you plan to use **Emy** storage in a commercial project please contact sergiu@emysound.com for details. Enterprise version is ~12.5x faster when number of tracks exceeds ~10K, supports clustering, replication and much more. By using **Emy** you will also support core SoundFingerprinting library and its ongoing development.
-More details can be found [here][emysound].
-
-Previous storages are now considered deprecate, as **Emy** is now considered the default choice for persistent storage. 
-
-- ***Solr*** non-relational storage [soundfingerprinting.solr](https://github.com/AddictedCS/soundfingerprinting.solr). MIT licensed, useful when the number of tracks does not exceed 5000 tracks [deprecated].
-- ***MSSQL*** [soundfingerprinrint.sql](https://github.com/AddictedCS/soundfingerprinting.sql) [deprecated]. MIT licensed.
-
-### Supported audio formats
-Read [Supported Audio Formats](https://github.com/AddictedCS/soundfingerprinting/wiki/Supported-Audio-Formats) page for details about different audio services and how you can use them in various operating systems.
 
 ### Query result details
 Every `ResultEntry` object will contain the following information:
@@ -104,14 +72,6 @@ Every `ResultEntry` object will contain the following information:
 - `Confidence` - returns a value between [0, 1]. A value below 0.15 is most probably a false positive. A value bigger than 0.15 is very likely to be an exact match. For good audio quality queries you can expect getting a confidence > 0.5.
 - `MatchedAt` - returns timestamp showing at what time did the match occured. Usefull for realtime queries.
 
-`Stats` contains useful statistics information for fine-tuning the algorithm:
-- `QueryDuration` - time in milliseconds spend just querying the fingerprints datasource.
-- `FingerprintingDuration` - time in milliseconds spent generating the acousting fingerprints from the media file.
-- `TotalTracksAnalyzed` - total # of tracks analyzed during query time. If this number exceeds 50, try optimizing your configuration.
-- `TotalFingerprintsAnalyzed` - total # of fingerprints analyzed during query time. If this number exceeds 500, try optimizing your configuration.
-
-Read [Different Types of Coverage](https://github.com/AddictedCS/soundfingerprinting/wiki/Different-Types-of-Coverage) to understand how query coverage is calculated.
-
 ### FAQ
 - Can I apply this algorithm for speech recognition purposes?
 > No. The granularity of one fingerprint is roughly ~1.46 seconds.
@@ -119,16 +79,13 @@ Read [Different Types of Coverage](https://github.com/AddictedCS/soundfingerprin
 > Yes.
 - Can I use **SoundFingerprinting** to detect ads in radio streams?
 > Yes. Actually this is the most frequent use-case where SoundFingerprinting was successfully used.
-- Will **SoundFingerprinting** match tracks with samples captured in noisy environment?
-> Yes, try out `HighPrecision` configurations, or contact me for additional guidance.
-- Can I use **SoundFingerprinting** framework on **Mono** or .NET Core app?
-> Yes. SoundFingerprinting can be used in cross-platform applications. Keep in mind though, cross platform audio service `SoundFingerprintingAudioService` supports only *.wav* files at it's input. 
 - How many tracks can I store in `InMemoryModelService`?
-> 100 hours of content with `HighPrecision` fingerprinting configuration will yeild in ~5GB or RAM usage.
+> 100 hours of content with `DefaultFingerprintingConfiguration` will consume ~5GB of RAM.
 
 ### Binaries
 
     git clone git@github.com:AddictedCS/soundfingerprinting.git    
+    
 In order to build latest version of the **SoundFingerprinting** assembly run the following command from repository root.
 
     .\build.cmd
@@ -137,6 +94,7 @@ In order to build latest version of the **SoundFingerprinting** assembly run the
     Install-Package SoundFingerprinting
 ### How it works
 [Audio Fingerprinting][emysound-how-it-works].
+
 [Video Fingerprinting][emysound-video-fingerprinting].
 
     
@@ -158,3 +116,6 @@ The framework is provided under [MIT](https://opensource.org/licenses/MIT) licen
 [emysound-video-fingerprinting]: https://emysound.com/blog/open-source/2021/08/01/video-fingerprinting.html
 [emysound]: https://emysound.com
 [wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki
+[emy-wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki/Emy-Storage
+[audio-services-wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki/Audio-Services
+[video-fingerprinting-wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki/Video-Fingerprints
