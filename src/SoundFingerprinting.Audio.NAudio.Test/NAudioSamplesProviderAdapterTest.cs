@@ -20,7 +20,7 @@
             const int numberOfReadSamples = 1024;
             float[] buffer = new float[numberOfReadSamples];
             waveToSampleProvider.Setup(provider => provider.Read(buffer, 0, buffer.Length)).Returns(numberOfReadSamples);
-            var nAudioSamplesProvider = new NAudioSamplesProviderAdapter(waveToSampleProvider.Object);
+            var nAudioSamplesProvider = new SoundFingerprinting.Audio.NAudio.NAudioSamplesProviderAdapter(waveToSampleProvider.Object);
 
             int samplesRead = nAudioSamplesProvider.GetNextSamples(buffer);
             
