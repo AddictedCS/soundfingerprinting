@@ -8,8 +8,11 @@
     using SoundFingerprinting.Data;
     using Strides;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Moq;
+    using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Content;
     using SoundFingerprinting.Query;
 
@@ -313,6 +316,33 @@
             Assert.AreEqual(audioSamples.Duration, bestMatch.TrackCoverageWithPermittedGapsLength, 1.48d);
             Assert.AreEqual(1d, bestMatch.TrackRelativeCoverage, 0.005d);
             Assert.AreEqual(1, bestMatch.Confidence, 0.01, $"Confidence:{bestMatch.Confidence}");
+        }
+
+        [Test]
+        public async Task ShouldNormalizeImageFrames()
+        {
+            var blurNormalization = new Mock<IFrameNormalization>();
+            var logImageNormalization = new Mock<IFrameNormalization>();
+            
+            var audioSamples = GetAudioSamples();
+            await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(audioSamples)
+                .WithFingerprintConfig(config =>
+                {
+                    config.Audio.FrameNormalizationTransform = new FrameNormalizationChain(new[]
+                    {
+                        logImageNormalization.Object, blurNormalization.Object
+
+                    });
+                    
+                    return config;
+                })
+                .UsingServices(audioService)
+                .Hash();
+            
+            blurNormalization.Verify(_ => _.Normalize(It.IsAny<IEnumerable<Frame>>()));
+            logImageNormalization.Verify(_ => _.Normalize(It.IsAny<IEnumerable<Frame>>()));
         }
 
         private static float[] GetQuerySamples(AudioSamples audioSamples, int startAtSecond, int secondsToProcess)

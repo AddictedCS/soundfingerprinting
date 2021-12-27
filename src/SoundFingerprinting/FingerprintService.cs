@@ -8,10 +8,8 @@ namespace SoundFingerprinting
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.FFT;
-    using SoundFingerprinting.Image;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
@@ -83,13 +81,7 @@ namespace SoundFingerprinting
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
         {
             var normalized = configuration.FrameNormalizationTransform.Normalize(frames);
-            var blurred = configuration.GaussianBlurConfiguration.GaussianFilter switch
-            {
-                GaussianFilter.None => normalized,
-                _ => BlurFrames(normalized, configuration.GaussianBlurConfiguration)
-            };
-
-            var images = blurred.ToList();
+            var images = normalized.ToList();
             if (!images.Any())
             {
                 return Enumerable.Empty<Fingerprint>();
@@ -115,20 +107,6 @@ namespace SoundFingerprinting
                 cachedIndexes => { });
 
             return fingerprints.ToList();
-        }
-        
-        private static IEnumerable<Frame> BlurFrames(IEnumerable<Frame> frames, GaussianBlurConfiguration blurConfiguration)
-        {
-            double[,] kernel = GaussianBlurKernel.Kernel2D(blurConfiguration.Kernel, blurConfiguration.Sigma);
-            return frames
-                .AsParallel()
-                .Select(frame =>
-                {
-                    float[][] image = ImageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
-                    float[][] blurred = GrayImage.Convolve(image, kernel);
-                    return new Frame(blurred, frame.StartsAt, frame.SequenceNumber);
-                })
-                .ToList();
         }
     }
 }

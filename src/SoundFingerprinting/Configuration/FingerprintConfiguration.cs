@@ -102,18 +102,11 @@ namespace SoundFingerprinting.Configuration
         public Func<Frame, byte[]> OriginalPointSaveTransform { get; set; } = null!;
 
         /// <summary>
-        ///  Gets or sets gaussian blur configuration applied on the frame before generating fingerprints.
-        /// </summary>
-        /// <remarks>
-        ///  You can think of this parameter as a smoothing mechanism that helps in ignoring processing artifacts (a simple de-noising mechanism). <br />
-        ///  Audio default - None.
-        ///  Video default - Kernel = 5, Sigma = 1.5.
-        /// </remarks>
-        public GaussianBlurConfiguration GaussianBlurConfiguration { get; set; } = null!;
-
-        /// <summary>
         ///  Gets or sets frame normalization applied before generating fingerprints.
         /// </summary>
+        /// <remarks>
+        ///  Frame normalization allows to apply
+        /// </remarks>
         public IFrameNormalization FrameNormalizationTransform { get; set; } = null!;
     }
 }

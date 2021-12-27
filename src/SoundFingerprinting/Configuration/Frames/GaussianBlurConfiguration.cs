@@ -1,48 +1,38 @@
 namespace SoundFingerprinting.Configuration.Frames
 {
-    using System;
-
+    /// <summary>
+    ///  Gaussian blur configuration parameters.
+    /// </summary>
     public class GaussianBlurConfiguration
     {
         /// <summary>
-        ///  Gets an instance of configuration that will apply no gaussian filter
+        ///  Gets an instance of configuration that will apply no gaussian filter.
         /// </summary>
-        public static GaussianBlurConfiguration None => new GaussianBlurConfiguration();
+        public static GaussianBlurConfiguration None => new (0, 0);
 
         /// <summary>
-        ///  Gets an instance of default native gaussian filter that works best for fingerprints generated from images
+        ///  Gets an instance of default native gaussian filter that works best for fingerprints generated from images.
         /// </summary>
-        public static GaussianBlurConfiguration Default => new GaussianBlurConfiguration(5, 1.5, GaussianFilter.Default);
+        public static GaussianBlurConfiguration Default => new (5, 1.5);
 
-        private GaussianBlurConfiguration()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GaussianBlurConfiguration"/> class.
+        /// </summary>
+        /// <param name="kernel">Kernel size.</param>
+        /// <param name="sigma">Gaussian sigma.</param>
+        public GaussianBlurConfiguration(int kernel, double sigma)
         {
-            GaussianFilter = GaussianFilter.None;
-        }
-
-        public GaussianBlurConfiguration(int kernel, double sigma, GaussianFilter filterType)
-        {
-            if (filterType == GaussianFilter.None)
-            {
-                throw new ArgumentException($"Can't combine None configuration with kernel {kernel} and sigma {sigma}");
-            }
-
             Kernel = kernel;
             Sigma = sigma;
-            GaussianFilter = filterType;
         }
 
         /// <summary>
-        ///  Gets type of the gaussian filter
-        /// </summary>
-        public GaussianFilter GaussianFilter { get; }
-
-        /// <summary>
-        ///  Gets kernel size of the gaussian filter
+        ///  Gets kernel size of the gaussian filter.
         /// </summary>
         public int Kernel { get; }
 
         /// <summary>
-        ///  Gets sigma for gaussian filter
+        ///  Gets sigma for gaussian filter.
         /// </summary>
         public double Sigma { get; }
     }

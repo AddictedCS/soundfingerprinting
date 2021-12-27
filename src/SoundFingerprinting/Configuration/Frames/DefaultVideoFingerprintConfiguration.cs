@@ -46,8 +46,7 @@
                 Amount = 98
             };
 
-            FrameNormalizationTransform = new NoFrameNormalization();
-            GaussianBlurConfiguration = GaussianBlurConfiguration.Default;
+            FrameNormalizationTransform = new GaussianBlurFrameNormalization(GaussianBlurConfiguration.Default);
         }
     }
 }
