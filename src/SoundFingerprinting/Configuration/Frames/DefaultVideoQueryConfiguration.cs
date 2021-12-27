@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration.Frames
 {
     using System.Collections.Generic;
-    using SoundFingerprinting.Data;
 
     /// <summary>
     ///  Video query configuration class.

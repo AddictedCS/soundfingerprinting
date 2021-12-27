@@ -4,23 +4,14 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>8.0.0</PackageVersion>
+	<PackageVersion>8.1.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Adding the ability to generate both audio/video fingerprints from a given track or media file.
-		A track can now be inserted with both audio/video hashes.
-		InMemoryModelService can now handle both types of fingerprints audio/video.
-		    Defining AVRAMStorage that can handle both types at the same time.
-		Defining IMediaService and IVideoService that are able to read VideoTrack from the underlying source.
-		QueryCommand now returns AVQueryResult containing both Audio/Video matches.
-		QueryCommandBuilder now specifies AVQueryConfiguration object at the input.
-		RealtimeQueryCommand can now retrieve matches for both Audio and Video tracks.
-		Removing ISpectralDao, ISubFingerprintDao and ITrackDao.
-		This release marks an important unification milestone - Core library is now capable of both generating and querying any storage with Audio/Video fingerprints.
+		Minor adjustments in fingerprinting and query configuration parameters.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
@@ -28,7 +19,9 @@
 	<PackageLicenseFile>license.txt</PackageLicenseFile>
     <PackageIcon>soundfingerprinting.png</PackageIcon>
   </PropertyGroup>
-
+	<PropertyGroup>
+		<CodeAnalysisRuleSet>../Emy.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
 	<ItemGroup>
 		<DocFile Include="bin\$(Configuration)\$(TargetFramework)\*.xml" />
@@ -36,7 +29,18 @@
 	<Copy SourceFiles="@(DocFile)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
   </Target>
   <ItemGroup>
-	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+	<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+		<PrivateAssets>all</PrivateAssets>
+		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
+	<AdditionalFiles Include="../stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
+	  <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
 	  <PackageReference Include="protobuf-net" Version="2.4.6" />
 	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
   </ItemGroup>
