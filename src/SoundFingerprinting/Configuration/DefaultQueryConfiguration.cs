@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration
 {
     using System.Collections.Generic;
-    using SoundFingerprinting.Data;
 
     /// <inheritdoc cref="QueryConfiguration"/>
     public class DefaultQueryConfiguration : QueryConfiguration
