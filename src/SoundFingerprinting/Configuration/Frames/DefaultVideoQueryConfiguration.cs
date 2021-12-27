@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Configuration.Frames
 {
     using System.Collections.Generic;
+    using SoundFingerprinting.Data;
 
     /// <summary>
     ///  Video query configuration class.
@@ -28,6 +29,7 @@
             PermittedGap = 1.75d;
             OutliersFilterConfiguration = OutliersFilterConfiguration.None;
             StructuralSimilarityFilterConfiguration = StructuralSimilarityFilterConfiguration.None;
+            QueryMediaType = MediaType.Video;
         }
     }
 }
