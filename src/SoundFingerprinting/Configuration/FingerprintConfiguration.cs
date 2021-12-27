@@ -67,9 +67,9 @@ namespace SoundFingerprinting.Configuration
         public HashingConfig HashingConfig { get; set; } = null!;
 
         /// <summary>
-        ///  Gets or sets fingerprint length in seconds.
+        ///  Gets fingerprint length in seconds.
         /// </summary>
-        public double FingerprintLengthInSeconds { get; set; }
+        public virtual double FingerprintLengthInSeconds => (double)SamplesPerFingerprint / SampleRate;
 
         /// <summary>
         ///  Gets or sets the transformation for the original point that needs to be saved for second level cross-check.

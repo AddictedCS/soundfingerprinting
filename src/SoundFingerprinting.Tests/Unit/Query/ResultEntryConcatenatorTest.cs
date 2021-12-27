@@ -22,7 +22,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             config = new DefaultQueryConfiguration
             {
-                FingerprintConfiguration = {FingerprintLengthInSeconds = 1f / 10}, 
+                FingerprintConfiguration = new DefaultFingerprintConfiguration
+                {
+                    SampleRate = 8192 * 10
+                },
                 PermittedGap = 2.9
             };
 
