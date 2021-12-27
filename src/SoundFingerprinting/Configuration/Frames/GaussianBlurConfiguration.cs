@@ -6,11 +6,6 @@ namespace SoundFingerprinting.Configuration.Frames
     public class GaussianBlurConfiguration
     {
         /// <summary>
-        ///  Gets an instance of configuration that will apply no gaussian filter.
-        /// </summary>
-        public static GaussianBlurConfiguration None => new (0, 0);
-
-        /// <summary>
         ///  Gets an instance of default native gaussian filter that works best for fingerprints generated from images.
         /// </summary>
         public static GaussianBlurConfiguration Default => new (5, 1.5);
