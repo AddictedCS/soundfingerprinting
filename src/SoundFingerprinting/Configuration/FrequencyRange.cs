@@ -12,6 +12,7 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         /// <param name="min">Min frequency value to consider.</param>
         /// <param name="max">Max frequency value to consider.</param>
+        /// <exception cref="ArgumentException">Min value has to be less than max value.</exception>
         public FrequencyRange(ushort min, ushort max)
         {
             if (min >= max)

@@ -1,5 +1,12 @@
 namespace SoundFingerprinting.Configuration
 {
+    /// <summary>
+    ///  Locality sensitive hashing algorithm configuration.
+    /// </summary>
+    /// <remarks>
+    ///  Since we are not operating in geometric space, instead of making random projections (most used LSH scenario), we will apply random set permutations known as min-hashing as our LSH schema. <br/>
+    ///  The configuration options for min-hash as our LSH schema are defined in this class.
+    /// </remarks>
     public abstract class HashingConfig
     {
         /// <summary>
