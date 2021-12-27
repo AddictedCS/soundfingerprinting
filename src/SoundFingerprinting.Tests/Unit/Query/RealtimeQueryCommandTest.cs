@@ -10,7 +10,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
-    using NLog.Extensions.Logging;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
@@ -617,7 +616,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Setup(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>()))
                 .Returns((string _, double _, AVTrackReadConfiguration _, MediaType _, CancellationToken cancellationToken) => GetSamples(10, 60, cancellationToken, sampleRate, delay: 1));
 
-            var queryCommandBuilder = new QueryCommandBuilder(new NLogLoggerFactory());
+            var queryCommandBuilder = new QueryCommandBuilder(new NullLoggerFactory());
             var length = await queryCommandBuilder.BuildRealtimeQueryCommand()
                 .From("http://localhost", 60, MediaType.Audio)
                 .UsingServices(modelService, realtimeMediaService.Object)

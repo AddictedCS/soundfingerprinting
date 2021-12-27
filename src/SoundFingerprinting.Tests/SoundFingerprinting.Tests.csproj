@@ -10,7 +10,6 @@
 	<PackageReference Include="NUnit" Version="3.13.2" />
 	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
 	<PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SoundFingerprinting\SoundFingerprinting.csproj" />
@@ -22,9 +21,4 @@
     <Exec Command="xcopy &quot;$(ProjectDir)TestEnvironment&quot; &quot;$(TargetDir)&quot; /e /y" Condition="'$(OS)' != 'Unix'" />
 	  <Exec Command="cp -R $(ProjectDir)TestEnvironment/* $(TargetDir)" Condition="'$(OS)' == 'Unix'" />
   </Target>
-  <ItemGroup>
-      <None Update="NLog.config">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-  </ItemGroup>
 </Project>
