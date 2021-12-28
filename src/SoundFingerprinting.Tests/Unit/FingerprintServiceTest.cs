@@ -134,7 +134,6 @@
             var config = new DefaultFingerprintConfiguration
             {
                 FrameNormalizationTransform = new NoFrameNormalization(),
-                GaussianBlurConfiguration = GaussianBlurConfiguration.None,
                 OriginalPointSaveTransform = frame =>
                 {
                     byte[] original = new byte[frame.Length * sizeof(float)];

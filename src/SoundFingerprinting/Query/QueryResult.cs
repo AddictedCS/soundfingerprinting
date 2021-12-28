@@ -12,9 +12,9 @@
         /// <summary>
         ///  Initializes a new instance of the <see cref="QueryResult"/> class.
         /// </summary>
-        /// <param name="results">Actual result entries</param>
-        /// <param name="queryHashes">Query hashes, used for querying</param>
-        /// <param name="queryCommandStats">Query statistics</param>
+        /// <param name="results">Actual result entries.</param>
+        /// <param name="queryHashes">Query hashes, used for querying.</param>
+        /// <param name="queryCommandStats">Query statistics.</param>
         public QueryResult(IEnumerable<ResultEntry> results, Hashes queryHashes, QueryCommandStats queryCommandStats)
         {
             ResultEntries = results;

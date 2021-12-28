@@ -13,12 +13,12 @@
         }
 
         /// <summary>
-        ///  Old permutations, not used anymore
+        ///  Gets old permutations, not used anymore.
         /// </summary>
         public static MinHashService Default { get; } = new MinHashService(new DefaultPermutations());
 
         /// <summary>
-        ///  Max entropy permutations
+        ///  Gets max entropy permutations.
         /// </summary>
         public static MinHashService MaxEntropy { get; } = new MinHashService(new MaxEntropyPermutations());
 

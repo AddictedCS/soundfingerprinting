@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Microsoft Managed Recommended Rules" Description="These rules focus on the most critical problems in your code, including potential security holes, application crashes, and other important logic and design errors. It is recommended to include this rule set in any custom rule set you create for your projects." ToolsVersion="16.0">
+  <Localization ResourceAssembly="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.dll" ResourceBaseName="Microsoft.VisualStudio.CodeAnalysis.RuleSets.Strings.Localized">
+    <Name Resource="MinimumRecommendedRules_Name" />
+    <Description Resource="MinimumRecommendedRules_Description" />
+  </Localization>
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <Rule Id="CA1001" Action="Warning" />
+    <Rule Id="CA1009" Action="Warning" />
+    <Rule Id="CA1016" Action="Warning" />
+    <Rule Id="CA1033" Action="Warning" />
+    <Rule Id="CA1049" Action="Warning" />
+    <Rule Id="CA1060" Action="Warning" />
+    <Rule Id="CA1061" Action="Warning" />
+    <Rule Id="CA1063" Action="Warning" />
+    <Rule Id="CA1065" Action="Warning" />
+    <Rule Id="CA1301" Action="Warning" />
+    <Rule Id="CA1400" Action="Warning" />
+    <Rule Id="CA1401" Action="Warning" />
+    <Rule Id="CA1403" Action="Warning" />
+    <Rule Id="CA1404" Action="Warning" />
+    <Rule Id="CA1405" Action="Warning" />
+    <Rule Id="CA1410" Action="Warning" />
+    <Rule Id="CA1415" Action="Warning" />
+    <Rule Id="CA1821" Action="Warning" />
+    <Rule Id="CA1900" Action="Warning" />
+    <Rule Id="CA1901" Action="Warning" />
+    <Rule Id="CA2002" Action="Warning" />
+    <Rule Id="CA2100" Action="Warning" />
+    <Rule Id="CA2101" Action="Warning" />
+    <Rule Id="CA2108" Action="Warning" />
+    <Rule Id="CA2111" Action="Warning" />
+    <Rule Id="CA2112" Action="Warning" />
+    <Rule Id="CA2114" Action="Warning" />
+    <Rule Id="CA2116" Action="Warning" />
+    <Rule Id="CA2117" Action="Warning" />
+    <Rule Id="CA2122" Action="Warning" />
+    <Rule Id="CA2123" Action="Warning" />
+    <Rule Id="CA2124" Action="Warning" />
+    <Rule Id="CA2126" Action="Warning" />
+    <Rule Id="CA2131" Action="Warning" />
+    <Rule Id="CA2132" Action="Warning" />
+    <Rule Id="CA2133" Action="Warning" />
+    <Rule Id="CA2134" Action="Warning" />
+    <Rule Id="CA2137" Action="Warning" />
+    <Rule Id="CA2138" Action="Warning" />
+    <Rule Id="CA2140" Action="Warning" />
+    <Rule Id="CA2141" Action="Warning" />
+    <Rule Id="CA2146" Action="Warning" />
+    <Rule Id="CA2147" Action="Warning" />
+    <Rule Id="CA2149" Action="Warning" />
+    <Rule Id="CA2200" Action="Warning" />
+    <Rule Id="CA2202" Action="Warning" />
+    <Rule Id="CA2207" Action="Warning" />
+    <Rule Id="CA2212" Action="Warning" />
+    <Rule Id="CA2213" Action="Warning" />
+    <Rule Id="CA2214" Action="Warning" />
+    <Rule Id="CA2216" Action="Warning" />
+    <Rule Id="CA2220" Action="Warning" />
+    <Rule Id="CA2229" Action="Warning" />
+    <Rule Id="CA2231" Action="Warning" />
+    <Rule Id="CA2232" Action="Warning" />
+    <Rule Id="CA2235" Action="Warning" />
+    <Rule Id="CA2236" Action="Warning" />
+    <Rule Id="CA2237" Action="Warning" />
+    <Rule Id="CA2238" Action="Warning" />
+    <Rule Id="CA2240" Action="Warning" />
+    <Rule Id="CA2241" Action="Warning" />
+		<Rule Id="CA2242" Action="Warning" />
+		
+		<!-- None --> 
+		<Rule Id="CA1819" Action="None" /> <!-- Properties should not return arrays -->
+		<Rule Id="CA1303" Action="None" /> <!-- Retrive literal from a resource table-->
+		<Rule Id="CA1308" Action="None" /> <!-- Replace the call to ToLowerInvariant to ToUpperInvariant -->
+
+		<!--Rules that should be enabled in the future -->
+		<Rule Id="CA1062" Action="None" />  <!-- In externally visible method validate parameter is non-null before using it -->
+
+	</Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+		<Rule Id="SA0001" Action="None" /> <!-- XML comment analysis is disabled due to project configuration, we don't want to emit XML comments for Storage project -->
+		<Rule Id="SA1600" Action="None" />
+		<Rule Id="SA1101" Action="None" />
+		<Rule Id="SA1028" Action="None" />
+		<Rule Id="SA1407" Action="None" />
+		<Rule Id="SA1633" Action="None" />
+		<Rule Id="SA1649" Action="None" /> <!-- Unhandled declaration RecordDeclaration, ignore due to C# 9 record types -->
+		<Rule Id="SA1012" Action="None" />
+		<Rule Id="SA1013" Action="None" />
+		<Rule Id="SA1413" Action="None" />
+		<Rule Id="SA1300" Action="None" />
+		<Rule Id="SA1313" Action="None" /> <!-- Parameter should begin with a lowercase letter, ignore due to C# 9 record types -->
+		<Rule Id="SA1131" Action="None" /> <!-- Constant values should appear on the right-hand side of comparisons -->
+		<Rule Id="SA1122" Action="None" /> <!-- Using string.Empty for empty strings is not compatible with C# 9 pattern matching -->
+		<Rule Id="SA1601" Action="None" /> <!-- Partial elements should be documented -->
+		<Rule Id="SA1133" Action="None" /> <!-- Each attribute should be placed in its own set of square brakets -->
+		<Rule Id="SA1108" Action="None" /> <!-- Block statements should not contain embedded comments -->
+		<Rule Id="SA1011" Action="None" /> <!-- Closing square bracket should be followed by a line -->
+		<Rule Id="SA1008" Action="None" /> <!-- Opening parenthesis should not be followed by space (we can relax this rule a little bit as it does not seem to be very important)-->
+		<Rule Id="SA1009" Action="None" /> <!-- Closing parenthesis should be followed by space (not applicable due to ! operator)-->
+		<Rule Id="SA1127" Action="None" /> <!-- Generic type constraints should be on their own line -->
+		<Rule Id="SA1128" Action="None" /> <!-- Put constructor initializers on their own line -->
+		<Rule Id="SA1204" Action="None" /> <!-- Static elements should appear before instance elements -->
+		<Rule Id="SA1203" Action="None" /> <!-- Constant fields should appear before non-constant fields-->
+		<Rule Id="SA1201" Action="None" /> <!-- A constructor should not follow an event-->
+		<Rule Id="SA1515" Action="None" /> <!-- Single-line comment should be preceded by blank line -->
+		<Rule Id="SA1124" Action="None" /> <!-- regions are actually quite useful for code navigation -->
+		<Rule Id="SA1116" Action="None" /> <!-- parameters can start on the same line as the method signature -->
+		<Rule Id="SA1117" Action="None" /> <!-- parameters should be on the same line or separte lines, generates too many lines of code -->
+
+
+		
+		<!-- Rules that should be enabled in the future -->
+		<Rule Id="SA1202" Action="None" /> <!-- Elements should be ordered by access-->
+		<Rule Id="SA1025" Action="None" /> <!-- Code should not contain multiple whitespaces in a row-->
+		<Rule Id="SA1408" Action="None" /> <!-- Conditional expressions should declare precedence-->
+		<Rule Id="SA1120" Action="None" /> <!-- Comments should contain text-->
+        <Rule Id="SA1629" Action="None" /> <!-- Documentation should end with a comma-->
+   </Rules>
+</RuleSet>

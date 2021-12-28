@@ -1,22 +1,9 @@
 ﻿namespace SoundFingerprinting.Query
 {
-    using SoundFingerprinting.LCS;
     using static System.Math;
 
-    public static class ConfidenceCalculator
+    internal static class ConfidenceCalculator
     {
-        public static double CalculateConfidence(Coverage coverage)
-        {
-            return CalculateConfidence(
-                coverage.QueryMatchStartsAt, 
-                coverage.QueryLength, 
-                coverage.TrackMatchStartsAt, 
-                coverage.TrackLength, 
-                coverage.TrackCoverageWithPermittedGapsLength, 
-                coverage.QueryDiscreteCoverageLength, 
-                coverage.TrackDiscreteCoverageLength);
-        }
-
         /// <summary>
         ///   Calculates how confident is the algorithm that it found a successful match.
         ///   Interpret calculated value as the probability of the query match to be a True Positive.

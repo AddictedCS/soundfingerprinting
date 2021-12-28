@@ -7,7 +7,10 @@ namespace SoundFingerprinting.Image
         public static double[,] Kernel2D(int size, double sigma)
         {
             if (size % 2 == 0 || size < 3 || size > 101)
+            {
                 throw new ArgumentException("Wrong kernel size.");
+            }
+
             int half = size / 2;
             double[,] numArray = new double[size, size];
             int y = -half;

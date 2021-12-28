@@ -1753,20 +1753,8 @@
             return permutations;
         }
 
-        public int Count
-        {
-            get
-            {
-                return permutations.Length;
-            }
-        }
+        public int Count => permutations.Length;
 
-        public int IndexesPerPermutation
-        {
-            get
-            {
-                return permutations[0].Length;
-            }
-        }
+        public int IndexesPerPermutation => permutations[0].Length;
     }
 }

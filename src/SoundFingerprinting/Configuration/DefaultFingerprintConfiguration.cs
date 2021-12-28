@@ -4,7 +4,7 @@ namespace SoundFingerprinting.Configuration
     using SoundFingerprinting.Configuration.Frames;
 
     /// <summary>
-    ///  Default fingerprint configuration class, defining default parameters used to fingerprint provided content.
+    ///  Default fingerprint configuration class, defining default parameters used to fingerprint provided audio content.
     /// </summary>
     public class DefaultFingerprintConfiguration : FingerprintConfiguration
     {
@@ -18,9 +18,7 @@ namespace SoundFingerprinting.Configuration
             TopWavelets = 200;
             SampleRate = 5512;
             HaarWaveletNorm = Math.Sqrt(2);
-            FingerprintLengthInSeconds = (double)SamplesPerFingerprint / SampleRate;
             OriginalPointSaveTransform =  _ => Array.Empty<byte>();
-            GaussianBlurConfiguration = GaussianBlurConfiguration.None;
             FrameNormalizationTransform = new LogSpectrumNormalization();
         }
     }
