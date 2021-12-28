@@ -11,18 +11,18 @@ namespace SoundFingerprinting.Configuration
         private double logBase;
 
         /// <summary>
-        ///   Gets or sets overlap between the consecutively computed spectrum images 
+        ///   Gets or sets overlap between the consecutively computed spectrum images.
         /// </summary>
-        /// <remarks>64 at 5512 sample rate is approximately 11.6ms</remarks>
+        /// <remarks>64 at 5512 sample rate is approximately 11.6ms.</remarks>
         public ushort Overlap { get; set; }
 
         /// <summary>
-        ///   Gets or sets size of the WDFT block, 371 ms
+        ///   Gets or sets size of the WDFT block, 371 ms.
         /// </summary>
         public ushort WdftSize { get; set; }
 
         /// <summary>
-        ///  Gets or sets the frequency range to be taken into account 
+        ///  Gets or sets the frequency range to be taken into account.
         /// </summary>
         public FrequencyRange FrequencyRange
         {
@@ -50,7 +50,7 @@ namespace SoundFingerprinting.Configuration
         }
 
         /// <summary>
-        ///   Gets or sets log base used for computing the logarithmically spaced frequency bins
+        ///   Gets or sets log base used for computing the logarithmically spaced frequency bins.
         /// </summary>
         public double LogBase
         {
@@ -73,24 +73,24 @@ namespace SoundFingerprinting.Configuration
         public byte LogBins { get; set; }
 
         /// <summary>
-        ///   Gets or sets signature's length
+        ///   Gets or sets signature's length.
         /// </summary>
         public ushort ImageLength { get; set; }
 
         /// <summary>
-        ///  Gets or sets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static
+        ///  Gets or sets a value indicating whether the algorithm should use dynamic logarithmic base, instead of static.
         /// </summary>
         public bool UseDynamicLogBase { get; set; }
 
         /// <summary>
-        ///  Gets or sets stride between 2 consecutive spectrogram images
+        ///  Gets or sets stride between 2 consecutive spectrogram images.
         /// </summary>
-        public IStride Stride { get; set; }
+        public IStride Stride { get; set; } = null!;
 
         /// <summary>
-        ///  Gets or sets window function to apply before FFT-ing
+        ///  Gets or sets window function to apply before FFT-ing.
         /// </summary>
-        public IWindowFunction Window { get; set; }
+        public IWindowFunction Window { get; set; } = null!;
 
         /// <summary>
         ///  Gets minimum number of samples required to generate one spectral image, which in turn will be used to generate one fingerprint.
