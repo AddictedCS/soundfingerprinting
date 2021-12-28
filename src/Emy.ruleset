@@ -115,5 +115,6 @@
 		<Rule Id="SA1025" Action="None" /> <!-- Code should not contain multiple whitespaces in a row-->
 		<Rule Id="SA1408" Action="None" /> <!-- Conditional expressions should declare precedence-->
 		<Rule Id="SA1120" Action="None" /> <!-- Comments should contain text-->
+        <Rule Id="SA1629" Action="None" /> <!-- Documentation should end with a comma-->
    </Rules>
 </RuleSet>
