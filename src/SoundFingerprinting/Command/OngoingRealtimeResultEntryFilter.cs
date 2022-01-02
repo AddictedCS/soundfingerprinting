@@ -24,10 +24,12 @@ namespace SoundFingerprinting.Command
             this.minTrackLength = minTrackLength;
         }
 
+        /// <inheritdoc cref="IRealtimeResultEntryFilter.Pass"/>
         public bool Pass(AVResultEntry entry, bool canContinueInTheNextQuery)
         {
             if (!canContinueInTheNextQuery)
             {
+                // if we can't continue in the next query it means the song is over, and it could be over for some time already
                 return false;
             }
 

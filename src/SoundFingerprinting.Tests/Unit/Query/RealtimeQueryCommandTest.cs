@@ -574,7 +574,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, videoResult.Confidence, 0.01);
             Assert.AreEqual(1, videoResult.TrackRelativeCoverage, 0.01);
             Assert.AreEqual(0, didNotGetToContiguousQueryMatchLengthMatch.Count);
-            Assert.AreEqual(avTracks.Count, ongoingCalls);
+            Assert.AreEqual(avTracks.Count, ongoingCalls, 1);
             Assert.AreEqual(totalTrackLength + jitterLength + jitterLength, processed, 1);
         }
 

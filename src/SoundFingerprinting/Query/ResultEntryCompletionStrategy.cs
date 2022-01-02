@@ -15,7 +15,7 @@ namespace SoundFingerprinting.Query
             
             double totalPossibleCoverageResultingFromQuery = entry.QueryLength - entry.QueryMatchStartsAt;
             double totalPossibleTrackCoverage = entry.Track.Length - entry.TrackMatchStartsAt;
-            return totalPossibleTrackCoverage > totalPossibleCoverageResultingFromQuery;
+            return totalPossibleCoverageResultingFromQuery < totalPossibleTrackCoverage;
         }
     }
 }
