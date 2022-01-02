@@ -15,8 +15,8 @@ namespace SoundFingerprinting.Query
         }
 
         public AVResultEntryCompletionStrategy(AVQueryConfiguration config) : this(
-            new ResultEntryCompletionStrategy(config.Audio.PermittedGap),
-            new ResultEntryCompletionStrategy(config.Video.PermittedGap))
+            new ResultEntryCompletionStrategy(),
+            new ResultEntryCompletionStrategy())
         {
             // no-op
         }

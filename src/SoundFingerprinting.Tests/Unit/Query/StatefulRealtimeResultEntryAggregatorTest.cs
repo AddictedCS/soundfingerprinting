@@ -29,7 +29,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackMatchLengthEntryFilter(5d), 
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(2d), new ResultEntryCompletionStrategy(2d)),
+                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(), new ResultEntryCompletionStrategy()),
                 new ResultEntryConcatenator(),
                 new StatefulQueryHashesConcatenator());
 
@@ -47,7 +47,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackMatchLengthEntryFilter(10d),
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(permittedGap), new ResultEntryCompletionStrategy(permittedGap)),
+                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(), new ResultEntryCompletionStrategy()),
                 new ResultEntryConcatenator(),
                 new StatefulQueryHashesConcatenator());
             
@@ -81,7 +81,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d),
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(permittedGap), new ResultEntryCompletionStrategy(permittedGap)),
+                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(), new ResultEntryCompletionStrategy()),
                 new ResultEntryConcatenator(),
                 new StatefulQueryHashesConcatenator());
 
@@ -196,6 +196,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 Assert.AreEqual(p.Expected, p.Actual, 0.00001);
             }
         }
+        
+        
 
         private static void SimulateEmptyResults(IRealtimeAggregator aggregator, ICollection<AVResultEntry> success, ICollection<AVResultEntry> filtered)
         {

@@ -19,13 +19,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [SetUp]
         public void SetUp()
         {
-            strategy = new ResultEntryCompletionStrategy(PermittedGap);
-        }
-
-        [Test]
-        public void ConstructorThrowsOnInvalidArgs()
-        {
-            Assert.Throws<ArgumentException>(() => new ResultEntryCompletionStrategy(double.NaN));
+            strategy = new ResultEntryCompletionStrategy();
         }
 
         [Test]
@@ -34,29 +28,20 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsFalse(strategy.CanContinueInNextQuery(null));
         }
 
-        [Test]
-        public void MatchEndsMoreThanPermittedGapBeforeTheQueryEnd()
+        [TestCase(120, 60, 10, 0, false)]
+        [TestCase(120, 115, 10, 0, true)]
+        [TestCase(2, 0, 10, 5, true)]
+        [TestCase(5, 0, 10, 5, false)]
+        public void ShouldCoverAllScenarios(double queryLength, float queryMatchStartsAt, double trackLength, float trackMatchStartsAt, bool expected)
         {
-            var trackLength = 10d;
-            var entry = CreateResultEntry(gapAtTheEnd: PermittedGap + 0.1, queryLength: trackLength + PermittedGap + 0.1);
-
-            Assert.IsFalse(strategy.CanContinueInNextQuery(entry));
+            var entry = CreateResultEntry(0, queryLength, trackLength, queryMatchStartsAt, trackMatchStartsAt); 
+            Assert.AreEqual(expected, strategy.CanContinueInNextQuery(entry)); 
         }
 
-        [Test]
-        public void MatchEndsExactlyPermittedGapBeforeTheQueryEnd()
-        {
-            var entry = CreateResultEntry(gapAtTheEnd: PermittedGap);
-
-            Assert.IsTrue(strategy.CanContinueInNextQuery(entry));
-        }
-
-        private static ResultEntry CreateResultEntry(double gapAtTheEnd, double queryLength = 10, double trackLength = 10)
+        private static ResultEntry CreateResultEntry(double gapAtTheEnd, double queryLength = 10, double trackLength = 10, float queryMatchStartsAt = 0, float trackMatchStartsAt = 0)
         {
             // query: [0 1 2 3 4 5 6 7 8 9]
             //           [match w gap][gap]
-            const float queryMatchStartsAt = 0;
-            const float trackMatchStartsAt = 0;
             const double score = 1;
             var matchedAt = DateTime.Now;
             var discreteCoverageLength = queryLength - queryMatchStartsAt - gapAtTheEnd;
