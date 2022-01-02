@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
     using SoundFingerprinting.Configuration;
@@ -451,10 +452,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 5, trackLength: 210, queryLength: 5); 
             var second  = CreateEntry(queryOffset: 0, trackOffset: 110, matchLength: 5, trackLength: 210, queryLength: 5);
 
-            var result = concatenator.Concat(first, second);
-            
-            Assert.IsTrue(result.Coverage.TrackGaps.Any());
-            Assert.AreEqual(3, result.Coverage.TrackGaps.Count());
+            var result = concatenator.Concat(first, second, 100);
+
+            var trackGaps = result.Coverage.TrackGaps.ToArray();
+            Assert.IsTrue(trackGaps.Any());
+            Assert.AreEqual(3, trackGaps.Length);
+            AssertDiscontinuity(0, 10, trackGaps[0]);
+            AssertDiscontinuity(15, 110, trackGaps[1]);
+            AssertDiscontinuity(115, 210, trackGaps[2]);
         }
 
         private ResultEntry CreateEntry(float queryOffset, float trackOffset, float matchLength, float trackLength = 30, float queryLength = 120, string trackId = "id")
@@ -480,7 +485,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             Assert.AreEqual(start, discontinuity.Start, Delta);
             Assert.AreEqual(end, discontinuity.End, Delta);
-            Assert.AreEqual(end - start, discontinuity.LengthInSeconds);
+            Assert.AreEqual(end - start, discontinuity.LengthInSeconds, Delta);
         }
         
         private static double TrackDiscreteCoverage(Coverage coverage)

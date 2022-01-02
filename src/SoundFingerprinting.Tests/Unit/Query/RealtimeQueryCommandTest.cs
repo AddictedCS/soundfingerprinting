@@ -304,11 +304,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(trackCount, avTracksCount - jitterChunks);
             Assert.AreEqual(trackCount, fingerprintsCount - jitterChunks);
             Assert.IsTrue(restoreCalled[0]);
-            Assert.AreEqual(0, didNotPassThreshold);
             Assert.AreEqual(1, resultEntries.Count);
             var (result, _) = resultEntries.First();
             Assert.AreEqual(totalTrackLength, result.Coverage.TrackCoverageWithPermittedGapsLength, 2 * minSizeChunkDuration);
             Assert.IsTrue(Math.Abs(start.Subtract(result.MatchedAt).TotalSeconds) < 2, $"Matched At {result.MatchedAt:o}");
+            Assert.AreEqual(0, didNotPassThreshold);
         }
 
         [Test]
