@@ -51,22 +51,18 @@ namespace SoundFingerprinting.Query
             }
 
             float fingerprintLength = (float)left.Coverage.FingerprintLength;
-            var lastMatch = left.Coverage.BestPath.Last();
-            float gapSize = GetGapSize(lastMatch, left.QueryLength, fingerprintLength);
+            var leftLastMatch = left.Coverage.BestPath.Last();
+            float gapSize = GetGapSize(leftLastMatch, left.QueryLength, fingerprintLength);
             
             var nextBestPath = right
                 .Coverage
                 .BestPath
-                .Select(_ =>
-                {
-                    return new MatchedWith(
-                        _.QuerySequenceNumber + lastMatch.QuerySequenceNumber + 1 +
-                        (uint)((gapSize + queryOffset) / fingerprintLength),
-                        _.QueryMatchAt + lastMatch.QueryMatchAt + fingerprintLength + gapSize + (float)queryOffset,
-                        _.TrackSequenceNumber,
-                        _.TrackMatchAt,
-                        _.Score);
-                });
+                .Select(_ => new MatchedWith(
+                    querySequenceNumber: _.QuerySequenceNumber + leftLastMatch.QuerySequenceNumber + 1 + (uint)((gapSize + queryOffset) / fingerprintLength),
+                    queryMatchAt: _.QueryMatchAt + leftLastMatch.QueryMatchAt + fingerprintLength + gapSize + (float)queryOffset,
+                    trackSequenceNumber: _.TrackSequenceNumber,
+                    trackMatchAt: _.TrackMatchAt,
+                    score: _.Score));
  
             var bestPath = left.Coverage.BestPath.Concat(nextBestPath).ToList();
             double queryLength = left.Coverage.QueryLength + right.Coverage.QueryLength + queryOffset;

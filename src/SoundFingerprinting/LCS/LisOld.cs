@@ -49,7 +49,8 @@ namespace SoundFingerprinting.LCS
         private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
         {
             // matches are already sorted by `TrackMatchAt`
-            return matches.Skip(trackRegion.StartAt)
+            return matches
+                   .Skip(trackRegion.StartAt)
                    .Take(trackRegion.Count)
                    .GroupBy(m => m.TrackSequenceNumber)
                    .Aggregate(new { List = new List<MatchedWith>(), Used = new HashSet<uint>()}, (acc, group) =>
