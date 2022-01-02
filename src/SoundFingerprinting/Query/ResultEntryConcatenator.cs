@@ -45,6 +45,11 @@ namespace SoundFingerprinting.Query
                 return right;
             }
 
+            if (left.TrackMatchStartsAt > right.TrackMatchStartsAt)
+            {
+                (left, right) = (right, left);
+            }
+
             float fingerprintLength = (float)left.Coverage.FingerprintLength;
             var lastMatch = left.Coverage.BestPath.Last();
             float gapSize = GetGapSize(lastMatch, left.QueryLength, fingerprintLength);
@@ -57,8 +62,7 @@ namespace SoundFingerprinting.Query
                     return new MatchedWith(
                         _.QuerySequenceNumber + lastMatch.QuerySequenceNumber + 1 +
                         (uint)((gapSize + queryOffset) / fingerprintLength),
-                        _.QueryMatchAt + lastMatch.QueryMatchAt + fingerprintLength + gapSize +
-                        (float)queryOffset,
+                        _.QueryMatchAt + lastMatch.QueryMatchAt + fingerprintLength + gapSize + (float)queryOffset,
                         _.TrackSequenceNumber,
                         _.TrackMatchAt,
                         _.Score);

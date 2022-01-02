@@ -432,6 +432,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(20, result.QueryLength, 0.01);
         }
 
+        [Test]
+        public void ShouldBeAbleToConcatenateFromBothSides()
+        {
+            var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
+            var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
+
+            var a = concatenator.Concat(left, right);
+            var b = concatenator.Concat(right, left);
+
+            Assert.AreEqual(a.TrackRelativeCoverage, b.TrackRelativeCoverage, 0.0001);
+        }
+
         private ResultEntry CreateEntry(float queryOffset, float trackOffset, float matchLength, float trackLength = 30, float queryLength = 120, string trackId = "id")
         {
             float fingerprintLength = (float)config.FingerprintConfiguration.FingerprintLengthInSeconds;
