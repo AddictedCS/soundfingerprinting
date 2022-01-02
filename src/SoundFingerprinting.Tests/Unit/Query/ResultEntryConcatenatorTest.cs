@@ -440,8 +440,21 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var a = concatenator.Concat(left, right);
             var b = concatenator.Concat(right, left);
-
+            
             Assert.AreEqual(a.TrackRelativeCoverage, b.TrackRelativeCoverage, 0.0001);
+        }
+
+        [Test]
+        [Ignore("Don't know how to handle this yet")]
+        public void ShouldDetectAGap()
+        {
+            var first  = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 5, trackLength: 210, queryLength: 5); 
+            var second  = CreateEntry(queryOffset: 0, trackOffset: 110, matchLength: 5, trackLength: 210, queryLength: 5);
+
+            var result = concatenator.Concat(first, second);
+            
+            Assert.IsTrue(result.Coverage.TrackGaps.Any());
+            Assert.AreEqual(3, result.Coverage.TrackGaps.Count());
         }
 
         private ResultEntry CreateEntry(float queryOffset, float trackOffset, float matchLength, float trackLength = 30, float queryLength = 120, string trackId = "id")
