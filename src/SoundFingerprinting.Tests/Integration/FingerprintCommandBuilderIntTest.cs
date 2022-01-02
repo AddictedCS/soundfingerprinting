@@ -189,7 +189,7 @@
             Assert.IsNotNull(queryResult.BestMatch);
             var (bestMatch, _) = queryResult.BestMatch;
             Assert.AreEqual("1234", bestMatch.Track.Id);
-            Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
+            Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 1, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
             Assert.IsTrue(bestMatch.Confidence > 0.5, $"Confidence:{bestMatch.Confidence}");
         }
