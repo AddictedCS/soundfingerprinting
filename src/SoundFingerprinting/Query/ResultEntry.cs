@@ -131,7 +131,7 @@ namespace SoundFingerprinting.Query
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"ResultEntry[TrackId={Track.Id},TrackRelativeCoverage={TrackRelativeCoverage}]";
+            return $"ResultEntry[TrackId={Track.Id},TrackMatchStartsAt={TrackMatchStartsAt},TrackRelativeCoverage={TrackRelativeCoverage}]";
         }
     }
 }

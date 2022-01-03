@@ -6,6 +6,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
@@ -22,6 +24,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class StatefulRealtimeResultEntryAggregatorTest
     {
+        private readonly ILoggerFactory loggerFactory = new NullLoggerFactory();
+        
         [Test]
         public void ShouldNotFailWithNullObjectPass()
         {
@@ -29,8 +33,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackMatchLengthEntryFilter(5d), 
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(), new ResultEntryCompletionStrategy()),
-                new ResultEntryConcatenator(),
+                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
+                new ResultEntryConcatenator(loggerFactory),
                 new StatefulQueryHashesConcatenator());
 
             var result = aggregator.Consume(null);
@@ -47,8 +51,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackMatchLengthEntryFilter(10d),
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(), new ResultEntryCompletionStrategy()),
-                new ResultEntryConcatenator(),
+                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
+                new ResultEntryConcatenator(loggerFactory),
                 new StatefulQueryHashesConcatenator());
             
             const int firstQueryLength = 5;
@@ -84,8 +88,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d),
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(), new ResultEntryCompletionStrategy()),
-                new ResultEntryConcatenator(),
+                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
+                new ResultEntryConcatenator(loggerFactory),
                 new StatefulQueryHashesConcatenator());
 
             var success = new List<AVResultEntry>();

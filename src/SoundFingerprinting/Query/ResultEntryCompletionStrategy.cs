@@ -5,6 +5,13 @@ namespace SoundFingerprinting.Query
     /// </summary>
     internal sealed class ResultEntryCompletionStrategy : ICompletionStrategy<ResultEntry>
     {
+        private readonly double permittedGap;
+
+        public ResultEntryCompletionStrategy(double permittedGap)
+        {
+            this.permittedGap = permittedGap;
+        }
+        
         /// <inheritdoc cref="ICompletionStrategy{T}.CanContinueInNextQuery" />
         public bool CanContinueInNextQuery(ResultEntry? entry)
         {
@@ -15,7 +22,7 @@ namespace SoundFingerprinting.Query
             
             double totalPossibleCoverageResultingFromQuery = entry.QueryLength - entry.QueryMatchStartsAt;
             double totalPossibleTrackCoverage = entry.Track.Length - entry.TrackMatchStartsAt;
-            return totalPossibleCoverageResultingFromQuery < totalPossibleTrackCoverage;
+            return totalPossibleCoverageResultingFromQuery < totalPossibleTrackCoverage + permittedGap;
         }
     }
 }

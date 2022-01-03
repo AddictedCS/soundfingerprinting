@@ -19,7 +19,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [SetUp]
         public void SetUp()
         {
-            strategy = new ResultEntryCompletionStrategy();
+            strategy = new ResultEntryCompletionStrategy(0d);
         }
 
         [Test]
