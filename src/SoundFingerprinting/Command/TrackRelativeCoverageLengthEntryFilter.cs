@@ -20,9 +20,9 @@ namespace SoundFingerprinting.Command
         /// <param name="coverage">Coverage used as a minimum threshold for the <see cref="ResultEntry.TrackRelativeCoverage"/>.</param>
         /// <param name="waitTillCompletion">A flag indicating whether to emit the result without waiting until the track finishes.</param>
         /// <exception cref="ArgumentOutOfRangeException">Coverage has to be defined within [0, 1] interval.</exception>
-        public TrackRelativeCoverageLengthEntryFilter(double coverage, bool waitTillCompletion = false)
+        public TrackRelativeCoverageLengthEntryFilter(double coverage, bool waitTillCompletion = true)
         {
-            if (coverage < 0 || coverage > 1)
+            if (coverage is < 0 or > 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(coverage), "Coverage should be defined within interval [0,1]");
             }
