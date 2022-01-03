@@ -12,8 +12,9 @@
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
 		Improving result completion strategy by comparing how much has been covered with how much is technically possible.
-		    Taking into account TrackMatchStartsAt.
-		    Permitted gap is not really a part of completion strategy.
+		    Taking into account TrackMatchStartsAt with TrackLength.
+		Adding a flag that will automatically detect forwards and backwards skip into RealtimeQueryConfiguration.
+		Setting waitTillCompletion to true by default in TrackRelativeCoverageLengthEntryFilter.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
