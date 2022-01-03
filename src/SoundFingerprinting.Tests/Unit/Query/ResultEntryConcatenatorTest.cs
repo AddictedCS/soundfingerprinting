@@ -1,8 +1,8 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Extensions.Logging.Abstractions;
     using NUnit.Framework;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
@@ -15,33 +15,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
     {
         private const double Delta = 1E-3;
 
-        private QueryConfiguration config;
-        private IConcatenator<ResultEntry> concatenator;
-
-        [SetUp]
-        public void SetUp()
-        {
-            config = new DefaultQueryConfiguration
-            {
-                FingerprintConfiguration = new DefaultFingerprintConfiguration
-                {
-                    SampleRate = 8192 * 10
-                },
-                PermittedGap = 2.9
-            };
-
-            concatenator = new ResultEntryConcatenator();
-        }
-
         [Test]
         public void ReturnNullWhenBothEntriesAreNull()
         {
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
             Assert.IsNull(concatenator.Concat(null, null));
         }
 
         [Test]
         public void WhenOneEntryIsNullThenReturnTheOther()
         {
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var entry = CreateEntry(queryOffset: 110, trackOffset: 0, matchLength: 10);
 
             Assert.AreSame(entry, concatenator.Concat(entry, null));
@@ -51,6 +36,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldNotConcatEntriesFromDifferentTracks()
         {
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var left = CreateEntry(queryOffset: 110, trackOffset: 0, matchLength: 10, trackLength: 30, queryLength: 120, trackId: "track-1");
             var right = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 20, trackLength: 30, queryLength: 120, trackId: "track-2");
 
@@ -70,6 +57,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -101,6 +90,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength:  9);
             var right = CreateEntry(queryOffset:   0, trackOffset: 12, matchLength: 18);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -134,6 +125,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 107, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -167,6 +160,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   3, trackOffset: 10, matchLength: 20);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -200,6 +195,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 108, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   2, trackOffset: 10, matchLength: 20);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -233,6 +230,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength:  7);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -267,6 +266,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   3, trackOffset: 13, matchLength: 17);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -301,6 +302,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 108, trackOffset:  0, matchLength:  9);
             var right = CreateEntry(queryOffset:   4, trackOffset: 12, matchLength: 18);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(left, right);
 
             Assert.IsNotNull(concatenated);
@@ -328,6 +331,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 5, trackOffset:  0, matchLength: 5, trackLength: 10, queryLength: 10); 
             var second  = CreateEntry(queryOffset: 0, trackOffset:  5, matchLength: 5, trackLength: 10, queryLength: 10); 
             
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(first, second);
             
             Assert.AreEqual(1, concatenated.TrackRelativeCoverage, 0.01);
@@ -344,6 +349,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int matchLength = 10;
             var first  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength, trackLength: 20, queryLength: 10);
             var second = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength, trackLength: 20, queryLength: 10);
+            
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
             
             var concatenated = concatenator.Concat(first, second);
             
@@ -370,6 +377,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength, trackLength: 20, queryLength: 10);
             var second = CreateEntry(queryOffset: 3, trackOffset: 13, 7, trackLength: 20, queryLength: 10);
             
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(first, second);
             
             Assert.AreEqual(20, concatenated.QueryLength);
@@ -394,6 +403,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var second = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength, queryLength: 10); 
             var third = CreateEntry(queryOffset: 0, trackOffset: 20, matchLength, queryLength: 10);
             
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var concatenated = concatenator.Concat(first, second);
             var result = concatenator.Concat(concatenated, third);
             
@@ -410,6 +421,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength, queryLength: 10, trackLength: 10);
             var second = CreateEntry(queryOffset: 0, trackOffset: 3, matchLength: 3, queryLength: 3, trackLength: 10);
             
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
+            
             var result = concatenator.Concat(first, second);
             
             Assert.AreEqual(10, result.QueryLength, 0.01);
@@ -422,6 +435,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             int matchLength = 10;
             var first  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength, queryLength: 10, trackLength: 30); 
             var second  = CreateEntry(queryOffset: 0, trackOffset: 5, matchLength, queryLength: 10, trackLength: 30);
+            
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), false);
             
             var result = concatenator.Concat(first, second);
             
@@ -439,6 +454,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), autoSkipDetection: true);
+            
             var a = concatenator.Concat(left, right);
             var b = concatenator.Concat(right, left);
             
@@ -446,13 +463,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
 
         [Test]
-        [Ignore("Don't know how to handle this yet")]
         public void ShouldDetectAGap()
         {
             var first  = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 5, trackLength: 210, queryLength: 5); 
             var second  = CreateEntry(queryOffset: 0, trackOffset: 110, matchLength: 5, trackLength: 210, queryLength: 5);
 
-            var result = concatenator.Concat(first, second, 100);
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), autoSkipDetection: true);
+            
+            var result = concatenator.Concat(first, second);
 
             var trackGaps = result.Coverage.TrackGaps.ToArray();
             Assert.IsTrue(trackGaps.Any());
@@ -460,10 +478,20 @@ namespace SoundFingerprinting.Tests.Unit.Query
             AssertDiscontinuity(0, 10, trackGaps[0]);
             AssertDiscontinuity(15, 110, trackGaps[1]);
             AssertDiscontinuity(115, 210, trackGaps[2]);
+            Assert.AreEqual(105, result.Coverage.QueryLength, 0.01);
         }
 
         private ResultEntry CreateEntry(float queryOffset, float trackOffset, float matchLength, float trackLength = 30, float queryLength = 120, string trackId = "id")
         {
+            var config = new DefaultQueryConfiguration
+            {
+                FingerprintConfiguration = new DefaultFingerprintConfiguration
+                {
+                    SampleRate = 8192 * 10
+                },
+                PermittedGap = 2.9
+            };
+            
             float fingerprintLength = (float)config.FingerprintConfiguration.FingerprintLengthInSeconds;
             var count = (int)Math.Round(matchLength / fingerprintLength);
             var bestPath = Enumerable.Range(0, count)

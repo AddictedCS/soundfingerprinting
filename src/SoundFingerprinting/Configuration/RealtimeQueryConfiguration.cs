@@ -9,8 +9,23 @@ namespace SoundFingerprinting.Configuration
     /// <summary>
     ///   Configuration options used when querying the data source in realtime.
     /// </summary>
-    public class RealtimeQueryConfiguration
+    public abstract class RealtimeQueryConfiguration
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RealtimeQueryConfiguration"/> class.
+        /// </summary>
+        /// <param name="queryConfiguration">Audio/Video query configuration.</param>
+        /// <param name="resultEntryFilter">An instance of the <see cref="IRealtimeResultEntryFilter"/> filter to filter matched entries.</param>
+        /// <param name="successCallback">Success callback.</param>
+        /// <param name="didNotPassFilterCallback">Callback invoked when filter is not passed.</param>
+        /// <param name="ongoingResultEntryFilter">What is playing right now filter.</param>
+        /// <param name="ongoingSuccessCallback">What is playing right now success callback.</param>
+        /// <param name="errorCallback">Error callback.</param>
+        /// <param name="restoredAfterErrorCallback">Restore after error callback.</param>
+        /// <param name="offlineStorage">An instance of the <see cref="IOfflineStorage"/> interface.</param>
+        /// <param name="errorBackoffPolicy">Error backoff policy.</param>
+        /// <param name="delayStrategy">Delay strategy.</param>
+        /// <param name="automaticSkipDetection">A flag indicating whether to automatically detect skip in the query source.</param>
         public RealtimeQueryConfiguration(
             AVQueryConfiguration queryConfiguration,
             IRealtimeResultEntryFilter resultEntryFilter,
@@ -22,7 +37,8 @@ namespace SoundFingerprinting.Configuration
             Action restoredAfterErrorCallback,
             IOfflineStorage offlineStorage,
             IBackoffPolicy errorBackoffPolicy,
-            IDelayStrategy delayStrategy)
+            IDelayStrategy delayStrategy, 
+            bool automaticSkipDetection)
         {
             QueryConfiguration = queryConfiguration;
             ResultEntryFilter = resultEntryFilter;
@@ -35,8 +51,9 @@ namespace SoundFingerprinting.Configuration
             OfflineStorage = offlineStorage;
             ErrorBackoffPolicy = errorBackoffPolicy;
             DelayStrategy = delayStrategy;
+            AutomaticSkipDetection = automaticSkipDetection;
         }
-        
+
         /// <summary>
         ///  Gets or sets result entry filter.
         /// </summary>
@@ -46,7 +63,7 @@ namespace SoundFingerprinting.Configuration
         ///   Gets or sets success callback invoked when a candidate passes result entry filter.
         /// </summary>
         public Action<AVQueryResult> SuccessCallback { get; set; }
-        
+
         /// <summary>
         ///  Gets or sets callback invoked when a candidate did not pass result entry filter, but has been considered a candidate.
         /// </summary>
@@ -59,7 +76,7 @@ namespace SoundFingerprinting.Configuration
         ///  Experimental, may change in the future.
         /// </remarks>
         public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }
-        
+
         /// <summary>
         ///  Gets or sets ongoing success callback that will be invoked once ongoing result entry filter is passed.
         /// </summary>
@@ -106,6 +123,16 @@ namespace SoundFingerprinting.Configuration
         ///  Experimental, can be used to store hashes during the time the storage is not available. Will be consumed, after RestoredAfterErrorCallback invocation.
         /// </remarks>
         public IOfflineStorage OfflineStorage { get; set; }
+
+        /// <summary>
+        ///  Gets or sets a value indicating whether to enable automatic skip detection (default false).
+        /// </summary>
+        /// <remarks>
+        ///  Experimental automatic skip detection is used to identify fast-forwards or backwards skip in the realtime query source (i.e., skip through audio/video player). <br />
+        ///  This helps in correctly identifying query/track gaps that result when the query source is matching across track regions larger than the initial query length. <br />
+        ///  A by-product of skip detection is a synthetically increased query length in the resulting <see cref="ResultEntry"/> when skip is detected.
+        /// </remarks>
+        public bool AutomaticSkipDetection { get; set; }
 
         /// <summary>
         ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates.
