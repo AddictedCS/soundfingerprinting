@@ -2,6 +2,7 @@ namespace SoundFingerprinting.Query
 {
     using System;
     using System.Linq;
+    using Microsoft.Extensions.Logging;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.LCS;
 
@@ -10,6 +11,20 @@ namespace SoundFingerprinting.Query
     /// </summary>
     public class ResultEntryConcatenator : IConcatenator<ResultEntry>
     {
+        private readonly bool autoSkipDetection;
+        private readonly ILogger<ResultEntryConcatenator> logger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResultEntryConcatenator"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">An instance of logger factory.</param>
+        /// <param name="autoSkipDetection">A flag indicating whether to enable automatic skip detection.</param>
+        public ResultEntryConcatenator(ILoggerFactory loggerFactory, bool autoSkipDetection)
+        {
+            this.autoSkipDetection = autoSkipDetection;
+            logger = loggerFactory.CreateLogger<ResultEntryConcatenator>();
+        }
+
         /// <summary>
         ///  Stitches two consecutive result entries creating a new one with aggregated information about best path and coverage.
         /// </summary>
@@ -37,41 +52,62 @@ namespace SoundFingerprinting.Query
             
             if (left.Coverage.Contains(right.Coverage))
             {
+                logger.LogDebug("Left coverage contains right one {Left} > {Right}", left, right);
                 return left;
             }
 
             if (right.Coverage.Contains(left.Coverage))
             {
+                logger.LogDebug("Right coverage contains left one {Left} < {Right}", left, right);
                 return right;
             }
 
+            if (autoSkipDetection && left.TrackMatchStartsAt > right.TrackMatchStartsAt)
+            {
+                logger.LogDebug("Concatenator result entry reversal detected for {Left}<->{Right}", left, right);
+                (left, right) = (right, left);
+            }
+
             float fingerprintLength = (float)left.Coverage.FingerprintLength;
-            var lastMatch = left.Coverage.BestPath.Last();
-            float gapSize = GetGapSize(lastMatch, left.QueryLength, fingerprintLength);
+            var leftLastMatch = left.Coverage.BestPath.Last();
+            float gapSize = GetGapSize(leftLastMatch, left.QueryLength, fingerprintLength);
             
             var nextBestPath = right
                 .Coverage
                 .BestPath
-                .Select(_ =>
-                {
-                    return new MatchedWith(
-                        _.QuerySequenceNumber + lastMatch.QuerySequenceNumber + 1 +
-                        (uint)((gapSize + queryOffset) / fingerprintLength),
-                        _.QueryMatchAt + lastMatch.QueryMatchAt + fingerprintLength + gapSize +
-                        (float)queryOffset,
-                        _.TrackSequenceNumber,
-                        _.TrackMatchAt,
-                        _.Score);
-                });
+                .Select(_ => new MatchedWith(
+                    querySequenceNumber: _.QuerySequenceNumber + leftLastMatch.QuerySequenceNumber + 1 + (uint)((gapSize + queryOffset) / fingerprintLength),
+                    queryMatchAt: _.QueryMatchAt + leftLastMatch.QueryMatchAt + fingerprintLength + gapSize + (float)queryOffset,
+                    trackSequenceNumber: _.TrackSequenceNumber,
+                    trackMatchAt: _.TrackMatchAt,
+                    score: _.Score));
  
             var bestPath = left.Coverage.BestPath.Concat(nextBestPath).ToList();
             double queryLength = left.Coverage.QueryLength + right.Coverage.QueryLength + queryOffset;
-            var coverage = bestPath.EstimateCoverage(queryLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap);
+
+            double permittedGap = left.Coverage.PermittedGap;
+            double skipLength = 0d;
+            double leftEndsAt = left.TrackMatchStartsAt + left.DiscreteTrackCoverageLength;
+            double matchGap = right.TrackMatchStartsAt - leftEndsAt;
+            if (autoSkipDetection && matchGap > 0 && right.Coverage.TrackCoverageWithPermittedGapsLength + left.Coverage.TrackCoverageWithPermittedGapsLength + matchGap > queryLength + permittedGap)
+            {
+                // we have covered more than the query allowed us, realtime query came with a glitch/skip
+                logger.LogDebug("Result entries {Left}->{Right} covered more than it is possible by the query length {QueryLength:0.00}. Possible skip length {Glitch:0.00}", left, right, queryLength, matchGap);
+                skipLength = matchGap;
+            }
+            
+            var coverage = bestPath.EstimateCoverage(queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap);
             var track = left.Track;
             double score = left.Score + right.Score;
-            return new ResultEntry(track, score, left.MatchedAt, coverage);
+            return new ResultEntry(track, score, left.MatchedAt, coverage.WithExtendedQueryLength(-skipLength));
         }
 
+        /// <summary>
+        ///  Extends query length of the current result entry by creating a new instance of the <see cref="ResultEntry"/> class.
+        /// </summary>
+        /// <param name="old">An instance of the <see cref="ResultEntry"/> class to extend it's length.</param>
+        /// <param name="length">New query length will be equal to previous result entry query length plus length.</param>
+        /// <returns>A new instance of the <see cref="ResultEntry"/> class with modified query length.</returns>
         public ResultEntry WithExtendedQueryLength(ResultEntry old, double length)
         {
             return new ResultEntry(old.Track, old.Score, old.MatchedAt, new Coverage(old.Coverage.BestPath, old.Coverage.QueryLength + length, old.Coverage.TrackLength, old.Coverage.FingerprintLength, old.Coverage.PermittedGap));

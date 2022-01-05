@@ -26,7 +26,8 @@ namespace SoundFingerprinting.Command
         private readonly ILogger<RealtimeQueryCommand> logger;
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryCommandBuilder queryCommandBuilder;
-        
+        private readonly ILoggerFactory loggerFactory;
+
         private Func<CancellationToken, IAsyncEnumerable<AVHashes>> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
         private IRealtimeMediaService? realtimeMediaService;
@@ -45,7 +46,8 @@ namespace SoundFingerprinting.Command
             this.logger = loggerFactory.CreateLogger<RealtimeQueryCommand>();
             this.fingerprintCommandBuilder = fingerprintCommandBuilder;
             this.queryCommandBuilder = queryCommandBuilder;
-            
+            this.loggerFactory = loggerFactory;
+
             configuration = new DefaultRealtimeQueryConfiguration(
                 e => { /* do nothing */ }, 
                 e => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
@@ -255,7 +257,7 @@ namespace SoundFingerprinting.Command
                 configuration.OngoingResultEntryFilter,
                 configuration.OngoingSuccessCallback,
                 new AVResultEntryCompletionStrategy(configuration.QueryConfiguration),
-                new ResultEntryConcatenator(),
+                new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
                 new StatefulQueryHashesConcatenator());
 
             try

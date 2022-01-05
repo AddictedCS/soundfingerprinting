@@ -32,7 +32,8 @@ namespace SoundFingerprinting.Configuration
             restoredAfterErrorCallback,
             new EmptyOfflineStorage(),
             new RandomExponentialBackoffPolicy(),
-            new RandomDelayStrategy(1, 5))
+            new RandomDelayStrategy(1, 5),
+            automaticSkipDetection: false)
         {
         }
     }
