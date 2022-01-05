@@ -86,20 +86,20 @@ namespace SoundFingerprinting.Query
             double queryLength = left.Coverage.QueryLength + right.Coverage.QueryLength + queryOffset;
 
             double permittedGap = left.Coverage.PermittedGap;
-            double glitch = 0d;
+            double skipLength = 0d;
             double leftEndsAt = left.TrackMatchStartsAt + left.DiscreteTrackCoverageLength;
             double matchGap = right.TrackMatchStartsAt - leftEndsAt;
             if (autoSkipDetection && matchGap > 0 && right.Coverage.TrackCoverageWithPermittedGapsLength + left.Coverage.TrackCoverageWithPermittedGapsLength + matchGap > queryLength + permittedGap)
             {
                 // we have covered more than the query allowed us, realtime query came with a glitch/skip
-                logger.LogDebug("Result entries {Left}->{Right} covered more than it is possible by the query length {QueryLength:0.00}. Possible glitch length {Glitch:0.00}", left, right, queryLength, matchGap);
-                glitch = matchGap;
+                logger.LogDebug("Result entries {Left}->{Right} covered more than it is possible by the query length {QueryLength:0.00}. Possible skip length {Glitch:0.00}", left, right, queryLength, matchGap);
+                skipLength = matchGap;
             }
             
-            var coverage = bestPath.EstimateCoverage(queryLength + glitch, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap);
+            var coverage = bestPath.EstimateCoverage(queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap);
             var track = left.Track;
             double score = left.Score + right.Score;
-            return new ResultEntry(track, score, left.MatchedAt, coverage);
+            return new ResultEntry(track, score, left.MatchedAt, coverage.WithExtendedQueryLength(-skipLength));
         }
 
         /// <summary>

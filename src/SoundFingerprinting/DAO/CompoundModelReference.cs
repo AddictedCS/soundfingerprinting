@@ -3,7 +3,7 @@ namespace SoundFingerprinting.DAO
     using System;
     using ProtoBuf;
 
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class CompoundModelReference<T> : IModelReference
     {
         [ProtoMember(1)]
@@ -12,11 +12,6 @@ namespace SoundFingerprinting.DAO
         [ProtoMember(2)]
         public IModelReference Reference { get; }
         
-        private CompoundModelReference()
-        {
-            // left for proto-buf
-        }
-
         public TOut Get<TOut>()
         {
             return Reference.Get<TOut>();

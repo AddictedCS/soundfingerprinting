@@ -478,7 +478,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             AssertDiscontinuity(0, 10, trackGaps[0]);
             AssertDiscontinuity(15, 110, trackGaps[1]);
             AssertDiscontinuity(115, 210, trackGaps[2]);
-            Assert.AreEqual(105, result.Coverage.QueryLength, 0.01);
+            Assert.AreEqual(10, result.Coverage.QueryLength, 0.01);
+            Assert.AreEqual(10, result.Coverage.QueryCoverageWithPermittedGapsLength, 0.01);
+            Assert.AreEqual(10, result.Coverage.QueryDiscreteCoverageLength, 0.01);
+            Assert.AreEqual(10, result.Coverage.TrackCoverageWithPermittedGapsLength, 0.01);
+            Assert.AreEqual(105, result.Coverage.TrackDiscreteCoverageLength, 0.01);
         }
 
         private ResultEntry CreateEntry(float queryOffset, float trackOffset, float matchLength, float trackLength = 30, float queryLength = 120, string trackId = "id")
