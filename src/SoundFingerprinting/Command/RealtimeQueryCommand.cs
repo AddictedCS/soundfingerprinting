@@ -239,8 +239,7 @@ namespace SoundFingerprinting.Command
                 var avTrack = new AVTrack(prefixed != null ? new AudioTrack(prefixed) : null, videoTrack);
                 var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, avTrack);
                 logger.LogDebug("Created hashes {Hashes} from aggregated track {AVTrack}", hashes, avTrack);
-                var avHashes = hashesInterceptor(hashes);
-                yield return avHashes;
+                yield return hashes;
             }
         }
 
@@ -319,7 +318,9 @@ namespace SoundFingerprinting.Command
         {
             await foreach (var avHashes in realtimeCollection(cancellationToken).WithCancellation(cancellationToken))
             {
-                await TryQuery(avHashes, resultsAggregator, cancellationToken);
+                var intercepted = hashesInterceptor(avHashes);
+                logger.LogDebug("Issuing query with hashes {Hashes}", intercepted);
+                await TryQuery(intercepted, resultsAggregator, cancellationToken);
             }
         }
 
