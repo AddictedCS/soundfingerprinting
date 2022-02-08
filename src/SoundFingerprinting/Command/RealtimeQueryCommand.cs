@@ -37,6 +37,7 @@ namespace SoundFingerprinting.Command
         private IAudioService audioService;
         private Func<AVTrack, AVTrack> avTrackInterceptor = _ => _;
         private Func<AVHashes, AVHashes> hashesInterceptor = _ => _;
+        private Func<AVQueryResult, AVQueryResult> queryResultInterceptor = _ => _;
         
         private bool errored = false;
         private double queryLength = 0;
@@ -179,7 +180,14 @@ namespace SoundFingerprinting.Command
             this.hashesInterceptor = hashesInterceptor;
             return this;
         }
-        
+
+        /// <inheritdoc cref="IInterceptRealtimeSource.InterceptQueryResults"/>
+        public IInterceptRealtimeSource InterceptQueryResults(Func<AVQueryResult, AVQueryResult> queryResultInterceptor)
+        {
+            this.queryResultInterceptor = queryResultInterceptor;
+            return this;
+        }
+
         private async IAsyncEnumerable<AVTrack> ReadHashesAsync(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
             await foreach (var file in files)
@@ -417,13 +425,13 @@ namespace SoundFingerprinting.Command
         /// <exception cref="IOException">Input/Output exception when querying the model service.</exception>> 
         private async Task<AVQueryResult> GetAvQueryResult(AVHashes hashes)
         {
-            var avQueryResult = await queryCommandBuilder
+            var queryResult = await queryCommandBuilder
                 .BuildQueryCommand()
                 .From(hashes)
                 .WithQueryConfig(configuration.QueryConfiguration)
                 .UsingServices(modelService)
                 .Query();
-            
+            var avQueryResult = queryResultInterceptor(queryResult);
             queryLength += (hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset ?? hashes.Video?.DurationInSeconds) ?? 0;
             return avQueryResult;
         }
