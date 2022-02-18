@@ -28,12 +28,13 @@ namespace SoundFingerprinting.Configuration
             didNotPassFilterCallback,
             new PassThroughRealtimeResultEntryFilter(),
             ongoingSuccessCallback: _ => { },
-            onError,
-            restoredAfterErrorCallback,
-            new EmptyOfflineStorage(),
-            new RandomExponentialBackoffPolicy(),
-            new RandomDelayStrategy(1, 5),
-            automaticSkipDetection: false)
+            errorCallback: onError,
+            restoredAfterErrorCallback: restoredAfterErrorCallback,
+            offlineStorage: new EmptyOfflineStorage(),
+            errorBackoffPolicy: new RandomExponentialBackoffPolicy(),
+            delayStrategy: new RandomDelayStrategy(1, 5),
+            automaticSkipDetection: false, 
+            includeQueryHashesInResponse: true)
         {
         }
     }

@@ -11,7 +11,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Adding one more interceptor of the realtime query results.
+		Adding a NoOp implementation for query hashes aggregation in the RealtimeQueryCommand.
+		    By setting IncludeQueryHashesInResponse you can now control whether to get query hashes in the resulting AVQueryResult or now.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
