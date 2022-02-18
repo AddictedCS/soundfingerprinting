@@ -24,6 +24,11 @@ internal class NoOpQueryHashesConcatenator : IQueryHashesConcatenator
     public IEnumerable<AVQueryResult> GetQueryResults(IEnumerable<AVResultEntry> completed)
     {
         var avResultEntries = completed.ToList();
+        if (!avResultEntries.Any())
+        {
+            return Enumerable.Empty<AVQueryResult>();
+        }
+        
         var audio = new QueryResult(avResultEntries.Select(_ => _.Audio).Where(entry => entry != null)!, Hashes.GetEmpty(MediaType.Audio), QueryCommandStats.Zero());
         var video = new QueryResult(avResultEntries.Select(_ => _.Video).Where(entry => entry != null)!, Hashes.GetEmpty(MediaType.Video), QueryCommandStats.Zero());
         return new[] { new AVQueryResult(audio, video, AVHashes.Empty, new AVQueryCommandStats(QueryCommandStats.Zero(), QueryCommandStats.Zero())) };
