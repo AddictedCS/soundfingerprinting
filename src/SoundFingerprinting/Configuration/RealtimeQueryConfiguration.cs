@@ -26,8 +26,8 @@ namespace SoundFingerprinting.Configuration
         /// <param name="errorBackoffPolicy">Error backoff policy.</param>
         /// <param name="delayStrategy">Delay strategy.</param>
         /// <param name="automaticSkipDetection">A flag indicating whether to automatically detect skip in the query source.</param>
-        public RealtimeQueryConfiguration(
-            AVQueryConfiguration queryConfiguration,
+        /// <param name="includeQueryHashesInResponse">A flag indicating whether to include query hashes in the response or not.</param>
+        public RealtimeQueryConfiguration(AVQueryConfiguration queryConfiguration,
             IRealtimeResultEntryFilter resultEntryFilter,
             Action<AVQueryResult> successCallback,
             Action<AVQueryResult> didNotPassFilterCallback,
@@ -37,8 +37,9 @@ namespace SoundFingerprinting.Configuration
             Action restoredAfterErrorCallback,
             IOfflineStorage offlineStorage,
             IBackoffPolicy errorBackoffPolicy,
-            IDelayStrategy delayStrategy, 
-            bool automaticSkipDetection)
+            IDelayStrategy delayStrategy,
+            bool automaticSkipDetection, 
+            bool includeQueryHashesInResponse)
         {
             QueryConfiguration = queryConfiguration;
             ResultEntryFilter = resultEntryFilter;
@@ -52,6 +53,7 @@ namespace SoundFingerprinting.Configuration
             ErrorBackoffPolicy = errorBackoffPolicy;
             DelayStrategy = delayStrategy;
             AutomaticSkipDetection = automaticSkipDetection;
+            IncludeQueryHashesInResponse = includeQueryHashesInResponse;
         }
 
         /// <summary>
@@ -141,6 +143,14 @@ namespace SoundFingerprinting.Configuration
         ///  A by-product of skip detection is a synthetically increased query length in the resulting <see cref="ResultEntry"/> when skip is detected.
         /// </remarks>
         public bool AutomaticSkipDetection { get; set; }
+
+        /// <summary>
+        ///  Gets or sets a value indicating whether to include query hashes <see cref="AVQueryResult.QueryHashes"/> in the response or not.
+        /// </summary>
+        /// <remarks>
+        ///  Default True.
+        /// </remarks>
+        public bool IncludeQueryHashesInResponse { get; set; }
 
         /// <summary>
         ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates.

@@ -40,8 +40,8 @@ namespace SoundFingerprinting.Query
                 {
                     var entries = @group.Select(_ => _.ResultEntry).ToList();
                     var (hashes, stats) = group.Key;
-                    var audioQueryMatch = new QueryResult(entries.Select(_ => _.Audio).Where(entry => entry != null).Select(entry => entry!), hashes.Audio ?? Hashes.GetEmpty(MediaType.Audio), stats.Audio ?? QueryCommandStats.Zero());
-                    var videoQueryMatch = new QueryResult(entries.Select(_ => _.Video).Where(entry => entry != null).Select(entry => entry!), hashes.Video ?? Hashes.GetEmpty(MediaType.Video), stats.Video ?? QueryCommandStats.Zero());
+                    var audioQueryMatch = new QueryResult(entries.Select(_ => _.Audio).Where(entry => entry != null)!, hashes.Audio ?? Hashes.GetEmpty(MediaType.Audio), stats.Audio ?? QueryCommandStats.Zero());
+                    var videoQueryMatch = new QueryResult(entries.Select(_ => _.Video).Where(entry => entry != null)!, hashes.Video ?? Hashes.GetEmpty(MediaType.Video), stats.Video ?? QueryCommandStats.Zero());
                     return new AVQueryResult(audioQueryMatch, videoQueryMatch, entries, hashes, stats);
                 })
                 .ToList();
