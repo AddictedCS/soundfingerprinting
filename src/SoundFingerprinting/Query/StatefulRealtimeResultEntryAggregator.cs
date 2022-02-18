@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Query
     using System.Linq;
     using SoundFingerprinting.Command;
 
-    public sealed class StatefulRealtimeResultEntryAggregator : IRealtimeAggregator
+    internal sealed class StatefulRealtimeResultEntryAggregator : IRealtimeAggregator
     {
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
         private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;

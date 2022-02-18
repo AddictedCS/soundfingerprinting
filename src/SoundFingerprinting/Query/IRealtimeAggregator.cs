@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Query
 {
-    public interface IRealtimeAggregator
+    internal interface IRealtimeAggregator
     {
         /// <summary>
         ///  Consume candidates returned from the <see cref="QueryFingerprintService.Query"/> invocation.
