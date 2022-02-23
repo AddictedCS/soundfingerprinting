@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using System.Runtime.InteropServices.ComTypes;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using SoundFingerprinting.Audio;
