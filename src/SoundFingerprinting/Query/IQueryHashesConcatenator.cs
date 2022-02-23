@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Query
     using System.Collections.Generic;
     using SoundFingerprinting.Data;
 
-    public interface IQueryHashesConcatenator
+    internal interface IQueryHashesConcatenator
     {
         void UpdateHashesForTracks(IEnumerable<string> trackIds, AVHashes hashes, AVQueryCommandStats commandStats);
         
