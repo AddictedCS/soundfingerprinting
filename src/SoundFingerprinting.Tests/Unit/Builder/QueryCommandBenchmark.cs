@@ -10,7 +10,7 @@
     using SoundFingerprinting.InMemory;
 
     [TestFixture]
-    [Ignore("CI fails with a miserable Unable to read beyond the end of the stream error.")]
+    [Ignore("CI fails with a miserable Unable to read beyond the end of the stream error")]
     public class QueryCommandBenchmark
     {
         [Test]
