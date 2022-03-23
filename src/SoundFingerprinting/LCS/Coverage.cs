@@ -223,5 +223,11 @@ namespace SoundFingerprinting.LCS
         {
             return new Coverage(BestPath, QueryLength + extendedBy, TrackLength, FingerprintLength, PermittedGap);
         }
+
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"Coverage[TrackCoverageWithPermittedGapsLength={TrackCoverageWithPermittedGapsLength:0.00},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackLength={TrackLength}]";
+        }
     }
 }

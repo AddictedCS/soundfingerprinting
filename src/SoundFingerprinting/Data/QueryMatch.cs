@@ -48,5 +48,11 @@ namespace SoundFingerprinting.Data
         /// </summary>
         [ProtoMember(4)] 
         public string QueryMatchId { get; }
+
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"QueryMatch[QueryMatchId={QueryMatchId},Track={Track},Coverage={Coverage},MatchedAt={MatchedAt:O}]";
+        }
     }
 }
