@@ -4,7 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-
+    using Microsoft.Extensions.Logging;
+    using NLog.Extensions.Logging;
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
@@ -16,6 +17,8 @@
     [TestFixture]
     public class MinHashAlgorithmTest
     {
+        private readonly ILogger<MinHashAlgorithmTest> logger = new NLogLoggerFactory().CreateLogger<MinHashAlgorithmTest>();
+        
         [Test]
         public void ShouldNotIdentifyTooManyHashesOnLastPosition()
         {
@@ -33,9 +36,9 @@
                 counts.Add(count);
             }
 
-            Console.WriteLine($"Avg. Permutations {counts.Average():0.000}");
-            Console.WriteLine($"Max. {counts.Max()}");
-            Console.WriteLine($"Min. {counts.Min()}");
+            logger.LogInformation($"Avg. Permutations {counts.Average():0.000}");
+            logger.LogInformation($"Max. {counts.Max()}");
+            logger.LogInformation($"Min. {counts.Min()}");
             Assert.IsTrue(counts.Average() <= 0.25, "On average we expect no more than 0.25 elements in the schema to contain hashes at last position");
         }
 
@@ -56,9 +59,9 @@
                 counts.Add(count);
             }
 
-            Console.WriteLine($"Avg. Permutations {counts.Average():0.000}");
-            Console.WriteLine($"Max. {counts.Max()}");
-            Console.WriteLine($"Min. {counts.Min()}");
+            logger.LogInformation($"Avg. Permutations {counts.Average():0.000}");
+            logger.LogInformation($"Max. {counts.Max()}");
+            logger.LogInformation($"Min. {counts.Min()}");
             Assert.AreEqual(0, counts.Average(), 0.0001, "On average we expect no more than 0.0 elements in the schema to contain hashes at last position");
         }
 
@@ -133,15 +136,15 @@
                 atLeastOneCandidateFounds[i] = Math.Round((double)atLeastOneCandidateFound / simulationRuns, 4);
             });
 
-            Console.WriteLine("Bands {0}, Rows {1}, Top Wavelets {2}", bands, rows, topWavelets);
+            logger.LogInformation("Bands {0}, Rows {1}, Top Wavelets {2}", bands, rows, topWavelets);
 
             string header = $"{"Actual Similarity",5}{"Th. At Least One",19}{"Pr. At Least One",18}{"Avg. Candidates Found",25}";
 
-            Console.WriteLine(header);
+            logger.LogInformation(header);
 
             for (int i = 0; i < howSimilars.Length; ++i)
             {
-                Console.WriteLine("{0,5:0.0000}{1,20:0.0000}{2,18:0.0000}{3,20:0.0000}", howSimilars[i], probabilityOfAMatch[i], atLeastOneCandidateFounds[i], avgCandidatesFound[i]);
+                logger.LogInformation("{0,5:0.0000}{1,20:0.0000}{2,18:0.0000}{3,20:0.0000}", howSimilars[i], probabilityOfAMatch[i], atLeastOneCandidateFounds[i], avgCandidatesFound[i]);
             }
 
             for (int i = 0; i < howSimilars.Length; ++i)

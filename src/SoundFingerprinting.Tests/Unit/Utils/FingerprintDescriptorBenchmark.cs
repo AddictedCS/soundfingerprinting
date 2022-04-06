@@ -3,18 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-
+    using Microsoft.Extensions.Logging;
+    using NLog.Extensions.Logging;
     using NUnit.Framework;
-
     using SoundFingerprinting.Utils;
 
     [TestFixture]
     public class FingerprintDescriptorBenchmark
     {
-        private readonly Random random = new Random();
+        private readonly ILogger<FingerprintDescriptorBenchmark> logger = new NLogLoggerFactory().CreateLogger<FingerprintDescriptorBenchmark>();
+        private readonly Random random = new ();
 
-        private readonly FingerprintDescriptor fingerprintDescriptor = new FingerprintDescriptor();
-        private readonly FastFingerprintDescriptor fastFingerprintDescriptor  = new FastFingerprintDescriptor();
+        private readonly FingerprintDescriptor fingerprintDescriptor = new ();
+        private readonly FastFingerprintDescriptor fastFingerprintDescriptor  = new ();
 
         [Test]
         public void ShouldFindTopWaveletsFaster()
@@ -29,9 +30,9 @@
 
             long b = BenchMark(10000, fastFingerprintDescriptor);
 
-            Console.WriteLine("Fingerprint Descriptor Runs: {0} ms", a);
-            Console.WriteLine("Fast Fingerprint Descriptor Runs: {0} ms", b);
-            Console.WriteLine("Ratio: {0}x", (double)a / b);
+            logger.LogInformation("Fingerprint Descriptor Runs: {0} ms", a);
+            logger.LogInformation("Fast Fingerprint Descriptor Runs: {0} ms", b);
+            logger.LogInformation("Ratio: {0}x", (double)a / b);
 
             Assert.IsTrue(a > b);
         }

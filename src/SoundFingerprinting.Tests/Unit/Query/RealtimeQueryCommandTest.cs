@@ -8,8 +8,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
+    using NLog.Extensions.Logging;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
@@ -26,6 +28,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
     [TestFixture]
     public class RealtimeQueryCommandTest
     {
+        private readonly ILogger<RealtimeQueryCommandTest> logger = new NLogLoggerFactory().CreateLogger<RealtimeQueryCommandTest>();
+        
         private readonly int sampleRate = 5512;
         private readonly int minSamplesPerFingerprint;
         private readonly double minSizeChunkDuration;
@@ -181,7 +185,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 {
                                                     foreach (var (entry, _) in result.ResultEntries)
                                                     {
-                                                        Console.WriteLine($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
+                                                        logger.LogInformation($"Found Match Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.QueryLength:0.000} Track Starts At {entry.TrackStartsAt:0.000}");
                                                         successMatches.Add(entry);
                                                     }
                                                 };
@@ -190,7 +194,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 {
                                                     foreach (var (entry, _) in result.ResultEntries)
                                                     {
-                                                        Console.WriteLine($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
+                                                        logger.LogInformation($"Entry didn't pass filter, Starts At {entry.TrackMatchStartsAt:0.000}, Match Length {entry.TrackCoverageWithPermittedGapsLength:0.000}, Query Length {entry.TrackCoverageWithPermittedGapsLength:0.000}");
                                                         didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
                                                     }
                                                 };
