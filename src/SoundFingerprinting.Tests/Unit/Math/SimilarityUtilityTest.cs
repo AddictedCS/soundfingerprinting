@@ -60,7 +60,7 @@
             bool[] first = { true, true, false, true, false, true, false, false, true, true };
             bool[] second = { false, true, false, true, false, true, false, false, true, true };
 
-            var result = similarityUtility.CalculateJaccardSimilarity(first, second);
+            var result = similarityUtility.CalculateJacquardSimilarity(first, second);
 
             Assert.AreEqual(5f / 6, result, 0.0001);
         }

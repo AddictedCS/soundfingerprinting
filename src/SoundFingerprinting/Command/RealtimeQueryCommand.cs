@@ -379,7 +379,8 @@ namespace SoundFingerprinting.Command
         {
             try
             {
-                var avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(hashes.FingerprintingTime.AudioMilliseconds, hashes.FingerprintingTime.VideoMilliseconds);
+                var (audioMilliseconds, videoMilliseconds) = hashes.FingerprintingTime;
+                var avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
                 if (errored)
                 {
                     logger.LogDebug("Query restored from previous error");
