@@ -1,7 +1,8 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.Builder
 {
-    using System;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
+    using NLog.Extensions.Logging;
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
@@ -10,9 +11,10 @@
     using SoundFingerprinting.InMemory;
 
     [TestFixture]
-    [Ignore("CI fails with a miserable Unable to read beyond the end of the stream error")]
     public class QueryCommandBenchmark
     {
+        private readonly ILogger<QueryCommandBenchmark> logger = new NLogLoggerFactory().CreateLogger<QueryCommandBenchmark>();
+        
         [Test]
         public async Task ShouldFingerprintAndQuerySuccessfully()
         {
@@ -31,7 +33,7 @@
                 modelService.Insert(track, hashes);
             }
 
-            Console.WriteLine("Fingerprinting Time, Query Time, Candidates Found");
+            logger.LogInformation("Fingerprinting Time, Query Time, Candidates Found");
             double avgFingerprinting = 0, avgQuery = 0;
             int totalRuns = 10;
             for (int i = 0; i < totalRuns; ++i)
@@ -43,12 +45,12 @@
                     .UsingServices(modelService)
                     .Query();
 
-                Console.WriteLine("{0,10}ms{1,15}ms{2,15}", queryResult.CommandStats.FingerprintingDurationMilliseconds, queryResult.CommandStats.QueryDurationMilliseconds, queryResult.CommandStats.TotalFingerprintsAnalyzed);
+                logger.LogInformation("{0,10}ms{1,15}ms{2,15}", queryResult.CommandStats.FingerprintingDurationMilliseconds, queryResult.CommandStats.QueryDurationMilliseconds, queryResult.CommandStats.TotalFingerprintsAnalyzed);
                 avgFingerprinting += queryResult.CommandStats.FingerprintingDurationMilliseconds;
                 avgQuery += queryResult.CommandStats.QueryDurationMilliseconds;
             }
 
-            Console.WriteLine("Avg. Fingerprinting: {0,0:000}ms, Avg. Query: {1, 0:000}ms", avgFingerprinting / totalRuns, avgQuery / totalRuns);
+            logger.LogInformation("Avg. Fingerprinting: {0,0:000}ms, Avg. Query: {1, 0:000}ms", avgFingerprinting / totalRuns, avgQuery / totalRuns);
         }
     }
 }

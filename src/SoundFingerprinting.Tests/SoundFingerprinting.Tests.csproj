@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="Moq" Version="4.17.2" />
+	<PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
 	<PackageReference Include="NUnit" Version="3.13.3" />
 	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
 	<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
@@ -16,6 +17,11 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy &quot;$(ProjectDir)TestEnvironment&quot; &quot;$(TargetDir)&quot; /e /y" Condition="'$(OS)' != 'Unix'" />

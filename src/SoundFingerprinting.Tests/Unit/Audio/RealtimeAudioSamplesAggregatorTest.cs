@@ -1,6 +1,8 @@
 namespace SoundFingerprinting.Tests.Unit.Audio
 {
     using System;
+    using Microsoft.Extensions.Logging;
+    using NLog.Extensions.Logging;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
@@ -9,6 +11,8 @@ namespace SoundFingerprinting.Tests.Unit.Audio
     [TestFixture]
     public class RealtimeAudioSamplesAggregatorTest
     {
+        private readonly ILogger<RealtimeAudioSamplesAggregatorTest> logger = new NLogLoggerFactory().CreateLogger<RealtimeAudioSamplesAggregatorTest>();
+        
         [Test]
         public void ShouldIgnoreEmptyDataArraysIfTheyArrive()
         {
@@ -30,7 +34,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             {
                 var samples = realtimeAggregator.Aggregate(TestUtilities.GenerateRandomAudioSamples(lengthInSeconds * sampleRate));
                 Assert.IsNotNull(samples);
-                Console.WriteLine(samples.Duration);
+                logger.LogInformation("Samples duration: {Duration:0.00}", samples.Duration);
                 if (i > 0)
                 {
                     Assert.AreEqual(lengthInSeconds + (float)(minSamplesPerFingerprint - stride) / sampleRate + (float)((previousLength - minSamplesPerFingerprint) % stride) / sampleRate, samples.Duration, 0.00001, $"Iteration {i}");

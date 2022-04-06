@@ -5,7 +5,9 @@
     using System.Linq;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
+    using NLog.Extensions.Logging;
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
@@ -19,6 +21,8 @@
     [TestFixture]
     public class LocalitySensitiveHashingAlgorithmTest
     {
+        private readonly ILogger<LocalitySensitiveHashingAlgorithmTest> logger = new NLogLoggerFactory().CreateLogger<LocalitySensitiveHashingAlgorithmTest>();
+        
         private readonly ISimilarityUtility similarity = new SimilarityUtility();
 
         [Test]
@@ -96,7 +100,7 @@
                 }
             }
 
-            Console.WriteLine(string.Join(",", tables.Select(t => t.Count)));
+            logger.LogInformation(string.Join(",", tables.Select(t => t.Count)));
             foreach (var table in tables)
             {
                 Assert.IsTrue(table.Count > runs * 0.9);
@@ -204,7 +208,7 @@
                 int requested = (int)((1 - howSimilar) * topWavelets * 2);
                 Assert.AreEqual(requested, hammingDistances.Average(), 1);
                 Assert.AreEqual(expectedThresholds[r], Math.Floor(agreeOn.Average()));
-                Console.WriteLine($"Similarity: {howSimilar: 0.00}, Avg. Table Matches {agreeOn.Average(): 0.000}");
+                logger.LogInformation($"Similarity: {howSimilar: 0.00}, Avg. Table Matches {agreeOn.Average(): 0.000}");
             });
         }
 
