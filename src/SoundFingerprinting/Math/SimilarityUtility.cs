@@ -49,7 +49,7 @@
         ///   -1 = 01
         ///   0 = 00
         /// </remarks>
-        public double CalculateJaccardSimilarity(bool[] x, bool[] y)
+        public double CalculateJacquardSimilarity(bool[] x, bool[] y)
         {
             int a = 0, b = 0;
             for (int i = 0, n = x.Length; i < n; i++)

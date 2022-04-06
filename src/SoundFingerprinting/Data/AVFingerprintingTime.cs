@@ -59,5 +59,16 @@ namespace SoundFingerprinting.Data
         {
             return new AVFingerprintingTime(0, 0);
         }
+
+        /// <summary>
+        ///  Deconstructs audio/video fingerprinting time.
+        /// </summary>
+        /// <param name="audioMilliseconds">Audio milliseconds.</param>
+        /// <param name="videoMilliseconds">Video milliseconds.</param>
+        public void Deconstruct(out long audioMilliseconds, out long videoMilliseconds)
+        {
+            audioMilliseconds = AudioMilliseconds;
+            videoMilliseconds = VideoMilliseconds;
+        }
     }
 }

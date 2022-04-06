@@ -216,7 +216,8 @@
         {
             var audioResults = GetQueryResult(audioHashes, queryConfiguration.Audio);
             var videoResults = GetQueryResult(videoHashes, queryConfiguration.Video);
-            var queryCommandStats = new AVQueryCommandStats(audioResults?.CommandStats, videoResults?.CommandStats).WithFingerprintingDurationMilliseconds(avFingerprintingTime.AudioMilliseconds, avFingerprintingTime.VideoMilliseconds);
+            var (audioMilliseconds, videoMilliseconds) = avFingerprintingTime;
+            var queryCommandStats = new AVQueryCommandStats(audioResults?.CommandStats, videoResults?.CommandStats).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
             return new AVQueryResult(audioResults, videoResults, new AVHashes(audioHashes, videoHashes, avFingerprintingTime), queryCommandStats);
         }
 

@@ -78,7 +78,7 @@
                 Assert.AreEqual(topWavelets, arrays.Item1.TrueCounts());
                 Assert.AreEqual(topWavelets, arrays.Item2.TrueCounts());
                 agreeOn += arrays.Item1.AgreeOn(arrays.Item2);
-                similarity += similarityUtility.CalculateJaccardSimilarity(arrays.Item1.ToBools(), arrays.Item2.ToBools());
+                similarity += similarityUtility.CalculateJacquardSimilarity(arrays.Item1.ToBools(), arrays.Item2.ToBools());
             }
 
             double averageSimilarityOnTrueBits = (double)agreeOn / simulationRuns;
