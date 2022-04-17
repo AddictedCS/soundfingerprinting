@@ -13,6 +13,13 @@ namespace SoundFingerprinting.Query
     [ProtoContract(SkipConstructor = true)]
     public class ResultEntry
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResultEntry"/> class.
+        /// </summary>
+        /// <param name="track">Matched track.</param>
+        /// <param name="score">Match score (as calculated by <see cref="IScoreAlgorithm"/>).</param>
+        /// <param name="matchedAt">Matched at. To identify relative time when the match starts, set  <see cref="Hashes.RelativeTo"/> during query time.</param>
+        /// <param name="coverage">An instance of the <see cref="Coverage"/> object.</param>
         public ResultEntry(TrackData track, double score, DateTime matchedAt, Coverage coverage)
         {
             Coverage = coverage;
@@ -45,7 +52,7 @@ namespace SoundFingerprinting.Query
         /// </summary>
         [ProtoMember(3)]
         public double TrackCoverageWithPermittedGapsLength { get; }
-        
+
         /// <summary>
         ///  Gets estimated track coverage inferred from matching start and end of the resulting track in the query
         /// </summary>
@@ -83,7 +90,7 @@ namespace SoundFingerprinting.Query
         ///  Gets the percentage of how much the query match covered the original track.
         /// </summary>
         public double TrackRelativeCoverage => TrackCoverageWithPermittedGapsLength / Track.Length;
-        
+
         /// <summary>
         ///  Gets the percentage of how much the track match covered the original query
         /// </summary>
@@ -114,7 +121,7 @@ namespace SoundFingerprinting.Query
         public double Score { get; }
 
         /// <summary>
-        ///  Gets information about gaps in the result entry coverage
+        ///  Gets a value indicating whether there are gaps in the result entry coverage
         /// </summary>
         public bool NoGaps => !Coverage.TrackGaps.Any() && !Coverage.QueryGaps.Any();
 
@@ -131,7 +138,8 @@ namespace SoundFingerprinting.Query
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"ResultEntry[TrackId={Track.Id},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackRelativeCoverage={TrackRelativeCoverage:0.00}]";
+            return
+                $"ResultEntry[TrackId={Track.Id},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackRelativeCoverage={TrackRelativeCoverage:0.00},QueryMatchStartsAt={QueryMatchStartsAt:0.00},QueryRelativeCoverage={QueryRelativeCoverage:0.00},TrackLength={Track.Length:0.00}]";
         }
     }
 }
