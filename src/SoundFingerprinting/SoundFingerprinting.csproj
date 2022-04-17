@@ -11,7 +11,7 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Technical release to align core library with SoundFingerprinting.Emy v8.7.0
+		Technical release to align core library with SoundFingerprinting.Emy v8.8.0
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
