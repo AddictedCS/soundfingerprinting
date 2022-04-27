@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Content;
 
 using System;
+using SoundFingerprinting.Data;
 
 /// <summary>
 ///  A class holding all the information required for a streaming query.
@@ -13,9 +14,11 @@ public class StreamingFile
     /// <param name="path">Path to media file.</param>
     /// <param name="relativeTo">Timestamp relative to.</param>
     /// <param name="streamId">Stream identifier.</param>
-    public StreamingFile(string path, DateTime relativeTo, string streamId)
+    /// <param name="mediaType">Media type to fingerprint.</param>
+    public StreamingFile(string path, DateTime relativeTo, string streamId, MediaType mediaType)
     {
         StreamId = streamId;
+        MediaType = mediaType;
         RelativeTo = relativeTo;
         Path = path;
     }
@@ -31,6 +34,11 @@ public class StreamingFile
     public string StreamId { get; }
 
     /// <summary>
+    ///  Gets media type to fingerprint from the file.
+    /// </summary>
+    public MediaType MediaType { get; }
+
+    /// <summary>
     ///  Gets relative to timestamp.
     /// </summary>
     public DateTime RelativeTo { get; }
@@ -38,6 +46,6 @@ public class StreamingFile
     /// <inheritdoc cref="object.ToString"/>
     public override string ToString()
     {
-        return $"StreamId={StreamId},Date={RelativeTo:O},Path={Path}";
+        return $"Path={Path},StreamId={StreamId},Date={RelativeTo:O},MediaType={MediaType}";
     }
 }

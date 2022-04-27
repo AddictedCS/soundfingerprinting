@@ -46,12 +46,11 @@ namespace SoundFingerprinting.Command
         ///  Build fingerprints from streaming files that are continuously coming from the realtime collection.
         /// </summary>
         /// <param name="files">Realtime collection to fetch files from.</param>
-        /// <param name="mediaType">Media type to fingerprint from provided files.</param>
         /// <returns>Realtime query configuration selector.</returns>
         /// <remarks>
         ///  Use this method whe you want to associate <see cref="Hashes.StreamId"/> and <see cref="Hashes.RelativeTo"/> with corresponding <see cref="StreamingFile"/>.
         /// </remarks>
-        IWithRealtimeQueryConfiguration From(IAsyncEnumerable<StreamingFile> files, MediaType mediaType = MediaType.Audio);
+        IWithRealtimeQueryConfiguration From(IAsyncEnumerable<StreamingFile> files);
 
         /// <summary>
         ///  Build fingerprints from <see cref="AVTrack"/>.

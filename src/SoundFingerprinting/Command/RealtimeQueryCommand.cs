@@ -86,10 +86,10 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{StreamingFile},MediaType)"/>
-        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<StreamingFile> files, MediaType mediaType = MediaType.Audio)
+        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{StreamingFile})"/>
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<StreamingFile> files)
         {
-            realtimeCollection = _ => GetAvHashes(files, mediaType);
+            realtimeCollection = _ => GetAvHashes(files);
             return this;
         }
 
@@ -211,13 +211,13 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private async IAsyncEnumerable<AVHashes> GetAvHashes(IAsyncEnumerable<StreamingFile> files, MediaType mediaType)
+        private async IAsyncEnumerable<AVHashes> GetAvHashes(IAsyncEnumerable<StreamingFile> files)
         {
             var realtimeSamplesAggregator = CreateRealtimeAudioSamplesAggregator();
             await foreach (var file in files)
             {
                 logger.LogDebug("Consuming streaming file {File}", file);
-                var avTrack = GetAvTrack(file.Path, mediaType);
+                var avTrack = GetAvTrack(file.Path, file.MediaType);
                 var hashes = await GetAvHashes(avTrack, realtimeSamplesAggregator);
                 if (hashes == null)
                 {
