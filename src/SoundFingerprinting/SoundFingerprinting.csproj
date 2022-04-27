@@ -4,15 +4,14 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>8.9.0</PackageVersion>
+	<PackageVersion>8.9.1</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Adding an ability to create fingerprints from StreamingFile, a DTO that contains reference to RelativeTo and StreamId.
-			This will help associate a time and stream identifier with the realtime source.
+		Passing cancellation token.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>

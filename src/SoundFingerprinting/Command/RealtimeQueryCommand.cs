@@ -82,14 +82,14 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string},MediaType)"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
-            realtimeCollection = _ => ConvertToAvHashes(ReadHashesAsync(files, mediaType));
+            realtimeCollection = cancellationToken => ConvertToAvHashes(ReadHashesAsync(files, cancellationToken, mediaType));
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{StreamingFile})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<StreamingFile> files)
         {
-            realtimeCollection = _ => GetAvHashes(files);
+            realtimeCollection = cancellationToken => ReadHashesAsync(files, cancellationToken);
             return this;
         }
 
@@ -195,9 +195,9 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        private async IAsyncEnumerable<AVTrack> ReadHashesAsync(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
+        private async IAsyncEnumerable<AVTrack> ReadHashesAsync(IAsyncEnumerable<string> files, [EnumeratorCancellation] CancellationToken cancellationToken, MediaType mediaType = MediaType.Audio)
         {
-            await foreach (string file in files)
+            await foreach (string file in files.WithCancellation(cancellationToken))
             {
                 yield return GetAvTrack(file, mediaType);
             }
@@ -211,10 +211,10 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private async IAsyncEnumerable<AVHashes> GetAvHashes(IAsyncEnumerable<StreamingFile> files)
+        private async IAsyncEnumerable<AVHashes> ReadHashesAsync(IAsyncEnumerable<StreamingFile> files, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var realtimeSamplesAggregator = CreateRealtimeAudioSamplesAggregator();
-            await foreach (var file in files)
+            await foreach (var file in files.WithCancellation(cancellationToken))
             {
                 logger.LogDebug("Consuming streaming file {File}", file);
                 var avTrack = GetAvTrack(file.Path, file.MediaType);
