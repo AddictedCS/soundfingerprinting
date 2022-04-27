@@ -11,7 +11,7 @@
 
     public class GroupedQueryResults
     {
-        private readonly object lockObject = new object();
+        private readonly object lockObject = new ();
 
         private readonly SortedDictionary<uint, Candidates> sequenceToCandidates;
         private readonly ConcurrentDictionary<IModelReference, double> scoreSumPerTrack;

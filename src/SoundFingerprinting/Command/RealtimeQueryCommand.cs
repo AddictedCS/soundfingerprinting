@@ -86,6 +86,13 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
+        /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{StreamingFile},MediaType)"/>
+        public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<StreamingFile> files, MediaType mediaType = MediaType.Audio)
+        {
+            realtimeCollection = _ => GetAvHashes(files, mediaType);
+            return this;
+        }
+
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AVTrack})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AVTrack> tracks)
         {
@@ -190,37 +197,12 @@ namespace SoundFingerprinting.Command
 
         private async IAsyncEnumerable<AVTrack> ReadHashesAsync(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
-            await foreach (var file in files)
+            await foreach (string file in files)
             {
-                if (mediaType.HasFlag(MediaType.Audio | MediaType.Video))
-                {
-                    if (mediaService == null)
-                    {
-                        throw new ArgumentException("Set IMediaService via UsingServices method to be able to create audio and video fingerprints");
-                    }
-
-                    yield return mediaService.ReadAVTrackFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration(), mediaType);
-                }
-
-                if (mediaType.HasFlag(MediaType.Video))
-                {
-                    var service = mediaService ?? videoService;
-                    if (service == null)
-                    {
-                        throw new ArgumentException("Set IMediaService or IVideoService via UsingServices method to be able to create video fingerprints");
-                    }
-
-                    var frames = service.ReadFramesFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration().VideoConfig);
-                    yield return new AVTrack(null, new VideoTrack(frames));
-                }
-
-                var audioServiceToUse = mediaService ?? audioService;
-                
-                var samples = audioServiceToUse.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.Audio.FingerprintConfiguration.SampleRate);
-                yield return new AVTrack(new AudioTrack(samples), null);
+                yield return GetAvTrack(file, mediaType);
             }
         }
-        
+
         private static async IAsyncEnumerable<AVTrack> ConvertToAvTrack(IAsyncEnumerable<AudioSamples> source)
         {
             await foreach (var samples in source)
@@ -229,24 +211,34 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private async IAsyncEnumerable<AVHashes> ConvertToAvHashes(IAsyncEnumerable<AVTrack> source)
+        private async IAsyncEnumerable<AVHashes> GetAvHashes(IAsyncEnumerable<StreamingFile> files, MediaType mediaType)
         {
-            var realtimeSamplesAggregator = new RealtimeAudioSamplesAggregator(configuration.QueryConfiguration.Audio.FingerprintConfiguration.SpectrogramConfig.MinimumSamplesPerFingerprint, configuration.QueryConfiguration.Audio.Stride);
-            await foreach (var track in source)
+            var realtimeSamplesAggregator = CreateRealtimeAudioSamplesAggregator();
+            await foreach (var file in files)
             {
-                logger.LogDebug("Retrieved track {Track} from realtime query source", track);
-                var (audioTrack, videoTrack) = avTrackInterceptor(track);
-                var prefixed = audioTrack != null ?  realtimeSamplesAggregator.Aggregate(audioTrack.Samples) : null;
-                if (prefixed == null && videoTrack == null)
+                logger.LogDebug("Consuming streaming file {File}", file);
+                var avTrack = GetAvTrack(file.Path, mediaType);
+                var hashes = await GetAvHashes(avTrack, realtimeSamplesAggregator);
+                if (hashes == null)
                 {
-                    // can happen when there is not enough samples to generate a fingerprint
-                    logger.LogDebug("Both audio and video tracks are null or empty. Waiting until minimum number of samples are aggregated for a fingerprint to be generated");
                     continue;
                 }
 
-                var avTrack = new AVTrack(prefixed != null ? new AudioTrack(prefixed) : null, videoTrack);
-                var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, avTrack);
-                logger.LogDebug("Created hashes {Hashes} from aggregated track {AVTrack}", hashes, avTrack);
+                yield return hashes.WithRelativeTo(file.RelativeTo).WithStreamId(file.StreamId);
+            }
+        }
+
+        private async IAsyncEnumerable<AVHashes> ConvertToAvHashes(IAsyncEnumerable<AVTrack> source)
+        {
+            var realtimeSamplesAggregator = CreateRealtimeAudioSamplesAggregator();
+            await foreach (var track in source)
+            {
+                var hashes = await GetAvHashes(track, realtimeSamplesAggregator);
+                if (hashes == null)
+                {
+                    continue;
+                }
+
                 yield return hashes;
             }
         }
@@ -407,6 +399,61 @@ namespace SoundFingerprinting.Command
                 HandleQueryFailure(hashes, e);
                 return false;
             }
+        }
+        
+        private RealtimeAudioSamplesAggregator CreateRealtimeAudioSamplesAggregator()
+        {
+            return new RealtimeAudioSamplesAggregator(
+                configuration.QueryConfiguration.Audio.FingerprintConfiguration.SpectrogramConfig.MinimumSamplesPerFingerprint,
+                configuration.QueryConfiguration.Audio.Stride);
+        }
+        
+        private async Task<AVHashes?> GetAvHashes(AVTrack track, IRealtimeAudioSamplesAggregator realtimeSamplesAggregator)
+        {
+            logger.LogDebug("Retrieved track {Track} from realtime query source", track);
+            var (audioTrack, videoTrack) = avTrackInterceptor(track);
+            var prefixed = audioTrack != null ? realtimeSamplesAggregator.Aggregate(audioTrack.Samples) : null;
+            if (prefixed == null && videoTrack == null)
+            {
+                // can happen when there is not enough samples to generate a fingerprint
+                logger.LogDebug("Both audio and video tracks are null or empty. Waiting until minimum number of samples are aggregated for a fingerprint to be generated");
+                return null;
+            }
+
+            var avTrack = new AVTrack(prefixed != null ? new AudioTrack(prefixed) : null, videoTrack);
+            var hashes = await CreateQueryFingerprints(fingerprintCommandBuilder, avTrack);
+            logger.LogDebug("Created hashes {Hashes} from aggregated track {AVTrack}", hashes, avTrack);
+            return hashes;
+        }
+        
+        private AVTrack GetAvTrack(string file, MediaType mediaType)
+        {
+            if (mediaType.HasFlag(MediaType.Audio | MediaType.Video))
+            {
+                if (mediaService == null)
+                {
+                    throw new ArgumentException("Set IMediaService via UsingServices method to be able to create audio and video fingerprints");
+                }
+
+                return mediaService.ReadAVTrackFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration(), mediaType);
+            }
+
+            if (mediaType.HasFlag(MediaType.Video))
+            {
+                var service = mediaService ?? videoService;
+                if (service == null)
+                {
+                    throw new ArgumentException("Set IMediaService or IVideoService via UsingServices method to be able to create video fingerprints");
+                }
+
+                var frames = service.ReadFramesFromFile(file, configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration().VideoConfig);
+                return new AVTrack(null, new VideoTrack(frames));
+            }
+
+            var audioServiceToUse = mediaService ?? audioService;
+
+            var samples = audioServiceToUse.ReadMonoSamplesFromFile(file, configuration.QueryConfiguration.Audio.FingerprintConfiguration.SampleRate);
+            return new AVTrack(new AudioTrack(samples), null);
         }
 
         private async Task<AVHashes> CreateQueryFingerprints(IFingerprintCommandBuilder commandBuilder, AVTrack avTrack)
