@@ -29,7 +29,7 @@ namespace SoundFingerprinting.Data
 
             FrameRate = frameRate;
             Origin = origin;
-            Duration = this.frames.Max(_ => _.StartsAt) + 1d / frameRate;
+            Duration = this.frames.Any() ? this.frames.Max(_ => _.StartsAt) + 1d / frameRate : 0;
             RelativeTo = DateTime.UtcNow.AddSeconds(-Duration);
         }
 

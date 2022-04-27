@@ -33,6 +33,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [TestCase(2, 0, 10, 5, true)]
         [TestCase(5, 0, 10, 5, false)]
         [TestCase(120, 100, 30, 10, false)]
+        [TestCase(10, 0, 30, 0, true)]
+        [TestCase(10, 0, 25, 25, false)]
         public void ShouldCoverAllScenarios(double queryLength, float queryMatchStartsAt, double trackLength, float trackMatchStartsAt, bool expected)
         {
             var entry = CreateResultEntry(0, queryLength, trackLength, queryMatchStartsAt, trackMatchStartsAt); 

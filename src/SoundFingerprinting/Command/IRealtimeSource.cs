@@ -41,6 +41,16 @@ namespace SoundFingerprinting.Command
         ///  If you want to build Video fingerprints from given files, provide an instance of <see cref="IMediaService"/> or <see cref="IVideoService"/> in <see cref="IUsingRealtimeQueryServices"/> interface.
         /// </remarks>
         IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio);
+        
+        /// <summary>
+        ///  Build fingerprints from streaming files that are continuously coming from the realtime collection.
+        /// </summary>
+        /// <param name="files">Realtime collection to fetch files from.</param>
+        /// <returns>Realtime query configuration selector.</returns>
+        /// <remarks>
+        ///  Use this method whe you want to associate <see cref="Hashes.StreamId"/> and <see cref="Hashes.RelativeTo"/> with corresponding <see cref="StreamingFile"/>.
+        /// </remarks>
+        IWithRealtimeQueryConfiguration From(IAsyncEnumerable<StreamingFile> files);
 
         /// <summary>
         ///  Build fingerprints from <see cref="AVTrack"/>.
