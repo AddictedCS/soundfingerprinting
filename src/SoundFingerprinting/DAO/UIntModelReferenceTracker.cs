@@ -6,20 +6,22 @@ namespace SoundFingerprinting.DAO
 
     public class UIntModelReferenceTracker : IModelReferenceTracker<uint>
     {
+        private readonly long maxAllowedReference;
         private UIntModelReferenceProvider trackReferenceProvider;
         private UIntModelReferenceProvider subFingerprintsReferenceProvider;
 
-        public UIntModelReferenceTracker(uint trackRef = 0, uint subFingerprintRef = 0)
+        public UIntModelReferenceTracker(uint trackRef = 0, uint subFingerprintRef = 0, long maxAllowedReference = int.MaxValue)
         {
-            trackReferenceProvider = new UIntModelReferenceProvider(trackRef);
-            subFingerprintsReferenceProvider = new UIntModelReferenceProvider(subFingerprintRef);
+            this.maxAllowedReference = maxAllowedReference;
+            trackReferenceProvider = new UIntModelReferenceProvider(trackRef, maxAllowedReference);
+            subFingerprintsReferenceProvider = new UIntModelReferenceProvider(subFingerprintRef, maxAllowedReference);
         }
         
         public bool TryResetTrackRef(uint maxTrackRef)
         {
             if (maxTrackRef > trackReferenceProvider.Current)
             {
-                trackReferenceProvider = new UIntModelReferenceProvider(maxTrackRef);
+                trackReferenceProvider = new UIntModelReferenceProvider(maxTrackRef, maxAllowedReference);
                 return true;
             }
 
@@ -30,7 +32,7 @@ namespace SoundFingerprinting.DAO
         {
             if (maxSubFingerprintRef > subFingerprintsReferenceProvider.Current)
             {
-                subFingerprintsReferenceProvider = new UIntModelReferenceProvider(maxSubFingerprintRef);
+                subFingerprintsReferenceProvider = new UIntModelReferenceProvider(maxSubFingerprintRef, maxAllowedReference);
                 return true;
             }
 
