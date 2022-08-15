@@ -11,7 +11,7 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Version bump, aligning SoundFingerprinting.Emy with SoundFingerprinting core
+		Adding ModelReferenceMaxAllowedValueExceededException that will be thrown in case if model reference counter exceeds a maximum value (default MaxInt).
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
