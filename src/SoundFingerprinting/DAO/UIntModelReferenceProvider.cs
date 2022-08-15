@@ -17,7 +17,7 @@ namespace SoundFingerprinting.DAO
         {
             if (referenceCounter > maxAllowedReference)
             {
-                throw new ArgumentException("maxAllowedReference cannot be less than referenceCounter", nameof(referenceCounter));
+                throw new ModelReferenceMaxAllowedValueExceededException(referenceCounter);
             }
             
             this.referenceCounter = referenceCounter;
