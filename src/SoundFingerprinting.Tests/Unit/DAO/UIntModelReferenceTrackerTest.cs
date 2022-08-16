@@ -14,6 +14,19 @@ namespace SoundFingerprinting.Tests.Unit.DAO
     public class UIntModelReferenceTrackerTest : AbstractTest
     {
         [Test]
+        public void ShouldThrowAsMaxValueExceeded()
+        {
+            Assert.Throws<ModelReferenceMaxAllowedValueExceededException>(() => new UIntModelReferenceTracker((uint)int.MaxValue + 1, 0, int.MaxValue));
+
+            var modelReferenceTracker = new UIntModelReferenceTracker(int.MaxValue, int.MaxValue, int.MaxValue);
+            
+             var track = new TrackInfo("id", "title", "artist", new Dictionary<string, string>(){{"key", "value"}}, MediaType.Audio | MediaType.Video);
+             var hashes = GetHashes(1);
+
+             Assert.Throws<ModelReferenceMaxAllowedValueExceededException>(() => modelReferenceTracker.AssignModelReferences(track, hashes));
+        }
+        
+        [Test]
         public void ShouldCopyAllFieldsCorrectly()
         {
             var modelReferenceTracker = new UIntModelReferenceTracker(0, 0);

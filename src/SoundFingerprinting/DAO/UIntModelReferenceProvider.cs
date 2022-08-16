@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.DAO
 {
-    using System;
     using System.Threading;
     using ProtoBuf;
     
