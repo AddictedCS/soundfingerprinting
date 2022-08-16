@@ -8,10 +8,19 @@ namespace SoundFingerprinting.DAO
     {
         [ProtoMember(1)]
         private long referenceCounter;
+        
+        [ProtoMember(2)]
+        private long maxAllowedReference = int.MaxValue;
 
-        public UIntModelReferenceProvider(long referenceCounter = 0)
+        public UIntModelReferenceProvider(long referenceCounter = 0, long maxAllowedReference = int.MaxValue)
         {
+            if (referenceCounter > maxAllowedReference)
+            {
+                throw new ModelReferenceMaxAllowedValueExceededException(referenceCounter);
+            }
+            
             this.referenceCounter = referenceCounter;
+            this.maxAllowedReference = maxAllowedReference;
         }
 
         private UIntModelReferenceProvider()
@@ -23,7 +32,13 @@ namespace SoundFingerprinting.DAO
 
         public IModelReference Next()
         {
-            var next = (uint)Interlocked.Increment(ref referenceCounter);
+            long increment = Interlocked.Increment(ref referenceCounter);
+            if (increment > maxAllowedReference)
+            {
+                throw new ModelReferenceMaxAllowedValueExceededException(increment);
+            }
+            
+            var next = (uint)increment;
             return new ModelReference<uint>(next);
         }
     }
