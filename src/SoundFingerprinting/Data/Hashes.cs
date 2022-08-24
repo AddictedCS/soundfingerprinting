@@ -377,7 +377,7 @@ namespace SoundFingerprinting.Data
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"Hashes[Count:{Count}, Length:{DurationInSeconds:0.00}]";
+            return $"Hashes[Count:{Count},Length:{DurationInSeconds:0.00},RelativeTo={RelativeTo:O},StreamId={StreamId},MediaType={MediaType}]";
         }
         
         /// <summary>
