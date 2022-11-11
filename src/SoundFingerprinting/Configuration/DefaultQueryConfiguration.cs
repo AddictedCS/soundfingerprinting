@@ -15,7 +15,7 @@
             ThresholdVotes = Configs.Threshold.Default;
             MaxTracksToReturn = 25;
             PermittedGap = 2d;
-            QueryPathReconstructionStrategyType = QueryPathReconstructionStrategyType.SingleBestPath;
+            QueryPathReconstructionStrategy = QueryPathReconstructionStrategyType.SingleBestPath;
             FingerprintConfiguration = new DefaultFingerprintConfiguration
                                        {
                                            Stride = Configs.QueryStrides.DefaultStride,

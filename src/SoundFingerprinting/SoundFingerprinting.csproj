@@ -11,7 +11,9 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Aligning versions with SoundFingerprinting.Emy v8.15.0
+		Improving query path reconstruction strategy, making sure we do not end up with negative query coverage.
+		With newly improved algorithm, the coverages between track and query will be better aligned between themselves.
+		Legacy algorithm is kept and can be set via QueryConfiguration.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
