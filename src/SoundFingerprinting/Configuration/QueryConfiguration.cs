@@ -91,14 +91,14 @@
         [Obsolete("Please use QueryPathReconstructionStrategy to specify what algorithm to use for path reconstruction (to achieve the same behavior set it to QueryPathReconstructionStrategy.MultipleBestPaths). This property will be removed in v9")]
         public bool AllowMultipleMatchesOfTheSameTrackInQuery
         {
-            get => QueryPathReconstructionStrategy == QueryPathReconstructionStrategy.MultipleBestPaths;
-            set => QueryPathReconstructionStrategy = value ? QueryPathReconstructionStrategy.MultipleBestPaths : QueryPathReconstructionStrategy.SingleBestPath;
+            get => QueryPathReconstructionStrategyType == QueryPathReconstructionStrategyType.MultipleBestPaths;
+            set => QueryPathReconstructionStrategyType = value ? QueryPathReconstructionStrategyType.MultipleBestPaths : QueryPathReconstructionStrategyType.SingleBestPath;
         }
 
         /// <summary>
         ///  Gets or sets an enum value instructing the algorithm to reconstruct query path strategy according to specified strategy
         /// </summary>
-        public QueryPathReconstructionStrategy QueryPathReconstructionStrategy { get; set; }
+        public QueryPathReconstructionStrategyType QueryPathReconstructionStrategyType { get; set; }
 
         /// <summary>
         ///  Gets or sets permitted gap between consecutive matches of the same track (as defined by the <see cref="Coverage.BestPath"/> property).

@@ -1,11 +1,10 @@
 namespace SoundFingerprinting.LCS
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.Query;
 
-    internal class SingleQueryPathReconstructionStrategy : AbstractQueryPathReconstructionStrategy
+    internal class SingleQueryPathReconstructionStrategy : QueryPathReconstructionStrategy
     {
         /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
         /// <remarks>
@@ -43,13 +42,6 @@ namespace SoundFingerprinting.LCS
             }
 
             sequence.Reverse();
-            // var uniqueSequence = sequence.GroupBy(_ => _.TrackSequenceNumber)
-            //     .Select(_ =>
-            //     {
-            //         int key = (int)_.Key;
-            //         return _.OrderBy(_ => Math.Abs(key - _.QuerySequenceNumber)).First();
-            //     })
-            //     .ToList();
             return new[] { sequence };
         }
 

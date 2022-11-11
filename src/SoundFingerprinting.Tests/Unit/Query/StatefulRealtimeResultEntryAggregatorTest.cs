@@ -35,8 +35,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
                 new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
-                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategy.SingleBestPath),
-                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategy.Legacy),
+                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategyType.SingleBestPath),
+                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategyType.Legacy),
                 new StatefulQueryHashesConcatenator());
 
             var result = aggregator.Consume(null);
@@ -54,14 +54,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
                 new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
-                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategy.SingleBestPath),
-                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategy.Legacy),
+                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategyType.SingleBestPath),
+                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategyType.Legacy),
                 new StatefulQueryHashesConcatenator());
             
             const int firstQueryLength = 5;
             const int trackLength = 10;
             var randomHashes = TestUtilities.GetRandomHashes(firstQueryLength);
-            var audioResultEntry = new ResultEntry(GetTrack(trackLength), 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] { 0, 1, 2, 3, 4 }, new[] { 0, 1, 2, 3, 4 }).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, firstQueryLength, trackLength, 1, permittedGap).First());
+            var audioResultEntry = new ResultEntry(GetTrack(trackLength), 100, DateTime.Now, TestUtilities.GetMatchedWith(new[] { 0, 1, 2, 3, 4 }, new[] { 0, 1, 2, 3, 4 }).GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, firstQueryLength, trackLength, 1, permittedGap).First());
             var audioResult = new QueryResult(new[] { audioResultEntry }, randomHashes, QueryCommandStats.Zero());
             var first = aggregator.Consume(new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null)));
 
@@ -92,8 +92,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
                 new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
-                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategy.SingleBestPath),
-                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategy.Legacy),
+                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategyType.SingleBestPath),
+                new ResultEntryConcatenator(loggerFactory, false, QueryPathReconstructionStrategyType.Legacy),
                 new StatefulQueryHashesConcatenator());
 
             var success = new List<AVResultEntry>();
@@ -110,7 +110,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var randomHashes = TestUtilities.GetRandomHashes(1);
             for (int i = 0; i < 10; ++i)
             {
-                var entry = new ResultEntry(GetTrack(trackLength), 0, DateTime.Now, TestUtilities.GetMatchedWith(new[] { 0 }, new[] { i }).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength, trackLength, fingerprintLength, permittedGap).First());
+                var entry = new ResultEntry(GetTrack(trackLength), 0, DateTime.Now, TestUtilities.GetMatchedWith(new[] { 0 }, new[] { i }).GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, queryLength, trackLength, fingerprintLength, permittedGap).First());
                 var audioResult = new QueryResult(new[] { entry }, randomHashes, QueryCommandStats.Zero());
                 var avEntry = new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null));
                 var aggregated = aggregator.Consume(avEntry);

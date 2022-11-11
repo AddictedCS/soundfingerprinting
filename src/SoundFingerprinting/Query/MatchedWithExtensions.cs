@@ -12,22 +12,22 @@
         
         public static IEnumerable<Coverage> GetCoverages(
             this IEnumerable<MatchedWith> matchedEntries, 
-            QueryPathReconstructionStrategy queryPathReconstructionStrategy,
+            QueryPathReconstructionStrategyType queryPathReconstructionStrategyType,
             double queryLength, 
             double trackLength, 
             double fingerprintLength, 
             double permittedGap)
         {
-            var reconstructedPaths = queryPathReconstructionStrategy switch
+            var reconstructedPaths = queryPathReconstructionStrategyType switch
             {
-                QueryPathReconstructionStrategy.Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(matchedEntries, Math.Min(queryLength, trackLength)),
-                QueryPathReconstructionStrategy.SingleBestPath => Single.GetBestPaths(matchedEntries, -1),
-                QueryPathReconstructionStrategy.MultipleBestPaths => Multiple.GetBestPaths(matchedEntries, permittedGap),
-                _ => throw new NotSupportedException($"Provided path reconstruction strategy is not valid {queryPathReconstructionStrategy}")
+                QueryPathReconstructionStrategyType.Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(matchedEntries, Math.Min(queryLength, trackLength)),
+                QueryPathReconstructionStrategyType.SingleBestPath => Single.GetBestPaths(matchedEntries, -1),
+                QueryPathReconstructionStrategyType.MultipleBestPaths => Multiple.GetBestPaths(matchedEntries, permittedGap),
+                _ => throw new NotSupportedException($"Provided path reconstruction strategy is not valid {queryPathReconstructionStrategyType}")
             };
             
             var coverages = reconstructedPaths.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap));
-            if (queryPathReconstructionStrategy == QueryPathReconstructionStrategy.MultipleBestPaths)
+            if (queryPathReconstructionStrategyType == QueryPathReconstructionStrategyType.MultipleBestPaths)
             {
                 return OverlappingRegionFilter.FilterCrossMatchedCoverages(coverages); 
             }

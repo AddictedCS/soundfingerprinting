@@ -15,7 +15,7 @@
         public DefaultVideoQueryConfiguration()
         {
             MaxTracksToReturn = 25;
-            QueryPathReconstructionStrategy = QueryPathReconstructionStrategy.Legacy;
+            QueryPathReconstructionStrategyType = QueryPathReconstructionStrategyType.Legacy;
             YesMetaFieldsFilters = new Dictionary<string, string>();
             NoMetaFieldsFilters = new Dictionary<string, string>();
 

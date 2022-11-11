@@ -6,7 +6,7 @@
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
 
-    internal class MultipleQueryPathReconstructionStrategy : AbstractQueryPathReconstructionStrategy
+    internal class MultipleQueryPathReconstructionStrategy : QueryPathReconstructionStrategy
     {
         /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
         /// <remarks>

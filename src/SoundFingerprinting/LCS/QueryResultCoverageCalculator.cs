@@ -20,7 +20,7 @@
             }
             
             double queryLength = groupedQueryResults.QueryLength;
-            return matches.GetCoverages(configuration.QueryPathReconstructionStrategy, queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap);
+            return matches.GetCoverages(configuration.QueryPathReconstructionStrategyType, queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap);
         }
     }
 }
