@@ -1,5 +1,6 @@
 namespace SoundFingerprinting.LCS
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.Query;
@@ -16,17 +17,39 @@ namespace SoundFingerprinting.LCS
             var orderedByTrackMatchAt = matches.OrderBy(with => with.TrackSequenceNumber).ToList();
             var maxArray = MaxIncreasingQuerySequenceOptimal(orderedByTrackMatchAt, maxGap, out int max, out int maxIndex);
             var sequence = new List<MatchedWith>();
-            for (int j = maxIndex; j >= 0; --j)
+            int index = maxIndex;
+            while (max > 0 && index >= 0)
             {
-                var maxAt = maxArray[j];
-                if (maxAt.Length == max)
+                if (maxArray[index].Length == max)
                 {
-                    sequence.Add(maxAt.MatchedWith);
+                    while (index >= 0 && maxArray[index].Length == max)
+                    {
+                        if (max == 1 && 
+                            sequence.Any() &&
+                            maxArray[index].MatchedWith.QuerySequenceNumber > sequence.Last().QuerySequenceNumber)
+                        {
+                            break;
+                        }
+                        
+                        sequence.Add(maxArray[index--].MatchedWith);
+                    }
+
                     --max;
+                }
+                else
+                {
+                    --index;
                 }
             }
 
             sequence.Reverse();
+            // var uniqueSequence = sequence.GroupBy(_ => _.TrackSequenceNumber)
+            //     .Select(_ =>
+            //     {
+            //         int key = (int)_.Key;
+            //         return _.OrderBy(_ => Math.Abs(key - _.QuerySequenceNumber)).First();
+            //     })
+            //     .ToList();
             return new[] { sequence };
         }
 
