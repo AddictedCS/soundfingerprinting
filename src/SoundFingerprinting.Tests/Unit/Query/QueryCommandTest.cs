@@ -138,11 +138,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
         
         /**
-         * Similar to chorus repetition
          * query      000000
          * stored 11110000002222200000
          */
-        [Test]
+        [Test(Description = "Chorus is identified multiple times")]
         public async Task ShouldIdentifyMultipleRegionsOfTheSameMatch()
         {
             float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 1);
@@ -153,7 +152,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             await InsertFingerprints(withJitter, modelService);
 
-            var result = await GetQueryResult(match, modelService);
+            var result = await GetQueryResult(match, modelService, allowMultipleMatches: true);
             
             Assert.IsTrue(result.ContainsMatches);
             Assert.AreEqual(2, result.ResultEntries.Count());
@@ -175,12 +174,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
 
         /**
-         * Query is a remix with a different 30 seconds piece.
          * query  11110000003333300000
-         * stored 11110000002222200000
+         * track  11110000002222200000
          */
         
-        [Test]
+        [Test(Description = "Query is a remix with a different 30 seconds piece (sec 60->90)")]
         public async Task ShouldIdentifyTrackRemixAndNotGenerateTwoMatches()
         {
             float[] track = TestUtilities.GenerateRandomFloatArray(120 * 5512, 1);
@@ -189,7 +187,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             // query is different from second 60->90
             for (int i = 60 * 5512; i < 90 * 5512; ++i)
             {
-                query[i] = 0;
+                query[i] = Random.Shared.NextSingle();
             }
             
             var modelService = new InMemoryModelService();
@@ -209,12 +207,60 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(30, trackGap, 0.5);
         }
 
+        /**
+         * query -xxx--xxx-
+         * track -xxx--xxx-
+         * c1(✓)  234 with 234
+         * c2(✓)  789 with 789
+         * c3(✗)  234 with 789
+         * c4(✗)  789 with 234
+         */
+        [Test(Description = "Cross-matched coverages have to be removed as it may yield a negative query coverage")]
+        public async Task ShouldRemoveCrossMatches()
+        {
+            float[] m1 = TestUtilities.GenerateRandomFloatArray(10 * 5512, seed: 1);
+            float[] track = GetRandomSamplesWithRegions(m1, m1);
+            Assert.AreEqual(40 * 5512, track.Length);
+            float[] query = GetRandomSamplesWithRegions(m1, m1);
+            Assert.AreEqual(40 * 5512, query.Length);
+            
+            var modelService = new InMemoryModelService();
+
+            await InsertFingerprints(track, modelService);
+
+            // when allow multiple matches is specified it should return all four matches (cross matches included)
+            var multipleMatches = await GetQueryResult(query, modelService, permittedGap: 1, allowMultipleMatches: true);
+            Assert.AreEqual(4, multipleMatches.ResultEntries.Count());
+
+            var singleMatch = await GetQueryResult(query, modelService, permittedGap: 1, allowMultipleMatches: false);
+            Assert.AreEqual(1, singleMatch.ResultEntries.Count());
+            var coverage = singleMatch.ResultEntries.First().Coverage;
+            Assert.AreEqual(5, coverage.TrackMatchStartsAt, 1, "TrackMatchStartsAt did not match");
+            Assert.AreEqual(5, coverage.QueryMatchStartsAt, 1, "QueryMatchStartsAt did not match");
+            Assert.AreEqual(30, coverage.TrackDiscreteCoverageLength, 1);
+            Assert.AreEqual(20, coverage.TrackCoverageWithPermittedGapsLength, 2);
+            Assert.AreEqual(20, coverage.TrackGapsCoverageLength, 2);
+            Assert.AreEqual(30, coverage.QueryDiscreteCoverageLength, 1);
+            Assert.AreEqual(20, coverage.QueryCoverageWithPermittedGapsLength, 2);
+            Assert.AreEqual(10, coverage.QueryGapsCoverageLength, 2);
+        }
+
+        private static float[] GetRandomSamplesWithRegions(float[] m1, float[] m2)
+        {
+            float[] c1 = AddJitter(m1, beforeSec: 5, betweenSec: 0, afterSec: 5);
+            float[] c2 = AddJitter(m2, beforeSec: 5, betweenSec: 0, afterSec: 5);
+            float[] r1 = new float[c1.Length + c2.Length];
+            Buffer.BlockCopy(c1, 0, r1, 0, c1.Length * sizeof(float));
+            Buffer.BlockCopy(c2, 0, r1, c1.Length * sizeof(float), c2.Length * sizeof(float));
+            return r1;
+        }
+
         private static float[] AddJitter(float[] match, int beforeSec = 15, int betweenSec = 10, int afterSec = 15)
         {
             float[] before = TestUtilities.GenerateRandomFloatArray(beforeSec * 5512);
             float[] between = TestUtilities.GenerateRandomFloatArray(betweenSec * 5512);
             float[] after = TestUtilities.GenerateRandomFloatArray(afterSec * 5512);
-            float[] total = new float[before.Length + between.Length + after.Length + match.Length * 2];
+            float[] total = new float[before.Length + between.Length + after.Length + match.Length * (betweenSec == 0 ? 1 : 2)];
 
             Buffer.BlockCopy(before, 0, total, 0, sizeof(float) * before.Length);
             Buffer.BlockCopy(match, 0, total, sizeof(float) * before.Length, sizeof(float) * match.Length);
@@ -224,7 +270,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 Buffer.BlockCopy(match, 0, total, sizeof(float) * (before.Length + match.Length + between.Length), sizeof(float) * match.Length);
             }
 
-            Buffer.BlockCopy(after, 0, total, sizeof(float) * (before.Length + 2 * match.Length + between.Length), sizeof(float) * after.Length);
+            Buffer.BlockCopy(after, 0, total, sizeof(float) * (before.Length + (betweenSec == 0 ? 1 : 2) * match.Length + between.Length), sizeof(float) * after.Length);
             return total;
         }
 

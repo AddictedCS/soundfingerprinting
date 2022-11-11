@@ -20,14 +20,7 @@
             }
             
             double queryLength = groupedQueryResults.QueryLength;
-
-            if (configuration.AllowMultipleMatchesOfTheSameTrackInQuery)
-            {
-                return matches.EstimateIncreasingCoverages(queryLength, trackData.Length,
-                    fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap);
-            }
-
-            return new[] { matches.EstimateCoverage(queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap) };
+            return matches.GetCoverages(configuration.QueryPathReconstructionStrategy, queryLength, trackData.Length, fingerprintConfiguration.FingerprintLengthInSeconds, configuration.PermittedGap);
         }
     }
 }

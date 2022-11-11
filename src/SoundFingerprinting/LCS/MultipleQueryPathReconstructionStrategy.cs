@@ -1,19 +1,36 @@
-namespace SoundFingerprinting.LCS
+﻿namespace SoundFingerprinting.LCS
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Query;
 
-    public class LisNew
+    internal class MultipleQueryPathReconstructionStrategy : AbstractQueryPathReconstructionStrategy
     {
+        /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
+        /// <remarks>
+        ///   Returns all possible reconstructed paths, where both <see cref="MatchedWith.TrackMatchAt"/> and <see cref="MatchedWith.QueryMatchAt"/> are strictly increasing. <br />
+        ///   The paths are divided by the maximum allowed gap, meaning in case if a gap is detected bigger than maxGap, a new path is built from detection point onwards. <br />
+        ///   This implementation can be used to built the reconstructed path when <see cref="QueryConfiguration.AllowMultipleMatchesOfTheSameTrackInQuery"/> is set to true.
+        /// </remarks>
+        public override IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap)
+        {
+            return GetIncreasingSequences(matches, maxGap).OrderByDescending(list => list.Count()).ToList();
+        }
+        
+        protected override bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
+        {
+            return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap && Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
+        }
+
         /// <summary>
         ///  Gets longest increasing sequences in the matches candidates
         /// </summary>
         /// <param name="matched">All matched candidates</param>
         /// <param name="maxGap">Max gap (i.e. Math.Min(trackLength, queryLength)</param>
         /// <returns>All available sequences</returns>
-        public static IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap = int.MaxValue)
+        private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap = int.MaxValue)
         {
             var matchedWiths = matched.ToList();
             var results = new List<IEnumerable<MatchedWith>>();
@@ -28,39 +45,19 @@ namespace SoundFingerprinting.LCS
 
                 var second = exclude as MatchedWith[] ?? exclude.ToArray();
                 if (!withs.Any() || !second.Any())
+                {
                     break;
+                }
 
                 matchedWiths = matchedWiths.Except(second).ToList();
             }
 #if DEBUG
             AssertResults(results, matchedWiths);
 #endif
-
             return results.OrderByDescending(_ => _.Count());
         }
 
-        private static void AssertResults(IEnumerable<IEnumerable<MatchedWith>> results, IEnumerable<MatchedWith> initial)
-        {
-            var initialResults = initial.OrderBy(_ => _.TrackSequenceNumber);
-            foreach (IEnumerable<MatchedWith> result in results)
-            {
-                var trackIds = result.Select(_ => _.TrackSequenceNumber).ToArray();
-                var queryIds = result.Select(_ => _.QuerySequenceNumber).ToArray();
-
-                for (int i = 1; i < trackIds.Length; ++i)
-                {
-                    if (trackIds[i] <= trackIds[i - 1])
-                        throw new Exception($"Track Ids are not sorted [{trackIds[i]},{trackIds[i - 1]}] from [{string.Join(",", trackIds)}], " +
-                                            $"initial results {string.Join(",", initialResults.Select(_ => $"({_.QuerySequenceNumber},{_.TrackSequenceNumber},{_.Score})"))}");
-                    if (queryIds[i] <= queryIds[i - 1])
-                        throw new Exception($"Query Ids are not sorted [{queryIds[i]},{queryIds[i - 1]}] from [{string.Join(",", queryIds)}], " +
-                                            $"initial results {string.Join(",", initialResults.Select(_ => $"({_.QuerySequenceNumber},{_.TrackSequenceNumber},{_.Score})"))}");
-                }
-            }
-        }
-
-
-        private static (IEnumerable<MatchedWith>, IEnumerable<MatchedWith>) GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
+        private (IEnumerable<MatchedWith>, IEnumerable<MatchedWith>) GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
         {
             // locking first dimension - track sequence number
             var matches = matched.OrderBy(x => x.TrackSequenceNumber).ToList();
@@ -159,59 +156,12 @@ namespace SoundFingerprinting.LCS
             return current.Length == lookAhead.Length;
         }
         
-        private static bool IsSameSequence(MaxAt a, MaxAt b, double maxGap)
+        private bool IsSameSequence(MaxAt a, MaxAt b, double maxGap)
         {
             return IsSameSequence(a.MatchedWith, b.MatchedWith, maxGap);
         }
-
-        private static bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
-        {
-            return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap && Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
-        }
-
-        private static MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
-        {
-            var maxs = matches.Select(_ => new MaxAt(1, _)).ToArray();
-            var dp = new MatchedWith[matches.Count];
-            int len = 0;
-            max = 1;
-            maxIndex = 0;
-
-            var comparer = Comparer<MatchedWith>.Create((a, b) => a.QuerySequenceNumber.CompareTo(b.QuerySequenceNumber));
-
-            for (int j = 0; j < matches.Count; ++j)
-            {
-                var x = matches[j];
-                int i = Array.BinarySearch(dp, 0, len, x, comparer);
-                if (i < 0)
-                    i = -(i + 1);
-
-                if (i > 0 && !IsSameSequence(dp[i - 1], x, maxGap))
-                    continue;
-                if (i == 0 && dp[i] != null && !IsSameSequence(dp[0], x, maxGap))
-                    continue;
-
-                dp[i] = x;
-
-                if (i >= len - 1)
-                {
-                    // the sequence has increased or found an equal element at the very end
-                    len = i == len ? len + 1 : len;
-                    maxs[j] = new MaxAt(len, x);
-                    maxIndex = j;
-                }
-                else
-                {
-                    // the sequence does not increase
-                    maxs[j] = new MaxAt(i + 1, x);
-                }
-            }
-
-            max = maxs[maxIndex].Length;
-            return maxs;
-        }
-
-        private static bool TryPop<T>(Stack<T> s, out T result)
+       
+        private static bool TryPop<T>(Stack<T> s, out T? result)
         {
             result = default(T);
             if (s.Any())
@@ -223,7 +173,7 @@ namespace SoundFingerprinting.LCS
             return false;
         }
 
-        private static bool TryPeek<T>(Stack<T> s, out T result)
+        private static bool TryPeek<T>(Stack<T> s, out T? result)
         {
             result = default(T);
             if (s.Any())
@@ -233,6 +183,31 @@ namespace SoundFingerprinting.LCS
             }
 
             return false;
+        }
+        
+        private static void AssertResults(IEnumerable<IEnumerable<MatchedWith>> results, IEnumerable<MatchedWith> initial)
+        {
+            var initialResults = initial.OrderBy(_ => _.TrackSequenceNumber);
+            foreach (IEnumerable<MatchedWith> result in results)
+            {
+                var trackIds = result.Select(_ => _.TrackSequenceNumber).ToArray();
+                var queryIds = result.Select(_ => _.QuerySequenceNumber).ToArray();
+
+                for (int i = 1; i < trackIds.Length; ++i)
+                {
+                    if (trackIds[i] <= trackIds[i - 1])
+                    {
+                        throw new Exception($"Track Ids are not sorted [{trackIds[i]},{trackIds[i - 1]}] from [{string.Join(",", trackIds)}], " +
+                                            $"initial results {string.Join(",", initialResults.Select(_ => $"({_.QuerySequenceNumber},{_.TrackSequenceNumber},{_.Score})"))}");
+                    }
+
+                    if (queryIds[i] <= queryIds[i - 1])
+                    {
+                        throw new Exception($"Query Ids are not sorted [{queryIds[i]},{queryIds[i - 1]}] from [{string.Join(",", queryIds)}], " +
+                                            $"initial results {string.Join(",", initialResults.Select(_ => $"({_.QuerySequenceNumber},{_.TrackSequenceNumber},{_.Score})"))}");
+                    }
+                }
+            }
         }
     }
 }

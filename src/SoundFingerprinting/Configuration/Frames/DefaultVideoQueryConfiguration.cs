@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.LCS;
 
     /// <summary>
     ///  Video query configuration class.
@@ -14,7 +15,7 @@
         public DefaultVideoQueryConfiguration()
         {
             MaxTracksToReturn = 25;
-            AllowMultipleMatchesOfTheSameTrackInQuery = false;
+            QueryPathReconstructionStrategy = QueryPathReconstructionStrategy.Legacy;
             YesMetaFieldsFilters = new Dictionary<string, string>();
             NoMetaFieldsFilters = new Dictionary<string, string>();
 

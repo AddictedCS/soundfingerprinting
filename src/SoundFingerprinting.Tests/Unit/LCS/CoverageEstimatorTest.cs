@@ -25,7 +25,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                 new[] { 5, 9, 11, 14 }, 
                 new[] { trackMatchStartsAt, 5, 9, trackMatchEndsAt });
 
-            var coverage = matches.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, 1d);
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength, trackLength, fingerprintLengthInSeconds, 1d).First();
 
             Assert.AreEqual(trackMatchEndsAt - trackMatchStartsAt + fingerprintLengthInSeconds, coverage.TrackDiscreteCoverageLength, Delta);
         }
@@ -37,11 +37,12 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             const double trackLength = 5d;
             var matches = TestUtilities.GetMatchedWith(new[] { 1, 2, 3, 4, 5 }, new[] { 1, 2, 9, 11, 12 });
 
-            var coverage = matches.EstimateCoverage(queryLength, trackLength, 1d, 1d);
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength, trackLength, 1d, 1d).First();
 
-            Assert.AreEqual(4, coverage.TrackDiscreteCoverageLength, Delta);
-            Assert.AreEqual(-6, coverage.TrackStartsAt);
-            CollectionAssert.AreEqual(new [] {3, 4, 5}, coverage.BestPath.Select(_ => _.QuerySequenceNumber));
+            Assert.AreEqual(12, coverage.TrackDiscreteCoverageLength, Delta);
+            Assert.AreEqual(8, coverage.TrackGapsCoverageLength);
+            Assert.AreEqual(0, coverage.TrackStartsAt);
+            CollectionAssert.AreEqual(new [] {1, 2, 3, 4, 5}, coverage.BestPath.Select(_ => _.QuerySequenceNumber));
         }
 
         [Test]
@@ -51,7 +52,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             const double trackLength = 5d;
             var matches = TestUtilities.GetMatchedWith(new[] { 0, 1, 4, 5, 1, 2 }, new[] { 0, 1, 3, 4, 10, 11 });
 
-            var coverage = matches.EstimateCoverage(queryLength, trackLength, 1d, 1d);
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength, trackLength, 1d, 1d).First();
 
             Assert.AreEqual(5, coverage.TrackDiscreteCoverageLength, Delta);
             CollectionAssert.AreEqual(new [] {0, 1, 4, 5}, coverage.BestPath.Select(_ => _.QuerySequenceNumber));
@@ -73,7 +74,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             }
 
             var matches = TestUtilities.GetMatchedWith(queryMatchAt, dbMatchAt, 100, length);
-            var coverage = matches.EstimateCoverage(seconds + length, shift + seconds + length, 1d / fps, 1d);
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, seconds + length, shift + seconds + length, 1d / fps, 1d).First();
             Assert.AreEqual(seconds, coverage.TrackDiscreteCoverageLength, 0.0001);
             Assert.AreEqual(seconds, coverage.TrackCoverageLength, 0.0001);
             Assert.AreEqual(shift * length, coverage.TrackMatchStartsAt);
@@ -95,7 +96,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                     trackMatchAt: 2 * seqNum * fingerprintLengthInSeconds,
                     score: 100));
 
-            var coverage = matches.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap: 0);
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength, trackLength, fingerprintLengthInSeconds, permittedGap: 0).First();
 
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackCoverageLength, Delta);
             Assert.AreEqual(5 * fingerprintLengthInSeconds, coverage.TrackDiscreteCoverageLength, Delta);
@@ -129,7 +130,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                     trackMatchAt: seqNum * fingerprintLengthInSeconds,
                     score: 100));
 
-            var coverage = matches.EstimateCoverage(queryLength, trackLength, fingerprintLengthInSeconds, permittedGap: 0);
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength, trackLength, fingerprintLengthInSeconds, permittedGap: 0).First();
 
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackCoverageLength, Delta);
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackDiscreteCoverageLength, Delta);
@@ -225,8 +226,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             // a ------------
             // b    ---
 
-            var a = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).EstimateCoverage(10, 10, 1, 1);
-            var b = TestUtilities.GetMatchedWith(new[] {4, 5, 6}, new[] {4, 5, 6}).EstimateCoverage(3, 3, 1, 1);
+            var a = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, 10, 10, 1, 1).First();
+            var b = TestUtilities.GetMatchedWith(new[] {4, 5, 6}, new[] {4, 5, 6}).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, 3, 3, 1, 1).First();
 
             Assert.IsTrue(a.Contains(b));
             Assert.IsFalse(b.Contains(a));
@@ -242,11 +243,11 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             var coverages = new[]
             {
-                TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).EstimateCoverage(10, 10, 1, 0),
-                TestUtilities.GetMatchedWith(new[] {4, 5, 6}, new[] {1, 2, 3}).EstimateCoverage(queryLength: 10, trackLength: 3, fingerprintLength: 1, permittedGap: 0),
-                TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {8, 9, 10}).EstimateCoverage(queryLength: 3, trackLength: 10, fingerprintLength: 1, permittedGap: 0),
-                TestUtilities.GetMatchedWith(new[] {10}, new[] {1}).EstimateCoverage(queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0),
-                TestUtilities.GetMatchedWith(new[] {1}, new[] {10}).EstimateCoverage(queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0)
+                TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, 10, 10, 1, 0).First(),
+                TestUtilities.GetMatchedWith(new[] {4, 5, 6}, new[] {1, 2, 3}).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength: 10, trackLength: 3, fingerprintLength: 1, permittedGap: 0).First(),
+                TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {8, 9, 10}).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength: 3, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First(),
+                TestUtilities.GetMatchedWith(new[] {10}, new[] {1}).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First(),
+                TestUtilities.GetMatchedWith(new[] {1}, new[] {10}).GetCoverages(QueryPathReconstructionStrategy.SingleBestPath, queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First()
             };
 
             foreach (var coverage in coverages)

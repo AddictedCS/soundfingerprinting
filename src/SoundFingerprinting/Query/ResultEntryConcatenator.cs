@@ -12,6 +12,7 @@ namespace SoundFingerprinting.Query
     public class ResultEntryConcatenator : IConcatenator<ResultEntry>
     {
         private readonly bool autoSkipDetection;
+        private readonly QueryPathReconstructionStrategy queryPathReconstructionStrategy;
         private readonly ILogger<ResultEntryConcatenator> logger;
 
         /// <summary>
@@ -19,9 +20,16 @@ namespace SoundFingerprinting.Query
         /// </summary>
         /// <param name="loggerFactory">An instance of logger factory.</param>
         /// <param name="autoSkipDetection">A flag indicating whether to enable automatic skip detection.</param>
-        public ResultEntryConcatenator(ILoggerFactory loggerFactory, bool autoSkipDetection)
+        /// <param name="queryPathReconstructionStrategy">Query path reconstruction strategy.</param>
+        public ResultEntryConcatenator(ILoggerFactory loggerFactory, bool autoSkipDetection, QueryPathReconstructionStrategy queryPathReconstructionStrategy)
         {
+            if (queryPathReconstructionStrategy == QueryPathReconstructionStrategy.MultipleBestPaths)
+            {
+                throw new ArgumentException($"Multiple best paths reconstruction strategy cannot be used inside result entry concatenator", nameof(queryPathReconstructionStrategy));
+            }
+            
             this.autoSkipDetection = autoSkipDetection;
+            this.queryPathReconstructionStrategy = queryPathReconstructionStrategy;
             logger = loggerFactory.CreateLogger<ResultEntryConcatenator>();
         }
 
@@ -96,7 +104,7 @@ namespace SoundFingerprinting.Query
                 skipLength = matchGap;
             }
             
-            var coverage = bestPath.EstimateCoverage(queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap);
+            var coverage = bestPath.GetCoverages(queryPathReconstructionStrategy, queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap).First();
             var track = left.Track;
             double score = left.Score + right.Score;
             return new ResultEntry(track, score, left.MatchedAt, coverage.WithExtendedQueryLength(-skipLength));
