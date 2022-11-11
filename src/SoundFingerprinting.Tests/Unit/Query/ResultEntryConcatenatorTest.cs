@@ -432,7 +432,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldMergeMatchesThatOverlap()
         {
-            int matchLength = 10;
+            const int matchLength = 10;
             var first  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength, queryLength: 10, trackLength: 30); 
             var second  = CreateEntry(queryOffset: 0, trackOffset: 5, matchLength, queryLength: 10, trackLength: 30);
             
@@ -443,8 +443,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(0.5, result.TrackRelativeCoverage, 0.01);
             Assert.AreEqual(15, result.TrackCoverageWithPermittedGapsLength, 0.01);
             
-            // it is debatable whether this is correct since it we have a query overlap of 5 seconds should we consider it or not?
-            Assert.AreEqual(0.75, result.QueryRelativeCoverage, 0.01);
+            Assert.AreEqual(1, result.QueryRelativeCoverage, 0.01);
             Assert.AreEqual(20, result.QueryLength, 0.01);
         }
 
