@@ -15,7 +15,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Initializes a new instance of the <see cref="Coverage"/> class.
         /// </summary>
-        /// <param name="bestPath">Best path between query and track, calculated by <see cref="LisNew"/> or <see cref="LisOld"/> (default LisOld).</param>
+        /// <param name="bestPath">Best path between query and track, calculated by <see cref="LisNew"/> or <see cref="SingleQueryPathReconstructionStrategy"/> (default LisOld).</param>
         /// <param name="queryLength">Query length in seconds.</param>
         /// <param name="trackLength">Track length in seconds.</param>
         /// <param name="fingerprintLength">Fingerprint length in seconds.</param>
@@ -100,6 +100,20 @@ namespace SoundFingerprinting.LCS
                 return BestPath
                     .FindTrackGaps(TrackLength, 0, FingerprintLength)
                     .Sum(gap => gap.LengthInSeconds);
+            }
+        }
+
+        /// <summary>
+        ///  Gets the exact length of not covered portion of the track in the query
+        /// </summary>
+        /// <returns>Seconds of not covered length</returns>
+        public double QueryGapsCoverageLength
+        {
+            get
+            {
+                return BestPath
+                    .FindQueryGaps(0, FingerprintLength)
+                    .Sum(gap => gap.LengthInSeconds); 
             }
         }
         

@@ -12,8 +12,9 @@ namespace SoundFingerprinting.Query
         private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;
         private readonly Action<AVResultEntry> ongoingCallback;
         private readonly ICompletionStrategy<AVResultEntry> completionStrategy;
-        private readonly IConcatenator<ResultEntry> resultEntryConcatenator;
-        
+        private readonly IConcatenator<ResultEntry> audioResultEntryConcatenator;
+        private readonly IConcatenator<ResultEntry> videoResultEntryConcatenator;
+
         private readonly IQueryHashesConcatenator queryHashesConcatenator;
         private readonly ConcurrentDictionary<string, AVResultEntry> trackEntries = new ();
 
@@ -22,14 +23,16 @@ namespace SoundFingerprinting.Query
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
             Action<AVResultEntry> ongoingCallback,
             ICompletionStrategy<AVResultEntry> completionStrategy,
-            IConcatenator<ResultEntry> resultEntryConcatenator,
+            IConcatenator<ResultEntry> audioResultEntryConcatenator,
+            IConcatenator<ResultEntry> videoResultEntryConcatenator,
             IQueryHashesConcatenator queryHashesConcatenator)
         {
             this.realtimeResultEntryFilter = realtimeResultEntryFilter;
             this.ongoingResultEntryFilter = ongoingResultEntryFilter;
             this.ongoingCallback = ongoingCallback;
             this.completionStrategy = completionStrategy;
-            this.resultEntryConcatenator = resultEntryConcatenator;
+            this.audioResultEntryConcatenator = audioResultEntryConcatenator;
+            this.videoResultEntryConcatenator = videoResultEntryConcatenator;
             this.queryHashesConcatenator = queryHashesConcatenator;
         }
         
@@ -79,8 +82,8 @@ namespace SoundFingerprinting.Query
                 trackEntries.AddOrUpdate(next.TrackId, next, (_, prev) =>
                 {
                     var (prevAudio, prevVideo) = prev;
-                    var audio = resultEntryConcatenator.Concat(prevAudio, nextAudio, audioQueryOffset);
-                    var video = resultEntryConcatenator.Concat(prevVideo, nextVideo, videoQueryOffset);
+                    var audio = audioResultEntryConcatenator.Concat(prevAudio, nextAudio, audioQueryOffset);
+                    var video = videoResultEntryConcatenator.Concat(prevVideo, nextVideo, videoQueryOffset);
                     return new AVResultEntry(audio, video);
                 });
             }

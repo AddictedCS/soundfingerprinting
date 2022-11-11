@@ -4,14 +4,16 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>8.15.0</PackageVersion>
+	<PackageVersion>8.16.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Aligning versions with SoundFingerprinting.Emy v8.15.0
+		Improving query path reconstruction strategy, making sure we do not end up with negative query coverage.
+		With newly improved algorithm, the coverages between track and query will be better aligned between themselves.
+		Legacy algorithm is kept and can be set via QueryConfiguration.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>

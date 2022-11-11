@@ -1,18 +1,84 @@
-namespace SoundFingerprinting.Tests.Unit.LCS
+﻿namespace SoundFingerprinting.Tests.Unit.LCS
 {
     using System.Collections.Generic;
     using System.Linq;
+
     using NUnit.Framework;
+
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
     [TestFixture]
-    public class LongestIncreasingSequenceTest
+    public class MultipleQueryPathReconstructionStrategyTest
     {
+        private const double PermittedGap = 8192d / 5512;
+        private readonly IQueryPathReconstructionStrategy multiplePathReconstructionStrategy = new MultipleQueryPathReconstructionStrategy();
+
         [Test]
+        public void ShouldFindLongestIncreasingSequenceWithOneElement()
+        {
+            var result = multiplePathReconstructionStrategy.GetBestPaths(TestUtilities.GetMatchedWith(new[] { 0 }, new [] { 0 }), PermittedGap).ToList();
+
+            Assert.AreEqual(1, result.Count);
+            CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.TrackMatchAt));
+        }
+
+        [Test]
+        public void ShouldFindLongestIncreasingSequence()
+        {
+            var matches = TestUtilities.GetMatchedWith(new[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, new[] { 1, 2, 3, 1, 2, 3, 4, 5, 6, 7 });
+
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, PermittedGap).ToList();
+
+            Assert.AreEqual(2, result.Count);
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.TrackMatchAt));
+        }
+
+        [Test]
+        public void ShouldFindLongestIncreasingSequenceComplex()
+        {
+            var matches = TestUtilities.GetMatchedWith(
+                new[] { 0, 1, 2,   10, 11, 12, 13,  24, 25, 26 }, 
+                new[] { 1, 2, 3,   1,  2,  3,  4,   1, 2, 3 });
+
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, 5).ToList();
+
+            Assert.AreEqual(3, result.Count);
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.TrackMatchAt));
+        }
+
+        [Test]
+        public void ShouldFindLongestIncreasingSequenceComplex2()
+        {
+            var matches = TestUtilities.GetMatchedWith(
+                new[] { 7, 8, 9, 10, 21, 22, 23, 24, 25, 36, 37, 38 }, 
+                new[] { 1, 2, 3, 4,  1,  2,  3,  4,  5,  1,  2,  3 });
+
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, 5).ToList();
+
+            Assert.AreEqual(3, result.Count);
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[1].Select(pair => pair.TrackMatchAt));
+            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.TrackMatchAt));
+        }
+
+        [Test]
+        public void ShouldGrabTheFirstMatch()
+        {
+            var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 10, 12, 13, 14}, new[] {1, 2, 3, 10, 12, 13, 14});
+
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, 5).ToList();
+            
+            Assert.AreEqual(2, result.Count);
+        }
+        
+         [Test]
         public void ShouldFindLongestIncreasingSequenceEmpty()
         {
-            var result = LisNew.GetIncreasingSequences(Enumerable.Empty<MatchedWith>());
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), int.MaxValue);
 
             Assert.IsFalse(result.Any());
         }
@@ -21,7 +87,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         public void ShouldFindLongestIncreasingSequenceTrivial()
         {
             var pairs = new[] {(1, 1, 0d)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             AssertResult(pairs, result);
         }
@@ -35,7 +101,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              * expected  x x x
              */
             var pairs = new[] {(1, 1, 0d), (2, 2, 0d), (3, 3, 0d)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             AssertResult(pairs, result);
         }
@@ -52,7 +118,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 4d), (2, 1, 3), (3, 1, 2), (4, 2, 1)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             var expected = new[] {(1, 1, 4d), (4, 2, 1)};
             AssertResult(expected, result);
@@ -73,12 +139,11 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 3d), (1, 2, 2), (1, 3, 1), (4, 4, 1)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             var expected = new[] {(1, 1, 3), (4, 4, 1d)};
             AssertResult(expected, result);
         }
-
 
         [Test]
         public void ShouldFindLongestIncreasingSequence3()
@@ -94,7 +159,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 4, 0d), (2, 3, 1), (3, 2, 2), (4, 1, 3)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             var expected = new[] {(4, 1, 3d)};
 
@@ -115,7 +180,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 1d), (2, 2, 1), (0, 3, 2), (3, 3, 1), (4, 4, 1)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             var expected = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 1), (4, 4, 1)};
 
@@ -137,7 +202,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 2), (4, 3, 1), (4, 4, 1)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             var expected = new[] {(1, 1, 1d), (2, 2, 1), (3, 3, 2), (4, 4, 1)};
 
@@ -162,7 +227,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (20, 1, 0), (2, 2, 1), (3, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1)};
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 10).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 10).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 1), (3, 3, 0)};
             var expected2 = new[] {(20, 1, 0d), (21, 2, 0), (22, 3, 1)};
@@ -185,7 +250,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (4, 3, 2), (3, 4, 1), (3, 5, 0)};
-            var result = LisNew.GetIncreasingSequences(Generate(pairs)).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
 
             var expected = new[] {(1, 1, 0d), (2, 2, 0), (4, 3, 2)};
 
@@ -206,7 +271,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var pairs = new[] {(20, 1, 0d), (1, 1, 0), (2, 2, 0), (21, 2, 0), (3, 3, 0), (22, 3, 1), (4, 4, 0), (0, 4, 0), (5, 5, 0)};
 
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 10).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 10).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0)};
             var expected2 = new[] {(20, 1, 0), (21, 2, 0), (22, 3, 1d)};
@@ -226,7 +291,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              */
 
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (1, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (6, 25, 0)};
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 6).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 6).ToArray();
 
             Assert.AreEqual(2, results.Length);
         }
@@ -241,7 +306,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
               */
 
             var pairs = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (4, 4, 0), (5, 5, 0), (6, 6, 0), (0, 20, 0), (2, 21, 0), (3, 22, 0), (4, 23, 0), (5, 24, 0), (7, 25, 0)};
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 7).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 7).ToArray();
 
             Assert.AreEqual(2, results.Length);
         }
@@ -256,7 +321,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
               */
 
             var pairs = new[] {(1, 1, 0d), (0, 20, 0), (2, 2, 0)};
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 5).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0)};
             var expected2 = new[] {(0, 20, 0d)};
@@ -276,7 +341,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
              * max (c.)     1 2 2 2
              */
             var pairs = new[] {(1, 1, 0d), (2, 2, 1), (2, 3, 2), (2, 4, 3)};
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 5).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 4, 3)};
 
@@ -293,7 +358,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             * max (c.)     1 2 2 2
             */
             var pairs = new[] {(1, 1, 0d), (5, 2, 0), (4, 3, 0), (3, 4, 0)};
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 5).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (3, 4, 0)};
 
@@ -314,7 +379,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                 (1, 1, 0d), (10, 1, 0), (2, 2, 0), (11, 2, 1),
                 (3, 3, 0), (12, 3, 0), (1, 10, 0), (10, 10, 0), (2, 11, 0), (11, 11, 0), (3, 12, 0), (12, 12, 0)
             };
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 12).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 12).ToArray();
 
             var expected1 = new[] {(1, 1, 0d), (2, 2, 0), (3, 3, 0), (10, 10, 0), (11, 11, 0), (12, 12, 0)};
 
@@ -373,12 +438,12 @@ namespace SoundFingerprinting.Tests.Unit.LCS
                 (390, 374, 59), (410, 375, 83), (466, 377, 95), (488, 378, 74), (524, 379, 87)
             };
 
-            var results = LisNew.GetIncreasingSequences(Generate(pairs), 1000).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 1000).ToArray();
 
             Assert.AreEqual(1, results.Length);
 
             var matchedWiths = results.First().ToList();
-            var noSideEffects = LisNew.GetIncreasingSequences(matchedWiths).First().ToList();
+            var noSideEffects = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).First().ToList();
             
             Assert.AreEqual(matchedWiths.Count, noSideEffects.Count);
             foreach (var pair in matchedWiths.Zip(noSideEffects, (a, b) => (a, b)))

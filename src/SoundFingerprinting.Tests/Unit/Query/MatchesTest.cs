@@ -3,7 +3,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
-    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
     [TestFixture]
