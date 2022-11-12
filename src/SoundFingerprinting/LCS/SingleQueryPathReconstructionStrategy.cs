@@ -14,35 +14,47 @@ namespace SoundFingerprinting.LCS
         public override IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap)
         {
             var orderedByTrackMatchAt = matches.OrderBy(with => with.TrackSequenceNumber).ToList();
-            var maxArray = MaxIncreasingQuerySequenceOptimal(orderedByTrackMatchAt, maxGap, out int max, out int maxIndex);
-            var sequence = new List<MatchedWith>();
-            int index = maxIndex;
-            while (max > 0 && index >= 0)
+
+            if (!orderedByTrackMatchAt.Any())
             {
-                if (maxArray[index].Length == max)
+                return Enumerable.Empty<IEnumerable<MatchedWith>>();
+            }
+            
+            var maxArray = MaxIncreasingQuerySequenceOptimal(orderedByTrackMatchAt, maxGap, out int max, out int maxIndex);
+            var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex + 1));
+            var result = new Stack<MaxAt>();
+            while (TryPop(maxs, out var candidate) && max > 0)
+            {
+                if (candidate!.Length != max)
                 {
-                    while (index >= 0 && maxArray[index].Length == max)
+                    // not a good candidate
+                    continue;
+                }
+
+                // found a potential entry to insert into the final list
+                max--;
+                while (true)
+                {
+                    // check last entry in the result set
+                    bool contains = TryPeek(result, out var lastPicked);
+                    if (!contains || lastPicked!.MatchedWith.QuerySequenceNumber >= candidate!.MatchedWith.QuerySequenceNumber)
                     {
-                        if (max == 1 && 
-                            sequence.Any() &&
-                            maxArray[index].MatchedWith.QuerySequenceNumber > sequence.Last().QuerySequenceNumber)
-                        {
-                            break;
-                        }
+                        // query sequence numbers are decreasing
+                        result.Push(candidate!);
+                    }
                         
-                        sequence.Add(maxArray[index--].MatchedWith);
+                    if (TryPeek(maxs, out var lookAhead) && EqualMaxLength(candidate!, lookAhead!) && TryPop(maxs, out candidate))
+                    {
+                        // we are not ready yet, next candidate is of the same length, let's check it out and see if it is a good candidate
+                        continue;
                     }
 
-                    --max;
+                    // we are done with current length
+                    break;
                 }
-                else
-                {
-                    --index;
-                }
-            }
-
-            sequence.Reverse();
-            return new[] { sequence };
+            }   
+            
+            return new[] { result.Select(_ => _.MatchedWith) };
         }
 
         protected override bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)

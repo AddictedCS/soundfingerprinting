@@ -7,6 +7,8 @@ using SoundFingerprinting.Query;
 
 internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructionStrategy
 {
+    private readonly Comparer<MatchedWith> comparer = Comparer<MatchedWith>.Create((a, b) => a.QuerySequenceNumber.CompareTo(b.QuerySequenceNumber));
+    
     public abstract IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap);
     
     protected abstract bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap);
@@ -19,7 +21,6 @@ internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructi
         max = 1;
         maxIndex = 0;
 
-        var comparer = Comparer<MatchedWith>.Create((a, b) => a.QuerySequenceNumber.CompareTo(b.QuerySequenceNumber));
         for (int j = 0; j < matches.Count; ++j)
         {
             var x = matches[j];
@@ -57,5 +58,34 @@ internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructi
 
         max = maxs[maxIndex].Length;
         return maxs;
+    }
+
+    protected static bool TryPop<T>(Stack<T> s, out T? result)
+    {
+        result = default;
+        if (s.Any())
+        {
+            result = s.Pop();
+            return true;
+        }
+
+        return false;
+    }
+
+    protected static bool TryPeek<T>(Stack<T> s, out T? result)
+    {
+        result = default(T);
+        if (s.Any())
+        {
+            result = s.Peek();
+            return true;
+        }
+
+        return false;
+    }
+
+    protected static bool EqualMaxLength(MaxAt current, MaxAt lookAhead)
+    {
+        return current.Length == lookAhead.Length;
     }
 }

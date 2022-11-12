@@ -443,7 +443,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(0.5, result.TrackRelativeCoverage, 0.01);
             Assert.AreEqual(15, result.TrackCoverageWithPermittedGapsLength, 0.01);
             
-            Assert.AreEqual(1, result.QueryRelativeCoverage, 0.01);
+            // 15 seconds out of 2 queries of 10 (i.e., 20 sec), is 75%, nothing controversial here
+            Assert.AreEqual(0.75, result.QueryRelativeCoverage, 0.01);
             Assert.AreEqual(20, result.QueryLength, 0.01);
         }
 

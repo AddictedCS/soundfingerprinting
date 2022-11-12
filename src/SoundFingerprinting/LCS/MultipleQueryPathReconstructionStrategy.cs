@@ -119,11 +119,6 @@
             return (CaptureResult(lis), exclude);
         }
 
-        private static bool IsQuerySequenceIncreasing(MaxAt lookAhead, MaxAt lastPicked)
-        {
-            return lookAhead.MatchedWith.QuerySequenceNumber >= lastPicked?.MatchedWith.QuerySequenceNumber;
-        }
-
         private static IEnumerable<MatchedWith> CaptureResult(Stack<MaxAt> lis)
         {
             var result = new List<MatchedWith>();
@@ -151,40 +146,16 @@
             return current.MatchedWith.Score < lookAhead.MatchedWith.Score ? lookAhead : current;
         }
 
-        private static bool EqualMaxLength(MaxAt current, MaxAt lookAhead)
-        {
-            return current.Length == lookAhead.Length;
-        }
-        
         private bool IsSameSequence(MaxAt a, MaxAt b, double maxGap)
         {
             return IsSameSequence(a.MatchedWith, b.MatchedWith, maxGap);
         }
-       
-        private static bool TryPop<T>(Stack<T> s, out T? result)
-        {
-            result = default(T);
-            if (s.Any())
-            {
-                result = s.Pop();
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool TryPeek<T>(Stack<T> s, out T? result)
-        {
-            result = default(T);
-            if (s.Any())
-            {
-                result = s.Peek();
-                return true;
-            }
-
-            return false;
-        }
         
+        private static bool IsQuerySequenceIncreasing(MaxAt lookAhead, MaxAt? lastPicked)
+        {
+            return lookAhead.MatchedWith.QuerySequenceNumber >= lastPicked?.MatchedWith.QuerySequenceNumber;
+        }
+
         private static void AssertResults(IEnumerable<IEnumerable<MatchedWith>> results, IEnumerable<MatchedWith> initial)
         {
             var initialResults = initial.OrderBy(_ => _.TrackSequenceNumber);
