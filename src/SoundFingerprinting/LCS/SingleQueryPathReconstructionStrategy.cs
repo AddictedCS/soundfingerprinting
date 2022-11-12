@@ -39,7 +39,7 @@ namespace SoundFingerprinting.LCS
                     bool contains = TryPeek(result, out var lastPicked);
                     if (!contains || lastPicked!.MatchedWith.QuerySequenceNumber >= candidate!.MatchedWith.QuerySequenceNumber)
                     {
-                        // query sequence numbers are decreasing
+                        // query sequence numbers are decreasing, good candidate
                         result.Push(candidate!);
                     }
                         

@@ -21,7 +21,7 @@ public class SingleQueryPathReconstructionStrategyTest
      * q         1 2 3 7 8 4 5 6 7 8 2 3 9
      * t         1 2 3 2 3 4 5 6 7 8 7 8 9
      */
-    [Test]
+    [Test(Description = "Cross match (2,7) and (3,8) between query and track should be ignored")]
     public void ShouldIgnoreRepeatingCrossMatches()
     {
         var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (7, 2), (8, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (2, 7), (3, 8), (9, 9) }

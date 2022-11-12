@@ -386,6 +386,25 @@
             AssertResult(expected1, results[0]);
         }
 
+        /*
+         * q         1 2 3 7 8 4 5 6 7 8 2 3 9
+         * t         1 2 3 2 3 4 5 6 7 8 7 8 9
+         */
+        [Test]
+        public void ShouldIgnoreRepeatingCrossMatches()
+        {
+            var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (7, 2), (8, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (2, 7), (3, 8), (9, 9) }
+                .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
+
+            var bestPaths = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).ToList();
+            Assert.AreEqual(1, bestPaths.Count);
+            
+            var result = bestPaths[0].ToList();
+
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, result.Select(_ => (int)_.QuerySequenceNumber));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, result.Select(_ => (int)_.TrackSequenceNumber));
+        }
+
         [Test]
         public void BruteForceTest()
         {
