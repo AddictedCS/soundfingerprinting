@@ -8,10 +8,21 @@
     {
         public static IEnumerable<Coverage> FilterCrossMatchedCoverages(IEnumerable<Coverage> sequences)
         {
-            var coverages = sequences.ToList();
+            var coverages = sequences
+                .OrderByDescending(_ => _.TrackCoverageWithPermittedGapsLength)
+                .ThenByDescending(_ => _.QueryCoverageWithPermittedGapsLength)
+                .ToList();
+
             bool[] within = new bool[coverages.Count];
             for (int i = 0; i < coverages.Count - 1; ++i)
             {
+                if (within[i])
+                {
+                    // if current sequence was detected as within a different sequence, we don't need to check sibling sequences,
+                    // as they will get caught by parent coverage that is larger as measured by track/query coverage.
+                    continue;
+                }
+                
                 for (int j = i + 1; j < coverages.Count; ++j)
                 {
                     // q  ---xxx----xxx---- 10
