@@ -15,7 +15,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Initializes a new instance of the <see cref="Coverage"/> class.
         /// </summary>
-        /// <param name="bestPath">Best path between query and track, calculated by <see cref="LisNew"/> or <see cref="SingleQueryPathReconstructionStrategy"/> (default LisOld).</param>
+        /// <param name="bestPath">Best path between query and track, calculated by given <see cref="QueryPathReconstructionStrategyType"/> query parameter.</param>
         /// <param name="queryLength">Query length in seconds.</param>
         /// <param name="trackLength">Track length in seconds.</param>
         /// <param name="fingerprintLength">Fingerprint length in seconds.</param>
