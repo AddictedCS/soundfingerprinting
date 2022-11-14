@@ -53,11 +53,6 @@ namespace SoundFingerprinting.LCS
         public double TrackMatchStartsAt => BestPath.First().TrackMatchAt;
 
         /// <summary>
-        ///  Gets the total track length that was covered by the query. Exact length of matched fingerprints, not necessary consecutive.
-        /// </summary>
-        public double TrackCoverageLength => TrackDiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, 0, FingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
-
-        /// <summary>
         ///  Gets track coverage length sum in seconds, allowing gaps specified by permitted gap query parameter.
         /// </summary>
         public double TrackCoverageWithPermittedGapsLength
