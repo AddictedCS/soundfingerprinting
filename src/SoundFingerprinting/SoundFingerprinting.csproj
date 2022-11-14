@@ -13,6 +13,7 @@
 	<PackageReleaseNotes>
 		Hotfixing SingleQueryPathReconstructionStrategy, making sure query and track sequence numbers are strictly increasing.
 		   Strictly increasing invariant provides guarantees we do not end up with weird query/track match discrepancies.
+		Unifying SingleQueryPathReconstructionStrategy with MultipleQueryPathReconstructionStrategy, making sure we use the same approach on finding longest increasing track/query sequences.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
