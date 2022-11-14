@@ -237,10 +237,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var coverage = singleMatch.ResultEntries.First().Coverage;
             Assert.AreEqual(5, coverage.TrackMatchStartsAt, 1, "TrackMatchStartsAt did not match");
             Assert.AreEqual(5, coverage.QueryMatchStartsAt, 1, "QueryMatchStartsAt did not match");
-            Assert.AreEqual(30, coverage.TrackDiscreteCoverageLength, 1);
+            Assert.AreEqual(30, coverage.TrackDiscreteCoverageLength, 1.5);
             Assert.AreEqual(20, coverage.TrackCoverageWithPermittedGapsLength, 2);
             Assert.AreEqual(20, coverage.TrackGapsCoverageLength, 2);
-            Assert.AreEqual(30, coverage.QueryDiscreteCoverageLength, 1);
+            Assert.AreEqual(30, coverage.QueryDiscreteCoverageLength, 1.5);
             Assert.AreEqual(20, coverage.QueryCoverageWithPermittedGapsLength, 2);
             Assert.AreEqual(10, coverage.QueryGapsCoverageLength, 2);
         }

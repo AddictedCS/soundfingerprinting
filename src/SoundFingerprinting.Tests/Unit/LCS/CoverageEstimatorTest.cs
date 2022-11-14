@@ -37,7 +37,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             const double trackLength = 5d;
             var matches = TestUtilities.GetMatchedWith(new[] { 1, 2, 3, 4, 5 }, new[] { 1, 2, 9, 11, 12 });
 
-            var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, queryLength, trackLength, 1d, 1d).First();
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, queryLength, trackLength, fingerprintLength: 1d, 0d).First();
 
             Assert.AreEqual(12, coverage.TrackDiscreteCoverageLength, Delta);
             Assert.AreEqual(8, coverage.TrackGapsCoverageLength);

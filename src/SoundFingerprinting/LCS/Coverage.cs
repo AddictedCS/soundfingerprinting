@@ -90,29 +90,26 @@ namespace SoundFingerprinting.LCS
         public double QueryDiscreteCoverageLength => SubFingerprintsToSeconds.MatchLengthToSeconds(BestPath.Last().QueryMatchAt, QueryMatchStartsAt, FingerprintLength);
 
         /// <summary>
-        ///  Gets the exact length of not covered portion of the query match in the track
+        ///  Gets the length of not covered portion of the query match in the track
         /// </summary>
         /// <returns>Seconds of not covered length</returns>
         public double TrackGapsCoverageLength
         {
             get
             {
-                return BestPath
-                    .FindTrackGaps(TrackLength, 0, FingerprintLength)
-                    .Sum(gap => gap.LengthInSeconds);
+                return TrackGaps.Sum(gap => gap.LengthInSeconds);
             }
         }
 
         /// <summary>
-        ///  Gets the exact length of not covered portion of the track in the query
+        ///  Gets the length of not covered portion of the track in the query
         /// </summary>
         /// <returns>Seconds of not covered length</returns>
         public double QueryGapsCoverageLength
         {
             get
             {
-                return BestPath
-                    .FindQueryGaps(0, FingerprintLength)
+                return QueryGaps
                     .Sum(gap => gap.LengthInSeconds); 
             }
         }

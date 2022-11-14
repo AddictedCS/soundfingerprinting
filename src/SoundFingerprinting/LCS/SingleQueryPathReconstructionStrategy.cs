@@ -13,36 +13,13 @@ namespace SoundFingerprinting.LCS
         /// </remarks>
         public override IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap)
         {
-            var orderedByTrackMatchAt = matches.OrderBy(with => with.TrackSequenceNumber).ToList();
-            var maxArray = MaxIncreasingQuerySequenceOptimal(orderedByTrackMatchAt, maxGap, out int max, out int maxIndex);
-            var sequence = new List<MatchedWith>();
-            int index = maxIndex;
-            while (max > 0 && index >= 0)
+            var matched = matches as MatchedWith[] ?? matches.ToArray();
+            if (!matched.Any())
             {
-                if (maxArray[index].Length == max)
-                {
-                    while (index >= 0 && maxArray[index].Length == max)
-                    {
-                        if (max == 1 && 
-                            sequence.Any() &&
-                            maxArray[index].MatchedWith.QuerySequenceNumber > sequence.Last().QuerySequenceNumber)
-                        {
-                            break;
-                        }
-                        
-                        sequence.Add(maxArray[index--].MatchedWith);
-                    }
-
-                    --max;
-                }
-                else
-                {
-                    --index;
-                }
+                return Enumerable.Empty<IEnumerable<MatchedWith>>();
             }
-
-            sequence.Reverse();
-            return new[] { sequence };
+            
+            return new[] { GetLongestIncreasingSequence(matched, maxGap) };
         }
 
         protected override bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
