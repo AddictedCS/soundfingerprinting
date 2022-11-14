@@ -448,8 +448,12 @@
                 (390, 374), (410, 375), (466, 377), (488, 378), (524, 379)
             };
 
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 1000).ToArray();
-
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 600).ToArray();
+            var coverages = results.Select(_ => new Coverage(_, 600d, 600d, 1.48d, permittedGap: 600));
+            var best = OverlappingRegionFilter.FilterCrossMatchedCoverages(coverages);
+            // this is debatable, but I don't have a good solution for cases when only track coverage is contained between 2 coverages
+            Assert.AreEqual(2, best.Count());
+            
             var matchedWiths = results.First().ToList();
             var noSideEffects = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).First().ToList();
             
