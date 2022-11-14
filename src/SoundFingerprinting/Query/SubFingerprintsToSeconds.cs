@@ -1,6 +1,6 @@
 ﻿namespace SoundFingerprinting.Query
 {
-    internal class SubFingerprintsToSeconds
+    internal static class SubFingerprintsToSeconds
     {
         public static double MatchLengthToSeconds(double endsAt, double startsAt, double fingerprintLengthInSeconds)
         {

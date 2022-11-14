@@ -8,11 +8,7 @@
     {
         public static IEnumerable<Coverage> FilterCrossMatchedCoverages(IEnumerable<Coverage> sequences)
         {
-            var coverages = sequences
-                .OrderByDescending(_ => _.TrackCoverageWithPermittedGapsLength)
-                .ThenByDescending(_ => _.QueryCoverageWithPermittedGapsLength)
-                .ToList();
-            
+            var coverages = sequences.ToList();
             bool[] within = new bool[coverages.Count];
             for (int i = 0; i < coverages.Count - 1; ++i)
             {
