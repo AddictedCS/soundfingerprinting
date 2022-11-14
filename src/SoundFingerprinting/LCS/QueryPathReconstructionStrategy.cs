@@ -12,8 +12,8 @@ internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructi
     public abstract IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap);
     
     protected abstract bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap);
-    
-    protected MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
+
+    private MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
     {
         var maxs = matches.Select(_ => new MaxAt(1, _)).ToArray();
         var dp = new MatchedWith[matches.Count];
