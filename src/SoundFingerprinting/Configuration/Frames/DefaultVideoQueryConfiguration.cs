@@ -28,7 +28,6 @@
 
             ThresholdVotes = 4;
             PermittedGap = 1.75d;
-            OutliersFilterConfiguration = OutliersFilterConfiguration.None;
             StructuralSimilarityFilterConfiguration = StructuralSimilarityFilterConfiguration.None;
             QueryMediaType = MediaType.Video;
         }

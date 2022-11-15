@@ -143,19 +143,6 @@ namespace SoundFingerprinting.LCS
         public IEnumerable<Gap> TrackGaps => BestPath.FindTrackGaps(TrackLength, PermittedGap, FingerprintLength);
 
         /// <summary>
-        ///  Get score outliers from the best path. Useful to find regions which are weak matches and may require additional recheck
-        /// </summary>
-        /// <param name="sigma">Allowed deviation from the mean</param>
-        /// <returns>Set of score outliers</returns>
-        public IEnumerable<MatchedWith> GetScoreOutliers(double sigma)
-        {
-            var list = BestPath.ToList();
-            double stdDev = list.Select(m => m.Score).StdDev();
-            double avg = list.Average(m => m.Score);
-            return list.Where(match => match.Score < avg - sigma * stdDev);
-        }
-
-        /// <summary>
         ///  Checks if this coverage contains other coverage.
         /// </summary>
         /// <param name="other">Instance of other coverage.</param>
@@ -192,7 +179,10 @@ namespace SoundFingerprinting.LCS
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"Coverage[TrackCoverageWithPermittedGapsLength={TrackCoverageWithPermittedGapsLength:0.00},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackLength={TrackLength}]";
+            return
+                "Coverage[" +
+                $"TrackCoverageWithPermittedGapsLength={TrackCoverageWithPermittedGapsLength:0.00},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackLength={TrackLength}," +
+                $"QueryCoverageWithPermittedGapsLength={QueryCoverageWithPermittedGapsLength:0.00},QueryMatchStartsAt={QueryMatchStartsAt:0.00},QueryLength={QueryLength}]";
         }
     }
 }
