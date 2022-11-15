@@ -104,8 +104,7 @@ namespace SoundFingerprinting.LCS
         {
             get
             {
-                return QueryGaps
-                    .Sum(gap => gap.LengthInSeconds); 
+                return QueryGaps.Sum(gap => gap.LengthInSeconds); 
             }
         }
         
@@ -113,14 +112,7 @@ namespace SoundFingerprinting.LCS
         ///  Gets best estimate of where does the track actually starts.
         ///  Can be negative, if algorithm assumes the track starts in the past point relative to the query
         /// </summary>
-        public double TrackStartsAt
-        {
-            get
-            {
-                var bestMatch = BestPath.OrderByDescending(m => m.Score).First();
-                return bestMatch.QueryMatchAt - bestMatch.TrackMatchAt;
-            }
-        }
+        public double TrackStartsAt => QueryMatchStartsAt - TrackMatchStartsAt;
 
         /// <summary>
         ///  Gets query length
@@ -133,39 +125,6 @@ namespace SoundFingerprinting.LCS
         /// </summary>
         [ProtoMember(2)]
         public double TrackLength { get; }
-
-        /// <summary>
-        ///  Gets average score across best path
-        /// </summary>
-        public double AvgScoreAcrossBestPath
-        {
-            get
-            {
-                return BestPath.Average(m => m.Score);
-            }
-        }
-
-        /// <summary>
-        ///  Gets number of query fingerprints that matched the database track
-        /// </summary>
-        public int QueryMatchesCount
-        {
-            get
-            {
-                return BestPath.Select(m => m.QuerySequenceNumber).Distinct().Count();
-            }
-        }
-
-        /// <summary>
-        ///  Gets number of database fingerprints that matched the query fingerprints
-        /// </summary>
-        public int TrackMatchesCount
-        {
-            get
-            {
-                return BestPath.Select(m => m.TrackSequenceNumber).Distinct().Count();
-            }
-        }
 
         /// <summary>
         ///  Gets best reconstructed path
