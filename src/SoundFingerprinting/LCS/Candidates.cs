@@ -8,7 +8,7 @@
 
     internal class Candidates
     {
-        private readonly ConcurrentDictionary<IModelReference, List<MatchedWith>> candidates = new ConcurrentDictionary<IModelReference, List<MatchedWith>>();
+        private readonly ConcurrentDictionary<IModelReference, List<MatchedWith>> candidates = new ();
 
         public Candidates(IModelReference trackReference, params MatchedWith[] candidates)
         {
@@ -25,7 +25,7 @@
 
         public void AddNewMatchForTrack(IModelReference trackReference, MatchedWith match)
         {
-            candidates.AddOrUpdate(trackReference, reference => new List<MatchedWith> {match}, (reference, old) =>
+            candidates.AddOrUpdate(trackReference, _ => new List<MatchedWith> {match}, (_, old) =>
             {
                 old.Add(match);
                 return old;

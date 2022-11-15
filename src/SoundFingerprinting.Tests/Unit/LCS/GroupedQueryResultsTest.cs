@@ -44,14 +44,14 @@
                 Assert.AreEqual(references[references.Length - i - 1], modelReferences[i]);
             }
 
-            var bestMatch = groupedQueryResults.GetBestMatchForTrack(references.Last());
-
+            var bestMatch = groupedQueryResults.GetMatchesForTrack(references.Last()).MaxBy(matchedWith => matchedWith.Score)!;
+                
             Assert.AreEqual((runs - 1) * 0.05f, bestMatch.QueryMatchAt, 0.000001);
             Assert.AreEqual((runs - 1) * 0.07f, bestMatch.TrackMatchAt, 0.000001);
 
-            for (int i = 0; i < references.Length; ++i)
+            foreach (ModelReference<int> trackRef in references)
             {
-                var matchedWith = groupedQueryResults.GetMatchesForTrack(references[i]).ToList();
+                var matchedWith = groupedQueryResults.GetMatchesForTrack(trackRef).ToList();
                 Assert.AreEqual(runs / references.Length, matchedWith.Count);
             }
         }

@@ -20,21 +20,24 @@
         private readonly IScoreAlgorithm scoreAlgorithm;
         private readonly IQueryMath queryMath;
 
+        private QueryFingerprintService(IScoreAlgorithm scoreAlgorithm, IQueryMath queryMath)
+        {
+            this.scoreAlgorithm = scoreAlgorithm;
+            this.queryMath = queryMath; 
+        }
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryFingerprintService"/> class.
         /// </summary>
         /// <param name="scoreAlgorithm">Scoring algorithm instance.</param>
-        /// <param name="queryMath">Query match instance.</param>
-        public QueryFingerprintService(IScoreAlgorithm scoreAlgorithm, IQueryMath queryMath)
+        public QueryFingerprintService(IScoreAlgorithm scoreAlgorithm) : this(scoreAlgorithm, QueryMath.Instance)
         {
-            this.scoreAlgorithm = scoreAlgorithm;
-            this.queryMath = queryMath;
         }
 
         /// <summary>
         ///  Gets an instance of the <see cref="QueryFingerprintService"/> class.
         /// </summary>
-        public static QueryFingerprintService Instance { get; } = new QueryFingerprintService(new HammingSimilarityScoreAlgorithm(new SimilarityUtility()), QueryMath.Instance);
+        public static QueryFingerprintService Instance { get; } = new (new HammingSimilarityScoreAlgorithm(new SimilarityUtility()));
 
         /// <inheritdoc cref="IQueryFingerprintService.Query"/>
         public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService)
