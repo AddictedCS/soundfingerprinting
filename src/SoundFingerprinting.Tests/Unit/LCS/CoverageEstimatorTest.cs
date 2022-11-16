@@ -74,9 +74,9 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             }
 
             var matches = TestUtilities.GetMatchedWith(queryMatchAt, dbMatchAt, 100, length);
-            var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, seconds + length, shift + seconds + length, 1d / fps, 1d).First();
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, seconds + length, shift + seconds + length, 1d / fps, permittedGap: 0d).First();
             Assert.AreEqual(seconds, coverage.TrackDiscreteCoverageLength, 0.0001);
-            Assert.AreEqual(seconds, coverage.TrackCoverageLength, 0.0001);
+            Assert.AreEqual(seconds, coverage.TrackCoverageWithPermittedGapsLength, 0.0001);
             Assert.AreEqual(shift * length, coverage.TrackMatchStartsAt);
             Assert.AreEqual(0, coverage.QueryMatchStartsAt);
         }
@@ -98,7 +98,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, queryLength, trackLength, fingerprintLengthInSeconds, permittedGap: 0).First();
 
-            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackCoverageLength, Delta);
+            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(5 * fingerprintLengthInSeconds, coverage.TrackDiscreteCoverageLength, Delta);
 
             Assert.AreEqual(0, coverage.QueryGaps.Count());
@@ -132,7 +132,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, queryLength, trackLength, fingerprintLengthInSeconds, permittedGap: 0).First();
 
-            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackCoverageLength, Delta);
+            Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(3 * fingerprintLengthInSeconds, coverage.TrackDiscreteCoverageLength, Delta);
 
             Assert.AreEqual(0, coverage.TrackGaps.Count());

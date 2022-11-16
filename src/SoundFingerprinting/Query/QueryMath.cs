@@ -7,16 +7,16 @@
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.LCS;
 
-    public class QueryMath : IQueryMath
+    internal class QueryMath : IQueryMath
     {
         private readonly IQueryResultCoverageCalculator queryResultCoverageCalculator;
 
-        internal QueryMath(IQueryResultCoverageCalculator queryResultCoverageCalculator)
+        private QueryMath(IQueryResultCoverageCalculator queryResultCoverageCalculator)
         {
             this.queryResultCoverageCalculator = queryResultCoverageCalculator;
         }
 
-        public static QueryMath Instance { get; } = new QueryMath(new QueryResultCoverageCalculator());
+        public static QueryMath Instance { get; } = new (new QueryResultCoverageCalculator());
 
         public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration)
         {

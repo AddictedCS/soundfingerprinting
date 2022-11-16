@@ -76,8 +76,8 @@
         public MatchedWith GetBestMatchForTrack(IModelReference trackReference)
         {
             return GetMatchesForTrack(trackReference)
-                                .OrderByDescending(matchedWith => matchedWith.Score)
-                                .FirstOrDefault();
+                .OrderByDescending(matchedWith => matchedWith.Score)
+                .FirstOrDefault();
         }
 
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)

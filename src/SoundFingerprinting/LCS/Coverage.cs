@@ -15,7 +15,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Initializes a new instance of the <see cref="Coverage"/> class.
         /// </summary>
-        /// <param name="bestPath">Best path between query and track, calculated by <see cref="LisNew"/> or <see cref="SingleQueryPathReconstructionStrategy"/> (default LisOld).</param>
+        /// <param name="bestPath">Best path between query and track, calculated by given <see cref="QueryPathReconstructionStrategyType"/> query parameter.</param>
         /// <param name="queryLength">Query length in seconds.</param>
         /// <param name="trackLength">Track length in seconds.</param>
         /// <param name="fingerprintLength">Fingerprint length in seconds.</param>
@@ -51,11 +51,6 @@ namespace SoundFingerprinting.LCS
         ///  Gets the starting point of the track match. Measured in seconds.
         /// </summary>
         public double TrackMatchStartsAt => BestPath.First().TrackMatchAt;
-
-        /// <summary>
-        ///  Gets the total track length that was covered by the query. Exact length of matched fingerprints, not necessary consecutive.
-        /// </summary>
-        public double TrackCoverageLength => TrackDiscreteCoverageLength - BestPath.FindTrackGaps(TrackLength, 0, FingerprintLength).Where(d => !d.IsOnEdge).Sum(d => d.LengthInSeconds);
 
         /// <summary>
         ///  Gets track coverage length sum in seconds, allowing gaps specified by permitted gap query parameter.
@@ -109,8 +104,7 @@ namespace SoundFingerprinting.LCS
         {
             get
             {
-                return QueryGaps
-                    .Sum(gap => gap.LengthInSeconds); 
+                return QueryGaps.Sum(gap => gap.LengthInSeconds); 
             }
         }
         
@@ -118,14 +112,7 @@ namespace SoundFingerprinting.LCS
         ///  Gets best estimate of where does the track actually starts.
         ///  Can be negative, if algorithm assumes the track starts in the past point relative to the query
         /// </summary>
-        public double TrackStartsAt
-        {
-            get
-            {
-                var bestMatch = BestPath.OrderByDescending(m => m.Score).First();
-                return bestMatch.QueryMatchAt - bestMatch.TrackMatchAt;
-            }
-        }
+        public double TrackStartsAt => QueryMatchStartsAt - TrackMatchStartsAt;
 
         /// <summary>
         ///  Gets query length
@@ -138,39 +125,6 @@ namespace SoundFingerprinting.LCS
         /// </summary>
         [ProtoMember(2)]
         public double TrackLength { get; }
-
-        /// <summary>
-        ///  Gets average score across best path
-        /// </summary>
-        public double AvgScoreAcrossBestPath
-        {
-            get
-            {
-                return BestPath.Average(m => m.Score);
-            }
-        }
-
-        /// <summary>
-        ///  Gets number of query fingerprints that matched the database track
-        /// </summary>
-        public int QueryMatchesCount
-        {
-            get
-            {
-                return BestPath.Select(m => m.QuerySequenceNumber).Distinct().Count();
-            }
-        }
-
-        /// <summary>
-        ///  Gets number of database fingerprints that matched the query fingerprints
-        /// </summary>
-        public int TrackMatchesCount
-        {
-            get
-            {
-                return BestPath.Select(m => m.TrackSequenceNumber).Distinct().Count();
-            }
-        }
 
         /// <summary>
         ///  Gets best reconstructed path
@@ -187,19 +141,6 @@ namespace SoundFingerprinting.LCS
         ///  Gets track match gaps from the best path
         /// </summary>
         public IEnumerable<Gap> TrackGaps => BestPath.FindTrackGaps(TrackLength, PermittedGap, FingerprintLength);
-
-        /// <summary>
-        ///  Get score outliers from the best path. Useful to find regions which are weak matches and may require additional recheck
-        /// </summary>
-        /// <param name="sigma">Allowed deviation from the mean</param>
-        /// <returns>Set of score outliers</returns>
-        public IEnumerable<MatchedWith> GetScoreOutliers(double sigma)
-        {
-            var list = BestPath.ToList();
-            double stdDev = list.Select(m => m.Score).StdDev();
-            double avg = list.Average(m => m.Score);
-            return list.Where(match => match.Score < avg - sigma * stdDev);
-        }
 
         /// <summary>
         ///  Checks if this coverage contains other coverage.
@@ -238,7 +179,10 @@ namespace SoundFingerprinting.LCS
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"Coverage[TrackCoverageWithPermittedGapsLength={TrackCoverageWithPermittedGapsLength:0.00},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackLength={TrackLength}]";
+            return
+                "Coverage[" +
+                $"TrackCoverageWithPermittedGapsLength={TrackCoverageWithPermittedGapsLength:0.00},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackLength={TrackLength}," +
+                $"QueryCoverageWithPermittedGapsLength={QueryCoverageWithPermittedGapsLength:0.00},QueryMatchStartsAt={QueryMatchStartsAt:0.00},QueryLength={QueryLength}]";
         }
     }
 }

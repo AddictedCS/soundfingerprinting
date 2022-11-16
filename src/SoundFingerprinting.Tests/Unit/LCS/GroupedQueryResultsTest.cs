@@ -24,8 +24,8 @@
 
             Parallel.For(0, runs, i =>
             {
-                var hashed = new HashedFingerprint(new int[0], (uint)i, i * 0.05f, Array.Empty<byte>());
-                var candidate = new SubFingerprintData(new int[0], (uint)i, i * 0.07f, new ModelReference<uint>((uint)i), references[i % references.Length]);
+                var hashed = new HashedFingerprint(Array.Empty<int>(), (uint)i, i * 0.05f, Array.Empty<byte>());
+                var candidate = new SubFingerprintData(Array.Empty<int>(), (uint)i, i * 0.07f, new ModelReference<uint>((uint)i), references[i % references.Length]);
                 groupedQueryResults.Add(hashed, candidate, i);
             });
 
@@ -44,14 +44,14 @@
                 Assert.AreEqual(references[references.Length - i - 1], modelReferences[i]);
             }
 
-            var bestMatch = groupedQueryResults.GetBestMatchForTrack(references.Last());
-
+            var bestMatch = groupedQueryResults.GetMatchesForTrack(references.Last()).MaxBy(matchedWith => matchedWith.Score)!;
+                
             Assert.AreEqual((runs - 1) * 0.05f, bestMatch.QueryMatchAt, 0.000001);
             Assert.AreEqual((runs - 1) * 0.07f, bestMatch.TrackMatchAt, 0.000001);
 
-            for (int i = 0; i < references.Length; ++i)
+            foreach (ModelReference<int> trackRef in references)
             {
-                var matchedWith = groupedQueryResults.GetMatchesForTrack(references[i]).ToList();
+                var matchedWith = groupedQueryResults.GetMatchesForTrack(trackRef).ToList();
                 Assert.AreEqual(runs / references.Length, matchedWith.Count);
             }
         }
