@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Query
 {
     using System;
-    using System.Linq;
     using ProtoBuf;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -119,11 +118,6 @@ namespace SoundFingerprinting.Query
         /// </summary>
         [ProtoMember(10)]
         public double Score { get; }
-
-        /// <summary>
-        ///  Gets a value indicating whether there are gaps in the result entry coverage
-        /// </summary>
-        public bool NoGaps => !Coverage.TrackGaps.Any() && !Coverage.QueryGaps.Any();
 
         /// <summary>
         ///  Convert ResultEntry to an instance of <see cref="QueryMatch"/>.

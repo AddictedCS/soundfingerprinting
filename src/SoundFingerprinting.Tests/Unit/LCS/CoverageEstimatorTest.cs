@@ -163,7 +163,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var entries = new[] { start, end };
 
-            Assert.DoesNotThrow(() => entries.FindQueryGaps(permittedGap, fingerprintLength).ToList());
+            Assert.DoesNotThrow(() => entries.FindQueryGaps(endsAt - startsAt, permittedGap, fingerprintLength).ToList());
         }
 
         [Test]
@@ -217,7 +217,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             Assert.AreEqual(0, firstGap.Start);
             Assert.AreEqual(shift * fingerprintLength, firstGap.End);
             
-            Assert.IsEmpty(matchedWiths.FindQueryGaps(permittedGap, fingerprintLength));
+            Assert.IsEmpty(matchedWiths.FindQueryGaps(count * fingerprintLength, permittedGap, fingerprintLength));
         }
 
         [Test]

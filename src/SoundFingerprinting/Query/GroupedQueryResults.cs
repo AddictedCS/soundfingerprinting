@@ -9,7 +9,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
-    public class GroupedQueryResults
+    internal class GroupedQueryResults
     {
         private readonly object lockObject = new ();
 
@@ -71,13 +71,6 @@
             }
 
             return 0;
-        }
-
-        public MatchedWith GetBestMatchForTrack(IModelReference trackReference)
-        {
-            return GetMatchesForTrack(trackReference)
-                .OrderByDescending(matchedWith => matchedWith.Score)
-                .FirstOrDefault();
         }
 
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)

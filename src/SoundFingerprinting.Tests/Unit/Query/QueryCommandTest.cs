@@ -242,7 +242,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(20, coverage.TrackGapsCoverageLength, 2);
             Assert.AreEqual(30, coverage.QueryDiscreteCoverageLength, 1.5);
             Assert.AreEqual(20, coverage.QueryCoverageWithPermittedGapsLength, 2);
-            Assert.AreEqual(10, coverage.QueryGapsCoverageLength, 2);
+            Assert.AreEqual(20, coverage.QueryGapsCoverageLength, 2);
         }
 
         private static float[] GetRandomSamplesWithRegions(float[] m1, float[] m2)

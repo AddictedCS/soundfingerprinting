@@ -1,8 +1,8 @@
 ﻿namespace SoundFingerprinting.Query
 {
     using System;
-    using System.Linq;
     using System.Collections.Generic;
+    using System.Linq;
     using SoundFingerprinting.LCS;
 
     public static class Extensions
@@ -60,43 +60,52 @@
             return matchedWiths.GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, fingerprintLengthInSeconds, permittedGap);
         }
 
-        public static IEnumerable<Gap> FindQueryGaps(this IEnumerable<MatchedWith> entries, double permittedGap, double fingerprintLength)
+        public static IEnumerable<Gap> FindQueryGaps(this IEnumerable<MatchedWith> entries, double queryLength, double permittedGap, double fingerprintLength)
         {
-            double sanitizedPermittedGap = permittedGap > 0 ? permittedGap : PermittedGapZero;
-            return entries
+            // ordering is redundant for QueryPathReconstructionStrategyType.SingleBestPath and QueryPathReconstructionStrategyType.MultipleBestPaths
+            var ordered = entries
                 .OrderBy(entry => entry.QueryMatchAt)
                 .Select(m => Tuple.Create(m.QuerySequenceNumber, m.QueryMatchAt))
-                .FindGaps(sanitizedPermittedGap, fingerprintLength);
+                .ToList();
+
+            return FindGaps(ordered, queryLength, permittedGap, fingerprintLength);
         }
 
         public static IEnumerable<Gap> FindTrackGaps(this IEnumerable<MatchedWith> entries, double trackLength, double permittedGap, double fingerprintLength)
         {
-            double sanitizedPermittedGap = permittedGap > 0 ? permittedGap : PermittedGapZero;
+            // ordering is redundant for QueryPathReconstructionStrategyType.SingleBestPath and QueryPathReconstructionStrategyType.MultipleBestPaths
             var ordered = entries.OrderBy(m => m.TrackMatchAt)
                 .Select(m => Tuple.Create(m.TrackSequenceNumber, m.TrackMatchAt))
                 .ToList();
 
-            (_, float startsAt) = ordered.First();
+            return FindGaps(ordered, trackLength, permittedGap, fingerprintLength);
+        }
+
+        private static IEnumerable<Gap> FindGaps(IEnumerable<Tuple<uint, float>> ordered, double totalLength, double permittedGap, double fingerprintLength)
+        {
+            double sanitizedPermittedGap = permittedGap > 0 ? permittedGap : PermittedGapZero;
+            var tuples = ordered.ToList();
+            (_, float startsAt) = tuples.First();
             if (startsAt > sanitizedPermittedGap)
             {
                 yield return new Gap(0, startsAt, true);
             }
 
-            foreach (var gap in ordered.FindGaps(sanitizedPermittedGap, fingerprintLength))
+            foreach (var gap in FindGaps(tuples, sanitizedPermittedGap, fingerprintLength))
             {
                 yield return gap;
             }
 
-            (_, float end) = ordered.Last();
+            (_, float end) = tuples.Last();
 
             double endsAt =  end + fingerprintLength;
-            if (trackLength - endsAt > sanitizedPermittedGap)
+            if (totalLength - endsAt > sanitizedPermittedGap)
             {
-                yield return new Gap(endsAt, trackLength, true);
-            }
+                yield return new Gap(endsAt, totalLength, true);
+            } 
         }
 
-        private static IEnumerable<Gap> FindGaps(this IEnumerable<Tuple<uint, float>> entries, double permittedGap, double fingerprintLength)
+        private static IEnumerable<Gap> FindGaps(IEnumerable<Tuple<uint, float>> entries, double permittedGap, double fingerprintLength)
         {
             Tuple<uint, float>[] matches = entries.ToArray();
             for (int i = 1; i < matches.Length; ++i)
