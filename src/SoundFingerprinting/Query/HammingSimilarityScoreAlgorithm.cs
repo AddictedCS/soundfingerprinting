@@ -9,6 +9,8 @@ namespace SoundFingerprinting.Query
     [Obsolete("Scores will be removed in v9 as they do not mean a lot, counting bytes is not a right approach")]
     internal class HammingSimilarityScoreAlgorithm : IScoreAlgorithm
     {
+        public static IScoreAlgorithm Instance { get; } = new HammingSimilarityScoreAlgorithm(SimilarityUtility.Instance);
+        
         private readonly ISimilarityUtility similarityUtility;
 
         public HammingSimilarityScoreAlgorithm(ISimilarityUtility similarityUtility)

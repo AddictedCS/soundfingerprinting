@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
+    using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
 
     /// <summary>
@@ -13,6 +14,7 @@
     {
         private int thresholdVotes;
         private int maxTracksToReturn;
+        private QueryPathReconstructionStrategyType queryPathReconstructionStrategyType;
 
         /// <summary>
         ///   Gets or sets vote count for a track to be considered a potential match (i.e. [1; 25]).
@@ -102,7 +104,15 @@
         ///  Default for audio is <see cref="QueryPathReconstructionStrategyType.SingleBestPath"/>. <br/>
         ///  Default for video is <see cref="QueryPathReconstructionStrategyType.Legacy"/>.
         /// </remarks>
-        public QueryPathReconstructionStrategyType QueryPathReconstructionStrategy { get; set; }
+        public QueryPathReconstructionStrategyType QueryPathReconstructionStrategy
+        {
+            get => queryPathReconstructionStrategyType;
+            set
+            {
+                ScoreAlgorithm = value == QueryPathReconstructionStrategyType.Legacy ? HammingSimilarityScoreAlgorithm.Instance : SubFingerprintCountScoreAlgorithm.Instance;
+                queryPathReconstructionStrategyType = value;
+            }
+        }
 
         /// <summary>
         ///  Gets or sets permitted gap between consecutive matches of the same track (as defined by the <see cref="Coverage.BestPath"/> property).
@@ -142,5 +152,14 @@
         /// </summary>
         [Obsolete("MediaType is now part of Hashes class. Set it on Hashes.MediaType to specify which media type to use. Property will be removed in v9")]
         public MediaType QueryMediaType { get; set; }
+
+        /// <summary>
+        ///  Gets scoring algorithm, used to calculate similarity between track/query matches.
+        /// </summary>
+        /// <remarks>
+        ///  Before v8.16.2 hamming similarity was used to measure how similar query/track pairs are.
+        ///  Since hamming similarity is not a good similarity metric (specifically when applied to hashed min-hashes), scoring algorithm was reduced to sub-fingerprints counting (since score is 1 for all pairs <see cref="SubFingerprintCountScoreAlgorithm"/>).
+        /// </remarks>
+        internal IScoreAlgorithm ScoreAlgorithm { get; private set; } = null!;
     }
 }

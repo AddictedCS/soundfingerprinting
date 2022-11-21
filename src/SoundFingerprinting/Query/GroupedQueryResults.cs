@@ -32,9 +32,9 @@
         {
             lock (lockObject)
             {
-                scoreSumPerTrack.AddOrUpdate(resultSubFingerprint.TrackReference, score, (key, old) => old + score);
+                scoreSumPerTrack.AddOrUpdate(resultSubFingerprint.TrackReference, score, (_, old) => old + score);
                 var matchedWith = new MatchedWith(queryFingerprint.SequenceNumber, queryFingerprint.StartsAt, resultSubFingerprint.SequenceNumber, resultSubFingerprint.SequenceAt, score);
-                if (!sequenceToCandidates.TryGetValue(queryFingerprint.SequenceNumber, out Candidates candidates))
+                if (!sequenceToCandidates.TryGetValue(queryFingerprint.SequenceNumber, out var candidates))
                 {
                     sequenceToCandidates.Add(queryFingerprint.SequenceNumber, new Candidates(resultSubFingerprint.TrackReference, matchedWith));
                 }
@@ -59,18 +59,15 @@
 
         public IEnumerable<IModelReference> GetTopTracksByScore(int count)
         {
-            var sorted = from entry in scoreSumPerTrack orderby entry.Value descending select entry.Key;
-            return sorted.Take(count);
+            return scoreSumPerTrack
+                .OrderByDescending(_ => _.Value)
+                .Select(_ => _.Key)
+                .Take(count);
         }
 
         public double GetScoreSumForTrack(IModelReference trackReference)
         {
-            if (scoreSumPerTrack.TryGetValue(trackReference, out double scoreSum))
-            {
-                return scoreSum;
-            }
-
-            return 0;
+            return scoreSumPerTrack.TryGetValue(trackReference, out double scoreSum) ? scoreSum : 0d;
         }
 
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
