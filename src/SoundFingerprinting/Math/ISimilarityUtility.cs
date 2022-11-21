@@ -1,6 +1,6 @@
 namespace SoundFingerprinting.Math
 {
-    public interface ISimilarityUtility
+    internal interface ISimilarityUtility
     {
         int CalculateHammingDistance(byte[] a, byte[] b);
 
@@ -25,6 +25,5 @@ namespace SoundFingerprinting.Math
         ///   0 = 00
         /// </remarks>
         double CalculateJacquardSimilarity(bool[] x, bool[] y);
-
     }
 }

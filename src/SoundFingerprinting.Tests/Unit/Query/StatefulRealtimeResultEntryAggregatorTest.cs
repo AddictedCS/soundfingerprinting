@@ -198,7 +198,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsEmpty(resultEntry.Coverage.TrackGaps);
 
             var averageScore = resultEntry.Coverage.BestPath.Average(_ => _.Score);
-            Assert.AreEqual(100, averageScore, "Did not match exactly!");
+            Assert.AreEqual(1, averageScore, "Did not match exactly!");
             CollectionAssert.AreEqual(orderedHashes.Select(_ => _.SequenceNumber).ToList(), resultEntry.Coverage.BestPath.Select(_ => _.TrackSequenceNumber));
             CollectionAssert.AreEqual(orderedHashes.Select(_ => _.StartsAt), resultEntry.Coverage.BestPath.Select(_ => _.TrackMatchAt));
             var zipped = orderedHashes.Select(_ => _.StartsAt).Zip(resultEntry.Coverage.BestPath.Select(_ => _.QueryMatchAt), (e, a) => new { Expected = e, Actual = a });

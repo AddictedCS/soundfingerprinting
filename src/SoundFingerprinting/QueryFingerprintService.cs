@@ -6,7 +6,6 @@
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     /// <summary>
@@ -37,7 +36,7 @@
         /// <summary>
         ///  Gets an instance of the <see cref="QueryFingerprintService"/> class.
         /// </summary>
-        public static QueryFingerprintService Instance { get; } = new (new HammingSimilarityScoreAlgorithm(new SimilarityUtility()));
+        public static QueryFingerprintService Instance { get; } = new (new SubFingerprintCountScoreAlgorithm());
 
         /// <inheritdoc cref="IQueryFingerprintService.Query"/>
         public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService)
