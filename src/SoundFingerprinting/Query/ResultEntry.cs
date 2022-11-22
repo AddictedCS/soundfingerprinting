@@ -16,7 +16,7 @@ namespace SoundFingerprinting.Query
         /// Initializes a new instance of the <see cref="ResultEntry"/> class.
         /// </summary>
         /// <param name="track">Matched track.</param>
-        /// <param name="score">Match score (as calculated by <see cref="IScoreAlgorithm"/>).</param>
+        /// <param name="score">Match score.</param>
         /// <param name="matchedAt">Matched at. To identify relative time when the match starts, set  <see cref="Hashes.RelativeTo"/> during query time.</param>
         /// <param name="coverage">An instance of the <see cref="Coverage"/> object.</param>
         public ResultEntry(TrackData track, double score, DateTime matchedAt, Coverage coverage)
@@ -117,6 +117,7 @@ namespace SoundFingerprinting.Query
         ///  Gets similarity count between query match and track
         /// </summary>
         [ProtoMember(10)]
+        [Obsolete("Will be removed in v9. To use a similarity metric use Coverage property.")]
         public double Score { get; }
 
         /// <summary>

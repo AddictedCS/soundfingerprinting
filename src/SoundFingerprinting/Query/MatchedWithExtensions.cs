@@ -29,7 +29,7 @@
             var coverages = reconstructedPaths.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap));
             if (queryPathReconstructionStrategyType == QueryPathReconstructionStrategyType.MultipleBestPaths)
             {
-                return OverlappingRegionFilter.FilterCrossMatchedCoverages(coverages); 
+                return OverlappingRegionFilter.FilterContainedCoverages(coverages); 
             }
 
             return coverages.ToList();
