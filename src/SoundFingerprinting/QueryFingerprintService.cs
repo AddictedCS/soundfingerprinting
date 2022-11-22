@@ -6,7 +6,6 @@
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Math;
     using SoundFingerprinting.Query;
 
     /// <summary>
@@ -17,27 +16,17 @@
     /// </remarks>
     public class QueryFingerprintService : IQueryFingerprintService
     {
-        private readonly IScoreAlgorithm scoreAlgorithm;
         private readonly IQueryMath queryMath;
 
-        private QueryFingerprintService(IScoreAlgorithm scoreAlgorithm, IQueryMath queryMath)
+        private QueryFingerprintService(IQueryMath queryMath)
         {
-            this.scoreAlgorithm = scoreAlgorithm;
             this.queryMath = queryMath; 
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryFingerprintService"/> class.
-        /// </summary>
-        /// <param name="scoreAlgorithm">Scoring algorithm instance.</param>
-        public QueryFingerprintService(IScoreAlgorithm scoreAlgorithm) : this(scoreAlgorithm, QueryMath.Instance)
-        {
-        }
-
-        /// <summary>
         ///  Gets an instance of the <see cref="QueryFingerprintService"/> class.
         /// </summary>
-        public static QueryFingerprintService Instance { get; } = new (new HammingSimilarityScoreAlgorithm(new SimilarityUtility()));
+        public static QueryFingerprintService Instance { get; } = new (QueryMath.Instance);
 
         /// <inheritdoc cref="IQueryFingerprintService.Query"/>
         public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService)
@@ -65,7 +54,7 @@
                     var matched = matchedSubFingerprints.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));
                     foreach (var subFingerprint in matched)
                     {
-                        double score = scoreAlgorithm.GetScore(queryFingerprint, subFingerprint, configuration);
+                        double score = configuration.ScoreAlgorithm.GetScore(queryFingerprint, subFingerprint, configuration);
                         seed.Add(queryFingerprint, subFingerprint, score);
                     }
 

@@ -73,7 +73,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("id", queryResult.BestMatch.Track.Id);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(100, queryResult.BestMatch.Score);
+            Assert.AreEqual(1, queryResult.BestMatch.Score);
             Assert.AreEqual(2, queryResult.ResultEntries.Count());
             var results = queryResult.ResultEntries.ToList();
             Assert.AreEqual(firstTrackReference, results[0].Track.TrackReference);
@@ -95,7 +95,7 @@
         }
 
         [Test]
-        public void HammingSimilarityIsSummedUpAcrossAllSubFingerprintsTest()
+        public void DefaultSimilarityScoreIsSummedUpAcrossAllSubFingerprintsTest()
         {
             var queryHash = new HashedFingerprint(GenericHashBuckets(), 0, 0, Array.Empty<byte>());
             const int firstTrackId = 20;
@@ -122,7 +122,7 @@
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual("id", queryResult.BestMatch.Track.Id);
             Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(200, queryResult.BestMatch.Score);
+            Assert.AreEqual(2, queryResult.BestMatch.Score);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
         }
 

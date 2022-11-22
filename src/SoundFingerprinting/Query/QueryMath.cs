@@ -22,7 +22,8 @@
         {
             var trackIds = groupedQueryResults.GetTopTracksByScore(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
-            return tracks.SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration))
+            return tracks
+                .SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration))
                 .OrderByDescending(entry => entry.Score)
                 .ToList();
         }

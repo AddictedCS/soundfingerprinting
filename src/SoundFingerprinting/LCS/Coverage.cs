@@ -135,7 +135,7 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Gets query match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> QueryGaps => BestPath.FindQueryGaps(PermittedGap, FingerprintLength);
+        public IEnumerable<Gap> QueryGaps => BestPath.FindQueryGaps(QueryLength, PermittedGap, FingerprintLength);
 
         /// <summary>
         ///  Gets track match gaps from the best path
