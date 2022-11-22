@@ -5,11 +5,27 @@
     using System.Linq;
     using SoundFingerprinting.LCS;
 
+    /// <summary>
+    ///   Enumerable matched with extensions.
+    /// </summary>
     public static class MatchedWithExtensions
     {
+        private const double PermittedGapZero = 1e-5;
+        
         private static readonly IQueryPathReconstructionStrategy Single = new SingleQueryPathReconstructionStrategy();
         private static readonly IQueryPathReconstructionStrategy Multiple = new MultipleQueryPathReconstructionStrategy();
         
+        /// <summary>
+        ///  Get coverages from provided best path described by matched with list.
+        /// </summary>
+        /// <param name="matchedEntries">Best path as described by matched with list.</param>
+        /// <param name="queryPathReconstructionStrategyType">Query path reconstruction strategy type.</param>
+        /// <param name="queryLength">Query length.</param>
+        /// <param name="trackLength">Track length.</param>
+        /// <param name="fingerprintLength">Fingerprint length.</param>
+        /// <param name="permittedGap">Permitted gap.</param>
+        /// <returns>List of calculated coverages.</returns>
+        /// <exception cref="NotSupportedException">Provided <paramref name="queryPathReconstructionStrategyType"/> is not supported.</exception>
         public static IEnumerable<Coverage> GetCoverages(
             this IEnumerable<MatchedWith> matchedEntries, 
             QueryPathReconstructionStrategyType queryPathReconstructionStrategyType,
@@ -34,9 +50,15 @@
 
             return coverages.ToList();
         }
-        
-        private const double PermittedGapZero = 1e-5;
 
+        /// <summary>
+        ///  Find query gaps.
+        /// </summary>
+        /// <param name="entries">Bets path as described by list of matched with entries.</param>
+        /// <param name="queryLength">Query length.</param>
+        /// <param name="permittedGap">Permitted gap.</param>
+        /// <param name="fingerprintLength">Fingerprint length.</param>
+        /// <returns>List of gaps (if any).</returns>
         public static IEnumerable<Gap> FindQueryGaps(this IEnumerable<MatchedWith> entries, double queryLength, double permittedGap, double fingerprintLength)
         {
             // ordering is redundant for QueryPathReconstructionStrategyType.SingleBestPath and QueryPathReconstructionStrategyType.MultipleBestPaths
@@ -48,6 +70,14 @@
             return FindGaps(ordered, queryLength, permittedGap, fingerprintLength);
         }
 
+        /// <summary>
+        ///  Find track gaps.
+        /// </summary>
+        /// <param name="entries">Bets path as described by list of matched with entries.</param>
+        /// <param name="trackLength">Track length</param>
+        /// <param name="permittedGap">Permitted gap.</param>
+        /// <param name="fingerprintLength">Fingerprint length.</param>
+        /// <returns>List of gaps (if any).</returns>
         public static IEnumerable<Gap> FindTrackGaps(this IEnumerable<MatchedWith> entries, double trackLength, double permittedGap, double fingerprintLength)
         {
             // ordering is redundant for QueryPathReconstructionStrategyType.SingleBestPath and QueryPathReconstructionStrategyType.MultipleBestPaths
