@@ -11,8 +11,10 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Adding edge gaps to QueryGaps, to have a fully unified Track/Query gaps calculation.
+		Adding edge gaps to QueryGaps, to have a symetric track/query gaps.
 		Removing scoring algorithm, using previous hamming similarity score calculation only for Legacy query path reconstruction.
+			Scoring makes little to no sense when applied on final integer hashes.
+		    Score algorithm selection can only be made by selecting query path reconstruction strategy.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
