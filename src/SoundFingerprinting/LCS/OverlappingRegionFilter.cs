@@ -6,6 +6,11 @@
 
     public static class OverlappingRegionFilter
     {
+        /// <summary>
+        ///  Filters coverages that are contained within longer coverages.
+        /// </summary>
+        /// <param name="sequences">List of coverages to check.</param>
+        /// <returns>Same or smaller list of unique longest coverages.</returns>
         public static IEnumerable<Coverage> FilterContainedCoverages(IEnumerable<Coverage> sequences)
         {
             var coverages = sequences
