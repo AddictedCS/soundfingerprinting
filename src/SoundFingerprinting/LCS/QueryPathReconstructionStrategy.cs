@@ -112,12 +112,12 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex + 1));
         var result = new Stack<MaxAt>();
         var excluded = new List<MaxAt>();
-        while (TryPop(maxs, out var candidate) && max > 0)
+        while (maxs.TryPop(out var candidate) && max > 0)
         {
             if (candidate!.Length != max)
             {
                 // out of order element need to be excluded if it is part of the same sequence
-                if (TryPeek(result, out var lastPicked) && IsSameSequence(candidate.MatchedWith, lastPicked!.MatchedWith, maxGap))
+                if (result.TryPeek(out var lastPicked) && IsSameSequence(candidate.MatchedWith, lastPicked!.MatchedWith, maxGap))
                 {
                     excluded.Add(candidate);
                 }
@@ -126,9 +126,9 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             }
 
             max--;
-            while (true)
+            do
             {
-                bool firstElementInSequence = !TryPeek(result, out var lastPicked);
+                bool firstElementInSequence = !result.TryPeek(out var lastPicked);
                 bool querySequenceDecreasing = IsQuerySequenceDecreasing(candidate!, lastPicked);
                 bool sameSequence = firstElementInSequence || IsSameSequence(candidate!.MatchedWith, lastPicked!.MatchedWith, maxGap);
 
@@ -141,16 +141,8 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
                         excluded.Add(candidate!);
                         break;
                 }
-                
-                if (TryPeek(maxs, out var lookAhead) && EqualMaxLength(candidate!, lookAhead!) && TryPop(maxs, out candidate))
-                {
-                    // we are not ready yet, next candidate is of the same length, let's check it out and see if it is a good candidate
-                    continue;
-                }
-
-                // we are done with current length
-                break;
             }
+            while (maxs.TryPeek(out var lookAhead) && EqualMaxLength(candidate!, lookAhead!) && maxs.TryPop(out candidate));
         }
 
         return new LongestIncreasingSequence(result.Select(_ => _.MatchedWith), excluded.Select(_ => _.MatchedWith));
@@ -161,36 +153,12 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return !(lookAhead.MatchedWith.QuerySequenceNumber > lastPicked?.MatchedWith.QuerySequenceNumber);
     }
 
-    private static bool TryPop<T>(Stack<T> s, out T? result)
-    {
-        result = default;
-        if (s.Any())
-        {
-            result = s.Pop();
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryPeek<T>(Stack<T> s, out T? result)
-    {
-        result = default;
-        if (s.Any())
-        {
-            result = s.Peek();
-            return true;
-        }
-
-        return false;
-    }
-
     private static bool EqualMaxLength(MaxAt current, MaxAt lookAhead)
     {
         return current.Length == lookAhead.Length;
     }
 
-    private class LongestIncreasingSequence
+    private record LongestIncreasingSequence
     {
         public LongestIncreasingSequence(IEnumerable<MatchedWith> sequence, IEnumerable<MatchedWith> badCandidates)
         {
