@@ -102,27 +102,29 @@
             const int firstSubFingerprintId = 10;
             const int secondSubFingerprintId = 11;
             var firstTrackReference = new ModelReference<int>(firstTrackId);
-            var firstResult = new SubFingerprintData(GenericHashBuckets(), 1, 0, new ModelReference<int>(firstSubFingerprintId), firstTrackReference);
-            var secondResult = new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, new ModelReference<int>(secondSubFingerprintId), firstTrackReference);
             var defaultQueryConfiguration = new DefaultQueryConfiguration();
 
-            modelService.Setup(service => service.Query(
-                        It.IsAny<Hashes>(),
-                        It.IsAny<QueryConfiguration>())).Returns(new[] { firstResult, secondResult });
+            // return 2 sub-fingerprints from query
+            modelService.Setup(service => service.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Returns(new[]
+            {
+                new SubFingerprintData(GenericHashBuckets(), 1, 0, new ModelReference<int>(firstSubFingerprintId), firstTrackReference),
+                new SubFingerprintData(GenericHashBuckets(), 2, 0.928f, new ModelReference<int>(secondSubFingerprintId), firstTrackReference)
+            });
 
-            modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference })).Returns(
-                new List<TrackData>
-                    {
-                        new TrackData("id", string.Empty, string.Empty, 0d, firstTrackReference)
-                    });
+            modelService.Setup(service => service.ReadTracksByReferences(new[] { firstTrackReference })).Returns(new List<TrackData>
+            {
+                new("id", string.Empty, string.Empty, 10240 / 5512f, firstTrackReference)
+            });
 
-            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 1.48f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
+            var hashes = new Hashes(new List<HashedFingerprint> { queryHash }, 10240 / 5512f, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             var queryResult = queryFingerprintService.Query(hashes, defaultQueryConfiguration, modelService.Object);
 
             Assert.IsTrue(queryResult.ContainsMatches);
-            Assert.AreEqual("id", queryResult.BestMatch.Track.Id);
-            Assert.AreEqual(firstTrackReference, queryResult.BestMatch.Track.TrackReference);
-            Assert.AreEqual(2, queryResult.BestMatch.Score);
+            var bestMatch = queryResult.BestMatch;
+            Assert.IsNotNull(bestMatch);
+            Assert.AreEqual("id", bestMatch.Track.Id);
+            Assert.AreEqual(firstTrackReference, bestMatch.Track.TrackReference);
+            Assert.AreEqual(2, bestMatch.Score);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
         }
 

@@ -245,6 +245,48 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(20, coverage.QueryGapsCoverageLength, 2);
         }
 
+         /**
+         * query xxx
+         * track ---xxx-----xxx---
+          */
+        [Test(Description = "For use-cases when query length is smaller than the distance between matches we can identify same match multiple times")]
+        public async Task ShouldIdentifySameMatchTwiceQueryLengthIsSmall()
+        {
+            // 10 seconds
+            float[] match = TestUtilities.GenerateRandomFloatArray(10 * 5512, 1);
+
+            // 20 seconds -> 10 seconds match -> 30 seconds -> 10 seconds match.
+            float[] withJitter = AddJitter(match, beforeSec: 20, betweenSec: 30);
+
+            var modelService = new InMemoryModelService();
+
+            await InsertFingerprints(withJitter, modelService);
+
+            var result = await GetQueryResult(match, modelService, allowMultipleMatches: false);
+            
+            Assert.IsTrue(result.ContainsMatches);
+            Assert.AreEqual(2, result.ResultEntries.Count());
+            var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
+            CollectionAssert.IsOrdered(entries[1]
+                .Coverage
+                .BestPath
+                .Select(_ => _.TrackSequenceNumber));
+            CollectionAssert.IsOrdered(entries[1]
+                .Coverage
+                .BestPath
+                .Select(_ => _.QuerySequenceNumber));
+            
+            Assert.AreEqual(2, entries.Count);
+            Assert.AreEqual(10, entries[0].TrackCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[0].Coverage.QueryCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[1].TrackCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[1].Coverage.QueryCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(20d, entries[0].TrackMatchStartsAt, 1f);
+            Assert.AreEqual(0d, entries[0].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(60d, entries[1].TrackMatchStartsAt, 1f); 
+            Assert.AreEqual(0d, entries[1].QueryMatchStartsAt, 1f);
+        }
+
         private static float[] GetRandomSamplesWithRegions(float[] m1, float[] m2)
         {
             float[] c1 = AddJitter(m1, beforeSec: 5, betweenSec: 0, afterSec: 5);

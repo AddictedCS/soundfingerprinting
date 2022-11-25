@@ -2,9 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using SoundFingerprinting.Query;
 
-    public static class OverlappingRegionFilter
+    internal static class OverlappingRegionFilter
     {
         /// <summary>
         ///  Filters coverages that are contained within longer coverages.
@@ -14,8 +13,8 @@
         public static IEnumerable<Coverage> FilterContainedCoverages(IEnumerable<Coverage> sequences)
         {
             var coverages = sequences
-                .OrderByDescending(_ => _.TrackCoverageWithPermittedGapsLength)
-                .ThenByDescending(_ => _.QueryCoverageWithPermittedGapsLength)
+                .OrderByDescending(_ => _.TrackDiscreteCoverageLength)
+                .ThenByDescending(_ => _.QueryDiscreteCoverageLength)
                 .ToList();
 
             bool[] within = new bool[coverages.Count];

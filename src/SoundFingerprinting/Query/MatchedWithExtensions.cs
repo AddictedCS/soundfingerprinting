@@ -37,7 +37,7 @@
             var reconstructedPaths = queryPathReconstructionStrategyType switch
             {
                 Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(matchedEntries, Math.Min(queryLength, trackLength), limit: -1),
-                SingleBestPath => QueryPathReconstructionStrategy.GetBestPaths(matchedEntries, maxGap: int.MaxValue, limit: 1),
+                SingleBestPath => QueryPathReconstructionStrategy.GetBestPaths(matchedEntries, maxGap: Math.Min(queryLength, trackLength), limit: int.MaxValue),
                 MultipleBestPaths => QueryPathReconstructionStrategy.GetBestPaths(matchedEntries, maxGap: permittedGap, limit: int.MaxValue),
                 _ => throw new NotSupportedException($"Provided path reconstruction strategy is not valid {queryPathReconstructionStrategyType}")
             };
@@ -45,7 +45,7 @@
             var coverages = reconstructedPaths.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap)).ToList();
             return queryPathReconstructionStrategyType switch
             {
-                MultipleBestPaths => OverlappingRegionFilter.FilterContainedCoverages(coverages),
+                SingleBestPath or MultipleBestPaths => OverlappingRegionFilter.FilterContainedCoverages(coverages),
                 _ => coverages
             };
         }
