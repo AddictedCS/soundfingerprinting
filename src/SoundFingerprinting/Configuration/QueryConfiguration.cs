@@ -88,7 +88,6 @@
         /// <summary>
         ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 
         ///  Useful when you have a long query containing the same track multiple times scattered across the query.
-        ///  Use cautiously, since aligning same track on a long query multiple times may result in a performance penalty. Default is false.
         /// </summary>
         [Obsolete("Please use QueryPathReconstructionStrategy to specify what algorithm to use for path reconstruction (to achieve the same behavior set it to QueryPathReconstructionStrategy.MultipleBestPaths). This property will be removed in v9")]
         public bool AllowMultipleMatchesOfTheSameTrackInQuery
