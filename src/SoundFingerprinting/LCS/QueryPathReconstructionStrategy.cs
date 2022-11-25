@@ -21,12 +21,6 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return GetIncreasingSequences(matches, maxGap, limit).ToList();
     }
     
-    /// <summary>
-    ///  Gets longest increasing sequences in the matches candidates
-    /// </summary>
-    /// <param name="matched">All matched candidates</param>
-    /// <param name="maxGap">Max gap (i.e., for multiple query path reconstruction strategy <see cref="QueryConfiguration.PermittedGap" /> is used)</param>
-    /// <returns>All available sequences</returns>
     private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap, int limit)
     {
         var matchedWiths = matched.ToList();
@@ -38,17 +32,18 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
                 break;
             }
 
-            var result = GetLongestIncreasingSequence(matchedWiths, maxGap);
-            var withs = result as MatchedWith[] ?? result.ToArray();
+            var (sequence, badSequence) = GetLongestIncreasingSequence(matchedWiths, maxGap);
+            var withs = sequence as MatchedWith[] ?? sequence.ToArray();
             if (!withs.Any())
             {
                 break;
             }
 
             bestPaths.Add(withs);
-            matchedWiths = matchedWiths.Except(withs).ToList();
+            matchedWiths = matchedWiths.Except(withs.Concat(badSequence)).ToList();
         }
 
+        // this may seem as redundant but it is not, since we can pick the first candidates from not the same sequences
         return bestPaths.OrderByDescending(_ => _.Count());
     }
     
@@ -104,41 +99,49 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return maxs;
     }
 
-    private IEnumerable<MatchedWith> GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
+    private LongestIncreasingSequence GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
     {
         // locking first dimension - track sequence number
         var matches = matched.OrderBy(x => x.TrackSequenceNumber).ToList();
         if (!matches.Any())
         {
-            return Enumerable.Empty<MatchedWith>();
+            return new LongestIncreasingSequence(Enumerable.Empty<MatchedWith>(), Enumerable.Empty<MatchedWith>());
         }
 
         var maxArray = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
         var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex + 1));
         var result = new Stack<MaxAt>();
+        var excluded = new List<MaxAt>();
         while (TryPop(maxs, out var candidate) && max > 0)
         {
             if (candidate!.Length != max)
             {
+                // out of order element need to be excluded if it is part of the same sequence
+                if (TryPeek(result, out var lastPicked) && IsSameSequence(candidate.MatchedWith, lastPicked!.MatchedWith, maxGap))
+                {
+                    excluded.Add(candidate);
+                }
+                
                 continue;
             }
 
             max--;
-                    
             while (true)
             {
-                // check last entry in the result set
-                if (!TryPeek(result, out var lastPicked))
+                bool firstElementInSequence = !TryPeek(result, out var lastPicked);
+                bool querySequenceDecreasing = IsQuerySequenceDecreasing(candidate!, lastPicked);
+                bool sameSequence = firstElementInSequence || IsSameSequence(candidate!.MatchedWith, lastPicked!.MatchedWith, maxGap);
+
+                switch (querySequenceDecreasing)
                 {
-                    // first entry
-                    result.Push(candidate!);
+                    case true when sameSequence:
+                        result.Push(candidate!);
+                        break;
+                    case false when sameSequence:
+                        excluded.Add(candidate!);
+                        break;
                 }
-                else if (IsQuerySequenceDecreasing(candidate!, lastPicked) && IsSameSequence(candidate!.MatchedWith, lastPicked!.MatchedWith, maxGap))
-                {
-                    // query sequence numbers are decreasing and is from the same sequence, good candidate
-                    result.Push(candidate!);
-                }
-                        
+                
                 if (TryPeek(maxs, out var lookAhead) && EqualMaxLength(candidate!, lookAhead!) && TryPop(maxs, out candidate))
                 {
                     // we are not ready yet, next candidate is of the same length, let's check it out and see if it is a good candidate
@@ -150,7 +153,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             }
         }
 
-        return result.Select(_ => _.MatchedWith);
+        return new LongestIncreasingSequence(result.Select(_ => _.MatchedWith), excluded.Select(_ => _.MatchedWith));
     }
     
     private static bool IsQuerySequenceDecreasing(MaxAt lookAhead, MaxAt? lastPicked)
@@ -185,5 +188,24 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     private static bool EqualMaxLength(MaxAt current, MaxAt lookAhead)
     {
         return current.Length == lookAhead.Length;
+    }
+
+    private class LongestIncreasingSequence
+    {
+        public LongestIncreasingSequence(IEnumerable<MatchedWith> sequence, IEnumerable<MatchedWith> badCandidates)
+        {
+            Sequence = sequence;
+            BadCandidates = badCandidates;
+        }
+
+        public IEnumerable<MatchedWith> Sequence { get; }
+
+        public IEnumerable<MatchedWith> BadCandidates { get; }
+
+        public void Deconstruct(out IEnumerable<MatchedWith> sequence, out IEnumerable<MatchedWith> badCandidates)
+        {
+            sequence = Sequence;
+            badCandidates = BadCandidates;
+        }
     }
 }

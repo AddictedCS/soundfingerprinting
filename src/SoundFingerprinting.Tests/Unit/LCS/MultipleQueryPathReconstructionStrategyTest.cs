@@ -154,7 +154,7 @@
             var pairs = new[] {(1, 4), (2, 3), (3, 2), (4, 1)};
             var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
-            Assert.AreEqual(4, result.Count());
+            Assert.AreEqual(1, result.Count);
         }
 
         [Test]
@@ -213,12 +213,10 @@
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3)};
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
-            var expected3 = new[] { (3, 2) };
 
-            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual(2, results.Length);
             AssertResult(expected1, results[0]);
             AssertResult(expected2, results[1]);
-            AssertResult(expected3, results[2]);
         }
 
         [Test]
@@ -234,12 +232,9 @@
             var pairs = new[] {(1, 1), (2, 2), (4, 3), (3, 4), (3, 5)};
             var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result.Count);
             var expected1 = new[] {(1, 1), (2, 2), (3, 4), (3, 5)};
-            var expected2 = new[] { (4, 3) };
-
             AssertResult(expected1, result[0]);
-            AssertResult(expected2, result[1]);
         }
 
         [Test]
@@ -259,12 +254,10 @@
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)};
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
-            var expected3 = new[] { (0, 4) };
 
-            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual(2, results.Length);
             AssertResult(expected1, results[0]);
             AssertResult(expected2, results[1]);
-            AssertResult(expected3, results[2]);
         }
 
         [Test]
@@ -378,21 +371,20 @@
             var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (7, 2), (8, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (2, 7), (3, 8), (9, 9) }
                 .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
-            var bestPaths = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, maxGap: 5, limit: int.MaxValue).ToList();
+            var bestPaths = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, maxGap: 3, limit: int.MaxValue).ToList();
             Assert.AreEqual(3, bestPaths.Count);
             
             var first = bestPaths[0].ToList();
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, first.Select(_ => (int)_.QuerySequenceNumber));
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, first.Select(_ => (int)_.TrackSequenceNumber));
            
-            var third = bestPaths[1].ToList();
-            CollectionAssert.AreEqual(new[] { 2, 3 }, third.Select(_ => (int)_.QuerySequenceNumber)); 
-            CollectionAssert.AreEqual(new[] { 7, 8 }, third.Select(_ => (int)_.TrackSequenceNumber));
-            
-            var second = bestPaths[2].ToList();
+            var second = bestPaths[1].ToList();
             CollectionAssert.AreEqual(new[] { 7, 8 }, second.Select(_ => (int)_.QuerySequenceNumber));
             CollectionAssert.AreEqual(new[] { 2, 3 }, second.Select(_ => (int)_.TrackSequenceNumber));
-
+            
+            var third = bestPaths[2].ToList();
+            CollectionAssert.AreEqual(new[] { 2, 3 }, third.Select(_ => (int)_.QuerySequenceNumber)); 
+            CollectionAssert.AreEqual(new[] { 7, 8 }, third.Select(_ => (int)_.TrackSequenceNumber));
         }
 
         [Test]
@@ -450,8 +442,7 @@
             var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 600, limit: int.MaxValue).ToArray();
             var coverages = results.Select(_ => new Coverage(_, 600d, 600d, 1.48d, permittedGap: 600));
             var best = OverlappingRegionFilter.FilterContainedCoverages(coverages);
-            // this is debatable, but I don't have a good solution for cases when only track coverage is contained between 2 coverages
-            Assert.AreEqual(2, best.Count());
+            Assert.AreEqual(1, best.Count());
             
             var matchedWiths = results.First().ToList();
             var noSideEffects = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue, limit: int.MaxValue).First().ToList();
