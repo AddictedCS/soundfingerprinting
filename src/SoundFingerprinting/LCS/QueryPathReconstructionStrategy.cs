@@ -3,16 +3,60 @@ namespace SoundFingerprinting.LCS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SoundFingerprinting.Configuration;
 using SoundFingerprinting.Query;
 
-internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructionStrategy
+internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrategy
 {
     private readonly Comparer<MatchedWith> comparer = Comparer<MatchedWith>.Create((a, b) => a.QuerySequenceNumber.CompareTo(b.QuerySequenceNumber));
     
-    public abstract IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap);
+    /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
+    /// <remarks>
+    ///   Returns all possible reconstructed paths, where both <see cref="MatchedWith.TrackMatchAt"/> and <see cref="MatchedWith.QueryMatchAt"/> are strictly increasing. <br />
+    ///   The paths are divided by the maximum allowed gap, meaning in case if a gap is detected bigger than maxGap, a new path is built from detection point onwards. <br />
+    ///   This implementation can be used to built the reconstructed path when <see cref="QueryConfiguration.AllowMultipleMatchesOfTheSameTrackInQuery"/> is set to true.
+    /// </remarks>
+    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap, int limit)
+    {
+        return GetIncreasingSequences(matches, maxGap, limit).ToList();
+    }
     
-    protected abstract bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap);
+    /// <summary>
+    ///  Gets longest increasing sequences in the matches candidates
+    /// </summary>
+    /// <param name="matched">All matched candidates</param>
+    /// <param name="maxGap">Max gap (i.e., for multiple query path reconstruction strategy <see cref="QueryConfiguration.PermittedGap" /> is used)</param>
+    /// <returns>All available sequences</returns>
+    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap, int limit)
+    {
+        var matchedWiths = matched.ToList();
+        var bestPaths = new List<IEnumerable<MatchedWith>>();
+        for (int i = 0; i < limit; ++i)
+        {
+            if (!matchedWiths.Any())
+            {
+                break;
+            }
 
+            var result = GetLongestIncreasingSequence(matchedWiths, maxGap);
+            var withs = result as MatchedWith[] ?? result.ToArray();
+            if (!withs.Any())
+            {
+                break;
+            }
+
+            bestPaths.Add(withs);
+            matchedWiths = matchedWiths.Except(withs).ToList();
+        }
+
+        return bestPaths.OrderByDescending(_ => _.Count());
+    }
+    
+    private static bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
+    {
+        return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap && Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
+    }
+    
     private MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
     {
         var maxs = matches.Select(_ => new MaxAt(1, _)).ToArray();
@@ -59,8 +103,8 @@ internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructi
         max = maxs[maxIndex].Length;
         return maxs;
     }
-    
-    protected IEnumerable<MatchedWith> GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
+
+    private IEnumerable<MatchedWith> GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
     {
         // locking first dimension - track sequence number
         var matches = matched.OrderBy(x => x.TrackSequenceNumber).ToList();
@@ -84,8 +128,12 @@ internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructi
             while (true)
             {
                 // check last entry in the result set
-                bool contains = TryPeek(result, out var lastPicked);
-                if (!contains || (!IsQuerySequenceIncreasing(candidate!, lastPicked) && IsSameSequence(candidate!.MatchedWith, lastPicked!.MatchedWith, maxGap)))
+                if (!TryPeek(result, out var lastPicked))
+                {
+                    // first entry
+                    result.Push(candidate!);
+                }
+                else if (IsQuerySequenceDecreasing(candidate!, lastPicked) && IsSameSequence(candidate!.MatchedWith, lastPicked!.MatchedWith, maxGap))
                 {
                     // query sequence numbers are decreasing and is from the same sequence, good candidate
                     result.Push(candidate!);
@@ -105,9 +153,9 @@ internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructi
         return result.Select(_ => _.MatchedWith);
     }
     
-    private static bool IsQuerySequenceIncreasing(MaxAt lookAhead, MaxAt? lastPicked)
+    private static bool IsQuerySequenceDecreasing(MaxAt lookAhead, MaxAt? lastPicked)
     {
-        return lookAhead.MatchedWith.QuerySequenceNumber > lastPicked?.MatchedWith.QuerySequenceNumber;
+        return !(lookAhead.MatchedWith.QuerySequenceNumber > lastPicked?.MatchedWith.QuerySequenceNumber);
     }
 
     private static bool TryPop<T>(Stack<T> s, out T? result)
@@ -124,7 +172,7 @@ internal abstract class QueryPathReconstructionStrategy : IQueryPathReconstructi
 
     private static bool TryPeek<T>(Stack<T> s, out T? result)
     {
-        result = default(T);
+        result = default;
         if (s.Any())
         {
             result = s.Peek();

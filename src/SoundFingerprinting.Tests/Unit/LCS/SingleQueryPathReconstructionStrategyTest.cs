@@ -7,12 +7,12 @@ using SoundFingerprinting.Query;
 
 public class SingleQueryPathReconstructionStrategyTest
 {
-    private readonly IQueryPathReconstructionStrategy singlePathReconstructionStrategy = new SingleQueryPathReconstructionStrategy();
+    private readonly IQueryPathReconstructionStrategy singlePathReconstructionStrategy = new QueryPathReconstructionStrategy();
 
     [Test]
     public void ShouldNotThrowWhenEmptyIsPassed()
     {
-        var result = singlePathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), int.MaxValue);
+        var result = singlePathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), int.MaxValue, limit: 1);
         
         CollectionAssert.IsEmpty(result);
     }
@@ -27,7 +27,7 @@ public class SingleQueryPathReconstructionStrategyTest
         var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (7, 2), (8, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (2, 7), (3, 8), (9, 9) }
             .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
         
-        var result = singlePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).First().ToList();
+        var result = singlePathReconstructionStrategy.GetBestPaths(matchedWiths, maxGap: 10, limit: 1).First().ToList();
         
         CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9}, result.Select(_ => (int)_.QuerySequenceNumber));
         CollectionAssert.AreEqual(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9}, result.Select(_ => (int)_.TrackSequenceNumber)); 
@@ -44,7 +44,7 @@ public class SingleQueryPathReconstructionStrategyTest
     {
         var matchedWiths = new[] { (1, 1), (1, 2), (1, 3), (4, 4) }.Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
         
-        var result = singlePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).First().ToList();
+        var result = singlePathReconstructionStrategy.GetBestPaths(matchedWiths, maxGap: 5, limit: 1).First().ToList();
         
         CollectionAssert.AreEqual(new[] {1, 1, 1, 4}, result.Select(_ => (int)_.QuerySequenceNumber));
         CollectionAssert.AreEqual(new[] {1, 2, 3, 4}, result.Select(_ => (int)_.TrackSequenceNumber));
@@ -61,7 +61,7 @@ public class SingleQueryPathReconstructionStrategyTest
     {
         var matchedWiths = new[] { (1, 1), (2, 1), (3, 1), (4, 4) }.Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
         
-        var result = singlePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).First().ToList();
+        var result = singlePathReconstructionStrategy.GetBestPaths(matchedWiths, maxGap: 5, limit: 1).First().ToList();
         
         CollectionAssert.AreEqual(new[] {1, 2, 3, 4}, result.Select(_ => (int)_.QuerySequenceNumber));
         CollectionAssert.AreEqual(new[] {1, 1, 1, 4}, result.Select(_ => (int)_.TrackSequenceNumber));

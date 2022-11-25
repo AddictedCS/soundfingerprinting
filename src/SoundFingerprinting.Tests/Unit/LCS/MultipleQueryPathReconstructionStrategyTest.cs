@@ -12,12 +12,12 @@
     public class MultipleQueryPathReconstructionStrategyTest
     {
         private const double PermittedGap = 8192d / 5512;
-        private readonly IQueryPathReconstructionStrategy multiplePathReconstructionStrategy = new MultipleQueryPathReconstructionStrategy();
+        private readonly IQueryPathReconstructionStrategy multiplePathReconstructionStrategy = new QueryPathReconstructionStrategy();
 
         [Test]
         public void ShouldFindLongestIncreasingSequenceWithOneElement()
         {
-            var result = multiplePathReconstructionStrategy.GetBestPaths(TestUtilities.GetMatchedWith(new[] { 0 }, new [] { 0 }), PermittedGap).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(TestUtilities.GetMatchedWith(new[] { 0 }, new [] { 0 }), PermittedGap, limit: int.MaxValue).ToList();
 
             Assert.AreEqual(1, result.Count);
             CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.TrackMatchAt));
@@ -30,7 +30,7 @@
                 queryAt: new[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, 
                 trackAt: new[] { 1, 2, 3, 1,  2,  3,  4,  5,  6,  7 });
 
-            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, PermittedGap).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, PermittedGap, limit: int.MaxValue).ToList();
 
             Assert.AreEqual(2, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.TrackMatchAt));
@@ -44,7 +44,7 @@
                 new[] { 0, 1, 2,   10, 11, 12, 13,  24, 25, 26 }, 
                 new[] { 1, 2, 3,   1,  2,  3,  4,   1, 2, 3 });
 
-            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, 5).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, maxGap: 5, limit: int.MaxValue).ToList();
 
             Assert.AreEqual(3, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.TrackMatchAt));
@@ -59,7 +59,7 @@
                 new[] { 7, 8, 9, 10, 21, 22, 23, 24, 25, 36, 37, 38 }, 
                 new[] { 1, 2, 3, 4,  1,  2,  3,  4,  5,  1,  2,  3 });
 
-            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, 5).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, maxGap: 5, limit: int.MaxValue).ToList();
 
             Assert.AreEqual(3, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.TrackMatchAt));
@@ -72,7 +72,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 10, 12, 13, 14}, new[] {1, 2, 3, 10, 12, 13, 14});
 
-            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, 5).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(matches, maxGap: 5, limit: int.MaxValue).ToList();
             
             Assert.AreEqual(2, result.Count);
         }
@@ -80,8 +80,7 @@
          [Test]
         public void ShouldFindLongestIncreasingSequenceEmpty()
         {
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), int.MaxValue);
-
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), maxGap: 5, limit: int.MaxValue);
             Assert.IsFalse(result.Any());
         }
 
@@ -89,7 +88,7 @@
         public void ShouldFindLongestIncreasingSequenceTrivial()
         {
             var pairs = new[] {(1, 1)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
             AssertResult(pairs, result[0]);
         }
@@ -103,7 +102,7 @@
              * expected  x x x
              */
             var pairs = new[] {(1, 1), (2, 2), (3, 3)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).First();
 
             AssertResult(pairs, result);
         }
@@ -119,7 +118,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 1), (3, 1), (4, 2)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
             AssertResult(pairs, result[0]);
         }
@@ -135,7 +134,7 @@
              */
 
             var pairs = new[] {(1, 1), (1, 2), (1, 3), (4, 4)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).First();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).First();
 
             AssertResult(pairs, result);
         }
@@ -153,7 +152,7 @@
              */
 
             var pairs = new[] {(1, 4), (2, 3), (3, 2), (4, 1)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
             Assert.AreEqual(4, result.Count());
         }
@@ -171,7 +170,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (0, 3), (3, 3), (4, 4)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
             var expected = new[] {(1, 1), (2, 2), (3, 3), (4, 4)};
 
@@ -190,7 +189,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 3), (4, 4)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
             AssertResult(pairs, result[0]);
         }
@@ -210,7 +209,7 @@
              */
 
             var pairs = new[] {(1, 1), (20, 1), (2, 2), (3, 2), (21, 2), (3, 3), (22, 3)};
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 10).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 10, limit: int.MaxValue).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3)};
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
@@ -233,7 +232,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (4, 3), (3, 4), (3, 5)};
-            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), int.MaxValue).ToList();
+            var result = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToList();
 
             Assert.AreEqual(2, result.Count);
             var expected1 = new[] {(1, 1), (2, 2), (3, 4), (3, 5)};
@@ -256,7 +255,7 @@
 
             var pairs = new[] {(20, 1), (1, 1), (2, 2), (21, 2), (3, 3), (22, 3), (4, 4), (0, 4), (5, 5)};
 
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 10).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 10, limit: int.MaxValue).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)};
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
@@ -278,7 +277,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (1, 20), (2, 21), (3, 22), (4, 23), (5, 24), (6, 25)};
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 6).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 6, limit: int.MaxValue).ToArray();
 
             Assert.AreEqual(2, results.Length);
         }
@@ -293,7 +292,7 @@
               */
 
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (0, 20), (2, 21), (3, 22), (4, 23), (5, 24), (7, 25)};
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 7).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 7, limit: int.MaxValue).ToArray();
 
             Assert.AreEqual(2, results.Length);
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6 }, results[0].Select(_ => (int)_.TrackSequenceNumber));
@@ -310,7 +309,7 @@
               */
 
             var pairs = new[] {(1, 1), (0, 20), (2, 2)};
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2)};
             var expected2 = new[] {(0, 20)};
@@ -329,7 +328,7 @@
              * max (c.)     1 2 2 2
              */
             var pairs = new[] {(1, 1), (2, 2), (2, 3), (2, 4)};
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToArray();
 
             AssertResult(pairs, results[0]);
         }
@@ -343,7 +342,7 @@
             * max (c.)     1 2 2 2
             */
             var pairs = new[] {(1, 1), (5, 2), (4, 3), (3, 4)};
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 5, limit: int.MaxValue).ToArray();
 
             var expected1 = new[] {(1, 1), (3, 4)};
 
@@ -362,7 +361,7 @@
             {
                 (1, 1), (10, 1), (2, 2), (11, 2), (3, 3), (12, 3), (1, 10), (10, 10), (2, 11), (11, 11), (3, 12), (12, 12)
             };
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 12).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 12, limit: int.MaxValue).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3), (10, 10), (11, 11), (12, 12)};
 
@@ -379,7 +378,7 @@
             var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (7, 2), (8, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (2, 7), (3, 8), (9, 9) }
                 .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
-            var bestPaths = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).ToList();
+            var bestPaths = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, maxGap: 5, limit: int.MaxValue).ToList();
             Assert.AreEqual(3, bestPaths.Count);
             
             var first = bestPaths[0].ToList();
@@ -448,14 +447,14 @@
                 (390, 374), (410, 375), (466, 377), (488, 378), (524, 379)
             };
 
-            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 600).ToArray();
+            var results = multiplePathReconstructionStrategy.GetBestPaths(Generate(pairs), maxGap: 600, limit: int.MaxValue).ToArray();
             var coverages = results.Select(_ => new Coverage(_, 600d, 600d, 1.48d, permittedGap: 600));
             var best = OverlappingRegionFilter.FilterContainedCoverages(coverages);
             // this is debatable, but I don't have a good solution for cases when only track coverage is contained between 2 coverages
             Assert.AreEqual(2, best.Count());
             
             var matchedWiths = results.First().ToList();
-            var noSideEffects = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue).First().ToList();
+            var noSideEffects = multiplePathReconstructionStrategy.GetBestPaths(matchedWiths, int.MaxValue, limit: int.MaxValue).First().ToList();
             
             Assert.AreEqual(matchedWiths.Count, noSideEffects.Count);
             foreach (var pair in matchedWiths.Zip(noSideEffects, (a, b) => (a, b)))

@@ -49,7 +49,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
             await InsertFingerprints(twoCopies, modelService);
 
-            var result = await GetQueryResult(match, modelService, permittedGap: 0.5);
+            var result = await GetQueryResult(match, modelService, permittedGap: 0.5, allowMultipleMatches: true);
 
             Assert.AreEqual(2, result.ResultEntries.Count());
             foreach (var entry in result.ResultEntries)
