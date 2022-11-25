@@ -45,7 +45,7 @@
             var coverages = reconstructedPaths.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap)).ToList();
             return queryPathReconstructionStrategyType switch
             {
-                SingleBestPath or MultipleBestPaths => OverlappingRegionFilter.FilterContainedCoverages(coverages),
+                MultipleBestPaths => OverlappingRegionFilter.FilterContainedCoverages(coverages),
                 _ => coverages
             };
         }
