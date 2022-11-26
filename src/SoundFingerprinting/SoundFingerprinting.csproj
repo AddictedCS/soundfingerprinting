@@ -4,7 +4,7 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>8.16.5</PackageVersion>
+	<PackageVersion>8.16.5-beta4</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
@@ -15,6 +15,9 @@
 		Unifying SingleBestPath and MultipleBestPaths under the same implementation that takes into account MaxGap and Limit parameters.
 		Editing Coverage track/query match ends at based on discrete coverage length instead of coverage with permitted gaps length.
 			This change unifies the front-end logic that can build the player URL with the backend logic that builds coverage object.
+			Overlapping region filter will sort by discrete coverage length
+		SingleBestPath will return multiple matches over a max-gap parameter (min of query/track length), as we can easily detect this use-case.
+			This is a step forward in getting rid of cross-matches for use-cases when those are generating artifacts we want to get rid of.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>

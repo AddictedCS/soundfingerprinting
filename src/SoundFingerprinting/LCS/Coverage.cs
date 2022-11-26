@@ -156,12 +156,13 @@ namespace SoundFingerprinting.LCS
         ///  Checks if this coverage contains other coverage.
         /// </summary>
         /// <param name="other">Instance of other coverage.</param>
+        /// <param name="delta">Allowed misalignment.</param>
         /// <returns>True if contains, otherwise false.</returns>
-        public bool Contains(Coverage other)
+        public bool Contains(Coverage other, double delta = 0d)
         {
-            return TrackMatchStartsAt <= other.TrackMatchStartsAt && TrackMatchEndsAt >= other.TrackMatchEndsAt 
+            return TrackMatchStartsAt - delta <= other.TrackMatchStartsAt && TrackMatchEndsAt + delta >= other.TrackMatchEndsAt 
                    && 
-                   QueryMatchStartsAt <= other.QueryMatchStartsAt && QueryMatchEndsAt >= other.QueryMatchEndsAt;
+                   QueryMatchStartsAt - delta <= other.QueryMatchStartsAt && QueryMatchEndsAt + delta >= other.QueryMatchEndsAt;
         }
 
         /// <summary>

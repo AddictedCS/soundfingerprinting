@@ -29,23 +29,7 @@
                 
                 for (int j = i + 1; j < coverages.Count; ++j)
                 {
-                    // q  ---xxx----xxx---- 10
-                    // t  ---xxx----xxx----
-                    // c1 0 1 2 3 4 5 6 7 8 9 10 
-                    //    0 1 2 3 4 5 6 7 8 9 10
-                    // c2 2 3 4   
-                    //    6 7 8
-                    // c3 6 7 8
-                    //    2 3 4
-                    
-                    // cross match with a gap
-                    // q  ---xxx----------- 10
-                    // t     xxx      xxx
-                    // c1    2 3 4
-                    //       2 3 4
-                    // c2    2 3 4
-                    //       6 7 8
-                    if (coverages[i].Contains(coverages[j]))
+                    if (coverages[i].Contains(coverages[j], delta: coverages[i].FingerprintLength))
                     {
                         within[j] = true;
                     }
