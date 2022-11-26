@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.LCS;
+    using static SoundFingerprinting.LCS.QueryPathReconstructionStrategyType;
 
     /// <summary>
     ///   Enumerable matched with extensions.
@@ -12,8 +13,7 @@
     {
         private const double PermittedGapZero = 1e-5;
         
-        private static readonly IQueryPathReconstructionStrategy Single = new SingleQueryPathReconstructionStrategy();
-        private static readonly IQueryPathReconstructionStrategy Multiple = new MultipleQueryPathReconstructionStrategy();
+        private static readonly IQueryPathReconstructionStrategy QueryPathReconstructionStrategy = new QueryPathReconstructionStrategy();
         
         /// <summary>
         ///  Get coverages from provided best path described by matched with list.
@@ -36,19 +36,18 @@
         {
             var reconstructedPaths = queryPathReconstructionStrategyType switch
             {
-                QueryPathReconstructionStrategyType.Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(matchedEntries, Math.Min(queryLength, trackLength)),
-                QueryPathReconstructionStrategyType.SingleBestPath => Single.GetBestPaths(matchedEntries, -1),
-                QueryPathReconstructionStrategyType.MultipleBestPaths => Multiple.GetBestPaths(matchedEntries, permittedGap),
+                Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(matchedEntries, Math.Min(queryLength, trackLength), limit: -1),
+                SingleBestPath => QueryPathReconstructionStrategy.GetBestPaths(matchedEntries, maxGap: Math.Min(queryLength, trackLength), limit: int.MaxValue),
+                MultipleBestPaths => QueryPathReconstructionStrategy.GetBestPaths(matchedEntries, maxGap: permittedGap, limit: int.MaxValue),
                 _ => throw new NotSupportedException($"Provided path reconstruction strategy is not valid {queryPathReconstructionStrategyType}")
             };
             
-            var coverages = reconstructedPaths.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap));
-            if (queryPathReconstructionStrategyType == QueryPathReconstructionStrategyType.MultipleBestPaths)
+            var coverages = reconstructedPaths.Select(sequence => new Coverage(sequence, queryLength, trackLength, fingerprintLength, permittedGap)).ToList();
+            return queryPathReconstructionStrategyType switch
             {
-                return OverlappingRegionFilter.FilterContainedCoverages(coverages); 
-            }
-
-            return coverages.ToList();
+                SingleBestPath or MultipleBestPaths => OverlappingRegionFilter.FilterContainedCoverages(coverages),
+                _ => coverages
+            };
         }
 
         /// <summary>

@@ -51,6 +51,16 @@ namespace SoundFingerprinting.LCS
         ///  Gets the starting point of the track match. Measured in seconds.
         /// </summary>
         public double TrackMatchStartsAt => BestPath.First().TrackMatchAt;
+        
+        /// <summary>
+        ///  Gets ending point of the track match. Measured in seconds.
+        /// </summary>
+        public double TrackMatchEndsAt => TrackMatchStartsAt + TrackDiscreteCoverageLength;
+
+        /// <summary>
+        ///  Gets ending point of the query match. Measured in seconds.
+        /// </summary>
+        public double QueryMatchEndsAt => QueryMatchStartsAt + QueryDiscreteCoverageLength;
 
         /// <summary>
         ///  Gets track coverage length sum in seconds, allowing gaps specified by permitted gap query parameter.
@@ -146,12 +156,13 @@ namespace SoundFingerprinting.LCS
         ///  Checks if this coverage contains other coverage.
         /// </summary>
         /// <param name="other">Instance of other coverage.</param>
+        /// <param name="delta">Allowed misalignment.</param>
         /// <returns>True if contains, otherwise false.</returns>
-        public bool Contains(Coverage other)
+        public bool Contains(Coverage other, double delta = 0d)
         {
-            return (TrackMatchStartsAt <= other.TrackMatchStartsAt && TrackMatchStartsAt + TrackCoverageWithPermittedGapsLength >= other.TrackMatchStartsAt + other.TrackCoverageWithPermittedGapsLength)
-                   &&
-                   (QueryMatchStartsAt <= other.QueryMatchStartsAt && QueryMatchStartsAt + QueryCoverageWithPermittedGapsLength >= other.QueryMatchStartsAt + other.QueryCoverageWithPermittedGapsLength);
+            return TrackMatchStartsAt - delta <= other.TrackMatchStartsAt && TrackMatchEndsAt + delta >= other.TrackMatchEndsAt 
+                   && 
+                   QueryMatchStartsAt - delta <= other.QueryMatchStartsAt && QueryMatchEndsAt + delta >= other.QueryMatchEndsAt;
         }
 
         /// <summary>

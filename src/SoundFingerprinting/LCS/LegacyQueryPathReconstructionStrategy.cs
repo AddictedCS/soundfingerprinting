@@ -14,7 +14,11 @@ internal class LegacyQueryPathReconstructionStrategy : IQueryPathReconstructionS
         this.fingerprintLengthInSeconds = fingerprintLengthInSeconds;
     }
     
-    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap)
+    /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
+    /// <remarks>
+    ///  Legacy query path reconstruction strategy is guaranteed to return only one best path sequence.
+    /// </remarks>
+    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap, int limit)
     {
         return new[] { GetBestPath(matches, maxGap, fingerprintLengthInSeconds) };
     }
@@ -22,7 +26,7 @@ internal class LegacyQueryPathReconstructionStrategy : IQueryPathReconstructionS
     /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
     /// <summary>
     ///  Get one best path out of all candidates, allows best path to contain revert matches (worked very well for video fingerprinting). <br />
-    ///  If you need strictly increasing sequence matches, use <see cref="SingleQueryPathReconstructionStrategy"/> or <see cref="MultipleQueryPathReconstructionStrategy"/>. <br />
+    ///  If you need strictly increasing sequence matches, use <see cref="QueryPathReconstructionStrategy"/>. <br />
     /// </summary>
     private static IEnumerable<MatchedWith> GetBestPath(IEnumerable<MatchedWith> matchedEntries, double maxGap, double fingerprintLength)
     {

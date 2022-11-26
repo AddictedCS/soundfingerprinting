@@ -33,8 +33,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         [Test]
         public void ShouldSelectBestLongestMatch()
         {
-            const double queryLength = 5d;
-            const double trackLength = 5d;
+            const double queryLength = 12d;
+            const double trackLength = 12d;
             var matches = TestUtilities.GetMatchedWith(new[] { 1, 2, 3, 4, 5 }, new[] { 1, 2, 9, 11, 12 });
 
             var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.SingleBestPath, queryLength, trackLength, fingerprintLength: 1d, 0d).First();
