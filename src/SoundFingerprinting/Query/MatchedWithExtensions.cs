@@ -86,6 +86,40 @@
 
             return FindGaps(ordered, trackLength, permittedGap, fingerprintLength);
         }
+        
+        /// <summary>
+        ///  Splits best path by maximum gap.
+        /// </summary>
+        /// <param name="matches">Matches to split.</param>
+        /// <param name="maxGap">Maximum gap to consider.</param>
+        /// <returns>List of split best paths.</returns>
+        public static IEnumerable<IEnumerable<MatchedWith>> SplitBestPathByMaxGap(this IEnumerable<MatchedWith> matches, double maxGap)
+        {
+            var sequence = matches as MatchedWith[] ?? matches.ToArray();
+            if (!sequence.Any())
+            {
+                return Enumerable.Empty<IEnumerable<MatchedWith>>();
+            }
+    
+            int start = 0;
+            var list = new List<IEnumerable<MatchedWith>>();
+            for (int index = 1; index < sequence.Length; ++index)
+            {
+                if (Math.Abs(sequence[index].QueryMatchAt - sequence[index - 1].QueryMatchAt) > maxGap || Math.Abs(sequence[index].TrackMatchAt - sequence[index - 1].TrackMatchAt) > maxGap)
+                {
+                    list.Add(sequence.Skip(start).Take(index - start));
+                    start = index;
+                }
+            }
+
+            var last = sequence.Skip(start).ToList();
+            if (last.Any())
+            {
+                list.Add(last);
+            }
+
+            return list;
+        }
 
         private static IEnumerable<Gap> FindGaps(IEnumerable<Tuple<uint, float>> ordered, double totalLength, double permittedGap, double fingerprintLength)
         {
