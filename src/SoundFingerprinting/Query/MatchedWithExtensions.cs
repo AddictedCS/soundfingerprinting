@@ -37,7 +37,7 @@
             var reconstructedPaths = queryPathReconstructionStrategyType switch
             {
                 Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(matchedEntries, Math.Min(queryLength, trackLength)),
-                MultipleBestPaths => QueryPathReconstructionStrategy.GetBestPaths(matchedEntries, limit: int.MaxValue),
+                MultipleBestPaths => QueryPathReconstructionStrategy.GetBestPaths(matchedEntries),
                 _ => throw new NotSupportedException($"Provided path reconstruction strategy is not valid {queryPathReconstructionStrategyType}")
             };
             

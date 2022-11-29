@@ -13,22 +13,17 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     /// <remarks>
     ///   Returns all possible reconstructed paths, where both <see cref="MatchedWith.TrackMatchAt"/> and <see cref="MatchedWith.QueryMatchAt"/> are strictly increasing. <br />
     /// </remarks>
-    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, int limit)
+    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches)
     {
-        return GetIncreasingSequences(matches, limit).ToList();
+        return GetIncreasingSequences(matches).ToList();
     }
     
-    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, int limit)
+    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched)
     {
         var matchedWiths = matched.ToList();
         var bestPaths = new List<IEnumerable<MatchedWith>>();
-        for (int i = 0; i < limit; ++i)
+        while (matchedWiths.Any())
         {
-            if (!matchedWiths.Any())
-            {
-                break;
-            }
-
             var (sequence, badSequence) = GetLongestIncreasingSequence(matchedWiths);
             var withs = sequence as MatchedWith[] ?? sequence.ToArray();
             if (!withs.Any())

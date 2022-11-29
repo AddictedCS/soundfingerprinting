@@ -11,13 +11,12 @@
     [TestFixture]
     public class QueryPathReconstructionStrategyTest
     {
-        private const double PermittedGap = 8192d / 5512;
         private readonly IQueryPathReconstructionStrategy queryPathReconstructionStrategy = new QueryPathReconstructionStrategy();
 
         [Test]
         public void ShouldNotThrowWhenEmptyIsPassed()
         {
-            var result = queryPathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), limit: 1);
+            var result = queryPathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>());
 
             CollectionAssert.IsEmpty(result);
         }
@@ -25,7 +24,7 @@
         [Test]
         public void ShouldFindLongestIncreasingSequenceWithOneElement()
         {
-            var result = queryPathReconstructionStrategy.GetBestPaths(TestUtilities.GetMatchedWith(new[] { 0 }, new [] { 0 }), limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(TestUtilities.GetMatchedWith(new[] { 0 }, new [] { 0 })).ToList();
 
             Assert.AreEqual(1, result.Count);
             CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.TrackMatchAt));
@@ -41,7 +40,7 @@
             var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (7, 2), (8, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (2, 7), (3, 8), (9, 9) }
                 .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
-            var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, limit: 1).First().ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths).First().ToList();
 
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, result.Select(_ => (int)_.QuerySequenceNumber));
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, result.Select(_ => (int)_.TrackSequenceNumber));
@@ -59,7 +58,7 @@
             var matchedWiths = new[] { (1, 1), (1, 2), (1, 3), (4, 4) }.Select(tuple =>
                 new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
-            var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, limit: 1).First().ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths).First().ToList();
 
             CollectionAssert.AreEqual(new[] { 1, 1, 1, 4 }, result.Select(_ => (int)_.QuerySequenceNumber));
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, result.Select(_ => (int)_.TrackSequenceNumber));
@@ -77,7 +76,7 @@
             var matchedWiths = new[] { (1, 1), (2, 1), (3, 1), (4, 4) }.Select(tuple =>
                 new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
-            var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, limit: 1).First().ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths).First().ToList();
 
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, result.Select(_ => (int)_.QuerySequenceNumber));
             CollectionAssert.AreEqual(new[] { 1, 1, 1, 4 }, result.Select(_ => (int)_.TrackSequenceNumber));
@@ -90,7 +89,7 @@
                 queryAt: new[] { 0, 1, 2, 10, 11, 12, 13, 14, 15, 16 }, 
                 trackAt: new[] { 1, 2, 3, 1,  2,  3,  4,  5,  6,  7 });
 
-            var result = queryPathReconstructionStrategy.GetBestPaths(matches, limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(matches).ToList();
 
             Assert.AreEqual(2, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.TrackMatchAt));
@@ -104,7 +103,7 @@
                 new[] { 0, 1, 2,   10, 11, 12, 13,  24, 25, 26 }, 
                 new[] { 1, 2, 3,   1,  2,  3,  4,   1, 2, 3 });
 
-            var result = queryPathReconstructionStrategy.GetBestPaths(matches, limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(matches).ToList();
 
             Assert.AreEqual(3, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.TrackMatchAt));
@@ -119,7 +118,7 @@
                 new[] { 7, 8, 9, 10, 21, 22, 23, 24, 25, 36, 37, 38 }, 
                 new[] { 1, 2, 3, 4,  1,  2,  3,  4,  5,  1,  2,  3 });
 
-            var result = queryPathReconstructionStrategy.GetBestPaths(matches, limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(matches).ToList();
 
             Assert.AreEqual(3, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.TrackMatchAt));
@@ -132,7 +131,7 @@
         {
             var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 10, 12, 13, 14}, new[] {1, 2, 3, 10, 12, 13, 14});
 
-            var result = queryPathReconstructionStrategy.GetBestPaths(matches, limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(matches).ToList();
             
             Assert.AreEqual(1, result.Count);
             CollectionAssert.AreEqual(new float[] { 1, 2, 3, 10, 12, 13, 14 }, result.First().Select(_ => _.QueryMatchAt));
@@ -141,7 +140,7 @@
          [Test]
         public void ShouldFindLongestIncreasingSequenceEmpty()
         {
-            var result = queryPathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), limit: int.MaxValue);
+            var result = queryPathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>());
             Assert.IsFalse(result.Any());
         }
 
@@ -149,7 +148,7 @@
         public void ShouldFindLongestIncreasingSequenceTrivial()
         {
             var pairs = new[] {(1, 1)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToList();
 
             AssertResult(pairs, result[0]);
         }
@@ -163,7 +162,7 @@
              * expected  x x x
              */
             var pairs = new[] {(1, 1), (2, 2), (3, 3)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).First();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).First();
 
             AssertResult(pairs, result);
         }
@@ -179,7 +178,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 1), (3, 1), (4, 2)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToList();
 
             AssertResult(pairs, result[0]);
         }
@@ -195,7 +194,7 @@
              */
 
             var pairs = new[] {(1, 1), (1, 2), (1, 3), (4, 4)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).First();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).First();
 
             AssertResult(pairs, result);
         }
@@ -213,7 +212,7 @@
              */
 
             var pairs = new[] {(1, 4), (2, 3), (3, 2), (4, 1)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToList();
 
             Assert.AreEqual(1, result.Count);
         }
@@ -231,7 +230,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (0, 3), (3, 3), (4, 4)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToList();
 
             var expected = new[] {(1, 1), (2, 2), (3, 3), (4, 4)};
 
@@ -250,7 +249,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 3), (4, 4)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToList();
 
             AssertResult(pairs, result[0]);
         }
@@ -270,7 +269,7 @@
              */
 
             var pairs = new[] {(1, 1), (20, 1), (2, 2), (3, 2), (21, 2), (3, 3), (22, 3)};
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3)};
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
@@ -291,7 +290,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (4, 3), (3, 4), (3, 5)};
-            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToList();
+            var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToList();
 
             Assert.AreEqual(1, result.Count);
             var expected1 = new[] {(1, 1), (2, 2), (3, 4), (3, 5)};
@@ -311,7 +310,7 @@
 
             var pairs = new[] {(20, 1), (1, 1), (2, 2), (21, 2), (3, 3), (22, 3), (4, 4), (0, 4), (5, 5)};
 
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)};
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
@@ -333,7 +332,7 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (1, 20), (2, 21), (3, 22), (4, 23), (5, 24), (6, 25)};
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             Assert.AreEqual(2, results.Length);
         }
@@ -348,7 +347,7 @@
               */
 
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (0, 20), (2, 21), (3, 22), (4, 23), (5, 24), (7, 25)};
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             Assert.AreEqual(2, results.Length);
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6 }, results[0].Select(_ => (int)_.TrackSequenceNumber));
@@ -365,7 +364,7 @@
               */
 
             var pairs = new[] {(1, 1), (0, 20), (2, 2)};
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2)};
             var expected2 = new[] {(0, 20)};
@@ -384,7 +383,7 @@
              * max (c.)     1 2 2 2
              */
             var pairs = new[] { (1, 1), (2, 2), (2, 3), (2, 4) };
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             Assert.AreEqual(3, results.Length);
             AssertResult(new[] { (1, 1), (2, 2) }, results[0]);
@@ -401,7 +400,7 @@
             * max (c.)     1 2 2 2
             */
             var pairs = new[] {(1, 1), (5, 2), (4, 3), (3, 4)};
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             var expected1 = new[] {(1, 1), (3, 4)};
 
@@ -420,7 +419,7 @@
             {
                 (1, 1), (10, 1), (2, 2), (11, 2), (3, 3), (12, 3), (1, 10), (10, 10), (2, 11), (11, 11), (3, 12), (12, 12)
             };
-            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), limit: int.MaxValue).ToArray();
+            var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs)).ToArray();
 
             var expected1 = new[] {(1, 1), (2, 2), (3, 3), (10, 10), (11, 11), (12, 12)};
 
@@ -440,7 +439,7 @@
             }
             .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
-            var bestPaths = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, limit: int.MaxValue).ToList();
+            var bestPaths = queryPathReconstructionStrategy.GetBestPaths(matchedWiths).ToList();
             Assert.AreEqual(1, bestPaths.Count);
 
             var first = bestPaths[0].ToList();
