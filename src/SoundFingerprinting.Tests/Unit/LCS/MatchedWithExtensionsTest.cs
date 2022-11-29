@@ -60,4 +60,19 @@ public class MatchedWithExtensionsTest
         CollectionAssert.AreEqual(new float[] { 0, 1, 2 }, matches[0].Select(_ => _.QueryMatchAt));
         CollectionAssert.AreEqual(new float[] { 10, 11, 12 }, matches[1].Select(_ => _.QueryMatchAt));
     }
+    
+    [Test]
+    public void ShouldSplitByMaxGap4()
+    {
+        var matches = TestUtilities
+            .GetMatchedWith(
+                new[] { 0, 1, 2, 10},
+                new[] { 1, 2, 3, 11 })
+            .SplitBestPathByMaxGap(maxGap: 5)
+            .ToList();
+
+        Assert.AreEqual(2, matches.Count);
+        CollectionAssert.AreEqual(new float[] { 0, 1, 2 }, matches[0].Select(_ => _.QueryMatchAt));
+        CollectionAssert.AreEqual(new float[] { 10 }, matches[1].Select(_ => _.QueryMatchAt));
+    }
 }
