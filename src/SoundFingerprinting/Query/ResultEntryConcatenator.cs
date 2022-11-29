@@ -12,7 +12,6 @@ namespace SoundFingerprinting.Query
     public class ResultEntryConcatenator : IConcatenator<ResultEntry>
     {
         private readonly bool autoSkipDetection;
-        private readonly QueryPathReconstructionStrategyType queryPathReconstructionStrategyType;
         private readonly ILogger<ResultEntryConcatenator> logger;
 
         /// <summary>
@@ -20,16 +19,9 @@ namespace SoundFingerprinting.Query
         /// </summary>
         /// <param name="loggerFactory">An instance of logger factory.</param>
         /// <param name="autoSkipDetection">A flag indicating whether to enable automatic skip detection.</param>
-        /// <param name="queryPathReconstructionStrategyType">Query path reconstruction strategy.</param>
-        public ResultEntryConcatenator(ILoggerFactory loggerFactory, bool autoSkipDetection, QueryPathReconstructionStrategyType queryPathReconstructionStrategyType)
+        public ResultEntryConcatenator(ILoggerFactory loggerFactory, bool autoSkipDetection)
         {
-            if (queryPathReconstructionStrategyType == QueryPathReconstructionStrategyType.MultipleBestPaths)
-            {
-                throw new ArgumentException($"Multiple best paths reconstruction strategy cannot be used inside result entry concatenator", nameof(queryPathReconstructionStrategyType));
-            }
-            
             this.autoSkipDetection = autoSkipDetection;
-            this.queryPathReconstructionStrategyType = queryPathReconstructionStrategyType;
             logger = loggerFactory.CreateLogger<ResultEntryConcatenator>();
         }
 
@@ -79,7 +71,7 @@ namespace SoundFingerprinting.Query
             float fingerprintLength = (float)left.Coverage.FingerprintLength;
             var leftLastMatch = left.Coverage.BestPath.Last();
             float gapSize = GetGapSize(leftLastMatch, left.QueryLength, fingerprintLength);
-            
+
             var nextBestPath = right
                 .Coverage
                 .BestPath
@@ -88,7 +80,8 @@ namespace SoundFingerprinting.Query
                     queryMatchAt: _.QueryMatchAt + leftLastMatch.QueryMatchAt + fingerprintLength + gapSize + (float)queryOffset,
                     trackSequenceNumber: _.TrackSequenceNumber,
                     trackMatchAt: _.TrackMatchAt,
-                    score: _.Score));
+                    score: _.Score))
+                .Where(_ => _.TrackMatchAt >= leftLastMatch.TrackMatchAt);  // guaranteeing sorted order for both query/track matches
  
             var bestPath = left.Coverage.BestPath.Concat(nextBestPath).ToList();
             double queryLength = left.Coverage.QueryLength + right.Coverage.QueryLength + queryOffset;
@@ -103,8 +96,8 @@ namespace SoundFingerprinting.Query
                 logger.LogDebug("Result entries {Left}->{Right} covered more than it is possible by the query length {QueryLength:0.00}. Possible skip length {Glitch:0.00}", left, right, queryLength, matchGap);
                 skipLength = matchGap;
             }
-            
-            var coverage = bestPath.GetCoverages(queryPathReconstructionStrategyType, queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap).First();
+
+            var coverage = new Coverage(bestPath, queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap);
             var track = left.Track;
             double score = left.Score + right.Score;
             return new ResultEntry(track, score, left.MatchedAt, coverage.WithExtendedQueryLength(-skipLength));

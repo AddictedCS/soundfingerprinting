@@ -3,7 +3,6 @@ namespace SoundFingerprinting.LCS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SoundFingerprinting.Configuration;
 using SoundFingerprinting.Query;
 
 internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrategy
@@ -13,15 +12,13 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
     /// <remarks>
     ///   Returns all possible reconstructed paths, where both <see cref="MatchedWith.TrackMatchAt"/> and <see cref="MatchedWith.QueryMatchAt"/> are strictly increasing. <br />
-    ///   The paths are divided by the maximum allowed gap, meaning in case if a gap is detected bigger than maxGap, a new path is built from detection point onwards. <br />
-    ///   This implementation can be used to built the reconstructed path when <see cref="QueryConfiguration.AllowMultipleMatchesOfTheSameTrackInQuery"/> is set to true.
     /// </remarks>
-    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap, int limit)
+    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, int limit)
     {
-        return GetIncreasingSequences(matches, maxGap, limit).ToList();
+        return GetIncreasingSequences(matches, limit).ToList();
     }
     
-    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double maxGap, int limit)
+    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, int limit)
     {
         var matchedWiths = matched.ToList();
         var bestPaths = new List<IEnumerable<MatchedWith>>();
@@ -32,7 +29,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
                 break;
             }
 
-            var (sequence, badSequence) = GetLongestIncreasingSequence(matchedWiths, maxGap);
+            var (sequence, badSequence) = GetLongestIncreasingSequence(matchedWiths);
             var withs = sequence as MatchedWith[] ?? sequence.ToArray();
             if (!withs.Any())
             {
@@ -99,7 +96,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return maxs;
     }
 
-    private LongestIncreasingSequence GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double maxGap)
+    private LongestIncreasingSequence GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched)
     {
         // locking first dimension - track sequence number
         var matches = matched.OrderBy(x => x.TrackSequenceNumber).ToList();
@@ -108,7 +105,9 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             return new LongestIncreasingSequence(Enumerable.Empty<MatchedWith>(), Enumerable.Empty<MatchedWith>());
         }
 
+        double maxGap = GetMaxGap(matches);
         var maxArray = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
+        
         var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex + 1));
         var result = new Stack<MaxAt>();
         var excluded = new List<MaxAt>();
@@ -147,7 +146,21 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
 
         return new LongestIncreasingSequence(result.Select(_ => _.MatchedWith), excluded.Select(_ => _.MatchedWith));
     }
-    
+
+    private static double GetMaxGap(List<MatchedWith> matches)
+    {
+        float queryMatchAtMax = float.MinValue, queryMatchAtMin = float.MaxValue, trackMatchAtMax = float.MinValue, trackMatchAtMin = float.MaxValue;
+        foreach (var entry in matches)
+        {
+            queryMatchAtMax = Math.Max(queryMatchAtMax, entry.QueryMatchAt);
+            queryMatchAtMin = Math.Min(queryMatchAtMin, entry.QueryMatchAt);
+            trackMatchAtMax = Math.Max(trackMatchAtMax, entry.TrackMatchAt);
+            trackMatchAtMin = Math.Min(trackMatchAtMin, entry.TrackMatchAt);
+        }
+
+        return Math.Min(queryMatchAtMax - queryMatchAtMin, trackMatchAtMax - trackMatchAtMin);
+    }
+
     private static bool IsQuerySequenceDecreasing(MaxAt lookAhead, MaxAt? lastPicked)
     {
         return !(lookAhead.MatchedWith.QuerySequenceNumber > lastPicked?.MatchedWith.QuerySequenceNumber);

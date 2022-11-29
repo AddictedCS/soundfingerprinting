@@ -14,12 +14,7 @@ public enum QueryPathReconstructionStrategyType
     Legacy = 1,
     
     /// <summary>
-    ///  Single best path reconstruction strategy
+    ///  Multiple best paths
     /// </summary>
-    SingleBestPath = 2,
-    
-    /// <summary>
-    ///  Multiple best paths reconstruction strategies
-    /// </summary>
-    MultipleBestPaths = 3
+    MultipleBestPaths = 2
 }

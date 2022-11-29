@@ -86,22 +86,12 @@
         }
 
         /// <summary>
-        ///  Gets or sets a value indicating whether the algorithm should search for multiple matches of the same track in the query. 
-        ///  Useful when you have a long query containing the same track multiple times scattered across the query.
-        /// </summary>
-        [Obsolete("Please use QueryPathReconstructionStrategy to specify what algorithm to use for path reconstruction (to achieve the same behavior set it to QueryPathReconstructionStrategy.MultipleBestPaths). This property will be removed in v9")]
-        public bool AllowMultipleMatchesOfTheSameTrackInQuery
-        {
-            get => QueryPathReconstructionStrategy == QueryPathReconstructionStrategyType.MultipleBestPaths;
-            set => QueryPathReconstructionStrategy = value ? QueryPathReconstructionStrategyType.MultipleBestPaths : QueryPathReconstructionStrategyType.SingleBestPath;
-        }
-
-        /// <summary>
         ///  Gets or sets an enum value instructing the algorithm to reconstruct query path strategy according to specified strategy
         /// </summary>
         /// <remarks>
-        ///  Default for audio is <see cref="QueryPathReconstructionStrategyType.SingleBestPath"/>. <br/>
-        ///  Default for video is <see cref="QueryPathReconstructionStrategyType.Legacy"/>.
+        ///  Default for audio is <see cref="QueryPathReconstructionStrategyType.MultipleBestPaths"/>. <br/>
+        ///  Default for video is <see cref="QueryPathReconstructionStrategyType.Legacy"/>. <br />
+        ///  As <b>AllowMultipleMatchesOfTheSameTrackInQuery</b> was removed from the API (v8.17.0), it got substituted by <see cref="QueryPathReconstructionStrategyType.MultipleBestPaths"/>, making the implementations equivalent.
         /// </remarks>
         public QueryPathReconstructionStrategyType QueryPathReconstructionStrategy
         {
