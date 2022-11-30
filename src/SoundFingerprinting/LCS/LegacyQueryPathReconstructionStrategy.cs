@@ -5,7 +5,7 @@ using System.Linq;
 using SoundFingerprinting.Query;
 using static SoundFingerprinting.Query.SubFingerprintsToSeconds;
 
-internal class LegacyQueryPathReconstructionStrategy : IQueryPathReconstructionStrategy
+internal class LegacyQueryPathReconstructionStrategy
 {
     private readonly double fingerprintLengthInSeconds;
 
@@ -14,11 +14,16 @@ internal class LegacyQueryPathReconstructionStrategy : IQueryPathReconstructionS
         this.fingerprintLengthInSeconds = fingerprintLengthInSeconds;
     }
     
-    /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
-    /// <remarks>
-    ///  Legacy query path reconstruction strategy is guaranteed to return only one best path sequence.
-    /// </remarks>
-    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap, int limit)
+    /// <summary>
+    ///  Get reconstructed best path for matched entries.
+    /// </summary>
+    /// <param name="matches">Matches returned by fingerprints storage.</param>
+    /// <param name="maxGap">Maximum allowed gap, before we consider a new best path.</param>
+    /// <returns>
+    ///  Reconstructed best path. <br/>
+    ///  Legacy implementation (used as default until version v8.15.0), is guaranteed to return single best path.
+    /// </returns>
+    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap)
     {
         return new[] { GetBestPath(matches, maxGap, fingerprintLengthInSeconds) };
     }
