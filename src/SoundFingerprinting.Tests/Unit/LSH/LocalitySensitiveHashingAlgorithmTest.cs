@@ -197,7 +197,7 @@
                 for (int i = 0; i < simulations; ++i)
                 {
                     var fingerprints = TestUtilities.GenerateSimilarFingerprints(random, howSimilar, topWavelets, width * height * 2);
-                    int hammingDistance = similarity.CalculateHammingDistance(fingerprints.Item1.ToBools(), fingerprints.Item2.ToBools());
+                    int hammingDistance = similarity.CalculateHammingDistance(fingerprints.Item1.ConvertToBooleans(), fingerprints.Item2.ConvertToBooleans());
                     hammingDistances.Add(hammingDistance);
                     var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0, Array.Empty<byte>()), hashingConfig);
                     var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0, Array.Empty<byte>()), hashingConfig);

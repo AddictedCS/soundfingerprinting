@@ -29,7 +29,7 @@
         {
             float[] frames = TestUtilities.GenerateRandomFloatArray(128 * 32);
             float[] copy = (float[])frames.Clone();
-            bool[] actual = fingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets, RangeUtils.GetRange(128 * 32)).ToBools();
+            bool[] actual = fingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets, RangeUtils.GetRange(128 * 32)).ConvertToBooleans();
             bool[] expected = ExtractTopWaveletsTested(copy, TopWavelets);
 
             CollectionAssert.AreEqual(expected, actual);
@@ -47,7 +47,7 @@
                     false, false, false, false, false, false
                 };
 
-            bool[] encodedFingerprint = fingerprintDescriptor.ExtractTopWavelets(frames, 5, RangeUtils.GetRange(frames.Length)).ToBools();
+            bool[] encodedFingerprint = fingerprintDescriptor.ExtractTopWavelets(frames, 5, RangeUtils.GetRange(frames.Length)).ConvertToBooleans();
 
             CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
@@ -59,7 +59,7 @@
             ushort[] indexes = { 3, 2, 6, 1, 5, 0, 4 };
             bool[] expected = { false, false, false, false, true, false, true, false, false, false, false, false, false, false };
 
-            bool[] encodedFingerprint = fingerprintEncoder.EncodeFingerprint(framesSpectrumPowers, indexes, 2).ToBools();
+            bool[] encodedFingerprint = fingerprintEncoder.EncodeFingerprint(framesSpectrumPowers, indexes, 2).ConvertToBooleans();
 
             CollectionAssert.AreEqual(expected, encodedFingerprint);
         }

@@ -79,8 +79,8 @@
             var configuration = new DefaultFingerprintConfiguration();
             for (int i = 0; i < runs; ++i)
             {
-                var x = fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
-                var y = fastFingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration).ToList();
+                var (_, x) = fingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration);
+                var (_, y) = fastFingerprintService.CreateFingerprintsFromAudioSamples(audioSamples, configuration);
 
                 for (int j = 0; j < x.Count; ++j)
                 {

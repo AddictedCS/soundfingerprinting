@@ -37,12 +37,17 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig(AVFingerprintConfiguration configuration)
+        public IUsingFingerprintServices Intercept(Action<AVFingerprints> fingerprintsInterceptor)
         {
             return this;
         }
 
-        public IUsingFingerprintServices WithFingerprintConfig(Func<AVFingerprintConfiguration, AVFingerprintConfiguration> amendFunctor)
+        public IInterceptFingerprints WithFingerprintConfig(AVFingerprintConfiguration configuration)
+        {
+            return this;
+        }
+
+        public IInterceptFingerprints WithFingerprintConfig(Func<AVFingerprintConfiguration, AVFingerprintConfiguration> amendFunctor)
         {
             return this;
         }

@@ -30,7 +30,7 @@
         private Mock<ISourceFrom> fingerprintingSource;
         private Mock<IWithFingerprintConfiguration> withAlgorithmConfiguration;
         private Mock<IFingerprintCommand> fingerprintCommand;
-        private Mock<IUsingFingerprintServices> usingFingerprintServices;
+        private Mock<IInterceptFingerprints> usingFingerprintServices;
         private Mock<IModelService> modelService;
         private Mock<IAudioService> audioService;
 
@@ -42,7 +42,7 @@
             withAlgorithmConfiguration = new Mock<IWithFingerprintConfiguration>(MockBehavior.Strict);
             fingerprintCommand = new Mock<IFingerprintCommand>(MockBehavior.Strict);
             queryFingerprintService = new Mock<IQueryFingerprintService>(MockBehavior.Strict);
-            usingFingerprintServices = new Mock<IUsingFingerprintServices>(MockBehavior.Strict);
+            usingFingerprintServices = new Mock<IInterceptFingerprints>(MockBehavior.Strict);
             modelService = new Mock<IModelService>(MockBehavior.Strict);
             audioService = new Mock<IAudioService>(MockBehavior.Strict);
 
