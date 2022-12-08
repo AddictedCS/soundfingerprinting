@@ -217,6 +217,12 @@ namespace SoundFingerprinting.Data
         public int Count => IsEmpty ? 0 : Fingerprints.Count;
 
         /// <summary>
+        ///  Hashes indexer.
+        /// </summary>
+        /// <param name="index">Get element from index.</param>
+        public HashedFingerprint this[int index] => fingerprints[index];
+
+        /// <summary>
         ///  Creates a new empty hashes object.
         /// </summary>
         /// <param name="mediaType">Media type to associated empty hashes with.</param>

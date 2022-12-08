@@ -4,18 +4,14 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>8.17.0</PackageVersion>
+	<PackageVersion>8.18.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Unifying Single/Multiple best query path reconstruction strategy, the following concepts are now true for the algorithm behavior:
-		1. Returned Coverage has both query/track sequence number in strictly increasing order.
-		2. Cross-matches will not be returned (they are not required and set cleanup efforts).
-		3. Permitted gap will not be used by multiple best path query reconstruction to split result entries, it will be solely used to ignore gaps inside the query/track.
-		4. Result entries will be split based upon an internal logic which calculates max possible gap, eliminating the need for the client caller to specify multiple/single best paths.
+		Minor refactoring that would allow us capturing fingerprints and hashes from fingerprinting service.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>

@@ -22,10 +22,6 @@
         /// </summary>
         public static MinHashService MaxEntropy { get; } = new MinHashService(new MaxEntropyPermutations());
 
-        public int PermutationsCount => permutations.Count;
-
-        public int IndexesPerPermutation => permutations.IndexesPerPermutation;
-
         public byte[] Hash(IEncodedFingerprintSchema fingerprint, int n)
         {
             return ComputeMinHashSignature(fingerprint, n);
@@ -50,9 +46,9 @@
         /// </remarks>
         private byte[] ComputeMinHashSignature(IEncodedFingerprintSchema fingerprint, int n)
         {
-            if (n > PermutationsCount)
+            if (n > permutations.Count)
             {
-                throw new ArgumentException("n should not exceed number of available hash functions: " + PermutationsCount);
+                throw new ArgumentException("n should not exceed number of available hash functions: " + permutations.Count);
             }
 
             int[][] perms = permutations.GetPermutations();
@@ -63,7 +59,7 @@
                 for (byte j = 0; j < perms[i].Length /*256*/; j++)
                 {
                     int indexAt = perms[i][j];
-                    if (fingerprint.IsTrueAt(indexAt))
+                    if (fingerprint[indexAt])
                     {
                         minHash[i] = j; /*Looking for first occurrence of '1'*/
                         break;

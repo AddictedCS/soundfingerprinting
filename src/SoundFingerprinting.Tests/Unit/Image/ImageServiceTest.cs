@@ -96,7 +96,7 @@
                 OriginalPointSaveTransform = EncodeFrame
             };
 
-            var hashes = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, string.Empty, 30), configuration);
+            var (_, hashes) = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, string.Empty, 30), configuration);
 
             var decodedFrame = DecodeFrame(hashes.First().OriginalPoint);
             Assert.AreEqual(image.Length, decodedFrame.Length);

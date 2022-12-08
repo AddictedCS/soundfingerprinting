@@ -12,15 +12,11 @@
             this.permutations = permutations;
         }
 
-        public int PermutationsCount => permutations.Count;
-
-        public int IndexesPerPermutation => permutations.IndexesPerPermutation;
-
         public int[] Hash(IEncodedFingerprintSchema schema, int n)
         {
-            if (n > PermutationsCount)
+            if (n > permutations.Count)
             {
-                throw new ArgumentException("n should not exceed number of available hash functions: " + PermutationsCount);
+                throw new ArgumentException("n should not exceed number of available hash functions: " + permutations.Count);
             }
 
             int[][] perms = permutations.GetPermutations();
@@ -31,7 +27,7 @@
                 for (int j = 0; j < perms[i].Length; j++)
                 {
                     int indexAt = perms[i][j];
-                    if (schema.IsTrueAt(indexAt))
+                    if (schema[indexAt])
                     {
                         minHash[i] = j;
                         break;

@@ -8,10 +8,17 @@ namespace SoundFingerprinting.Command
     using SoundFingerprinting.Media;
     using SoundFingerprinting.Video;
 
+    /// <summary>
+    ///  Class handling executed fingerprinting command.
+    /// </summary>
     public class ExecutedFingerprintCommand : IWithFingerprintConfiguration
     {
         private readonly AVHashes result;
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExecutedFingerprintCommand"/> class.
+        /// </summary>
+        /// <param name="result">Hashed result.</param>
         public ExecutedFingerprintCommand(AVHashes result)
         {
             this.result = result;

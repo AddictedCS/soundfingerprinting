@@ -5,40 +5,33 @@
     internal class TinyFingerprintSchema : IEncodedFingerprintSchema
     {
         private readonly BitArray bitArray;
-        private bool isSilence = true;
 
         public TinyFingerprintSchema(int length)
         {
             bitArray = new BitArray(length);
         }
 
-        public bool IsTrueAt(int index)
-        {
-            return bitArray[index];
-        }
+        public bool this[int index] => bitArray[index];
 
-        public bool[] ToBools()
+        public bool[] ConvertToBooleans()
         {
             bool[] concatenated = new bool[bitArray.Length];
             bitArray.CopyTo(concatenated, 0);
             return concatenated;
         }
 
-        public bool IsSilence()
-        {
-            return isSilence;
-        }
+        public bool IsSilence { get; private set; } = true;
 
         public TinyFingerprintSchema SetTrueAt(int index)
         {
-            isSilence = false;
+            IsSilence = false;
             bitArray[index] = true;
             return this;
         }
 
         public TinyFingerprintSchema SetTrueAt(params int[] indexes)
         {
-            isSilence = false;
+            IsSilence = false;
             foreach (int index in indexes)
             {
                 bitArray[index] = true;
@@ -49,7 +42,7 @@
 
         public int AgreeOn(TinyFingerprintSchema other)
         {
-            BitArray copy = (BitArray)bitArray.Clone();
+            var copy = (BitArray)bitArray.Clone();
             var result = copy.And(other.bitArray);
             return TrueCounts(result);
         }
@@ -59,7 +52,7 @@
             return TrueCounts(bitArray);
         }
 
-        private int TrueCounts(BitArray result)
+        private static int TrueCounts(BitArray result)
         {
             int count = 0;
             for (int i = 0; i < result.Length; ++i)

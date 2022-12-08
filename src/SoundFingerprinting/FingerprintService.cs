@@ -42,14 +42,14 @@ namespace SoundFingerprinting
         /// <summary>
         ///  Gets an instance of the <see cref="FingerprintService"/> class.
         /// </summary>
-        public static FingerprintService Instance { get; } = new FingerprintService(
+        public static FingerprintService Instance { get; } = new (
             new SpectrumService(new LomontFFT(), new LogUtility()),
             LocalitySensitiveHashingAlgorithm.Instance,
             new StandardHaarWaveletDecomposition(),
             new FastFingerprintDescriptor());
 
         /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromAudioSamples"/>
-        public Hashes CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
+        public FingerprintsAndHashes CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
         {
             if (samples.SampleRate != configuration.SampleRate)
             {
@@ -57,25 +57,27 @@ namespace SoundFingerprinting
             }
             
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            var hashes = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration)
+            var fingerprints = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration).ToList();
+            var hashes = fingerprints
                 .AsParallel()
                 .ToList()
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin}, string.Empty, new Dictionary<string, string>(), samples.TimeOffset);
+            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin}, string.Empty, new Dictionary<string, string>(), samples.TimeOffset));
         }
 
         /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromImageFrames"/>
-        public Hashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
+        public FingerprintsAndHashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
         {
             var frames = imageFrames.ToList();
-            var hashes = CreateOriginalFingerprintsFromFrames(frames, configuration)
+            var fingerprints = CreateOriginalFingerprintsFromFrames(frames, configuration).ToList();
+            var hashes = fingerprints
                 .AsParallel()
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin});
+            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin}));
         }
 
         internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
@@ -90,21 +92,21 @@ namespace SoundFingerprinting
             var fingerprints = new ConcurrentBag<Fingerprint>();
             var length = images.First().Length;
             var saveTransform = configuration.OriginalPointSaveTransform;
-            Parallel.ForEach(images, () => new ushort[length], (frame, loop, cachedIndexes) =>
+            Parallel.ForEach(images, () => new ushort[length], (frame, _, cachedIndexes) =>
                 {
                     byte[] originalPoint = saveTransform(frame);
                     float[] rowCols = frame.ImageRowCols;
                     waveletDecomposition.DecomposeImageInPlace(rowCols, frame.Rows, frame.Cols, configuration.HaarWaveletNorm);
                     RangeUtils.PopulateIndexes(length, cachedIndexes);
                     var image = fingerprintDescriptor.ExtractTopWavelets(rowCols, configuration.TopWavelets, cachedIndexes);
-                    if (!image.IsSilence())
+                    if (!image.IsSilence)
                     {
                         fingerprints.Add(new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, originalPoint));
                     }
 
                     return cachedIndexes;
                 },
-                cachedIndexes => { });
+                _ => { });
 
             return fingerprints.ToList();
         }

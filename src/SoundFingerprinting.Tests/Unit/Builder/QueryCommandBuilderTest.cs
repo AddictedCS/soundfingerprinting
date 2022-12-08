@@ -137,7 +137,7 @@
             const string pathToFile = "path-to-file";
             const int startAtSecond = 120;
             const int secondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
+            var dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
             var hashes = new AVHashes(new Hashes(new List<HashedFingerprint>(
                     new[]
                         {

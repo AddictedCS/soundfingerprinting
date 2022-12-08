@@ -204,11 +204,11 @@
 
             if (videoService != null)
             {
-                logger.LogDebug("Using video service {0} for query hashes generation", mediaService);
+                logger.LogDebug("Using video service {Service} for query hashes generation", mediaService);
                 return usingFingerprintServices.UsingServices(videoService);
             }
 
-            logger.LogDebug("Using audio service {0} for query hashes generation", audioService);
+            logger.LogDebug("Using audio service {Service} for query hashes generation", audioService);
             return usingFingerprintServices.UsingServices(audioService);
         }
 
