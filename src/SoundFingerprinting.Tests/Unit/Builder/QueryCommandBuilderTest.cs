@@ -30,7 +30,7 @@
         private Mock<ISourceFrom> fingerprintingSource;
         private Mock<IWithFingerprintConfiguration> withAlgorithmConfiguration;
         private Mock<IFingerprintCommand> fingerprintCommand;
-        private Mock<IInterceptFingerprints> usingFingerprintServices;
+        private Mock<IUsingFingerprintServices> usingFingerprintServices;
         private Mock<IModelService> modelService;
         private Mock<IAudioService> audioService;
 
@@ -42,7 +42,7 @@
             withAlgorithmConfiguration = new Mock<IWithFingerprintConfiguration>(MockBehavior.Strict);
             fingerprintCommand = new Mock<IFingerprintCommand>(MockBehavior.Strict);
             queryFingerprintService = new Mock<IQueryFingerprintService>(MockBehavior.Strict);
-            usingFingerprintServices = new Mock<IInterceptFingerprints>(MockBehavior.Strict);
+            usingFingerprintServices = new Mock<IUsingFingerprintServices>(MockBehavior.Strict);
             modelService = new Mock<IModelService>(MockBehavior.Strict);
             audioService = new Mock<IAudioService>(MockBehavior.Strict);
 
@@ -137,7 +137,7 @@
             const string pathToFile = "path-to-file";
             const int startAtSecond = 120;
             const int secondsToQuery = 20;
-            QueryResult dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
+            var dummyResult = new QueryResult(new List<ResultEntry>(), Hashes.GetEmpty(MediaType.Audio), new QueryCommandStats(0, 0, 0, 0));
             var hashes = new AVHashes(new Hashes(new List<HashedFingerprint>(
                     new[]
                         {

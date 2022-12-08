@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.Command
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
@@ -26,8 +25,7 @@ namespace SoundFingerprinting.Command
         private readonly ILogger<FingerprintCommand> logger;
 
         private Func<AVHashes> createFingerprintsMethod;
-        private Action<AVFingerprints> fingerprintsInterceptor;
-
+        
         private IAudioService audioService;
         private IVideoService? videoService;
         private IMediaService? mediaService;
@@ -40,7 +38,6 @@ namespace SoundFingerprinting.Command
             audioService = new SoundFingerprintingAudioService();
             fingerprintConfiguration = new DefaultAVFingerprintConfiguration();
             createFingerprintsMethod = () => AVHashes.Empty;
-            fingerprintsInterceptor = _ => { };
             logger = loggerFactory.CreateLogger<FingerprintCommand>();
         }
 
@@ -128,14 +125,14 @@ namespace SoundFingerprinting.Command
         }
 
         /// <inheritdoc cref="IWithFingerprintConfiguration.WithFingerprintConfig(AVFingerprintConfiguration)"/>
-        public IInterceptFingerprints WithFingerprintConfig(AVFingerprintConfiguration configuration)
+        public IUsingFingerprintServices WithFingerprintConfig(AVFingerprintConfiguration configuration)
         {
             fingerprintConfiguration = configuration;
             return this;
         }
 
         /// <inheritdoc cref="IWithFingerprintConfiguration.WithFingerprintConfig(Func{AVFingerprintConfiguration,AVFingerprintConfiguration})"/>
-        public IInterceptFingerprints WithFingerprintConfig(Func<AVFingerprintConfiguration, AVFingerprintConfiguration> amendFunctor)
+        public IUsingFingerprintServices WithFingerprintConfig(Func<AVFingerprintConfiguration, AVFingerprintConfiguration> amendFunctor)
         {
             fingerprintConfiguration = amendFunctor(fingerprintConfiguration);
             return this;
@@ -162,20 +159,12 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        /// <inheritdoc cref="IInterceptFingerprints.Intercept"/>
-        public IUsingFingerprintServices Intercept(Action<AVFingerprints> fingerprintsInterceptor)
-        {
-            this.fingerprintsInterceptor = fingerprintsInterceptor;
-            return this;
-        }
-
         private AVHashes GetAvHashes(AVTrack avTrack)
         {
             long audioElapsedMilliseconds = 0, videoElapsedMilliseconds = 0;
             var (audioTrack, videoTrack) = avTrack;
             var audio = audioTrack != null ? GetHashes(audioTrack.Samples, out audioElapsedMilliseconds) : null;
             var video = videoTrack != null ? GetHashes(videoTrack.Frames, out videoElapsedMilliseconds) : null;
-            fingerprintsInterceptor(new AVFingerprints(audio?.Fingerprints ?? Enumerable.Empty<Fingerprint>(), video?.Fingerprints ?? Enumerable.Empty<Fingerprint>()));
             return new AVHashes(audio?.Hashes, video?.Hashes, new AVFingerprintingTime(audioElapsedMilliseconds, videoElapsedMilliseconds));
         }
 
@@ -183,21 +172,18 @@ namespace SoundFingerprinting.Command
         {
             var audio = GetHashes(audioSamples, out long audioElapsedMilliseconds);
             var video = GetHashes(frames, out long videoElapsedMilliseconds);
-            fingerprintsInterceptor(new AVFingerprints(audio.Fingerprints, video.Fingerprints));
             return new AVHashes(audio.Hashes, video.Hashes, new AVFingerprintingTime(audioElapsedMilliseconds, videoElapsedMilliseconds));
         }
 
         private AVHashes GetAvHashes(AudioSamples audioSamples)
         {
             var audio = GetHashes(audioSamples, out long elapsedMilliseconds);
-            fingerprintsInterceptor(new AVFingerprints(audio.Fingerprints, Enumerable.Empty<Fingerprint>()));
             return new AVHashes(audio.Hashes, null, new AVFingerprintingTime(elapsedMilliseconds, 0));
         }
 
         private AVHashes GetAvHashes(Frames frames)
         {
             var video = GetHashes(frames, out long elapsedMilliseconds);
-            fingerprintsInterceptor(new AVFingerprints(Enumerable.Empty<Fingerprint>(), video.Fingerprints));
             return new AVHashes(null, video.Hashes, new AVFingerprintingTime(0, elapsedMilliseconds));
         }
         
