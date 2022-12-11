@@ -494,6 +494,21 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(105, result.Coverage.TrackDiscreteCoverageLength, 0.01);
             AssertCoverageOrder(result.Coverage);
         }
+
+        [Test]
+        public void ShouldConcatenateCorrectlyWhenResultEntriesOverlap()
+        {
+            var left  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength: 12, queryLength: 12);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 10, queryLength: 12);
+            
+            var concatenator = new ResultEntryConcatenator(new NullLoggerFactory(), autoSkipDetection: true);
+            
+            var result = concatenator.Concat(left, right, queryOffset: 2);
+            
+            Assert.AreEqual(20, result.Coverage.QueryCoverageWithPermittedGapsLength, 0.01);
+            Assert.AreEqual(20, result.Coverage.TrackCoverageWithPermittedGapsLength, 0.01);
+            AssertCoverageOrder(result.Coverage);
+        }
         
         private static void AssertCoverageOrder(Coverage coverage)
         {

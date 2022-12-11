@@ -166,17 +166,11 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return current.Length == lookAhead.Length;
     }
 
-    private record LongestIncreasingSequence
+    private record LongestIncreasingSequence(IEnumerable<MatchedWith> Sequence, IEnumerable<MatchedWith> BadCandidates)
     {
-        public LongestIncreasingSequence(IEnumerable<MatchedWith> sequence, IEnumerable<MatchedWith> badCandidates)
-        {
-            Sequence = sequence;
-            BadCandidates = badCandidates;
-        }
+        public IEnumerable<MatchedWith> Sequence { get; } = Sequence;
 
-        public IEnumerable<MatchedWith> Sequence { get; }
-
-        public IEnumerable<MatchedWith> BadCandidates { get; }
+        public IEnumerable<MatchedWith> BadCandidates { get; } = BadCandidates;
 
         public void Deconstruct(out IEnumerable<MatchedWith> sequence, out IEnumerable<MatchedWith> badCandidates)
         {
