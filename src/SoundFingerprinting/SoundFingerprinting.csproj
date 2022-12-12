@@ -11,7 +11,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Minor refactoring that would allow us capturing fingerprints and hashes from fingerprinting service.
+		Favoring the simplest implementation for result entry concatenator (used in RealtimeQueryCommand) to satisfy all use-cases but without the ordering guarantees of track/query matches.
+		Adding permittedGap to query path reconstruction strategy - we will not emit different result entries separated by gap that is less than permitted gap as it doesn't make any sense.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
