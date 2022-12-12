@@ -80,12 +80,10 @@ namespace SoundFingerprinting.Query
                     queryMatchAt: _.QueryMatchAt + leftLastMatch.QueryMatchAt + fingerprintLength + gapSize + (float)queryOffset,
                     trackSequenceNumber: _.TrackSequenceNumber,
                     trackMatchAt: _.TrackMatchAt,
-                    score: _.Score))
-                .Where(_ => _.TrackMatchAt >= leftLastMatch.TrackMatchAt);  // guaranteeing sorted order for both query/track matches
- 
-            var bestPath = left.Coverage.BestPath.Concat(nextBestPath).ToList();
-            double queryLength = left.Coverage.QueryLength + right.Coverage.QueryLength + queryOffset;
+                    score: _.Score));
 
+            var bestPath = left.Coverage.BestPath.Concat(nextBestPath);
+            double queryLength = left.Coverage.QueryLength + right.Coverage.QueryLength + queryOffset;
             double permittedGap = left.Coverage.PermittedGap;
             double skipLength = 0d;
             double leftEndsAt = left.TrackMatchStartsAt + left.DiscreteTrackCoverageLength;
