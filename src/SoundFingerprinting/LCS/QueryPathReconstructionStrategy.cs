@@ -13,18 +13,18 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     /// <remarks>
     ///   Returns all possible reconstructed paths, where both <see cref="MatchedWith.TrackMatchAt"/> and <see cref="MatchedWith.QueryMatchAt"/> are strictly increasing. <br />
     /// </remarks>
-    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches)
+    public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double permittedGap)
     {
-        return GetIncreasingSequences(matches).ToList();
+        return GetIncreasingSequences(matches, permittedGap).ToList();
     }
     
-    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched)
+    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double permittedGap)
     {
         var matchedWiths = matched.ToList();
         var bestPaths = new List<IEnumerable<MatchedWith>>();
         while (matchedWiths.Any())
         {
-            var (sequence, badSequence) = GetLongestIncreasingSequence(matchedWiths);
+            var (sequence, badSequence) = GetLongestIncreasingSequence(matchedWiths, permittedGap);
             var withs = sequence as MatchedWith[] ?? sequence.ToArray();
             if (!withs.Any())
             {
@@ -91,16 +91,16 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return maxs;
     }
 
-    private LongestIncreasingSequence GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched)
+    private LongestIncreasingSequence GetLongestIncreasingSequence(IEnumerable<MatchedWith> matched, double permittedGap)
     {
         // locking first dimension - track sequence number
-        var matches = matched.OrderBy(x => x.TrackSequenceNumber).ToList();
+        var matches = matched.OrderBy(x => x.TrackSequenceNumber).ThenBy(_ => _.TrackMatchAt).ToList();
         if (!matches.Any())
         {
             return new LongestIncreasingSequence(Enumerable.Empty<MatchedWith>(), Enumerable.Empty<MatchedWith>());
         }
 
-        double maxGap = GetMaxGap(matches);
+        double maxGap = GetMaxGap(matches, permittedGap);
         var maxArray = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
         
         var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex + 1));
@@ -142,7 +142,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return new LongestIncreasingSequence(result.Select(_ => _.MatchedWith), excluded.Select(_ => _.MatchedWith));
     }
 
-    private static double GetMaxGap(List<MatchedWith> matches)
+    private static double GetMaxGap(List<MatchedWith> matches, double permittedGap)
     {
         float queryMatchAtMax = float.MinValue, queryMatchAtMin = float.MaxValue, trackMatchAtMax = float.MinValue, trackMatchAtMin = float.MaxValue;
         foreach (var entry in matches)
@@ -153,7 +153,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             trackMatchAtMin = Math.Min(trackMatchAtMin, entry.TrackMatchAt);
         }
 
-        return Math.Min(queryMatchAtMax - queryMatchAtMin, trackMatchAtMax - trackMatchAtMin);
+        return Math.Max(permittedGap, Math.Min(queryMatchAtMax - queryMatchAtMin, trackMatchAtMax - trackMatchAtMin));
     }
 
     private static bool IsQuerySequenceDecreasing(MaxAt lookAhead, MaxAt? lastPicked)

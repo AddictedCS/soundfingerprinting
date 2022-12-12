@@ -35,8 +35,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
                 new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
-                new ResultEntryConcatenator(loggerFactory, false),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(QueryPathReconstructionStrategyType.MultipleBestPaths, loggerFactory, false),
+                new ResultEntryConcatenator(QueryPathReconstructionStrategyType.MultipleBestPaths, loggerFactory, false),
                 new StatefulQueryHashesConcatenator());
 
             var result = aggregator.Consume(null);
@@ -54,8 +54,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
                 new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
-                new ResultEntryConcatenator(loggerFactory, false),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(QueryPathReconstructionStrategyType.MultipleBestPaths, loggerFactory, false),
+                new ResultEntryConcatenator(QueryPathReconstructionStrategyType.MultipleBestPaths, loggerFactory, false),
                 new StatefulQueryHashesConcatenator());
             
             const int firstQueryLength = 5;
@@ -92,8 +92,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new NoPassRealtimeResultEntryFilter(),
                 _ => { },
                 new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
-                new ResultEntryConcatenator(loggerFactory, false),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(QueryPathReconstructionStrategyType.MultipleBestPaths, loggerFactory, false),
+                new ResultEntryConcatenator(QueryPathReconstructionStrategyType.MultipleBestPaths, loggerFactory, false),
                 new StatefulQueryHashesConcatenator());
 
             var success = new List<AVResultEntry>();

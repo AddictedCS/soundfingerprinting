@@ -256,8 +256,8 @@ namespace SoundFingerprinting.Command
                 configuration.OngoingResultEntryFilter,
                 configuration.OngoingSuccessCallback,
                 new AVResultEntryCompletionStrategy(configuration.QueryConfiguration),
-                new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
-                new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
+                new ResultEntryConcatenator(configuration.QueryConfiguration.Audio.QueryPathReconstructionStrategy, loggerFactory, configuration.AutomaticSkipDetection),
+                new ResultEntryConcatenator(configuration.QueryConfiguration.Video.QueryPathReconstructionStrategy, loggerFactory, configuration.AutomaticSkipDetection),
                 configuration.IncludeQueryHashesInResponse ? new StatefulQueryHashesConcatenator() : new NoOpQueryHashesConcatenator(loggerFactory));
 
             try
