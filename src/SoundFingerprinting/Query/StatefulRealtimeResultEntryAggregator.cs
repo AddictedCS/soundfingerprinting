@@ -6,7 +6,7 @@ namespace SoundFingerprinting.Query
     using System.Linq;
     using SoundFingerprinting.Command;
 
-    internal sealed class StatefulRealtimeResultEntryAggregator : IRealtimeAggregator
+    internal sealed class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
     {
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
         private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;
@@ -36,7 +36,7 @@ namespace SoundFingerprinting.Query
             this.queryHashesConcatenator = queryHashesConcatenator;
         }
         
-        /// <inheritdoc cref="IRealtimeAggregator.Consume"/>
+        /// <inheritdoc cref="IRealtimeResultEntryAggregator.Consume"/>
         public RealtimeQueryResult Consume(AVQueryResult? queryResult)
         {
             if (queryResult == null)
@@ -48,7 +48,7 @@ namespace SoundFingerprinting.Query
             return PurgeCompleted();
         }
 
-        /// <inheritdoc cref="IRealtimeAggregator.Purge"/>
+        /// <inheritdoc cref="IRealtimeResultEntryAggregator.Purge"/>
         public RealtimeQueryResult Purge()
         {
             var completed = new List<AVResultEntry>();
@@ -75,7 +75,8 @@ namespace SoundFingerprinting.Query
             double audioQueryOffset = audioHashes?.TimeOffset ?? 0;
             double videoQueryOffset = videoHashes?.TimeOffset ?? 0;
             
-            var newEntries = queryResult.ResultEntries.ToList();
+            // getting one best result entry per track, as all following code assumes there is only one entry per track
+            var newEntries = GetBestMatchPerTrack(queryResult);
             foreach (var next in newEntries)
             {
                 var (nextAudio, nextVideo) = next;
@@ -101,6 +102,19 @@ namespace SoundFingerprinting.Query
             }
             
             queryHashesConcatenator.UpdateHashesForTracks(trackEntries.Keys, queryResult.QueryHashes, queryResult.QueryCommandStats);
+        }
+
+        private static List<AVResultEntry> GetBestMatchPerTrack(AVQueryResult queryResult)
+        {
+            return queryResult.ResultEntries
+                .GroupBy(_ => _.TrackId)
+                .Select(gr => gr.OrderByDescending(avResultEntry =>
+                    {
+                        var (audio, video) = avResultEntry;
+                        return (audio?.Coverage.TrackCoverageWithPermittedGapsLength ?? 0) + (video?.Coverage.TrackCoverageWithPermittedGapsLength ?? 0);
+                    })
+                    .First())
+                .ToList();
         }
 
         private static ResultEntry? ExtendResultEntryQueryLength(ResultEntry? notUpdated, double queryLength, double queryOffset)

@@ -210,7 +210,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         
         
 
-        private static void SimulateEmptyResults(IRealtimeAggregator aggregator, ICollection<AVResultEntry> success, ICollection<AVResultEntry> filtered)
+        private static void SimulateEmptyResults(IRealtimeResultEntryAggregator aggregator, ICollection<AVResultEntry> success, ICollection<AVResultEntry> filtered)
         {
             for (int i = 0; i < 10; ++i)
             {

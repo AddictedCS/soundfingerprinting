@@ -630,6 +630,33 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsTrue(length <= 180, $"Length {length} is bigger than 180");
         }
 
+        [Test]
+        public async Task ShouldHandleRealtimeConnectionException()
+        {
+            var realtimeMediaService = new Mock<IRealtimeMediaService>();
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            var modelService = new InMemoryModelService();
+            bool errored = false;
+            realtimeMediaService.Setup(_ => _.ReadAVTrackFromRealtimeSource("url", It.IsAny<double>(), It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>())).Throws(new ApplicationException("Could not connect to provided URL"));
+            await QueryCommandBuilder.Instance
+                .BuildRealtimeQueryCommand()
+                .From("url", 60, MediaType.Audio)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.ErrorCallback = (ex, _) =>
+                    {
+                        Assert.IsInstanceOf<ApplicationException>(ex);
+                        errored = true;
+                    };
+                
+                    return config;
+                })
+                .UsingServices(modelService, realtimeMediaService.Object)
+                .Query(cancellationTokenSource.Token);
+            
+            Assert.IsTrue(errored);
+        }
+
         private static async IAsyncEnumerable<AVTrack> GetSamples(int count, int seconds, [EnumeratorCancellation] CancellationToken cancellationToken, int sampleRate = 5512, int delay = 0)
         {
             foreach (var track in Enumerable.Range(0, count).Select(_ => new AVTrack(new AudioTrack(TestUtilities.GenerateRandomAudioSamples(seconds * sampleRate, sampleRate: sampleRate)), null)))

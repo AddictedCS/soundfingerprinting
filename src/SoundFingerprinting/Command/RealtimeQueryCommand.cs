@@ -315,7 +315,7 @@ namespace SoundFingerprinting.Command
         /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
         /// <exception cref="Exception">Any other exception that can occur during fingerprinting creation, and not fingerprinting querying.</exception>
-        private async Task QueryFromRealtimeAndOffline(IRealtimeAggregator resultsAggregator, CancellationToken cancellationToken)
+        private async Task QueryFromRealtimeAndOffline(IRealtimeResultEntryAggregator resultsAggregator, CancellationToken cancellationToken)
         {
             await foreach (var avHashes in realtimeCollection(cancellationToken).WithCancellation(cancellationToken))
             {
@@ -325,7 +325,7 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private void ConsumeQueryResult(AVQueryResult queryResult, IRealtimeAggregator resultsAggregator)
+        private void ConsumeQueryResult(AVQueryResult queryResult, IRealtimeResultEntryAggregator resultsAggregator)
         {
             var aggregatedResult = resultsAggregator.Consume(queryResult);
             InvokeSuccessHandler(aggregatedResult.SuccessEntries);
@@ -368,7 +368,7 @@ namespace SoundFingerprinting.Command
         /// <returns>True if query was successful, otherwise false.</returns>
         /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
-        private async Task<bool> TryQuery(AVHashes hashes, IRealtimeAggregator realtimeAggregator, CancellationToken cancellationToken)
+        private async Task<bool> TryQuery(AVHashes hashes, IRealtimeResultEntryAggregator realtimeAggregator, CancellationToken cancellationToken)
         {
             try
             {

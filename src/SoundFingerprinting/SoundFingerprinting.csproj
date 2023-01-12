@@ -4,15 +4,15 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>8.19.0</PackageVersion>
+	<PackageVersion>8.20.0-beta1</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Favoring the simplest implementation for result entry concatenator (used in RealtimeQueryCommand) to satisfy all use-cases but without the ordering guarantees of track/query matches.
-		Adding permittedGap to query path reconstruction strategy - we will not emit different result entries separated by gap that is less than permitted gap as it doesn't make any sense.
+		Since we are returning multiple result entry per track, our assumption in StatefulRealtimeResultEntryAggregator that there is only one match for a given track id is not valid anymore.
+		This fix should provide better realtime query matches results for commands that are executed agains a dataset of regular songs.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
