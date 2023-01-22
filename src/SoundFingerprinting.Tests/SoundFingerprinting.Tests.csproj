@@ -6,10 +6,10 @@
 	<LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="Moq" Version="4.18.2" />
-	<PackageReference Include="NLog.Extensions.Logging" Version="5.1.0" />
+	<PackageReference Include="Moq" Version="4.18.4" />
+	<PackageReference Include="NLog.Extensions.Logging" Version="5.2.1" />
 	<PackageReference Include="NUnit" Version="3.13.3" />
-	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
 	<PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>
