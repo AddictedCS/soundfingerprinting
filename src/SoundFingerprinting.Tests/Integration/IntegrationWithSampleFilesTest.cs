@@ -58,7 +58,9 @@
             {
                 var serializer = new BinaryFormatter();
                 using Stream stream = new FileStream(pathToSamples, FileMode.Open, FileAccess.Read);
+#pragma warning disable SYSLIB0011
                 return (AudioSamples)serializer.Deserialize(stream);
+#pragma warning restore SYSLIB0011
             }
         }
 
