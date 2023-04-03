@@ -2,6 +2,9 @@
 {
     using SoundFingerprinting.Configuration.Frames;
 
+    /// <summary>
+    ///  Class that hold default properties for Audio/Video query.
+    /// </summary>
     public class DefaultAVQueryConfiguration : AVQueryConfiguration
     {
         public DefaultAVQueryConfiguration()

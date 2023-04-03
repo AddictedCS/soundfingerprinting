@@ -102,5 +102,11 @@
 
             return ImageRowCols.Select(f => (byte)(f * byte.MaxValue)).ToArray();
         }
+
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"Frame[StartsAt={StartsAt}, SequenceNumber={SequenceNumber}, Rows={Rows}, Cols={Cols}]";
+        }
     }
 }
