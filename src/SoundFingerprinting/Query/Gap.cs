@@ -46,10 +46,11 @@ namespace SoundFingerprinting.Query
         /// </summary>
         [ProtoMember(3)]
         public bool IsOnEdge { get; }
-
+        
+        /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"{Start:0.00}-{End:0.00}";
+            return $"Gap[{Start:0.00}-{End:0.00},IsOnEdge={IsOnEdge}]";
         }
     }
 }

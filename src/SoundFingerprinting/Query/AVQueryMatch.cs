@@ -143,7 +143,7 @@ namespace SoundFingerprinting.Query
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"Id=[{Id}],Audio=[{Audio}],Video=[{Video}]";
+            return $"AVQueryMatch[Id={Id},Audio={Audio},Video={Video}]";
         }
     }
 }

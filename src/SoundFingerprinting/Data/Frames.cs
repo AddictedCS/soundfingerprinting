@@ -89,5 +89,11 @@ namespace SoundFingerprinting.Data
         {
             return GetEnumerator();
         }
+
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"Frames[{frames.Count}, Origin: {Origin}, FrameRate: {FrameRate}, Duration: {Duration}]";
+        }
     }
 }

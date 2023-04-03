@@ -66,5 +66,11 @@ namespace SoundFingerprinting.Query
         /// </remarks>
         [ProtoMember(5)]
         public double Score { get; }
+
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString()
+        {
+            return $"MatchedWith[QuerySequenceNumber: {QuerySequenceNumber}, QueryMatchAt: {QueryMatchAt}, TrackSequenceNumber: {TrackSequenceNumber}, TrackMatchAt: {TrackMatchAt}, Score: {Score}]";
+        }
     }
 }
