@@ -294,6 +294,34 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Gets new range from the current hashes object.
         /// </summary>
+        /// <param name="startsAt">Starting at second.</param>
+        /// <param name="length">Length in seconds of the new <see cref="Hashes"/> object.</param>
+        /// <returns>New hashes object.</returns>
+        public Hashes GetRange(double startsAt, float length)
+        {
+            if (IsEmpty)
+            {
+                return GetEmpty(MediaType);
+            } 
+            
+            double endsAt = startsAt + length;
+            var ordered = fingerprints.OrderBy(_ => _.SequenceNumber).ToList();
+            var lengthOfOneFingerprint = DurationInSeconds - ordered.Last().StartsAt;
+            
+            var filtered = ordered.Where(fingerprint =>
+            {
+                float fingerprintStartsAt = fingerprint.StartsAt;
+                double fingerprintEndsAt = fingerprint.StartsAt + lengthOfOneFingerprint;
+                return fingerprintStartsAt >= startsAt && fingerprintEndsAt <= endsAt;
+            })
+            .ToList();
+            
+            return !filtered.Any() ? new Hashes(Enumerable.Empty<HashedFingerprint>(), 0, MediaType, RelativeTo) : NewHashes(filtered, lengthOfOneFingerprint);
+        }
+
+        /// <summary>
+        ///  Gets new range from the current hashes object.
+        /// </summary>
         /// <param name="startsAt">Start at (as relative to <see cref="RelativeTo"/>.</param>
         /// <param name="length">Length in seconds of the new <see cref="Hashes"/> object.</param>
         /// <returns>New hashes object.</returns>
@@ -316,18 +344,18 @@ namespace SoundFingerprinting.Data
             })
             .ToList();
             
-            if (!filtered.Any())
-            {
-                return new Hashes(Enumerable.Empty<HashedFingerprint>(), 0, MediaType, startsAt);
-            }
+            return !filtered.Any() ? new Hashes(Enumerable.Empty<HashedFingerprint>(), 0, MediaType, startsAt) : NewHashes(filtered, lengthOfOneFingerprint);
+        }
 
+        private Hashes NewHashes(IReadOnlyCollection<HashedFingerprint> filtered, double lengthOfOneFingerprint)
+        {
             var relativeTo = RelativeTo.AddSeconds(filtered.First().StartsAt);
             var duration = filtered.Last().StartsAt - filtered.First().StartsAt + lengthOfOneFingerprint;
             var shifted = ShiftStartsAtAccordingToSelectedRange(filtered);
-            return new Hashes(shifted, duration, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary, 0);
+            return new Hashes(shifted, duration, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary, timeOffset: 0);
         }
 
-        private static List<HashedFingerprint> ShiftStartsAtAccordingToSelectedRange(List<HashedFingerprint> filtered)
+        private static List<HashedFingerprint> ShiftStartsAtAccordingToSelectedRange(IReadOnlyCollection<HashedFingerprint> filtered)
         {
             var startsAtShift = filtered.First().StartsAt;
             return filtered.Select((fingerprint,

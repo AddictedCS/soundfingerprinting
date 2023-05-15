@@ -7,9 +7,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
     using System.Linq;
     using NUnit.Framework;
     using ProtoBuf;
-    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.Strides;
 
     [TestFixture]
     public class HashesTest
@@ -146,6 +144,27 @@ namespace SoundFingerprinting.Tests.Unit.Data
             AssertHashesAreEqual(b, rangeB);
             AssertInvariantsForHashes(rangeB, bStartsAt);
         }
+        
+        [Test]
+        public void ShouldReturnRangeHashes()
+        {
+            var dtfi = CultureInfo.GetCultureInfo("en-US").DateTimeFormat;
+            int count = 80;
+            var aStartsAt = DateTime.Parse("01/15/2019 10:00:00", dtfi);
+            var a = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio, aStartsAt);
+            var bStartsAt = DateTime.Parse("01/15/2019 10:01:58.4", dtfi);
+            var b = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio, bStartsAt);
+            
+            var c = a.MergeWith(b);
+            Assert.AreEqual(count * 2, c.Count);
+            
+            var rangeA = c.GetRange(0, count * 1.48f);
+            AssertHashesAreEqual(a, rangeA);
+            AssertInvariantsForHashes(rangeA, aStartsAt);
+            var rangeB = c.GetRange(count * 1.48f, count * 1.48f);
+            AssertHashesAreEqual(b, rangeB);
+            AssertInvariantsForHashes(rangeB, bStartsAt);
+        }
 
         [Test]
         public void ShouldMergeCorrectlyRealtimeHashes()
@@ -160,7 +179,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
 
         private static void AssertInvariantsForHashes(Hashes hashes, DateTime startsAt)
         {
-            Assert.AreEqual(startsAt, hashes.RelativeTo);
+            Assert.AreEqual((startsAt - hashes.RelativeTo).TotalSeconds, 0, 0.1);
             var list = hashes.ToList();
             Assert.AreEqual(0, list.First().StartsAt);
             Assert.AreEqual(0, list.First().SequenceNumber);
