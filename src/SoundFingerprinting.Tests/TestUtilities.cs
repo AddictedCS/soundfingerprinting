@@ -7,6 +7,7 @@ namespace SoundFingerprinting.Tests
     using Audio;
     using NUnit.Framework;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Utils;
 
@@ -131,6 +132,40 @@ namespace SoundFingerprinting.Tests
                 Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
                 CollectionAssert.AreEqual(first.HashBins, second.HashBins);
             }
+        }
+        
+        public static Coverage GetCoverage(double length, IReadOnlyCollection<Gap> gaps)
+        {
+            const float sampleRate = 0.1f;
+            var bestPath = new List<MatchedWith>();
+            for (float i = 0; i < length; i += sampleRate)
+            {
+                uint sequenceNumber = (uint)(i / sampleRate);
+                // query and track matches are symmetric
+                var matched = new MatchedWith(sequenceNumber, queryMatchAt: i, sequenceNumber, trackMatchAt: i, score: 0d);
+                if (!IsInsideGap(matched, gaps, fingerprintLength: 1.4862))
+                {
+                    bestPath.Add(matched);
+                }
+            }
+
+            return new Coverage(bestPath, queryLength: length, trackLength: length, fingerprintLength: 1.4862f, permittedGap: 2d);
+        }
+
+        public static List<Gap> GetGaps(double[] gapsStartEnd)
+        {
+            var gaps = new List<Gap>();
+            for (int k = 0; k < gapsStartEnd.Length; k += 2)
+            {
+                gaps.Add(new Gap(gapsStartEnd[k], gapsStartEnd[k + 1], isOnEdge: false));
+            }
+
+            return gaps;
+        }
+        
+        private static bool IsInsideGap(MatchedWith matched, IEnumerable<Gap> gaps, double fingerprintLength)
+        {
+            return gaps.Any(gap => matched.TrackMatchAt + fingerprintLength >= gap.Start && matched.TrackMatchAt <= gap.End);
         }
 
         private static void Agree(float value, TinyFingerprintSchema first, int index, TinyFingerprintSchema second)
