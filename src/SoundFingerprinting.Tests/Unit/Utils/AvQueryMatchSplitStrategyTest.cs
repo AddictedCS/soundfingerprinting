@@ -32,10 +32,12 @@ public class AvQueryMatchSplitStrategyTest
         Assert.AreEqual(2, split.Count);
         Assert.AreEqual(30, split[0].Audio?.Coverage.TrackLength ?? 0, 0.1);
         Assert.AreEqual("2", split[0].TrackId);
+        Assert.AreEqual("CNN", split[0].StreamId);
         Assert.AreEqual(DateTime.UnixEpoch, split[0].Audio?.MatchedAt);
         Assert.IsNull(split[0].Video);
         
         Assert.AreEqual(60, split[1].Audio?.Coverage.TrackLength ?? 0, 0.1);
+        Assert.AreEqual("CNN", split[1].StreamId);
         Assert.AreEqual("4", split[1].TrackId);
         Assert.AreEqual(DateTime.UnixEpoch.AddSeconds(60).Subtract(split[1].Audio?.MatchedAt ?? DateTime.MinValue).TotalSeconds, 0, 0.1);
         Assert.IsNull(split[1].Video);
