@@ -187,6 +187,28 @@ namespace SoundFingerprinting.LCS
             return new Coverage(BestPath, QueryLength + extendedBy, TrackLength, FingerprintLength, PermittedGap);
         }
 
+        /// <summary>
+        ///  Split coverage by provided timestamps.
+        /// </summary>
+        /// <param name="timestamps">Timestamps measured in seconds to split coverage object.</param>
+        /// <returns>A new list of coverages.</returns>
+        internal IEnumerable<Coverage> SplitByTrackLength(double[] timestamps)
+        {
+            double startsAt = 0d;
+            foreach (var endsAt in timestamps)
+            {
+                var validRegion = BestPath.Where(_ => _.TrackMatchAt >= startsAt && _.TrackMatchAt + FingerprintLength <= endsAt).ToList();
+                uint trackSequenceNumberOffset = validRegion.FirstOrDefault()?.TrackSequenceNumber ?? 0;
+                
+                var matches = validRegion
+                    .Select(match => new MatchedWith(match.QuerySequenceNumber, match.QueryMatchAt, match.TrackSequenceNumber - trackSequenceNumberOffset, (float)(match.TrackMatchAt - startsAt), match.Score))
+                    .ToList();
+                
+                yield return new Coverage(matches, QueryLength, endsAt - startsAt, FingerprintLength, PermittedGap);
+                startsAt = endsAt;
+            }
+        }
+
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
