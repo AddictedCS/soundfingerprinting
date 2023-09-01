@@ -40,35 +40,35 @@ internal class LegacyQueryPathReconstructionStrategy
         return GetBestReconstructedPath(trackRegion, orderedByTrackMatchAt);
     }
 
-    private static TrackRegion GetTrackRegion(IReadOnlyList<MatchedWith> orderedByTrackMatchAt, double maxGap, double fingerprintLengthInSeconds)
+    private static EnumerableRegion GetTrackRegion(IReadOnlyList<MatchedWith> orderedByTrackMatchAt, double maxGap, double fingerprintLengthInSeconds)
     {
-        int minI = 0, maxI = 0, curMinI = 0, maxLength = 0;
+        int minIndex = 0, maxIndex = 0, curMinIndex = 0, maxLength = 0;
         for (int i = 1; i < orderedByTrackMatchAt.Count; ++i)
         {
             // since we don't allow same multiple matches in the query, we check to see if this is a start of new best sequence 
             if (ConsecutiveMatchesAreLongerThanMaxGap(maxGap, orderedByTrackMatchAt, i, fingerprintLengthInSeconds))
             {
                 // potentially a new start of best matched sequence
-                curMinI = i;
+                curMinIndex = i;
             }
 
-            if (i - curMinI > maxLength)
+            if (i - curMinIndex > maxLength)
             {
-                maxLength = i - curMinI;
-                maxI = i;
-                minI = curMinI;
+                maxLength = i - curMinIndex;
+                maxIndex = i;
+                minIndex = curMinIndex;
             }
         }
 
-        return new TrackRegion(minI, maxI);
+        return new EnumerableRegion(minIndex, maxIndex);
     }
 
-    private static IEnumerable<MatchedWith> GetBestReconstructedPath(TrackRegion trackRegion, IEnumerable<MatchedWith> matches)
+    private static IEnumerable<MatchedWith> GetBestReconstructedPath(EnumerableRegion enumerableRegion, IEnumerable<MatchedWith> matches)
     {
         // matches are already sorted by `TrackMatchAt`
         return matches
-            .Skip(trackRegion.StartAt)
-            .Take(trackRegion.Count)
+            .Skip(enumerableRegion.StartAt)
+            .Take(enumerableRegion.Count)
             .GroupBy(m => m.TrackSequenceNumber)
             .Aggregate(new { List = new List<MatchedWith>(), Used = new HashSet<uint>() }, (acc, group) =>
             {
