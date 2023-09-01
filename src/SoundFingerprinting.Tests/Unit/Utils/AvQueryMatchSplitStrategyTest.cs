@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using SoundFingerprinting.Data;
+using SoundFingerprinting.LCS;
 using SoundFingerprinting.Query;
 using SoundFingerprinting.Utils;
 
@@ -21,12 +22,17 @@ public class AvQueryMatchSplitStrategyTest
         var avQueryMatch = new AVQueryMatch("123", new QueryMatch("321", track, coverage, DateTime.UnixEpoch), null, "CNN");
 
         var split = AvQueryMatchSplitStrategy.Split(avQueryMatch,
-            new TrackInfo[]
-            {
-                new TrackInfo("2", string.Empty, string.Empty),
-                new TrackInfo("3", string.Empty, string.Empty),
-                new TrackInfo("4", string.Empty, string.Empty)
-            }, new[] { 30, 60, 120d }, 0.4d)
+                new TrackInfo[]
+                {
+                    new TrackInfo("2", string.Empty, string.Empty),
+                    new TrackInfo("3", string.Empty, string.Empty),
+                    new TrackInfo("4", string.Empty, string.Empty)
+                }, new[]
+                {
+                    new TimeSegment(0, 30),
+                    new TimeSegment(30, 60),
+                    new TimeSegment(60, 120)
+                }, 0.4d)
             .ToList();
         
         Assert.AreEqual(2, split.Count);
