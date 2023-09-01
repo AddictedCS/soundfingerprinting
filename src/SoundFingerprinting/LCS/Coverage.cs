@@ -1,6 +1,7 @@
 ﻿// ReSharper disable UnusedMember.Local
 namespace SoundFingerprinting.LCS
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using ProtoBuf;
@@ -190,22 +191,29 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Split coverage by provided timestamps.
         /// </summary>
-        /// <param name="timestamps">Timestamps measured in seconds to split coverage object.</param>
+        /// <param name="segments">Time segments to split the coverage object into.</param>
         /// <returns>A new list of coverages.</returns>
-        internal IEnumerable<Coverage> SplitByTrackLength(double[] timestamps)
+        internal IEnumerable<Coverage> SplitByTrackLength(IEnumerable<TimeSegment> segments)
         {
-            double startsAt = 0d;
-            foreach (var endsAt in timestamps)
+            var enumerable = segments.OrderBy(_ => _.StartsAt).ToList();
+            for (int i = 1; i < enumerable.Count; ++i)
             {
-                var validRegion = BestPath.Where(_ => _.TrackMatchAt >= startsAt && _.TrackMatchAt + FingerprintLength <= endsAt).ToList();
+                if (enumerable[i - 1].EndsAt > enumerable[i].StartsAt)
+                {
+                    throw new ArgumentException("Segments should not overlap", nameof(segments));
+                }
+            }
+            
+            foreach (var segment in enumerable)
+            {
+                var validRegion = BestPath.Where(_ => _.TrackMatchAt >= segment.StartsAt && _.TrackMatchAt + FingerprintLength < segment.EndsAt).ToList();
                 uint trackSequenceNumberOffset = validRegion.FirstOrDefault()?.TrackSequenceNumber ?? 0;
                 
                 var matches = validRegion
-                    .Select(match => new MatchedWith(match.QuerySequenceNumber, match.QueryMatchAt, match.TrackSequenceNumber - trackSequenceNumberOffset, (float)(match.TrackMatchAt - startsAt), match.Score))
+                    .Select(match => new MatchedWith(match.QuerySequenceNumber, match.QueryMatchAt, match.TrackSequenceNumber - trackSequenceNumberOffset, (float)(match.TrackMatchAt - segment.StartsAt), match.Score))
                     .ToList();
                 
-                yield return new Coverage(matches, QueryLength, endsAt - startsAt, FingerprintLength, PermittedGap);
-                startsAt = endsAt;
+                yield return new Coverage(matches, QueryLength, segment.TotalSeconds, FingerprintLength, PermittedGap);
             }
         }
 
