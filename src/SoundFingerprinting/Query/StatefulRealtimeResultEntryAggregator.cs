@@ -62,6 +62,7 @@ namespace SoundFingerprinting.Query
                 }
             }
 
+            trackEntries.Clear();
             return GetRealtimeQueryResult(Enumerable.Empty<AVResultEntry>(), completed, didNotPassFilter);
         }
 
@@ -133,6 +134,7 @@ namespace SoundFingerprinting.Query
                     ongoing.Add(pair.Value);
                 }
                 
+                // track is removed either because it can't continue in the next query, or because it passed the filter
                 if (!canContinueInNextQuery && trackEntries.TryRemove(pair.Key, out var entry))
                 {
                     // can't continue in the next query

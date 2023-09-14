@@ -252,7 +252,8 @@ namespace SoundFingerprinting.Command
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
         private async Task<double> QueryRealtimeSource(CancellationToken cancellationToken)
         {
-            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, 
+            var resultsAggregator = new StatefulRealtimeResultEntryAggregator(
+                configuration.ResultEntryFilter, 
                 configuration.OngoingResultEntryFilter,
                 new AvResultEntryCompletionStrategy(configuration.QueryConfiguration),
                 new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
