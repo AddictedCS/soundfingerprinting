@@ -3,18 +3,18 @@ namespace SoundFingerprinting.Query
     using System;
     using SoundFingerprinting.Configuration;
 
-    internal sealed class AVResultEntryCompletionStrategy : ICompletionStrategy<AVResultEntry>
+    internal sealed class AvResultEntryCompletionStrategy : ICompletionStrategy<AVResultEntry>
     {
         private readonly ICompletionStrategy<ResultEntry> audioStrategy;
         private readonly ICompletionStrategy<ResultEntry> videoStrategy;
 
-        public AVResultEntryCompletionStrategy(ICompletionStrategy<ResultEntry> audioStrategy, ICompletionStrategy<ResultEntry> videoStrategy)
+        public AvResultEntryCompletionStrategy(ICompletionStrategy<ResultEntry> audioStrategy, ICompletionStrategy<ResultEntry> videoStrategy)
         {
             this.audioStrategy = audioStrategy ?? throw new ArgumentNullException(nameof(audioStrategy));
             this.videoStrategy = videoStrategy ?? throw new ArgumentNullException(nameof(videoStrategy));
         }
 
-        public AVResultEntryCompletionStrategy(AVQueryConfiguration config) : this(
+        public AvResultEntryCompletionStrategy(AVQueryConfiguration config) : this(
             new ResultEntryCompletionStrategy(config.Audio.PermittedGap),
             new ResultEntryCompletionStrategy(config.Video.PermittedGap))
         {

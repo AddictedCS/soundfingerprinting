@@ -254,8 +254,7 @@ namespace SoundFingerprinting.Command
         {
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(configuration.ResultEntryFilter, 
                 configuration.OngoingResultEntryFilter,
-                configuration.OngoingSuccessCallback,
-                new AVResultEntryCompletionStrategy(configuration.QueryConfiguration),
+                new AvResultEntryCompletionStrategy(configuration.QueryConfiguration),
                 new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
                 new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
                 configuration.IncludeQueryHashesInResponse ? new StatefulQueryHashesConcatenator() : new NoOpQueryHashesConcatenator(loggerFactory));
@@ -301,8 +300,8 @@ namespace SoundFingerprinting.Command
                 {
                     // let's purge stateful results aggregator to safe-guard ourselves from memory issues when certain tracks get stuck in the aggregator
                     var purged = resultsAggregator.Purge();
-                    InvokeSuccessHandler(purged.SuccessEntries);
-                    InvokeDidNotPassFilterHandler(purged.DidNotPassThresholdEntries); 
+                    InvokeCallbackHandler(purged.SuccessEntries, configuration?.SuccessCallback);
+                    InvokeCallbackHandler(purged.DidNotPassThresholdEntries, configuration?.DidNotPassFilterCallback);
                 }
             }
         }
@@ -327,9 +326,10 @@ namespace SoundFingerprinting.Command
 
         private void ConsumeQueryResult(AVQueryResult queryResult, IRealtimeResultEntryAggregator resultsAggregator)
         {
-            var aggregatedResult = resultsAggregator.Consume(queryResult);
-            InvokeSuccessHandler(aggregatedResult.SuccessEntries);
-            InvokeDidNotPassFilterHandler(aggregatedResult.DidNotPassThresholdEntries);
+            var (ongoingEntries, successEntries, didNotPassThresholdEntries) = resultsAggregator.Consume(queryResult);
+            InvokeOngoingCallbackHandler(ongoingEntries);
+            InvokeCallbackHandler(successEntries, configuration.SuccessCallback);
+            InvokeCallbackHandler(didNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
         }
         
         private void HandleQueryFailure(AVHashes? hashes, Exception e)
@@ -485,20 +485,20 @@ namespace SoundFingerprinting.Command
             return avQueryResult;
         }
         
-        private void InvokeDidNotPassFilterHandler(IEnumerable<AVQueryResult> queryResults)
+        private void InvokeOngoingCallbackHandler(IEnumerable<AVResultEntry> ongoingResultEntries)
         {
-            foreach (var queryResult in queryResults)
+            foreach (var resultEntry in ongoingResultEntries)
             {
-                configuration?.DidNotPassFilterCallback(queryResult);
+                configuration?.OngoingSuccessCallback(resultEntry);
             }
         }
-
-        private void InvokeSuccessHandler(IEnumerable<AVQueryResult> queryResults)
+        
+        private static void InvokeCallbackHandler(IEnumerable<AVQueryResult> results, Action<AVQueryResult>? callback)
         {
-            foreach (var queryResult in queryResults)
+            foreach (var queryResult in results)
             {
-                configuration?.SuccessCallback(queryResult);
-            }
+                callback?.Invoke(queryResult);
+            } 
         }
     }
 }
