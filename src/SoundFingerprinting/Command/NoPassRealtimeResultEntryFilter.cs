@@ -5,7 +5,7 @@ namespace SoundFingerprinting.Command
     /// <summary>
     ///  No pass realtime result entry filter.
     /// </summary>
-    public class NoPassRealtimeResultEntryFilter : IRealtimeResultEntryFilter
+    internal class NoPassRealtimeResultEntryFilter : IRealtimeResultEntryFilter
     {
         /// <summary>
         ///  Never pass result entry filter.
