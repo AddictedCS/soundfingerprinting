@@ -1,6 +1,5 @@
 namespace SoundFingerprinting.Query
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
@@ -10,7 +9,6 @@ namespace SoundFingerprinting.Query
     {
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
         private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;
-        private readonly Action<AVResultEntry> ongoingCallback;
         private readonly ICompletionStrategy<AVResultEntry> completionStrategy;
         private readonly IConcatenator<ResultEntry> audioResultEntryConcatenator;
         private readonly IConcatenator<ResultEntry> videoResultEntryConcatenator;
@@ -21,7 +19,6 @@ namespace SoundFingerprinting.Query
         public StatefulRealtimeResultEntryAggregator(
             IRealtimeResultEntryFilter realtimeResultEntryFilter, 
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
-            Action<AVResultEntry> ongoingCallback,
             ICompletionStrategy<AVResultEntry> completionStrategy,
             IConcatenator<ResultEntry> audioResultEntryConcatenator,
             IConcatenator<ResultEntry> videoResultEntryConcatenator,
@@ -29,7 +26,6 @@ namespace SoundFingerprinting.Query
         {
             this.realtimeResultEntryFilter = realtimeResultEntryFilter;
             this.ongoingResultEntryFilter = ongoingResultEntryFilter;
-            this.ongoingCallback = ongoingCallback;
             this.completionStrategy = completionStrategy;
             this.audioResultEntryConcatenator = audioResultEntryConcatenator;
             this.videoResultEntryConcatenator = videoResultEntryConcatenator;
@@ -41,7 +37,7 @@ namespace SoundFingerprinting.Query
         {
             if (queryResult == null)
             {
-                return new RealtimeQueryResult(Enumerable.Empty<AVQueryResult>(), Enumerable.Empty<AVQueryResult>());
+                return new RealtimeQueryResult(Enumerable.Empty<AVResultEntry>(), Enumerable.Empty<AVQueryResult>(), Enumerable.Empty<AVQueryResult>());
             }
             
             SaveNewEntries(queryResult);
@@ -66,7 +62,8 @@ namespace SoundFingerprinting.Query
                 }
             }
 
-            return GetRealtimeQueryResult(completed, didNotPassFilter);
+            trackEntries.Clear();
+            return GetRealtimeQueryResult(Enumerable.Empty<AVResultEntry>(), completed, didNotPassFilter);
         }
 
         private void SaveNewEntries(AVQueryResult queryResult)
@@ -125,6 +122,7 @@ namespace SoundFingerprinting.Query
 
         private RealtimeQueryResult PurgeCompleted()
         {
+            var ongoing = new List<AVResultEntry>();
             var completed = new List<AVResultEntry>();
             var didNotPassFilter = new HashSet<AVResultEntry>();
             foreach (KeyValuePair<string, AVResultEntry> pair in trackEntries)
@@ -133,9 +131,10 @@ namespace SoundFingerprinting.Query
                 if (ongoingResultEntryFilter.Pass(pair.Value, canContinueInNextQuery))
                 {
                     // invoke ongoing callback
-                    ongoingCallback(pair.Value);
+                    ongoing.Add(pair.Value);
                 }
                 
+                // track is removed either because it can't continue in the next query, or because it passed the filter
                 if (!canContinueInNextQuery && trackEntries.TryRemove(pair.Key, out var entry))
                 {
                     // can't continue in the next query
@@ -157,15 +156,15 @@ namespace SoundFingerprinting.Query
                 }
             }
 
-            return GetRealtimeQueryResult(completed, didNotPassFilter);
+            return GetRealtimeQueryResult(ongoing, completed, didNotPassFilter);
         }
 
-        private RealtimeQueryResult GetRealtimeQueryResult(IReadOnlyCollection<AVResultEntry> completed, HashSet<AVResultEntry> didNotPassFilter)
+        private RealtimeQueryResult GetRealtimeQueryResult(IEnumerable<AVResultEntry> ongoing, IReadOnlyCollection<AVResultEntry> completed, HashSet<AVResultEntry> didNotPassFilter)
         {
             var completedGroups =  queryHashesConcatenator.GetQueryResults(completed);
             var didNotPassGroups = queryHashesConcatenator.GetQueryResults(didNotPassFilter);
             queryHashesConcatenator.Cleanup(completed.Concat(didNotPassFilter).Select(_ => _.TrackId));
-            return new RealtimeQueryResult(completedGroups, didNotPassGroups);
+            return new RealtimeQueryResult(ongoing, completedGroups, didNotPassGroups);
         }
     }
 }

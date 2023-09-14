@@ -3,14 +3,23 @@ namespace SoundFingerprinting.Query
     using System.Collections.Generic;
     using SoundFingerprinting.Command;
 
-    public class RealtimeQueryResult
+    internal class RealtimeQueryResult
     {
-        public RealtimeQueryResult(IEnumerable<AVQueryResult> successEntries, IEnumerable<AVQueryResult> didNotPassThresholdEntries)
+        public RealtimeQueryResult(
+            IEnumerable<AVResultEntry> ongoingEntries,
+            IEnumerable<AVQueryResult> successEntries, 
+            IEnumerable<AVQueryResult> didNotPassThresholdEntries)
         {
+            OngoingEntries = ongoingEntries;
             SuccessEntries = successEntries;
             DidNotPassThresholdEntries = didNotPassThresholdEntries;
         }
-        
+
+        /// <summary>
+        /// Gets list of ongoing matches.
+        /// </summary>
+        public IEnumerable<AVResultEntry> OngoingEntries { get; }
+
         /// <summary>
         ///  Gets list of aggregated successful matches.
         /// </summary>
@@ -23,5 +32,12 @@ namespace SoundFingerprinting.Query
         ///  See implementations of <see cref="IRealtimeResultEntryFilter"/> interface.
         /// </remarks>
         public IEnumerable<AVQueryResult> DidNotPassThresholdEntries { get; }
+        
+        public void Deconstruct(out IEnumerable<AVResultEntry> ongoingEntries, out IEnumerable<AVQueryResult> successEntries, out IEnumerable<AVQueryResult> didNotPassThresholdEntries)
+        {
+            ongoingEntries = OngoingEntries;
+            successEntries = SuccessEntries;
+            didNotPassThresholdEntries = DidNotPassThresholdEntries;
+        }
     }
 }

@@ -20,14 +20,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             audioStrategy = new Mock<ICompletionStrategy<ResultEntry>>();
             videoStrategy = new Mock<ICompletionStrategy<ResultEntry>>();
-            avEntryStrategy = new AVResultEntryCompletionStrategy(audioStrategy.Object, videoStrategy.Object);
+            avEntryStrategy = new AvResultEntryCompletionStrategy(audioStrategy.Object, videoStrategy.Object);
         }
 
         [Test]
         public void ConstructorThrowsOnInvalidArgs()
         {
-            Assert.Throws<ArgumentNullException>(() => new AVResultEntryCompletionStrategy(null, videoStrategy.Object));
-            Assert.Throws<ArgumentNullException>(() => new AVResultEntryCompletionStrategy(audioStrategy.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new AvResultEntryCompletionStrategy(null, videoStrategy.Object));
+            Assert.Throws<ArgumentNullException>(() => new AvResultEntryCompletionStrategy(audioStrategy.Object, null));
         }
 
         [Test]

@@ -33,8 +33,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var aggregator = new StatefulRealtimeResultEntryAggregator(
                 new TrackMatchLengthEntryFilter(5d), 
                 new NoPassRealtimeResultEntryFilter(),
-                _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
+                new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new StatefulQueryHashesConcatenator());
@@ -52,8 +51,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var aggregator = new StatefulRealtimeResultEntryAggregator(
                 new TrackMatchLengthEntryFilter(10d),
                 new NoPassRealtimeResultEntryFilter(),
-                _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
+                new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new StatefulQueryHashesConcatenator());
@@ -90,8 +88,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             double permittedGap = 2d;
             var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d),
                 new NoPassRealtimeResultEntryFilter(),
-                _ => { },
-                new AVResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
+                new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new StatefulQueryHashesConcatenator());
