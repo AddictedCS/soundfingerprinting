@@ -42,7 +42,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
         
         [Test]
-        public async Task RealtimeQueryShouldMatchOnlySelectedClusters()
+        public async Task RealtimeQueryShouldMatchOnlySelectedMetaFieldsFilters()
         {
             var modelService = new InMemoryModelService();
             int count = 10, foundWithClusters = 0, foundWithWrongClusters = 0, testWaitTime = 3000;
@@ -56,7 +56,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen", new Dictionary<string, string>{{ "country", "USA" }}), hashes);
             
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
-            var wrong = QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+            var wrong = QueryCommandBuilder
+                                              .Instance
+                                              .BuildRealtimeQueryCommand()
                                               .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
                                               .WithRealtimeQueryConfig(config =>
                                               {
@@ -93,8 +95,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
             int staticStride = 1024;
             double permittedGap = (double) minSamplesPerFingerprint / sampleRate;
-            int count = 10, found = 0, didNotPassThreshold = 0, fingerprintsCount = 0;
-            int testWaitTime = 3000;
+            int count = 10, found = 0, didNotPassThreshold = 0, fingerprintsCount = 0, testWaitTime = 3000;
             var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -107,7 +108,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var collection = SimulateRealtimeAudioQueryData(data, jitterLength: 0);
             var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
             
-            double duration = await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+            double duration = await QueryCommandBuilder.Instance
+                                              .BuildRealtimeQueryCommand()
                                               .From(collection)
                                               .WithRealtimeQueryConfig(config =>
                                               {
@@ -130,12 +132,68 @@ namespace SoundFingerprinting.Tests.Unit.Query
         }
         
         [Test]
+        public async Task ShouldCaptureRealtimeQueryResultThatOccursOnTheEdgeOfQueryMatches()
+        {
+            var modelService = new InMemoryModelService();
+            int staticStride = 512;
+            double permittedGap = (double) minSamplesPerFingerprint / sampleRate, queryLength = 0d;
+            int count = 10, found = 0, didNotPassThreshold = 0, hashesCount = 0, testWaitTime = 3000;
+            var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                                                .BuildFingerprintCommand()
+                                                .From(concatenated)
+                                                .Hash();
+            
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
+
+            // query samples contain all but last chunk of the track and more random samples that should not match
+            var querySamples = data
+                .Take(count - 1)
+                .Concat(GenerateRandomAudioChunks(count, seed: 100, relativeTo: DateTime.UtcNow.AddSeconds(minSizeChunkDuration * (count - 1)))).ToList();
+            
+            var collection = SimulateRealtimeAudioQueryData(querySamples, jitterLength: 0);
+            var cancellationTokenSource = new CancellationTokenSource(testWaitTime);
+            
+            await QueryCommandBuilder.Instance
+                .BuildRealtimeQueryCommand()
+                .From(collection)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.2d, waitTillCompletion: true);
+                    config.QueryConfiguration.Audio.Stride = new IncrementalStaticStride(staticStride);
+                    config.SuccessCallback = _ =>
+                    {
+                        // we want to capture match not when final results are purged
+                        // making sure we call the accumulators even on empty results
+                        if (hashesCount <= count + 1)
+                        {
+                            Interlocked.Increment(ref found);
+                        }
+                    };
+                    config.DidNotPassFilterCallback = _ => Interlocked.Increment(ref didNotPassThreshold);
+                    config.QueryConfiguration.Audio.PermittedGap = permittedGap;
+                    return config;
+                })
+                .InterceptHashes(fingerprints =>
+                {
+                    Interlocked.Increment(ref hashesCount);
+                    return fingerprints;
+                })
+                .UsingServices(modelService)
+                .Query(cancellationTokenSource.Token); 
+            
+            Assert.AreEqual(1, found);
+            Assert.AreEqual(count * 2 - 1, hashesCount);
+        }
+        
+        [Test]
         public async Task ShouldQueryInRealtime()
         {
             var modelService = new InMemoryModelService();
 
             double minSizeChunk = (double)minSamplesPerFingerprint / sampleRate; // length in seconds of one query chunk ~1.8577
-            const double totalTrackLength = 210;       // length of the track 3 minutes 30 seconds.
+            const double totalTrackLength = 210;                                 // length of the track 3 minutes 30 seconds.
             int count = (int)Math.Round(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
