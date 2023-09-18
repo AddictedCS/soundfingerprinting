@@ -19,7 +19,7 @@ namespace SoundFingerprinting.Configuration
         /// <param name="successCallback">Success callback.</param>
         /// <param name="didNotPassFilterCallback">Callback invoked when filter is not passed.</param>
         /// <param name="ongoingResultEntryFilter">What is playing right now filter.</param>
-        /// <param name="ongoingSuccessCallback">What is playing right now success callback.</param>
+        /// <param name="ongoingCallback">What is playing right now success callback.</param>
         /// <param name="errorCallback">Error callback.</param>
         /// <param name="restoredAfterErrorCallback">Restore after error callback.</param>
         /// <param name="offlineStorage">An instance of the <see cref="IOfflineStorage"/> interface.</param>
@@ -32,7 +32,7 @@ namespace SoundFingerprinting.Configuration
             Action<AVQueryResult> successCallback,
             Action<AVQueryResult> didNotPassFilterCallback,
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
-            Action<AVResultEntry> ongoingSuccessCallback,
+            Action<IEnumerable<AVResultEntry>> ongoingCallback,
             Action<Exception, AVHashes?> errorCallback,
             Action restoredAfterErrorCallback,
             IOfflineStorage offlineStorage,
@@ -46,7 +46,7 @@ namespace SoundFingerprinting.Configuration
             SuccessCallback = successCallback;
             DidNotPassFilterCallback = didNotPassFilterCallback;
             OngoingResultEntryFilter = ongoingResultEntryFilter;
-            OngoingSuccessCallback = ongoingSuccessCallback;
+            OngoingCallback = ongoingCallback;
             ErrorCallback = errorCallback;
             RestoredAfterErrorCallback = restoredAfterErrorCallback;
             OfflineStorage = offlineStorage;
@@ -86,14 +86,14 @@ namespace SoundFingerprinting.Configuration
         /// <remarks>
         ///  The following implementations are recommended for use: <br />
         ///  <see cref="OngoingRealtimeResultEntryFilter"/> will emit the result without waiting it to complete.
-        ///  As an example for initialization values <i>minCoverage = 0.2</i> and <i>minTrackLength = 10</i>, a 1-minute long track will be emitted 6 times in the <see cref="OngoingSuccessCallback"/>.
+        ///  As an example for initialization values <i>minCoverage = 0.2</i> and <i>minTrackLength = 10</i>, a 1-minute long track will be emitted 6 times in the <see cref="OngoingCallback"/>.
         /// </remarks>
         public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }
 
         /// <summary>
         ///  Gets or sets ongoing success callback that will be invoked on entries that pass <see cref="OngoingResultEntryFilter"/>.
         /// </summary>
-        public Action<AVResultEntry> OngoingSuccessCallback { get; set; }
+        public Action<IEnumerable<AVResultEntry>> OngoingCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error callback which will be invoked in case if an error occurs during query time.
