@@ -8,15 +8,15 @@ namespace SoundFingerprinting.Query
 
     internal class StatefulQueryHashesConcatenator : IQueryHashesConcatenator
     {
-        private readonly ConcurrentDictionary<string, AVQueryHashes> trackQueryHashes = new ();
+        private readonly ConcurrentDictionary<string, AvQueryHashes> trackQueryHashes = new ();
         
         public void UpdateHashesForTracks(IEnumerable<string> trackIds, AVHashes hashes, AVQueryCommandStats commandStats)
         {
-            var merged = new Dictionary<AVHashes, AVQueryHashes>();
+            var merged = new Dictionary<AVHashes, AvQueryHashes>();
             foreach (var trackId in trackIds)
             {
                 // update ongoing track match with merged query hashes.
-                trackQueryHashes.AddOrUpdate(trackId, _ => new AVQueryHashes(hashes, commandStats),
+                trackQueryHashes.AddOrUpdate(trackId, _ => new AvQueryHashes(hashes, commandStats),
                     (_, prev) =>
                     {
                         var (prevHashes, prevStats) = prev;
@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Query
                             return prevMerged;
                         }
 
-                        return merged[prevHashes] = new AVQueryHashes(prevHashes.MergeWith(hashes), prevStats.Sum(commandStats));
+                        return merged[prevHashes] = new AvQueryHashes(prevHashes.MergeWith(hashes), prevStats.Sum(commandStats));
                     });
             }
         }
@@ -55,9 +55,9 @@ namespace SoundFingerprinting.Query
             }
         }
 
-        private class AVQueryHashes : IEquatable<AVQueryHashes>
+        private class AvQueryHashes : IEquatable<AvQueryHashes>
         {
-            public AVQueryHashes(AVHashes hashes, AVQueryCommandStats queryCommandStats)
+            public AvQueryHashes(AVHashes hashes, AVQueryCommandStats queryCommandStats)
             {
                 Hashes = hashes;
                 QueryCommandStats = queryCommandStats;
@@ -67,7 +67,7 @@ namespace SoundFingerprinting.Query
             
             public AVQueryCommandStats QueryCommandStats { get; }
 
-            public bool Equals(AVQueryHashes? other)
+            public bool Equals(AvQueryHashes? other)
             {
                 if (ReferenceEquals(null, other))
                 {
@@ -99,7 +99,7 @@ namespace SoundFingerprinting.Query
                     return false;
                 }
 
-                return Equals((AVQueryHashes)obj);
+                return Equals((AvQueryHashes)obj);
             }
 
             public override int GetHashCode()
