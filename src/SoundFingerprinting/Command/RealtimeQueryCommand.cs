@@ -488,10 +488,7 @@ namespace SoundFingerprinting.Command
         
         private void InvokeOngoingCallbackHandler(IEnumerable<AVResultEntry> ongoingResultEntries)
         {
-            foreach (var resultEntry in ongoingResultEntries)
-            {
-                configuration?.OngoingSuccessCallback(resultEntry);
-            }
+            configuration.OngoingCallback(ongoingResultEntries);
         }
         
         private static void InvokeCallbackHandler(IEnumerable<AVQueryResult> results, Action<AVQueryResult>? callback)
