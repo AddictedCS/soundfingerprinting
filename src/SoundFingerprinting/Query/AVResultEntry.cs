@@ -90,6 +90,48 @@ namespace SoundFingerprinting.Query
             return $"AVResultEntry[Audio={Audio},Video={Video}]";
         }
 
+        /// <summary>
+        ///  Checks if two result entries overlap.
+        /// </summary>
+        /// <param name="entry">Entry to check on.</param>
+        /// <param name="minOverlapSeconds">How many seconds to consider as an overlap.</param>
+        /// <returns>True if overlap, otherwise false.</returns>
+        /// <remarks>
+        ///  This method is symmetric, if this overlaps entry, then entry overlaps this.
+        /// </remarks>
+        public bool Overlaps(AVResultEntry entry, double minOverlapSeconds = 0d)
+        {
+            var (left, right) = MatchedAt < entry.MatchedAt ? (this, entry) : (entry, this);
+
+            var leftEnd = left.MatchedAt.AddSeconds((left.Audio?.Coverage.TrackDiscreteCoverageLength ?? left.Video?.Coverage.TrackDiscreteCoverageLength) ?? 0);
+            var rightEndsAt = right.MatchedAt.AddSeconds((right.Audio?.Coverage.TrackDiscreteCoverageLength ?? right.Video?.Coverage.TrackDiscreteCoverageLength) ?? 0);
+
+            if (leftEnd < right.MatchedAt)
+            {
+                // left ends before right starts
+                return false;
+            }
+
+            // there is an overlap
+            if (rightEndsAt < leftEnd)
+            {
+                // right is contained within left
+                return right.Audio?.Coverage.TrackDiscreteCoverageLength > minOverlapSeconds;
+            }
+
+            return leftEnd - right.MatchedAt > TimeSpan.FromSeconds(minOverlapSeconds);
+        }
+        
+        /// <summary>
+        ///  Audio/Video result entries are equivalent if they have the same track id and matched at date.
+        /// </summary>
+        /// <param name="entry">Entry to compare to.</param>
+        /// <returns>True if equivalent, otherwise false.</returns>
+        public bool IsEquivalent(AVResultEntry entry)
+        {
+            return TrackId == entry.TrackId && MatchedAt == entry.MatchedAt;
+        }
+
         private static QueryMatch? ToQueryMatch(ResultEntry? resultEntry)
         {
             if (resultEntry == null)
