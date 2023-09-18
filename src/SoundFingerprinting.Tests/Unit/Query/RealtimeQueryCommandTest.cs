@@ -257,7 +257,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                     }
                                                 };
 
-                                                config.OngoingCallback = _ => { Interlocked.Increment(ref ongoingCalls); };
+                                                config.OngoingCallback = _ => { Interlocked.Add(ref ongoingCalls, _.Count()); };
                                                 config.ErrorCallback = (error, _) => throw error;
                                                 config.RestoredAfterErrorCallback = () => throw new Exception("Downtime callback called");
                                                 return config;
@@ -614,7 +614,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                     }
                                                 };
 
-                                                config.OngoingCallback = _ => { Interlocked.Increment(ref ongoingCalls); };
+                                                config.OngoingCallback = _ => { Interlocked.Add(ref ongoingCalls, _.Count()); };
                                                 config.ErrorCallback = (error, _) => throw error;
                                                 config.RestoredAfterErrorCallback = () => throw new Exception("Downtime callback called");
                                                 return config;
