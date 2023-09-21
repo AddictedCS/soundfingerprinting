@@ -600,18 +600,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 config.OngoingResultEntryFilter = new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d);
                                                 config.SuccessCallback = result =>
                                                 {
-                                                    foreach (var entry in result.ResultEntries)
-                                                    {
-                                                        successMatches.Add(entry);
-                                                    }
+                                                    successMatches.AddRange(result.ResultEntries);
                                                 };
 
                                                 config.DidNotPassFilterCallback = result =>
                                                 {
-                                                    foreach (var entry in result.ResultEntries)
-                                                    {
-                                                        didNotGetToContiguousQueryMatchLengthMatch.Add(entry);
-                                                    }
+                                                    didNotGetToContiguousQueryMatchLengthMatch.AddRange(result.ResultEntries);
                                                 };
 
                                                 config.OngoingCallback = _ => { Interlocked.Add(ref ongoingCalls, _.Count()); };
