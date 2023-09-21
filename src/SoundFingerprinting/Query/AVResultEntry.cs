@@ -40,7 +40,7 @@ namespace SoundFingerprinting.Query
         ///  Gets track id.
         /// </summary>
         public string TrackId => TrackData.Id;
-        
+
         /// <summary>
         ///  Gets matched at date.
         /// </summary>
@@ -91,15 +91,14 @@ namespace SoundFingerprinting.Query
         }
 
         /// <summary>
-        ///  Checks if two result entries overlap.
+        ///  Calculates the overlap between two entries.
         /// </summary>
         /// <param name="entry">Entry to check on.</param>
-        /// <param name="minOverlapSeconds">How many seconds to consider as an overlap.</param>
-        /// <returns>True if overlap, otherwise false.</returns>
+        /// <returns>Overlap measured in seconds (0d if there is no overlap).</returns>
         /// <remarks>
         ///  This method is symmetric, if this overlaps entry, then entry overlaps this.
         /// </remarks>
-        public bool Overlaps(AVResultEntry entry, double minOverlapSeconds = 0d)
+        public double GetOverlap(AVResultEntry entry)
         {
             var (left, right) = MatchedAt < entry.MatchedAt ? (this, entry) : (entry, this);
 
@@ -109,17 +108,17 @@ namespace SoundFingerprinting.Query
             if (leftEnd < right.MatchedAt)
             {
                 // left ends before right starts
-                return false;
+                return 0d;
             }
 
             // there is an overlap
             if (rightEndsAt < leftEnd)
             {
                 // right is contained within left
-                return right.Audio?.Coverage.TrackDiscreteCoverageLength > minOverlapSeconds;
+                return (right.Audio?.Coverage.TrackDiscreteCoverageLength ?? right.Video?.Coverage.TrackDiscreteCoverageLength) ?? 0;
             }
 
-            return leftEnd - right.MatchedAt > TimeSpan.FromSeconds(minOverlapSeconds);
+            return (leftEnd - right.MatchedAt).TotalSeconds;
         }
         
         /// <summary>

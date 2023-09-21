@@ -71,6 +71,11 @@ namespace SoundFingerprinting.Data
         public DateTime RelativeTo => Audio?.RelativeTo ?? Video?.RelativeTo ?? DateTime.MinValue;
 
         /// <summary>
+        ///  Gets hashes stream id.
+        /// </summary>
+        public string? StreamId => Audio?.StreamId ?? Video?.StreamId;
+
+        /// <summary>
         ///  Merges current instance of the AVHashes with provided one.
         /// </summary>
         /// <param name="next">Next instance of <see cref="AVHashes"/>.</param>
