@@ -11,8 +11,7 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
-		Hiding some of the methods related to realtime pass filters that can lead to memory leaks.
-		No changes in the core functionality.
+		Version bump to v8.30.0 accomodating SoundFingerprinting.Emy version upgrade.
 	</PackageReleaseNotes>
 	<PackageTags>Audio Video Identification Fingerprinting Digital Signal Processing Music Recognition Data Mining Content Sound Shazam</PackageTags>
 	<LangVersion>latest</LangVersion>
