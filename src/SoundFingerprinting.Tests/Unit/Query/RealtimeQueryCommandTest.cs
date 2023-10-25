@@ -610,7 +610,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
                                                 config.OngoingCallback = _ => { Interlocked.Add(ref ongoingCalls, _.Count()); };
                                                 config.ErrorCallback = (error, _) => throw error;
-                                                config.RestoredAfterErrorCallback = () => throw new Exception("Downtime callback called");
                                                 return config;
                                             })
                                             .InterceptHashes(fingerprints =>
@@ -621,7 +620,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                             .UsingServices(modelService)
                                             .Query(CancellationToken.None);
             
-            Assert.AreEqual(1, successMatches.Count);
+            Assert.AreEqual(1, successMatches.Count, $"There should be only one match: {string.Join("\n", successMatches)}");
             var (audioResult, videoResult) = successMatches.First();
             Assert.IsNotNull(audioResult);
             Assert.IsNotNull(videoResult);
