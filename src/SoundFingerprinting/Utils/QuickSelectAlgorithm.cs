@@ -2,7 +2,7 @@
 {
     internal class QuickSelectAlgorithm
     {
-        public int Find(int kth, float[] list, ushort[] indexes, int lo, int hi)
+        public static int Find(int kth, float[] list, ushort[] indexes, int lo, int hi)
         {
             while (lo != hi)
             {
@@ -30,14 +30,14 @@
             return lo;
         }
 
-        private int Partition(float[] list, ushort[] indexes, int pivotIndex, int lo, int hi)
+        private static int Partition(float[] list, ushort[] indexes, int pivotIndex, int lo, int hi)
         {
-            float pivotValue = Abs(list[pivotIndex]);
+            float pivotValue = System.Math.Abs(list[pivotIndex]);
             Swap(list, indexes, pivotIndex, hi);
             int storeIndex = lo;
             for (int i = lo; i < hi; ++i)
             {
-                if (Abs(list[i]) > pivotValue)
+                if (System.Math.Abs(list[i]) > pivotValue)
                 {
                     Swap(list, indexes, storeIndex, i);
                     storeIndex++;
@@ -48,31 +48,21 @@
             return storeIndex;
         }
 
-        private void Swap(float[] list, ushort[] indexes, int i, int j)
+        private static void Swap(float[] list, ushort[] indexes, int i, int j)
         {
-            float tmp = list[i];
-            list[i] = list[j];
-            list[j] = tmp;
-
-            ushort indexTmp = indexes[i];
-            indexes[i] = indexes[j];
-            indexes[j] = indexTmp;
+            (list[i], list[j]) = (list[j], list[i]);
+            (indexes[i], indexes[j]) = (indexes[j], indexes[i]);
         }
 
-        private void SwapIfGreater(float[] list, ushort[] indexes, int a, int b)
+        private static void SwapIfGreater(float[] list, ushort[] indexes, int a, int b)
         {
             if (a != b)
             {
-                if (Abs(list[a]) > Abs(list[b]))
+                if (System.Math.Abs(list[a]) > System.Math.Abs(list[b]))
                 {
                     Swap(list, indexes, a, b);
                 }
             }
-        }
-
-        private float Abs(float x)
-        {
-            return System.Math.Abs(x);
         }
     }
 }

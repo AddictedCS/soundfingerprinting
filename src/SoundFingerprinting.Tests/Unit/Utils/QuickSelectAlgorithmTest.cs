@@ -35,8 +35,8 @@
                 ushort[] indexes1 = Range(0, count);
                 ushort[] indexes2 = Range(0, count);
 
-                int akth = algorithm.Find(topWavelets - 1, a, indexes1, 0, a.Length - 1);
-                int bkth = algorithm.Find(topWavelets - 1, b, indexes2, 0, b.Length - 1);
+                int akth = QuickSelectAlgorithm.Find(topWavelets - 1, a, indexes1, 0, a.Length - 1);
+                int bkth = QuickSelectAlgorithm.Find(topWavelets - 1, b, indexes2, 0, b.Length - 1);
 
                 Assert.AreEqual(akth, bkth);
                 AssertFingerprintsAreSame(topWavelets, a, b);
@@ -71,7 +71,7 @@
                 float[] floats = GenerateRandomArray(count, random);
                 ushort[] indexes = Enumerable.Range(0, count).Select(i => (ushort)i).ToArray();
 
-                int kth = algorithm.Find(topWavelets - 1, floats, indexes, 0, floats.Length - 1);
+                int kth = QuickSelectAlgorithm.Find(topWavelets - 1, floats, indexes, 0, floats.Length - 1);
 
                 Assert.AreEqual(topWavelets - 1, kth);
                 for (int i = 0; i < topWavelets; ++i)
@@ -90,7 +90,7 @@
             for (int i = 0; i < 10; ++i)
             {
                 float[] values = { 3, 4, 5, 1, 6, 7, 8, 9, 2, 0 };
-                int value = algorithm.Find(i, values, Enumerable.Range(0, 10).Select(k => (ushort)k).ToArray(), 0, values.Length - 1);
+                int value = QuickSelectAlgorithm.Find(i, values, Enumerable.Range(0, 10).Select(k => (ushort)k).ToArray(), 0, values.Length - 1);
 
                 Assert.AreEqual(value, i);
             }
