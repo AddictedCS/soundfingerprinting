@@ -11,8 +11,6 @@
     [TestFixture]
     public class QuickSelectAlgorithmTest
     {
-        private readonly QuickSelectAlgorithm algorithm = new QuickSelectAlgorithm();
-
         [Test]
         public void ShouldProperlyTestAccuracy()
         {

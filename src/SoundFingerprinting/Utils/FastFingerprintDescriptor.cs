@@ -2,8 +2,6 @@
 {
     internal class FastFingerprintDescriptor : FingerprintDescriptor
     {
-        private readonly QuickSelectAlgorithm quickSelect = new ();
-
         public override IEncodedFingerprintSchema ExtractTopWavelets(float[] frames, int topWavelets, ushort[] indexes)
         {
             QuickSelectAlgorithm.Find(topWavelets - 1, frames, indexes, 0, frames.Length - 1);
