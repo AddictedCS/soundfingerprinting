@@ -7,12 +7,13 @@
 
     using Audio;
     using Data;
+    using ProtoBuf;
 
     using NUnit.Framework;
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        private readonly string pathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
+        protected readonly string pathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
         
         protected readonly string PathToWav = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopin_short.wav");
 
@@ -56,11 +57,8 @@
         {
             lock (this)
             {
-                var serializer = new BinaryFormatter();
                 using Stream stream = new FileStream(pathToSamples, FileMode.Open, FileAccess.Read);
-#pragma warning disable SYSLIB0011
-                return (AudioSamples)serializer.Deserialize(stream);
-#pragma warning restore SYSLIB0011
+                return Serializer.DeserializeWithLengthPrefix<AudioSamples>(stream, PrefixStyle.Fixed32);
             }
         }
 
