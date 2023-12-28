@@ -2,7 +2,7 @@ name: Create release from /master
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, v8.x ]
 
 jobs:
   build:
