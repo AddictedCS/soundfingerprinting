@@ -300,8 +300,9 @@ namespace SoundFingerprinting.Command
                         // here we catch exceptions that occur while reading from the realtime source
                         HandleQueryFailure(null, e);
                     }
-                    catch (Exception)
+                    catch (Exception e2)
                     {
+                        logger.LogWarning(e2, "Failed to handle query failure. Purging realtime aggregator, exiting query loop");
                         PurgeResultEntryAggregator(resultsAggregator);
                         throw;
                     }
