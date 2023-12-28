@@ -285,26 +285,37 @@ namespace SoundFingerprinting.Command
                 {
                     await QueryFromRealtimeAndOffline(resultsAggregator, cancellationToken);
                     logger.LogInformation("Stopped querying realtime source after {QueryLength:00} seconds", queryLength);
+                    PurgeResultEntryAggregator(resultsAggregator);
                     return queryLength;
                 }
                 catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
                 {
+                    PurgeResultEntryAggregator(resultsAggregator);
                     throw;
                 }
                 catch (Exception e)
                 {
-                    // here we catch exceptions that occur while reading from the realtime source
-                    HandleQueryFailure(null, e);
+                    try
+                    {
+                        // here we catch exceptions that occur while reading from the realtime source
+                        HandleQueryFailure(null, e);
+                    }
+                    catch (Exception)
+                    {
+                        PurgeResultEntryAggregator(resultsAggregator);
+                        throw;
+                    }
+
                     await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
                 }
-                finally
-                {
-                    // let's purge stateful results aggregator to safe-guard ourselves from memory issues when certain tracks get stuck in the aggregator
-                    var purged = resultsAggregator.Purge();
-                    InvokeCallbackHandler(purged.SuccessEntries, configuration?.SuccessCallback);
-                    InvokeCallbackHandler(purged.DidNotPassThresholdEntries, configuration?.DidNotPassFilterCallback);
-                }
             }
+        }
+
+        private void PurgeResultEntryAggregator(IRealtimeResultEntryAggregator resultsAggregator)
+        {
+            var purged = resultsAggregator.Purge();
+            InvokeCallbackHandler(purged.SuccessEntries, configuration?.SuccessCallback);
+            InvokeCallbackHandler(purged.DidNotPassThresholdEntries, configuration?.DidNotPassFilterCallback);
         }
 
         /// <summary>
