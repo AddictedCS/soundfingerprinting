@@ -708,6 +708,57 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsTrue(errored);
         }
 
+        [Test]
+        public async Task ShouldHandleExceptionInRealtimeSource()
+        {
+            var modelService = new InMemoryModelService();
+
+            int count = 20;
+            var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(concatenated)
+                .WithFingerprintConfig(config => config)
+                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
+
+            var collection = SimulateRealtimeAudioQueryData(data, jitterLength: 0);
+            var withFailure = SimulateFailure(collection, throwExceptionAfter: 15);
+            
+            var success = new List<AVResultEntry>();
+            var didNotPass = new List<AVResultEntry>();
+            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                .From(withFailure)
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(coverage: 0.2, waitTillCompletion: true);
+                    config.SuccessCallback = _ => success.AddRange(_.ResultEntries);
+                    config.DidNotPassFilterCallback = _ => didNotPass.AddRange(_.ResultEntries);
+                    config.ErrorCallback = (Action<Exception, AVHashes>)((exception, _) => logger.LogError(exception, "An error occured while querying stream"));
+                    return config;
+                })
+                .UsingServices(modelService)
+                .Query(CancellationToken.None);
+
+            Assert.That(success.Count, Is.EqualTo(1));
+            Assert.That(didNotPass.Count, Is.Zero);
+        }
+        
+        private static async IAsyncEnumerable<AudioSamples> SimulateFailure(IAsyncEnumerable<AudioSamples> collection, int throwExceptionAfter)
+        {
+            await foreach (var audioSamples in collection)
+            {
+                if (throwExceptionAfter-- == 0)
+                {
+                    throw new Exception("Error while reading samples from the source.");
+                }
+
+                yield return audioSamples;
+            }
+        }
+
         private static async IAsyncEnumerable<AVTrack> GetSamples(int count, int seconds, [EnumeratorCancellation] CancellationToken cancellationToken, int sampleRate = 5512, int delay = 0)
         {
             foreach (var track in Enumerable.Range(0, count).Select(_ => new AVTrack(new AudioTrack(TestUtilities.GenerateRandomAudioSamples(seconds * sampleRate, sampleRate: sampleRate)), null)))
