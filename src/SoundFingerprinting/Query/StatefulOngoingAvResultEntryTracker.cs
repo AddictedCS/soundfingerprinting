@@ -63,6 +63,6 @@ internal class StatefulOngoingAvResultEntryTracker : IOngoingAvResultEntryTracke
 
     private static string GetKey(AVResultEntry avResultEntry)
     {
-        return $"{avResultEntry.TrackId}";
+        return avResultEntry.TrackId;
     }
 }
