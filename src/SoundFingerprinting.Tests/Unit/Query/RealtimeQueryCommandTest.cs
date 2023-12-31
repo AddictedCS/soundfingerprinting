@@ -487,9 +487,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var success = new List<AVResultEntry>();
             var didNotPass = new List<AVResultEntry>();
             await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
-                .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
+                .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0, seed: 5566))
                 .WithRealtimeQueryConfig(config =>
                 {
+                    config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512, seed: 123);
                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.5, true);
                     config.SuccessCallback = _ => success.AddRange(_.ResultEntries);
                     config.DidNotPassFilterCallback = _ => didNotPass.AddRange(_.ResultEntries);
