@@ -147,7 +147,7 @@
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"AVTrack[audio={Audio?.Duration ?? 0:00},video={Video?.Duration ?? 0:00}]";
+            return $"AVTrack[audio={Audio?.Duration ?? 0:0.00},video={Video?.Duration ?? 0:0.00}]";
         }
     }
 }
