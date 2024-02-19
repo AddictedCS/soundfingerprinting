@@ -30,6 +30,7 @@
                 .Hash();
 
             var config = new DefaultFingerprintConfiguration();
+            Assert.That(fingerprints, Is.Not.Null);
             int samples = (int)(fingerprints.DurationInSeconds * config.SampleRate);
             int expectedFingerprints = (int)Math.Round(((double)(samples - (config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize)) / config.Stride.NextStride));
 
@@ -50,6 +51,7 @@
                 .Hash();
 
             var config = new DefaultFingerprintConfiguration();
+            Assert.That(fingerprints, Is.Not.Null);
             int expected = (int)((fingerprints.DurationInSeconds * config.SampleRate) / config.SamplesPerFingerprint);
             Assert.AreEqual(expected, fingerprints.Count); 
         }
@@ -79,6 +81,7 @@
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             Assert.IsNotNull(queryResult.BestMatch);
             var (bestMatch, _) = queryResult.BestMatch;
+            Assert.That(bestMatch, Is.Not.Null);
             Assert.AreEqual("id", bestMatch.Track.Id);
             Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
             Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
@@ -224,7 +227,9 @@
                 .Query();
 
             var (audioResult, videoResult) = avResults;
+            Assert.That(audioResult, Is.Not.Null);
             Assert.IsTrue(audioResult.ContainsMatches);
+            Assert.That(videoResult, Is.Not.Null);
             Assert.IsTrue(videoResult.ContainsMatches);
             var audioBestMatch = audioResult.BestMatch;
             AssertBestMatch(audioBestMatch);
@@ -308,6 +313,7 @@
                 .UsingServices(modelService, audioService)
                 .Query();
 
+            Assert.That(queryResult, Is.Not.Null);
             Assert.IsTrue(queryResult.ContainsMatches);
             Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
