@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
@@ -14,9 +13,9 @@
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Content;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Media;
     using SoundFingerprinting.Query;
 
@@ -88,11 +87,11 @@
 
             var avTrack = new AVTrack(new AudioTrack(TestUtilities.GenerateRandomAudioSamples(30 * 5512)), new VideoTrack(TestUtilities.GenerateRandomFrames(30 * 30)));
             mediaService.Setup(_ => _.ReadAVTrackFromFile("test.mp4", It.IsAny<AVTrackReadConfiguration>(), 0, 0, MediaType.Audio | MediaType.Video)).Returns(avTrack);
-            modelService.Setup(_ => _.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Callback(
+            modelService.Setup(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Callback(
                 (Hashes hashes, QueryConfiguration configuration) =>
                 {
                     Assert.AreEqual(30, hashes.DurationInSeconds, 0.001);
-                }).Returns(Enumerable.Empty<SubFingerprintData>());
+                }).Returns(new Candidates());
             
             var avQueryResult = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
@@ -102,7 +101,7 @@
             
             Assert.IsFalse(avQueryResult.ContainsMatches);
             
-            modelService.Verify(_ => _.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
+            modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
         }
         
         [Test]

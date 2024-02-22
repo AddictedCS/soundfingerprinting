@@ -2,6 +2,7 @@
 {
     using System.Diagnostics;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
@@ -44,22 +45,20 @@
             return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed,  queryStopwatch.ElapsedMilliseconds);
         }
 
-        private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)
+        private static GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)
         {
-            var matchedSubFingerprints = modelService.Query(queryHashes, configuration);
-            return queryHashes
-                .AsParallel()
-                .Aggregate(new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo), (seed, queryFingerprint) =>
+            var candidates = modelService.QueryEfficiently(queryHashes, configuration);
+            var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo);
+            foreach (var track in candidates.GetMatchedTracks())
+            {
+                var matches = candidates.GetMatchesForTrack(track);
+                foreach (var match in matches)
                 {
-                    var matched = matchedSubFingerprints.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));
-                    foreach (var subFingerprint in matched)
-                    {
-                        double score = configuration.ScoreAlgorithm.GetScore(queryFingerprint, subFingerprint, configuration);
-                        seed.Add(queryFingerprint, subFingerprint, score);
-                    }
+                    groupedResults.Add(match.QuerySequenceNumber, track, match);
+                }
+            }
 
-                    return seed;
-                });
+            return groupedResults;
         }
     }
 }

@@ -2,7 +2,6 @@ namespace SoundFingerprinting
 {
     using System.Collections.Generic;
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -13,7 +12,7 @@ namespace SoundFingerprinting
     /// <remarks>
     ///   Details about available hashes storage can be found <a href="https://github.com/AddictedCS/soundfingerprinting/wiki/Other-Storages">here</a>.
     /// </remarks>
-    public interface IModelService
+    public interface IModelService : IQueryService
     {
         /// <summary>
         ///  Gets details about underlying storage (i.e. track count, hashes count etc.)
@@ -42,17 +41,6 @@ namespace SoundFingerprinting
         /// </summary>
         /// <param name="trackId">Track ID to remove.</param>
         void DeleteTrack(string trackId);
-
-        /// <summary>
-        ///  Queries the underlying storage with hashes and query configuration.
-        /// </summary>
-        /// <param name="hashes">Computed hashes for the query.</param>
-        /// <param name="config">Query configuration.</param>
-        /// <returns>List of matched fingerprints.</returns>
-        /// <remarks>
-        ///  <see cref="Hashes.MediaType"/> is used to identify which hashes to query (audio or video).
-        /// </remarks>
-        IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config);
 
         /// <summary>
         ///  Read tracks by model references.

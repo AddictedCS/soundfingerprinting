@@ -3,14 +3,38 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using ProtoBuf;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Query;
 
-    internal class Candidates
+    /// <summary>
+    ///  Candidates class.
+    /// </summary>
+    [ProtoContract]
+    public class Candidates
     {
-        private readonly ConcurrentDictionary<IModelReference, List<MatchedWith>> candidates = new ();
+        [ProtoMember(1)]
+        private readonly ConcurrentDictionary<IModelReference, List<MatchedWith>> candidates;
 
-        public Candidates(IModelReference trackReference, params MatchedWith[] candidates)
+        /// <summary>
+        ///  Initializes a new instance of the <see cref="Candidates"/> class.
+        /// </summary>
+        public Candidates()
+        {
+            candidates = new ConcurrentDictionary<IModelReference, List<MatchedWith>>();
+        }
+        
+        /// <summary>
+        ///  Gets count of candidates.
+        /// </summary>
+        public int Count => candidates.Count;
+        
+        /// <summary>
+        ///  Initializes a new instance of the <see cref="Candidates"/> class.
+        /// </summary>
+        /// <param name="trackReference">First track reference to add.</param>
+        /// <param name="candidates">List of matched withs.</param>
+        public Candidates(IModelReference trackReference, IEnumerable<MatchedWith> candidates) : this()
         {
             foreach (var candidate in candidates)
             {
@@ -18,11 +42,30 @@
             }
         }
 
+        /// <summary>
+        ///  Get matched tracks.
+        /// </summary>
+        /// <returns>Get all matched tracks.</returns>
+        public IEnumerable<IModelReference> GetMatchedTracks()
+        {
+            return candidates.Keys;
+        }
+
+        /// <summary>
+        ///  Get matches for a particular track.
+        /// </summary>
+        /// <param name="trackReference">Track reference.</param>
+        /// <returns>List of matched withs.</returns>
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
             return candidates.TryGetValue(trackReference, out var matchedWith) ? matchedWith : Enumerable.Empty<MatchedWith>();
         }
 
+        /// <summary>
+        ///  Add new match for a particular track.
+        /// </summary>
+        /// <param name="trackReference">Track reference add matched with.</param>
+        /// <param name="match">An instance of <see cref="MatchedWith"/>.</param>
         public void AddNewMatchForTrack(IModelReference trackReference, MatchedWith match)
         {
             candidates.AddOrUpdate(trackReference, _ => new List<MatchedWith> {match}, (_, old) =>
@@ -31,7 +74,5 @@
                 return old;
             });
         }
-
-        public int Count => candidates.Count;
     }
 }
