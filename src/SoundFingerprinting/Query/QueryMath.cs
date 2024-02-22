@@ -36,11 +36,10 @@
                 if (query[i] == result[i])
                 {
                     count++;
-                }
-
-                if (count >= thresholdVotes)
-                {
-                    return true;
+                    if (count >= thresholdVotes)
+                    {
+                        return true;
+                    }
                 }
             }
 
