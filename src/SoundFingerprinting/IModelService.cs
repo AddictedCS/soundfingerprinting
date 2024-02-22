@@ -2,8 +2,6 @@ namespace SoundFingerprinting
 {
     using System.Collections.Generic;
     using SoundFingerprinting.Command;
-    using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
     /// <summary>
@@ -42,13 +40,6 @@ namespace SoundFingerprinting
         /// <param name="trackId">Track ID to remove.</param>
         void DeleteTrack(string trackId);
 
-        /// <summary>
-        ///  Read tracks by model references.
-        /// </summary>
-        /// <param name="references">List of model references to read.</param>
-        /// <returns>List of tracks.</returns>
-        IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references);
-        
         /// <summary>
         ///  Gets hashes for a particular track.
         /// </summary>

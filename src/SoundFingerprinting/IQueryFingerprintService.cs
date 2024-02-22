@@ -14,8 +14,8 @@
         /// </summary>
         /// <param name="hashes">Hashed fingerprints generated from the query source.</param>
         /// <param name="configuration">Query configuration.</param>
-        /// <param name="modelService">Storage service used to access the data source.</param>
+        /// <param name="queryService">Storage service used to access the data source.</param>
         /// <returns>Query results.</returns>
-        QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService);
+        QueryResult Query(Hashes hashes, QueryConfiguration configuration, IQueryService queryService);
     }
 }

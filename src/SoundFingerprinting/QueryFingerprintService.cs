@@ -1,8 +1,6 @@
 ﻿namespace SoundFingerprinting
 {
     using System.Diagnostics;
-    using System.Linq;
-    using System.Text.RegularExpressions;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
@@ -30,24 +28,24 @@
         public static QueryFingerprintService Instance { get; } = new (QueryMath.Instance);
 
         /// <inheritdoc cref="IQueryFingerprintService.Query"/>
-        public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService)
+        public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IQueryService queryService)
         {
             var queryStopwatch = Stopwatch.StartNew();
-            var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(hashes, configuration, modelService);
+            var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(hashes, configuration, queryService);
             if (!groupedQueryResults.ContainsMatches)
             {
                 return QueryResult.Empty(hashes,  queryStopwatch.ElapsedMilliseconds);
             }
 
-            var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration);
+            var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, queryService, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount;
             return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed,  queryStopwatch.ElapsedMilliseconds);
         }
 
-        private static GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)
+        private static GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IQueryService queryService)
         {
-            var candidates = modelService.QueryEfficiently(queryHashes, configuration);
+            var candidates = queryService.QueryEfficiently(queryHashes, configuration);
             var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo);
             foreach (var track in candidates.GetMatchedTracks())
             {

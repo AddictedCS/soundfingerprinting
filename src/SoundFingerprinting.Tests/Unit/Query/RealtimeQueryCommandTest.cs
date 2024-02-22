@@ -18,7 +18,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Content;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LCS;
@@ -952,14 +951,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 this.goodOne = goodOne;
             }
             
-            public QueryResult Query(Hashes queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+            public QueryResult Query(Hashes queryFingerprints, QueryConfiguration configuration, IQueryService queryService)
             {
                 if (faultyCounts-- > 0)
                 {
                     throw new IOException("I/O exception");
                 }
 
-                return goodOne.Query(queryFingerprints, configuration, modelService);
+                return goodOne.Query(queryFingerprints, configuration, queryService);
             }
         }
     }
