@@ -1,9 +1,11 @@
 ﻿namespace SoundFingerprinting
 {
+    using System.Collections.Generic;
     using System.Diagnostics;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
@@ -47,12 +49,11 @@
         {
             var candidates = queryService.QueryEfficiently(queryHashes, configuration);
             var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo);
-            foreach (var track in candidates.GetMatchedTracks())
+            foreach (KeyValuePair<IModelReference, List<MatchedWith>> kv in candidates.GetMatches())
             {
-                var matches = candidates.GetMatchesForTrack(track);
-                foreach (var match in matches)
+                foreach (var match in kv.Value)
                 {
-                    groupedResults.Add(match.QuerySequenceNumber, track, match);
+                    groupedResults.Add(match.QuerySequenceNumber, kv.Key, match);
                 }
             }
 

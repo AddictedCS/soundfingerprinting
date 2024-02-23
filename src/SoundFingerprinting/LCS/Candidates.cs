@@ -33,6 +33,11 @@
         ///  Gets a value indicating whether candidates are empty.
         /// </summary>
         public bool IsEmpty => candidates?.IsEmpty ?? true;
+
+        /// <summary>
+        ///  Gets total count of matches.
+        /// </summary>
+        public int MatchesCount => candidates?.Sum(pair => pair.Value.Count) ?? 0;
         
         /// <summary>
         ///  Initializes a new instance of the <see cref="Candidates"/> class.
@@ -64,6 +69,15 @@
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
             return (candidates?.TryGetValue(trackReference, out var matchedWith) ?? false) ? matchedWith : Enumerable.Empty<MatchedWith>();
+        }
+
+        /// <summary>
+        ///  Get matches.
+        /// </summary>
+        /// <returns>Enumerable of key value pairs.</returns>
+        public IEnumerable<KeyValuePair<IModelReference, List<MatchedWith>>> GetMatches()
+        {
+            return candidates ?? Enumerable.Empty<KeyValuePair<IModelReference, List<MatchedWith>>>();
         }
 
         /// <summary>
