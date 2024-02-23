@@ -14,7 +14,7 @@
     public class Candidates
     {
         [ProtoMember(1)]
-        private readonly ConcurrentDictionary<IModelReference, List<MatchedWith>> candidates;
+        private readonly ConcurrentDictionary<IModelReference, List<MatchedWith>>? candidates;
 
         /// <summary>
         ///  Initializes a new instance of the <see cref="Candidates"/> class.
@@ -27,7 +27,12 @@
         /// <summary>
         ///  Gets count of candidates.
         /// </summary>
-        public int Count => candidates.Count;
+        public int Count => candidates?.Count ?? 0;
+
+        /// <summary>
+        ///  Gets a value indicating whether candidates are empty.
+        /// </summary>
+        public bool IsEmpty => candidates?.IsEmpty ?? true;
         
         /// <summary>
         ///  Initializes a new instance of the <see cref="Candidates"/> class.
@@ -48,7 +53,7 @@
         /// <returns>Get all matched tracks.</returns>
         public IEnumerable<IModelReference> GetMatchedTracks()
         {
-            return candidates.Keys;
+            return candidates?.Keys ?? Enumerable.Empty<IModelReference>();
         }
 
         /// <summary>
@@ -58,7 +63,7 @@
         /// <returns>List of matched withs.</returns>
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
-            return candidates.TryGetValue(trackReference, out var matchedWith) ? matchedWith : Enumerable.Empty<MatchedWith>();
+            return (candidates?.TryGetValue(trackReference, out var matchedWith) ?? false) ? matchedWith : Enumerable.Empty<MatchedWith>();
         }
 
         /// <summary>
@@ -68,7 +73,7 @@
         /// <param name="match">An instance of <see cref="MatchedWith"/>.</param>
         public void AddNewMatchForTrack(IModelReference trackReference, MatchedWith match)
         {
-            candidates.AddOrUpdate(trackReference, _ => new List<MatchedWith> {match}, (_, old) =>
+            candidates?.AddOrUpdate(trackReference, _ => new List<MatchedWith> {match}, (_, old) =>
             {
                 old.Add(match);
                 return old;
