@@ -11,7 +11,9 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Math;
+    using SoundFingerprinting.Query;
 
     /// <summary>
     ///  Class that implements <see cref="IModelService"/> interface.
@@ -111,16 +113,32 @@
         {
             return hashes.MediaType switch
             {
-                MediaType.Audio => QueryHashesWithMediaType(hashes, config, MediaType.Audio),
-                MediaType.Video => QueryHashesWithMediaType(hashes, config, MediaType.Video),
+                MediaType.Audio or MediaType.Video =>  ReadSubFingerprints(hashes, config),
                 _ => throw new ArgumentOutOfRangeException(nameof(hashes.MediaType))
             };
         }
 
-        private IEnumerable<SubFingerprintData> QueryHashesWithMediaType(Hashes hashes, QueryConfiguration config, MediaType mediaType)
+        /// <inheritdoc cref="IModelService.QueryEfficiently"/>
+        public Candidates QueryEfficiently(Hashes hashes, QueryConfiguration config)
         {
-            var queryHashes = hashes?.Select(_ => _.HashBins).ToList() ?? Enumerable.Empty<int[]>().ToList();
-            return queryHashes.Any() ? ReadSubFingerprints(queryHashes, mediaType, config) : Enumerable.Empty<SubFingerprintData>();
+            var allSubs = GetSubFingerprintIdToHashedFingerprintMap(hashes, config);
+            var subFingerprints = ResolveFromIds(allSubs.Keys, config.YesMetaFieldsFilters, config.NoMetaFieldsFilters, hashes.MediaType);
+            
+            var candidates = new Candidates();
+            foreach (var subFingerprint in subFingerprints)
+            {
+                if (allSubs.TryGetValue(subFingerprint.SubFingerprintReference.Get<uint>(), out ConcurrentBag<HashedFingerprint>? bag))
+                {
+                    foreach (var hashedFingerprint in bag)
+                    {
+                        double score = config.ScoreAlgorithm.GetScore(hashedFingerprint, subFingerprint, config);
+                        var match = new MatchedWith(hashedFingerprint.SequenceNumber, hashedFingerprint.StartsAt, subFingerprint.SequenceNumber, subFingerprint.SequenceAt, score);
+                        candidates.AddNewMatchForTrack(subFingerprint.TrackReference, match);
+                    }
+                }
+            }
+
+            return candidates;
         }
 
         /// <inheritdoc cref="IModelService.ReadHashesByTrackId"/>
@@ -190,23 +208,34 @@
             return storage.ReadByTrackId(trackId);
         }
         
-        private IEnumerable<SubFingerprintData> ReadSubFingerprints(IEnumerable<int[]> hashes, MediaType mediaType, QueryConfiguration queryConfiguration)
+        private IEnumerable<SubFingerprintData> ReadSubFingerprints(Hashes hashes, QueryConfiguration queryConfiguration)
         {
-            var allSubs = new ConcurrentDictionary<uint, byte>();
+            var allSubs = GetSubFingerprintIdToHashedFingerprintMap(hashes, queryConfiguration);
+            return ResolveFromIds(allSubs.Keys, queryConfiguration.YesMetaFieldsFilters, queryConfiguration.NoMetaFieldsFilters, hashes.MediaType);
+        }
+
+        private ConcurrentDictionary<uint, ConcurrentBag<HashedFingerprint>> GetSubFingerprintIdToHashedFingerprintMap(Hashes hashes, QueryConfiguration queryConfiguration)
+        {
+            // same sub fingerprint can map to multiple hashed fingerprints
+            var allSubs = new ConcurrentDictionary<uint, ConcurrentBag<HashedFingerprint>>();
             int threshold = queryConfiguration.ThresholdVotes;
 
-            hashes.AsParallel().ForAll(hashedFingerprint => 
+            hashes.AsParallel().ForAll(hashedFingerprint =>
             {
-                var ids = QuerySubFingerprints(hashedFingerprint, threshold, mediaType);
-                foreach (uint subFingerprint in ids)
+                var ids = QuerySubFingerprints(hashedFingerprint.HashBins, threshold, hashes.MediaType);
+                foreach (uint id in ids)
                 {
-                    allSubs.TryAdd(subFingerprint, 0);
+                    allSubs.AddOrUpdate(id, new ConcurrentBag<HashedFingerprint>(new[] { hashedFingerprint }), (_, list) =>
+                    {
+                        list.Add(hashedFingerprint);
+                        return list;
+                    });
                 }
             });
 
-            return ResolveFromIds(allSubs.Keys, queryConfiguration.YesMetaFieldsFilters, queryConfiguration.NoMetaFieldsFilters, mediaType);
+            return allSubs;
         }
-        
+
         private IEnumerable<uint> QuerySubFingerprints(int[] hashes, int thresholdVotes, MediaType mediaType)
         {
             var results = new List<uint>[hashes.Length];
@@ -219,10 +248,7 @@
             return groupingCounter.GroupByAndCount(results, thresholdVotes);
         }
 
-        private IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids,
-            IDictionary<string, string> yesMetaFieldsFilters,
-            IDictionary<string, string> noMetaFieldsFilters,
-            MediaType mediaType)
+        private IEnumerable<SubFingerprintData> ResolveFromIds(IEnumerable<uint> ids, IDictionary<string, string> yesMetaFieldsFilters, IDictionary<string, string> noMetaFieldsFilters, MediaType mediaType)
         {
             return storage.ReadSubFingerprintsByUid(ids, mediaType)
                 .GroupBy(subFingerprint => subFingerprint.TrackReference)

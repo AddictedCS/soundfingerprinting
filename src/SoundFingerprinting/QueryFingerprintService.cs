@@ -1,10 +1,11 @@
 ﻿namespace SoundFingerprinting
 {
+    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
+    using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
 
@@ -29,37 +30,34 @@
         public static QueryFingerprintService Instance { get; } = new (QueryMath.Instance);
 
         /// <inheritdoc cref="IQueryFingerprintService.Query"/>
-        public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IModelService modelService)
+        public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IQueryService queryService)
         {
             var queryStopwatch = Stopwatch.StartNew();
-            var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(hashes, configuration, modelService);
+            var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(hashes, configuration, queryService);
             if (!groupedQueryResults.ContainsMatches)
             {
                 return QueryResult.Empty(hashes,  queryStopwatch.ElapsedMilliseconds);
             }
 
-            var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, modelService, configuration);
+            var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, queryService, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount;
             return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed,  queryStopwatch.ElapsedMilliseconds);
         }
 
-        private GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IModelService modelService)
+        private static GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IQueryService queryService)
         {
-            var matchedSubFingerprints = modelService.Query(queryHashes, configuration);
-            return queryHashes
-                .AsParallel()
-                .Aggregate(new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo), (seed, queryFingerprint) =>
+            var candidates = queryService.QueryEfficiently(queryHashes, configuration);
+            var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo);
+            foreach (KeyValuePair<IModelReference, List<MatchedWith>> kv in candidates.GetMatches())
+            {
+                foreach (var match in kv.Value)
                 {
-                    var matched = matchedSubFingerprints.Where(queryResult => QueryMath.IsCandidatePassingThresholdVotes(queryFingerprint.HashBins, queryResult.Hashes, configuration.ThresholdVotes));
-                    foreach (var subFingerprint in matched)
-                    {
-                        double score = configuration.ScoreAlgorithm.GetScore(queryFingerprint, subFingerprint, configuration);
-                        seed.Add(queryFingerprint, subFingerprint, score);
-                    }
+                    groupedResults.Add(match.QuerySequenceNumber, kv.Key, match);
+                }
+            }
 
-                    return seed;
-                });
+            return groupedResults;
         }
     }
 }

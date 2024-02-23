@@ -18,7 +18,7 @@
 
         public static QueryMath Instance { get; } = new (new QueryResultCoverageCalculator());
 
-        public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IModelService modelService, QueryConfiguration queryConfiguration)
+        public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IQueryService modelService, QueryConfiguration queryConfiguration)
         {
             var trackIds = groupedQueryResults.GetTopTracksByScore(maxNumberOfMatchesToReturn).ToList();
             var tracks = modelService.ReadTracksByReferences(trackIds);
@@ -36,11 +36,10 @@
                 if (query[i] == result[i])
                 {
                     count++;
-                }
-
-                if (count >= thresholdVotes)
-                {
-                    return true;
+                    if (count >= thresholdVotes)
+                    {
+                        return true;
+                    }
                 }
             }
 

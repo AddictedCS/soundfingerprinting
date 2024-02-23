@@ -149,6 +149,6 @@
         ///  Before v8.16.2 hamming similarity was used to measure how similar query/track pairs are.
         ///  Since hamming similarity is not a good similarity metric (specifically when applied to hashed min-hashes), scoring algorithm was reduced to sub-fingerprints counting (since score is 1 for all pairs <see cref="SubFingerprintCountScoreAlgorithm"/>).
         /// </remarks>
-        internal IScoreAlgorithm ScoreAlgorithm { get; private set; } = null!;
+        public IScoreAlgorithm ScoreAlgorithm { get; private set; } = null!;
     }
 }

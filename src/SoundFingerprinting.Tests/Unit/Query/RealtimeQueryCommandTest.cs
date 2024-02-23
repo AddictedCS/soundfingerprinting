@@ -18,9 +18,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Content;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Media;
     using SoundFingerprinting.Query;
     using SoundFingerprinting.Strides;
@@ -524,7 +524,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             backoffPolicy.Setup(p => p.Success());
             
             var modelService = new Mock<IModelService>(MockBehavior.Strict);
-            modelService.Setup(s => s.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Returns(Enumerable.Empty<SubFingerprintData>());
+            modelService.Setup(s => s.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Returns(new Candidates());
 
             var queryLength = await QueryCommandBuilder.Instance
                 .BuildRealtimeQueryCommand()
@@ -553,7 +553,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(totalExceptions - 1, restored);
             Assert.AreEqual(totalQueries * length, queryLength);
             
-            modelService.Verify(s => s.Query(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(totalQueries));
+            modelService.Verify(s => s.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(totalQueries));
             backoffPolicy.Verify(b => b.Failure(), Times.Exactly(totalExceptions));
             backoffPolicy.Verify(b => b.RemainingDelay, Times.Exactly(totalExceptions));
             backoffPolicy.Verify(b => b.Success(), Times.Exactly(totalExceptions - 1));
@@ -951,14 +951,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 this.goodOne = goodOne;
             }
             
-            public QueryResult Query(Hashes queryFingerprints, QueryConfiguration configuration, IModelService modelService)
+            public QueryResult Query(Hashes queryFingerprints, QueryConfiguration configuration, IQueryService queryService)
             {
                 if (faultyCounts-- > 0)
                 {
                     throw new IOException("I/O exception");
                 }
 
-                return goodOne.Query(queryFingerprints, configuration, modelService);
+                return goodOne.Query(queryFingerprints, configuration, queryService);
             }
         }
     }

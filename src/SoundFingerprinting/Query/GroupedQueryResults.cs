@@ -5,14 +5,10 @@
     using System.Collections.Generic;
     using System.Linq;
     using SoundFingerprinting.DAO;
-    using SoundFingerprinting.DAO.Data;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
     internal class GroupedQueryResults
     {
-        private readonly object lockObject = new ();
-
         private readonly SortedDictionary<uint, Candidates> sequenceToCandidates;
         private readonly ConcurrentDictionary<IModelReference, double> scoreSumPerTrack;
 
@@ -28,20 +24,16 @@
 
         public DateTime RelativeTo { get; }
 
-        public void Add(HashedFingerprint queryFingerprint, SubFingerprintData resultSubFingerprint, double score)
+        public void Add(uint queryHashSequenceNumber, IModelReference trackReference, MatchedWith matchedWith)
         {
-            lock (lockObject)
+            scoreSumPerTrack.AddOrUpdate(trackReference, matchedWith.Score, (_, old) => old + matchedWith.Score);
+            if (!sequenceToCandidates.TryGetValue(queryHashSequenceNumber, out var candidates))
             {
-                scoreSumPerTrack.AddOrUpdate(resultSubFingerprint.TrackReference, score, (_, old) => old + score);
-                var matchedWith = new MatchedWith(queryFingerprint.SequenceNumber, queryFingerprint.StartsAt, resultSubFingerprint.SequenceNumber, resultSubFingerprint.SequenceAt, score);
-                if (!sequenceToCandidates.TryGetValue(queryFingerprint.SequenceNumber, out var candidates))
-                {
-                    sequenceToCandidates.Add(queryFingerprint.SequenceNumber, new Candidates(resultSubFingerprint.TrackReference, matchedWith));
-                }
-                else
-                {
-                    candidates.AddNewMatchForTrack(resultSubFingerprint.TrackReference, matchedWith);
-                }
+                sequenceToCandidates.Add(queryHashSequenceNumber, new Candidates(trackReference, new[] { matchedWith }));
+            }
+            else
+            {
+                candidates.AddNewMatchForTrack(trackReference, matchedWith);
             }
         }
 
