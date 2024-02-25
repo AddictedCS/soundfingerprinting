@@ -33,7 +33,7 @@
             }
             else
             {
-                candidates.AddNewMatchForTrack(trackReference, matchedWith);
+                candidates.AddMatchesForTrack(trackReference, matchedWith);
             }
         }
 
