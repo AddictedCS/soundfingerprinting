@@ -133,7 +133,7 @@
                     {
                         double score = config.ScoreAlgorithm.GetScore(hashedFingerprint, subFingerprint, config);
                         var match = new MatchedWith(hashedFingerprint.SequenceNumber, hashedFingerprint.StartsAt, subFingerprint.SequenceNumber, subFingerprint.SequenceAt, score);
-                        candidates.AddNewMatchForTrack(subFingerprint.TrackReference, match);
+                        candidates.AddMatchesForTrack(subFingerprint.TrackReference, match);
                     }
                 }
             }

@@ -63,7 +63,7 @@ Since `v8.0.0` video fingerprinting support has been added. Similarly to audio f
 
 ### Version 9
 Version 9 was released to accomodate `SoundFingerprinting.Emy` v9.0.0, which upgrades to FFmpeg v5.x (breaking change as v8.x is using FFmpeg v4.x).
-If you are not using `SoundFingerprinting.Emy` you can safely upgrade to v9.
+If you are not using `SoundFingerprinting.Emy` you can safely upgrade to v9. Version 9.4.0 provides dramatic improvement for long queries (over 1 hour), that match long tracks.
 
 
 ### FAQ

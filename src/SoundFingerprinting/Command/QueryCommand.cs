@@ -22,7 +22,7 @@
         private readonly IFingerprintCommandBuilder fingerprintCommandBuilder;
         private readonly IQueryFingerprintService queryFingerprintService;
         
-        private IModelService? modelService;
+        private IQueryService? queryService;
         private IAudioService audioService;
         private IVideoService? videoService;
         private IMediaService? mediaService;
@@ -100,59 +100,59 @@
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService)"/>
-        public IQueryCommand UsingServices(IModelService modelService)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService)"/>
+        public IQueryCommand UsingServices(IQueryService queryService)
         {
-            this.modelService = modelService;
+            this.queryService = queryService;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IAudioService)"/>
-        public IQueryCommand UsingServices(IModelService modelService, IAudioService audioService)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IAudioService)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IAudioService audioService)
         {
-            this.modelService = modelService;
+            this.queryService = queryService;
             this.audioService = audioService;
             return this;
         }
         
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IAudioService,IQueryMatchRegistry)"/>
-        public IQueryCommand UsingServices(IModelService modelService, IAudioService audioService, IQueryMatchRegistry queryMatchRegistry)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IAudioService,IQueryMatchRegistry)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IAudioService audioService, IQueryMatchRegistry queryMatchRegistry)
         {
-            this.modelService = modelService;
+            this.queryService = queryService;
             this.audioService = audioService;
             this.queryMatchRegistry = queryMatchRegistry;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IVideoService)"/>
-        public IQueryCommand UsingServices(IModelService modelService, IVideoService videoService)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IVideoService)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IVideoService videoService)
         {
-            this.modelService = modelService;
+            this.queryService = queryService;
             this.videoService = videoService;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IVideoService,IQueryMatchRegistry)"/>
-        public IQueryCommand UsingServices(IModelService modelService, IVideoService videoService, IQueryMatchRegistry queryMatchRegistry)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IVideoService,IQueryMatchRegistry)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IVideoService videoService, IQueryMatchRegistry queryMatchRegistry)
         {
-            this.modelService = modelService;
+            this.queryService = queryService;
             this.videoService = videoService;
             this.queryMatchRegistry = queryMatchRegistry;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IMediaService)"/>
-        public IQueryCommand UsingServices(IModelService modelService, IMediaService mediaService)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IMediaService)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IMediaService mediaService)
         {
-            this.modelService = modelService;
+            this.queryService = queryService;
             this.mediaService = mediaService;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IModelService,IMediaService,IQueryMatchRegistry)"/>
-        public IQueryCommand UsingServices(IModelService modelService, IMediaService mediaService, IQueryMatchRegistry queryMatchRegistry)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IMediaService,IQueryMatchRegistry)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IMediaService mediaService, IQueryMatchRegistry queryMatchRegistry)
         {
-            this.modelService = modelService;
+            this.queryService = queryService;
             this.mediaService = mediaService;
             this.queryMatchRegistry = queryMatchRegistry;
             return this;
@@ -223,12 +223,12 @@
 
         private QueryResult? GetQueryResult(Hashes? hashes, QueryConfiguration configuration)
         {
-            if (modelService == null)
+            if (queryService == null)
             {
-                throw new ArgumentException("Provide an instance of IModelService to query the storage via UsingServices(IModelService)", nameof(modelService));
+                throw new ArgumentException("Provide an instance of IModelService to query the storage via UsingServices(IModelService)", nameof(queryService));
             }
             
-            return hashes != null ? queryFingerprintService.Query(hashes, configuration, modelService) : null;
+            return hashes != null ? queryFingerprintService.Query(hashes, configuration, queryService) : null;
         }
     }
 }

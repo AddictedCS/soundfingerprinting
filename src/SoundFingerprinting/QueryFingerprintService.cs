@@ -33,7 +33,7 @@
         public QueryResult Query(Hashes hashes, QueryConfiguration configuration, IQueryService queryService)
         {
             var queryStopwatch = Stopwatch.StartNew();
-            var groupedQueryResults = GetSimilaritiesUsingBatchedStrategy(hashes, configuration, queryService);
+            var groupedQueryResults = GetSimilarities(hashes, configuration, queryService);
             if (!groupedQueryResults.ContainsMatches)
             {
                 return QueryResult.Empty(hashes,  queryStopwatch.ElapsedMilliseconds);
@@ -45,7 +45,7 @@
             return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed,  queryStopwatch.ElapsedMilliseconds);
         }
 
-        private static GroupedQueryResults GetSimilaritiesUsingBatchedStrategy(Hashes queryHashes, QueryConfiguration configuration, IQueryService queryService)
+        private static GroupedQueryResults GetSimilarities(Hashes queryHashes, QueryConfiguration configuration, IQueryService queryService)
         {
             var candidates = queryService.QueryEfficiently(queryHashes, configuration);
             var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo);

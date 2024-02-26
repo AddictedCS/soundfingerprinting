@@ -48,7 +48,7 @@
         {
             foreach (var candidate in candidates)
             {
-                AddNewMatchForTrack(trackReference, candidate);
+                AddMatchesForTrack(trackReference, candidate);
             }
         }
 
@@ -84,14 +84,17 @@
         ///  Add new match for a particular track.
         /// </summary>
         /// <param name="trackReference">Track reference add matched with.</param>
-        /// <param name="match">An instance of <see cref="MatchedWith"/>.</param>
-        public void AddNewMatchForTrack(IModelReference trackReference, MatchedWith match)
+        /// <param name="matches">An instance of <see cref="MatchedWith"/>.</param>
+        public void AddMatchesForTrack(IModelReference trackReference, params MatchedWith[] matches)
         {
-            candidates?.AddOrUpdate(trackReference, _ => new List<MatchedWith> {match}, (_, old) =>
+            foreach (var match in matches)
             {
-                old.Add(match);
-                return old;
-            });
+                candidates?.AddOrUpdate(trackReference, _ => new List<MatchedWith> { match }, (_, old) =>
+                {
+                    old.Add(match);
+                    return old;
+                });
+            }
         }
     }
 }
