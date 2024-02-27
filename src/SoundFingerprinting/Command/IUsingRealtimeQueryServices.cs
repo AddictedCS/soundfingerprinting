@@ -12,40 +12,40 @@ namespace SoundFingerprinting.Command
         /// <summary>
         ///  Sets the model service that will be used as the data source during query.
         /// </summary>
-        /// <param name="modelService">ModelService to query.</param>
+        /// <param name="queryService">ModelService to query.</param>
         /// <returns>Realtime command.</returns>
-        IRealtimeQueryCommand UsingServices(IModelService modelService);
+        IRealtimeQueryCommand UsingServices(IQueryService queryService);
 
         /// <summary>
         ///  Sets the model service that will query the datasource, as well as the audio service that will read content to fingerprint.
         /// </summary>
-        /// <param name="modelService">ModelService to query.</param>
+        /// <param name="queryService">ModelService to query.</param>
         /// <param name="audioService">AudioService to use for file processing.</param>
         /// <returns>Realtime command.</returns>
-        IRealtimeQueryCommand UsingServices(IModelService modelService, IAudioService audioService);
+        IRealtimeQueryCommand UsingServices(IQueryService queryService, IAudioService audioService);
         
         /// <summary>
         ///  Sets the model service that will query the datasource, as well as the media service that will read content to fingerprint.
         /// </summary>
-        /// <param name="modelService">ModelService to query.</param>
+        /// <param name="queryService">ModelService to query.</param>
         /// <param name="mediaService">MediaService to use for file processing.</param>
         /// <returns>Realtime command.</returns>
-        IRealtimeQueryCommand UsingServices(IModelService modelService, IMediaService mediaService);
+        IRealtimeQueryCommand UsingServices(IQueryService queryService, IMediaService mediaService);
         
         /// <summary>
         ///  Sets the model service that will query the datasource, as well as the video service that will read content to fingerprint.
         /// </summary>
-        /// <param name="modelService">ModelService to query.</param>
+        /// <param name="queryService">ModelService to query.</param>
         /// <param name="videoService">VideoService to use for file processing.</param>
         /// <returns>Realtime command.</returns>
-        IRealtimeQueryCommand UsingServices(IModelService modelService, IVideoService videoService);
+        IRealtimeQueryCommand UsingServices(IQueryService queryService, IVideoService videoService);
         
         /// <summary>
         ///  Sets the model service that will query the datasource, as well as the realtime media service used to create fingerprints directly from a given URL.
         /// </summary>
-        /// <param name="modelService">ModelService to query.</param>
+        /// <param name="queryService">ModelService to query.</param>
         /// <param name="realtimeMediaService">Realtime media service to use.</param>
         /// <returns>Realtime command.</returns>
-        IRealtimeQueryCommand UsingServices(IModelService modelService, IRealtimeMediaService realtimeMediaService);
+        IRealtimeQueryCommand UsingServices(IQueryService queryService, IRealtimeMediaService realtimeMediaService);
     }
 }

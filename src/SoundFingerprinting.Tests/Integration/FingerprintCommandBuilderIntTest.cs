@@ -107,7 +107,7 @@
                                         .From(samples)
                                         .Hash();
 
-            AssertHashDatasAreTheSame(h1, h2);
+            AssertHashDataIsTheSame(h1, h2);
         }
 
         [Test]
@@ -147,7 +147,7 @@
             var (h1, _) = await fingerprintCommand.Hash();
             var (h2, _) = await fingerprintCommand.Hash();
 
-            AssertHashDatasAreTheSame(h1, h2);
+            AssertHashDataIsTheSame(h1, h2);
         }
 
         [Test]
@@ -289,9 +289,9 @@
                 .UsingServices(audioService)
                 .Hash();
 
-            AssertHashDatasAreTheSame(hashDatas1, hashDatas2);
-            AssertHashDatasAreTheSame(hashDatas2, hashDatas3);
-            AssertHashDatasAreTheSame(hashDatas3, hashDatas4);
+            AssertHashDataIsTheSame(hashDatas1, hashDatas2);
+            AssertHashDataIsTheSame(hashDatas2, hashDatas3);
+            AssertHashDataIsTheSame(hashDatas3, hashDatas4);
         }
         
         [Test]

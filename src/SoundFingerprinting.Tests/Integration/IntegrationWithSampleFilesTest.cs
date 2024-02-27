@@ -3,8 +3,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Runtime.Serialization.Formatters.Binary;
-
     using Audio;
     using Data;
     using ProtoBuf;
@@ -13,11 +11,11 @@
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
-        protected readonly string pathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
+        private readonly string pathToSamples = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopinsamples.bin");
         
         protected readonly string PathToWav = Path.Combine(TestContext.CurrentContext.TestDirectory, "chopin_short.wav");
 
-        protected void AssertHashDatasAreTheSame(Hashes h1, Hashes h2)
+        protected static void AssertHashDataIsTheSame(Hashes h1, Hashes h2)
         {
             var firstHashes = h1.ToList();
             var secondHashes = h2.ToList();
@@ -36,7 +34,7 @@
             }
         }
 
-        protected TagInfo GetTagInfo()
+        protected static TagInfo GetTagInfo()
         {
             return new TagInfo
             {
