@@ -31,7 +31,7 @@ namespace SoundFingerprinting.Command
         private Func<CancellationToken, IAsyncEnumerable<AVHashes>> realtimeCollection;
         private RealtimeQueryConfiguration configuration;
         private IRealtimeMediaService? realtimeMediaService;
-        private IModelService? modelService;
+        private IQueryService? queryService;
         private IMediaService? mediaService;
         private IVideoService? videoService;
         private IAudioService audioService;
@@ -135,41 +135,41 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService)"/>
-        public IRealtimeQueryCommand UsingServices(IModelService service)
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IQueryService)"/>
+        public IRealtimeQueryCommand UsingServices(IQueryService service)
         {
-            modelService = service;
+            queryService = service;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IAudioService)"/>
-        public IRealtimeQueryCommand UsingServices(IModelService modelService, IAudioService audioService)
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IQueryService,IAudioService)"/>
+        public IRealtimeQueryCommand UsingServices(IQueryService modelService, IAudioService audioService)
         {
-            this.modelService = modelService;
+            this.queryService = modelService;
             this.audioService = audioService;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IMediaService)"/>
-        public IRealtimeQueryCommand UsingServices(IModelService modelService, IMediaService mediaService)
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IQueryService,IMediaService)"/>
+        public IRealtimeQueryCommand UsingServices(IQueryService modelService, IMediaService mediaService)
         {
-            this.modelService = modelService;
+            this.queryService = modelService;
             this.mediaService = mediaService;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IVideoService)"/>
-        public IRealtimeQueryCommand UsingServices(IModelService modelService, IVideoService videoService)
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IQueryService,IVideoService)"/>
+        public IRealtimeQueryCommand UsingServices(IQueryService modelService, IVideoService videoService)
         {
-            this.modelService = modelService;
+            this.queryService = modelService;
             this.videoService = videoService;
             return this;
         }
 
-        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IModelService,IRealtimeMediaService)"/>
-        public IRealtimeQueryCommand UsingServices(IModelService modelService, IRealtimeMediaService realtimeMediaService)
+        /// <inheritdoc cref="IUsingRealtimeQueryServices.UsingServices(IQueryService,IRealtimeMediaService)"/>
+        public IRealtimeQueryCommand UsingServices(IQueryService modelService, IRealtimeMediaService realtimeMediaService)
         {
-            this.modelService = modelService;
+            this.queryService = modelService;
             this.realtimeMediaService = realtimeMediaService;
             return this;
         }
@@ -354,7 +354,7 @@ namespace SoundFingerprinting.Command
         }
 
         /// <summary>
-        ///  Queries local or remote <see cref="IModelService"/> with <see cref="AVHashes"/> gathered from offline storage.
+        ///  Queries local or remote <see cref="IQueryService"/> with <see cref="AVHashes"/> gathered from offline storage.
         /// </summary>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Async enumerable with <see cref="AVQueryResult"/>.</returns>
@@ -373,7 +373,7 @@ namespace SoundFingerprinting.Command
         }
 
         /// <summary>
-        ///  Tries querying associated <see cref="IModelService"/>.
+        ///  Tries querying associated <see cref="IQueryService"/>.
         /// </summary>
         /// <param name="hashes">An instance of <see cref="AVHashes"/>.</param>
         /// <param name="realtimeAggregator">Realtime aggregator.</param>
@@ -491,7 +491,7 @@ namespace SoundFingerprinting.Command
                 .BuildQueryCommand()
                 .From(hashes)
                 .WithQueryConfig(configuration.QueryConfiguration)
-                .UsingServices(modelService)
+                .UsingServices(queryService)
                 .Query();
             var avQueryResult = queryResultInterceptor(queryResult);
             queryLength += (hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset ?? hashes.Video?.DurationInSeconds) ?? 0;

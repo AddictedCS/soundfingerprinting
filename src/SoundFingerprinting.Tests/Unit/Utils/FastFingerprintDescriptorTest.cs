@@ -47,7 +47,7 @@
                     .From(audioSamples)
                     .Hash();
 
-                AssertHashDatasAreTheSame(h1, h2);
+                AssertHashDataIsTheSame(h1, h2);
             }
         }
 
