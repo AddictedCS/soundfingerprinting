@@ -1,5 +1,7 @@
 namespace SoundFingerprinting.Audio
 {
+    using System.Collections.Generic;
+
     /// <summary>
     ///  Service that allows extracting tag information.
     /// </summary>
@@ -20,13 +22,12 @@ namespace SoundFingerprinting.Audio
         /// <param name="value">Value.</param>
         /// <returns>True if successful, otherwise false.</returns>
         bool TryGetTagByKey(string pathToAudioFile, string key, out string? value);
-        
+
         /// <summary>
         ///  Set tag by key in the audio file.
         /// </summary>
         /// <param name="pathToAudioFile">Path to audio file (mp3)</param>
-        /// <param name="key">Key.</param>
-        /// <param name="value">Value.</param>
-        void SetTagByKey(string pathToAudioFile, string key, string value);
+        /// <param name="tags">Key/Values.</param>
+        void SetTagByKey(string pathToAudioFile, IEnumerable<KeyValuePair<string, string>> tags);
     }
 }
