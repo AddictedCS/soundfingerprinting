@@ -25,6 +25,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<PackageLicenseFile>license.txt</PackageLicenseFile>
     <PackageIcon>soundfingerprinting.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>  
   </PropertyGroup>
 	<PropertyGroup>
 		<CodeAnalysisRuleSet>../Emy.ruleset</CodeAnalysisRuleSet>
@@ -59,7 +60,11 @@
 	</None>
     <None Include="../../soundfingerprinting.png">
 	   <Pack>True</Pack>
-	    <PackagePath></PackagePath>
+	   <PackagePath></PackagePath>
+	</None>
+	<None Include="../../README.md">
+	   <Pack>True</Pack>
+	   <PackagePath></PackagePath>
 	</None>
   </ItemGroup>
 </Project>
