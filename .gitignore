@@ -25,3 +25,4 @@ emy-blog/
 _site/
 .sass-cache/
 Gemfile.lock
+global.json
