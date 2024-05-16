@@ -99,7 +99,7 @@ namespace SoundFingerprinting
                     waveletDecomposition.DecomposeImageInPlace(rowCols, frame.Rows, frame.Cols, configuration.HaarWaveletNorm);
                     RangeUtils.PopulateIndexes(length, cachedIndexes);
                     var image = fingerprintDescriptor.ExtractTopWavelets(rowCols, configuration.TopWavelets, cachedIndexes);
-                    if (!image.IsSilence)
+                    if (!image.IsSilence || configuration.TreatSilenceAsSignal)
                     {
                         fingerprints.Add(new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, originalPoint));
                     }
