@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.LCS;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using SoundFingerprinting.Query;
@@ -24,7 +25,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         var bestPaths = new List<IEnumerable<MatchedWith>>();
         while (matchedWiths.Any())
         {
-            var (sequence, badSequence) = GetLongestIncreasingSequence(matchedWiths, permittedGap);
+            var (sequence, exclusions) = GetLongestIncreasingSequence(matchedWiths, permittedGap);
             var withs = sequence as MatchedWith[] ?? sequence.ToArray();
             if (!withs.Any())
             {
@@ -32,17 +33,14 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             }
 
             bestPaths.Add(withs);
-            matchedWiths = matchedWiths.Except(withs.Concat(badSequence)).ToList();
+            matchedWiths = matchedWiths.Except(withs.Concat(exclusions)).ToList();
         }
 
-        // this may seem as redundant but it is not, since we can pick the first candidates from not the same sequences
+        // this may seem as redundant, but it is not, since we can pick the first candidates from not the same sequences
         return bestPaths.OrderByDescending(_ => _.Count());
     }
     
-    private static bool IsSameSequence(MatchedWith a, MatchedWith b, double maxGap)
-    {
-        return Math.Abs(a.QueryMatchAt - b.QueryMatchAt) <= maxGap && Math.Abs(a.TrackMatchAt - b.TrackMatchAt) <= maxGap;
-    }
+    
     
     private MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
     {
@@ -97,49 +95,93 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         var matches = matched.OrderBy(x => x.TrackSequenceNumber).ThenBy(_ => _.TrackMatchAt).ToList();
         if (!matches.Any())
         {
-            return new LongestIncreasingSequence(Enumerable.Empty<MatchedWith>(), Enumerable.Empty<MatchedWith>());
+            return new LongestIncreasingSequence([], []);
         }
 
         double maxGap = GetMaxGap(matches, permittedGap);
+        
+        // locking second dimension - query sequence number
         var maxArray = MaxIncreasingQuerySequenceOptimal(matches, maxGap, out int max, out int maxIndex);
         
-        var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex + 1));
-        var result = new Stack<MaxAt>();
+        // initializing the datastructures with first element set to max
+        var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex));
         var excluded = new List<MaxAt>();
-        while (maxs.TryPop(out var candidate) && max > 0)
+        var result = new ConcurrentDictionary<int, MaxAt> {[max--] = maxArray[maxIndex]};
+        var lastPicked = maxArray[maxIndex];
+        
+        while (maxs.TryPop(out var candidate))
         {
             if (candidate!.Length != max)
             {
-                // out of order element need to be excluded if it is part of the same sequence
-                if (result.TryPeek(out var lastPicked) && IsSameSequence(candidate.MatchedWith, lastPicked!.MatchedWith, maxGap))
+                // check if the candidate is part of the same decreasing sequence
+                if (IsSameSequence(candidate, lastPicked, maxGap))
                 {
-                    excluded.Add(candidate);
+                    // check if we previously picked a sequence with the same length, if yes we should try picking the best one
+                    if (candidate.Length > max)
+                    {
+                        TryUpdateResultSelection(result, candidate, excluded);
+                    }
+                    else
+                    {
+                        // start of a shorter sequence, we should exclude it
+                        excluded.Add(candidate);
+                    }
                 }
-                
+
                 continue;
             }
 
             max--;
+            
             do
             {
-                bool firstElementInSequence = !result.TryPeek(out var lastPicked);
-                bool querySequenceDecreasing = IsQuerySequenceDecreasing(candidate!, lastPicked);
-                bool sameSequence = firstElementInSequence || IsSameSequence(candidate!.MatchedWith, lastPicked!.MatchedWith, maxGap);
-
-                switch (querySequenceDecreasing)
+                switch (IsQuerySequenceDecreasing(candidate, lastPicked))
                 {
-                    case true when sameSequence:
-                        result.Push(candidate!);
+                    case true when IsSameSequence(candidate, lastPicked, maxGap):
+                        lastPicked = TryUpdateResultSelection(result, candidate, excluded);
                         break;
-                    case false when sameSequence:
-                        excluded.Add(candidate!);
+                    case false when IsSameSequence(candidate, lastPicked, maxGap):
+                        excluded.Add(candidate);
                         break;
                 }
             }
-            while (maxs.TryPeek(out var lookAhead) && EqualMaxLength(candidate!, lookAhead!) && maxs.TryPop(out candidate));
+            while (maxs.TryPeek(out var lookAhead) && EqualMaxLength(candidate!, lookAhead!) && maxs.TryPop(out candidate!));
         }
 
-        return new LongestIncreasingSequence(result.Select(_ => _.MatchedWith), excluded.Select(_ => _.MatchedWith));
+        return new LongestIncreasingSequence(result.OrderBy(_ => _.Key).Select(_ => _.Value.MatchedWith), excluded.Select(_ => _.MatchedWith));
+    }
+
+    private static MaxAt TryUpdateResultSelection(ConcurrentDictionary<int, MaxAt> result, MaxAt candidate, List<MaxAt> excluded)
+    {
+        // check if the candidate is closer to the diagonal than the previous element, pick best and exclude the other
+        return result.AddOrUpdate(candidate.Length, candidate, (_, previous) =>
+        {
+            double prevQueryTrackDistance = previous.QueryTrackDistance;
+            double currentQueryTrackDistance = candidate.QueryTrackDistance;
+
+            // possible when the candidate is part of a different decreasing sequence with equal maxAt
+            if (!IsQuerySequenceDecreasing(candidate, previous))
+            {
+                excluded.Add(candidate);
+                return previous;
+            }
+
+            // if the current element is closer to the diagonal, we should pick it
+            var pickedValue = prevQueryTrackDistance < currentQueryTrackDistance ? previous : candidate!;
+            var excludedValue = prevQueryTrackDistance < currentQueryTrackDistance ? candidate : previous;
+            excluded.Add(excludedValue);
+            return pickedValue;
+        });
+    }
+    
+    private static bool IsSameSequence(MaxAt first, MaxAt second, double maxGap)
+    {
+        return IsSameSequence(first.MatchedWith, second.MatchedWith, maxGap);
+    }
+    
+    private static bool IsSameSequence(MatchedWith first, MatchedWith second, double maxGap)
+    {
+        return Math.Abs(first.QueryMatchAt - second.QueryMatchAt) <= maxGap && Math.Abs(first.TrackMatchAt - second.TrackMatchAt) <= maxGap;
     }
 
     private static double GetMaxGap(List<MatchedWith> matches, double permittedGap)
@@ -156,9 +198,9 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return Math.Max(permittedGap, Math.Min(queryMatchAtMax - queryMatchAtMin, trackMatchAtMax - trackMatchAtMin));
     }
 
-    private static bool IsQuerySequenceDecreasing(MaxAt lookAhead, MaxAt? lastPicked)
+    private static bool IsQuerySequenceDecreasing(MaxAt lookAhead, MaxAt lastPicked)
     {
-        return !(lookAhead.MatchedWith.QuerySequenceNumber > lastPicked?.MatchedWith.QuerySequenceNumber);
+        return !(lookAhead.MatchedWith.QuerySequenceNumber > lastPicked.MatchedWith.QuerySequenceNumber);
     }
 
     private static bool EqualMaxLength(MaxAt current, MaxAt lookAhead)

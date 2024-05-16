@@ -108,5 +108,15 @@ namespace SoundFingerprinting.Configuration
         ///  Frame normalization allows to apply
         /// </remarks>
         public IFrameNormalization FrameNormalizationTransform { get; set; } = null!;
+
+        /// <summary>
+        ///  Gets or sets a value indicating whether to include silence fingerprints into the fingerprinted result set.
+        /// </summary>
+        /// <remarks>
+        ///   Keep in mind that silence fingerprints will always cross-match with any other silence fingerprints. <br />
+        ///   May be useful in scenarios when the dataset is small, and the content you are fingerprinting contains a lot of speech. <br />
+        ///   Default value is false. <br/>
+        /// </remarks>
+        public bool TreatSilenceAsSignal { get; set; }
     }
 }

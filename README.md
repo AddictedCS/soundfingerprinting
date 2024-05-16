@@ -61,9 +61,14 @@ Read [Supported Media Formats][audio-services-wiki-page] page for details about 
 ### Video fingerprinting support since version 8.0.0
 Since `v8.0.0` video fingerprinting support has been added. Similarly to audio fingerprinting, video fingerprints are generated from video frames, and used to insert and later query the datastore for exact and similar matches. You can use `SoundFingerprinting` to fingerprint either audio or video content or both at the same time. More details about video fingerprinting are available [here][video-fingerprinting-wiki-page].
 
-### Version 9
-Version 9 was released to accomodate `SoundFingerprinting.Emy` v9.0.0, which upgrades to FFmpeg v5.x (breaking change as v8.x is using FFmpeg v4.x).
-If you are not using `SoundFingerprinting.Emy` you can safely upgrade to v9. Version 9.4.0 provides dramatic improvement for long queries (over 1 hour), that match long tracks.
+### Version Matrix
+If you are using `FFmpegAudioService` as described in the [wiki][audio-services-wiki-page], follow the below version matrix.
+| SoundFingerprinting  | SoundFingerprinting.Emy | FFmpeg |
+| ---- | ------ |-----|
+| 8.x  | 8.x    | 4.x |
+| 9.x  | 9.x    | 5.x |
+| 10.x | 10.x   | 6.x |
+
 
 
 ### FAQ

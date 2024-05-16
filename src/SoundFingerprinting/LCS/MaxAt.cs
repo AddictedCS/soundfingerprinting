@@ -2,16 +2,12 @@ namespace SoundFingerprinting.LCS
 {
     using SoundFingerprinting.Query;
 
-    internal class MaxAt
+    internal record MaxAt(int Length, MatchedWith MatchedWith)
     {
-        public MaxAt(int length, MatchedWith matchedWith)
-        {
-            Length = length;
-            MatchedWith = matchedWith;
-        }
+        public int Length { get; } = Length;
 
-        public int Length { get; }
-        
-        public MatchedWith MatchedWith { get; }
+        public MatchedWith MatchedWith { get; } = MatchedWith;
+
+        public float QueryTrackDistance => System.Math.Abs(MatchedWith.QueryMatchAt - MatchedWith.TrackMatchAt);
     }
 }
