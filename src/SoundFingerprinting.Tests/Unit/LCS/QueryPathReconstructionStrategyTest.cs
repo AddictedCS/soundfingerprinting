@@ -16,7 +16,7 @@
         [Test]
         public void ShouldNotThrowWhenEmptyIsPassed()
         {
-            var result = queryPathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), permittedGap: 0);
+            var result = queryPathReconstructionStrategy.GetBestPaths([], permittedGap: 0);
 
             CollectionAssert.IsEmpty(result);
         }
@@ -49,19 +49,18 @@
         /*
          * q         1 1 1 4
          * t         1 2 3 4
-         * expected  x x x x
+         * expected  x     x
          * max       1 1 1 2
          */
         [Test]
         public void ShouldPickAllQueryCandidates()
         {
-            var matchedWiths = new[] { (1, 1), (1, 2), (1, 3), (4, 4) }.Select(tuple =>
-                new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
+            var matchedWiths = new[] { (1, 1), (1, 2), (1, 3), (4, 4) }.Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
 
-            CollectionAssert.AreEqual(new[] { 1, 1, 1, 4 }, result.Select(_ => (int)_.QuerySequenceNumber));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, result.Select(_ => (int)_.TrackSequenceNumber));
+            CollectionAssert.AreEqual(new[] { 1, 4 }, result.Select(_ => (int)_.QuerySequenceNumber));
+            CollectionAssert.AreEqual(new[] { 1, 4 }, result.Select(_ => (int)_.TrackSequenceNumber));
         }
 
         /*
@@ -80,6 +79,24 @@
 
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, result.Select(_ => (int)_.QuerySequenceNumber));
             CollectionAssert.AreEqual(new[] { 1, 1, 1, 4 }, result.Select(_ => (int)_.TrackSequenceNumber));
+        }
+        
+        /*
+         * q         1 2 3 4 7 4 5 6 
+         * t         1 2 3 4 6 6 6 6
+         * expected  x x x x
+         * max       1 2 3 4 5 4 5 6
+         */
+        [Test]
+        public void ShouldNotUpdateIfQueryMatchReversalDetected()
+        {
+            var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (4, 4), (7, 6), (4, 6), (5, 6), (6, 6) }
+                .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
+
+            var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
+
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6 }, result.Select(_ => (int)_.QuerySequenceNumber));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 6, 6 }, result.Select(_ => (int)_.TrackSequenceNumber));
         }
         
         [Test]
@@ -194,9 +211,10 @@
              */
 
             var pairs = new[] {(1, 1), (1, 2), (1, 3), (4, 4)};
+            var expected = new[] {(1, 1), (4, 4)};
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).First();
 
-            AssertResult(pairs, result);
+            AssertResult(expected, result);
         }
 
         [Test]
@@ -249,9 +267,10 @@
              */
 
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 3), (4, 4)};
+            var expected = new[] {(1, 1), (2, 2), (3, 3), (4, 4)};
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToList();
 
-            AssertResult(pairs, result[0]);
+            AssertResult(expected, result[0]);
         }
 
         [Test]
@@ -285,7 +304,7 @@
             /*
              * q         1 2 4 3 3
              * t         1 2 3 4 5
-             * expected  x x   x x 
+             * expected  x x   x  
              * max       1 2 3 3 3
              */
 
@@ -293,7 +312,7 @@
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToList();
 
             Assert.AreEqual(1, result.Count);
-            var expected1 = new[] {(1, 1), (2, 2), (3, 4), (3, 5)};
+            var expected1 = new[] {(1, 1), (2, 2), (3, 4)};
             AssertResult(expected1, result[0]);
         }
 

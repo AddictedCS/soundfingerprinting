@@ -299,18 +299,19 @@
         {
             var audioSamples = GetAudioSamples();
             var track = new TrackInfo("4321", audioSamples.Origin, audioSamples.Origin);
-            var fingerprints = await FingerprintCommandBuilder.Instance
+            var avHashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(audioSamples)
                 .UsingServices(audioService)
                 .Hash();
 
             var modelService = new InMemoryModelService();
-            modelService.Insert(track, fingerprints);
+            modelService.Insert(track, avHashes);
 
-            var (queryResult, _) = await QueryCommandBuilder.Instance.BuildQueryCommand()
-                .From(fingerprints)
-                .UsingServices(modelService, audioService)
+            var (queryResult, _) = await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(avHashes)
+                .UsingServices(modelService)
                 .Query();
 
             Assert.That(queryResult, Is.Not.Null);

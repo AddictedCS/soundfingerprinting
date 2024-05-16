@@ -228,10 +228,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             await InsertFingerprints(track, modelService);
 
-            // when allow multiple matches is specified it should return all four matches (cross matches included)
-            var multipleMatches = await GetQueryResult(query, modelService);
-            // Assert.AreEqual(4, multipleMatches.ResultEntries.Count());
-
             var singleMatch = await GetQueryResult(query, modelService);
             Assert.AreEqual(1, singleMatch.ResultEntries.Count());
             var coverage = singleMatch.ResultEntries.First().Coverage;
@@ -285,6 +281,50 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(0d, entries[0].QueryMatchStartsAt, 1f);
             Assert.AreEqual(60d, entries[1].TrackMatchStartsAt, 1f); 
             Assert.AreEqual(0d, entries[1].QueryMatchStartsAt, 1f);
+        }
+         
+        [Test(Description = "Should cross match tone signal")]
+        public async Task ShouldBeAbleToCrossMatchToneSignal()
+        {
+            var first = TestUtilities.GenerateRandomAudioSamples(15 * 5512);
+            var silenceGap = new AudioSamples(Enumerable.Repeat((float)0.5, 10 * 5512).ToArray(), string.Empty, 5512);
+            var second = TestUtilities.GenerateRandomAudioSamples(15 * 5512);
+
+            var samples = TestUtilities.Concatenate(TestUtilities.Concatenate(first, silenceGap), second);
+
+            var avHashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(samples)
+                .WithFingerprintConfig(config =>
+                {
+                    config.Audio.TreatSilenceAsSignal = true;
+                    return config;
+                })
+                .UsingServices(new SoundFingerprintingAudioService())
+                .Hash();
+
+            var modelService = new InMemoryModelService();
+            
+            modelService.Insert(new TrackInfo("id", "title", "artist"), avHashes);
+
+            var query = await QueryCommandBuilder
+                .Instance
+                .BuildQueryCommand()
+                .From(avHashes)
+                .UsingServices(modelService)
+                .Query();
+            
+            var result = query.ResultEntries.First();
+            
+            Assert.That(result, Is.Not.Null);
+            var queryGaps = result.Audio!.Coverage.QueryGaps.ToList();
+            var trackGaps = result.Audio.Coverage.TrackGaps.ToList();
+            
+            Assert.That(trackGaps, Is.Empty);
+            Assert.That(queryGaps, Is.Empty);
+            
+            Assert.That(result.Audio.Confidence, Is.EqualTo(1).Within(0.1));
+            Assert.That(result.Audio.TrackRelativeCoverage, Is.EqualTo(1).Within(0.1));
         }
 
         private static float[] GetRandomSamplesWithRegions(float[] m1, float[] m2)

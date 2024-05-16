@@ -163,6 +163,14 @@ namespace SoundFingerprinting.Tests
             return gaps;
         }
         
+        public static AudioSamples Concatenate(AudioSamples first, AudioSamples second)
+        {
+            float[] concatenated = new float[first.Samples.Length + second.Samples.Length];
+            Array.Copy(first.Samples, concatenated, first.Samples.Length);
+            Array.Copy(second.Samples, 0, concatenated, first.Samples.Length, second.Samples.Length);
+            return new AudioSamples(concatenated, string.Empty, first.SampleRate, first.RelativeTo);
+        }
+        
         private static bool IsInsideGap(MatchedWith matched, IEnumerable<Gap> gaps, double fingerprintLength)
         {
             return gaps.Any(gap => matched.TrackMatchAt + fingerprintLength >= gap.Start && matched.TrackMatchAt <= gap.End);
