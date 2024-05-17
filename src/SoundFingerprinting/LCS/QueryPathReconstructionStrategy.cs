@@ -40,8 +40,6 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return bestPaths.OrderByDescending(_ => _.Count());
     }
     
-    
-    
     private MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
     {
         var maxs = matches.Select(_ => new MaxAt(1, _)).ToArray();
@@ -111,41 +109,34 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         
         while (maxs.TryPop(out var candidate))
         {
-            if (candidate!.Length != max)
+            if (!IsSameSequence(candidate!, lastPicked, maxGap))
             {
-                // check if the candidate is part of the same decreasing sequence
-                if (IsSameSequence(candidate, lastPicked, maxGap))
-                {
-                    // check if we previously picked a sequence with the same length, if yes we should try picking the best one
-                    if (candidate.Length > max)
-                    {
-                        TryUpdateResultSelection(result, candidate, excluded);
-                    }
-                    else
-                    {
-                        // start of a shorter sequence, we should exclude it
-                        excluded.Add(candidate);
-                    }
-                }
-
+                continue;
+            }
+            
+            if (candidate!.Length > max)
+            {
+                // check if we previously picked a sequence with the same length, if yes we should try picking the best one based on the distance to the diagonal
+                lastPicked = TryUpdateResultSelection(result, candidate, excluded);
+                continue;
+            }
+            
+            if (candidate.Length < max)
+            {
+                // start of a shorter sequence, we should exclude it
+                excluded.Add(candidate);
                 continue;
             }
 
-            max--;
-            
-            do
+            if (!IsQuerySequenceDecreasing(candidate, lastPicked))
             {
-                switch (IsQuerySequenceDecreasing(candidate, lastPicked))
-                {
-                    case true when IsSameSequence(candidate, lastPicked, maxGap):
-                        lastPicked = TryUpdateResultSelection(result, candidate, excluded);
-                        break;
-                    case false when IsSameSequence(candidate, lastPicked, maxGap):
-                        excluded.Add(candidate);
-                        break;
-                }
+                // the candidate is part of a different decreasing sequence
+                excluded.Add(candidate);
+                continue;
             }
-            while (maxs.TryPeek(out var lookAhead) && EqualMaxLength(candidate!, lookAhead!) && maxs.TryPop(out candidate!));
+            
+            max--;
+            lastPicked = TryUpdateResultSelection(result, candidate, excluded);
         }
 
         return new LongestIncreasingSequence(result.OrderBy(_ => _.Key).Select(_ => _.Value.MatchedWith), excluded.Select(_ => _.MatchedWith));
