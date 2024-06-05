@@ -26,7 +26,7 @@
         private IAudioService audioService;
         private IVideoService? videoService;
         private IMediaService? mediaService;
-        private IQueryMatchRegistry? queryMatchRegistry;
+        private IAVQueryMatchRegistry? queryMatchRegistry;
         private Func<AVHashes, AVHashes> hashesInterceptor;
         
         private Func<IWithFingerprintConfiguration>? createFingerprintCommand;
@@ -115,8 +115,8 @@
             return this;
         }
         
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IAudioService,IQueryMatchRegistry)"/>
-        public IQueryCommand UsingServices(IQueryService queryService, IAudioService audioService, IQueryMatchRegistry queryMatchRegistry)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IAudioService,IAVQueryMatchRegistry)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IAudioService audioService, IAVQueryMatchRegistry queryMatchRegistry)
         {
             this.queryService = queryService;
             this.audioService = audioService;
@@ -132,8 +132,8 @@
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IVideoService,IQueryMatchRegistry)"/>
-        public IQueryCommand UsingServices(IQueryService queryService, IVideoService videoService, IQueryMatchRegistry queryMatchRegistry)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IVideoService,IAVQueryMatchRegistry)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IVideoService videoService, IAVQueryMatchRegistry queryMatchRegistry)
         {
             this.queryService = queryService;
             this.videoService = videoService;
@@ -149,8 +149,8 @@
             return this;
         }
 
-        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IMediaService,IQueryMatchRegistry)"/>
-        public IQueryCommand UsingServices(IQueryService queryService, IMediaService mediaService, IQueryMatchRegistry queryMatchRegistry)
+        /// <inheritdoc cref="IUsingQueryServices.UsingServices(IQueryService,IMediaService,IAVQueryMatchRegistry)"/>
+        public IQueryCommand UsingServices(IQueryService queryService, IMediaService mediaService, IAVQueryMatchRegistry queryMatchRegistry)
         {
             this.queryService = queryService;
             this.mediaService = mediaService;

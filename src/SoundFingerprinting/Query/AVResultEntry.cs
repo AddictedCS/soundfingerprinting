@@ -61,7 +61,7 @@ namespace SoundFingerprinting.Query
         }
 
         /// <summary>
-        ///  Converts to audio video query match object that you can register in the registry service <see cref="IQueryMatchRegistry"/>.
+        ///  Converts to audio video query match object that you can register in the registry service <see cref="IAVQueryMatchRegistry"/>.
         /// </summary>
         /// <param name="avQueryMatchId">Query match identifier.</param>
         /// <param name="streamId">Stream identifier.</param>

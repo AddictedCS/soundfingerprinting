@@ -32,7 +32,7 @@ namespace SoundFingerprinting.Command
         /// <param name="audioService">Audio service used in building the fingerprints from the source.</param>
         /// <param name="queryMatchRegistry">Match registry used to store the results in a separate storage.</param>
         /// <returns>Query command.</returns>
-        IQueryCommand UsingServices(IQueryService queryService, IAudioService audioService, IQueryMatchRegistry queryMatchRegistry);
+        IQueryCommand UsingServices(IQueryService queryService, IAudioService audioService, IAVQueryMatchRegistry queryMatchRegistry);
 
         /// <summary>
         ///  Sets model service as well as video service.
@@ -55,7 +55,7 @@ namespace SoundFingerprinting.Command
         /// <remarks>
         ///  Set video service in case you want to generate video fingerprints only by setting MediaType.Video on the <see cref="IQuerySource"/> overloads.
         /// </remarks>
-        IQueryCommand UsingServices(IQueryService queryService, IVideoService videoService, IQueryMatchRegistry queryMatchRegistry);
+        IQueryCommand UsingServices(IQueryService queryService, IVideoService videoService, IAVQueryMatchRegistry queryMatchRegistry);
         
         /// <summary>
         /// Sets model service as well as media service.
@@ -78,6 +78,6 @@ namespace SoundFingerprinting.Command
         /// <remarks>
         ///  Media service can be used to read both <see cref="AudioSamples"/> and <see cref="Frames"/> from a media file, and generate <see cref="AVHashes"/> that will be used to query the underlying source.
         /// </remarks>
-        IQueryCommand UsingServices(IQueryService queryService, IMediaService mediaService, IQueryMatchRegistry queryMatchRegistry);
+        IQueryCommand UsingServices(IQueryService queryService, IMediaService mediaService, IAVQueryMatchRegistry queryMatchRegistry);
     }
 }
