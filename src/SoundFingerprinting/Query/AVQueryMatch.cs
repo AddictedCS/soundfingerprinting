@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Query
 {
     using System;
+    using System.Collections.Generic;
     using ProtoBuf;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
@@ -19,7 +20,8 @@ namespace SoundFingerprinting.Query
         /// <param name="video">Video match information.</param>
         /// <param name="streamId">Stream ID information.</param>
         /// <param name="reviewStatus">Review status.</param>
-        public AVQueryMatch(string id, QueryMatch? audio, QueryMatch? video, string? streamId, ReviewStatus reviewStatus = ReviewStatus.None)
+        /// <param name="metaFields">Meta fields associated with the match.</param>
+        public AVQueryMatch(string id, QueryMatch? audio, QueryMatch? video, string? streamId, ReviewStatus reviewStatus = ReviewStatus.None, IDictionary<string, string>? metaFields = null)
         {
             if (audio == null && video == null)
             {
@@ -31,6 +33,7 @@ namespace SoundFingerprinting.Query
             Audio = audio;
             Video = video;
             ReviewStatus = reviewStatus;
+            MetaFields = metaFields;
         }
 
         /// <summary>
@@ -100,6 +103,12 @@ namespace SoundFingerprinting.Query
                 };
             }
         }
+
+        /// <summary>
+        ///  Gets meta fields associated with the query match.
+        /// </summary>
+        [ProtoMember(6)]
+        public IDictionary<string, string>? MetaFields { get; }
 
         /// <summary>
         ///  Deconstructs instance of <see cref="AVQueryMatch"/> class.
