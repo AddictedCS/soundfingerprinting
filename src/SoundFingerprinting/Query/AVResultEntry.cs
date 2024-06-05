@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Query
 {
     using System;
+    using System.Collections.Generic;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
 
@@ -66,11 +67,12 @@ namespace SoundFingerprinting.Query
         /// <param name="avQueryMatchId">Query match identifier.</param>
         /// <param name="streamId">Stream identifier.</param>
         /// <param name="reviewStatus">review status.</param>
+        /// <param name="metaFields">Meta fields.</param>
         /// <returns>An instance of <see cref="AVQueryMatch"/>.</returns>
-        public AVQueryMatch ConvertToAvQueryMatch(string avQueryMatchId = "", string streamId = "", ReviewStatus reviewStatus = ReviewStatus.None)
+        public AVQueryMatch ConvertToAvQueryMatch(string avQueryMatchId = "", string streamId = "", ReviewStatus reviewStatus = ReviewStatus.None, IDictionary<string, string>? metaFields = null)
         {
             string id = string.IsNullOrEmpty(avQueryMatchId) ? Guid.NewGuid().ToString() : avQueryMatchId;
-            return new AVQueryMatch(id, ToQueryMatch(Audio), ToQueryMatch(Video), streamId, reviewStatus);
+            return new AVQueryMatch(id, ToQueryMatch(Audio), ToQueryMatch(Video), streamId, reviewStatus, metaFields);
         }
         
         /// <summary>
