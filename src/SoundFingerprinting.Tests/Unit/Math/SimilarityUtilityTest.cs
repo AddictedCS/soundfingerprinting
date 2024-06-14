@@ -65,6 +65,16 @@
             Assert.AreEqual(5f / 6, result, 0.0001);
         }
 
+        [Test]
+        public void SilenceShouldMapToNegativeOne()
+        {
+            byte[] minHashes = [255, 255, 255, 255];
+            int[] hashes = hashConverter.ToInts(minHashes, 1);
+            
+            Assert.AreEqual(1, hashes.Length);
+            Assert.AreEqual(-1, hashes[0]);
+        }
+
         private byte[] GenerateByteArray(int length)
         {
             var ran = new Random();

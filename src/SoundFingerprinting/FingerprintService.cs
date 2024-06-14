@@ -86,7 +86,7 @@ namespace SoundFingerprinting
             var images = normalized.ToList();
             if (!images.Any())
             {
-                return Enumerable.Empty<Fingerprint>();
+                return [];
             }
 
             var fingerprints = new ConcurrentBag<Fingerprint>();
