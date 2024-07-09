@@ -123,7 +123,7 @@
             for (int i = 0; i < 100; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, []), config);
                 var subFingerprint = new SubFingerprintData(hash.HashBins, hash.SequenceNumber, hash.StartsAt, new ModelReference<uint>((uint)i), track);
                 storage.AddSubFingerprint(subFingerprint);
             }
@@ -131,7 +131,7 @@
             for (int i = 0; i < 10; ++i)
             {
                 var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
-                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, Array.Empty<byte>()), config);
+                var hash = lshAlgorithm.Hash(new Fingerprint(schema, i * one, (uint)i, []), config);
                 for (int j = 0; j < 25; ++j)
                 {
                     var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j], MediaType.Audio);
@@ -199,8 +199,8 @@
                     var fingerprints = TestUtilities.GenerateSimilarFingerprints(random, howSimilar, topWavelets, width * height * 2);
                     int hammingDistance = similarity.CalculateHammingDistance(fingerprints.Item1.ConvertToBooleans(), fingerprints.Item2.ConvertToBooleans());
                     hammingDistances.Add(hammingDistance);
-                    var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0, Array.Empty<byte>()), hashingConfig);
-                    var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0, Array.Empty<byte>()), hashingConfig);
+                    var hashed1 = lsh.HashImage(new Fingerprint(fingerprints.Item1, 0, 0, []), hashingConfig);
+                    var hashed2 = lsh.HashImage(new Fingerprint(fingerprints.Item2, 0, 0, []), hashingConfig);
                     int agreeCount = AgreeOn(hashed1.HashBins, hashed2.HashBins);
                     agreeOn.Add(agreeCount);
                 }
@@ -208,7 +208,7 @@
                 int requested = (int)((1 - howSimilar) * topWavelets * 2);
                 Assert.AreEqual(requested, hammingDistances.Average(), 1);
                 Assert.AreEqual(expectedThresholds[r], Math.Floor(agreeOn.Average()));
-                logger.LogInformation($"Similarity: {howSimilar: 0.00}, Avg. Table Matches {agreeOn.Average(): 0.000}");
+                logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", howSimilar, agreeOn.Average());
             });
         }
 
