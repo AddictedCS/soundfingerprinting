@@ -135,7 +135,7 @@ namespace SoundFingerprinting.Data
         }
 
         /// <summary>
-        ///  Add an additional property to the Audio/Video hashes object.
+        ///  Add a property to the Audio/Video hashes object.
         /// </summary>
         /// <param name="key">Property key.</param>
         /// <param name="value">Property value.</param>
