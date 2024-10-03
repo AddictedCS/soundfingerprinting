@@ -17,7 +17,6 @@
     public class RAMStorage : IRAMStorage
     {
         private readonly IModelReferenceTracker<uint> modelReferenceTracker;
-        private readonly IModelReferenceProvider spectralImagesTracker;
         private readonly ILogger<RAMStorage> logger;
         private readonly ConcurrentDictionary<int, List<uint>>[] hashTables;
 
@@ -31,9 +30,6 @@
         
         [ProtoMember(5)]
         private ConcurrentDictionary<uint, SubFingerprintData> subFingerprints;
-
-        [ProtoMember(7)] 
-        private IDictionary<IModelReference, List<SpectralImageData>> spectralImages;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RAMStorage"/> class.
@@ -50,10 +46,9 @@
             this.numberOfHashTables = numberOfHashTables;
             this.modelReferenceTracker = modelReferenceTracker;
             tracks = new ConcurrentDictionary<IModelReference, TrackData>();
-            spectralImages = new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
             subFingerprints = new ConcurrentDictionary<uint, SubFingerprintData>();
             
-            logger.LogDebug("Initializing {0} hash tables.", numberOfHashTables);
+            logger.LogDebug("Initializing {Count} hash tables", numberOfHashTables);
             hashTables = new ConcurrentDictionary<int, List<uint>>[numberOfHashTables];
             for (int table = 0; table < numberOfHashTables; table++)
             {
@@ -78,22 +73,9 @@
                 maxSubFingerprintId = ReadSubFingerprintByTrackReference(lastTrackReference).Max(_ => _.SubFingerprintReference.Get<uint>());
             }
 
-            logger.LogDebug("Resetting track ref to {0}, fingerprints ref to {1}", maxTrackId, maxSubFingerprintId);
+            logger.LogDebug("Resetting track ref to {MaxTrackId}, fingerprints ref to {MaxSubFingerprintId}", maxTrackId, maxSubFingerprintId);
             modelReferenceTracker.TryResetTrackRef(maxTrackId);
             modelReferenceTracker.TryResetSubFingerprintRef(maxSubFingerprintId);
-
-            uint maxSpectralImageId = 0;
-            if (lastTrackReference != null)
-            {
-                var images = GetSpectralImagesByTrackReference(lastTrackReference).ToList();
-                if (images.Any())
-                {
-                    maxSpectralImageId = images.Max(_ => _.SpectralImageReference.Get<uint>());
-                }
-            }
-
-            logger.LogDebug("Spectral image reference reset to {0}", maxSpectralImageId);
-            spectralImagesTracker = new UIntModelReferenceProvider(maxSpectralImageId);
         }
         
         /// <inheritdoc cref="IRAMStorage.TracksCount"/>
@@ -270,8 +252,7 @@
                 InsertHashes(pair.Value.Hashes, pair.Key);
             }
             
-            spectralImages = obj.spectralImages ?? new ConcurrentDictionary<IModelReference, List<SpectralImageData>>();
-            logger.LogInformation($"Reloaded storage from {path}, tracks={TracksCount}, fingerprints={SubFingerprintsCount}.");
+            logger.LogInformation("Reloaded storage from {Path}, tracks=[{TracksCount}], fingerprints=[{SubFingerprintsCount}]", path, TracksCount, SubFingerprintsCount);
         }
 
         /// <inheritdoc cref="IRAMStorage.GetSubFingerprintsByHashTableAndHash"/>
@@ -311,60 +292,6 @@
 
                 table++;
             }
-        }
-
-        /// <inheritdoc cref="IRAMStorage.AddSpectralImages"/>
-        public void AddSpectralImages(string trackId, IEnumerable<float[]> images)
-        {
-            var track = ReadTrackDataByTrackId(trackId);
-            if (track == null)
-            {
-                throw new ArgumentException($"{nameof(trackId)} is not present in the storage");
-            }
-
-            var trackReference = track.TrackReference;
-            var spectres = AssignModelReferences(images, trackReference);
-            if (spectralImages.TryGetValue(trackReference, out var existing))
-            {
-                existing.AddRange(spectres);
-            }
-            else
-            {
-                spectralImages[trackReference] = spectres;
-            }
-        }
-        
-        private List<SpectralImageData> AssignModelReferences(IEnumerable<float[]> images, IModelReference trackReference)
-        {
-            int orderNumber = 0;
-            return images.Select(spectralImage => new SpectralImageData(
-                    spectralImage,
-                    orderNumber++,
-                    spectralImagesTracker.Next(),
-                    trackReference))
-                .ToList();
-        }
-
-        /// <inheritdoc cref="IRAMStorage.GetSpectralImagesByTrackReference"/>
-        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(string trackId)
-        {
-            var track = ReadTrackDataByTrackId(trackId);
-            if (track == null)
-            {
-                return Enumerable.Empty<SpectralImageData>();
-            }
-            
-            return GetSpectralImagesByTrackReference(track.TrackReference);
-        }
-
-        private IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(IModelReference trackReference)
-        {
-            if (spectralImages.TryGetValue(trackReference, out var spectralImageDatas))
-            {
-                return spectralImageDatas;
-            }
-
-            return Enumerable.Empty<SpectralImageData>().ToList();
         }
 
         private TrackData? ReadTrackDataByTrackId(string id)

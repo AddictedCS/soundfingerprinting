@@ -13,7 +13,7 @@
     [TestFixture]
     public class InMemoryModelServiceTest : AbstractTest
     {
-        private IAdvancedModelService modelService;
+        private IModelService modelService;
 
         [SetUp]
         public void SetUp()

@@ -64,12 +64,12 @@ namespace SoundFingerprinting.InMemory
             var (audioHashes, videoHashes) = hashes;
             if (track.MediaType.HasFlag(MediaType.Audio) && (audioHashes?.IsEmpty ?? true))
             {
-                logger.LogWarning("Track media type is set to Audio, but audio hashes in AVHashes are empty.");
+                logger.LogWarning("Track media type is set to Audio, but audio hashes in AVHashes are empty");
             }
             
             if (track.MediaType.HasFlag(MediaType.Video) && (videoHashes?.IsEmpty ?? true))
             {
-                logger.LogWarning("Track media type is set to Video, but video hashes in AVHashes are empty.");
+                logger.LogWarning("Track media type is set to Video, but video hashes in AVHashes are empty");
             }
             
             if (!track.MediaType.HasFlag(MediaType.Video) && !(videoHashes?.IsEmpty ?? true))
@@ -145,18 +145,6 @@ namespace SoundFingerprinting.InMemory
         public AVHashes ReadAvHashesByTrackId(string trackId)
         {
             return new AVHashes(audio.ReadAvHashesByTrackId(trackId).Audio, video.ReadAvHashesByTrackId(trackId).Video);
-        }
-
-        /// <inheritdoc cref="IRAMStorage.AddSpectralImages"/>
-        public void AddSpectralImages(string trackId, IEnumerable<float[]> images)
-        {
-            audio.AddSpectralImages(trackId, images);
-        }
-
-        /// <inheritdoc cref="IRAMStorage.GetSpectralImagesByTrackReference"/>
-        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(string trackId)
-        {
-            return audio.GetSpectralImagesByTrackReference(trackId);
         }
     }
 }

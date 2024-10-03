@@ -8,9 +8,7 @@
 
     using NUnit.Framework;
     using SoundFingerprinting.Builder;
-    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
-    using SoundFingerprinting.FFT;
     using SoundFingerprinting.InMemory;
 
     [TestFixture]
@@ -67,35 +65,6 @@
 
             Assert.IsTrue(tracks.Any(track => track == "id1"));
             Assert.IsTrue(tracks.Any(track => track == "id2"));
-        }
-
-        [Test]
-        public void ShouldSerializeSpectralImages()
-        {
-            var spectrumService = new SpectrumService(new LomontFFT(), new LogUtility());
-
-            var spectrums = spectrumService.CreateLogSpectrogram(GetAudioSamples(), new DefaultSpectrogramConfig())
-                .Select(spectrum => spectrum.ImageRowCols)
-                .ToList();
-
-            var modelService = new InMemoryModelService();
-
-            var track = new TrackInfo("id", string.Empty, string.Empty);
-            var hashes = new Hashes(GetGenericHashes(), 10, MediaType.Audio);
-            
-            modelService.Insert(track, new AVHashes(hashes, null));
-            modelService.InsertSpectralImages(spectrums, "id");
-
-            var tempDirectory = Path.Combine(Path.GetTempPath(), "sftests");
-            modelService.Snapshot(tempDirectory);
-
-            var fromFileService = new InMemoryModelService(tempDirectory);
-
-            Directory.Delete(tempDirectory, true);
-
-            var allSpectrums = fromFileService.GetSpectralImagesByTrackId("id").ToList();
-
-            Assert.AreEqual(spectrums.Count, allSpectrums.Count);
         }
     }
 }

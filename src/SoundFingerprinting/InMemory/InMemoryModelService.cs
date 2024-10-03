@@ -21,7 +21,7 @@
     /// <remarks>
     ///  This implementation is intended to be used for testing purposes only.
     /// </remarks>
-    public class InMemoryModelService : IAdvancedModelService
+    public class InMemoryModelService : IModelService
     {
         private readonly IRAMStorage storage;
         private readonly IGroupingCounter groupingCounter;
@@ -189,18 +189,6 @@
             }
 
             storage.DeleteTrack(track.Id);
-        }
-
-        /// <inheritdoc cref="IAdvancedModelService.InsertSpectralImages"/>
-        public void InsertSpectralImages(IEnumerable<float[]> spectralImages, string trackId)
-        {
-            storage.AddSpectralImages(trackId, spectralImages);
-        }
-
-        /// <inheritdoc cref="IAdvancedModelService.GetSpectralImagesByTrackId"/>
-        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackId(string trackId)
-        {
-            return storage.GetSpectralImagesByTrackReference(trackId);
         }
 
         private TrackInfo? GetTrackById(string trackId)
