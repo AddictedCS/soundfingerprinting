@@ -23,7 +23,6 @@
                                        };
             YesMetaFieldsFilters = new Dictionary<string, string>();
             NoMetaFieldsFilters = new Dictionary<string, string>();
-            QueryMediaType = MediaType.Audio;
         }
     }
 }
