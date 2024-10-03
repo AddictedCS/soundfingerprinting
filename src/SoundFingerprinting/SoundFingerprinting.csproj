@@ -12,6 +12,7 @@
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
 		Version 11.0.0
+		- Cleanup of the codebase, removing obsolete methods and classes.
 		- Removed IAdvancedModelService.
 		- Removed obsolete Query methods from IQueryService, leaving only QueryEfficient method.
 		- Removed MediaType from QueryConfiguration, as it was not used anymore.
