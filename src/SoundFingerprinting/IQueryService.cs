@@ -15,17 +15,6 @@ public interface IQueryService
     /// <summary>
     ///  Queries the underlying storage with hashes and query configuration.
     /// </summary>
-    /// <param name="hashes">Computed hashes for the query.</param>
-    /// <param name="config">Query configuration.</param>
-    /// <returns>List of matched fingerprints.</returns>
-    /// <remarks>
-    ///  <see cref="MediaType"/> is used to identify which hashes to query (audio or video).
-    /// </remarks>
-    IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config);
-    
-    /// <summary>
-    ///  Queries the underlying storage with hashes and query configuration.
-    /// </summary>
     /// <param name="hashes">Query hashes.</param>
     /// <param name="config">Query configuration.</param>
     /// <returns>An instance of <see cref="Candidates"/>.</returns>

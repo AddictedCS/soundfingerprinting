@@ -6,9 +6,9 @@
 
     using NUnit.Framework;
     using SoundFingerprinting.Configuration;
-    using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Query;
 
     [TestFixture]
     public class InMemoryModelServiceTest : AbstractTest
@@ -42,11 +42,15 @@
             TestUtilities.AssertHashesAreTheSame(video, videoHashes);
 
             var config = new DefaultQueryConfiguration();
-            var audioResults =  modelService.Query(audio, config).ToList();
+            var candidates =  modelService.QueryEfficiently(audio, config);
+            Assert.That(candidates.Count, Is.EqualTo(1));
+            var audioResults = candidates.GetMatches().SelectMany(_ => _.Value).ToList();
             AssertHashesAreTheSame(audio, audioResults);
-            var videoResults = modelService.Query(video, config).ToList();
+            
+            candidates =  modelService.QueryEfficiently(video, config);
+            Assert.That(candidates.Count, Is.EqualTo(1));
+            var videoResults = candidates.GetMatches().SelectMany(_ => _.Value).ToList();
             AssertHashesAreTheSame(video, videoResults);
-            AssertHashesAreNotTheSame(audioResults, videoResults);
         }
 
         [Test]
@@ -87,8 +91,8 @@
 
             modelService.DeleteTrack("id");
 
-            var subFingerprints = modelService.Query(GetGenericHashes(), new DefaultQueryConfiguration()).ToList();
-            Assert.IsFalse(subFingerprints.Any());
+            var candidates = modelService.QueryEfficiently(GetGenericHashes(), new DefaultQueryConfiguration());
+            Assert.IsTrue(candidates.IsEmpty);
             var actualTrack = modelService.ReadTrackById("id");
             Assert.IsNull(actualTrack);
         }
@@ -97,18 +101,18 @@
         public void InsertHashDataTest()
         {
             var expectedTrack = new TrackInfo("id", "title", "artist");
-            var hashes = new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio);
+            var hashes = new Hashes([new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())], 1.48, MediaType.Audio);
+            
             modelService.Insert(expectedTrack, new AVHashes(hashes, null));
-
-            var subFingerprints = modelService.Query(GetGenericHashes(MediaType.Audio), new DefaultQueryConfiguration()).ToList();
-            AssertHashesAreTheSame(hashes, subFingerprints);
-            var references = modelService.ReadTracksByReferences(subFingerprints.Select(s => s.TrackReference)).ToList();
+            var candidates = modelService.QueryEfficiently(GetGenericHashes(MediaType.Audio), new DefaultQueryConfiguration());
+            
+            Assert.AreEqual(1, candidates.Count);
+            AssertHashesAreTheSame(hashes, candidates.GetMatches().SelectMany(_ => _.Value));
+            var references = modelService.ReadTracksByReferences(candidates.GetMatchedTracks()).ToList();
             Assert.AreEqual(1, references.Count);
             var trackReference = references.First().TrackReference;
-            Assert.AreEqual(1, subFingerprints.Count);
-            Assert.AreEqual(trackReference, subFingerprints[0].TrackReference);
-            Assert.AreNotEqual(0, subFingerprints[0].SubFingerprintReference.GetHashCode());
-            CollectionAssert.AreEqual(GenericHashBuckets(), subFingerprints[0].Hashes);
+            Assert.AreEqual(1, candidates.Count);
+            Assert.AreEqual(trackReference, candidates.GetMatchedTracks().FirstOrDefault());
         }
 
         [Test]
@@ -129,12 +133,12 @@
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
             var queryHashes = new Hashes(new[] { new HashedFingerprint(queryBuckets, 0, 0f, Array.Empty<byte>()), }, 1.48d, MediaType.Audio);
 
-            var subFingerprints = modelService.Query(queryHashes, new DefaultQueryConfiguration
+            var candidates = modelService.QueryEfficiently(queryHashes, new DefaultQueryConfiguration
             {
                 ThresholdVotes = 5
-            }).ToList();
+            });
 
-            Assert.AreEqual(1, subFingerprints.Count);
+            Assert.AreEqual(1, candidates.Count);
         }
 
         [Test]
@@ -152,13 +156,13 @@
 
             // query buckets are similar with 5 elements from first track and 4 elements from second track
             int[] queryBuckets = { 3, 2, 5, 6, 7, 8, 7, 10, 11, 12, 13, 14, 15, 14, 17, 18, 19, 20, 21, 20, 23, 24, 25, 26, 25 };
-            var queryHashes = new Hashes(new[]{new HashedFingerprint(queryBuckets, 0, 0f, Array.Empty<byte>()), }, 1.48d, MediaType.Audio);
-            var subFingerprints = modelService.Query(queryHashes, new DefaultQueryConfiguration
+            var queryHashes = new Hashes([new HashedFingerprint(queryBuckets, 0, 0f, Array.Empty<byte>())], 1.48d, MediaType.Audio);
+            var candidates = modelService.QueryEfficiently(queryHashes, new DefaultQueryConfiguration
             {
                 YesMetaFieldsFilters = new Dictionary<string, string> { { "group-id", "first-group-id" } }
-            }).ToList();
+            });
 
-            Assert.AreEqual(1, subFingerprints.Count);
+            Assert.AreEqual(1, candidates.Count);
         }
 
         [Test]
@@ -180,30 +184,18 @@
             Assert.AreEqual("new_artist", newTrack.Artist);
             Assert.AreEqual("second-group-id", newTrack.MetaFields["group-id"]);
 
-            var result = modelService.Query(hashes, new DefaultQueryConfiguration());
-            Assert.AreEqual(100, result.Count());
-        }
-        
-        private static void AssertHashesAreNotTheSame(IEnumerable<SubFingerprintData> left, IEnumerable<SubFingerprintData> right)
-        {
-            var fingerprints = left as SubFingerprintData[] ?? left.ToArray();
-            var tuples = fingerprints.Join(right, _ => _.SequenceNumber, _ => _.SequenceNumber, (a, b) => (a, b)).ToList();
-            Assert.AreEqual(tuples.Count, fingerprints.Length);
-            foreach (var (first, second) in tuples)
-            {
-                CollectionAssert.AreNotEqual(first.Hashes, second.Hashes);
-            } 
+            var candidates = modelService.QueryEfficiently(hashes, new DefaultQueryConfiguration());
+            Assert.AreEqual(100, candidates.GetMatches().SelectMany(_ => _.Value).Count());
         }
 
-        private static void AssertHashesAreTheSame(Hashes expected, IEnumerable<SubFingerprintData> actual)
+        private static void AssertHashesAreTheSame(Hashes expected, IEnumerable<MatchedWith> actual)
         {
-            var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.SequenceNumber, (a, b) => (a, b)).ToList();
+            var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.QuerySequenceNumber, (a, b) => (a, b)).ToList();
             Assert.AreEqual(tuples.Count, expected.Count);
             foreach (var (first, second) in tuples)
             {
-                Assert.AreEqual(first.StartsAt, second.SequenceAt);
-                Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
-                CollectionAssert.AreEqual(first.HashBins, second.Hashes);
+                Assert.AreEqual(first.StartsAt, second.QueryMatchAt);
+                Assert.AreEqual(first.SequenceNumber, second.QuerySequenceNumber);
             } 
         }
     }
