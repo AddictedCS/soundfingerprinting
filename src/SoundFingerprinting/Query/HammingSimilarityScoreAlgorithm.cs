@@ -1,22 +1,13 @@
 namespace SoundFingerprinting.Query
 {
-    using System;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Math;
 
-    [Obsolete("Scores will be removed in v9 as they do not mean a lot, counting bytes is not a right approach")]
-    internal class HammingSimilarityScoreAlgorithm : IScoreAlgorithm
+    internal class HammingSimilarityScoreAlgorithm(ISimilarityUtility similarityUtility) : IScoreAlgorithm
     {
         public static IScoreAlgorithm Instance { get; } = new HammingSimilarityScoreAlgorithm(SimilarityUtility.Instance);
-        
-        private readonly ISimilarityUtility similarityUtility;
-
-        public HammingSimilarityScoreAlgorithm(ISimilarityUtility similarityUtility)
-        {
-            this.similarityUtility = similarityUtility;
-        }
 
         public double GetScore(HashedFingerprint queryPoint, SubFingerprintData databasePoint, QueryConfiguration queryConfiguration)
         {

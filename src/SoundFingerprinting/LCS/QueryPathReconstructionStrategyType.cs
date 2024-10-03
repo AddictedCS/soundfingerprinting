@@ -9,7 +9,8 @@ public enum QueryPathReconstructionStrategyType
     ///  Legacy query path reconstruction strategy
     /// </summary>
     /// <remarks>
-    ///  Used prior to v8.15.0.
+    ///  Used prior to v8.15.0. <br />
+    ///  Used in Video query configuration.
     /// </remarks>
     Legacy = 1,
     

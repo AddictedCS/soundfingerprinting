@@ -45,31 +45,6 @@
         }
         
         [Test]
-        public void ShouldInsertSpectralImages()
-        {
-            var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
-            var images = new List<float[]> { Array.Empty<float>(), Array.Empty<float>(), Array.Empty<float>() };
-            
-            storage.InsertTrack(new TrackInfo("10", string.Empty, string.Empty), AVHashes.Empty);
-            storage.AddSpectralImages("10", images);
-
-            var enumerable = storage.GetSpectralImagesByTrackReference("10").ToList();
-            Assert.AreEqual(3, enumerable.Count());
-            var ids = enumerable.Select(dto => dto.SpectralImageReference.Get<uint>()).ToList();
-            CollectionAssert.AreEqual(Enumerable.Range(1, 3), ids);
-        }
-
-        [Test]
-        public void ShouldReturnEmptySinceNoSpectralImagesArePresentForTrack()
-        {
-            var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory()); 
-
-            var results = storage.GetSpectralImagesByTrackReference("10");
-
-            Assert.IsEmpty(results);
-        }
-        
-        [Test]
         public void ShouldInsertEntriesInThreadSafeManner()
         {
             var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory(), numberOfHashTables: 50);

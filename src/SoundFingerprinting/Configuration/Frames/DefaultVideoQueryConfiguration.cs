@@ -21,15 +21,14 @@
 
             FingerprintConfiguration = new DefaultVideoFingerprintConfiguration
             {
-                // lets get a copy of original point even if we may not actually need it
-                // since we will allow per track SSIM filtering, we need to grab a copy anyways
+                // let's get a copy of original point even if we may not actually need it
+                // since we will allow per track SSIM filtering, we need to grab a copy anyway
                 OriginalPointSaveTransform = frame => frame.GetQuantizedCopy()
             };
 
             ThresholdVotes = 4;
             PermittedGap = 1.75d;
             StructuralSimilarityFilterConfiguration = StructuralSimilarityFilterConfiguration.None;
-            QueryMediaType = MediaType.Video;
         }
     }
 }

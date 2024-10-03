@@ -89,19 +89,5 @@ namespace SoundFingerprinting.InMemory
         /// <param name="trackId">Track ID.</param>
         /// <returns>An instance of the <see cref="AVHashes"/> class.</returns>
         AVHashes ReadAvHashesByTrackId(string trackId);
-        
-        /// <summary>
-        ///  Adds spectral images for track reference.
-        /// </summary>
-        /// <param name="trackId">Track associated with spectral images.</param>
-        /// <param name="images">Spectral images to add.</param>
-        void AddSpectralImages(string trackId, IEnumerable<float[]> images);
-
-        /// <summary>
-        ///  Gets spectral images for track reference.
-        /// </summary>
-        /// <param name="trackId">Track reference.</param>
-        /// <returns>List of spectral images.</returns>
-        IEnumerable<SpectralImageData> GetSpectralImagesByTrackReference(string trackId);
     }
 }

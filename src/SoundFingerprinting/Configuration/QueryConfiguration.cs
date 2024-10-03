@@ -136,13 +136,6 @@
         public FingerprintConfiguration FingerprintConfiguration { get; set; } = null!;
         
         /// <summary>
-        ///  Gets or sets query media type.
-        ///  Source of fingerprints is either audio or video, set the corresponding type so that the ModelService is aware where to look for matches.
-        /// </summary>
-        [Obsolete("MediaType is now part of Hashes class. Set it on Hashes.MediaType to specify which media type to use. Property will be removed in v9")]
-        public MediaType QueryMediaType { get; set; }
-
-        /// <summary>
         ///  Gets scoring algorithm, used to calculate similarity between track/query matches.
         /// </summary>
         /// <remarks>

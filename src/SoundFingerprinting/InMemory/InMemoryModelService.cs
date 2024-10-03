@@ -21,7 +21,7 @@
     /// <remarks>
     ///  This implementation is intended to be used for testing purposes only.
     /// </remarks>
-    public class InMemoryModelService : IAdvancedModelService
+    public class InMemoryModelService : IModelService
     {
         private readonly IRAMStorage storage;
         private readonly IGroupingCounter groupingCounter;
@@ -32,7 +32,7 @@
         /// </summary>
         /// <param name="loggerFactory">Implementation of <see cref="ILoggerFactory"/> interface.</param>
         public InMemoryModelService(ILoggerFactory? loggerFactory = null) : this(
-            new AVRAMStorage(string.Empty, loggerFactory ?? new NullLoggerFactory()), new StandardGroupingCounter())
+            new AVRAMStorage(string.Empty, loggerFactory ?? NullLoggerFactory.Instance), new StandardGroupingCounter())
         {
         }
 
@@ -46,7 +46,7 @@
         ///  If you are migrating from previous version and want to migrate the snapshot as well, rename previous snapshots to "audio", and place it in the provided directory parameter.
         /// </remarks>
         public InMemoryModelService(string loadFrom, ILoggerFactory? loggerFactory = null) : this(
-            new AVRAMStorage(loadFrom, loggerFactory ?? new NullLoggerFactory()), new StandardGroupingCounter())
+            new AVRAMStorage(loadFrom, loggerFactory ?? NullLoggerFactory.Instance), new StandardGroupingCounter())
         {
         }
 
@@ -56,7 +56,7 @@
         /// <param name="groupingCounter">Implementation of <see cref="IGroupingCounter"/> interface.</param>
         /// <param name="loggerFactory">Implementation of <see cref="ILoggerFactory"/> interface.</param>
         public InMemoryModelService(IGroupingCounter groupingCounter, ILoggerFactory? loggerFactory = null) : this(
-            new AVRAMStorage(string.Empty, loggerFactory ?? new NullLoggerFactory()), groupingCounter)
+            new AVRAMStorage(string.Empty, loggerFactory ?? NullLoggerFactory.Instance), groupingCounter)
         {
         }
 
@@ -106,16 +106,6 @@
             var hashes = storage.ReadAvHashesByTrackId(trackInfo.Id);
             DeleteTrack(trackInfo.Id);
             Insert(trackInfo, hashes);
-        }
-
-        /// <inheritdoc cref="IModelService.Query"/>
-        public IEnumerable<SubFingerprintData> Query(Hashes hashes, QueryConfiguration config)
-        {
-            return hashes.MediaType switch
-            {
-                MediaType.Audio or MediaType.Video =>  ReadSubFingerprints(hashes, config),
-                _ => throw new ArgumentOutOfRangeException(nameof(hashes.MediaType))
-            };
         }
 
         /// <inheritdoc cref="IModelService.QueryEfficiently"/>
@@ -191,27 +181,9 @@
             storage.DeleteTrack(track.Id);
         }
 
-        /// <inheritdoc cref="IAdvancedModelService.InsertSpectralImages"/>
-        public void InsertSpectralImages(IEnumerable<float[]> spectralImages, string trackId)
-        {
-            storage.AddSpectralImages(trackId, spectralImages);
-        }
-
-        /// <inheritdoc cref="IAdvancedModelService.GetSpectralImagesByTrackId"/>
-        public IEnumerable<SpectralImageData> GetSpectralImagesByTrackId(string trackId)
-        {
-            return storage.GetSpectralImagesByTrackReference(trackId);
-        }
-
         private TrackInfo? GetTrackById(string trackId)
         {
             return storage.ReadByTrackId(trackId);
-        }
-        
-        private IEnumerable<SubFingerprintData> ReadSubFingerprints(Hashes hashes, QueryConfiguration queryConfiguration)
-        {
-            var allSubs = GetSubFingerprintIdToHashedFingerprintMap(hashes, queryConfiguration);
-            return ResolveFromIds(allSubs.Keys, queryConfiguration.YesMetaFieldsFilters, queryConfiguration.NoMetaFieldsFilters, hashes.MediaType);
         }
 
         private ConcurrentDictionary<uint, ConcurrentBag<HashedFingerprint>> GetSubFingerprintIdToHashedFingerprintMap(Hashes hashes, QueryConfiguration queryConfiguration)
@@ -225,7 +197,7 @@
                 var ids = QuerySubFingerprints(hashedFingerprint.HashBins, threshold, hashes.MediaType);
                 foreach (uint id in ids)
                 {
-                    allSubs.AddOrUpdate(id, new ConcurrentBag<HashedFingerprint>(new[] { hashedFingerprint }), (_, list) =>
+                    allSubs.AddOrUpdate(id, new ConcurrentBag<HashedFingerprint>([hashedFingerprint]), (_, list) =>
                     {
                         list.Add(hashedFingerprint);
                         return list;
