@@ -10,6 +10,8 @@ namespace SoundFingerprinting.Audio
     public class RealtimeAudioSamplesAggregator : IRealtimeAudioSamplesAggregator
     {
         private readonly int minSamplesPerFingerprint;
+        private readonly IStride stride;
+        
         private float[] tail;
 
         /// <summary>
@@ -20,12 +22,10 @@ namespace SoundFingerprinting.Audio
         public RealtimeAudioSamplesAggregator(int minSamplesPerFingerprint, IStride stride)
         {
             this.minSamplesPerFingerprint = minSamplesPerFingerprint;
-            Stride = stride;
+            this.stride = stride;
             tail = Array.Empty<float>();
         }
 
-        private IStride Stride { get; }
-        
         /// <inheritdoc cref="IRealtimeAudioSamplesAggregator.Aggregate"/>
         public AudioSamples? Aggregate(AudioSamples chunk)
         {
@@ -48,7 +48,7 @@ namespace SoundFingerprinting.Audio
         {
             if (samples.Samples.Length >= minSamplesPerFingerprint)
             {
-                int nextStride = Stride.NextStride;
+                int nextStride = stride.NextStride;
                 if (nextStride < minSamplesPerFingerprint)
                 {
                     // this value is exact when we use IncrementalStaticStride which can tell exactly how much tail length we ignore because it is not evenly divisible by length
