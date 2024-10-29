@@ -4,13 +4,19 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>11.0.0</PackageVersion>
+	<PackageVersion>11.1.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 11.1.0
+		- Adjusting `IRealtimeResultEntryFilter` implementation classes, making sure we adhere to the same principles across both configuration options `ResultEntryFilter` and `OngoingResultEntryFilter`.
+		- Adding `ChainedRealtimeEntryFilter` which replaces `OngoingRealtimeResultEntryFilter`.
+		- `TrackMatchLengthEntryFilter` can be used as `TrackCoverageLengthEntryFilter(waitTillCompletion: false)`
+		- `OngoingRealtimeResultEntryFilter(x, y)` can be chained as new ChainedRealtimeEntryFilter([new TrackRelativeCoverageEntryFilter(x, waitTillCompletion: false), new TrackCoverageLengthEntryFilter(y, waitTillCompletion: false)`])
+		- `TrackRelativeCoverageLengthEntryFilter` can be used as `TrackRelativeCoverageEntryFilter(waitTillCompletion: true)`.
 		Version 11.0.0
 		- Cleanup of the codebase, removing obsolete methods and classes.
 		- Removed IAdvancedModelService.
@@ -25,8 +31,6 @@
 		- Accomodating SoundFingerprinting.Emy upgrade to FFmpeg 6.x
 		Version 9.5.0
 		- Dependency upgrade to .NET 8
-		Version 9.4.4
-		- Improving the design for ITagService, let's allow setting key/values in one method call.
 		Version 9.4.2
 		- Contains an important improvement to QueryCommand, allowing a much faster lookup for the use-cases when the track and the query are very long and almost identical.
 		- The improvement is rooted in the idea of returning Candidates from the IModelService instead of list of SubFingerprints. This provided knowledge on which hashed fingerprint matched with the query.
