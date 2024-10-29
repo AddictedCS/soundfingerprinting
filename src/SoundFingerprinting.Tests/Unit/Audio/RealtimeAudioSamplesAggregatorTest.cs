@@ -28,17 +28,21 @@ namespace SoundFingerprinting.Tests.Unit.Audio
         public void ShouldPrefixSamples()
         {
             int previousLength = 0;
-            int minSamplesPerFingerprint = 10_176, sampleRate = 5512, stride = 256, lengthInSeconds = 10;
+            int minSamplesPerFingerprint = new DefaultFingerprintConfiguration().SamplesPerFingerprint, sampleRate = 5512, stride = 256, lengthInSeconds = 10;
             var realtimeAggregator = new RealtimeAudioSamplesAggregator(minSamplesPerFingerprint, new IncrementalStaticStride(stride));
-            for (int i = 0; i < 10; ++i)
+            var relativeTo = DateTime.UnixEpoch;
+            for (int i = 0; i < 200; ++i)
             {
-                var samples = realtimeAggregator.Aggregate(TestUtilities.GenerateRandomAudioSamples(lengthInSeconds * sampleRate));
+                var expected = relativeTo.AddSeconds(lengthInSeconds * i);
+                var samples = realtimeAggregator.Aggregate(TestUtilities.GenerateRandomAudioSamples(lengthInSeconds * sampleRate, expected));
                 Assert.IsNotNull(samples);
                 logger.LogInformation("Samples duration: {Duration:0.00}", samples.Duration);
                 if (i > 0)
                 {
                     Assert.AreEqual(lengthInSeconds + (float)(minSamplesPerFingerprint - stride) / sampleRate + (float)((previousLength - minSamplesPerFingerprint) % stride) / sampleRate, samples.Duration, 0.00001, $"Iteration {i}");
                     Assert.AreEqual(lengthInSeconds - samples.TimeOffset, samples.Duration, 0.00001);
+                    double totalSeconds = expected.Subtract(samples.RelativeTo).TotalSeconds;
+                    Assert.IsTrue(totalSeconds < (double)minSamplesPerFingerprint / sampleRate);
                 }
 
                 previousLength = samples.Samples.Length;
