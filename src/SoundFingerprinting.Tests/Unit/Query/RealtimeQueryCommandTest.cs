@@ -62,7 +62,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
                                               .WithRealtimeQueryConfig(config =>
                                               {
-                                                    config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
+                                                    config.ResultEntryFilter = new TrackCoverageLengthEntryFilter(15d, waitTillCompletion: false);
                                                     config.SuccessCallback = _ => Interlocked.Increment(ref foundWithWrongClusters);
                                                     config.YesMetaFieldsFilter = new Dictionary<string, string> {{"country", "CANADA"}};
                                                     return config;
@@ -75,7 +75,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                 .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
                                 .WithRealtimeQueryConfig(config =>
                                 {
-                                    config.ResultEntryFilter = new TrackMatchLengthEntryFilter(15d);
+                                    config.ResultEntryFilter = new TrackCoverageLengthEntryFilter(15d, waitTillCompletion: false);
                                     config.SuccessCallback = _ => Interlocked.Increment(ref foundWithClusters);
                                     config.YesMetaFieldsFilter = new Dictionary<string, string> {{"country", "USA"}};
                                     return config;
@@ -160,7 +160,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(collection)
                 .WithRealtimeQueryConfig(config =>
                 {
-                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.2d, waitTillCompletion: true);
+                    config.ResultEntryFilter = new TrackRelativeCoverageEntryFilter(0.2d, waitTillCompletion: true);
                     config.QueryConfiguration.Audio.Stride = new IncrementalStaticStride(staticStride);
                     config.SuccessCallback = _ =>
                     {
@@ -237,8 +237,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                             {
                                                 config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512);
                                                 config.QueryConfiguration.Audio.PermittedGap = 2;
-                                                config.ResultEntryFilter = new TrackMatchLengthEntryFilter(queryMatchLength);
-                                                config.OngoingResultEntryFilter = new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d);
+                                                config.ResultEntryFilter = new TrackCoverageLengthEntryFilter(queryMatchLength, waitTillCompletion: false);
+                                                config.OngoingResultEntryFilter = new ChainedRealtimeEntryFilter([
+                                                    new TrackRelativeCoverageEntryFilter(0.2d, waitTillCompletion: false), 
+                                                    new TrackCoverageLengthEntryFilter(1d, waitTillCompletion: false)
+                                                ]);
                                                 config.SuccessCallback = result =>
                                                 {
                                                     foreach (var (entry, _) in result.ResultEntries)
@@ -325,15 +328,16 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var collection = SimulateRealtimeAudioQueryData(data, jitterLength);
             var offlineStorage = new OfflineStorage(Path.GetTempPath());
             var restoreCalled = new bool[1];
+            var loggerFactory = new NullLoggerFactory();
             double processed = await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new QueryCommandBuilder(FingerprintCommandBuilder.Instance, 
-                    new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance), new NullLoggerFactory()), new NullLoggerFactory())
+                    new FaultyQueryService(faultyCounts: trackCount + jitterChunks - 1, QueryFingerprintService.Instance), loggerFactory), loggerFactory)
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
                  {
                      config.SuccessCallback = entry => resultEntries.AddRange(entry.ResultEntries);
                      config.DidNotPassFilterCallback = _ => Interlocked.Increment(ref didNotPassThreshold);
                      config.ErrorCallback = (_, _) => Interlocked.Increment(ref errored);
-                     config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.4, waitTillCompletion: true);
+                     config.ResultEntryFilter = new TrackRelativeCoverageEntryFilter(0.4, waitTillCompletion: true);
                      config.RestoredAfterErrorCallback = () => restoreCalled[0] = true;
                      config.OfflineStorage = offlineStorage;                            // store the other half of the fingerprints in the downtime hashes storage
                      config.DelayStrategy = new NoDelayStrategy();
@@ -444,7 +448,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .WithRealtimeQueryConfig(config =>
                 {
                     config.SuccessCallback = entry => entries.AddRange(entry.ResultEntries);
-                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.8d);
+                    config.ResultEntryFilter = new TrackRelativeCoverageEntryFilter(0.8d, waitTillCompletion: true);
                     config.QueryConfiguration.Audio.Stride = new IncrementalStaticStride(2048);
                     return config;
                 })
@@ -497,7 +501,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .WithRealtimeQueryConfig(config =>
                 {
                     config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512, seed: 123);
-                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(0.5, waitTillCompletion: true);
+                    config.ResultEntryFilter = new TrackRelativeCoverageEntryFilter(0.5, waitTillCompletion: true);
                     config.SuccessCallback = _ => success.AddRange(_.ResultEntries);
                     config.DidNotPassFilterCallback = _ => didNotPass.AddRange(_.ResultEntries);
                     return config;
@@ -591,14 +595,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var successMatches = new List<AVResultEntry>();
             var didNotGetToContiguousQueryMatchLengthMatch = new List<AVResultEntry>();
-            double processed = await QueryCommandBuilder.Instance
+            double processed = await QueryCommandBuilder
+                                            .Instance
                                             .BuildRealtimeQueryCommand()
                                             .From(collection)
                                             .WithRealtimeQueryConfig(config =>
                                             {
                                                 config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512, seed: 123);
                                                 config.ResultEntryFilter = new CompletedRealtimeMatchResultEntryFilter();
-                                                config.OngoingResultEntryFilter = new OngoingRealtimeResultEntryFilter(minCoverage: 0.2d, minTrackLength: 1d);
+                                                config.OngoingResultEntryFilter = new ChainedRealtimeEntryFilter([
+                                                    new TrackRelativeCoverageEntryFilter(0.2d, waitTillCompletion: false),
+                                                    new TrackCoverageLengthEntryFilter(2d, waitTillCompletion: false)
+                                                ]);
                                                 config.SuccessCallback = result =>
                                                 {
                                                     successCallbackCalls++;
@@ -610,7 +618,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                     didNotGetToContiguousQueryMatchLengthMatch.AddRange(result.ResultEntries);
                                                 };
 
-                                                config.OngoingCallback = _ => { Interlocked.Add(ref ongoingCalls, _.Count()); };
+                                                config.OngoingCallback = _ =>
+                                                {
+                                                    Interlocked.Add(ref ongoingCalls, _.Count());
+                                                };
+                                                
                                                 config.ErrorCallback = (error, _) => throw error;
                                                 return config;
                                             })
@@ -739,7 +751,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .WithRealtimeQueryConfig(config =>
                 {
                     config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512, seed: 123);
-                    config.ResultEntryFilter = new TrackRelativeCoverageLengthEntryFilter(coverage: 0.2, waitTillCompletion: true);
+                    config.ResultEntryFilter = new TrackRelativeCoverageEntryFilter(coverage: 0.2, waitTillCompletion: true);
                     config.SuccessCallback = _ => success.AddRange(_.ResultEntries);
                     config.DidNotPassFilterCallback = _ => didNotPass.AddRange(_.ResultEntries);
                     config.ErrorCallback = (e, _) => logger.LogError(e, "An error occured while querying stream");

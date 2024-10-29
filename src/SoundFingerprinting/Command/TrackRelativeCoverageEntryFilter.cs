@@ -9,18 +9,18 @@ namespace SoundFingerprinting.Command
     /// <remarks>
     ///  Filters all entries that have a shorter <see cref="ResultEntry.TrackRelativeCoverage"/> than the configured threshold.
     /// </remarks>
-    public class TrackRelativeCoverageLengthEntryFilter : IRealtimeResultEntryFilter
+    public class TrackRelativeCoverageEntryFilter : IRealtimeResultEntryFilter
     {
         private readonly double coverage;
         private readonly bool waitTillCompletion;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TrackRelativeCoverageLengthEntryFilter"/> class.
+        /// Initializes a new instance of the <see cref="TrackRelativeCoverageEntryFilter"/> class.
         /// </summary>
         /// <param name="coverage">Coverage used as a minimum threshold for the <see cref="ResultEntry.TrackRelativeCoverage"/>.</param>
         /// <param name="waitTillCompletion">A flag indicating whether to emit the result without waiting until the track finishes.</param>
         /// <exception cref="ArgumentOutOfRangeException">Coverage has to be defined within [0, 1] interval.</exception>
-        public TrackRelativeCoverageLengthEntryFilter(double coverage, bool waitTillCompletion = true)
+        public TrackRelativeCoverageEntryFilter(double coverage, bool waitTillCompletion)
         {
             if (coverage is < 0 or > 1)
             {
@@ -34,9 +34,12 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeResultEntryFilter.Pass"/>
         public bool Pass(AVResultEntry entry, bool canContinueInTheNextQuery)
         {
-            return !waitTillCompletion ? 
-                (entry.Audio?.TrackRelativeCoverage > coverage || entry.Video?.TrackRelativeCoverage > coverage) : 
-                (entry.Audio?.TrackRelativeCoverage > coverage || entry.Video?.TrackRelativeCoverage > coverage) && !canContinueInTheNextQuery;
+            if (canContinueInTheNextQuery && waitTillCompletion)
+            {
+                return false;
+            }
+
+            return entry.Audio?.TrackRelativeCoverage > coverage || entry.Video?.TrackRelativeCoverage > coverage;
         }
     }
 }

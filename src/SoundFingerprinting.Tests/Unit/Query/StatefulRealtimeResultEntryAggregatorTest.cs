@@ -31,7 +31,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public void ShouldNotFailWithNullObjectPass()
         {
             var aggregator = new StatefulRealtimeResultEntryAggregator(
-                new TrackMatchLengthEntryFilter(5d), 
+                new TrackCoverageLengthEntryFilter(5d, waitTillCompletion: false), 
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
                 new ResultEntryConcatenator(loggerFactory, false),
@@ -49,7 +49,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             double permittedGap = 5d;
             var aggregator = new StatefulRealtimeResultEntryAggregator(
-                new TrackMatchLengthEntryFilter(10d),
+                new TrackCoverageLengthEntryFilter(10d, waitTillCompletion: false),
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
                 new ResultEntryConcatenator(loggerFactory, false),
@@ -86,7 +86,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public void ShouldMergeResults()
         {
             double permittedGap = 2d;
-            var aggregator = new StatefulRealtimeResultEntryAggregator(new TrackMatchLengthEntryFilter(5d),
+            var aggregator = new StatefulRealtimeResultEntryAggregator(
+                new TrackCoverageLengthEntryFilter(5d, waitTillCompletion: false),
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
                 new ResultEntryConcatenator(loggerFactory, false),
@@ -107,7 +108,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var randomHashes = TestUtilities.GetRandomHashes(1);
             for (int i = 0; i < 10; ++i)
             {
-                var entry = new ResultEntry(GetTrack(trackLength), 0, DateTime.Now, TestUtilities.GetMatchedWith(new[] { 0 }, new[] { i }).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, fingerprintLength, permittedGap).First());
+                var entry = new ResultEntry(GetTrack(trackLength), 0, DateTime.Now, TestUtilities.GetMatchedWith([0], [i]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, fingerprintLength, permittedGap).First());
                 var audioResult = new QueryResult(new[] { entry }, randomHashes, QueryCommandStats.Zero());
                 var avEntry = new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null));
                 var aggregated = aggregator.Consume(avEntry);
@@ -179,7 +180,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     config.QueryConfiguration.Audio.Stride = stride;
                     config.ResultEntryFilter = new NoPassRealtimeResultEntryFilter();
                     config.OngoingResultEntryFilter = new NoPassRealtimeResultEntryFilter();
-                    config.DidNotPassFilterCallback = (avQueryResult) =>
+                    config.DidNotPassFilterCallback = avQueryResult =>
                     {
                         results.AddRange(avQueryResult.ResultEntries.Select(_ => _.Audio));
                     };
@@ -204,8 +205,6 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 Assert.AreEqual(p.Expected, p.Actual, 0.00001);
             }
         }
-        
-        
 
         private static void SimulateEmptyResults(IRealtimeResultEntryAggregator aggregator, ICollection<AVResultEntry> success, ICollection<AVResultEntry> filtered)
         {

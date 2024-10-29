@@ -23,7 +23,7 @@ namespace SoundFingerprinting.Configuration
             Action<Exception, AVHashes?> onError,
             Action restoredAfterErrorCallback) : base(
             new DefaultAVQueryConfiguration(),
-            new TrackMatchLengthEntryFilter(5d),
+            new TrackCoverageLengthEntryFilter(secondsThreshold: 5d, waitTillCompletion: false),
             successCallback,
             didNotPassFilterCallback,
             new PassThroughRealtimeResultEntryFilter(),

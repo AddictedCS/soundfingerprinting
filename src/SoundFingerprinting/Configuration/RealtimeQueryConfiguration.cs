@@ -63,8 +63,8 @@ namespace SoundFingerprinting.Configuration
         ///  The following implementations are recommended for use: <br/>
         ///  <see cref="CompletedRealtimeMatchResultEntryFilter"/>  keeps the match from getting emitted until it can't continue in the next query.
         ///  Since realtime queries come in chunks that can partition a match into multiple parts (i.e., a 3-minute song will match 3 times if the length of the query is 1 minute), this filter prevents partitioning, emitting only 1 success entry at the end of the last match. <br/>
-        ///  <see cref="TrackRelativeCoverageLengthEntryFilter"/> filters all entries those <see cref="ResultEntry.TrackRelativeCoverage"/> is shorter than the threshold. An example: <b>0.4</b> - all tracks that matched less than 40% of their length will be disregarded. Also allows specifying <i>waitTillCompletion</i> flag indicating whether to wait till completion before emitting the result (default <i>true</i>). <br/>
-        ///  <see cref="TrackMatchLengthEntryFilter"/> filters all entries those <see cref="ResultEntry.TrackCoverageWithPermittedGapsLength" /> is shorter than the threshold.
+        ///  <see cref="TrackRelativeCoverageEntryFilter"/> filters all entries those <see cref="ResultEntry.TrackRelativeCoverage"/> is shorter than the threshold. An example: <b>0.4</b> - all tracks that matched less than 40% of their length will be disregarded. Also allows specifying <i>waitTillCompletion</i> flag indicating whether to wait till completion before emitting the result (default <i>true</i>). <br/>
+        ///  <see cref="TrackCoverageLengthEntryFilter"/> filters all entries those <see cref="ResultEntry.TrackCoverageWithPermittedGapsLength" /> is shorter than the threshold.
         ///  <see cref="PassThroughRealtimeResultEntryFilter"/> the matches will be emitted immediately once occured. <br/>
         ///  <see cref="NoPassRealtimeResultEntryFilter"/> block all matches from getting emitted.
         /// </remarks>
@@ -85,7 +85,7 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         /// <remarks>
         ///  The following implementations are recommended for use: <br />
-        ///  <see cref="OngoingRealtimeResultEntryFilter"/> will emit the result without waiting it to complete.
+        ///  <see cref="MinTrackCoverageOrMinTrackLengthRealtimeEntryFilter"/> will emit the result without waiting it to complete.
         ///  As an example for initialization values <i>minCoverage = 0.2</i> and <i>minTrackLength = 10</i>, a 1-minute long track will be emitted 6 times in the <see cref="OngoingCallback"/>.
         /// </remarks>
         public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }

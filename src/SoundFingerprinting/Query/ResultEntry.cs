@@ -41,7 +41,7 @@ namespace SoundFingerprinting.Query
         public TrackData Track { get; }
 
         /// <summary>
-        ///  Gets coverage of the the provided result entry
+        ///  Gets coverage of the provided result entry
         /// </summary>
         [ProtoMember(2)]
         public Coverage Coverage { get; }

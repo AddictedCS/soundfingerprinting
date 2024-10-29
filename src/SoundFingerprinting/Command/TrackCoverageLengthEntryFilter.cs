@@ -9,15 +9,17 @@ namespace SoundFingerprinting.Command
     /// <remarks>
     ///  Filters all entries that have a shorter <see cref="ResultEntry.TrackCoverageWithPermittedGapsLength"/> than the configured threshold.
     /// </remarks>
-    public class TrackMatchLengthEntryFilter : IRealtimeResultEntryFilter
+    public class TrackCoverageLengthEntryFilter : IRealtimeResultEntryFilter
     {
         private readonly double secondsThreshold;
+        private readonly bool waitTillCompletion;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TrackMatchLengthEntryFilter"/> class.
+        /// Initializes a new instance of the <see cref="TrackCoverageLengthEntryFilter"/> class.
         /// </summary>
         /// <param name="secondsThreshold">Minimal threshold measured in seconds that will be used to filter incoming query results.</param>
-        public TrackMatchLengthEntryFilter(double secondsThreshold)
+        /// <param name="waitTillCompletion">A flag indicating whether to wait till completion or not</param>
+        public TrackCoverageLengthEntryFilter(double secondsThreshold, bool waitTillCompletion)
         {
             if (secondsThreshold < 0)
             {
@@ -25,11 +27,18 @@ namespace SoundFingerprinting.Command
             }
             
             this.secondsThreshold = secondsThreshold;
+            this.waitTillCompletion = waitTillCompletion;
         }
 
         /// <inheritdoc cref="IRealtimeResultEntryFilter.Pass"/>
         public bool Pass(AVResultEntry entry, bool canContinueInTheNextQuery)
         {
+            if (canContinueInTheNextQuery && waitTillCompletion)
+            {
+                // if we can continue in the next query, but we are waiting for the track to finish, we should not emit the result
+                return false;
+            }
+            
             return entry.Audio?.TrackCoverageWithPermittedGapsLength > secondsThreshold || entry.Video?.TrackCoverageWithPermittedGapsLength > secondsThreshold;
         }
     }
