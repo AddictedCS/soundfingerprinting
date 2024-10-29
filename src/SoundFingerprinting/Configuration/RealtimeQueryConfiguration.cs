@@ -85,8 +85,8 @@ namespace SoundFingerprinting.Configuration
         /// </summary>
         /// <remarks>
         ///  The following implementations are recommended for use: <br />
-        ///  <see cref="MinTrackCoverageOrMinTrackLengthRealtimeEntryFilter"/> will emit the result without waiting it to complete.
-        ///  As an example for initialization values <i>minCoverage = 0.2</i> and <i>minTrackLength = 10</i>, a 1-minute long track will be emitted 6 times in the <see cref="OngoingCallback"/>.
+        ///  <see cref="TrackCoverageLengthEntryFilter"/> instantiated with waitTillCompletion=false will emit the result without waiting it to complete.
+        ///  As an example for initialization values minTrackLength = 10, a 1-minute-long track will be emitted 6 times in the <see cref="OngoingCallback"/>.
         /// </remarks>
         public IRealtimeResultEntryFilter OngoingResultEntryFilter { get; set; }
 

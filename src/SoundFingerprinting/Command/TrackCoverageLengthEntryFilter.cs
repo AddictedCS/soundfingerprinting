@@ -18,7 +18,7 @@ namespace SoundFingerprinting.Command
         /// Initializes a new instance of the <see cref="TrackCoverageLengthEntryFilter"/> class.
         /// </summary>
         /// <param name="secondsThreshold">Minimal threshold measured in seconds that will be used to filter incoming query results.</param>
-        /// <param name="waitTillCompletion">A flag indicating whether to wait till completion or not</param>
+        /// <param name="waitTillCompletion">A flag indicating whether to wait till completion or not.</param>
         public TrackCoverageLengthEntryFilter(double secondsThreshold, bool waitTillCompletion)
         {
             if (secondsThreshold < 0)
