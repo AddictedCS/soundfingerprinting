@@ -4,13 +4,15 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>11.1.0</PackageVersion>
+	<PackageVersion>11.2.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 11.2.0
+		- Version bump to accomodate SoundFingerprinting.Emy update to 11.2.0
 		Version 11.1.0
 		- Adjusting `IRealtimeResultEntryFilter` implementation classes, making sure we adhere to the same principles across both configuration options `ResultEntryFilter` and `OngoingResultEntryFilter`.
 		- Adding `ChainedRealtimeEntryFilter` which replaces `OngoingRealtimeResultEntryFilter`.
