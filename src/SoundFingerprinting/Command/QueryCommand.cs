@@ -198,7 +198,7 @@
         {
             if (mediaService != null)
             {
-                logger.LogDebug("Using media service {0} for query hashes generation", mediaService);
+                logger.LogDebug("Using media service {Service} for query hashes generation", mediaService.GetType());
                 return usingFingerprintServices.UsingServices(mediaService);
             }
 
