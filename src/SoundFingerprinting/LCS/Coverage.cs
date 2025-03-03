@@ -64,6 +64,11 @@ namespace SoundFingerprinting.LCS
         public double QueryMatchEndsAt => QueryMatchStartsAt + QueryDiscreteCoverageLength;
 
         /// <summary>
+        ///  Gets the percentage of how much the original track has been covered.
+        /// </summary>
+        public double TrackRelativeCoverage => TrackCoverageWithPermittedGapsLength / TrackLength;
+        
+        /// <summary>
         ///  Gets track coverage length sum in seconds, allowing gaps specified by permitted gap query parameter.
         /// </summary>
         public double TrackCoverageWithPermittedGapsLength
@@ -84,6 +89,11 @@ namespace SoundFingerprinting.LCS
                 return QueryDiscreteCoverageLength - QueryGaps.Where(g => !g.IsOnEdge).Sum(d => d.LengthInSeconds);
             }
         }
+        
+        /// <summary>
+        ///  Gets the percentage of how much the original query has been covered.
+        /// </summary>
+        public double QueryRelativeCoverage => QueryCoverageWithPermittedGapsLength / QueryLength;
 
         /// <summary>
         ///  Gets the track match length including all track gaps (if any).

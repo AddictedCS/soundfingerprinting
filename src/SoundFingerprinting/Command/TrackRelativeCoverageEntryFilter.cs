@@ -1,13 +1,14 @@
 namespace SoundFingerprinting.Command
 {
     using System;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
 
     /// <summary>
     ///  Track relative coverage result entry filter.
     /// </summary>
     /// <remarks>
-    ///  Filters all entries that have a shorter <see cref="ResultEntry.TrackRelativeCoverage"/> than the configured threshold.
+    ///  Filters all entries that have a shorter <see cref="Coverage.TrackRelativeCoverage"/> than the configured threshold.
     /// </remarks>
     public class TrackRelativeCoverageEntryFilter : IRealtimeResultEntryFilter
     {
@@ -17,7 +18,7 @@ namespace SoundFingerprinting.Command
         /// <summary>
         /// Initializes a new instance of the <see cref="TrackRelativeCoverageEntryFilter"/> class.
         /// </summary>
-        /// <param name="coverage">Coverage used as a minimum threshold for the <see cref="ResultEntry.TrackRelativeCoverage"/>.</param>
+        /// <param name="coverage">Coverage used as a minimum threshold for the <see cref="Coverage.TrackRelativeCoverage"/>.</param>
         /// <param name="waitTillCompletion">A flag indicating whether to emit the result without waiting until the track finishes.</param>
         /// <exception cref="ArgumentOutOfRangeException">Coverage has to be defined within [0, 1] interval.</exception>
         public TrackRelativeCoverageEntryFilter(double coverage, bool waitTillCompletion)
@@ -39,7 +40,7 @@ namespace SoundFingerprinting.Command
                 return false;
             }
 
-            return entry.Audio?.TrackRelativeCoverage > coverage || entry.Video?.TrackRelativeCoverage > coverage;
+            return entry.Audio?.Coverage.TrackRelativeCoverage > coverage || entry.Video?.Coverage.TrackRelativeCoverage > coverage;
         }
     }
 }

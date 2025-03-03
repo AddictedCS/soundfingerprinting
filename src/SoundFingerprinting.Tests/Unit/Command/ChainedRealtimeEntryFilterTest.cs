@@ -21,7 +21,7 @@ public class ChainedRealtimeEntryFilterTest
         var filter3 = new ChainedRealtimeEntryFilter([filter1, filter2]);
         
         var track = new TrackData("id", "isrc", "title", 30, new ModelReference<uint>(1));
-        var coverage = TestUtilities.GetCoverage(track.Length * runnigCoverage, []);
+        var coverage = TestUtilities.GetCoverage(track.Length * runnigCoverage, queryLength: 30, trackLength: 30, []);
         var resultEntry = new ResultEntry(track, 1, DateTime.UnixEpoch, coverage);
         
         bool actual = filter3.Pass(new AVResultEntry(resultEntry, resultEntry), canContinueInTheNextQuery);

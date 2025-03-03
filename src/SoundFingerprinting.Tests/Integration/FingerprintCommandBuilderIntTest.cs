@@ -262,8 +262,8 @@
         {
             Assert.IsNotNull(bestMatch);
             Assert.AreEqual(1, bestMatch.Confidence, 0.1);
-            Assert.AreEqual(1, bestMatch.QueryRelativeCoverage, 0.1);
-            Assert.AreEqual(1, bestMatch.TrackRelativeCoverage, 0.1);
+            Assert.AreEqual(1, bestMatch.Coverage.QueryRelativeCoverage, 0.1);
+            Assert.AreEqual(1, bestMatch.Coverage.TrackRelativeCoverage, 0.1);
         }
 
         [Test]
@@ -321,7 +321,7 @@
             Assert.AreEqual("4321", bestMatch!.Track.Id);
             Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
             Assert.AreEqual(audioSamples.Duration, bestMatch.TrackCoverageWithPermittedGapsLength, 1.48d);
-            Assert.AreEqual(1d, bestMatch.TrackRelativeCoverage, 0.005d);
+            Assert.AreEqual(1d, bestMatch.Coverage.TrackRelativeCoverage, 0.005d);
             Assert.AreEqual(1, bestMatch.Confidence, 0.01, $"Confidence:{bestMatch.Confidence}");
         }
 
@@ -337,11 +337,9 @@
                 .From(audioSamples)
                 .WithFingerprintConfig(config =>
                 {
-                    config.Audio.FrameNormalizationTransform = new FrameNormalizationChain(new[]
-                    {
+                    config.Audio.FrameNormalizationTransform = new FrameNormalizationChain([
                         logImageNormalization.Object, blurNormalization.Object
-
-                    });
+                    ]);
                     
                     return config;
                 })

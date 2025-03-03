@@ -19,8 +19,8 @@ public class TrackRelativeCoverageEntryFilterTest
     public void ShouldWorkAsExpected(double relativeCoverage, bool waitTillCompletion, double runningCoverage, bool canContinueInTheNextQuery, bool expected)
     {
         var filter = new TrackRelativeCoverageEntryFilter(relativeCoverage, waitTillCompletion);
-        var track = new TrackData("id", "isrc", "title", 30, new ModelReference<uint>(1));
-        var coverage = TestUtilities.GetCoverage(track.Length * runningCoverage, []);
+        var track = new TrackData("id", "author", "title", length: 30, new ModelReference<uint>(1));
+        var coverage = TestUtilities.GetCoverage(track.Length * runningCoverage, queryLength: 30, trackLength: 30, []);
         var resultEntry = new ResultEntry(track, 1, DateTime.UnixEpoch, coverage);
         
         bool actual = filter.Pass(new AVResultEntry(resultEntry, resultEntry), canContinueInTheNextQuery);
