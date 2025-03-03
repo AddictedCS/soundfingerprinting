@@ -285,13 +285,13 @@
         private object[] GetFoundLine(string actualTrack, TrackData recognizedTrack, bool isSuccessful, QueryResult queryResult)
         {
             var bestMatch = queryResult.BestMatch;
-            return new object[]
-                {
-                    actualTrack, ToTrackString(recognizedTrack.Artist, recognizedTrack.Title), isSuccessful,
+            return
+            [
+                actualTrack, ToTrackString(recognizedTrack.Artist, recognizedTrack.Title), isSuccessful,
                     bestMatch.Score, bestMatch.Confidence,
-                    bestMatch.TrackRelativeCoverage,
+                    bestMatch.Coverage.TrackRelativeCoverage,
                     bestMatch.TrackCoverageWithPermittedGapsLength, bestMatch.TrackStartsAt
-                };
+            ];
         }
 
         private async Task<QueryResult> BuildQuery(IStride queryStride, int seconds, string positive, int startAt)

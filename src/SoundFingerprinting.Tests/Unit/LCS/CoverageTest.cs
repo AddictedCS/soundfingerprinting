@@ -18,7 +18,7 @@ public class CoverageTest
     {
         Assert.IsTrue(gapsStartEnd.Length % 2 == 0);
         var gaps = TestUtilities.GetGaps(gapsStartEnd);
-        var original = TestUtilities.GetCoverage(length, gaps);
+        var original = TestUtilities.GetCoverage(length, queryLength: length, trackLength: length, gaps);
         var timeSegments = splits.Aggregate(new List<TimeSegment>(), (acc, next) =>
         {
             if (!acc.Any())
@@ -65,14 +65,13 @@ public class CoverageTest
     [Test]
     public void GapIsLongerThanTheSplit()
     {
-        var gaps = TestUtilities.GetGaps(new[] {15d, 30});
-        var original = TestUtilities.GetCoverage(30, gaps);
+        var gaps = TestUtilities.GetGaps([15d, 30]);
+        var original = TestUtilities.GetCoverage(30, 30, 30, gaps);
 
-        var results = original.SplitByTrackLength(new[]
-        {
+        var results = original.SplitByTrackLength([
             new TimeSegment(0, 15), 
             new TimeSegment(15, 30)
-        }).ToList();
+        ]).ToList();
         
         Assert.AreEqual(1, results.Count(_ => _.BestPath.Any()));
     }
@@ -80,14 +79,13 @@ public class CoverageTest
     [Test]
     public void GapIsOnTheSplit()
     {
-        var gaps = TestUtilities.GetGaps(new[] {12.5d, 17.5d});
-        var original = TestUtilities.GetCoverage(30, gaps);
+        var gaps = TestUtilities.GetGaps([12.5d, 17.5d]);
+        var original = TestUtilities.GetCoverage(30, 30, 30, gaps);
 
-        var results = original.SplitByTrackLength(new[]
-        {
+        var results = original.SplitByTrackLength([
             new TimeSegment(0, 15), 
             new TimeSegment(15, 30)
-        }).ToList();
+        ]).ToList();
         
         Assert.AreEqual(2, results.Count);
         
@@ -100,10 +98,10 @@ public class CoverageTest
     [Test]
     public void SplitIsInsideTheCoverage()
     {
-        var gaps = TestUtilities.GetGaps(new[] {12.5d, 17.5d});
-        var original = TestUtilities.GetCoverage(30, gaps);
+        var gaps = TestUtilities.GetGaps([12.5d, 17.5d]);
+        var original = TestUtilities.GetCoverage(30, 30, 30, gaps);
 
-        var results = original.SplitByTrackLength(new[] { new TimeSegment(2.5, 32.5) }).ToList();
+        var results = original.SplitByTrackLength([new TimeSegment(2.5, 32.5)]).ToList();
         
         Assert.AreEqual(1, results.Count);
         var coverage = results[0];

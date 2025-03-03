@@ -134,11 +134,11 @@ namespace SoundFingerprinting.Tests
             }
         }
         
-        public static Coverage GetCoverage(double length, IReadOnlyCollection<Gap> gaps)
+        public static Coverage GetCoverage(double coverageLength, double queryLength, double trackLength, IReadOnlyCollection<Gap> gaps)
         {
             const float sampleRate = 0.1f;
             var bestPath = new List<MatchedWith>();
-            for (float i = 0; i < length; i += sampleRate)
+            for (float i = 0; i < coverageLength; i += sampleRate)
             {
                 uint sequenceNumber = (uint)(i / sampleRate);
                 // query and track matches are symmetric
@@ -149,7 +149,7 @@ namespace SoundFingerprinting.Tests
                 }
             }
 
-            return new Coverage(bestPath, queryLength: length, trackLength: length, fingerprintLength: 1.4862f, permittedGap: 2d);
+            return new Coverage(bestPath, queryLength: queryLength, trackLength: trackLength, fingerprintLength: 1.4862f, permittedGap: 2d);
         }
 
         public static List<Gap> GetGaps(double[] gapsStartEnd)

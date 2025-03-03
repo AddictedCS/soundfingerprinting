@@ -7,29 +7,21 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.LCS;
 
-    internal class GroupedQueryResults
+    internal class GroupedQueryResults(double queryLength, DateTime relativeTo)
     {
-        private readonly SortedDictionary<uint, Candidates> sequenceToCandidates;
-        private readonly ConcurrentDictionary<IModelReference, double> scoreSumPerTrack;
+        private readonly SortedDictionary<uint, Candidates> sequenceToCandidates = new ();
+        private readonly ConcurrentDictionary<IModelReference, double> scoreSumPerTrack = new ();
 
-        public GroupedQueryResults(double queryLength, DateTime relativeTo)
-        {
-            RelativeTo = relativeTo;
-            QueryLength = queryLength;
-            sequenceToCandidates = new SortedDictionary<uint, Candidates>();
-            scoreSumPerTrack = new ConcurrentDictionary<IModelReference, double>();
-        }
+        public double QueryLength { get; } = queryLength;
 
-        public double QueryLength { get; }
-
-        public DateTime RelativeTo { get; }
+        public DateTime RelativeTo { get; } = relativeTo;
 
         public void Add(uint queryHashSequenceNumber, IModelReference trackReference, MatchedWith matchedWith)
         {
             scoreSumPerTrack.AddOrUpdate(trackReference, matchedWith.Score, (_, old) => old + matchedWith.Score);
             if (!sequenceToCandidates.TryGetValue(queryHashSequenceNumber, out var candidates))
             {
-                sequenceToCandidates.Add(queryHashSequenceNumber, new Candidates(trackReference, new[] { matchedWith }));
+                sequenceToCandidates.Add(queryHashSequenceNumber, new Candidates(trackReference, [matchedWith]));
             }
             else
             {
@@ -37,7 +29,7 @@
             }
         }
 
-        public bool ContainsMatches => scoreSumPerTrack.Any();
+        public bool ContainsMatches => !scoreSumPerTrack.IsEmpty;
 
         public int SubFingerprintsCount
         {

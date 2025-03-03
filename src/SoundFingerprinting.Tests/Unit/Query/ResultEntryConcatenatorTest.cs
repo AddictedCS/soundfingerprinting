@@ -68,7 +68,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.IsEmpty(concatenated.Coverage.TrackGaps);
             Assert.IsEmpty(concatenated.Coverage.QueryGaps.Where(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(1, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(1, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(30, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
             Assert.AreEqual(240, concatenated.QueryLength, Delta);
@@ -103,7 +103,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             AssertDiscontinuity(9, 12, concatenated.Coverage.TrackGaps.First());
             Assert.IsEmpty(concatenated.Coverage.QueryGaps.Where(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(0.9, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(0.9, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(1, TrackDiscreteCoverage(concatenated.Coverage), Delta);
             Assert.AreEqual(27, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
@@ -138,7 +138,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, concatenated.Coverage.QueryGaps.Count(_ => !_.IsOnEdge));
             AssertDiscontinuity(117, 120, concatenated.Coverage.QueryGaps.First(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(1, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(1, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(1, TrackDiscreteCoverage(concatenated.Coverage), Delta);
             Assert.AreEqual(30, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
@@ -173,7 +173,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, concatenated.Coverage.QueryGaps.Count(_ => !_.IsOnEdge));
             AssertDiscontinuity(120, 123, concatenated.Coverage.QueryGaps.First(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(1, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(1, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(1, TrackDiscreteCoverage(concatenated.Coverage), Delta);
             Assert.AreEqual(30, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
@@ -208,7 +208,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, concatenated.Coverage.QueryGaps.Count(_ => !_.IsOnEdge));
             AssertDiscontinuity(118, 122, concatenated.Coverage.QueryGaps.First(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(1, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(1, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(1, TrackDiscreteCoverage(concatenated.Coverage), Delta);
             Assert.AreEqual(30, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
@@ -244,7 +244,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, concatenated.Coverage.QueryGaps.Count(_ => !_.IsOnEdge));
             AssertDiscontinuity(117, 120, concatenated.Coverage.QueryGaps.First(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(0.9, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(0.9, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(1, TrackDiscreteCoverage(concatenated.Coverage), Delta);
             Assert.AreEqual(27, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
@@ -280,7 +280,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, concatenated.Coverage.QueryGaps.Count(_ => !_.IsOnEdge));
             AssertDiscontinuity(120, 123, concatenated.Coverage.QueryGaps.First(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(0.9, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(0.9, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(1, TrackDiscreteCoverage(concatenated.Coverage), Delta);
             Assert.AreEqual(27, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
@@ -316,7 +316,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.AreEqual(1, concatenated.Coverage.QueryGaps.Count(_ => !_.IsOnEdge));
             AssertDiscontinuity(117, 124, concatenated.Coverage.QueryGaps.First(_ => !_.IsOnEdge));
 
-            Assert.AreEqual(0.9, concatenated.TrackRelativeCoverage, Delta);
+            Assert.AreEqual(0.9, concatenated.Coverage.TrackRelativeCoverage, Delta);
             Assert.AreEqual(1, TrackDiscreteCoverage(concatenated.Coverage), Delta);
             Assert.AreEqual(27, concatenated.TrackCoverageWithPermittedGapsLength, Delta);
             Assert.AreEqual(30, concatenated.DiscreteTrackCoverageLength, Delta);
@@ -339,8 +339,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var concatenated = concatenator.Concat(first, second);
             
-            Assert.AreEqual(1, concatenated.TrackRelativeCoverage, 0.01);
-            Assert.AreEqual(0.5, concatenated.QueryRelativeCoverage, 0.01);
+            Assert.AreEqual(1, concatenated.Coverage.TrackRelativeCoverage, 0.01);
+            Assert.AreEqual(0.5, concatenated.Coverage.QueryRelativeCoverage, 0.01);
             Assert.AreEqual(20, concatenated.QueryLength);
             Assert.AreEqual(5, concatenated.QueryMatchStartsAt);
             Assert.AreEqual(0, concatenated.TrackMatchStartsAt);
@@ -359,8 +359,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var concatenated = concatenator.Concat(first, second);
             
-            Assert.AreEqual(1, concatenated.TrackRelativeCoverage, 0.01);
-            Assert.AreEqual(1, concatenated.QueryRelativeCoverage, 0.01);
+            Assert.AreEqual(1, concatenated.Coverage.TrackRelativeCoverage, 0.01);
+            Assert.AreEqual(1, concatenated.Coverage.QueryRelativeCoverage, 0.01);
             Assert.AreEqual(20, concatenated.QueryLength);
             Assert.AreEqual(0, concatenated.QueryMatchStartsAt);
             Assert.AreEqual(0, concatenated.TrackMatchStartsAt);
@@ -449,11 +449,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             var result = concatenator.Concat(first, second);
             
-            Assert.AreEqual(0.5, result.TrackRelativeCoverage, 0.01);
+            Assert.AreEqual(0.5, result.Coverage.TrackRelativeCoverage, 0.01);
             Assert.AreEqual(15, result.TrackCoverageWithPermittedGapsLength, 0.01);
-            Assert.AreEqual(1d, result.QueryRelativeCoverage, 0.01);
+            Assert.AreEqual(1d, result.Coverage.QueryRelativeCoverage, 0.01);
             Assert.AreEqual(20, result.QueryLength, 0.01);
-            Assert.AreEqual(0.5d, result.TrackRelativeCoverage, 0.01);
+            Assert.AreEqual(0.5d, result.Coverage.TrackRelativeCoverage, 0.01);
         }
 
         [Test]
@@ -467,7 +467,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var a = concatenator.Concat(left, right);
             var b = concatenator.Concat(right, left);
             
-            Assert.AreEqual(a.TrackRelativeCoverage, b.TrackRelativeCoverage, 0.0001);
+            Assert.AreEqual(a.Coverage.TrackRelativeCoverage, b.Coverage.TrackRelativeCoverage, 0.0001);
         }
 
         [Test]

@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Query
 {
     using System;
+    using System.Linq;
     using ProtoBuf;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
@@ -86,16 +87,6 @@ namespace SoundFingerprinting.Query
         public double TrackMatchStartsAt { get; }
 
         /// <summary>
-        ///  Gets the percentage of how much the query match covered the original track.
-        /// </summary>
-        public double TrackRelativeCoverage => TrackCoverageWithPermittedGapsLength / Track.Length;
-
-        /// <summary>
-        ///  Gets the percentage of how much the track match covered the original query
-        /// </summary>
-        public double QueryRelativeCoverage => Coverage.QueryCoverageWithPermittedGapsLength / QueryLength;
-
-        /// <summary>
         ///  Gets the value [0, 1) of how confident is the framework that query match corresponds to result track
         /// </summary>
         [ProtoMember(7)]
@@ -121,6 +112,14 @@ namespace SoundFingerprinting.Query
         public double Score { get; }
 
         /// <summary>
+        ///  Gets a value indicating whether the match is a full match or not.
+        /// </summary>
+        /// <remarks>
+        ///  A full match is a match where there are no gaps in the query and track coverage. Useful for duplicate detection.
+        /// </remarks>
+        public bool IsFullMatch => !Coverage.QueryGaps.Any() && !Coverage.TrackGaps.Any();
+
+        /// <summary>
         ///  Convert ResultEntry to an instance of <see cref="QueryMatch"/>.
         /// </summary>
         /// <returns>Instance of <see cref="QueryMatch"/>.</returns>
@@ -133,7 +132,7 @@ namespace SoundFingerprinting.Query
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()
         {
-            return $"ResultEntry[TrackId={Track.Id},TrackMatchStartsAt={TrackMatchStartsAt:0.00},TrackRelativeCoverage={TrackRelativeCoverage:0.00},QueryMatchStartsAt={QueryMatchStartsAt:0.00},QueryRelativeCoverage={QueryRelativeCoverage:0.00},TrackLength={Track.Length:0.00},QueryLength={QueryLength:0.00},MatchedAt={MatchedAt:O}]";
+            return $"ResultEntry[TrackId={Track.Id},TrackMatchStartsAt={TrackMatchStartsAt:0.00},QueryMatchStartsAt={QueryMatchStartsAt:0.00},TrackLength={Track.Length:0.00},QueryLength={QueryLength:0.00},MatchedAt={MatchedAt:O}]";
         }
     }
 }
