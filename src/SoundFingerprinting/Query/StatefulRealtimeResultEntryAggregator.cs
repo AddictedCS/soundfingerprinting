@@ -37,7 +37,7 @@ namespace SoundFingerprinting.Query
         {
             if (queryResult == null)
             {
-                return new RealtimeQueryResult(Enumerable.Empty<AVResultEntry>(), Enumerable.Empty<AVQueryResult>(), Enumerable.Empty<AVQueryResult>());
+                return new RealtimeQueryResult([], [], []);
             }
             
             SaveNewEntries(queryResult);
@@ -49,7 +49,7 @@ namespace SoundFingerprinting.Query
         {
             var (completed, didNotPassFilter) = FinalCheckOnEntriesThatCantContinue(avResultEntryTracker.GetAvResultEntries());
             avResultEntryTracker.Clear();
-            return GetRealtimeQueryResult(Enumerable.Empty<AVResultEntry>(), completed, didNotPassFilter);
+            return GetRealtimeQueryResult([], completed, didNotPassFilter);
         }
         
         private void SaveNewEntries(AVQueryResult queryResult)
