@@ -27,7 +27,7 @@ namespace SoundFingerprinting.Configuration
             successCallback,
             didNotPassFilterCallback,
             new PassThroughRealtimeResultEntryFilter(),
-            ongoingCallback: _ => { },
+            ongoingCallback: (_, _) => { },
             errorCallback: onError,
             restoredAfterErrorCallback: restoredAfterErrorCallback,
             offlineStorage: new EmptyOfflineStorage(),

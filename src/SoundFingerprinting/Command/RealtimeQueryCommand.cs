@@ -38,7 +38,6 @@ namespace SoundFingerprinting.Command
         private Func<AVTrack, AVTrack> avTrackInterceptor = _ => _;
         private Func<AVHashes, AVHashes> hashesInterceptor = _ => _;
         private Func<AVQueryResult, AVQueryResult> queryResultInterceptor = _ => _;
-        
         private bool errored = false;
         private double queryLength = 0;
 
@@ -262,7 +261,7 @@ namespace SoundFingerprinting.Command
 
             try
             {
-                // lets check the offline storage immediately at startup
+                // let's check the offline storage immediately at startup
                 await foreach (var queryResult in QueryFromOfflineStorage(cancellationToken))
                 {
                     ConsumeQueryResult(queryResult, resultsAggregator);
@@ -340,7 +339,7 @@ namespace SoundFingerprinting.Command
         private void ConsumeQueryResult(AVQueryResult queryResult, IRealtimeResultEntryAggregator resultsAggregator)
         {
             var (ongoingEntries, successEntries, didNotPassThresholdEntries) = resultsAggregator.Consume(queryResult);
-            InvokeOngoingCallbackHandler(ongoingEntries);
+            InvokeOngoingCallbackHandler(queryResult.StreamId, ongoingEntries);
             InvokeCallbackHandler(successEntries, configuration.SuccessCallback);
             InvokeCallbackHandler(didNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
         }
@@ -498,9 +497,9 @@ namespace SoundFingerprinting.Command
             return avQueryResult;
         }
         
-        private void InvokeOngoingCallbackHandler(IEnumerable<AVResultEntry> ongoingResultEntries)
+        private void InvokeOngoingCallbackHandler(string streamId, IEnumerable<AVResultEntry> ongoingResultEntries)
         {
-            configuration.OngoingCallback(ongoingResultEntries);
+            configuration.OngoingCallback(streamId, ongoingResultEntries);
         }
         
         private static void InvokeCallbackHandler(IEnumerable<AVQueryResult> results, Action<AVQueryResult>? callback)
