@@ -68,6 +68,8 @@ If you are using `FFmpegAudioService` as described in the [wiki][audio-services-
 | 8.x  | 8.x    | 4.x |
 | 9.x  | 9.x    | 5.x |
 | 10.x | 10.x   | 6.x |
+| 11.x | 11.x   | 6.x |
+| 12.x | 12.x   | 7.x |
 
 
 
