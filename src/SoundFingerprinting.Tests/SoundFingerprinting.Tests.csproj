@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="Moq" Version="4.20.72" />
-	<PackageReference Include="NLog.Extensions.Logging" Version="5.4.0" />
+	<PackageReference Include="NLog.Extensions.Logging" Version="5.5.0" />
 	<PackageReference Include="NUnit" Version="3.14.0" />
-	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
 	<PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>

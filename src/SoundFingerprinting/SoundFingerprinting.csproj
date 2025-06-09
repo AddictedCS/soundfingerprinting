@@ -4,13 +4,15 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>12.0.0</PackageVersion>
+	<PackageVersion>12.1.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 12.1.0
+		- Upgrading .NET dependencies to .NET 9.0.0
 		Version 12.0.0
 		- Accomodating SoundFingerprinting.Emy upgrade to FFmpeg 7.x
 		Version 11.4.0
@@ -66,15 +68,14 @@
 	<AdditionalFiles Include="../stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-	  <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
 	  <PackageReference Include="protobuf-net" Version="2.4.6" />
-	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup>
 	<None Include="../../license.txt">
 		<Pack>True</Pack>

@@ -9,17 +9,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/dotnet/sdk:8.0
+    container: mcr.microsoft.com/dotnet/sdk:9.0
 
     steps:
     - uses: actions/checkout@v3
     - name: Run Tests
-      run: dotnet test src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -v n
+      run: dotnet test src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -v n -tl:off
     - name: Slack Notification
       if: failure()
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_COLOR: '#3278BD'
-        SLACK_MESSAGE: 'SoundFingerprinting core library build failed'
+        SLACK_MESSAGE: 'SoundFingerprinting Core library build failed, check logs'
         SLACK_USERNAME: rtCamp
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}  
