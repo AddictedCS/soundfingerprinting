@@ -102,7 +102,7 @@ If you want to contribute you are welcome to open issues or discuss on [issues](
 ### License
 The framework is provided under [MIT](https://opensource.org/licenses/MIT) license agreement.
 
-&copy; Soundfingerprinting, 2010-2024, sergiu@emysound.com
+&copy; Soundfingerprinting, 2010-2025, sergiu@emysound.com
 
 
 [emy-nuget]: https://www.nuget.org/packages/SoundFingerprinting.Emy
