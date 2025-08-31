@@ -3,26 +3,33 @@
     /// <summary>
     ///  Class that defines black frame filter properties.
     /// </summary>
-    public class BlackFramesFilterConfiguration
+    public class BlackFramesFilterConfiguration(byte threshold, float amount)
     {
         /// <summary>
         ///  Gets the default configuration that considers a frame black if 94% of its pixels are below the threshold of 32.
         /// </summary>
-        public static readonly BlackFramesFilterConfiguration Default = new ()
-        {
-            Amount = 94, 
-            Threshold = 32 
-        };
+        /// <remarks>
+        ///  A good default for edge search strategy.
+        /// </remarks>
+        public static readonly BlackFramesFilterConfiguration EdgeSearchDefault = new (32, 94f);
         
         /// <summary>
-        /// Gets or sets the threshold below which a pixel value is considered black.
+        ///  Gets the default configuration that considers a frame black if 98% of its pixels are below the threshold of 32.
         /// </summary>
-        public byte Threshold { get; set; }
+        /// <remarks>
+        ///  A good default for video fingerprinting.
+        /// </remarks>
+        public static readonly BlackFramesFilterConfiguration FingerprintingDefault = new (32, 98f);
+        
+        /// <summary>
+        /// Gets the threshold below which a pixel value is considered black.
+        /// </summary>
+        public byte Threshold { get; } = threshold;
 
         /// <summary>
-        /// Gets or sets the minimum percentage of the pixels in a frame that have to be below the <see cref="Threshold" />
+        /// Gets the minimum percentage of the pixels in a frame that have to be below the <see cref="Threshold" />
         /// so that it is considered a black frame.
         /// </summary>
-        public float Amount { get; set; }
+        public float Amount { get; } = amount;
     }
 }

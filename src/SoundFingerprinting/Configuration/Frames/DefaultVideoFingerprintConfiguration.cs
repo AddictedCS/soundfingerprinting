@@ -21,7 +21,7 @@
             SampleRate = 1;                                     // not used but still initialized to not have it as null
             
             HaarWaveletNorm = Math.Sqrt(2);
-            OriginalPointSaveTransform =  _ => Array.Empty<byte>();
+            OriginalPointSaveTransform =  _ => [];
             
             HashingConfig = new DefaultHashingConfig
             {
@@ -40,12 +40,7 @@
                 Parameters = "min_val=24"
             };
 
-            BlackFramesFilterConfiguration = new BlackFramesFilterConfiguration
-            {
-                Threshold = 32,
-                Amount = 98
-            };
-
+            BlackFramesFilterConfiguration = BlackFramesFilterConfiguration.FingerprintingDefault;
             FrameNormalizationTransform = new GaussianBlurFrameNormalization(GaussianBlurConfiguration.Default);
         }
     }
