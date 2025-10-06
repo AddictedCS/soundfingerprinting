@@ -20,7 +20,7 @@
         ///   Gets or sets vote count for a track to be considered a potential match (i.e. [1; 25]).
         /// </summary>
         /// <remarks>
-        ///  Each fingerprints contains a predefined number of integers that describe it <see cref="HashedFingerprint.HashBins"/> (by default 25 integers).
+        ///  Each fingerprint contains a predefined number of integers that describe it <see cref="HashedFingerprint.HashBins"/> (by default 25 integers).
         ///  Threshold votes control how many of those integers have to match to report a successful match.
         ///  The higher the number the more precise the content from the query and track have to be (default = 4).
         /// </remarks>
@@ -143,5 +143,11 @@
         ///  Since hamming similarity is not a good similarity metric (specifically when applied to hashed min-hashes), scoring algorithm was reduced to sub-fingerprints counting (since score is 1 for all pairs <see cref="SubFingerprintCountScoreAlgorithm"/>).
         /// </remarks>
         public IScoreAlgorithm ScoreAlgorithm { get; private set; } = null!;
+
+        /// <summary>
+        ///  Gets or sets a strategy that filters out false positives from the final query result.
+        ///  Defaults to <see cref="AllMatchesAreTruePositives"/>, where all matches are considered true positives.
+        /// </summary>
+        public ITruePositivesFilter TruePositivesFilter { get; set; } = null!;
     }
 }

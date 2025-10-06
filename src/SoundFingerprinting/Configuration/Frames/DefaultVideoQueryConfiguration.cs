@@ -1,7 +1,6 @@
 ﻿namespace SoundFingerprinting.Configuration.Frames
 {
     using System.Collections.Generic;
-    using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
 
     /// <summary>
@@ -26,6 +25,7 @@
                 OriginalPointSaveTransform = frame => frame.GetQuantizedCopy()
             };
 
+            TruePositivesFilter = new AllMatchesAreTruePositives();
             ThresholdVotes = 4;
             PermittedGap = 1.75d;
             StructuralSimilarityFilterConfiguration = StructuralSimilarityFilterConfiguration.None;

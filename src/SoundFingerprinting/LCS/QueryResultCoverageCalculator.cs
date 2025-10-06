@@ -16,7 +16,7 @@
 
             if (!matches.Any())
             {
-                return Enumerable.Empty<Coverage>();
+                return [];
             }
             
             double queryLength = groupedQueryResults.QueryLength;
