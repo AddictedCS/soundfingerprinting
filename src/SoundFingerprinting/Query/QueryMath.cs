@@ -28,31 +28,17 @@
                 .ToList();
         }
 
-        public static bool IsCandidatePassingThresholdVotes(int[] query, int[] result, int thresholdVotes)
-        {
-            int count = 0;
-            for (int i = 0; i < query.Length; ++i)
-            {
-                if (query[i] == result[i])
-                {
-                    count++;
-                    if (count >= thresholdVotes)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         private IEnumerable<ResultEntry> BuildResultEntries(TrackData track, GroupedQueryResults groupedQueryResults, QueryConfiguration configuration)
         {
             var coverages = queryResultCoverageCalculator.GetCoverages(track, groupedQueryResults, configuration);
-            return coverages.Select(coverage => new ResultEntry(track,
-                groupedQueryResults.GetScoreSumForTrack(track.TrackReference),
-                groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt),
-                coverage));
+            return coverages
+                .Where(coverage => configuration.TruePositivesFilter.IsTruePositive(coverage))
+                .Select(coverage => GetResultEntry(track, groupedQueryResults, coverage));
+        }
+
+        private static ResultEntry GetResultEntry(TrackData track, GroupedQueryResults groupedQueryResults, Coverage coverage)
+        {
+            return new ResultEntry(track, groupedQueryResults.GetScoreSumForTrack(track.TrackReference), groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt), coverage);
         }
     }
 }
