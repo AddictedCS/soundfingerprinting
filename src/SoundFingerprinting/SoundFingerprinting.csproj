@@ -4,13 +4,15 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>12.5.0</PackageVersion>
+	<PackageVersion>12.6.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 12.6.0
+		- Adding the ability to filter false positives results on configuration level (default is off).
 		Version 12.5.0
 		- Adding default black frames configuration
 		Version 12.4.0
