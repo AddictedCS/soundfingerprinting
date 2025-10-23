@@ -68,7 +68,12 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Gets relative to timestamp of the current <see cref="AVHashes"/> instance.
         /// </summary>
-        public DateTime RelativeTo => Audio?.RelativeTo ?? Video?.RelativeTo ?? DateTime.MinValue;
+        public DateTime RelativeTo => (Audio?.RelativeTo ?? Video?.RelativeTo) ?? DateTime.MinValue;
+
+        /// <summary>
+        ///  Gets duration in seconds of the current <see cref="AVHashes"/> instance.
+        /// </summary>
+        public double DurationInSeconds => (Audio?.DurationInSeconds ?? Video?.DurationInSeconds) ?? 0;
 
         /// <summary>
         ///  Gets hashes stream id.
