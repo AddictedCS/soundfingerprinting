@@ -6,9 +6,9 @@ using SoundFingerprinting.LCS;
 /// <inheritdoc cref="ITruePositivesFilter"/>
 public class TruePositivesFilter : ITruePositivesFilter
 {
-    private readonly double minConfidence;
-    private readonly double minRelativeCoverage;
-    private readonly double minCoverageLength;
+    private readonly double? minConfidence;
+    private readonly double? minRelativeCoverage;
+    private readonly double? minCoverageLength;
 
     /// <summary>
     ///  Initializes a new instance of the <see cref="TruePositivesFilter"/> class.
@@ -22,8 +22,13 @@ public class TruePositivesFilter : ITruePositivesFilter
     /// <remarks>
     ///  If any of the thresholds is met, the coverage is considered a true positive.
     /// </remarks>
-    public TruePositivesFilter(double minConfidence, double minRelativeCoverage, double minCoverageLength)
+    public TruePositivesFilter(double? minConfidence, double? minRelativeCoverage, double? minCoverageLength)
     {
+        if (minConfidence is null && minRelativeCoverage is null && minCoverageLength is null)
+        {
+            throw new ArgumentException("At least one of the parameters should be non-null");
+        }
+        
         if (minConfidence is < 0 or > 1)
         {
             throw new ArgumentException("Minimal confidence should be in range [0, 1]", nameof(minConfidence));
