@@ -146,7 +146,7 @@
 
         /// <summary>
         ///  Gets or sets a strategy that filters out false positives from the final query result.
-        ///  Defaults to <see cref="AllMatchesAreTruePositives"/>, where all matches are considered true positives.
+        ///  Defaults to <see cref="PassThroughTruePositivesFilter"/>, where all matches are considered true positives.
         /// </summary>
         public ITruePositivesFilter TruePositivesFilter { get; set; } = null!;
     }

@@ -16,7 +16,7 @@
             PermittedGap = 2d;
             QueryPathReconstructionStrategy = QueryPathReconstructionStrategyType.MultipleBestPaths;
             FingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = Configs.QueryStrides.DefaultStride, FrequencyRange = Configs.FrequencyRanges.Default };
-            TruePositivesFilter = new AllMatchesAreTruePositives();
+            TruePositivesFilter = new PassThroughTruePositivesFilter();
             YesMetaFieldsFilters = new Dictionary<string, string>();
             NoMetaFieldsFilters = new Dictionary<string, string>();
         }

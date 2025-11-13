@@ -5,7 +5,7 @@ using SoundFingerprinting.LCS;
 /// <summary>
 ///  All matches are considered true positives.
 /// </summary>
-public class AllMatchesAreTruePositives : ITruePositivesFilter
+public class PassThroughTruePositivesFilter : ITruePositivesFilter
 {
     /// <inheritdoc cref="ITruePositivesFilter.IsTruePositive"/>
     /// <returns>True for all coverages.</returns>

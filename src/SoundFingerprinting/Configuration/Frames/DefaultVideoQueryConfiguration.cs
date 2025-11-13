@@ -25,7 +25,7 @@
                 OriginalPointSaveTransform = frame => frame.GetQuantizedCopy()
             };
 
-            TruePositivesFilter = new AllMatchesAreTruePositives();
+            TruePositivesFilter = new PassThroughTruePositivesFilter();
             ThresholdVotes = 4;
             PermittedGap = 1.75d;
             StructuralSimilarityFilterConfiguration = StructuralSimilarityFilterConfiguration.None;
