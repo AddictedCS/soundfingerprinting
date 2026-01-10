@@ -1,7 +1,6 @@
 namespace SoundFingerprinting
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -82,31 +81,29 @@ namespace SoundFingerprinting
         {
             var normalized = configuration.FrameNormalizationTransform.Normalize(frames);
             var images = normalized.ToList();
-            if (!images.Any())
+            if (images.Count == 0)
             {
                 return [];
             }
 
-            var fingerprints = new ConcurrentBag<Fingerprint>();
+            // pre-sized array for zero-contention parallel writes - each thread writes to its own index
+            var fingerprints = new Fingerprint[images.Count];
             var length = images[0].Length;
             var saveTransform = configuration.OriginalPointSaveTransform;
-            Parallel.ForEach(images, () => new ushort[length], (frame, _, cachedIndexes) =>
-                {
-                    byte[] originalPoint = saveTransform(frame);
-                    float[] rowCols = frame.ImageRowCols;
-                    waveletDecomposition.DecomposeImageInPlace(rowCols, frame.Rows, frame.Cols, configuration.HaarWaveletNorm);
-                    RangeUtils.PopulateIndexes(length, cachedIndexes);
-                    var image = fingerprintDescriptor.ExtractTopWavelets(rowCols, configuration.TopWavelets, cachedIndexes);
-                    if (!image.IsSilence || configuration.TreatSilenceAsSignal)
-                    {
-                        fingerprints.Add(new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, originalPoint));
-                    }
+            Parallel.For(0, images.Count, () => new ushort[length], (index, _, cachedIndexes) =>
+            {
+                var frame = images[index];
+                byte[] originalPoint = saveTransform(frame);
+                float[] rowCols = frame.ImageRowCols;
+                waveletDecomposition.DecomposeImageInPlace(rowCols, frame.Rows, frame.Cols, configuration.HaarWaveletNorm);
+                RangeUtils.PopulateIndexes(length, cachedIndexes);
+                var image = fingerprintDescriptor.ExtractTopWavelets(rowCols, configuration.TopWavelets, cachedIndexes);
+                fingerprints[index] = new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, originalPoint);
+                return cachedIndexes;
+            },
+            _ => { });
 
-                    return cachedIndexes;
-                },
-                _ => { });
-
-            return [.. fingerprints];
+            return configuration.TreatSilenceAsSignal ? fingerprints.ToList() : fingerprints.Where(fingerprint => !fingerprint.Schema.IsSilence).ToList();
         }
     }
 }
