@@ -18,7 +18,7 @@
             float a = (float)random.NextDouble();
             float b = a + 0.0000001f;
 
-            Assert.IsTrue(Math.Abs(a).CompareTo(Math.Abs(b)) < 0);
+            Assert.That(Math.Abs(a).CompareTo(Math.Abs(b)) < 0);
         }
 
         [Test]
@@ -29,15 +29,15 @@
             var random = new Random();
             for (int run = 0; run < 10000; ++run)
             {
-                (float[] a, float[] b) = GetTwoRandomCopies(count, random);
+                (float[] a, Is.True, float[] b) = GetTwoRandomCopies(count, random);
                 ushort[] indexes1 = Range(0, count);
                 ushort[] indexes2 = Range(0, count);
 
                 int akth = QuickSelectAlgorithm.Find(topWavelets - 1, a, indexes1, 0, a.Length - 1);
                 int bkth = QuickSelectAlgorithm.Find(topWavelets - 1, b, indexes2, 0, b.Length - 1);
 
-                Assert.AreEqual(akth, bkth);
-                AssertFingerprintsAreSame(topWavelets, a, b);
+                Assert.That(bkth);
+                AssertFingerprintsAreSame(topWavelets, Is.EqualTo(akth).Within(a), b);
             }
         }
 
@@ -54,7 +54,7 @@
 
             var adistinct = aset.Except(bset).ToList();
             var bdistinct = bset.Except(aset);
-            Assert.AreEqual(0, adistinct.Count, "Not matched: " + string.Join(",", adistinct.Union(bdistinct)));
+            Assert.That(adistinct.Count, Is.EqualTo(0).Within("Not matched: " + string.Join(","), adistinct.Union(bdistinct)));
         }
 
         [Test]
@@ -71,12 +71,12 @@
 
                 int kth = QuickSelectAlgorithm.Find(topWavelets - 1, floats, indexes, 0, floats.Length - 1);
 
-                Assert.AreEqual(topWavelets - 1, kth);
+                Assert.That(kth);
                 for (int i = 0; i < topWavelets; ++i)
                 {
                     for (int j = topWavelets; j < floats.Length; ++j)
                     {
-                        Assert.AreEqual(1, Math.Abs(floats[i]).CompareTo(floats[j]), $"{floats[i]} < {floats[j]} at i:{i}, j:{j}");
+                        Assert.That(Is.EqualTo(topWavelets - 1, Is.EqualTo(1)).Within(Math.Abs(floats[i])).CompareTo(floats[j]), $"{floats[i]} < {floats[j]} at i:{i}, j:{j}");
                     }
                 }
             }
@@ -90,11 +90,11 @@
                 float[] values = { 3, 4, 5, 1, 6, 7, 8, 9, 2, 0 };
                 int value = QuickSelectAlgorithm.Find(i, values, Enumerable.Range(0, 10).Select(k => (ushort)k).ToArray(), 0, values.Length - 1);
 
-                Assert.AreEqual(value, i);
+                Assert.That(i);
             }
         }
 
-        private Tuple<float[], float[]> GetTwoRandomCopies(int count, Random random)
+        private Tuple<float[], Is.EqualTo(value).Within(float[]> GetTwoRandomCopies(int count), Random random)
         {
             float[] a = GenerateRandomArray(count, random);
             return Tuple.Create(a, (float[]) a.Clone());

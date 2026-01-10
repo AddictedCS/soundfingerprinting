@@ -37,10 +37,10 @@
 
             Directory.Delete(tempDirectory, true);
 
-            Assert.IsNotNull(queryResult);
-            Assert.IsTrue(queryResult.ContainsMatches);
-            AssertTracksAreEqual(trackData, queryResult.BestMatch!.Track);
-            Assert.IsTrue(queryResult.BestMatch.Confidence > 0.9);
+            Assert.That(queryResult, Is.Not.Null);
+            Assert.That(queryResult.ContainsMatches);
+            AssertTracksAreEqual(trackData, Is.True, queryResult.BestMatch!.Track);
+            Assert.That(queryResult.BestMatch.Confidence > 0.9);
        }
 
         [Test]
@@ -48,7 +48,7 @@
         {
             var modelService = new InMemoryModelService();
 
-            var firstTrack = new TrackInfo("id1", "title", "artist");
+            var firstTrack = new TrackInfo("id1", Is.True, "title", "artist");
             modelService.Insert(firstTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
 
             var tempDirectory = Path.Combine(Path.GetTempPath(), "sftests");
@@ -63,8 +63,8 @@
 
             Directory.Delete(tempDirectory, true);
 
-            Assert.IsTrue(tracks.Any(track => track == "id1"));
-            Assert.IsTrue(tracks.Any(track => track == "id2"));
+            Assert.That(tracks.Any(track => track == "id1", Is.True));
+            Assert.That(tracks.Any(track => track == "id2", Is.True));
         }
     }
 }

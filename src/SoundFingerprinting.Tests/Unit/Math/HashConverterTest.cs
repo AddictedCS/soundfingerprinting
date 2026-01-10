@@ -49,13 +49,13 @@
 
             for (int i = 0; i < byteArrayLength; ++i)
             {
-                Assert.AreEqual(expectedBytes[i], actualBytes[i]);
+                Assert.That(actualBytes[i], Is.EqualTo(expectedBytes[i]));
             }
 
             long[] actualLongs = hashConverter.ToLongs(actualBytes, longArrayLength);
             for (int i = 0; i < longArrayLength; ++i)
             {
-                Assert.AreEqual(expectedLongs[i], actualLongs[i]);
+                Assert.That(actualLongs[i], Is.EqualTo(expectedLongs[i]));
             }
         }
 

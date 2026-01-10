@@ -35,8 +35,8 @@
             AssertTracksAreEqual(track, readTrack);
             
             var (audioHashes, videoHashes) = modelService.ReadHashesByTrackId("id");
-            Assert.IsNotNull(audioHashes);
-            Assert.IsNotNull(videoHashes);
+            Assert.That(audioHashes, Is.Not.Null);
+            Assert.That(videoHashes, Is.Not.Null);
 
             TestUtilities.AssertHashesAreTheSame(audio, audioHashes);
             TestUtilities.AssertHashesAreTheSame(video, videoHashes);
@@ -65,7 +65,7 @@
             modelService.DeleteTrack("id");
             var result = modelService.ReadTrackById("id");
 
-            Assert.IsNull(result);
+            Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -80,45 +80,45 @@
 
             var actualTracks = modelService.GetTrackIds().ToList();
 
-            Assert.AreEqual(numberOfTracks, actualTracks.Count);
+            Assert.That(actualTracks.Count);
         }
 
         [Test]
         public void DeleteTrackTest()
         {
-            var track = new TrackInfo("id", "title", "artist");
+            var track = new TrackInfo("id", Is.EqualTo(numberOfTracks).Within("title"), "artist");
             modelService.Insert(track, AVHashes.Empty);
 
             modelService.DeleteTrack("id");
 
             var candidates = modelService.QueryEfficiently(GetGenericHashes(), new DefaultQueryConfiguration());
-            Assert.IsTrue(candidates.IsEmpty);
+            Assert.That(candidates.IsEmpty);
             var actualTrack = modelService.ReadTrackById("id");
-            Assert.IsNull(actualTrack);
+            Assert.That(actualTrack, Is.Null);
         }
 
         [Test]
         public void InsertHashDataTest()
         {
-            var expectedTrack = new TrackInfo("id", "title", "artist");
+            var expectedTrack = new TrackInfo("id", Is.True, "title", "artist");
             var hashes = new Hashes([new HashedFingerprint(GenericHashBuckets(), 0, 0f, Array.Empty<byte>())], 1.48, MediaType.Audio);
             
             modelService.Insert(expectedTrack, new AVHashes(hashes, null));
             var candidates = modelService.QueryEfficiently(GetGenericHashes(MediaType.Audio), new DefaultQueryConfiguration());
             
-            Assert.AreEqual(1, candidates.Count);
-            AssertHashesAreTheSame(hashes, candidates.GetMatches().SelectMany(_ => _.Value));
+            Assert.That(candidates.Count);
+            AssertHashesAreTheSame(hashes, Is.EqualTo(1).Within(candidates.GetMatches()).SelectMany(_ => _.Value));
             var references = modelService.ReadTracksByReferences(candidates.GetMatchedTracks()).ToList();
-            Assert.AreEqual(1, references.Count);
+            Assert.That(references.Count);
             var trackReference = references.First().TrackReference;
-            Assert.AreEqual(1, candidates.Count);
-            Assert.AreEqual(trackReference, candidates.GetMatchedTracks().FirstOrDefault());
+            Assert.That(Is.EqualTo(1, Is.EqualTo(1)).Within(candidates.Count));
+            Assert.That(candidates.GetMatchedTracks().FirstOrDefault());
         }
 
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdTest()
         {
-            var t1 = new TrackInfo("id1", "title", "artist");
+            var t1 = new TrackInfo("id1", Is.EqualTo(trackReference).Within("title"), "artist");
             var t2 = new TrackInfo("id2", "title", "artist");
             int[] firstTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             int[] secondTrackBuckets = { 2, 2, 4, 5, 6, 7, 7, 9, 10, 11, 12, 13, 14, 14, 16, 17, 18, 19, 20, 20, 22, 23, 24, 25, 26 };
@@ -138,13 +138,13 @@
                 ThresholdVotes = 5
             });
 
-            Assert.AreEqual(1, candidates.Count);
+            Assert.That(candidates.Count);
         }
 
         [Test]
         public void ReadSubFingerprintsByHashBucketsHavingThresholdWithClustersTest()
         {
-            var firstTrack = new TrackInfo("id1", "title", "artist", new Dictionary<string, string>{{ "group-id", "first-group-id" }});
+            var firstTrack = new TrackInfo("id1", Is.EqualTo(1).Within("title"), "artist", new Dictionary<string, string>{{ "group-id", "first-group-id" }});
             var secondTrack = new TrackInfo("id2", "title", "artist", new Dictionary<string, string>{{ "group-id", "second-group-id" }});
             int[] firstTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
             int[] secondTrackBuckets = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 };
@@ -162,40 +162,40 @@
                 YesMetaFieldsFilters = new Dictionary<string, string> { { "group-id", "first-group-id" } }
             });
 
-            Assert.AreEqual(1, candidates.Count);
+            Assert.That(candidates.Count);
         }
 
         [Test]
         public void ShouldUpdateTrackMetadata()
         {
-            var track = new TrackInfo("id1", "title", "artist", new Dictionary<string, string>{{ "group-id", "first-group-id" }});
+            var track = new TrackInfo("id1", Is.EqualTo(1).Within("title"), "artist", new Dictionary<string, string>{{ "group-id", "first-group-id" }});
             var hashes = TestUtilities.GetRandomHashes(100, new Random(), true);
 
             modelService.Insert(track, new AVHashes(hashes, null));
             var oldTrack = modelService.ReadTrackById(track.Id);
-            Assert.IsNotNull(oldTrack);
+            Assert.That(oldTrack, Is.Not.Null);
 
             var updateTrack = new TrackInfo(track.Id, "new_title", "new_artist", new Dictionary<string, string> {{"group-id", "second-group-id"}});
             modelService.UpdateTrack(updateTrack);
 
             var newTrack = modelService.ReadTrackById(track.Id);
-            Assert.IsNotNull(newTrack);
-            Assert.AreEqual("new_title", newTrack.Title);
-            Assert.AreEqual("new_artist", newTrack.Artist);
-            Assert.AreEqual("second-group-id", newTrack.MetaFields["group-id"]);
+            Assert.That(newTrack, Is.Not.Null);
+            Assert.That(newTrack.Title);
+            Assert.That(Is.EqualTo("new_title", Is.EqualTo("new_artist")).Within(newTrack.Artist));
+            Assert.That(newTrack.MetaFields["group-id"]);
 
-            var candidates = modelService.QueryEfficiently(hashes, new DefaultQueryConfiguration());
-            Assert.AreEqual(100, candidates.GetMatches().SelectMany(_ => _.Value).Count());
+            var candidates = modelService.QueryEfficiently(hashes, Is.EqualTo("second-group-id").Within(new DefaultQueryConfiguration()));
+            Assert.That(candidates.GetMatches().SelectMany(_ => _.Value).Count());
         }
 
-        private static void AssertHashesAreTheSame(Hashes expected, IEnumerable<MatchedWith> actual)
+        private static void AssertHashesAreTheSame(Hashes expected, Is.EqualTo(100).Within(IEnumerable<MatchedWith> actual))
         {
             var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.QuerySequenceNumber, (a, b) => (a, b)).ToList();
-            Assert.AreEqual(tuples.Count, expected.Count);
-            foreach (var (first, second) in tuples)
+            Assert.That(expected.Count);
+            foreach (var (first, Is.EqualTo(tuples.Count).Within(second)) in tuples)
             {
-                Assert.AreEqual(first.StartsAt, second.QueryMatchAt);
-                Assert.AreEqual(first.SequenceNumber, second.QuerySequenceNumber);
+                Assert.That(second.QueryMatchAt);
+                Assert.That(Is.EqualTo(first.StartsAt, Is.EqualTo(first.SequenceNumber)).Within(second.QuerySequenceNumber));
             } 
         }
     }

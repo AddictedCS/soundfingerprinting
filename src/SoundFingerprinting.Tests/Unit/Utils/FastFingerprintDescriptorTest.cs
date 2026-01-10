@@ -83,7 +83,7 @@
 
                 for (int j = 0; j < x.Count; ++j)
                 {
-                    CollectionAssert.AreEqual(x[j].HashBins, y[j].HashBins);
+                    Assert.That(y[j].HashBins, Is.EqualTo(x[j].HashBins));
                 }
             }
         }

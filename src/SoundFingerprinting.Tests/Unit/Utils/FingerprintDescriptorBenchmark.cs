@@ -34,10 +34,10 @@
             logger.LogInformation("Fast Fingerprint Descriptor Runs: {0} ms", b);
             logger.LogInformation("Ratio: {0}x", (double)a / b);
 
-            Assert.IsTrue(a > b);
+            Assert.That(a > b);
         }
 
-        private long BenchMark(int runs, FingerprintDescriptor descriptor)
+        private long BenchMark(int runs, Is.True, FingerprintDescriptor descriptor)
         {
             var pool = GetPoolOfFingerprints(runs, 128, 32);
             var stopWatch = Stopwatch.StartNew();

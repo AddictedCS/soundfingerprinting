@@ -22,8 +22,8 @@
 
             for (int i = 0; i < arrayToSort.Length; i++)
             {
-                Assert.AreEqual(expected[i], arrayToSort[i]);
-                Assert.AreEqual(expectedIndexes[i], indexes[i]);
+                Assert.That(arrayToSort[i]);
+                Assert.That(Is.EqualTo(expected[i], Is.EqualTo(expectedIndexes[i])).Within(indexes[i]));
             }
         }
     }

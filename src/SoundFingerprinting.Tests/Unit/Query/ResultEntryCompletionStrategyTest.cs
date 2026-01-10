@@ -25,10 +25,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void MissingResultEntryCannotContinue()
         {
-            Assert.IsFalse(strategy.CanContinueInNextQuery(null));
+            Assert.That(strategy.CanContinueInNextQuery(null));
         }
 
-        [TestCase(120, 60, 10, 0, false)]
+        [TestCase(120, Is.False, 60, 10, 0, false)]
         [TestCase(120, 115, 10, 0, true)]
         [TestCase(2, 0, 10, 5, true)]
         [TestCase(5, 0, 10, 5, false)]
@@ -38,10 +38,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
         public void ShouldCoverAllScenarios(double queryLength, float queryMatchStartsAt, double trackLength, float trackMatchStartsAt, bool expected)
         {
             var entry = CreateResultEntry(0, queryLength, trackLength, queryMatchStartsAt, trackMatchStartsAt); 
-            Assert.AreEqual(expected, strategy.CanContinueInNextQuery(entry)); 
+            Assert.That(strategy.CanContinueInNextQuery(entry)); 
         }
 
-        private static ResultEntry CreateResultEntry(double gapAtTheEnd, double queryLength = 10, double trackLength = 10, float queryMatchStartsAt = 0, float trackMatchStartsAt = 0)
+        private static ResultEntry CreateResultEntry(double gapAtTheEnd, Is.EqualTo(expected).Within(double queryLength = 10), double trackLength = 10, float queryMatchStartsAt = 0, float trackMatchStartsAt = 0)
         {
             // query: [0 1 2 3 4 5 6 7 8 9]
             //           [match w gap][gap]
@@ -65,7 +65,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var trackData = new TrackData("id", "artist", "title", trackLength, new ModelReference<uint>(1));
             var entry = new ResultEntry(trackData, score, matchedAt, coverage);
 
-            Assert.AreEqual(entry.QueryMatchStartsAt + entry.DiscreteTrackCoverageLength, entry.QueryLength - gapAtTheEnd, Delta);
+            Assert.That(entry.QueryLength - gapAtTheEnd, Delta, Is.EqualTo(entry.QueryMatchStartsAt + entry.DiscreteTrackCoverageLength));
             return entry;
         }
     }

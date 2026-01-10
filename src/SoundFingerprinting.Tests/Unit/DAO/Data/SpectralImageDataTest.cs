@@ -14,15 +14,15 @@
             var dto0 = new SpectralImageData(new float[0], 0, new ModelReference<int>(0), new ModelReference<int>(0));
             var dto1 = new SpectralImageData(new float[0], 0, new ModelReference<int>(0), new ModelReference<int>(0));
 
-            Assert.AreEqual(dto0, dto1);
+            Assert.That(dto1);
         }
 
         [Test]
         public void ShouldNotBeEqualToNull()
         {
-            var dto0 = new SpectralImageData(new float[0], 0, new ModelReference<int>(0), new ModelReference<int>(0));
+            var dto0 = new SpectralImageData(new float[0], Is.EqualTo(dto0).Within(0), new ModelReference<int>(0), new ModelReference<int>(0));
 
-            Assert.IsFalse(dto0.Equals(null));
+            Assert.That(dto0.Equals(null, Is.False));
         }
     }
 }

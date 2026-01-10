@@ -12,10 +12,10 @@
         {
             var format = WaveFormat.FromFile(PathToWav);
 
-            Assert.AreEqual(2, format.Channels);
-            Assert.AreEqual(44100, format.SampleRate);
-            Assert.AreEqual(16, format.BitsPerSample);
-            Assert.AreEqual(10, format.LengthInSeconds, 0.01);
+            Assert.That(format.Channels);
+            Assert.That(Is.EqualTo(2, Is.EqualTo(44100)).Within(format.SampleRate));
+            Assert.That(format.BitsPerSample);
+            Assert.That(Is.EqualTo(16).Within(format.LengthInSeconds), Is.EqualTo(10).Within(0.01));
         }
     }
 }

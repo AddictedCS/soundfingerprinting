@@ -61,18 +61,18 @@
         [Test]
         public void ShouldThrowOnMissingServices()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(new InMemoryModelService())
                 .Query());
             
-            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(100))
                 .Query());
 
-            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
+            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(new InMemoryModelService(), new SoundFingerprintingAudioService())
@@ -90,7 +90,7 @@
             modelService.Setup(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Callback(
                 (Hashes hashes, QueryConfiguration configuration) =>
                 {
-                    Assert.AreEqual(30, hashes.DurationInSeconds, 0.001);
+                    Assert.That(hashes.DurationInSeconds, Is.EqualTo(30).Within(0.001));
                 }).Returns(new Candidates());
             
             var avQueryResult = await QueryCommandBuilder.Instance
@@ -99,9 +99,9 @@
                 .UsingServices(modelService.Object, mediaService.Object)
                 .Query();
             
-            Assert.IsFalse(avQueryResult.ContainsMatches);
+            Assert.That(avQueryResult.ContainsMatches);
             
-            modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
+            modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), Is.False, It.IsAny<QueryConfiguration>()), Times.Exactly(2));
         }
         
         [Test]

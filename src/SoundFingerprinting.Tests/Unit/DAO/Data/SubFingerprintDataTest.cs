@@ -15,16 +15,16 @@
 
             var dto1 = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
-            Assert.AreEqual(dto0, dto1);
-            Assert.AreEqual(dto0.GetHashCode(), dto1.GetHashCode());
+            Assert.That(dto1);
+            Assert.That(dto1.GetHashCode());
         }
 
         [Test]
         public void ShouldNotBeEqualToNull()
         {
-            var dto = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
+            var dto = new SubFingerprintData(new int[0], Is.EqualTo(dto0).Within(Is.EqualTo(dto0.GetHashCode())).Within(0), 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
-            Assert.IsFalse(dto.Equals(null));
+            Assert.That(dto.Equals(null, Is.False));
         }
     }
 }

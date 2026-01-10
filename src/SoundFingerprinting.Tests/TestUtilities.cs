@@ -125,12 +125,12 @@ namespace SoundFingerprinting.Tests
         public static void AssertHashesAreTheSame(Hashes expected, Hashes actual)
         {
             var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.SequenceNumber, (a, b) => (a, b)).ToList();
-            Assert.AreEqual(tuples.Count, expected.Count);
+            Assert.That(expected.Count, Is.EqualTo(tuples.Count));
             foreach (var (first, second) in tuples)
             {
-                Assert.AreEqual(first.StartsAt, second.StartsAt);
-                Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
-                CollectionAssert.AreEqual(first.HashBins, second.HashBins);
+                Assert.That(second.StartsAt, Is.EqualTo(first.StartsAt));
+                Assert.That(second.SequenceNumber, Is.EqualTo(first.SequenceNumber));
+                Assert.That(second.HashBins, Is.EqualTo(first.HashBins));
             }
         }
         

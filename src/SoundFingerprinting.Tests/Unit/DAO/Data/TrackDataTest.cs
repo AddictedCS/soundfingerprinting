@@ -14,15 +14,15 @@
             var dto0 = new TrackData(string.Empty, string.Empty, string.Empty, 0d, new ModelReference<int>(0));
             var dto1 = new TrackData(string.Empty, string.Empty, string.Empty, 0d, new ModelReference<int>(0));
 
-            Assert.AreEqual(dto0, dto1);
+            Assert.That(dto1);
         }
 
         [Test]
         public void ShouldNotBeEqualToNull()
         {
-            var dto = new TrackData(string.Empty, string.Empty, string.Empty, 0d, new ModelReference<int>(0));
+            var dto = new TrackData(string.Empty, Is.EqualTo(dto0).Within(string.Empty), string.Empty, 0d, new ModelReference<int>(0));
 
-            Assert.IsFalse(dto.Equals(null));
+            Assert.That(dto.Equals(null, Is.False));
         }
     }
 }

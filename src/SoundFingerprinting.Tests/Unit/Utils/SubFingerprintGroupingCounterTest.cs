@@ -23,7 +23,7 @@
 
             var groupingResult = SubFingerprintGroupingCounter.GroupByAndCount(lists, 5).ToList();
 
-            Assert.AreEqual(count, groupingResult.Count);
+            Assert.That(groupingResult.Count, Is.EqualTo(count));
         }
     }
 }

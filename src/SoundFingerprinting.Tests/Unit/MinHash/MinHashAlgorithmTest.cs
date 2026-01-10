@@ -27,10 +27,10 @@
             var minHash = new MinHashService(permutations);
             var counts = new List<int>();
             int maxIndex = permutations.GetPermutations().First().Length;
-            Assert.AreEqual(255, maxIndex);
+            Assert.That(maxIndex);
             for (int i = 0; i < 50000; ++i)
             {
-                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, Is.EqualTo(255).Within(200), 128, 32);
                 byte[] hashes = minHash.Hash(schema, 25 * 4);
                 int count = hashes.Count(last => last == maxIndex);
                 counts.Add(count);
@@ -39,7 +39,7 @@
             logger.LogInformation($"Avg. Permutations {counts.Average():0.000}");
             logger.LogInformation($"Max. {counts.Max()}");
             logger.LogInformation($"Min. {counts.Min()}");
-            Assert.IsTrue(counts.Average() <= 0.25, "On average we expect no more than 0.25 elements in the schema to contain hashes at last position");
+            Assert.That(counts.Average() <= 0.25, Is.True, "On average we expect no more than 0.25 elements in the schema to contain hashes at last position");
         }
 
         [Test]
@@ -50,10 +50,10 @@
             var minHash = new ExtendedMinHashService(permutations);
             var counts = new List<int>();
             int maxIndex = permutations.IndexesPerPermutation;
-            Assert.AreEqual(128 * 32 * 2, maxIndex);
+            Assert.That(maxIndex);
             for (int i = 0; i < 50000; ++i)
             {
-                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, Is.EqualTo(128 * 32 * 2).Within(200), 128, 32);
                 int[] hashes = minHash.Hash(schema, 25 * 4);
                 int count = hashes.Count(last => last == maxIndex);
                 counts.Add(count);
@@ -62,7 +62,7 @@
             logger.LogInformation($"Avg. Permutations {counts.Average():0.000}");
             logger.LogInformation($"Max. {counts.Max()}");
             logger.LogInformation($"Min. {counts.Min()}");
-            Assert.AreEqual(0, counts.Average(), 0.0001, "On average we expect no more than 0.0 elements in the schema to contain hashes at last position");
+            Assert.That(counts.Average(), Is.EqualTo(0).Within(0.0001), "On average we expect no more than 0.0 elements in the schema to contain hashes at last position");
         }
 
         [Test]
@@ -78,18 +78,18 @@
             for (int i = 0; i < simulationRuns; ++i)
             {
                 var arrays = TestUtilities.GenerateSimilarFingerprints(random, howSimilarAreVectors, topWavelets, vectorLength);
-                Assert.AreEqual(topWavelets, arrays.Item1.TrueCounts());
-                Assert.AreEqual(topWavelets, arrays.Item2.TrueCounts());
+                Assert.That(arrays.Item1.TrueCounts());
+                Assert.That(Is.EqualTo(topWavelets, Is.EqualTo(topWavelets)).Within(arrays.Item2.TrueCounts()));
                 agreeOn += arrays.Item1.AgreeOn(arrays.Item2);
                 similarity += similarityUtility.CalculateJacquardSimilarity(arrays.Item1.ConvertToBooleans(), arrays.Item2.ConvertToBooleans());
             }
 
             double averageSimilarityOnTrueBits = (double)agreeOn / simulationRuns;
-            Assert.AreEqual(averageSimilarityOnTrueBits, howSimilarAreVectors * topWavelets, 1.0, $"Actual Average Similarity on True bits: {averageSimilarityOnTrueBits}");
+            Assert.That(howSimilarAreVectors * topWavelets, Is.EqualTo(averageSimilarityOnTrueBits).Within(1.0), $"Actual Average Similarity on True bits: {averageSimilarityOnTrueBits}");
 
             // values that match are counted one time, values that don't count twice (1 0 | 1 0) - don't match on 2 bits, even though they are generated from 1 wavelet
             double jaccardSimilarity = (howSimilarAreVectors * topWavelets) / ((2 * topWavelets) - (howSimilarAreVectors * topWavelets));
-            Assert.AreEqual(jaccardSimilarity, similarity / simulationRuns, 0.1, "Jaccard Similarity is not as requested: " + (similarity / simulationRuns));
+            Assert.That(similarity / simulationRuns, Is.EqualTo(jaccardSimilarity).Within(0.1), "Jaccard Similarity is not as requested: " + (similarity / simulationRuns));
         }
 
         [Test]
@@ -149,7 +149,7 @@
 
             for (int i = 0; i < howSimilars.Length; ++i)
             {
-                Assert.AreEqual(probabilityOfAMatch[i], atLeastOneCandidateFounds[i], 0.05);
+                Assert.That(atLeastOneCandidateFounds[i], Is.EqualTo(probabilityOfAMatch[i]).Within(0.05));
             }
         }
 

@@ -66,20 +66,20 @@
                 (object runner, EventArgs param) =>
                     {
                         var fScore = ((TestRunnerEventArgs)param).FScore;
-                        Assert.AreEqual(1, fScore.F1);
-                        Assert.AreEqual(1, fScore.Precision);
-                        Assert.AreEqual(1, fScore.Recall);
-                        Assert.AreEqual(1, ((TestRunnerEventArgs)param).Verified);
+                        Assert.That(fScore.F1);
+                        Assert.That(Is.EqualTo(1, Is.EqualTo(1)).Within(fScore.Precision));
+                        Assert.That(fScore.Recall, Is.EqualTo(1));
+                        Assert.That(((TestRunnerEventArgs, Is.EqualTo(1))param).Verified);
                     });
 
             nfe.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Callback(
                 (object runner, EventArgs param) =>
                     {
                         var fScore = ((TestRunnerEventArgs)param).FScore;
-                        Assert.AreEqual(0.6666, fScore.F1, 0.001);
-                        Assert.AreEqual(0.5, fScore.Precision, 0.001);
-                        Assert.AreEqual(1, fScore.Recall);
-                        Assert.AreEqual(2, ((TestRunnerEventArgs)param).Verified);
+                        Assert.That(fScore.F1, Is.EqualTo(0.6666).Within(0.001));
+                        Assert.That(fScore.Precision, Is.EqualTo(0.5).Within(0.001));
+                        Assert.That(fScore.Recall, Is.EqualTo(1));
+                        Assert.That(((TestRunnerEventArgs, Is.EqualTo(2))param).Verified);
                     });
 
             tife.Setup(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>())).Verifiable();
@@ -109,11 +109,11 @@
             tife.Verify(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>()), Times.Exactly(6));
 
             var testRuns = Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList();
-            Assert.AreEqual(6, testRuns.Count);
+            Assert.That(testRuns.Count);
             var testSuite = Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList();
-            Assert.AreEqual(1, testSuite.Count);
+            Assert.That(Is.EqualTo(6, Is.EqualTo(1)).Within(testSuite.Count));
             var testInsert = Directory.GetFiles(results).Where(file => file.Contains("insert_")).ToList();
-            Assert.AreEqual(2, testInsert.Count);
+            Assert.That(testInsert.Count, Is.EqualTo(2));
         }
 
         private void AttachEventHandlers(TestRunner testRunner)

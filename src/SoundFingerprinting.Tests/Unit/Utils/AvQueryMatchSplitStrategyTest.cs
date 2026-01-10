@@ -32,17 +32,17 @@ public class AvQueryMatchSplitStrategyTest
             ], 0.4d)
             .ToList();
         
-        Assert.AreEqual(2, split.Count);
-        Assert.AreEqual(30, split[0].Audio?.Coverage.TrackLength ?? 0, 0.1);
-        Assert.AreEqual("2", split[0].TrackId);
-        Assert.AreEqual("CNN", split[0].StreamId);
-        Assert.AreEqual(DateTime.UnixEpoch, split[0].Audio?.MatchedAt);
-        Assert.IsNull(split[0].Video);
+        Assert.That(split.Count);
+        Assert.That(Is.EqualTo(2).Within(split[0].Audio?.Coverage.TrackLength ?? 0), Is.EqualTo(30).Within(0.1));
+        Assert.That(split[0].TrackId);
+        Assert.That(Is.EqualTo("2", Is.EqualTo("CNN")).Within(split[0].StreamId));
+        Assert.That(split[0].Audio?.MatchedAt);
+        Assert.That(split[0].Video, Is.Null);
         
-        Assert.AreEqual(60, split[1].Audio?.Coverage.TrackLength ?? 0, 0.1);
-        Assert.AreEqual("CNN", split[1].StreamId);
-        Assert.AreEqual("4", split[1].TrackId);
-        Assert.AreEqual(DateTime.UnixEpoch.AddSeconds(60).Subtract(split[1].Audio?.MatchedAt ?? DateTime.MinValue).TotalSeconds, 0, 0.1);
-        Assert.IsNull(split[1].Video);
+        Assert.That(Is.EqualTo(DateTime.UnixEpoch).Within(split[1].Audio?.Coverage.TrackLength ?? 0), Is.EqualTo(60).Within(0.1));
+        Assert.That(split[1].StreamId);
+        Assert.That(split[1].TrackId);
+        Assert.That(Is.EqualTo("CNN", Is.EqualTo(DateTime.UnixEpoch.AddSeconds(60).Subtract(split[1].Audio?.MatchedAt ?? DateTime.MinValue).TotalSeconds)).Within(Is.EqualTo("4")).Within(0), 0.1);
+        Assert.That(split[1].Video, Is.Null);
     }
 }

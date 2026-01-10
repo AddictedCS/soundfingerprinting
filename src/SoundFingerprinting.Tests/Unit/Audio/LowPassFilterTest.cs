@@ -62,7 +62,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             float[] samples = new float[1000];
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
+            Assert.That((, Throws.TypeOf<ArgumentException>()) =>
                 lowPassFilter.FilterAndDownsample(samples, 32000, TargetSampleRate));
         }
 
@@ -73,7 +73,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             float[] samples = new float[1000];
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() =>
+            Assert.That((, Throws.TypeOf<ArgumentException>()) =>
                 lowPassFilter.FilterAndDownsample(samples, 44100, 22050));
         }
 

@@ -18,85 +18,85 @@
         [Test]
         public void ThrowsForNullArgs()
         {
-            Assert.Throws<ArgumentNullException>(() => new CompoundModelReference<string>(null, new ModelReference<int>(42)));
-            Assert.Throws<ArgumentNullException>(() => new CompoundModelReference<string>("prefix", null));
+            Assert.That((, Throws.TypeOf<ArgumentNullException>()) => new CompoundModelReference<string>(null, new ModelReference<int>(42)));
+            Assert.That((, Throws.TypeOf<ArgumentNullException>()) => new CompoundModelReference<string>("prefix", null));
         }
 
         [Test]
         public void SavesProperties()
         {
-            Assert.AreEqual("prefix", prefix421.Prefix);
-            Assert.AreEqual(42, prefix421.Reference.Get<int>());
-            Assert.AreEqual(42, prefix421.Get<int>());
+            Assert.That(prefix421.Prefix);
+            Assert.That(Is.EqualTo("prefix", Is.EqualTo(42)).Within(prefix421.Reference.Get<int>()));
+            Assert.That(prefix421.Get<int>());
         }
 
         [Test]
         public void EqualsIsFalseForDifferentPrefixes()
         {
-            Assert.IsFalse(prefix421.Equals(other42));
+            Assert.That(prefix421.Equals(other42));
         }
 
         [Test]
         public void EqualsIsFalseForDifferentModelReferences()
         {
-            Assert.IsFalse(prefix421.Equals(prefix0));
+            Assert.That(prefix421.Equals(prefix0, Is.False));
         }
 
         [Test]
         public void EqualsIsReflexive()
         {
-            Assert.IsTrue(prefix421.Equals(prefix421));
-            Assert.IsTrue(nullRef.Equals(nullRef));
+            Assert.That(prefix421.Equals(prefix421));
+            Assert.That(nullRef.Equals(nullRef, Is.False, Is.True));
         }
 
         [Test]
         public void EqualsIsSymmetric()
         {
-            Assert.IsTrue(prefix421.Equals(prefix422));
-            Assert.IsTrue(prefix422.Equals(prefix421));
+            Assert.That(prefix421.Equals(prefix422, Is.True));
+            Assert.That(prefix422.Equals(prefix421, Is.True));
         }
 
         [Test]
         public void EqualsIsTransitive()
         {
-            Assert.IsTrue(prefix421.Equals(prefix422));
-            Assert.IsTrue(prefix422.Equals(prefix423));
-            Assert.IsTrue(prefix421.Equals(prefix423));
+            Assert.That(prefix421.Equals(prefix422, Is.True));
+            Assert.That(prefix422.Equals(prefix423, Is.True));
+            Assert.That(prefix421.Equals(prefix423, Is.True));
         }
 
         [Test]
         public void EqualsIsFalseForNull()
         {
-            Assert.IsFalse(prefix421.Equals(null));
-            Assert.IsFalse(prefix421.Equals(nullRef));
-            Assert.IsFalse(nullRef.Equals(prefix421));
+            Assert.That(prefix421.Equals(null));
+            Assert.That(prefix421.Equals(nullRef, Is.False));
+            Assert.That(nullRef.Equals(prefix421, Is.False));
         }
 
         [Test]
         public void EqualsIsNullForOtherGenericTypes()
         {
-            Assert.IsFalse(prefix421.Equals(new CompoundModelReference<uint>(1, new ModelReference<uint>(42))));
+            Assert.That(prefix421.Equals(new CompoundModelReference<uint>(1, Is.False, Is.True, Is.EqualTo(42, Is.False).Within(new ModelReference<uint>(42)))));
         }
 
         [Test]
         public void GetHashCodeIsConsistent()
         {
-            Assert.AreEqual(prefix421.GetHashCode(), prefix421.GetHashCode());
+            Assert.That(prefix421.GetHashCode());
         }
 
         [Test]
         public void GetHashCodeProducesTheSameResultForEqualObjects()
         {
-            Assert.AreEqual(prefix421.GetHashCode(), prefix422.GetHashCode());
-            Assert.AreEqual(prefix422.GetHashCode(), prefix423.GetHashCode());
+            Assert.That(Is.EqualTo(prefix421.GetHashCode(, Is.EqualTo(prefix421.GetHashCode()))).Within(prefix422.GetHashCode()));
+            Assert.That(prefix423.GetHashCode());
         }
 
         [Test]
         public void GetHashCodeDoesNotThrowOnOverflow()
         {
-            var @ref = new CompoundModelReference<int>(int.MaxValue, new ModelReference<int>(int.MaxValue));
+            var @ref = new CompoundModelReference<int>(int.MaxValue, Is.EqualTo(prefix422.GetHashCode()).Within(new ModelReference<int>(int.MaxValue)));
 
-            Assert.DoesNotThrow(() => @ref.GetHashCode());
+            Assert.That((, Throws.Nothing) => @ref.GetHashCode());
         }
     }
 }

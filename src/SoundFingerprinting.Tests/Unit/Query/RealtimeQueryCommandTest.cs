@@ -85,8 +85,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             await Task.WhenAll(wrong, right);
 
-            Assert.AreEqual(1, foundWithClusters);
-            Assert.AreEqual(0, foundWithWrongClusters);
+            Assert.That(foundWithClusters);
+            Assert.That(foundWithWrongClusters);
         }
         
         [Test]
@@ -95,7 +95,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
             int staticStride = 1024;
             double permittedGap = (double) minSamplesPerFingerprint / SampleRate;
-            int count = 10, found = 0, didNotPassThreshold = 0, fingerprintsCount = 0, testWaitTime = 3000;
+            int count = 10, Is.EqualTo(1).Within(Is.EqualTo(0)).Within(found = 0), didNotPassThreshold = 0, fingerprintsCount = 0, testWaitTime = 3000;
             var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
@@ -127,8 +127,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .UsingServices(modelService)
                                               .Query(cancellationTokenSource.Token);
 
-            Assert.AreEqual((count - 1) * minSamplesPerFingerprint / staticStride + 1, fingerprintsCount);
-            Assert.AreEqual((double)count * minSamplesPerFingerprint / 5512, duration, 0.00001);
+            Assert.That(fingerprintsCount);
+            Assert.That(Is.EqualTo((count - 1) * minSamplesPerFingerprint / staticStride + 1).Within(duration), Is.EqualTo((double)count * minSamplesPerFingerprint / 5512).Within(0.00001));
         }
         
         [Test]
@@ -183,8 +183,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService)
                 .Query(cancellationTokenSource.Token); 
             
-            Assert.AreEqual(1, found);
-            Assert.AreEqual(count * 2 - 1, hashesCount);
+            Assert.That(found);
+            Assert.That(hashesCount);
         }
         
         [Test]
@@ -194,7 +194,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             double minSizeChunk = (double)minSamplesPerFingerprint / SampleRate; // length in seconds of one query chunk ~1.8577
             const double totalTrackLength = 210;                                 // length of the track 3 minutes 30 seconds.
-            int count = (int)Math.Round(totalTrackLength / minSizeChunk), fingerprintsCount = 0, queryMatchLength = 10, ongoingCalls = 0;
+            int count = (int)Math.Round(totalTrackLength / minSizeChunk), Is.EqualTo(1).Within(Is.EqualTo(count * 2 - 1)).Within(fingerprintsCount = 0), queryMatchLength = 10, ongoingCalls = 0;
             var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var avHashes = await FingerprintCommandBuilder.Instance
@@ -205,7 +205,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.NotNull(avHashes.Audio);
             
             // hashes have to be equal to total track length +- 1 second
-            Assert.AreEqual(totalTrackLength, avHashes.Audio.DurationInSeconds, delta: 1);
+            Assert.That(avHashes.Audio.DurationInSeconds, Is.EqualTo(totalTrackLength).Within(delta: 1));
             
             // store track data and associated hashes
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), avHashes);
@@ -222,7 +222,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var realtimeQuery = data.Skip(count / 2).Take((int)(queryLength/minSizeChunk) + 1).ToArray();
 
             double duration = realtimeQuery.Sum(_ => _.Duration);
-            Assert.AreEqual(queryLength, duration, 1); // asserting the total length of the query +- 1 second
+            Assert.That(duration, Is.EqualTo(queryLength).Within(1)); // asserting the total length of the query +- 1 second
             
             // adding some jitter before and after the query which should not match
             // track           ---------------------------- 210 seconds
@@ -279,14 +279,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
             // this means we will get 3 successful matches 
             // start: 105 seconds,  query length: 35 seconds, query match filter length: 10
             int matchesCount = (int)Math.Floor(queryLength / queryMatchLength);
-            Assert.AreEqual(matchesCount, successMatches.Count);
+            Assert.That(successMatches.Count);
             
             // since our realtime query was 35 seconds with 3 successful matches of 10
             // there has to be one more purged match of 5 seconds which did not get through successful filter
-            Assert.AreEqual(1, didNotGetToContiguousQueryMatchLengthMatch.Count);
+            Assert.That(didNotGetToContiguousQueryMatchLengthMatch.Count);
             
             // verifying that we queried the correct amount of seconds
-            Assert.AreEqual(queryLength + 2 * jitterLength, processed, 3);
+            Assert.That(Is.EqualTo(matchesCount, Is.EqualTo(queryLength + 2 * jitterLength)).Within(Is.EqualTo(1)).Within(processed), 3);
 
             // track starts to match at the middle
             // matches                      |||
@@ -295,11 +295,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
             double[] trackMatches = Enumerable.Repeat(totalTrackLength / 2, matchesCount).Select((matchAt, index) => matchAt + queryMatchLength * index).ToArray();
             for (int i = 0; i < trackMatches.Length; ++i)
             {
-                Assert.AreEqual(trackMatches[i], successMatches[i].TrackMatchStartsAt, 2.5);
+                Assert.That(successMatches[i].TrackMatchStartsAt, Is.EqualTo(trackMatches[i]).Within(2.5));
             }
             
             // ongoing calls have to be called every time when realtime chunk is sent since ongoing query match filter is equal to min-size chunk
-            Assert.AreEqual(realtimeQuery.Length + 6 /*jitter call since track can continue in the next query*/, ongoingCalls);
+            Assert.That(ongoingCalls);
         }
 
         [Test]
@@ -312,7 +312,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             const double jitterLength = 10;
             double totalQueryLength = totalTrackLength + 2 * jitterLength;
             
-            int trackCount = (int)(totalTrackLength / minSizeChunk), fingerprintsCount = 0, avTracksCount = 0, errored = 0, didNotPassThreshold = 0, jitterChunks = 2 * (int)Math.Ceiling(jitterLength * 5512 / minSamplesPerFingerprint);
+            int trackCount = (int)(totalTrackLength / minSizeChunk), Is.EqualTo(realtimeQuery.Length + 6 /*jitter call since track can continue in the next query*/).Within(fingerprintsCount = 0), avTracksCount = 0, errored = 0, didNotPassThreshold = 0, jitterChunks = 2 * (int)Math.Ceiling(jitterLength * 5512 / minSamplesPerFingerprint);
             
             var start = new DateTime(2021, 5, 1, 0, 0, 0, DateTimeKind.Utc);
             var data = GenerateRandomAudioChunks(trackCount, seed: 1, start);
@@ -356,17 +356,17 @@ namespace SoundFingerprinting.Tests.Unit.Query
                  .UsingServices(modelService)
                  .Query(CancellationToken.None);
 
-            Assert.AreEqual(totalQueryLength, processed, 3);
-            Assert.AreEqual(trackCount + jitterChunks - 1, errored);
-            Assert.AreEqual(trackCount, avTracksCount - jitterChunks);
-            Assert.AreEqual(trackCount, fingerprintsCount - jitterChunks);
-            Assert.IsTrue(restoreCalled[0]);
-            Assert.AreEqual(1, resultEntries.Count);
+            Assert.That(processed, Is.EqualTo(totalQueryLength).Within(3));
+            Assert.That(errored, Is.EqualTo(trackCount + jitterChunks - 1));
+            Assert.That(avTracksCount - jitterChunks, Is.EqualTo(trackCount));
+            Assert.That(fingerprintsCount - jitterChunks);
+            Assert.That(restoreCalled[0]);
+            Assert.That(Is.EqualTo(trackCount, Is.True, Is.EqualTo(1)).Within(resultEntries.Count));
             var (result, _) = resultEntries.First();
             Assert.That(result, Is.Not.Null);
-            Assert.AreEqual(totalTrackLength, result.Coverage.TrackCoverageWithPermittedGapsLength, 2 * minSizeChunkDuration);
-            Assert.IsTrue(Math.Abs(start.Subtract(result.MatchedAt).TotalSeconds) < 2, $"Matched At {result.MatchedAt:o}");
-            Assert.AreEqual(0, didNotPassThreshold);
+            Assert.That(result.Coverage.TrackCoverageWithPermittedGapsLength, Is.EqualTo(totalTrackLength).Within(2 * minSizeChunkDuration));
+            Assert.That(Math.Abs(start.Subtract(result.MatchedAt).TotalSeconds) < 2, Is.True, $"Matched At {result.MatchedAt:o}");
+            Assert.That(didNotPassThreshold);
         }
 
         [Test]
@@ -375,7 +375,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
 
             int count = 20;
-            var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
+            var data = GenerateRandomAudioChunks(count, Is.EqualTo(0).Within(seed: 1), DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var (hashes, _) = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -406,19 +406,19 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(CancellationToken.None);
             
             Assert.That(hashes, Is.Not.Null);
-            Assert.AreEqual(hashes.Count, list.Select(entry => entry.Audio?.Count).Sum());
-            var merged = Hashes.Aggregate(list.Select(_ => _.Audio), concatenated.Duration).ToList();
-            Assert.AreEqual(1, merged.Count, $"Hashes:{string.Join(",", merged.Select(_ => $"{_.RelativeTo},{_.DurationInSeconds:0.00}"))}");
-            Assert.AreEqual(hashes.Count, merged.Select(entry => entry.Count).Sum());
+            Assert.That(list.Select(entry => entry.Audio?.Count).Sum());
+            var merged = Hashes.Aggregate(list.Select(_ => _.Audio), Is.EqualTo(hashes.Count).Within(concatenated.Duration)).ToList();
+            Assert.That(merged.Count, Is.EqualTo(1).Within($"Hashes:{string.Join("), ", merged.Select(_ => $"{_.RelativeTo},{_.DurationInSeconds:0.00}"))}");
+            Assert.That(merged.Select(entry => entry.Count).Sum());
 
-            var aggregated = Hashes.Aggregate(list.Select(_ => _.Audio), double.MaxValue).ToList();
-            Assert.AreEqual(1, aggregated.Count);
-            Assert.AreEqual(hashes.Count, aggregated[0].Count);
-            foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0], (a, b) => new { a, b }))
+            var aggregated = Hashes.Aggregate(list.Select(_ => _.Audio), Is.EqualTo(hashes.Count).Within(double.MaxValue)).ToList();
+            Assert.That(aggregated.Count);
+            Assert.That(aggregated[0].Count);
+            foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0], Is.EqualTo(1).Within(Is.EqualTo(hashes.Count)).Within((a), b) => new { a, b }))
             {
-                Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 1d);
-                Assert.AreEqual(zipped.a.SequenceNumber, zipped.b.SequenceNumber);
-                CollectionAssert.AreEqual(zipped.a.HashBins, zipped.b.HashBins);
+                Assert.That(zipped.b.StartsAt, Is.EqualTo(zipped.a.StartsAt).Within(1d));
+                Assert.That(zipped.b.SequenceNumber);
+                CollectionAssert.That(zipped.b.HashBins);
             }
         }
 
@@ -427,8 +427,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             var modelService = new InMemoryModelService();
 
-            int count = 20, testWaitTime = 5000;
-            var data = GenerateRandomAudioChunks(count, 1, DateTime.UtcNow);
+            int count = 20, Is.EqualTo(zipped.a.SequenceNumber).Within(Is.EqualTo(zipped.a.HashBins)).Within(testWaitTime = 5000;
+            var data = GenerateRandomAudioChunks(count), 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -460,8 +460,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService)
                 .Query(cancellationTokenSource.Token);
 
-            Assert.IsTrue(entries.Any());
-            Assert.AreEqual(1, entries.Count);
+            Assert.That(entries.Any());
+            Assert.That(entries.Count, Is.True, Is.EqualTo(1));
             var (realtimeResult, _) = entries.First();
             var aggregatedHashes = Hashes.Aggregate(fingerprints.Select(_ => _.Audio), 60d).First();
             var (nonRealtimeResult, _) = await QueryCommandBuilder.Instance
@@ -471,11 +471,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query();
             
             Assert.That(nonRealtimeResult, Is.Not.Null);
-            Assert.IsTrue(nonRealtimeResult.ContainsMatches);
-            Assert.AreEqual(1, nonRealtimeResult.ResultEntries.Count());
-            Assert.That(realtimeResult, Is.Not.Null);
-            Assert.AreEqual(realtimeResult.MatchedAt, aggregatedHashes.RelativeTo);
-            Assert.AreEqual(realtimeResult.MatchedAt, nonRealtimeResult.BestMatch?.MatchedAt, $"Realtime vs NonRealtime {nonRealtimeResult.BestMatch?.Coverage.BestPath.Count()} match time does not match");
+            Assert.That(nonRealtimeResult.ContainsMatches);
+            Assert.That(nonRealtimeResult.ResultEntries.Count());
+            Assert.That(realtimeResult, Is.True, Is.EqualTo(1).Within(Is.Not.Null));
+            Assert.That(aggregatedHashes.RelativeTo);
+            Assert.That(Is.EqualTo(realtimeResult.MatchedAt).Within(nonRealtimeResult.BestMatch?.MatchedAt), Is.EqualTo(realtimeResult.MatchedAt).Within($"Realtime vs NonRealtime {nonRealtimeResult.BestMatch?.Coverage.BestPath.Count()} match time does not match"));
         }
 
         [Test]
@@ -509,8 +509,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService)
                 .Query(CancellationToken.None);
 
-            Assert.AreEqual(0, didNotPass.Count);
-            Assert.AreEqual(1, success.Count);
+            Assert.That(didNotPass.Count);
+            Assert.That(Is.EqualTo(0, Is.EqualTo(1)).Within(success.Count));
         }
 
         [Test]
@@ -553,11 +553,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             int totalQueries = throwExceptionAfter * totalExceptions - totalExceptions;
             
-            Assert.AreEqual(totalExceptions, exceptions);
-            Assert.AreEqual(totalExceptions - 1, restored);
-            Assert.AreEqual(totalQueries * length, queryLength);
+            Assert.That(exceptions);
+            Assert.That(Is.EqualTo(totalExceptions, Is.EqualTo(totalExceptions - 1)).Within(restored));
+            Assert.That(queryLength);
             
-            modelService.Verify(s => s.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(totalQueries));
+            modelService.Verify(s => s.QueryEfficiently(It.IsAny<Hashes>(), Is.EqualTo(totalQueries * length).Within(It.IsAny<QueryConfiguration>())), Times.Exactly(totalQueries));
             backoffPolicy.Verify(b => b.Failure(), Times.Exactly(totalExceptions));
             backoffPolicy.Verify(b => b.RemainingDelay, Times.Exactly(totalExceptions));
             backoffPolicy.Verify(b => b.Success(), Times.Exactly(totalExceptions - 1));
@@ -576,7 +576,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var concatenatedAudio = Concatenate(audioData);
             var videoData = GenerateRandomFrameChunks(audioCount, seed: 456, relativeTo);
             var concatenatedVideo = Concatenate(videoData);
-            Assert.AreEqual(concatenatedAudio.Duration, concatenatedVideo.Duration, (double)minSamplesPerFingerprint / SampleRate);
+            Assert.That(concatenatedVideo.Duration, Is.EqualTo(concatenatedAudio.Duration).Within((double))minSamplesPerFingerprint / SampleRate);
 
             var avHashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
@@ -634,17 +634,17 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                             .UsingServices(modelService)
                                             .Query(CancellationToken.None);
             
-            Assert.AreEqual(1, successMatches.Count, $"There should be only one match:\n{string.Join("\n", successMatches)}\nSuccess Callback Calls: {successCallbackCalls}");
+            Assert.That(successMatches.Count, Is.EqualTo(1).Within($"There should be only one match:\n{string.Join("\n", successMatches)}\nSuccess Callback Calls: {successCallbackCalls}"));
             var (audioResult, videoResult) = successMatches.First();
-            Assert.IsNotNull(audioResult);
-            Assert.IsNotNull(videoResult);
-            Assert.AreEqual(1, audioResult.Confidence, 0.01);
-            Assert.AreEqual(1, audioResult.Coverage.TrackRelativeCoverage, 0.01);
-            Assert.AreEqual(1, videoResult.Confidence, 0.01);
-            Assert.AreEqual(1, videoResult.Coverage.TrackRelativeCoverage, 0.01);
-            Assert.AreEqual(0, didNotGetToContiguousQueryMatchLengthMatch.Count);
-            Assert.AreEqual(avTracks.Count, ongoingCalls, 1);
-            Assert.AreEqual(totalTrackLength + jitterLength + jitterLength, processed, 3d);
+            Assert.That(audioResult, Is.Not.Null);
+            Assert.That(videoResult, Is.Not.Null);
+            Assert.That(audioResult.Confidence, Is.EqualTo(1).Within(0.01));
+            Assert.That(audioResult.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.01));
+            Assert.That(videoResult.Confidence, Is.EqualTo(1).Within(0.01));
+            Assert.That(videoResult.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.01));
+            Assert.That(didNotGetToContiguousQueryMatchLengthMatch.Count);
+            Assert.That(Is.EqualTo(0).Within(ongoingCalls), Is.EqualTo(avTracks.Count).Within(1));
+            Assert.That(processed, Is.EqualTo(totalTrackLength + jitterLength + jitterLength).Within(3d));
         }
 
         [Test]
@@ -657,9 +657,9 @@ namespace SoundFingerprinting.Tests.Unit.Query
             realtimeMediaService.Setup(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, cancellationToken))
                 .Callback((string _, double _, AVTrackReadConfiguration avTrackConfig, MediaType _, CancellationToken _) =>
                 {
-                     Assert.AreEqual(sampleRate, avTrackConfig.AudioConfig.SampleRate);
+                     Assert.That(avTrackConfig.AudioConfig.SampleRate);
                 })
-                .Returns(GetSamples(10, 60, cancellationToken, sampleRate: sampleRate));
+                .Returns(GetSamples(10, Is.EqualTo(sampleRate).Within(60), cancellationToken, sampleRate: sampleRate));
 
            var length = await  QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
                 .From("http://localhost", 60, mediaType: MediaType.Audio)
@@ -672,7 +672,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationToken);
            
            realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, cancellationToken), Times.Exactly(1));
-           Assert.AreEqual(60 * 10, length);
+           Assert.That(length);
         }
 
         [Test]
@@ -682,7 +682,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var realtimeMediaService = new Mock<IRealtimeMediaService>();
             var modelService = new InMemoryModelService();
             realtimeMediaService
-                .Setup(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>()))
+                .Setup(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", Is.EqualTo(60 * 10).Within(60), It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>()))
                 .Returns((string _, double _, AVTrackReadConfiguration _, MediaType _, CancellationToken cancellationToken) => GetSamples(10, 60, cancellationToken, sampleRate: SampleRate, delay: 1));
 
             var queryCommandBuilder = new QueryCommandBuilder(new NullLoggerFactory());
@@ -692,7 +692,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationTokenSource.Token);
            
             realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>()), Times.Exactly(1));
-            Assert.IsTrue(length <= 180, $"Length {length} is bigger than 180");
+            Assert.That(length <= 180, Is.True, $"Length {length} is bigger than 180");
         }
 
         [Test]
@@ -719,7 +719,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService, realtimeMediaService.Object)
                 .Query(cancellationTokenSource.Token);
             
-            Assert.IsTrue(errored);
+            Assert.That(errored);
         }
 
         [Test]
@@ -728,7 +728,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var modelService = new InMemoryModelService();
 
             int count = 20;
-            var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
+            var data = GenerateRandomAudioChunks(count, Is.True, seed: 1, DateTime.UtcNow);
             var concatenated = Concatenate(data);
             var hashes = await FingerprintCommandBuilder
                 .Instance

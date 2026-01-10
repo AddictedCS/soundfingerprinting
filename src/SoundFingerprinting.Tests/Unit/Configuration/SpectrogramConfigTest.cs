@@ -12,7 +12,7 @@
         [Test]
         public void InvalidLogBaseTest()
         {
-            Assert.Throws<ArgumentException>(() => new DefaultSpectrogramConfig { LogBase = -1 });
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => new DefaultSpectrogramConfig { LogBase = -1 });
         }
     }
 }

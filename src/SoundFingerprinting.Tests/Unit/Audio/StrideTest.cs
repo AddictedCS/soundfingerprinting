@@ -12,7 +12,7 @@
         public void IncrementalStaticStrideTest()
         {
             IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115);
-            Assert.AreEqual(5115, incrementalStatic.NextStride);
+            Assert.That(incrementalStatic.NextStride, Is.EqualTo(5115));
         }
 
         [Test]
@@ -25,15 +25,15 @@
             for (int i = 0; i < count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.IsTrue(skip <= max);
-                Assert.IsTrue(skip >= min);
+                Assert.That(skip <= max);
+                Assert.That(skip >= min, Is.True);
             }
         }
 
         [Test]
         public void ShouldThrowOnInvalidArguments()
         {
-            Assert.Throws<ArgumentException>(() => new IncrementalRandomStride(100, 0));
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => new IncrementalRandomStride(100, Is.True, 0));
         }
     }
 }

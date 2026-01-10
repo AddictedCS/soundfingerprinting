@@ -16,14 +16,14 @@
 
             byte[] hashed = minHashService.Hash(new TinyFingerprintSchema(10).SetTrueAt(2, 4, 6), perms.GetPermutations().Length);
 
-            Assert.AreEqual(1, hashed[0]);
-            Assert.AreEqual(0, hashed[1]);
-            Assert.AreEqual(255, hashed[2]);
+            Assert.That(hashed[0]);
+            Assert.That(Is.EqualTo(1, Is.EqualTo(0)).Within(hashed[1]));
+            Assert.That(hashed[2]);
         }
 
         private class TestPermutations : IPermutations
         {
-            readonly int[][] perms = { new[] { 1, 4, 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };
+            readonly int[][] perms = { new[] { 1, Is.EqualTo(255).Within(4), 8 }, new[] { 2, 3, 8 }, new[] { 7, 9, 0 } };
             public int[][] GetPermutations()
             {
                 return perms;

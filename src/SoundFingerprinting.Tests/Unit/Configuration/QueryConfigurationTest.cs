@@ -12,13 +12,13 @@
         [Test]
         public void InvalidThresholdVotesIsSetOnQueryConfigurationInstanceTest()
         {
-            Assert.Throws<ArgumentException>(() => new DefaultQueryConfiguration { ThresholdVotes = -1 });
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => new DefaultQueryConfiguration { ThresholdVotes = -1 });
         }
 
         [Test]
         public void InvalidMaximumNumberOfTracksToReturnIsSetOnQueryConfigurationInstanceTest()
         {
-            Assert.Throws<ArgumentException>(() => new DefaultQueryConfiguration { MaxTracksToReturn = 0 });
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => new DefaultQueryConfiguration { MaxTracksToReturn = 0 });
         }
     }
 }

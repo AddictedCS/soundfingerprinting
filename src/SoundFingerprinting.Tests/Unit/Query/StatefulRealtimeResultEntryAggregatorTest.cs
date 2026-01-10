@@ -40,8 +40,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var result = aggregator.Consume(null);
             
-            Assert.IsFalse(result.SuccessEntries.Any());
-            Assert.IsFalse(result.DidNotPassThresholdEntries.Any());
+            Assert.That(result.SuccessEntries.Any());
+            Assert.That(result.DidNotPassThresholdEntries.Any(, Is.False));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             double permittedGap = 5d;
             var aggregator = new StatefulRealtimeResultEntryAggregator(
-                new TrackCoverageLengthEntryFilter(10d, waitTillCompletion: false),
+                new TrackCoverageLengthEntryFilter(10d, Is.False, waitTillCompletion: false),
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
                 new ResultEntryConcatenator(loggerFactory, false),
@@ -63,23 +63,23 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var audioResult = new QueryResult(new[] { audioResultEntry }, randomHashes, QueryCommandStats.Zero());
             var first = aggregator.Consume(new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null)));
 
-            Assert.IsFalse(first.SuccessEntries.Any());
-            Assert.IsFalse(first.DidNotPassThresholdEntries.Any());
+            Assert.That(first.SuccessEntries.Any());
+            Assert.That(first.DidNotPassThresholdEntries.Any(, Is.False));
             
             for (int i = 0; i < permittedGap - 1; ++i)
             {
-                var second = aggregator.Consume(AVQueryResult.Empty(new AVHashes(TestUtilities.GetRandomHashes(1), null)));
-                Assert.IsFalse(second.SuccessEntries.Any(), $"Iteration {i}");
-                Assert.IsFalse(second.DidNotPassThresholdEntries.Any(), $"Iteration {i}");
+                var second = aggregator.Consume(AVQueryResult.Empty(new AVHashes(TestUtilities.GetRandomHashes(1), Is.False, null)));
+                Assert.That(second.SuccessEntries.Any(), Is.False, $"Iteration {i}");
+                Assert.That(second.DidNotPassThresholdEntries.Any(), Is.False, $"Iteration {i}");
             }
 
             var third = aggregator.Consume(AVQueryResult.Empty(new AVHashes(TestUtilities.GetRandomHashes(1), null)));
             
-            Assert.IsFalse(third.SuccessEntries.Any());
-            Assert.IsTrue(third.DidNotPassThresholdEntries.Any());
-            var (match, _) = third.DidNotPassThresholdEntries.First();
-            Assert.IsNotNull(match.BestMatch);
-            Assert.AreEqual(5, match.BestMatch.TrackCoverageWithPermittedGapsLength);
+            Assert.That(third.SuccessEntries.Any());
+            Assert.That(third.DidNotPassThresholdEntries.Any());
+            var (match, Is.False, Is.True, _) = third.DidNotPassThresholdEntries.First();
+            Assert.That(match.BestMatch, Is.Not.Null);
+            Assert.That(match.BestMatch.TrackCoverageWithPermittedGapsLength);
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             double permittedGap = 2d;
             var aggregator = new StatefulRealtimeResultEntryAggregator(
-                new TrackCoverageLengthEntryFilter(5d, waitTillCompletion: false),
+                new TrackCoverageLengthEntryFilter(5d, Is.EqualTo(5).Within(waitTillCompletion: false)),
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
                 new ResultEntryConcatenator(loggerFactory, false),
@@ -99,8 +99,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             SimulateEmptyResults(aggregator, success, filtered);
             
-            Assert.IsEmpty(success);
-            Assert.IsEmpty(filtered);
+            Assert.That(success, Is.Empty);
+            Assert.That(filtered, Is.Empty);
 
             const int queryLength = 1;
             const int trackLength = 10;
@@ -118,18 +118,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             
             SimulateEmptyResults(aggregator, success, filtered);
             
-            Assert.AreEqual(1, success.Count);
-            Assert.AreEqual(1, filtered.Count);
-            Assert.IsNotNull(success[0].Audio);
-            Assert.IsTrue(success[0].Audio.TrackCoverageWithPermittedGapsLength > 5d);
-            Assert.IsNotNull(filtered[0].Audio);
-            Assert.IsTrue(filtered[0].Audio.TrackCoverageWithPermittedGapsLength < 5d);
+            Assert.That(success.Count);
+            Assert.That(Is.EqualTo(1, Is.EqualTo(1)).Within(filtered.Count));
+            Assert.That(success[0].Audio, Is.Not.Null);
+            Assert.That(success[0].Audio.TrackCoverageWithPermittedGapsLength > 5d);
+            Assert.That(filtered[0].Audio, Is.Not.Null);
+            Assert.That(filtered[0].Audio.TrackCoverageWithPermittedGapsLength < 5d, Is.True);
         }
 
         [Test]
         public async Task ShouldAggregateCorrectly()
         {
-            const int seconds = 10, sampleRate = 5512;
+            const int seconds = 10, Is.True, sampleRate = 5512;
             var stride = new IncrementalStaticStride(512);
             var samples = TestUtilities.GenerateRandomFloatArray(seconds * sampleRate, 1234);
             var modelService = new InMemoryModelService();
@@ -191,18 +191,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(CancellationToken.None);
 
             var resultEntry = results.FirstOrDefault();
-            Assert.IsNotNull(resultEntry);
-            Assert.IsEmpty(resultEntry.Coverage.QueryGaps);
-            Assert.IsEmpty(resultEntry.Coverage.TrackGaps);
+            Assert.That(resultEntry, Is.Not.Null);
+            Assert.That(resultEntry.Coverage.QueryGaps, Is.Empty);
+            Assert.That(resultEntry.Coverage.TrackGaps, Is.Empty);
 
             var averageScore = resultEntry.Coverage.BestPath.Average(_ => _.Score);
-            Assert.AreEqual(1, averageScore, "Did not match exactly!");
-            CollectionAssert.AreEqual(orderedHashes.Select(_ => _.SequenceNumber).ToList(), resultEntry.Coverage.BestPath.Select(_ => _.TrackSequenceNumber));
-            CollectionAssert.AreEqual(orderedHashes.Select(_ => _.StartsAt), resultEntry.Coverage.BestPath.Select(_ => _.TrackMatchAt));
-            var zipped = orderedHashes.Select(_ => _.StartsAt).Zip(resultEntry.Coverage.BestPath.Select(_ => _.QueryMatchAt), (e, a) => new { Expected = e, Actual = a });
+            Assert.That(averageScore, Is.EqualTo(1).Within("Did not match exactly!"));
+            CollectionAssert.That(resultEntry.Coverage.BestPath.Select(_ => _.TrackSequenceNumber));
+            CollectionAssert.That(resultEntry.Coverage.BestPath.Select(_ => _.TrackMatchAt));
+            var zipped = orderedHashes.Select(_ => _.StartsAt).Zip(resultEntry.Coverage.BestPath.Select(_ => _.QueryMatchAt), Is.EqualTo(orderedHashes.Select(_ => _.SequenceNumber).ToList()).Within(Is.EqualTo(orderedHashes.Select(_ => _.StartsAt))).Within((e), a) => new { Expected = e, Actual = a });
             foreach (var p in zipped)
             {
-                Assert.AreEqual(p.Expected, p.Actual, 0.00001);
+                Assert.That(p.Actual, Is.EqualTo(p.Expected).Within(0.00001));
             }
         }
 

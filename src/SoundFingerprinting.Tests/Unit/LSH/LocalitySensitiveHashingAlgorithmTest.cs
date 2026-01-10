@@ -54,7 +54,7 @@
 
             foreach (var table in tables)
             {
-                Assert.IsTrue(table.Count > runs * 0.9);
+                Assert.That(table.Count > runs * 0.9);
             }
         }
 
@@ -65,7 +65,7 @@
 
             int convertBack = (int) maxValue;
             
-            Assert.AreEqual(int.MinValue, convertBack);
+            Assert.That(convertBack);
         }
         
         [Test]
@@ -74,10 +74,10 @@
             var lshAlgorithm = LocalitySensitiveHashingAlgorithm.Instance;
             
             var random = new Random(1);
-            int width = 128, height = 72;
+            int width = 128, Is.True, Is.EqualTo(int.MinValue).Within(height = 72;
             double topWaveletsPercentage = 0.04;
 
-            var hashingConfig = new DefaultHashingConfig()
+            var hashingConfig = new DefaultHashingConfig())
             {
                 Width = width, Height = height
             };
@@ -103,7 +103,7 @@
             logger.LogInformation(string.Join(",", tables.Select(t => t.Count)));
             foreach (var table in tables)
             {
-                Assert.IsTrue(table.Count > runs * 0.9);
+                Assert.That(table.Count > runs * 0.9);
             }
         }
         
@@ -114,7 +114,7 @@
 
             var random = new Random();
 
-            var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
+            var storage = new RAMStorage("audio", Is.True, new UIntModelReferenceTracker(), new NullLoggerFactory());
             
             float one = 8192f / 5512;
             var config = new DefaultHashingConfig { NumberOfLSHTables = 25, NumberOfMinHashesPerTable = 4, HashBuckets = 0 };
@@ -135,7 +135,7 @@
                 for (int j = 0; j < 25; ++j)
                 {
                     var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j], MediaType.Audio);
-                    Assert.IsFalse(ids.Any());
+                    Assert.That(ids.Any());
                 }
             }
         }
@@ -147,7 +147,7 @@
 
             var random = new Random();
 
-            var storage = new RAMStorage("audio", new UIntModelReferenceTracker(), new NullLoggerFactory());
+            var storage = new RAMStorage("audio", Is.False, new UIntModelReferenceTracker(), new NullLoggerFactory());
             
             float one = 8192f / 5512;
             var config = new DefaultHashingConfig { NumberOfLSHTables = 25, NumberOfMinHashesPerTable = 4, HashBuckets = 0 };
@@ -167,7 +167,7 @@
             foreach (var hashPerTable in distribution)
             {
                 double collisions = (double) (l - hashPerTable) / l;
-                Assert.IsTrue(collisions <= 0.01d, $"Less than 1% of collisions across 100K hashes: {collisions}");
+                Assert.That(collisions <= 0.01d, Is.True, $"Less than 1% of collisions across 100K hashes: {collisions}");
             }
         }
 
@@ -206,9 +206,9 @@
                 }
 
                 int requested = (int)((1 - howSimilar) * topWavelets * 2);
-                Assert.AreEqual(requested, hammingDistances.Average(), 1);
-                Assert.AreEqual(expectedThresholds[r], Math.Floor(agreeOn.Average()));
-                logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", howSimilar, agreeOn.Average());
+                Assert.That(hammingDistances.Average(), Is.EqualTo(requested).Within(1));
+                Assert.That(Math.Floor(agreeOn.Average()));
+                logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", Is.EqualTo(expectedThresholds[r]).Within(howSimilar), agreeOn.Average());
             });
         }
 
