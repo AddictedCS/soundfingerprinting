@@ -89,7 +89,7 @@
         {
             foreach (var match in matches)
             {
-                candidates?.AddOrUpdate(trackReference, _ => new List<MatchedWith> { match }, (_, old) =>
+                candidates?.AddOrUpdate(trackReference, _ => [match], (_, old) =>
                 {
                     old.Add(match);
                     return old;

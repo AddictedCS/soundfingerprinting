@@ -22,8 +22,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             const int trackMatchStartsAt = 0;
             const int trackMatchEndsAt = 10;
             var matches = TestUtilities.GetMatchedWith(
-                new[] { 5, 9, 11, 14 }, 
-                new[] { trackMatchStartsAt, 5, 9, trackMatchEndsAt });
+                [5, 9, 11, 14],
+                [trackMatchStartsAt, 5, 9, trackMatchEndsAt]);
 
             var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, fingerprintLengthInSeconds, 1d).First();
 
@@ -35,7 +35,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             const double queryLength = 12d;
             const double trackLength = 12d;
-            var matches = TestUtilities.GetMatchedWith(new[] { 1, 2, 3, 4, 5 }, new[] { 1, 2, 9, 11, 12 });
+            var matches = TestUtilities.GetMatchedWith([1, 2, 3, 4, 5], [1, 2, 9, 11, 12]);
 
             var coverages = matches.GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, fingerprintLength: 1d, 0d).ToList();
 
@@ -49,7 +49,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             const double queryLength = 5d;
             const double trackLength = 5d;
-            var matches = TestUtilities.GetMatchedWith(new[] { 0, 1, 4, 5, 1, 2 }, new[] { 0, 1, 3, 4, 10, 11 });
+            var matches = TestUtilities.GetMatchedWith([0, 1, 4, 5, 1, 2], [0, 1, 3, 4, 10, 11]);
 
             var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, 1d, 1d).First();
 
@@ -240,8 +240,8 @@ namespace SoundFingerprinting.Tests.Unit.LCS
             // a ------------
             // b    ---
 
-            var a = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1).First();
-            var b = TestUtilities.GetMatchedWith(new[] {4, 5, 6}, new[] {4, 5, 6}).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 3, 3, 1, 1).First();
+            var a = TestUtilities.GetMatchedWith([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1).First();
+            var b = TestUtilities.GetMatchedWith([4, 5, 6], [4, 5, 6]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 3, 3, 1, 1).First();
 
 			Assert.Multiple(() =>
 			{
@@ -249,7 +249,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 				Assert.That(b.Contains(a), Is.False);
 			});
 
-			var results = OverlappingRegionFilter.FilterContainedCoverages(new[] {a, b}).ToList();
+			var results = OverlappingRegionFilter.FilterContainedCoverages([a, b]).ToList();
 
 			Assert.That(results, Has.Count.EqualTo(1));
 			Assert.That(results.First(), Is.SameAs(a));
@@ -260,17 +260,159 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         {
             var coverages = new[]
             {
-                TestUtilities.GetMatchedWith(new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 0).First(),
-                TestUtilities.GetMatchedWith(new[] {4, 5, 6}, new[] {1, 2, 3}).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 10, trackLength: 3, fingerprintLength: 1, permittedGap: 0).First(),
-                TestUtilities.GetMatchedWith(new[] {1, 2, 3}, new[] {8, 9, 10}).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 3, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First(),
-                TestUtilities.GetMatchedWith(new[] {10}, new[] {1}).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First(),
-                TestUtilities.GetMatchedWith(new[] {1}, new[] {10}).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First()
+                TestUtilities.GetMatchedWith([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 0).First(),
+                TestUtilities.GetMatchedWith([4, 5, 6], [1, 2, 3]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 10, trackLength: 3, fingerprintLength: 1, permittedGap: 0).First(),
+                TestUtilities.GetMatchedWith([1, 2, 3], [8, 9, 10]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 3, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First(),
+                TestUtilities.GetMatchedWith([10], [1]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First(),
+                TestUtilities.GetMatchedWith([1], [10]).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 10, trackLength: 10, fingerprintLength: 1, permittedGap: 0).First()
             };
 
             foreach (var coverage in coverages)
             {
 				Assert.That(coverage.Confidence, Is.EqualTo(1));
             }
+        }
+
+        [Test]
+        public void ShouldReturnEmptyListForEmptyInput()
+        {
+            var results = OverlappingRegionFilter.FilterContainedCoverages(Enumerable.Empty<Coverage>()).ToList();
+
+            Assert.That(results, Is.Empty);
+        }
+
+        [Test]
+        public void ShouldReturnSameCoverageForSingleInput()
+        {
+            var coverage = TestUtilities.GetMatchedWith([1, 2, 3], [1, 2, 3])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 3, 3, 1, 1)
+                .First();
+
+            var results = OverlappingRegionFilter.FilterContainedCoverages([coverage]).ToList();
+
+            Assert.That(results, Has.Count.EqualTo(1));
+            Assert.That(results.First(), Is.SameAs(coverage));
+        }
+
+        [Test]
+        public void ShouldReturnAllCoveragesWhenNoneContained()
+        {
+            // Create non-overlapping coverages (different track regions)
+            // Coverage a: query [1-3], track [1-3]
+            // Coverage b: query [10-12], track [10-12]
+            var a = TestUtilities.GetMatchedWith([1, 2, 3], [1, 2, 3])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 15, 15, 1, 1)
+                .First();
+            var b = TestUtilities.GetMatchedWith([10, 11, 12], [10, 11, 12])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 15, 15, 1, 1)
+                .First();
+
+            var results = OverlappingRegionFilter.FilterContainedCoverages([a, b]).ToList();
+
+            Assert.That(results, Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void ShouldFilterAllContainedCoveragesWhenOneContainsAll()
+        {
+            // Large parent coverage containing all smaller ones
+            var parent = TestUtilities.GetMatchedWith([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+            var child1 = TestUtilities.GetMatchedWith([2, 3], [2, 3])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+            var child2 = TestUtilities.GetMatchedWith([5, 6, 7], [5, 6, 7])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+            var child3 = TestUtilities.GetMatchedWith([8, 9], [8, 9])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+
+            var results = OverlappingRegionFilter.FilterContainedCoverages([parent, child1, child2, child3]).ToList();
+
+            Assert.That(results, Has.Count.EqualTo(1));
+            Assert.That(results.First(), Is.SameAs(parent));
+        }
+
+        [Test]
+        public void ShouldHandlePartialOverlapWithoutContainment()
+        {
+            // Two coverages that overlap but neither contains the other
+            // Coverage a: query [1-5], track [1-5]
+            // Coverage b: query [3-7], track [3-7]
+            var a = TestUtilities.GetMatchedWith([1, 2, 3, 4, 5], [1, 2, 3, 4, 5])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+            var b = TestUtilities.GetMatchedWith([3, 4, 5, 6, 7], [3, 4, 5, 6, 7])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+
+            var results = OverlappingRegionFilter.FilterContainedCoverages([a, b]).ToList();
+
+            Assert.That(results, Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void ShouldHandleQueryContainedButTrackNot()
+        {
+            // Query dimension: b is within a
+            // Track dimension: b is NOT within a
+            // Therefore b should NOT be filtered out
+            var a = TestUtilities.GetMatchedWith([1, 2, 3, 4, 5], [10, 11, 12, 13, 14])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 20, 1, 1)
+                .First();
+            var b = TestUtilities.GetMatchedWith([2, 3, 4], [1, 2, 3])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 20, 1, 1)
+                .First();
+
+            var results = OverlappingRegionFilter.FilterContainedCoverages([a, b]).ToList();
+
+            Assert.That(results, Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void ShouldFilterTransitivelyCoveredCoverages()
+        {
+            // a contains b, b contains c
+            // Both b and c should be filtered out
+            var a = TestUtilities.GetMatchedWith([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+            var b = TestUtilities.GetMatchedWith([3, 4, 5, 6, 7], [3, 4, 5, 6, 7])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+            var c = TestUtilities.GetMatchedWith([4, 5, 6], [4, 5, 6])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 10, 10, 1, 1)
+                .First();
+
+            var results = OverlappingRegionFilter.FilterContainedCoverages([a, b, c]).ToList();
+
+            Assert.That(results, Has.Count.EqualTo(1));
+            Assert.That(results.First(), Is.SameAs(a));
+        }
+
+        [Test]
+        public void ShouldPreserveCoveragesOrderedByLengthInResult()
+        {
+            // Multiple non-contained coverages should be ordered by coverage length
+            var large = TestUtilities.GetMatchedWith([1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 20, 20, 1, 1)
+                .First();
+            var medium = TestUtilities.GetMatchedWith([10, 11, 12, 13, 14], [10, 11, 12, 13, 14])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 20, 20, 1, 1)
+                .First();
+            var small = TestUtilities.GetMatchedWith([17, 18], [17, 18])
+                .GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 20, 20, 1, 1)
+                .First();
+
+            // Input in random order
+            var results = OverlappingRegionFilter.FilterContainedCoverages([small, large, medium]).ToList();
+
+            Assert.That(results, Has.Count.EqualTo(3));
+            // Results should be ordered by TrackDiscreteCoverageLength descending
+            Assert.That(results[0].TrackDiscreteCoverageLength, Is.GreaterThanOrEqualTo(results[1].TrackDiscreteCoverageLength));
+            Assert.That(results[1].TrackDiscreteCoverageLength, Is.GreaterThanOrEqualTo(results[2].TrackDiscreteCoverageLength));
         }
     }
 }
