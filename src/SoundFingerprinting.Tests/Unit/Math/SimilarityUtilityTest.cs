@@ -5,6 +5,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Math;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class SimilarityUtilityTest : AbstractTest

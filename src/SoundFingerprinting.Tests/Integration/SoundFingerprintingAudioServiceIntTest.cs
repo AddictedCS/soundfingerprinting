@@ -3,6 +3,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class SoundFingerprintingAudioServiceIntTest : IntegrationWithSampleFilesTest
@@ -14,7 +16,7 @@
                 
             var duration = audioService.GetLengthInSeconds(PathToWav);
 
-            Assert.That(duration, Is.EqualTo(10.0f).Within(0.1));
+            Assert.AreEqual(10.0f, duration, 0.1);
         }
     }
 }

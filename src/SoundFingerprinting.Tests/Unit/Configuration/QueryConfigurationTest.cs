@@ -5,6 +5,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Configuration;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class QueryConfigurationTest
@@ -12,13 +14,13 @@
         [Test]
         public void InvalidThresholdVotesIsSetOnQueryConfigurationInstanceTest()
         {
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => new DefaultQueryConfiguration { ThresholdVotes = -1 });
+            Assert.Throws<ArgumentException>(() => new DefaultQueryConfiguration { ThresholdVotes = -1 });
         }
 
         [Test]
         public void InvalidMaximumNumberOfTracksToReturnIsSetOnQueryConfigurationInstanceTest()
         {
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => new DefaultQueryConfiguration { MaxTracksToReturn = 0 });
+            Assert.Throws<ArgumentException>(() => new DefaultQueryConfiguration { MaxTracksToReturn = 0 });
         }
     }
 }

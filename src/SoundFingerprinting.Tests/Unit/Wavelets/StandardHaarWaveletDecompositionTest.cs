@@ -5,6 +5,9 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Wavelets;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class StandardHaarWaveletDecompositionTest

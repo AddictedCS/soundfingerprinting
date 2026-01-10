@@ -3,6 +3,8 @@
     using System;
 
     using NUnit.Framework;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class ArrayUtilsTest
@@ -19,11 +21,11 @@
 
         private void AssertArraysAreEqual(float[] expected, float[] actual)
         {
-            Assert.That(actual.Length, Is.EqualTo(expected.Length));
+            Assert.AreEqual(expected.Length, actual.Length);
 
             for (int i = 0; i < expected.Length; i++)
             {
-                Assert.That(actual[i], Is.EqualTo(expected[i]));
+                Assert.AreEqual(expected[i], actual[i]);
             }
         }
 

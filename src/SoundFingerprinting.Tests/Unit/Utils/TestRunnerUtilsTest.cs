@@ -10,6 +10,9 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class TestRunnerUtilsTest : IntegrationWithSampleFilesTest
@@ -25,8 +28,8 @@
 
             var fileNames = files.Select(Path.GetFileNameWithoutExtension).ToList();
             var unique = new HashSet<string>(fileNames);
-            Assert.That(unique.Count, Is.EqualTo(1));
-            Assert.That(unique.Contains(Path.GetFileNameWithoutExtension(PathToWav, Is.True)));
+            Assert.AreEqual(1, unique.Count);
+            Assert.IsTrue(unique.Contains(Path.GetFileNameWithoutExtension(PathToWav)));
         }
 
         [Test]
@@ -36,7 +39,7 @@
 
             var result = testRunnerUtils.ParseInts(ints, '|');
 
-            CollectionAssert.That(2, Is.EqualTo(new List<int> { 1).Within(3), 4, 5 }, result);
+            CollectionAssert.AreEqual(new List<int> { 1, 2, 3, 4, 5 }, result);
         }
 
         [Test]
@@ -44,7 +47,7 @@
         {
             const string ints = "1|2|3|4|%";
 
-            Assert.That((, Throws.TypeOf<FormatException>()) => testRunnerUtils.ParseInts(ints, '|'));
+            Assert.Throws<FormatException>(() => testRunnerUtils.ParseInts(ints, '|'));
         }
     }
 }

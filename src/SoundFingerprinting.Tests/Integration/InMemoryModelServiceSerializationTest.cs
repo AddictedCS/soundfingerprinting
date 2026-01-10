@@ -10,6 +10,8 @@
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class InMemoryModelServiceSerializationTest : IntegrationWithSampleFilesTest
@@ -37,10 +39,10 @@
 
             Directory.Delete(tempDirectory, true);
 
-            Assert.That(queryResult, Is.Not.Null);
-            Assert.That(queryResult.ContainsMatches, Is.True);
+            Assert.IsNotNull(queryResult);
+            Assert.IsTrue(queryResult.ContainsMatches);
             AssertTracksAreEqual(trackData, queryResult.BestMatch!.Track);
-            Assert.That(queryResult.BestMatch.Confidence > 0.9, Is.True);
+            Assert.IsTrue(queryResult.BestMatch.Confidence > 0.9);
        }
 
         [Test]
@@ -63,8 +65,8 @@
 
             Directory.Delete(tempDirectory, true);
 
-            Assert.That(tracks.Any(track => track == "id1", Is.True));
-            Assert.That(tracks.Any(track => track == "id2", Is.True));
+            Assert.IsTrue(tracks.Any(track => track == "id1"));
+            Assert.IsTrue(tracks.Any(track => track == "id2"));
         }
     }
 }

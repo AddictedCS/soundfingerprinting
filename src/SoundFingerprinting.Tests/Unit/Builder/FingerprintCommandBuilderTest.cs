@@ -1,3 +1,5 @@
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 namespace SoundFingerprinting.Tests.Unit.Builder
 {
     using System;
@@ -17,12 +19,12 @@ namespace SoundFingerprinting.Tests.Unit.Builder
         [Test]
         public void ShouldThrowWhenMediaServiceIsNotSet()
         {
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => FingerprintCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .Hash());
             
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => FingerprintCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(new SoundFingerprintingAudioService())
@@ -43,11 +45,11 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                 .UsingServices(mediaService.Object)
                 .Hash();
             
-            Assert.That(audio, Is.Not.Null);
-            Assert.That(30, Is.EqualTo(audio.DurationInSeconds).Within(0.001));
+            Assert.IsNotNull(audio);
+            Assert.AreEqual(audio.DurationInSeconds, 30, 0.001);
             
-            Assert.That(video, Is.Not.Null);
-            Assert.That(30, Is.EqualTo(video.DurationInSeconds).Within(0.001));
+            Assert.IsNotNull(video);
+            Assert.AreEqual(video.DurationInSeconds, 30, 0.001);
             
             mediaService.Verify(_ => _.ReadAVTrackFromFile("test.mp4", It.IsAny<AVTrackReadConfiguration>(), 0d, 0d, MediaType.Audio | MediaType.Video), Times.Exactly(1));
         }
@@ -65,10 +67,10 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                 .UsingServices(videoService.Object)
                 .Hash();
             
-            Assert.That(audio, Is.Null);
+            Assert.IsNull(audio);
             
-            Assert.That(video, Is.Not.Null);
-            Assert.That(30, Is.EqualTo(video.DurationInSeconds).Within(0.001));
+            Assert.IsNotNull(video);
+            Assert.AreEqual(video.DurationInSeconds, 30, 0.001);
             
             videoService.Verify(_ => _.ReadFramesFromFile("test.mp4", It.IsAny<VideoTrackReadConfiguration>(), 0d, 0d), Times.Exactly(1)); 
         }

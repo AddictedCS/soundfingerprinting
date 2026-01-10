@@ -13,6 +13,9 @@
     using SoundFingerprinting.Tests.Integration;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class FastFingerprintDescriptorTest : IntegrationWithSampleFilesTest
@@ -83,7 +86,7 @@
 
                 for (int j = 0; j < x.Count; ++j)
                 {
-                    Assert.That(y[j].HashBins, Is.EqualTo(x[j].HashBins));
+                    CollectionAssert.AreEqual(x[j].HashBins, y[j].HashBins);
                 }
             }
         }

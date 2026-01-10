@@ -1,3 +1,6 @@
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 namespace SoundFingerprinting.Tests.Unit.Audio
 {
     using System;
@@ -20,7 +23,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             for(int i = 0; i < 10; ++i)
             {
                 var result = realtimeAggregator.Aggregate(new AudioSamples(Array.Empty<float>(), string.Empty, 5512));
-                Assert.That(result, Is.Null);
+                Assert.IsNull(result);
             }
         }
 
@@ -35,14 +38,14 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             {
                 var expected = relativeTo.AddSeconds(lengthInSeconds * i);
                 var samples = realtimeAggregator.Aggregate(TestUtilities.GenerateRandomAudioSamples(lengthInSeconds * sampleRate, expected));
-                Assert.That(samples, Is.Not.Null);
+                Assert.IsNotNull(samples);
                 logger.LogInformation("Samples duration: {Duration:0.00}", samples.Duration);
                 if (i > 0)
                 {
-                    Assert.That(samples.Duration, Is.EqualTo(lengthInSeconds + (float)(minSamplesPerFingerprint - stride) / sampleRate + (float)((previousLength - minSamplesPerFingerprint) % stride) / sampleRate).Within(0.00001), $"Iteration {i}");
-                    Assert.That(samples.Duration, Is.EqualTo(lengthInSeconds - samples.TimeOffset).Within(0.00001));
+                    Assert.AreEqual(lengthInSeconds + (float)(minSamplesPerFingerprint - stride) / sampleRate + (float)((previousLength - minSamplesPerFingerprint) % stride) / sampleRate, samples.Duration, 0.00001, $"Iteration {i}");
+                    Assert.AreEqual(lengthInSeconds - samples.TimeOffset, samples.Duration, 0.00001);
                     double totalSeconds = expected.Subtract(samples.RelativeTo).TotalSeconds;
-                    Assert.That(totalSeconds < (double, Is.True)minSamplesPerFingerprint / sampleRate);
+                    Assert.IsTrue(totalSeconds < (double)minSamplesPerFingerprint / sampleRate);
                 }
 
                 previousLength = samples.Samples.Length;
@@ -70,7 +73,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
                 if (aggregated == null)
                 {
                     // first 18 and every second input buffer will not return results to the caller
-                    Assert.That(i < 19 || i % 2 == 1, Is.True, $"{i}");
+                    Assert.IsTrue(i < 19 || i % 2 == 1, $"{i}");
                 }
                 else
                 {
@@ -78,13 +81,13 @@ namespace SoundFingerprinting.Tests.Unit.Audio
                     if (nonNull == 1)
                     {
                         int overshot = 19 * 551; // buffer is 551 samples long
-                        Assert.That(Math.Abs(DateTime.UnixEpoch.Subtract(aggregated.RelativeTo, Is.EqualTo(0)).TotalMilliseconds), delta: 1);
-                        Assert.That(aggregated.Samples.Length, Is.EqualTo(overshot));
+                        Assert.AreEqual(0, Math.Abs(DateTime.UnixEpoch.Subtract(aggregated.RelativeTo).TotalMilliseconds), delta: 1);
+                        Assert.AreEqual(overshot, aggregated.Samples.Length);
                     }
                 }
             }
             
-            Assert.That(nonNull, Is.EqualTo(Math.Round((10f * sampleRate - minFingerprintSize) / (551))));
+            Assert.AreEqual(Math.Round((10f * sampleRate - minFingerprintSize) / (551)), nonNull);
         }
 
         [Test]
@@ -98,11 +101,11 @@ namespace SoundFingerprinting.Tests.Unit.Audio
 
             var a = realtimeAggregator.Aggregate(new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize), "cnn", 5512));
             
-            Assert.That(a!.Samples.Length, Is.EqualTo(minSize));
+            Assert.AreEqual(minSize, a!.Samples.Length);
 
             var b = realtimeAggregator.Aggregate(new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize), "cnn", 5512));
             
-            Assert.That(b!.Samples.Length, Is.EqualTo(minSize - incrementBy + minSize));
+            Assert.AreEqual(minSize - incrementBy + minSize, b!.Samples.Length);
         }
         
         [Test]
@@ -127,10 +130,10 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             {
                 float[] next = TestUtilities.GenerateRandomFloatArray(minSize);
                 var aggregated = realtimeAggregator.Aggregate(new AudioSamples(next, "cnn", 5512));
-                Assert.That(aggregated, Is.Not.Null);
+                Assert.IsNotNull(aggregated);
                 if (i == 0)
                 {
-                    Assert.That(aggregated.Samples, Is.EqualTo(next));
+                    CollectionAssert.AreEqual(next, aggregated.Samples);
                     prev = next;
                     continue;
                 }
@@ -143,16 +146,16 @@ namespace SoundFingerprinting.Tests.Unit.Audio
         private static void VerifyEndingsAreAttached(float[] prev, float[] next, float[] aggregated, int minSize, int strideSize)
         {
             int prefixLength = minSize - strideSize;
-            Assert.That(aggregated.Length, Is.EqualTo(minSize + prefixLength));
+            Assert.AreEqual(minSize + prefixLength, aggregated.Length);
             
             for (int i = 0; i < prefixLength; i++)
             {
-                Assert.That(aggregated[i], Is.EqualTo(prev[prev.Length - prefixLength + i]));
+                Assert.AreEqual(prev[prev.Length - prefixLength + i], aggregated[i]);
             }
 
             for (int i = 0; i < next.Length; ++i)
             {
-                Assert.That(aggregated[prefixLength + i], Is.EqualTo(next[i]));
+                Assert.AreEqual(next[i], aggregated[prefixLength + i]);
             }
         }
     }

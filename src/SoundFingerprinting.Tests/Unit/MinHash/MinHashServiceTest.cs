@@ -4,6 +4,8 @@
 
     using SoundFingerprinting.MinHash;
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class MinHashServiceTest
@@ -16,9 +18,9 @@
 
             byte[] hashed = minHashService.Hash(new TinyFingerprintSchema(10).SetTrueAt(2, 4, 6), perms.GetPermutations().Length);
 
-            Assert.That(hashed[0], Is.EqualTo(1));
-            Assert.That(hashed[1], Is.EqualTo(0));
-            Assert.That(hashed[2], Is.EqualTo(255));
+            Assert.AreEqual(1, hashed[0]);
+            Assert.AreEqual(0, hashed[1]);
+            Assert.AreEqual(255, hashed[2]);
         }
 
         private class TestPermutations : IPermutations

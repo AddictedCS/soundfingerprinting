@@ -4,6 +4,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Strides;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class StrideClassesTest
@@ -12,7 +14,7 @@
         public void IncrementalStaticStrideTest()
         {
             IncrementalStaticStride incrementalStatic = new IncrementalStaticStride(5115);
-            Assert.That(incrementalStatic.NextStride, Is.EqualTo(5115));
+            Assert.AreEqual(5115, incrementalStatic.NextStride);
         }
 
         [Test]
@@ -25,15 +27,15 @@
             for (int i = 0; i < count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.That(skip <= max, Is.True);
-                Assert.That(skip >= min, Is.True);
+                Assert.IsTrue(skip <= max);
+                Assert.IsTrue(skip >= min);
             }
         }
 
         [Test]
         public void ShouldThrowOnInvalidArguments()
         {
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => new IncrementalRandomStride(100, 0));
+            Assert.Throws<ArgumentException>(() => new IncrementalRandomStride(100, 0));
         }
     }
 }

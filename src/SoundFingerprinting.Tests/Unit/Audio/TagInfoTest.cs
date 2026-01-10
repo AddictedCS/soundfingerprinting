@@ -3,6 +3,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class TagInfoTest
@@ -14,9 +16,9 @@
             var tagInfoWithoutArtist = new TagInfo { Title = "title" };
             var tagInfoWithoutIsrc = new TagInfo();
 
-            Assert.That(tagInfoWithoutArtist.IsTrackUniquelyIdentifiable(, Is.False));
-            Assert.That(tagInfoWithoutTitle.IsTrackUniquelyIdentifiable(, Is.False));
-            Assert.That(tagInfoWithoutIsrc.IsTrackUniquelyIdentifiable(, Is.False));
+            Assert.IsFalse(tagInfoWithoutArtist.IsTrackUniquelyIdentifiable());
+            Assert.IsFalse(tagInfoWithoutTitle.IsTrackUniquelyIdentifiable());
+            Assert.IsFalse(tagInfoWithoutIsrc.IsTrackUniquelyIdentifiable());
         }
 
         [Test]
@@ -25,8 +27,8 @@
             var tagInfoWithTitleAndArtist = new TagInfo { Artist = "artist", Title = "title" };
             var tagInfoWithIsrc = new TagInfo { ISRC = "12345" };
 
-            Assert.That(tagInfoWithIsrc.IsTrackUniquelyIdentifiable(, Is.True));
-            Assert.That(tagInfoWithTitleAndArtist.IsTrackUniquelyIdentifiable(, Is.True));
+            Assert.IsTrue(tagInfoWithIsrc.IsTrackUniquelyIdentifiable());
+            Assert.IsTrue(tagInfoWithTitleAndArtist.IsTrackUniquelyIdentifiable());
         }
     }
 }

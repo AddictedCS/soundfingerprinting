@@ -6,6 +6,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class SubFingerprintGroupingCounterTest
@@ -23,7 +25,7 @@
 
             var groupingResult = SubFingerprintGroupingCounter.GroupByAndCount(lists, 5).ToList();
 
-            Assert.That(groupingResult.Count, Is.EqualTo(count));
+            Assert.AreEqual(count, groupingResult.Count);
         }
     }
 }

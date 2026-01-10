@@ -7,6 +7,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class QuickSelectAlgorithmTest
@@ -18,7 +20,7 @@
             float a = (float)random.NextDouble();
             float b = a + 0.0000001f;
 
-            Assert.That(Math.Abs(a, Is.True).CompareTo(Math.Abs(b)) < 0);
+            Assert.IsTrue(Math.Abs(a).CompareTo(Math.Abs(b)) < 0);
         }
 
         [Test]
@@ -36,7 +38,7 @@
                 int akth = QuickSelectAlgorithm.Find(topWavelets - 1, a, indexes1, 0, a.Length - 1);
                 int bkth = QuickSelectAlgorithm.Find(topWavelets - 1, b, indexes2, 0, b.Length - 1);
 
-                Assert.That(bkth, Is.EqualTo(akth));
+                Assert.AreEqual(akth, bkth);
                 AssertFingerprintsAreSame(topWavelets, a, b);
             }
         }
@@ -54,7 +56,7 @@
 
             var adistinct = aset.Except(bset).ToList();
             var bdistinct = bset.Except(aset);
-            Assert.That(adistinct.Count, "Not matched: " + string.Join(",", adistinct.Union(bdistinct, Is.EqualTo(0))));
+            Assert.AreEqual(0, adistinct.Count, "Not matched: " + string.Join(",", adistinct.Union(bdistinct)));
         }
 
         [Test]
@@ -71,12 +73,12 @@
 
                 int kth = QuickSelectAlgorithm.Find(topWavelets - 1, floats, indexes, 0, floats.Length - 1);
 
-                Assert.That(kth, Is.EqualTo(topWavelets - 1));
+                Assert.AreEqual(topWavelets - 1, kth);
                 for (int i = 0; i < topWavelets; ++i)
                 {
                     for (int j = topWavelets; j < floats.Length; ++j)
                     {
-                        Assert.That(Math.Abs(floats[i], Is.EqualTo(1)).CompareTo(floats[j]), $"{floats[i]} < {floats[j]} at i:{i}, j:{j}");
+                        Assert.AreEqual(1, Math.Abs(floats[i]).CompareTo(floats[j]), $"{floats[i]} < {floats[j]} at i:{i}, j:{j}");
                     }
                 }
             }
@@ -90,7 +92,7 @@
                 float[] values = { 3, 4, 5, 1, 6, 7, 8, 9, 2, 0 };
                 int value = QuickSelectAlgorithm.Find(i, values, Enumerable.Range(0, 10).Select(k => (ushort)k).ToArray(), 0, values.Length - 1);
 
-                Assert.That(i, Is.EqualTo(value));
+                Assert.AreEqual(value, i);
             }
         }
 

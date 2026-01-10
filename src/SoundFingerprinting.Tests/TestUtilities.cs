@@ -1,3 +1,6 @@
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 namespace SoundFingerprinting.Tests
 {
     using System;
@@ -125,12 +128,12 @@ namespace SoundFingerprinting.Tests
         public static void AssertHashesAreTheSame(Hashes expected, Hashes actual)
         {
             var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.SequenceNumber, (a, b) => (a, b)).ToList();
-            Assert.That(expected.Count, Is.EqualTo(tuples.Count));
+            Assert.AreEqual(tuples.Count, expected.Count);
             foreach (var (first, second) in tuples)
             {
-                Assert.That(second.StartsAt, Is.EqualTo(first.StartsAt));
-                Assert.That(second.SequenceNumber, Is.EqualTo(first.SequenceNumber));
-                Assert.That(second.HashBins, Is.EqualTo(first.HashBins));
+                Assert.AreEqual(first.StartsAt, second.StartsAt);
+                Assert.AreEqual(first.SequenceNumber, second.SequenceNumber);
+                CollectionAssert.AreEqual(first.HashBins, second.HashBins);
             }
         }
         

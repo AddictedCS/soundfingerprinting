@@ -1,3 +1,6 @@
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 namespace SoundFingerprinting.Tests.Unit.DAO
 {
     using System;
@@ -16,14 +19,14 @@ namespace SoundFingerprinting.Tests.Unit.DAO
         [Test]
         public void ShouldThrowAsMaxValueExceeded()
         {
-            Assert.That((, Throws.TypeOf<ModelReferenceMaxAllowedValueExceededException>()) => new UIntModelReferenceTracker((uint)int.MaxValue + 1, 0, int.MaxValue));
+            Assert.Throws<ModelReferenceMaxAllowedValueExceededException>(() => new UIntModelReferenceTracker((uint)int.MaxValue + 1, 0, int.MaxValue));
 
             var modelReferenceTracker = new UIntModelReferenceTracker(int.MaxValue, int.MaxValue, int.MaxValue);
             
              var track = new TrackInfo("id", "title", "artist", new Dictionary<string, string>(){{"key", "value"}}, MediaType.Audio | MediaType.Video);
              var hashes = GetHashes(1);
 
-             Assert.That((, Throws.TypeOf<ModelReferenceMaxAllowedValueExceededException>()) => modelReferenceTracker.AssignModelReferences(track, hashes));
+             Assert.Throws<ModelReferenceMaxAllowedValueExceededException>(() => modelReferenceTracker.AssignModelReferences(track, hashes));
         }
         
         [Test]
@@ -37,14 +40,14 @@ namespace SoundFingerprinting.Tests.Unit.DAO
             
             AssertTracksAreEqual(track, trackData);
             var enumerable = subFingerprints as SubFingerprintData[] ?? subFingerprints.ToArray();
-            Assert.That(enumerable.Count(), Is.EqualTo(1)));
+            Assert.AreEqual(1, enumerable.Count());
 
             var hash = hashes.First();
             var subFingerprintData = enumerable.First();
-            Assert.That(subFingerprintData.Hashes, Is.EqualTo(hash.HashBins));
-            Assert.That(subFingerprintData.OriginalPoint, Is.EqualTo(hash.OriginalPoint));
-            Assert.That(subFingerprintData.SequenceNumber, Is.EqualTo(hash.SequenceNumber));
-            Assert.That(subFingerprintData.SequenceAt, Is.EqualTo(hash.StartsAt));
+            CollectionAssert.AreEqual(hash.HashBins, subFingerprintData.Hashes);
+            CollectionAssert.AreEqual(hash.OriginalPoint, subFingerprintData.OriginalPoint);
+            Assert.AreEqual(hash.SequenceNumber, subFingerprintData.SequenceNumber);
+            Assert.AreEqual(hash.StartsAt, subFingerprintData.SequenceAt);
         }
         
         [Test]
@@ -56,10 +59,10 @@ namespace SoundFingerprinting.Tests.Unit.DAO
 
             modelReferenceTracker.AssignModelReferences(track, hashes);
             
-            Assert.That(modelReferenceTracker.TryResetTrackRef(1, Is.False));
-            Assert.That(modelReferenceTracker.TryResetTrackRef(2, Is.True));
-            Assert.That(modelReferenceTracker.TryResetSubFingerprintRef(1000, Is.False));
-            Assert.That(modelReferenceTracker.TryResetSubFingerprintRef(1001, Is.True));
+            Assert.IsFalse(modelReferenceTracker.TryResetTrackRef(1));
+            Assert.IsTrue(modelReferenceTracker.TryResetTrackRef(2));
+            Assert.IsFalse(modelReferenceTracker.TryResetSubFingerprintRef(1000));
+            Assert.IsTrue(modelReferenceTracker.TryResetSubFingerprintRef(1001));
         }
         
         [Test]
@@ -83,8 +86,8 @@ namespace SoundFingerprinting.Tests.Unit.DAO
                 }
             });
             
-            Assert.That(trackRefs.Distinct().Count(), Is.EqualTo(trackRefs.Count)));
-            Assert.That(subFingerprintRefs.Distinct().Count(), Is.EqualTo(subFingerprintRefs.Count)));
+            Assert.AreEqual(trackRefs.Count, trackRefs.Distinct().Count());
+            Assert.AreEqual(subFingerprintRefs.Count, subFingerprintRefs.Distinct().Count());
         }
 
         private static Hashes GetHashes(int numberOfHashBins)

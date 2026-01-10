@@ -14,6 +14,9 @@
     using SoundFingerprinting.Math;
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Tests.Integration;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class RAMStorageTest : IntegrationWithSampleFilesTest
@@ -27,9 +30,9 @@
             storage.InsertTrack(track, AVHashes.Empty);
 
             var readTrack = storage.ReadByTrackId(track.Id);
-            Assert.That(readTrack, Is.Not.Null);
+            Assert.IsNotNull(readTrack);
             var hashes = storage.ReadAvHashesByTrackId(track.Id);
-            Assert.That(hashes.IsEmpty, Is.True);
+            Assert.IsTrue(hashes.IsEmpty);
         }
 
         [Test]
@@ -41,7 +44,7 @@
             var audio = TestUtilities.GetRandomHashes(120, MediaType.Audio);
             var video = TestUtilities.GetRandomHashes(120, MediaType.Video);
 
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => storage.InsertTrack(track, new AVHashes(audio, video)));
+            Assert.Throws<ArgumentException>(() => storage.InsertTrack(track, new AVHashes(audio, video)));
         }
         
         [Test]
@@ -69,7 +72,7 @@
             for (int i = 0; i < 25; ++i)
             {
                 var subFingerprints = storage.GetSubFingerprintsByHashTableAndHash(i, longs[i], MediaType.Audio);
-                Assert.That(subFingerprints.Count, Is.EqualTo(tracksCount * subFingerprintsPerTrack));
+                Assert.AreEqual(tracksCount * subFingerprintsPerTrack, subFingerprints.Count);
             }
         }
         
@@ -82,7 +85,7 @@
 
             var tracks = storage.GetTrackIds().ToList();
 
-            Assert.That(tracks, Is.EqualTo(expectedTracks.Select(_ => _.Id)));
+            CollectionAssert.AreEqual(expectedTracks.Select(_ => _.Id), tracks);
         }
 
         [Test]
@@ -93,7 +96,7 @@
             storage.InsertTrack(expectedTrack, AVHashes.Empty);
 
             var actualTrack = storage.ReadByTrackId(expectedTrack.Id);
-            Assert.That(actualTrack, Is.Not.Null);
+            Assert.IsNotNull(actualTrack);
 
             AssertTracksAreEqual(expectedTrack, actualTrack);
         }
@@ -107,14 +110,14 @@
 
             var allTracks = storage.GetTrackIds().ToList();
 
-            Assert.That(allTracks.Count, Is.EqualTo(numberOfTracks));
+            Assert.AreEqual(numberOfTracks, allTracks.Count);
             foreach (var track in allTracks.Select(trackId => storage.ReadByTrackId(trackId)))
             {
-                Assert.That(track, Is.Not.Null);
+                Assert.IsNotNull(track);
                 storage.DeleteTrack(track.Id);
             }
 
-            Assert.That(storage.GetTrackIds(, Is.Empty));
+            Assert.IsEmpty(storage.GetTrackIds());
         }
 
         [Test]
@@ -125,10 +128,10 @@
             storage.InsertTrack(track, AVHashes.Empty);
             var tracks = storage.ReadByTrackId(track.Id);
 
-            Assert.That(tracks, Is.Not.Null);
+            Assert.IsNotNull(tracks);
             storage.DeleteTrack(tracks.Id);
-            Assert.That(storage.ReadByTrackId(track.Id, Is.Null));
-            Assert.That(storage.ReadAvHashesByTrackId(track.Id, Is.True).IsEmpty);
+            Assert.IsNull(storage.ReadByTrackId(track.Id));
+            Assert.IsTrue(storage.ReadAvHashesByTrackId(track.Id).IsEmpty);
         }
 
         [Test]
@@ -150,14 +153,14 @@
             storage.InsertTrack(track, avHashes);
             
             var actualTrack = storage.ReadByTrackId(tagInfo.ISRC);
-            Assert.That(actualTrack, Is.Not.Null);
+            Assert.IsNotNull(actualTrack);
 
             // Act
             int modifiedRows = storage.DeleteTrack(actualTrack.Id);
 
-            Assert.That(storage.ReadByTrackId(tagInfo.ISRC, Is.Null));
-            Assert.That(storage.ReadAvHashesByTrackId(actualTrack.Id, Is.True).IsEmpty);
-            Assert.That(modifiedRows, Is.EqualTo(1 + avHashes.Count + 25 * avHashes.Count));
+            Assert.IsNull(storage.ReadByTrackId(tagInfo.ISRC));
+            Assert.IsTrue(storage.ReadAvHashesByTrackId(actualTrack.Id).IsEmpty);
+            Assert.AreEqual(1 + avHashes.Count + 25 * avHashes.Count, modifiedRows);
         }
 
         [Test]
@@ -167,9 +170,9 @@
             var track = new TrackInfo(string.Empty, string.Empty, string.Empty);
             storage.InsertTrack(track, new AVHashes(TestUtilities.GetRandomHashes(10), null));
             var trackData = storage.ReadByTrackId(string.Empty);
-            Assert.That(trackData, Is.Not.Null);
+            Assert.IsNotNull(trackData);
             AssertTracksAreEqual(track, trackData);
-            Assert.That(storage.ReadAvHashesByTrackId(track.Id, Is.False).IsEmpty);
+            Assert.IsFalse(storage.ReadAvHashesByTrackId(track.Id).IsEmpty);
         }
 
         [Test]
@@ -187,9 +190,9 @@
 
             var reload = new RAMStorage("audio-reloaded", new UIntModelReferenceTracker(), new NullLoggerFactory(), "audio-storage.bin");
             
-            Assert.That(reload.GetTrackIds(, Is.EqualTo(storage.GetTrackIds())));
-            Assert.That(reload.TracksCount, Is.EqualTo(storage.TracksCount));
-            Assert.That(reload.SubFingerprintsCount, Is.EqualTo(storage.SubFingerprintsCount));
+            CollectionAssert.AreEqual(storage.GetTrackIds(), reload.GetTrackIds());
+            Assert.AreEqual(storage.TracksCount, reload.TracksCount);
+            Assert.AreEqual(storage.SubFingerprintsCount, reload.SubFingerprintsCount);
             foreach (string id in reload.GetTrackIds())
             {
                 var (audioReloaded, _) = reload.ReadAvHashesByTrackId(id);
@@ -199,7 +202,7 @@
             
             reload.InsertTrack(GetTrack(), AVHashes.Empty);
             
-            Assert.That(reload.TracksCount, Is.EqualTo(storage.TracksCount + 1));
+            Assert.AreEqual(storage.TracksCount + 1, reload.TracksCount);
         }
         
          [Test]
@@ -219,10 +222,10 @@
             storage.InsertTrack(track, new AVHashes(hashes, null));
             var (readHashes, _) = storage.ReadAvHashesByTrackId(track.Id);
             
-            Assert.That(readHashes.Count, Is.EqualTo(numberOfHashBins));
+            Assert.AreEqual(numberOfHashBins, readHashes.Count);
             foreach (var hashedFingerprint in readHashes)
             {
-                Assert.That(hashedFingerprint.HashBins, Is.EqualTo(genericHashBuckets));
+                CollectionAssert.AreEqual(genericHashBuckets, hashedFingerprint.HashBins);
             }
         }
 
@@ -239,10 +242,10 @@
             storage.InsertTrack(track, avHashes);
             var (readHashes, _) = storage.ReadAvHashesByTrackId(track.Id);
 
-            Assert.That(readHashes.Count, Is.EqualTo(avHashes.Count));
+            Assert.AreEqual(avHashes.Count, readHashes.Count);
             foreach (var data in readHashes)
             {
-                Assert.That(data.HashBins.Length, Is.EqualTo(25));
+                Assert.AreEqual(25, data.HashBins.Length);
             }
         }
 

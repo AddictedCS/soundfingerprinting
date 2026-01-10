@@ -4,6 +4,8 @@
 
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.FFT;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class LogUtilityTest

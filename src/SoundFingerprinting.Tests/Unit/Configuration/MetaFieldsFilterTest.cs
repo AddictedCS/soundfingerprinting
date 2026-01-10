@@ -1,3 +1,5 @@
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 namespace SoundFingerprinting.Tests.Unit.Configuration
 {
     using System.Collections.Generic;
@@ -16,7 +18,7 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
             var yesFilters = new Dictionary<string, string>();
             var noFilters = new Dictionary<string, string>();
             
-            Assert.That(metadataFilter.PassesFilters(metaFields, Is.True, yesFilters, noFilters));
+            Assert.IsTrue(metadataFilter.PassesFilters(metaFields, yesFilters, noFilters));
         }
         
         [Test]
@@ -26,7 +28,7 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
             var yesFilters = new Dictionary<string, string>{{"COUNTRY", "US"}};
             var noFilters = new Dictionary<string, string>();
             
-            Assert.That(metadataFilter.PassesFilters(metaFields, Is.False, yesFilters, noFilters));
+            Assert.IsFalse(metadataFilter.PassesFilters(metaFields, yesFilters, noFilters));
         }
         
         [Test]
@@ -36,7 +38,7 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
             var yesFilters = new Dictionary<string, string>();
             var noFilters = new Dictionary<string, string>{{"COUNTRY", "US"}};
             
-            Assert.That(metadataFilter.PassesFilters(metaFields, Is.True, yesFilters, noFilters));
+            Assert.IsTrue(metadataFilter.PassesFilters(metaFields, yesFilters, noFilters));
         }
         
         [Test]
@@ -46,7 +48,7 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
             var yesFilters = new Dictionary<string, string> {{"COUNTRY", "US"}};
             var noFilters = new Dictionary<string, string>();
 
-            Assert.That(metadataFilter.PassesFilters(metaFields, Is.True, yesFilters, noFilters));
+            Assert.IsTrue(metadataFilter.PassesFilters(metaFields, yesFilters, noFilters));
         }
         
         [Test]
@@ -56,7 +58,7 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
             var yesFilters = new Dictionary<string, string> {{"COUNTRY", "NZ"}};
             var noFilters = new Dictionary<string, string>();
 
-            Assert.That(metadataFilter.PassesFilters(metaFields, Is.False, yesFilters, noFilters));
+            Assert.IsFalse(metadataFilter.PassesFilters(metaFields, yesFilters, noFilters));
         }
         
         [Test]
@@ -66,7 +68,7 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
             var yesFilters = new Dictionary<string, string>();
             var noFilters = new Dictionary<string, string>{{"COUNTRY", "US"}};
 
-            Assert.That(metadataFilter.PassesFilters(metaFields, Is.False, yesFilters, noFilters));
+            Assert.IsFalse(metadataFilter.PassesFilters(metaFields, yesFilters, noFilters));
         }
     }
 }

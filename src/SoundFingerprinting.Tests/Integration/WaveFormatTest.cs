@@ -3,6 +3,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class WaveFormatTest : IntegrationWithSampleFilesTest
@@ -12,10 +14,10 @@
         {
             var format = WaveFormat.FromFile(PathToWav);
 
-            Assert.That(format.Channels, Is.EqualTo(2));
-            Assert.That(format.SampleRate, Is.EqualTo(44100));
-            Assert.That(format.BitsPerSample, Is.EqualTo(16));
-            Assert.That(format.LengthInSeconds, Is.EqualTo(10).Within(0.01));
+            Assert.AreEqual(2, format.Channels);
+            Assert.AreEqual(44100, format.SampleRate);
+            Assert.AreEqual(16, format.BitsPerSample);
+            Assert.AreEqual(10, format.LengthInSeconds, 0.01);
         }
     }
 }

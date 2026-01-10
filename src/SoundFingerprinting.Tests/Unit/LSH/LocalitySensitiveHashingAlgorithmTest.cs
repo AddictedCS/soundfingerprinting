@@ -17,6 +17,8 @@
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.LSH;
     using SoundFingerprinting.Math;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class LocalitySensitiveHashingAlgorithmTest
@@ -54,7 +56,7 @@
 
             foreach (var table in tables)
             {
-                Assert.That(table.Count > runs * 0.9, Is.True);
+                Assert.IsTrue(table.Count > runs * 0.9);
             }
         }
 
@@ -65,7 +67,7 @@
 
             int convertBack = (int) maxValue;
             
-            Assert.That(convertBack, Is.EqualTo(int.MinValue));
+            Assert.AreEqual(int.MinValue, convertBack);
         }
         
         [Test]
@@ -103,7 +105,7 @@
             logger.LogInformation(string.Join(",", tables.Select(t => t.Count)));
             foreach (var table in tables)
             {
-                Assert.That(table.Count > runs * 0.9, Is.True);
+                Assert.IsTrue(table.Count > runs * 0.9);
             }
         }
         
@@ -135,7 +137,7 @@
                 for (int j = 0; j < 25; ++j)
                 {
                     var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j], MediaType.Audio);
-                    Assert.That(ids.Any(, Is.False));
+                    Assert.IsFalse(ids.Any());
                 }
             }
         }
@@ -167,7 +169,7 @@
             foreach (var hashPerTable in distribution)
             {
                 double collisions = (double) (l - hashPerTable) / l;
-                Assert.That(collisions <= 0.01d, Is.True, $"Less than 1% of collisions across 100K hashes: {collisions}");
+                Assert.IsTrue(collisions <= 0.01d, $"Less than 1% of collisions across 100K hashes: {collisions}");
             }
         }
 
@@ -206,8 +208,8 @@
                 }
 
                 int requested = (int)((1 - howSimilar) * topWavelets * 2);
-                Assert.That(hammingDistances.Average(), Is.EqualTo(requested).Within(1));
-                Assert.That(Math.Floor(agreeOn.Average(, Is.EqualTo(expectedThresholds[r]))));
+                Assert.AreEqual(requested, hammingDistances.Average(), 1);
+                Assert.AreEqual(expectedThresholds[r], Math.Floor(agreeOn.Average()));
                 logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", howSimilar, agreeOn.Average());
             });
         }

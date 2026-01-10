@@ -15,6 +15,8 @@
     using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.Content;
     using SoundFingerprinting.Query;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class FingerprintCommandBuilderIntTest : IntegrationWithSampleFilesTest
@@ -34,7 +36,7 @@
             int samples = (int)(fingerprints.DurationInSeconds * config.SampleRate);
             int expectedFingerprints = (int)Math.Round(((double)(samples - (config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize)) / config.Stride.NextStride));
 
-            Assert.That(fingerprints.Count, Is.EqualTo(expectedFingerprints));
+            Assert.AreEqual(expectedFingerprints, fingerprints.Count);
         }
 
         [Test]
@@ -53,7 +55,7 @@
             var config = new DefaultFingerprintConfiguration();
             Assert.That(fingerprints, Is.Not.Null);
             int expected = (int)((fingerprints.DurationInSeconds * config.SampleRate) / config.SamplesPerFingerprint);
-            Assert.That(fingerprints.Count, Is.EqualTo(expected)); 
+            Assert.AreEqual(expected, fingerprints.Count); 
         }
 
         [Test]
@@ -77,15 +79,15 @@
                                .UsingServices(modelService)
                                .Query();
 
-            Assert.That(queryResult.ContainsMatches, Is.True);
-            Assert.That(queryResult.ResultEntries.Count(), Is.EqualTo(1));
-            Assert.That(queryResult.BestMatch, Is.Not.Null);
+            Assert.IsTrue(queryResult.ContainsMatches);
+            Assert.AreEqual(1, queryResult.ResultEntries.Count());
+            Assert.IsNotNull(queryResult.BestMatch);
             var (bestMatch, _) = queryResult.BestMatch;
             Assert.That(bestMatch, Is.Not.Null);
-            Assert.That(bestMatch.Track.Id, Is.EqualTo("id"));
-            Assert.That(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, Is.True, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
-            Assert.That(Math.Abs(bestMatch.TrackStartsAt), Is.EqualTo(startAtSecond).Within(0.1d));
-            Assert.That(bestMatch.Confidence > 0.7, Is.True, $"Confidence:{bestMatch.Confidence}");
+            Assert.AreEqual("id", bestMatch.Track.Id);
+            Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
+            Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
+            Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
         }
 
         [Test]
@@ -130,7 +132,7 @@
             int numberOfSamples = (int)format.Length / bytesPerSample;
             int numberOfDownsampledSamples = (int)(numberOfSamples / ((double)format.SampleRate / config.SampleRate));
             long numberOfFingerprints = numberOfDownsampledSamples / config.SamplesPerFingerprint;
-            Assert.That(list.Count, Is.EqualTo(numberOfFingerprints));
+            Assert.AreEqual(numberOfFingerprints, list.Count);
         }
 
         [Test]
@@ -160,7 +162,7 @@
                                                 .From(samples)
                                                 .UsingServices(audioService)
                                                 .Hash();
-            Assert.That(hash.Count, Is.EqualTo(1));
+            Assert.AreEqual(1, hash.Count);
         }
 
         [Test]
@@ -187,20 +189,20 @@
                     .UsingServices(modelService, audioService)
                     .Query();
 
-            Assert.That(queryResult.ContainsMatches, Is.True);
-            Assert.That(queryResult.ResultEntries, Is.Not.Empty);
-            Assert.That(queryResult.BestMatch, Is.Not.Null);
+            Assert.IsTrue(queryResult.ContainsMatches);
+            Assert.IsNotEmpty(queryResult.ResultEntries);
+            Assert.IsNotNull(queryResult.BestMatch);
             var (bestMatch, _) = queryResult.BestMatch;
-            Assert.That(bestMatch!.Track.Id, Is.EqualTo("1234"));
-            Assert.That(bestMatch.TrackCoverageWithPermittedGapsLength, Is.EqualTo(secondsToProcess).Within(1d), $"QueryCoverageSeconds:{bestMatch.QueryLength}");
-            Assert.That(Math.Abs(bestMatch.TrackStartsAt), Is.EqualTo(startAtSecond).Within(0.1d));
-            Assert.That(bestMatch.Confidence, Is.EqualTo(1d).Within(0.1d), $"Confidence:{bestMatch.Confidence}");
+            Assert.AreEqual("1234", bestMatch!.Track.Id);
+            Assert.AreEqual(secondsToProcess, bestMatch.TrackCoverageWithPermittedGapsLength, 1d, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
+            Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
+            Assert.AreEqual(1d, bestMatch.Confidence, 0.1d, $"Confidence:{bestMatch.Confidence}");
         }
 
         [Test]
         public void ShouldThrowWhenModelServiceIsNull()
         {
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance.BuildQueryCommand()
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(120))
                 .Query());
         }
@@ -228,9 +230,9 @@
 
             var (audioResult, videoResult) = avResults;
             Assert.That(audioResult, Is.Not.Null);
-            Assert.That(audioResult.ContainsMatches, Is.True);
+            Assert.IsTrue(audioResult.ContainsMatches);
             Assert.That(videoResult, Is.Not.Null);
-            Assert.That(videoResult.ContainsMatches, Is.True);
+            Assert.IsTrue(videoResult.ContainsMatches);
             var audioBestMatch = audioResult.BestMatch;
             AssertBestMatch(audioBestMatch);
 
@@ -243,8 +245,8 @@
                 .UsingServices(modelService)
                 .Query();
             
-            Assert.That(audioResult, Is.Not.Null);
-            Assert.That(videoResult, Is.Null);
+            Assert.IsNotNull(audioResult);
+            Assert.IsNull(videoResult);
             AssertBestMatch(audioResult.BestMatch);
             
             (audioResult, videoResult) = await QueryCommandBuilder.Instance
@@ -253,17 +255,17 @@
                 .UsingServices(modelService)
                 .Query(); 
             
-            Assert.That(audioResult, Is.Null);
-            Assert.That(videoResult, Is.Not.Null);
+            Assert.IsNull(audioResult);
+            Assert.IsNotNull(videoResult);
             AssertBestMatch(videoResult.BestMatch);
         }
 
         private static void AssertBestMatch(ResultEntry bestMatch)
         {
-            Assert.That(bestMatch, Is.Not.Null);
-            Assert.That(bestMatch.Confidence, Is.EqualTo(1).Within(0.1));
-            Assert.That(bestMatch.Coverage.QueryRelativeCoverage, Is.EqualTo(1).Within(0.1));
-            Assert.That(bestMatch.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.1));
+            Assert.IsNotNull(bestMatch);
+            Assert.AreEqual(1, bestMatch.Confidence, 0.1);
+            Assert.AreEqual(1, bestMatch.Coverage.QueryRelativeCoverage, 0.1);
+            Assert.AreEqual(1, bestMatch.Coverage.TrackRelativeCoverage, 0.1);
         }
 
         [Test]
@@ -315,14 +317,14 @@
                 .Query();
 
             Assert.That(queryResult, Is.Not.Null);
-            Assert.That(queryResult.ContainsMatches, Is.True);
-            Assert.That(queryResult.ResultEntries.Count(), Is.EqualTo(1));
+            Assert.IsTrue(queryResult.ContainsMatches);
+            Assert.AreEqual(1, queryResult.ResultEntries.Count());
             var bestMatch = queryResult.BestMatch;
-            Assert.That(bestMatch!.Track.Id, Is.EqualTo("4321"));
-            Assert.That(Math.Abs(bestMatch.TrackStartsAt), Is.EqualTo(0).Within(0.0001d));
-            Assert.That(bestMatch.TrackCoverageWithPermittedGapsLength, Is.EqualTo(audioSamples.Duration).Within(1.48d));
-            Assert.That(bestMatch.Coverage.TrackRelativeCoverage, Is.EqualTo(1d).Within(0.005d));
-            Assert.That(bestMatch.Confidence, Is.EqualTo(1).Within(0.01), $"Confidence:{bestMatch.Confidence}");
+            Assert.AreEqual("4321", bestMatch!.Track.Id);
+            Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
+            Assert.AreEqual(audioSamples.Duration, bestMatch.TrackCoverageWithPermittedGapsLength, 1.48d);
+            Assert.AreEqual(1d, bestMatch.Coverage.TrackRelativeCoverage, 0.005d);
+            Assert.AreEqual(1, bestMatch.Confidence, 0.01, $"Confidence:{bestMatch.Confidence}");
         }
 
         [Test]

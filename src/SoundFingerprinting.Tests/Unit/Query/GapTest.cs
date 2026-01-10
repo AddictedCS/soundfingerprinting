@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using SoundFingerprinting.Query;
 using System;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
 namespace SoundFingerprinting.Tests.Unit.Query;
 

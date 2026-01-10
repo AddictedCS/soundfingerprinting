@@ -18,6 +18,8 @@
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.Media;
     using SoundFingerprinting.Query;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class QueryCommandBuilderTest : AbstractTest
@@ -61,18 +63,18 @@
         [Test]
         public void ShouldThrowOnMissingServices()
         {
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(new InMemoryModelService())
                 .Query());
             
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(100))
                 .Query());
 
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(new InMemoryModelService(), new SoundFingerprintingAudioService())
@@ -90,7 +92,7 @@
             modelService.Setup(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Callback(
                 (Hashes hashes, QueryConfiguration configuration) =>
                 {
-                    Assert.That(hashes.DurationInSeconds, Is.EqualTo(30).Within(0.001));
+                    Assert.AreEqual(30, hashes.DurationInSeconds, 0.001);
                 }).Returns(new Candidates());
             
             var avQueryResult = await QueryCommandBuilder.Instance
@@ -99,7 +101,7 @@
                 .UsingServices(modelService.Object, mediaService.Object)
                 .Query();
             
-            Assert.That(avQueryResult.ContainsMatches, Is.False);
+            Assert.IsFalse(avQueryResult.ContainsMatches);
             
             modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
         }

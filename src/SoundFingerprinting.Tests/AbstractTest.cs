@@ -5,6 +5,8 @@
     using NUnit.Framework;
     using SoundFingerprinting.DAO.Data;
     using SoundFingerprinting.Data;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     public abstract class AbstractTest
     {

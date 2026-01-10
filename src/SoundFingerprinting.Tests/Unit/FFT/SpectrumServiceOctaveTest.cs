@@ -8,6 +8,8 @@
     using SoundFingerprinting.Configuration.Frames;
     using SoundFingerprinting.FFT;
     using SoundFingerprinting.Strides;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class SpectrumServiceOctaveTest

@@ -6,6 +6,9 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Audio;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class SamplesAggregatorTest
@@ -52,7 +55,7 @@
 
             var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queueBytesRead), secondsToRead, SampleRate);
 
-            Assert.That(samples.Length, Is.EqualTo(secondsToRead * SampleRate));
+            Assert.AreEqual(secondsToRead * SampleRate, samples.Length);
         }
 
         [Test]
@@ -74,13 +77,13 @@
 
             var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queue), secondsToRead, SampleRate);
 
-            Assert.That(samples.Length, Is.EqualTo((int)(secondsToRead * SampleRate) / 4 * 4));
+            Assert.AreEqual((int)(secondsToRead * SampleRate) / 4 * 4, samples.Length);
             int prevArrayLength = 0;
             for (int i = 0; i < floats.Length - 1; ++i)
             {
                 float[] toCompare = new float[floats[i].Length];
                 Array.Copy(samples, prevArrayLength, toCompare, 0, toCompare.Length);
-                Assert.That(toCompare, Is.EqualTo(floats[i]));
+                CollectionAssert.AreEqual(floats[i], toCompare);
                 prevArrayLength += toCompare.Length;
             }
         }

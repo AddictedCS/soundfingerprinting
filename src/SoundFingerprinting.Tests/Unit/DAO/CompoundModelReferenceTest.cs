@@ -3,6 +3,8 @@
     using NUnit.Framework;
     using SoundFingerprinting.DAO;
     using System;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class CompoundModelReferenceTest
@@ -18,77 +20,77 @@
         [Test]
         public void ThrowsForNullArgs()
         {
-            Assert.That((, Throws.TypeOf<ArgumentNullException>()) => new CompoundModelReference<string>(null, new ModelReference<int>(42)));
-            Assert.That((, Throws.TypeOf<ArgumentNullException>()) => new CompoundModelReference<string>("prefix", null));
+            Assert.Throws<ArgumentNullException>(() => new CompoundModelReference<string>(null, new ModelReference<int>(42)));
+            Assert.Throws<ArgumentNullException>(() => new CompoundModelReference<string>("prefix", null));
         }
 
         [Test]
         public void SavesProperties()
         {
-            Assert.That(prefix421.Prefix, Is.EqualTo("prefix"));
-            Assert.That(prefix421.Reference.Get<int>(, Is.EqualTo(42)));
-            Assert.That(prefix421.Get<int>(, Is.EqualTo(42)));
+            Assert.AreEqual("prefix", prefix421.Prefix);
+            Assert.AreEqual(42, prefix421.Reference.Get<int>());
+            Assert.AreEqual(42, prefix421.Get<int>());
         }
 
         [Test]
         public void EqualsIsFalseForDifferentPrefixes()
         {
-            Assert.That(prefix421.Equals(other42, Is.False));
+            Assert.IsFalse(prefix421.Equals(other42));
         }
 
         [Test]
         public void EqualsIsFalseForDifferentModelReferences()
         {
-            Assert.That(prefix421.Equals(prefix0, Is.False));
+            Assert.IsFalse(prefix421.Equals(prefix0));
         }
 
         [Test]
         public void EqualsIsReflexive()
         {
-            Assert.That(prefix421.Equals(prefix421, Is.True));
-            Assert.That(nullRef.Equals(nullRef, Is.True));
+            Assert.IsTrue(prefix421.Equals(prefix421));
+            Assert.IsTrue(nullRef.Equals(nullRef));
         }
 
         [Test]
         public void EqualsIsSymmetric()
         {
-            Assert.That(prefix421.Equals(prefix422, Is.True));
-            Assert.That(prefix422.Equals(prefix421, Is.True));
+            Assert.IsTrue(prefix421.Equals(prefix422));
+            Assert.IsTrue(prefix422.Equals(prefix421));
         }
 
         [Test]
         public void EqualsIsTransitive()
         {
-            Assert.That(prefix421.Equals(prefix422, Is.True));
-            Assert.That(prefix422.Equals(prefix423, Is.True));
-            Assert.That(prefix421.Equals(prefix423, Is.True));
+            Assert.IsTrue(prefix421.Equals(prefix422));
+            Assert.IsTrue(prefix422.Equals(prefix423));
+            Assert.IsTrue(prefix421.Equals(prefix423));
         }
 
         [Test]
         public void EqualsIsFalseForNull()
         {
-            Assert.That(prefix421.Equals(null, Is.False));
-            Assert.That(prefix421.Equals(nullRef, Is.False));
-            Assert.That(nullRef.Equals(prefix421, Is.False));
+            Assert.IsFalse(prefix421.Equals(null));
+            Assert.IsFalse(prefix421.Equals(nullRef));
+            Assert.IsFalse(nullRef.Equals(prefix421));
         }
 
         [Test]
         public void EqualsIsNullForOtherGenericTypes()
         {
-            Assert.That(prefix421.Equals(new CompoundModelReference<uint>(1, Is.False, new ModelReference<uint>(42))));
+            Assert.IsFalse(prefix421.Equals(new CompoundModelReference<uint>(1, new ModelReference<uint>(42))));
         }
 
         [Test]
         public void GetHashCodeIsConsistent()
         {
-            Assert.That(prefix421.GetHashCode(, Is.EqualTo(prefix421.GetHashCode())));
+            Assert.AreEqual(prefix421.GetHashCode(), prefix421.GetHashCode());
         }
 
         [Test]
         public void GetHashCodeProducesTheSameResultForEqualObjects()
         {
-            Assert.That(prefix422.GetHashCode(, Is.EqualTo(prefix421.GetHashCode())));
-            Assert.That(prefix423.GetHashCode(, Is.EqualTo(prefix422.GetHashCode())));
+            Assert.AreEqual(prefix421.GetHashCode(), prefix422.GetHashCode());
+            Assert.AreEqual(prefix422.GetHashCode(), prefix423.GetHashCode());
         }
 
         [Test]

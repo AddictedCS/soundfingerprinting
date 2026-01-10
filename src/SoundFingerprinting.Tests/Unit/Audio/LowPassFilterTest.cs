@@ -1,3 +1,5 @@
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 namespace SoundFingerprinting.Tests.Unit.Audio
 {
     using System;
@@ -62,7 +64,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             float[] samples = new float[1000];
 
             // Act & Assert
-            Assert.That((, Throws.TypeOf<ArgumentException>()) =>
+            Assert.Throws<ArgumentException>(() =>
                 lowPassFilter.FilterAndDownsample(samples, 32000, TargetSampleRate));
         }
 
@@ -73,7 +75,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             float[] samples = new float[1000];
 
             // Act & Assert
-            Assert.That((, Throws.TypeOf<ArgumentException>()) =>
+            Assert.Throws<ArgumentException>(() =>
                 lowPassFilter.FilterAndDownsample(samples, 44100, 22050));
         }
 

@@ -7,6 +7,9 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class FingerprintDescriptorTest
@@ -32,7 +35,7 @@
             bool[] actual = fingerprintDescriptor.ExtractTopWavelets(frames, TopWavelets, RangeUtils.GetRange(128 * 32)).ConvertToBooleans();
             bool[] expected = ExtractTopWaveletsTested(copy, TopWavelets);
 
-            Assert.That(actual, Is.EqualTo(expected));
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [Test]
@@ -49,7 +52,7 @@
 
             bool[] encodedFingerprint = fingerprintDescriptor.ExtractTopWavelets(frames, 5, RangeUtils.GetRange(frames.Length)).ConvertToBooleans();
 
-            Assert.That(encodedFingerprint, Is.EqualTo(expected));
+            CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
         [Test]
@@ -61,7 +64,7 @@
 
             bool[] encodedFingerprint = fingerprintEncoder.EncodeFingerprint(framesSpectrumPowers, indexes, 2).ConvertToBooleans();
 
-            Assert.That(encodedFingerprint, Is.EqualTo(expected));
+            CollectionAssert.AreEqual(expected, encodedFingerprint);
         }
 
         private bool[] ExtractTopWaveletsTested(float[] frames, int topWavelets)

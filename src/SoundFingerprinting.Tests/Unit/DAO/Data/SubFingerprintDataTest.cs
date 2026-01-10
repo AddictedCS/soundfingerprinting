@@ -4,6 +4,8 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class SubFingerprintDataTest
@@ -15,8 +17,8 @@
 
             var dto1 = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
-            Assert.That(dto1, Is.EqualTo(dto0));
-            Assert.That(dto1.GetHashCode(, Is.EqualTo(dto0.GetHashCode())));
+            Assert.AreEqual(dto0, dto1);
+            Assert.AreEqual(dto0.GetHashCode(), dto1.GetHashCode());
         }
 
         [Test]
@@ -24,7 +26,7 @@
         {
             var dto = new SubFingerprintData(new int[0], 0, 0, new ModelReference<int>(1), new ModelReference<int>(0));
 
-            Assert.That(dto.Equals(null, Is.False));
+            Assert.IsFalse(dto.Equals(null));
         }
     }
 }

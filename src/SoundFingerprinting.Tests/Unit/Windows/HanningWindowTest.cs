@@ -3,6 +3,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Windows;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class HanningWindowTest
@@ -21,7 +23,7 @@
 
             for (int i = 0; i < outerSpace.Length; i++)
             {
-                Assert.That((outerSpace[i] - outerSpaceCopy[i], Is.EqualTo(true)) < 0.00001);
+                Assert.AreEqual(true, (outerSpace[i] - outerSpaceCopy[i]) < 0.00001);
             }
         }
 

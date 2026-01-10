@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using NUnit.Framework;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
     using ProtoBuf;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -50,7 +51,7 @@
             using var streamFinal = new MemoryStream(serialized);
             var deserialized = Serializer.DeserializeWithLengthPrefix<UIntModelReferenceProvider>(streamFinal, PrefixStyle.Fixed32);
 
-            Assert.That(deserialized.Next(, Is.EqualTo(11)).Get<uint>());
+            Assert.AreEqual(11, deserialized.Next().Get<uint>());
         }
 
         [Test]
@@ -68,6 +69,7 @@
             }
 
             using (var stream = new MemoryStream(serialized))
+    using static NUnit.Framework.Legacy.ClassicAssert;
             {
                 var data = Serializer.DeserializeWithLengthPrefix<Hashes>(stream, PrefixStyle.Fixed32);
                 Assert.That(data, Is.Not.Null);

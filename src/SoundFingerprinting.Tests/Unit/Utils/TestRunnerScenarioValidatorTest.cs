@@ -7,6 +7,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class TestRunnerScenarioValidatorTest
@@ -20,7 +22,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.That(result.IsValid, Is.False);
+            Assert.IsFalse(result.IsValid);
         }
 
         [Test]
@@ -32,7 +34,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.That(result.IsValid, Is.True);
+            Assert.IsTrue(result.IsValid);
         }
 
         [Test]
@@ -49,7 +51,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario1, scenario2, scenario3, scenario4, scenario5, scenario6 }.ToArray());
 
-            Assert.That(result.IsValid, Is.True);
+            Assert.IsTrue(result.IsValid);
         }
 
         [Test]
@@ -61,7 +63,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.That(result.IsValid, Is.True);
+            Assert.IsTrue(result.IsValid);
         }
 
         [Test]
@@ -75,7 +77,7 @@
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
             Directory.Delete(directory.FullName);
-            Assert.That(result.IsValid, Is.False);
+            Assert.IsFalse(result.IsValid);
         }
 
         [Test]
@@ -89,7 +91,7 @@
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
             Directory.Delete(directory.FullName);
-            Assert.That(result.IsValid, Is.False);
+            Assert.IsFalse(result.IsValid);
         }
     }
 }

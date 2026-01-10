@@ -6,6 +6,8 @@
     using NUnit.Framework;
 
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class AbsComparatorTest
@@ -22,8 +24,8 @@
 
             for (int i = 0; i < arrayToSort.Length; i++)
             {
-                Assert.That(arrayToSort[i], Is.EqualTo(expected[i]));
-                Assert.That(indexes[i], Is.EqualTo(expectedIndexes[i]));
+                Assert.AreEqual(expected[i], arrayToSort[i]);
+                Assert.AreEqual(expectedIndexes[i], indexes[i]);
             }
         }
     }

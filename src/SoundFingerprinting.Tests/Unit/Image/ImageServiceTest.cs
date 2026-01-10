@@ -4,6 +4,8 @@
     using System.IO;
     using System.Linq;
     using NUnit.Framework;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
     using ProtoBuf;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Configuration.Frames;
@@ -117,6 +119,7 @@
         private static byte[] EncodeFrame(Frame frame)
         {
             using var memory = new MemoryStream();
+    using static NUnit.Framework.Legacy.ClassicAssert;
             Serializer.SerializeWithLengthPrefix(memory, frame, PrefixStyle.Fixed32);
             return memory.ToArray();
         }

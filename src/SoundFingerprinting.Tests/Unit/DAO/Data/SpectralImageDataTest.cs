@@ -4,6 +4,8 @@
 
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class SpectralImageDataTest
@@ -14,7 +16,7 @@
             var dto0 = new SpectralImageData(new float[0], 0, new ModelReference<int>(0), new ModelReference<int>(0));
             var dto1 = new SpectralImageData(new float[0], 0, new ModelReference<int>(0), new ModelReference<int>(0));
 
-            Assert.That(dto1, Is.EqualTo(dto0));
+            Assert.AreEqual(dto0, dto1);
         }
 
         [Test]
@@ -22,7 +24,7 @@
         {
             var dto0 = new SpectralImageData(new float[0], 0, new ModelReference<int>(0), new ModelReference<int>(0));
 
-            Assert.That(dto0.Equals(null, Is.False));
+            Assert.IsFalse(dto0.Equals(null));
         }
     }
 }

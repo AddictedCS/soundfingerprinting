@@ -16,6 +16,9 @@
     using SoundFingerprinting.Strides;
     using SoundFingerprinting.Utils;
     using SoundFingerprinting.Wavelets;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using CollectionAssert = NUnit.Framework.Legacy.CollectionAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class FingerprintServiceTest : AbstractTest
@@ -64,8 +67,8 @@
             var (fingerprints, hashes) = fingerprintService.CreateFingerprintsFromAudioSamples(samples, fingerprintConfig);
             var hashedFingerprints = hashes.OrderBy(f => f.SequenceNumber).ToList();
 
-            Assert.That(hashedFingerprints.Count, Is.EqualTo(fingerprints.Count()));
-            Assert.That(hashedFingerprints.Count, Is.EqualTo(dividedLogSpectrum.Count));
+            Assert.AreEqual(fingerprints.Count(), hashedFingerprints.Count);
+            Assert.AreEqual(dividedLogSpectrum.Count, hashedFingerprints.Count);
         }
 
         [Test]
@@ -83,8 +86,8 @@
 
             var (fingerprints, hashes) = fingerprintService.CreateFingerprintsFromAudioSamples(samples, configuration);
 
-            Assert.That(hashes, Is.Empty);
-            Assert.That(fingerprints, Is.Empty);
+            CollectionAssert.IsEmpty(hashes);
+            CollectionAssert.IsEmpty(fingerprints);
         }
 
         [Test]
@@ -94,8 +97,8 @@
 
             var (fingerprints, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(new AudioSamples(silence, string.Empty, 5512), new DefaultFingerprintConfiguration());
             
-            Assert.That(hashes, Is.Empty);
-            Assert.That(fingerprints, Is.Empty);
+            CollectionAssert.IsEmpty(hashes);
+            CollectionAssert.IsEmpty(fingerprints);
         }
 
         [Test]
@@ -108,12 +111,12 @@
             int minSize = configuration.SamplesPerFingerprint + configuration.SpectrogramConfig.WdftSize - configuration.SpectrogramConfig.Overlap;
             var audioSamples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize), string.Empty, 5512);
             var (fingerprints, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(audioSamples, configuration);
-            Assert.That(hashes.Count, Is.EqualTo(1));
-            Assert.That(fingerprints.Count(), Is.EqualTo(1)));
+            Assert.AreEqual(1, hashes.Count);
+            Assert.AreEqual(1, fingerprints.Count());
 
             audioSamples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize + configuration.SamplesPerFingerprint), string.Empty, 5512);
             hashes = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(audioSamples, configuration).Hashes;
-            Assert.That(hashes.Count, Is.EqualTo(2));
+            Assert.AreEqual(2, hashes.Count);
         }
 
         [Test]
@@ -146,7 +149,7 @@
 
             var (_, hashes) = FingerprintService.Instance.CreateFingerprintsFromImageFrames(fs, config);
             
-            Assert.That(frames.Count, Is.EqualTo(hashes.Count));
+            Assert.AreEqual(hashes.Count, frames.Count);
             var originalPoints = hashes
                 .OrderBy(_ => _.SequenceNumber)
                 .Select(_ => _.OriginalPoint)
@@ -157,7 +160,7 @@
                     return pt;
                 })
                 .ToList();
-            Assert.That(originalPoints, Is.EqualTo(frames.Select(_ => _.ImageRowCols).ToList()));
+            CollectionAssert.AreEqual(frames.Select(_ => _.ImageRowCols).ToList(), originalPoints);
         }
 
         private static List<Frame> GetDividedLogSpectrum()

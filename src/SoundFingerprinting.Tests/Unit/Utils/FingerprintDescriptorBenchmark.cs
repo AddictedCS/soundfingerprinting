@@ -7,6 +7,8 @@
     using NLog.Extensions.Logging;
     using NUnit.Framework;
     using SoundFingerprinting.Utils;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
+    using static NUnit.Framework.Legacy.ClassicAssert;
 
     [TestFixture]
     public class FingerprintDescriptorBenchmark
@@ -34,7 +36,7 @@
             logger.LogInformation("Fast Fingerprint Descriptor Runs: {0} ms", b);
             logger.LogInformation("Ratio: {0}x", (double)a / b);
 
-            Assert.That(a > b, Is.True);
+            Assert.IsTrue(a > b);
         }
 
         private long BenchMark(int runs, FingerprintDescriptor descriptor)

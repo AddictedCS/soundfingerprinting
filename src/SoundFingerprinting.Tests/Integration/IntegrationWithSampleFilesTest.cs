@@ -8,6 +8,7 @@
     using ProtoBuf;
 
     using NUnit.Framework;
+    using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
     public abstract class IntegrationWithSampleFilesTest : AbstractTest
     {
