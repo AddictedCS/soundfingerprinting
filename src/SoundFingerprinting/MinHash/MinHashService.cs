@@ -123,8 +123,7 @@ namespace SoundFingerprinting.MinHash
             
             // iterate through all bit positions and check if set
             // for each set bit, update the minimum rank for all permutations that reference it
-            int limit = Math.Min(maxBitIndex, 8192); // fingerprint is 8192 bits (128 * 32 * 2)
-            for (int bitPos = 0; bitPos < limit; bitPos++)
+            for (int bitPos = 0; bitPos < maxBitIndex; bitPos++)
             {
                 if (fingerprint[bitPos])
                 {

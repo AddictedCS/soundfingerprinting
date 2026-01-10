@@ -108,7 +108,6 @@ namespace SoundFingerprinting.Query
         ///  Gets similarity count between query match and track
         /// </summary>
         [ProtoMember(10)]
-        [Obsolete("Will be removed in v9. To use a similarity metric use Coverage property.")]
         public double Score { get; }
 
         /// <summary>
