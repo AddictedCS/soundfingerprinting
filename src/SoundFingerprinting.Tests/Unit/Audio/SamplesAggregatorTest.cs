@@ -52,7 +52,7 @@
 
             var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queueBytesRead), secondsToRead, SampleRate);
 
-            Assert.AreEqual(secondsToRead * SampleRate, samples.Length);
+            Assert.That(samples.Length, Is.EqualTo(secondsToRead * SampleRate));
         }
 
         [Test]
@@ -74,13 +74,13 @@
 
             var samples = samplesAggregator.ReadSamplesFromSource(new QueueSamplesProvider(queue), secondsToRead, SampleRate);
 
-            Assert.AreEqual((int)(secondsToRead * SampleRate) / 4 * 4, samples.Length);
+            Assert.That(samples.Length, Is.EqualTo((int)(secondsToRead * SampleRate) / 4 * 4));
             int prevArrayLength = 0;
             for (int i = 0; i < floats.Length - 1; ++i)
             {
                 float[] toCompare = new float[floats[i].Length];
                 Array.Copy(samples, prevArrayLength, toCompare, 0, toCompare.Length);
-                CollectionAssert.AreEqual(floats[i], toCompare);
+                Assert.That(toCompare, Is.EqualTo(floats[i]));
                 prevArrayLength += toCompare.Length;
             }
         }

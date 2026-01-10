@@ -26,38 +26,38 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ConstructorThrowsOnInvalidArgs()
         {
-            Assert.That((, Throws.TypeOf<ArgumentNullException>()) => new AvResultEntryCompletionStrategy(null, videoStrategy.Object));
-            Assert.That((, Throws.TypeOf<ArgumentNullException>()) => new AvResultEntryCompletionStrategy(audioStrategy.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new AvResultEntryCompletionStrategy(null, videoStrategy.Object));
+            Assert.Throws<ArgumentNullException>(() => new AvResultEntryCompletionStrategy(audioStrategy.Object, null));
         }
 
         [Test]
         public void NullAVResultEntryCannotContinue()
         {
-            Assert.That(avEntryStrategy.CanContinueInNextQuery(null));
+            Assert.IsFalse(avEntryStrategy.CanContinueInNextQuery(null));
         }
 
         [Test]
         public void BothAudioAndVideoCanContinue()
         {
-            Assert.That(CanContinue(audio: true, Is.False, Is.True, video: true));
+            Assert.IsTrue(CanContinue(audio: true, video: true));
         }
 
         [Test]
         public void OnlyAudioCanContinue()
         {
-            Assert.That(CanContinue(audio: true, Is.True, video: false));
+            Assert.IsTrue(CanContinue(audio: true, video: false));
         }
 
         [Test]
         public void OnlyVideoCanContinue()
         {
-            Assert.That(CanContinue(audio: false, Is.True, video: true));
+            Assert.IsTrue(CanContinue(audio: false, video: true));
         }
 
         [Test]
         public void NeitherAudioNorVideoCanContinue()
         {
-            Assert.That(CanContinue(audio: false, Is.False, video: false));
+            Assert.IsFalse(CanContinue(audio: false, video: false));
         }
         
         

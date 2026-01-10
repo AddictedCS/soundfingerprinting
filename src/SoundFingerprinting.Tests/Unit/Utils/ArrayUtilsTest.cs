@@ -19,11 +19,11 @@
 
         private void AssertArraysAreEqual(float[] expected, float[] actual)
         {
-            Assert.That(actual.Length);
+            Assert.That(actual.Length, Is.EqualTo(expected.Length));
 
             for (int i = 0; i < expected.Length; i++)
             {
-                Assert.That(actual[i]);
+                Assert.That(actual[i], Is.EqualTo(expected[i]));
             }
         }
 
@@ -34,7 +34,7 @@
             float[] concatenated = new float[rows * cols];
             for (int row = 0; row < rows; row++)
             {
-                Buffer.BlockCopy(array[row], Is.EqualTo(expected.Length).Within(Is.EqualTo(expected[i])).Within(0), concatenated, row * array[row].Length * 4, array[row].Length * 4);
+                Buffer.BlockCopy(array[row], 0, concatenated, row * array[row].Length * 4, array[row].Length * 4);
             }
 
             return concatenated;

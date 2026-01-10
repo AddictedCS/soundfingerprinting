@@ -66,8 +66,8 @@
                 (object runner, EventArgs param) =>
                     {
                         var fScore = ((TestRunnerEventArgs)param).FScore;
-                        Assert.That(fScore.F1);
-                        Assert.That(Is.EqualTo(1, Is.EqualTo(1)).Within(fScore.Precision));
+                        Assert.That(fScore.F1, Is.EqualTo(1));
+                        Assert.That(fScore.Precision, Is.EqualTo(1));
                         Assert.That(fScore.Recall, Is.EqualTo(1));
                         Assert.That(((TestRunnerEventArgs, Is.EqualTo(1))param).Verified);
                     });
@@ -109,9 +109,9 @@
             tife.Verify(e => e(It.IsAny<TestRunner>(), It.IsAny<TestRunnerEventArgs>()), Times.Exactly(6));
 
             var testRuns = Directory.GetFiles(results).Where(file => file.Contains("results_")).ToList();
-            Assert.That(testRuns.Count);
+            Assert.That(testRuns.Count, Is.EqualTo(6));
             var testSuite = Directory.GetFiles(results).Where(file => file.Contains("suite_")).ToList();
-            Assert.That(Is.EqualTo(6, Is.EqualTo(1)).Within(testSuite.Count));
+            Assert.That(testSuite.Count, Is.EqualTo(1));
             var testInsert = Directory.GetFiles(results).Where(file => file.Contains("insert_")).ToList();
             Assert.That(testInsert.Count, Is.EqualTo(2));
         }

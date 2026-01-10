@@ -41,7 +41,7 @@
             var audio = TestUtilities.GetRandomHashes(120, MediaType.Audio);
             var video = TestUtilities.GetRandomHashes(120, MediaType.Video);
 
-            Assert.That(() => storage.InsertTrack(track, new AVHashes(audio, video)), Throws.TypeOf<ArgumentException>());
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => storage.InsertTrack(track, new AVHashes(audio, video)));
         }
         
         [Test]
@@ -114,7 +114,7 @@
                 storage.DeleteTrack(track.Id);
             }
 
-            Assert.That(storage.GetTrackIds(), Is.Empty);
+            Assert.That(storage.GetTrackIds(, Is.Empty));
         }
 
         [Test]
@@ -127,8 +127,8 @@
 
             Assert.That(tracks, Is.Not.Null);
             storage.DeleteTrack(tracks.Id);
-            Assert.That(storage.ReadByTrackId(track.Id), Is.Null);
-            Assert.That(storage.ReadAvHashesByTrackId(track.Id).IsEmpty, Is.True);
+            Assert.That(storage.ReadByTrackId(track.Id, Is.Null));
+            Assert.That(storage.ReadAvHashesByTrackId(track.Id, Is.True).IsEmpty);
         }
 
         [Test]
@@ -155,8 +155,8 @@
             // Act
             int modifiedRows = storage.DeleteTrack(actualTrack.Id);
 
-            Assert.That(storage.ReadByTrackId(tagInfo.ISRC), Is.Null);
-            Assert.That(storage.ReadAvHashesByTrackId(actualTrack.Id).IsEmpty, Is.True);
+            Assert.That(storage.ReadByTrackId(tagInfo.ISRC, Is.Null));
+            Assert.That(storage.ReadAvHashesByTrackId(actualTrack.Id, Is.True).IsEmpty);
             Assert.That(modifiedRows, Is.EqualTo(1 + avHashes.Count + 25 * avHashes.Count));
         }
 
@@ -169,7 +169,7 @@
             var trackData = storage.ReadByTrackId(string.Empty);
             Assert.That(trackData, Is.Not.Null);
             AssertTracksAreEqual(track, trackData);
-            Assert.That(storage.ReadAvHashesByTrackId(track.Id).IsEmpty, Is.False);
+            Assert.That(storage.ReadAvHashesByTrackId(track.Id, Is.False).IsEmpty);
         }
 
         [Test]
@@ -187,7 +187,7 @@
 
             var reload = new RAMStorage("audio-reloaded", new UIntModelReferenceTracker(), new NullLoggerFactory(), "audio-storage.bin");
             
-            Assert.That(reload.GetTrackIds(), Is.EqualTo(storage.GetTrackIds()));
+            Assert.That(reload.GetTrackIds(, Is.EqualTo(storage.GetTrackIds())));
             Assert.That(reload.TracksCount, Is.EqualTo(storage.TracksCount));
             Assert.That(reload.SubFingerprintsCount, Is.EqualTo(storage.SubFingerprintsCount));
             foreach (string id in reload.GetTrackIds())

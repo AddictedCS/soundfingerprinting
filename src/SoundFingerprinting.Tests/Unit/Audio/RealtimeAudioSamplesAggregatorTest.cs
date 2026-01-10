@@ -42,7 +42,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
                     Assert.That(samples.Duration, Is.EqualTo(lengthInSeconds + (float)(minSamplesPerFingerprint - stride) / sampleRate + (float)((previousLength - minSamplesPerFingerprint) % stride) / sampleRate).Within(0.00001), $"Iteration {i}");
                     Assert.That(samples.Duration, Is.EqualTo(lengthInSeconds - samples.TimeOffset).Within(0.00001));
                     double totalSeconds = expected.Subtract(samples.RelativeTo).TotalSeconds;
-                    Assert.That(totalSeconds < (double)minSamplesPerFingerprint / sampleRate, Is.True);
+                    Assert.That(totalSeconds < (double, Is.True)minSamplesPerFingerprint / sampleRate);
                 }
 
                 previousLength = samples.Samples.Length;
@@ -78,7 +78,7 @@ namespace SoundFingerprinting.Tests.Unit.Audio
                     if (nonNull == 1)
                     {
                         int overshot = 19 * 551; // buffer is 551 samples long
-                        Assert.That(Math.Abs(DateTime.UnixEpoch.Subtract(aggregated.RelativeTo).TotalMilliseconds), Is.EqualTo(0).Within(1));
+                        Assert.That(Math.Abs(DateTime.UnixEpoch.Subtract(aggregated.RelativeTo, Is.EqualTo(0)).TotalMilliseconds), delta: 1);
                         Assert.That(aggregated.Samples.Length, Is.EqualTo(overshot));
                     }
                 }

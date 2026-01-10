@@ -14,13 +14,13 @@
             var dto0 = new FingerprintData(new bool[0], new ModelReference<int>(0), new ModelReference<int>(0));
             var dto1 = new FingerprintData(new bool[0], new ModelReference<int>(0), new ModelReference<int>(0));
 
-            Assert.That(dto1);
+            Assert.That(dto1, Is.EqualTo(dto0));
         }
 
         [Test]
         public void ShouldNotBeEqualToNull()
         {
-            var dto0 = new FingerprintData(new bool[0], Is.EqualTo(dto0).Within(new ModelReference<int>(0)), new ModelReference<int>(0));
+            var dto0 = new FingerprintData(new bool[0], new ModelReference<int>(0), new ModelReference<int>(0));
 
             Assert.That(dto0.Equals(null, Is.False));
         }

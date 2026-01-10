@@ -61,18 +61,18 @@
         [Test]
         public void ShouldThrowOnMissingServices()
         {
-            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(new InMemoryModelService())
                 .Query());
             
-            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(100))
                 .Query());
 
-            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(new InMemoryModelService(), new SoundFingerprintingAudioService())
@@ -99,9 +99,9 @@
                 .UsingServices(modelService.Object, mediaService.Object)
                 .Query();
             
-            Assert.That(avQueryResult.ContainsMatches);
+            Assert.That(avQueryResult.ContainsMatches, Is.False);
             
-            modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), Is.False, It.IsAny<QueryConfiguration>()), Times.Exactly(2));
+            modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
         }
         
         [Test]

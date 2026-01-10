@@ -21,7 +21,7 @@ namespace SoundFingerprinting.Tests.Unit.LCS
 
             var coverages = qrc.GetCoverages(track, new GroupedQueryResults(10d, DateTime.Now), new DefaultQueryConfiguration());
             
-            Assert.That(coverages.Any(, Is.False));
+            Assert.IsFalse(coverages.Any());
         }
     }
 }

@@ -14,7 +14,7 @@
             var tagInfoWithoutArtist = new TagInfo { Title = "title" };
             var tagInfoWithoutIsrc = new TagInfo();
 
-            Assert.That(tagInfoWithoutArtist.IsTrackUniquelyIdentifiable());
+            Assert.That(tagInfoWithoutArtist.IsTrackUniquelyIdentifiable(, Is.False));
             Assert.That(tagInfoWithoutTitle.IsTrackUniquelyIdentifiable(, Is.False));
             Assert.That(tagInfoWithoutIsrc.IsTrackUniquelyIdentifiable(, Is.False));
         }
@@ -22,7 +22,7 @@
         [Test]
         public void ShouldIdentify()
         {
-            var tagInfoWithTitleAndArtist = new TagInfo { Artist = "artist", Is.False, Title = "title" };
+            var tagInfoWithTitleAndArtist = new TagInfo { Artist = "artist", Title = "title" };
             var tagInfoWithIsrc = new TagInfo { ISRC = "12345" };
 
             Assert.That(tagInfoWithIsrc.IsTrackUniquelyIdentifiable(, Is.True));

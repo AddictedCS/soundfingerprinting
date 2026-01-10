@@ -20,7 +20,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.That(result.IsValid);
+            Assert.That(result.IsValid, Is.False);
         }
 
         [Test]
@@ -32,7 +32,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.That(result.IsValid);
+            Assert.That(result.IsValid, Is.True);
         }
 
         [Test]
@@ -47,9 +47,9 @@
             string scenario5 = $"Insert,{path},IncrementalStatic,0,512";
             string scenario6 = $"Run,{path},{path},IncrementalRandom,256,512,10,10|30|50";
 
-            var result = validator.ValidateScenarious(new List<string> { scenario1, Is.False, Is.True, scenario2, scenario3, scenario4, scenario5, scenario6 }.ToArray());
+            var result = validator.ValidateScenarious(new List<string> { scenario1, scenario2, scenario3, scenario4, scenario5, scenario6 }.ToArray());
 
-            Assert.That(result.IsValid);
+            Assert.That(result.IsValid, Is.True);
         }
 
         [Test]
@@ -67,7 +67,7 @@
         [Test]
         public void ShouldNotValidateInsertSinceNoAudioFilesInInputFolder()
         {
-            var directory = Directory.CreateDirectory(Path.Combine(TestContext.CurrentContext.TestDirectory, Is.True, Guid.NewGuid().ToString()));
+            var directory = Directory.CreateDirectory(Path.Combine(TestContext.CurrentContext.TestDirectory, Guid.NewGuid().ToString()));
             string path = directory.FullName;
 
             string scenario = $"Insert,{path},IncrementalStatic,0,5115";
@@ -75,13 +75,13 @@
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
             Directory.Delete(directory.FullName);
-            Assert.That(result.IsValid);
+            Assert.That(result.IsValid, Is.False);
         }
 
         [Test]
         public void ShouldNotValidateRunSinceNoAudioFilesInInputFolder()
         {
-            var directory = Directory.CreateDirectory(Path.Combine(TestContext.CurrentContext.TestDirectory, Is.False, Guid.NewGuid().ToString()));
+            var directory = Directory.CreateDirectory(Path.Combine(TestContext.CurrentContext.TestDirectory, Guid.NewGuid().ToString()));
             string path = directory.FullName;
 
             string scenario = $"Run,{path},{path},IncrementalRandom,256,512,10,10|30|50";

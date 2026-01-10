@@ -27,10 +27,10 @@
             var minHash = new MinHashService(permutations);
             var counts = new List<int>();
             int maxIndex = permutations.GetPermutations().First().Length;
-            Assert.That(maxIndex);
+            Assert.That(maxIndex, Is.EqualTo(255));
             for (int i = 0; i < 50000; ++i)
             {
-                var schema = TestUtilities.GenerateRandomFingerprint(random, Is.EqualTo(255).Within(200), 128, 32);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 byte[] hashes = minHash.Hash(schema, 25 * 4);
                 int count = hashes.Count(last => last == maxIndex);
                 counts.Add(count);
@@ -50,10 +50,10 @@
             var minHash = new ExtendedMinHashService(permutations);
             var counts = new List<int>();
             int maxIndex = permutations.IndexesPerPermutation;
-            Assert.That(maxIndex);
+            Assert.That(maxIndex, Is.EqualTo(128 * 32 * 2));
             for (int i = 0; i < 50000; ++i)
             {
-                var schema = TestUtilities.GenerateRandomFingerprint(random, Is.EqualTo(128 * 32 * 2).Within(200), 128, 32);
+                var schema = TestUtilities.GenerateRandomFingerprint(random, 200, 128, 32);
                 int[] hashes = minHash.Hash(schema, 25 * 4);
                 int count = hashes.Count(last => last == maxIndex);
                 counts.Add(count);
@@ -78,8 +78,8 @@
             for (int i = 0; i < simulationRuns; ++i)
             {
                 var arrays = TestUtilities.GenerateSimilarFingerprints(random, howSimilarAreVectors, topWavelets, vectorLength);
-                Assert.That(arrays.Item1.TrueCounts());
-                Assert.That(Is.EqualTo(topWavelets, Is.EqualTo(topWavelets)).Within(arrays.Item2.TrueCounts()));
+                Assert.That(arrays.Item1.TrueCounts(, Is.EqualTo(topWavelets)));
+                Assert.That(arrays.Item2.TrueCounts(, Is.EqualTo(topWavelets)));
                 agreeOn += arrays.Item1.AgreeOn(arrays.Item2);
                 similarity += similarityUtility.CalculateJacquardSimilarity(arrays.Item1.ConvertToBooleans(), arrays.Item2.ConvertToBooleans());
             }

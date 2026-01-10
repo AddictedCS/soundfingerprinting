@@ -43,9 +43,9 @@
             var logNormalize = new LogSpectrumNormalization();
             var spectralImages = logNormalize.Normalize(spectrumService.CreateLogSpectrogram(audio, config)).ToList();
 
-            Assert.That(spectralImages.Count);
+            Assert.AreEqual((seconds * Fs - config.WdftSize) / Fs, spectralImages.Count);
 
-            // check with logspace(log10(318), Is.EqualTo((seconds * Fs - config.WdftSize) / Fs).Within(log10(2000)), 33), 410Hz are located in 4th bin,  1400Hz at 25th (0 indexed)
+            // check with logspace(log10(318), log10(2000), 33), 410Hz are located in 4th bin,  1400Hz at 25th (0 indexed)
             int tf1 = 4;
             int tf2 = 25;
 
@@ -58,9 +58,9 @@
                     {
                         int index = row * image.Cols + col;
                         if (col == tf1 || col == tf2)
-                            Assert.That(spectrum[index], Is.EqualTo(col == tf1 ? 1 : 0.78).Within(0.01));
+                            Assert.AreEqual(col == tf1 ? 1 : 0.78, spectrum[index], 0.01);
                         else
-                            Assert.That(spectrum[index], Is.EqualTo(0).Within(0.001));
+                            Assert.AreEqual(0, spectrum[index], 0.001);
                     }
                 }
             }
@@ -90,7 +90,7 @@
 
             var spectralImages = spectrumService.CreateLogSpectrogram(audio, config);
 
-            Assert.That(spectralImages.Count, Is.EqualTo((10 * Fs - config.WdftSize) / Fs));
+            Assert.AreEqual((10 * Fs - config.WdftSize) / Fs, spectralImages.Count);
         }
     }
 }

@@ -22,7 +22,7 @@
             using var deserializedStream = new MemoryStream(serialized);
             var reference = Serializer.DeserializeWithLengthPrefix<IModelReference>(deserializedStream, PrefixStyle.Fixed32);
 
-            Assert.That(reference, Is.Not.Null);
+            Assert.NotNull(reference);
         }
 
         [Test]
@@ -50,7 +50,7 @@
             using var streamFinal = new MemoryStream(serialized);
             var deserialized = Serializer.DeserializeWithLengthPrefix<UIntModelReferenceProvider>(streamFinal, PrefixStyle.Fixed32);
 
-            Assert.That(deserialized.Next().Get<uint>(), Is.EqualTo(11));
+            Assert.That(deserialized.Next(, Is.EqualTo(11)).Get<uint>());
         }
 
         [Test]

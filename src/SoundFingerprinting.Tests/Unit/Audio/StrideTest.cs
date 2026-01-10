@@ -25,7 +25,7 @@
             for (int i = 0; i < count; i++)
             {
                 int skip = randomStride.NextStride;
-                Assert.That(skip <= max);
+                Assert.That(skip <= max, Is.True);
                 Assert.That(skip >= min, Is.True);
             }
         }
@@ -33,7 +33,7 @@
         [Test]
         public void ShouldThrowOnInvalidArguments()
         {
-            Assert.That((, Throws.TypeOf<ArgumentException>()) => new IncrementalRandomStride(100, Is.True, 0));
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => new IncrementalRandomStride(100, 0));
         }
     }
 }

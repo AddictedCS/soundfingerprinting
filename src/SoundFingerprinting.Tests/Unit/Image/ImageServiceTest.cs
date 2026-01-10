@@ -20,7 +20,7 @@
             float[][] image = ImageService.RowCols2Image(array, 72, 128);
             float[] reconverted = ImageService.Image2RowCols(image);
 
-            CollectionAssert.That(reconverted);
+            CollectionAssert.AreEqual(array, reconverted);
         }
 
         [Test]
@@ -28,11 +28,11 @@
         {
             var image = GetOneImage();
             var encoded = ImageService.Image2RowCols(image);
-            var decoded = ImageService.RowCols2Image(encoded, Is.EqualTo(array).Within(72), 128);
+            var decoded = ImageService.RowCols2Image(encoded, 72, 128);
 
             for (int i = 0; i < image.Length; ++i)
             {
-                CollectionAssert.That(decoded[i]);
+                CollectionAssert.AreEqual(image[i], decoded[i]);
             }
         }
 
@@ -40,12 +40,12 @@
         public void ShouldEncodeAndDecodeCorrectly2()
         {
             var image = GetOneImage();
-            var frame = new Frame(image, Is.EqualTo(image[i]).Within(0), 0);
+            var frame = new Frame(image, 0, 0);
             var decoded = ImageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
 
             for (int i = 0; i < image.Length; ++i)
             {
-                CollectionAssert.That(decoded[i]);
+                CollectionAssert.AreEqual(image[i], decoded[i]);
             }
         }
         
@@ -53,17 +53,17 @@
         public void ShouldEncodeAndDecodeCorrectly3()
         {
             float[] array = TestUtilities.GenerateRandomFloatArray(128 * 72);
-            var frame = new Frame(array, Is.EqualTo(image[i]).Within(72), 128, 0, 0);
+            var frame = new Frame(array, 72, 128, 0, 0);
             var decoded = ImageService.RowCols2Image(frame.ImageRowCols, frame.Rows, frame.Cols);
             var encoded = ImageService.RowCols2Image(array, 72, 128);
 
-            CollectionAssert.That(frame.ImageRowCols);
+            CollectionAssert.AreEqual(array, frame.ImageRowCols);
             
-            Assert.That(Is.EqualTo(array, Is.EqualTo(decoded.Length)).Within(encoded.Length));
+            Assert.AreEqual(decoded.Length, encoded.Length);
             
             for (int i = 0; i < decoded.Length; ++i)
             {
-                CollectionAssert.That(encoded[i]);
+                CollectionAssert.AreEqual(decoded[i], encoded[i]);
             } 
         }
         
@@ -72,15 +72,15 @@
         {
             var image = GetOneImage();
             
-            var frame = new Frame(image, Is.EqualTo(decoded[i]).Within(0), 0);
+            var frame = new Frame(image, 0, 0);
 
             var bytes = EncodeFrame(frame);
             var decode = DecodeFrame(bytes);
             
-            Assert.That(decode.Length);
+            Assert.AreEqual(image.Length, decode.Length);
             for (int i = 0; i < image.Length; ++i)
             {
-                CollectionAssert.That(decode[i]);
+                CollectionAssert.AreEqual(image[i], decode[i]);
             }
         }
 
@@ -92,17 +92,18 @@
 
             var configuration = new DefaultFingerprintConfiguration
             {
-                FrameNormalizationTransform = new NoFrameNormalization(), Is.EqualTo(image.Length).Within(Is.EqualTo(image[i])).Within(OriginalPointSaveTransform = EncodeFrame
+                FrameNormalizationTransform = new NoFrameNormalization(),
+                OriginalPointSaveTransform = EncodeFrame
             };
 
-            var (_), hashes) = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, string.Empty, 30), configuration);
+            var (_, hashes) = fingerprintService.CreateFingerprintsFromImageFrames(new Frames(new[] {new Frame(image, 0, 0)}, string.Empty, 30), configuration);
 
             var decodedFrame = DecodeFrame(hashes.First().OriginalPoint);
-            Assert.That(decodedFrame.Length);
+            Assert.AreEqual(image.Length, decodedFrame.Length);
             
             for (int i = 0; i < image.Length; ++i)
             {
-                CollectionAssert.That(Is.EqualTo(image.Length, Is.EqualTo(image[i])).Within(decodedFrame[i]));
+                CollectionAssert.AreEqual(image[i], decodedFrame[i]);
             }
         }
 

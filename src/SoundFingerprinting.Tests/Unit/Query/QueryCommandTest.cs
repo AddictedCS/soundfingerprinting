@@ -17,7 +17,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldThrowOnInvalidMediaTypeMediaServiceConfiguration()
         {
-            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(Path.GetTempPath(), MediaType.Audio | MediaType.Video)
                 .Query());
@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldThrowArgumentNullExceptionSinceModelServiceIsNotSet()
         {
-            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => QueryCommandBuilder.Instance
+            Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(10 * 5512))
                 .Query()); 
@@ -51,11 +51,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var result = await GetQueryResult(match, modelService);
 
-            Assert.That(result.ResultEntries.Count());
+            Assert.AreEqual(2, result.ResultEntries.Count());
             foreach (var entry in result.ResultEntries)
             {
-                Assert.That(Is.EqualTo(2).Within(entry.Confidence), Is.EqualTo(1).Within(0.1));
-                Assert.That(entry.TrackCoverageWithPermittedGapsLength, Is.EqualTo(10).Within(1));
+                Assert.AreEqual(1, entry.Confidence, 0.1);
+                Assert.AreEqual(10, entry.TrackCoverageWithPermittedGapsLength, 1);
             }
         }
 
@@ -76,12 +76,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
             await InsertFingerprints(withJitter, modelService);
             var result = await GetQueryResult(withJitter, modelService);
             
-            Assert.That(result.ContainsMatches);
+            Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.QueryMatchStartsAt).ToList();
             
-            Assert.That(entries.Count);
-            Assert.That(Is.EqualTo(1).Within(entries[0].QueryMatchStartsAt), Is.True, Is.EqualTo(0d).Within(1f));
-            Assert.That(entries[0].TrackMatchStartsAt, Is.EqualTo(0d).Within(1f));   
+            Assert.AreEqual(1, entries.Count);
+            Assert.AreEqual(0d, entries[0].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(0d, entries[0].TrackMatchStartsAt, 1f);   
         }
 
         /**
@@ -102,14 +102,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
             await InsertFingerprints(track, modelService);
             var result = await GetQueryResult(query, modelService);
             
-            Assert.That(result.ContainsMatches);
+            Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
             
-            Assert.That(entries.Count);
-            Assert.That(Is.EqualTo(2).Within(entries[0].QueryMatchStartsAt), Is.True, Is.EqualTo(15d).Within(1f));
-            Assert.That(entries[1].QueryMatchStartsAt, Is.EqualTo(15d).Within(1f));
-            Assert.That(entries[0].TrackMatchStartsAt, Is.EqualTo(10d).Within(1f));   
-            Assert.That(entries[1].TrackMatchStartsAt, Is.EqualTo(30d).Within(1f));   
+            Assert.AreEqual(2, entries.Count);
+            Assert.AreEqual(15d, entries[0].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(15d, entries[1].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(10d, entries[0].TrackMatchStartsAt, 1f);   
+            Assert.AreEqual(30d, entries[1].TrackMatchStartsAt, 1f);   
         }
         
         /**
@@ -130,11 +130,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var result = await GetQueryResult(withJitter, modelService);
 
-            Assert.That(result.ContainsMatches);
+            Assert.IsTrue(result.ContainsMatches);
             var entries = result.ResultEntries.OrderBy(entry => entry.QueryMatchStartsAt).ToList();
-            Assert.That(entries.Count);
-            Assert.That(Is.EqualTo(2).Within(entries[0].QueryMatchStartsAt), Is.True, Is.EqualTo(15d).Within(1f));
-            Assert.That(entries[1].QueryMatchStartsAt, Is.EqualTo(45d).Within(1f));
+            Assert.AreEqual(2, entries.Count);
+            Assert.AreEqual(15d, entries[0].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(45d, entries[1].QueryMatchStartsAt, 1f);
         }
         
         /**
@@ -154,8 +154,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var result = await GetQueryResult(match, modelService);
             
-            Assert.That(result.ContainsMatches);
-            Assert.That(result.ResultEntries.Count());
+            Assert.IsTrue(result.ContainsMatches);
+            Assert.AreEqual(2, result.ResultEntries.Count());
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
             CollectionAssert.IsOrdered(entries[1]
                             .Coverage
@@ -166,11 +166,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BestPath
                 .Select(_ => _.QuerySequenceNumber));
             
-            Assert.That(entries.Count);
-            Assert.That(Is.EqualTo(2, Is.True, Is.EqualTo(10)).Within(Is.EqualTo(2)).Within(entries[0].TrackCoverageWithPermittedGapsLength), 1f);
-            Assert.That(entries[1].TrackCoverageWithPermittedGapsLength, Is.EqualTo(10).Within(1f));
-            Assert.That(entries[0].TrackMatchStartsAt, Is.EqualTo(15d).Within(1f));
-            Assert.That(entries[1].TrackMatchStartsAt, Is.EqualTo(45d).Within(1f));
+            Assert.AreEqual(2, entries.Count);
+            Assert.AreEqual(10, entries[0].TrackCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[1].TrackCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(15d, entries[0].TrackMatchStartsAt, 1f);
+            Assert.AreEqual(45d, entries[1].TrackMatchStartsAt, 1f);
         }
 
         /**
@@ -196,15 +196,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var result = await GetQueryResult(query, modelService);
             
-            Assert.That(result.ContainsMatches);
-            Assert.That(result.ResultEntries.Count());
+            Assert.IsTrue(result.ContainsMatches);
+            Assert.AreEqual(1, result.ResultEntries.Count());
             var entry = result.ResultEntries.First();
-            Assert.That(Is.EqualTo(1, Is.True, Is.EqualTo(1)).Within(entry.Coverage.QueryGaps.Count()));
-            Assert.That(entry.Coverage.TrackGaps.Count());
+            Assert.AreEqual(1, entry.Coverage.QueryGaps.Count());
+            Assert.AreEqual(1, entry.Coverage.TrackGaps.Count());
             double queryGap = entry.Coverage.QueryGaps.First().LengthInSeconds;
             double trackGap = entry.Coverage.TrackGaps.First().LengthInSeconds;
-            Assert.That(Is.EqualTo(1).Within(queryGap), Is.EqualTo(30).Within(0.5));
-            Assert.That(trackGap, Is.EqualTo(30).Within(0.5));
+            Assert.AreEqual(30, queryGap, 0.5);
+            Assert.AreEqual(30, trackGap, 0.5);
         }
 
         /**
@@ -220,25 +220,25 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             float[] m1 = TestUtilities.GenerateRandomFloatArray(10 * 5512, seed: 1);
             float[] track = GetRandomSamplesWithRegions(m1, m1);
-            Assert.That(track.Length);
-            float[] query = GetRandomSamplesWithRegions(m1, Is.EqualTo(40 * 5512).Within(m1));
-            Assert.That(query.Length);
+            Assert.AreEqual(40 * 5512, track.Length);
+            float[] query = GetRandomSamplesWithRegions(m1, m1);
+            Assert.AreEqual(40 * 5512, query.Length);
             
             var modelService = new InMemoryModelService();
 
-            await InsertFingerprints(track, Is.EqualTo(40 * 5512).Within(modelService));
+            await InsertFingerprints(track, modelService);
 
             var singleMatch = await GetQueryResult(query, modelService);
-            Assert.That(singleMatch.ResultEntries.Count());
+            Assert.AreEqual(1, singleMatch.ResultEntries.Count());
             var coverage = singleMatch.ResultEntries.First().Coverage;
-            Assert.That(Is.EqualTo(1).Within(coverage.TrackMatchStartsAt), Is.EqualTo(5).Within(1, "TrackMatchStartsAt did not match"));
-            Assert.That(coverage.QueryMatchStartsAt, Is.EqualTo(5).Within(1), "QueryMatchStartsAt did not match");
-            Assert.That(coverage.TrackDiscreteCoverageLength, Is.EqualTo(30).Within(1.5));
-            Assert.That(coverage.TrackCoverageWithPermittedGapsLength, Is.EqualTo(20).Within(2));
-            Assert.That(coverage.TrackGapsCoverageLength, Is.EqualTo(20).Within(2));
-            Assert.That(coverage.QueryDiscreteCoverageLength, Is.EqualTo(30).Within(1.5));
-            Assert.That(coverage.QueryCoverageWithPermittedGapsLength, Is.EqualTo(20).Within(2));
-            Assert.That(coverage.QueryGapsCoverageLength, Is.EqualTo(20).Within(2));
+            Assert.AreEqual(5, coverage.TrackMatchStartsAt, 1, "TrackMatchStartsAt did not match");
+            Assert.AreEqual(5, coverage.QueryMatchStartsAt, 1, "QueryMatchStartsAt did not match");
+            Assert.AreEqual(30, coverage.TrackDiscreteCoverageLength, 1.5);
+            Assert.AreEqual(20, coverage.TrackCoverageWithPermittedGapsLength, 2);
+            Assert.AreEqual(20, coverage.TrackGapsCoverageLength, 2);
+            Assert.AreEqual(30, coverage.QueryDiscreteCoverageLength, 1.5);
+            Assert.AreEqual(20, coverage.QueryCoverageWithPermittedGapsLength, 2);
+            Assert.AreEqual(20, coverage.QueryGapsCoverageLength, 2);
         }
 
          /**
@@ -260,8 +260,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             var result = await GetQueryResult(match, modelService);
             
-            Assert.That(result.ContainsMatches);
-            Assert.That(result.ResultEntries.Count());
+            Assert.IsTrue(result.ContainsMatches);
+            Assert.AreEqual(2, result.ResultEntries.Count());
             var entries = result.ResultEntries.OrderBy(entry => entry.TrackMatchStartsAt).ToList();
             CollectionAssert.IsOrdered(entries[1]
                 .Coverage
@@ -272,15 +272,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BestPath
                 .Select(_ => _.QuerySequenceNumber));
             
-            Assert.That(entries.Count);
-            Assert.That(Is.EqualTo(2, Is.True, Is.EqualTo(10)).Within(Is.EqualTo(2)).Within(entries[0].TrackCoverageWithPermittedGapsLength), 1f);
-            Assert.That(entries[0].Coverage.QueryCoverageWithPermittedGapsLength, Is.EqualTo(10).Within(1f));
-            Assert.That(entries[1].TrackCoverageWithPermittedGapsLength, Is.EqualTo(10).Within(1f));
-            Assert.That(entries[1].Coverage.QueryCoverageWithPermittedGapsLength, Is.EqualTo(10).Within(1f));
-            Assert.That(entries[0].TrackMatchStartsAt, Is.EqualTo(20d).Within(1f));
-            Assert.That(entries[0].QueryMatchStartsAt, Is.EqualTo(0d).Within(1f));
-            Assert.That(entries[1].TrackMatchStartsAt, Is.EqualTo(60d).Within(1f)); 
-            Assert.That(entries[1].QueryMatchStartsAt, Is.EqualTo(0d).Within(1f));
+            Assert.AreEqual(2, entries.Count);
+            Assert.AreEqual(10, entries[0].TrackCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[0].Coverage.QueryCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[1].TrackCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(10, entries[1].Coverage.QueryCoverageWithPermittedGapsLength, 1f);
+            Assert.AreEqual(20d, entries[0].TrackMatchStartsAt, 1f);
+            Assert.AreEqual(0d, entries[0].QueryMatchStartsAt, 1f);
+            Assert.AreEqual(60d, entries[1].TrackMatchStartsAt, 1f); 
+            Assert.AreEqual(0d, entries[1].QueryMatchStartsAt, 1f);
         }
          
         [Test(Description = "Should cross match tone signal")]

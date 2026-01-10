@@ -17,12 +17,12 @@ namespace SoundFingerprinting.Tests.Unit.Builder
         [Test]
         public void ShouldThrowWhenMediaServiceIsNotSet()
         {
-            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => FingerprintCommandBuilder.Instance
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .Hash());
             
-            Assert.That(async () => await (, Throws.TypeOf<ArgumentException>()) => FingerprintCommandBuilder.Instance
+            Assert.That((, Throws.TypeOf<ArgumentException>()) => FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(new SoundFingerprintingAudioService())

@@ -17,13 +17,13 @@ public class GapTest
     [Test]
     public void ConstructorThrowsOnInvalidArgs()
     {
-        Assert.That((, Throws.TypeOf<ArgumentException>()) => new Gap(4, 3, false));
+        Assert.Throws<ArgumentException>(() => new Gap(4, 3, false));
     }
 
     [Test]
     public void LengthMustBePositive()
     {
-        Assert.That(new Gap(8, Is.EqualTo(42).Within(50), false).LengthInSeconds);
+        Assert.AreEqual(42, new Gap(8, 50, false).LengthInSeconds);
     }
 
     [Test]

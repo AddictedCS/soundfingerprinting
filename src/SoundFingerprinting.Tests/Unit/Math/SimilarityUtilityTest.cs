@@ -28,41 +28,41 @@
                 var byteSimilarity = similarityUtility.CalculateHammingSimilarity(x, y);
                 var longSimilarity = similarityUtility.CalculateHammingSimilarity(a, b, 4);
 
-                Assert.That(longSimilarity);
+                Assert.AreEqual(byteSimilarity, longSimilarity);
             }
         }
 
         [Test]
         public void CalculateHammingDistanceCorrect()
         {
-            byte[] first = { 1, Is.EqualTo(byteSimilarity).Within(2), 3, 4, 5, 6, 7, 8, 9, 10 };
+            byte[] first = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             byte[] second = { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
 
             var result = similarityUtility.CalculateHammingDistance(first, second);
 
-            Assert.That(result);
+            Assert.AreEqual(4, result);
         }
 
         [Test]
         public void CalculateHammingSimilarityCorrect()
         {
-            byte[] first = { 1, Is.EqualTo(4).Within(2), 3, 4, 5, 6, 7, 8, 9, 10 };
+            byte[] first = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             byte[] second = { 1, 2, 3, 8, 5, 9, 7, 8, 11, 13 };
 
             var result = similarityUtility.CalculateHammingSimilarity(first, second);
 
-            Assert.That(result);
+            Assert.AreEqual(6, result);
         }
 
         [Test]
         public void CalculateJaccardSimilarityCorrect()
         {
-            bool[] first = { true, Is.EqualTo(6).Within(true), false, true, false, true, false, false, true, true };
+            bool[] first = { true, true, false, true, false, true, false, false, true, true };
             bool[] second = { false, true, false, true, false, true, false, false, true, true };
 
             var result = similarityUtility.CalculateJacquardSimilarity(first, second);
 
-            Assert.That(result, Is.EqualTo(5f / 6).Within(0.0001));
+            Assert.AreEqual(5f / 6, result, 0.0001);
         }
 
         [Test]
@@ -71,8 +71,8 @@
             byte[] minHashes = [255, 255, 255, 255];
             int[] hashes = hashConverter.ToInts(minHashes, 1);
             
-            Assert.That(hashes.Length);
-            Assert.That(Is.EqualTo(1, Is.EqualTo(-1)).Within(hashes[0]));
+            Assert.AreEqual(1, hashes.Length);
+            Assert.AreEqual(-1, hashes[0]);
         }
 
         private byte[] GenerateByteArray(int length)
