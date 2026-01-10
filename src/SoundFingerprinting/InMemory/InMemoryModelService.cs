@@ -1,10 +1,10 @@
-﻿namespace SoundFingerprinting.InMemory
+namespace SoundFingerprinting.InMemory
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using SoundFingerprinting.Configuration;
@@ -117,9 +117,9 @@
             var candidates = new Candidates();
             foreach (var subFingerprint in subFingerprints)
             {
-                if (allSubs.TryGetValue(subFingerprint.SubFingerprintReference.Get<uint>(), out ConcurrentBag<HashedFingerprint>? bag))
+                if (allSubs.TryGetValue(subFingerprint.SubFingerprintReference.Get<uint>(), out var list))
                 {
-                    foreach (var hashedFingerprint in bag)
+                    foreach (var hashedFingerprint in list)
                     {
                         double score = config.ScoreAlgorithm.GetScore(hashedFingerprint, subFingerprint, config);
                         var match = new MatchedWith(hashedFingerprint.SequenceNumber, hashedFingerprint.StartsAt, subFingerprint.SequenceNumber, subFingerprint.SequenceAt, score);
@@ -186,26 +186,57 @@
             return storage.ReadByTrackId(trackId);
         }
 
-        private ConcurrentDictionary<uint, ConcurrentBag<HashedFingerprint>> GetSubFingerprintIdToHashedFingerprintMap(Hashes hashes, QueryConfiguration queryConfiguration)
+        private Dictionary<uint, List<HashedFingerprint>> GetSubFingerprintIdToHashedFingerprintMap(Hashes hashes, QueryConfiguration queryConfiguration)
         {
-            // same sub fingerprint can map to multiple hashed fingerprints
-            var allSubs = new ConcurrentDictionary<uint, ConcurrentBag<HashedFingerprint>>();
-            int threshold = queryConfiguration.ThresholdVotes;
+            int thresholdVotes = queryConfiguration.ThresholdVotes;
+            var result = new Dictionary<uint, List<HashedFingerprint>>();
+            var gate = new object();
 
-            hashes.AsParallel().ForAll(hashedFingerprint =>
-            {
-                var ids = QuerySubFingerprints(hashedFingerprint.HashBins, threshold, hashes.MediaType);
-                foreach (uint id in ids)
+            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+            Parallel.ForEach(
+                hashes,
+                parallelOptions,
+                () => new Dictionary<uint, List<HashedFingerprint>>(),
+                (hashedFingerprint, _, local) =>
                 {
-                    allSubs.AddOrUpdate(id, new ConcurrentBag<HashedFingerprint>([hashedFingerprint]), (_, list) =>
+                    var ids = QuerySubFingerprints(hashedFingerprint.HashBins, thresholdVotes, hashes.MediaType);
+                    foreach (uint id in ids)
                     {
-                        list.Add(hashedFingerprint);
-                        return list;
-                    });
-                }
-            });
+                        if (!local.TryGetValue(id, out var list))
+                        {
+                            list = [];
+                            local[id] = list;
+                        }
 
-            return allSubs;
+                        list.Add(hashedFingerprint);
+                    }
+
+                    return local;
+                },
+                local =>
+                {
+                    if (local.Count == 0)
+                    {
+                        return;
+                    }
+
+                    lock (gate)
+                    {
+                        foreach (var kv in local)
+                        {
+                            if (result.TryGetValue(kv.Key, out var existing))
+                            {
+                                existing.AddRange(kv.Value);
+                            }
+                            else
+                            {
+                                result[kv.Key] = kv.Value;
+                            }
+                        }
+                    }
+                });
+
+            return result;
         }
 
         private IEnumerable<uint> QuerySubFingerprints(int[] hashes, int thresholdVotes, MediaType mediaType)
