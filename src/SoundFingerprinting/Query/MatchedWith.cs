@@ -1,6 +1,7 @@
 ﻿// ReSharper disable UnusedMember.Local
 namespace SoundFingerprinting.Query
 {
+    using System;
     using ProtoBuf;
     using SoundFingerprinting.LCS;
 
@@ -8,7 +9,7 @@ namespace SoundFingerprinting.Query
     ///  Match pair containing information track/query match tuple.
     /// </summary>
     [ProtoContract]
-    public class MatchedWith
+    public class MatchedWith : IEquatable<MatchedWith>
     {
         /// <summary>
         ///  Initializes a new instance of the <see cref="MatchedWith"/> class.
@@ -71,6 +72,59 @@ namespace SoundFingerprinting.Query
         public override string ToString()
         {
             return $"MatchedWith[QuerySequenceNumber: {QuerySequenceNumber}, QueryMatchAt: {QueryMatchAt}, TrackSequenceNumber: {TrackSequenceNumber}, TrackMatchAt: {TrackMatchAt}, Score: {Score}]";
+        }
+
+        /// <inheritdoc />
+        public bool Equals(MatchedWith? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return QuerySequenceNumber == other.QuerySequenceNumber && TrackSequenceNumber == other.TrackSequenceNumber;
+        }
+
+        /// <inheritdoc cref="object.Equals(object)"/>
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as MatchedWith);
+        }
+
+        /// <inheritdoc cref="object.GetHashCode"/>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((int)QuerySequenceNumber * 397) ^ (int)TrackSequenceNumber;
+            }
+        }
+
+        /// <summary>
+        ///  Equality operator.
+        /// </summary>
+        /// <param name="left">Left operand.</param>
+        /// <param name="right">Right operand.</param>
+        /// <returns>True if equal, false otherwise.</returns>
+        public static bool operator ==(MatchedWith? left, MatchedWith? right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        ///  Inequality operator.
+        /// </summary>
+        /// <param name="left">Left operand.</param>
+        /// <param name="right">Right operand.</param>
+        /// <returns>True if not equal, false otherwise.</returns>
+        public static bool operator !=(MatchedWith? left, MatchedWith? right)
+        {
+            return !Equals(left, right);
         }
     }
 }

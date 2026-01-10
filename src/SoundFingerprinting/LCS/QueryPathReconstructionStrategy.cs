@@ -21,23 +21,25 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     
     private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double permittedGap)
     {
-        var matchedWiths = matched.ToList();
+        var remaining = new HashSet<MatchedWith>(matched);
         var bestPaths = new List<IEnumerable<MatchedWith>>();
-        while (matchedWiths.Any())
+        
+        while (remaining.Count > 0)
         {
-            var (sequence, exclusions) = GetLongestIncreasingSequence(matchedWiths, permittedGap);
+            var (sequence, exclusions) = GetLongestIncreasingSequence(remaining, permittedGap);
             var withs = sequence as MatchedWith[] ?? sequence.ToArray();
-            if (!withs.Any())
+            if (withs.Length == 0)
             {
                 break;
             }
 
             bestPaths.Add(withs);
-            matchedWiths = matchedWiths.Except(withs.Concat(exclusions)).ToList();
+            remaining.ExceptWith(withs);
+            remaining.ExceptWith(exclusions);
         }
 
         // this may seem as redundant, but it is not, since we can pick the first candidates from not the same sequences
-        return bestPaths.OrderByDescending(_ => _.Count());
+        return bestPaths.OrderByDescending(p => p.Count());
     }
     
     private MaxAt[] MaxIncreasingQuerySequenceOptimal(IReadOnlyList<MatchedWith> matches, double maxGap, out int max, out int maxIndex)
@@ -158,7 +160,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             }
 
             // if the current element is closer to the diagonal, we should pick it
-            var pickedValue = prevQueryTrackDistance < currentQueryTrackDistance ? previous : candidate!;
+            var pickedValue = prevQueryTrackDistance < currentQueryTrackDistance ? previous : candidate;
             var excludedValue = prevQueryTrackDistance < currentQueryTrackDistance ? candidate : previous;
             excluded.Add(excludedValue);
             return pickedValue;
@@ -192,11 +194,6 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     private static bool IsQuerySequenceDecreasing(MaxAt lookAhead, MaxAt lastPicked)
     {
         return !(lookAhead.MatchedWith.QuerySequenceNumber > lastPicked.MatchedWith.QuerySequenceNumber);
-    }
-
-    private static bool EqualMaxLength(MaxAt current, MaxAt lookAhead)
-    {
-        return current.Length == lookAhead.Length;
     }
 
     private record LongestIncreasingSequence(IEnumerable<MatchedWith> Sequence, IEnumerable<MatchedWith> BadCandidates)
