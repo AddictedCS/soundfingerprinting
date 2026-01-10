@@ -78,7 +78,7 @@
                                .Query();
 
             Assert.That(queryResult.ContainsMatches, Is.True);
-            Assert.That(queryResult.ResultEntries.Count(, Is.EqualTo(1)));
+            Assert.That(queryResult.ResultEntries.Count(), Is.EqualTo(1));
             Assert.That(queryResult.BestMatch, Is.Not.Null);
             var (bestMatch, _) = queryResult.BestMatch;
             Assert.That(bestMatch, Is.Not.Null);
@@ -316,7 +316,7 @@
 
             Assert.That(queryResult, Is.Not.Null);
             Assert.That(queryResult.ContainsMatches, Is.True);
-            Assert.That(queryResult.ResultEntries.Count(, Is.EqualTo(1)));
+            Assert.That(queryResult.ResultEntries.Count(), Is.EqualTo(1));
             var bestMatch = queryResult.BestMatch;
             Assert.That(bestMatch!.Track.Id, Is.EqualTo("4321"));
             Assert.That(Math.Abs(bestMatch.TrackStartsAt), Is.EqualTo(0).Within(0.0001d));

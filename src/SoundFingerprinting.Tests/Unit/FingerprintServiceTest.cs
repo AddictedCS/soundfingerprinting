@@ -109,7 +109,7 @@
             var audioSamples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize), string.Empty, 5512);
             var (fingerprints, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(audioSamples, configuration);
             Assert.That(hashes.Count, Is.EqualTo(1));
-            Assert.That(fingerprints.Count(, Is.EqualTo(1)));
+            Assert.That(fingerprints.Count(), Is.EqualTo(1)));
 
             audioSamples = new AudioSamples(TestUtilities.GenerateRandomFloatArray(minSize + configuration.SamplesPerFingerprint), string.Empty, 5512);
             hashes = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(audioSamples, configuration).Hashes;

@@ -185,7 +185,7 @@
             Assert.That(newTrack.MetaFields["group-id"], Is.EqualTo("second-group-id"));
 
             var candidates = modelService.QueryEfficiently(hashes, new DefaultQueryConfiguration());
-            Assert.That(candidates.GetMatches(, Is.EqualTo(100)).SelectMany(_ => _.Value).Count());
+            Assert.That(candidates.GetMatches().SelectMany(_ => _.Value).Count(), Is.EqualTo(100)));
         }
 
         private static void AssertHashesAreTheSame(Hashes expected, IEnumerable<MatchedWith> actual)

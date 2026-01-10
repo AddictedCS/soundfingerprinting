@@ -37,7 +37,7 @@ namespace SoundFingerprinting.Tests.Unit.DAO
             
             AssertTracksAreEqual(track, trackData);
             var enumerable = subFingerprints as SubFingerprintData[] ?? subFingerprints.ToArray();
-            Assert.That(enumerable.Count(, Is.EqualTo(1)));
+            Assert.That(enumerable.Count(), Is.EqualTo(1)));
 
             var hash = hashes.First();
             var subFingerprintData = enumerable.First();
@@ -83,8 +83,8 @@ namespace SoundFingerprinting.Tests.Unit.DAO
                 }
             });
             
-            Assert.That(trackRefs.Distinct(, Is.EqualTo(trackRefs.Count)).Count());
-            Assert.That(subFingerprintRefs.Distinct(, Is.EqualTo(subFingerprintRefs.Count)).Count());
+            Assert.That(trackRefs.Distinct().Count(), Is.EqualTo(trackRefs.Count)));
+            Assert.That(subFingerprintRefs.Distinct().Count(), Is.EqualTo(subFingerprintRefs.Count)));
         }
 
         private static Hashes GetHashes(int numberOfHashBins)
