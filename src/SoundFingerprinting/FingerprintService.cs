@@ -57,30 +57,28 @@ namespace SoundFingerprinting
             }
             
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            var fingerprints = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration).ToList();
+            var fingerprints = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration);
             var hashes = fingerprints
                 .AsParallel()
-                .ToList()
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin}, string.Empty, new Dictionary<string, string>(), samples.TimeOffset));
+            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, [samples.Origin], string.Empty, new Dictionary<string, string>(), samples.TimeOffset));
         }
 
         /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromImageFrames"/>
         public FingerprintsAndHashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
         {
-            var frames = imageFrames.ToList();
-            var fingerprints = CreateOriginalFingerprintsFromFrames(frames, configuration).ToList();
+            var fingerprints = CreateOriginalFingerprintsFromFrames(imageFrames, configuration);
             var hashes = fingerprints
                 .AsParallel()
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin}));
+            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, [imageFrames.Origin]));
         }
 
-        internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
+        private List<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
         {
             var normalized = configuration.FrameNormalizationTransform.Normalize(frames);
             var images = normalized.ToList();
@@ -90,7 +88,7 @@ namespace SoundFingerprinting
             }
 
             var fingerprints = new ConcurrentBag<Fingerprint>();
-            var length = images.First().Length;
+            var length = images[0].Length;
             var saveTransform = configuration.OriginalPointSaveTransform;
             Parallel.ForEach(images, () => new ushort[length], (frame, _, cachedIndexes) =>
                 {
@@ -108,7 +106,7 @@ namespace SoundFingerprinting
                 },
                 _ => { });
 
-            return fingerprints.ToList();
+            return [.. fingerprints];
         }
     }
 }
