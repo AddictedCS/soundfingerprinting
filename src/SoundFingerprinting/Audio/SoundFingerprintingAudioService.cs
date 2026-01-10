@@ -38,7 +38,7 @@
         }
         
         /// <inheritdoc cref="AudioService.SupportedFormats"/>
-        public override IReadOnlyCollection<string> SupportedFormats => new[] { ".wav" };
+        public override IReadOnlyCollection<string> SupportedFormats => [".wav"];
 
         /// <inheritdoc cref="AudioService.ReadMonoSamplesFromFile(string,int,double,double)"/>
         public override AudioSamples ReadMonoSamplesFromFile(string pathToSourceFile, int sampleRate, double seconds, double startAt)
@@ -87,7 +87,7 @@
 
         private float[] ToSamples(string pathToFile, WaveFormat format, double seconds, double startsAt)
         {
-            using var stream = new FileStream(pathToFile, FileMode.Open);
+            using var stream = new FileStream(pathToFile, FileMode.Open, FileAccess.Read, FileShare.Read);
             stream.Seek(WaveHeaderLength, SeekOrigin.Begin);
             int samplesToSeek = (int)(startsAt * format.SampleRate * format.Channels);
             int bytesPerSample = format.BitsPerSample / 8;
@@ -95,7 +95,7 @@
             return GetInts(stream, format, seconds, startsAt);
         }
 
-        private float[] ToMonoSamples(float[] samples, WaveFormat format)
+        private static float[] ToMonoSamples(float[] samples, WaveFormat format)
         {
             if (format.Channels == 1)
             {
@@ -122,61 +122,98 @@
         {
             int bytesPerSample = format.BitsPerSample / 8;
             long samplesCount = GetSamplesToRead(format, seconds, startsAt);
+            float[] samples = new float[samplesCount];
 
-            byte[] buffer = new byte[bytesPerSample];
-
-            int normalizer = bytesPerSample == 1 ? 127 : bytesPerSample == 2 ? Int16.MaxValue : bytesPerSample == 3 ? (int)Math.Pow(2, 24) / 2 - 1 : Int32.MaxValue;
+            // Use buffered reading for better performance (read 4KB at a time)
+            const int bufferSize = 4096;
+            byte[] buffer = new byte[bufferSize];
 
             int samplesOffset = 0;
-            float[] samples = new float[samplesCount];
-            while (reader.CanRead && samplesOffset < samplesCount)
+            int bufferOffset = 0;
+            int bytesInBuffer = 0;
+
+            while (samplesOffset < samplesCount)
             {
-                int read = reader.Read(buffer, 0, bytesPerSample);
-                if (read != bytesPerSample)
+                // Refill buffer if needed
+                if (bufferOffset >= bytesInBuffer)
                 {
-                    return samples;
+                    bytesInBuffer = reader.Read(buffer, 0, bufferSize);
+                    bufferOffset = 0;
+                    if (bytesInBuffer == 0)
+                    {
+                        break;
+                    }
                 }
 
-                if (bytesPerSample == 1)
+                // Check if we have enough bytes for a complete sample
+                if (bufferOffset + bytesPerSample > bytesInBuffer)
                 {
-                    samples[samplesOffset] = (float) buffer[0] / normalizer;
-                }
-                else if (bytesPerSample == 2)
-                {
-                    short sample = (short)(buffer[0] | buffer[1] << 8);
-                    samples[samplesOffset] = (float)sample / normalizer;
-                }
-                else if (bytesPerSample == 3)
-                {
-                    int sample = buffer[0] | buffer[1] << 8 | buffer[2] << 16;
-                    samples[samplesOffset] = (float)sample / normalizer;
+                    // Handle partial sample at buffer boundary
+                    int remaining = bytesInBuffer - bufferOffset;
+                    byte[] temp = new byte[bytesPerSample];
+                    Array.Copy(buffer, bufferOffset, temp, 0, remaining);
+                    int additionalRead = reader.Read(temp, remaining, bytesPerSample - remaining);
+                    if (additionalRead + remaining < bytesPerSample)
+                    {
+                        break;
+                    }
+
+                    samples[samplesOffset] = ConvertToFloat(temp, 0, bytesPerSample);
+                    bufferOffset = bytesInBuffer; // Force buffer refill on next iteration
                 }
                 else
                 {
-                    int sample = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24;
-                    samples[samplesOffset] = (float)sample / normalizer;
+                    samples[samplesOffset] = ConvertToFloat(buffer, bufferOffset, bytesPerSample);
+                    bufferOffset += bytesPerSample;
                 }
 
-                samples[samplesOffset] = Math.Min(1, samples[samplesOffset]);
                 samplesOffset++;
             }
 
             return samples;
         }
 
-        private static long GetSamplesToRead(WaveFormat format, double seconds, double startsAt)
+        private static float ConvertToFloat(byte[] buffer, int offset, int bytesPerSample)
         {
-            int samplesPerSecond = format.SampleRate * format.Channels;
-            int requestedSamples = Math.Abs(seconds) < 0.001 ? int.MaxValue : (int)seconds * samplesPerSecond;
-            int bytesPerSample = format.BitsPerSample / 8;
-            int samplesInInput = (int)format.Length / bytesPerSample - (int)startsAt * samplesPerSecond;
-
-            if (samplesInInput > requestedSamples)
+            float sample;
+            switch (bytesPerSample)
             {
-                return requestedSamples;
+                case 1:
+                    // 8-bit audio is unsigned (0-255), center at 128
+                    sample = (buffer[offset] - 128) / 128f;
+                    break;
+                case 2:
+                    short sample16 = (short)(buffer[offset] | buffer[offset + 1] << 8);
+                    sample = sample16 / 32768f;
+                    break;
+                case 3:
+                    // 24-bit audio needs sign extension
+                    int sample24 = buffer[offset] | buffer[offset + 1] << 8 | buffer[offset + 2] << 16;
+                    if ((sample24 & 0x800000) != 0)
+                    {
+                        sample24 |= unchecked((int)0xFF000000); // Sign extend
+                    }
+
+                    sample = sample24 / 8388608f;
+                    break;
+                default:
+                    int sample32 = buffer[offset] | buffer[offset + 1] << 8 | buffer[offset + 2] << 16 | buffer[offset + 3] << 24;
+                    sample = sample32 / 2147483648f;
+                    break;
             }
 
-            return samplesInInput;
+            // Clamp to [-1, 1] range
+            return Math.Max(-1f, Math.Min(1f, sample));
+        }
+
+        private static long GetSamplesToRead(WaveFormat format, double seconds, double startsAt)
+        {
+            long samplesPerSecond = format.SampleRate * format.Channels;
+            long requestedSamples = Math.Abs(seconds) < 0.001 ? long.MaxValue : (long)(seconds * samplesPerSecond);
+            int bytesPerSample = format.BitsPerSample / 8;
+            long samplesInInput = format.Length / bytesPerSample - (long)(startsAt * samplesPerSecond);
+
+            return Math.Min(samplesInInput, requestedSamples);
         }
     }
 }
