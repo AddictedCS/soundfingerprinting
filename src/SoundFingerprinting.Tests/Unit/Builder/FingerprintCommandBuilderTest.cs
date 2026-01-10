@@ -42,12 +42,15 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(mediaService.Object)
                 .Hash();
-            
-            Assert.IsNotNull(audio);
-            Assert.AreEqual(audio.DurationInSeconds, 30, 0.001);
-            
-            Assert.IsNotNull(video);
-            Assert.AreEqual(video.DurationInSeconds, 30, 0.001);
+
+			Assert.That(audio, Is.Not.Null);
+			Assert.Multiple(() =>
+			{
+				Assert.That(audio.DurationInSeconds, Is.EqualTo(30).Within(0.001));
+
+				Assert.That(video, Is.Not.Null);
+			});
+			Assert.That(video.DurationInSeconds, Is.EqualTo(30).Within(0.001));
             
             mediaService.Verify(_ => _.ReadAVTrackFromFile("test.mp4", It.IsAny<AVTrackReadConfiguration>(), 0d, 0d, MediaType.Audio | MediaType.Video), Times.Exactly(1));
         }
@@ -64,11 +67,14 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(videoService.Object)
                 .Hash();
-            
-            Assert.IsNull(audio);
-            
-            Assert.IsNotNull(video);
-            Assert.AreEqual(video.DurationInSeconds, 30, 0.001);
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(audio, Is.Null);
+
+				Assert.That(video, Is.Not.Null);
+			});
+			Assert.That(video.DurationInSeconds, Is.EqualTo(30).Within(0.001));
             
             videoService.Verify(_ => _.ReadFramesFromFile("test.mp4", It.IsAny<VideoTrackReadConfiguration>(), 0d, 0d), Times.Exactly(1)); 
         }

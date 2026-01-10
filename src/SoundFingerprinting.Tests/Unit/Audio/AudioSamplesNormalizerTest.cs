@@ -100,14 +100,17 @@ namespace SoundFingerprinting.Tests.Unit.Audio
             float rms2After = CalculateRms(samples, sampleRate, sampleRate);
             float rms3After = CalculateRms(samples, sampleRate * 2, sampleRate);
 
-            // The quiet window should be amplified
-            Assert.That(rms1After, Is.GreaterThan(rms1Before), "Quiet window should be amplified");
+			Assert.Multiple(() =>
+			{
+				// The quiet window should be amplified
+				Assert.That(rms1After, Is.GreaterThan(rms1Before), "Quiet window should be amplified");
 
-            // The loud window should be attenuated
-            Assert.That(rms3After, Is.LessThan(rms3Before), "Loud window should be attenuated");
+				// The loud window should be attenuated
+				Assert.That(rms3After, Is.LessThan(rms3Before), "Loud window should be attenuated");
+			});
 
-            // After normalization, RMS values should be closer to each other
-            float maxRms = Math.Max(rms1After, Math.Max(rms2After, rms3After));
+			// After normalization, RMS values should be closer to each other
+			float maxRms = Math.Max(rms1After, Math.Max(rms2After, rms3After));
             float minRms = Math.Min(rms1After, Math.Min(rms2After, rms3After));
             float ratio = maxRms / minRms;
 

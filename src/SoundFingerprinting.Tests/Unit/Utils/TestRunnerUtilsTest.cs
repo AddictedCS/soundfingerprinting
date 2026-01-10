@@ -25,8 +25,8 @@
 
             var fileNames = files.Select(Path.GetFileNameWithoutExtension).ToList();
             var unique = new HashSet<string>(fileNames);
-            Assert.AreEqual(1, unique.Count);
-            Assert.IsTrue(unique.Contains(Path.GetFileNameWithoutExtension(PathToWav)));
+			Assert.That(unique, Has.Count.EqualTo(1));
+			Assert.That(unique, Does.Contain(Path.GetFileNameWithoutExtension(PathToWav)));
         }
 
         [Test]
@@ -36,7 +36,7 @@
 
             var result = testRunnerUtils.ParseInts(ints, '|');
 
-            CollectionAssert.AreEqual(new List<int> { 1, 2, 3, 4, 5 }, result);
+			Assert.That(result, Is.EqualTo(new List<int> { 1, 2, 3, 4, 5 }).AsCollection);
         }
 
         [Test]

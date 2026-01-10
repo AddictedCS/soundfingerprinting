@@ -14,7 +14,7 @@
                 
             var duration = audioService.GetLengthInSeconds(PathToWav);
 
-            Assert.AreEqual(10.0f, duration, 0.1);
+			Assert.That(duration, Is.EqualTo(10.0f).Within(0.1));
         }
     }
 }

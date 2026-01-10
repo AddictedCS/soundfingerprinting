@@ -33,31 +33,31 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void NullAVResultEntryCannotContinue()
         {
-            Assert.IsFalse(avEntryStrategy.CanContinueInNextQuery(null));
+			Assert.That(avEntryStrategy.CanContinueInNextQuery(null), Is.False);
         }
 
         [Test]
         public void BothAudioAndVideoCanContinue()
         {
-            Assert.IsTrue(CanContinue(audio: true, video: true));
+			Assert.That(CanContinue(audio: true, video: true), Is.True);
         }
 
         [Test]
         public void OnlyAudioCanContinue()
         {
-            Assert.IsTrue(CanContinue(audio: true, video: false));
+			Assert.That(CanContinue(audio: true, video: false), Is.True);
         }
 
         [Test]
         public void OnlyVideoCanContinue()
         {
-            Assert.IsTrue(CanContinue(audio: false, video: true));
+			Assert.That(CanContinue(audio: false, video: true), Is.True);
         }
 
         [Test]
         public void NeitherAudioNorVideoCanContinue()
         {
-            Assert.IsFalse(CanContinue(audio: false, video: false));
+			Assert.That(CanContinue(audio: false, video: false), Is.False);
         }
         
         

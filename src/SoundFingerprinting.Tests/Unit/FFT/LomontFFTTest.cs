@@ -44,7 +44,7 @@
                 }
             }
 
-            CollectionAssert.AreEqual(new[] { 0, 0.707f, 1, 0.707f, 0, -0.707f, -1, -0.707f }, sineWave, floatComparer);
+			Assert.That(sineWave, Is.EqualTo(new[] { 0, 0.707f, 1, 0.707f, 0, -0.707f, -1, -0.707f }).Using(floatComparer));
         }
 
         [Test]
@@ -67,7 +67,7 @@
                 }
             }
 
-            CollectionAssert.AreEqual(new[] { 0, 0, 0, 4f, 0, 0, 0, 0 }, sineWave, floatComparer);
+			Assert.That(sineWave, Is.EqualTo(new[] { 0, 0, 0, 4f, 0, 0, 0, 0 }).Using(floatComparer));
         }
     }
 }

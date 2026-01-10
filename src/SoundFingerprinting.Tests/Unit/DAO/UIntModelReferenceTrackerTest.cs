@@ -37,15 +37,18 @@ namespace SoundFingerprinting.Tests.Unit.DAO
             
             AssertTracksAreEqual(track, trackData);
             var enumerable = subFingerprints as SubFingerprintData[] ?? subFingerprints.ToArray();
-            Assert.AreEqual(1, enumerable.Count());
+			Assert.That(enumerable.Count(), Is.EqualTo(1));
 
             var hash = hashes.First();
             var subFingerprintData = enumerable.First();
-            CollectionAssert.AreEqual(hash.HashBins, subFingerprintData.Hashes);
-            CollectionAssert.AreEqual(hash.OriginalPoint, subFingerprintData.OriginalPoint);
-            Assert.AreEqual(hash.SequenceNumber, subFingerprintData.SequenceNumber);
-            Assert.AreEqual(hash.StartsAt, subFingerprintData.SequenceAt);
-        }
+			Assert.That(subFingerprintData.Hashes, Is.EqualTo(hash.HashBins).AsCollection);
+			Assert.That(subFingerprintData.OriginalPoint, Is.EqualTo(hash.OriginalPoint).AsCollection);
+			Assert.Multiple(() =>
+			{
+				Assert.That(subFingerprintData.SequenceNumber, Is.EqualTo(hash.SequenceNumber));
+				Assert.That(subFingerprintData.SequenceAt, Is.EqualTo(hash.StartsAt));
+			});
+		}
         
         [Test]
         public void ShouldResetModelReferences()
@@ -55,12 +58,15 @@ namespace SoundFingerprinting.Tests.Unit.DAO
             var hashes = GetHashes(1000);
 
             modelReferenceTracker.AssignModelReferences(track, hashes);
-            
-            Assert.IsFalse(modelReferenceTracker.TryResetTrackRef(1));
-            Assert.IsTrue(modelReferenceTracker.TryResetTrackRef(2));
-            Assert.IsFalse(modelReferenceTracker.TryResetSubFingerprintRef(1000));
-            Assert.IsTrue(modelReferenceTracker.TryResetSubFingerprintRef(1001));
-        }
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(modelReferenceTracker.TryResetTrackRef(1), Is.False);
+				Assert.That(modelReferenceTracker.TryResetTrackRef(2), Is.True);
+				Assert.That(modelReferenceTracker.TryResetSubFingerprintRef(1000), Is.False);
+				Assert.That(modelReferenceTracker.TryResetSubFingerprintRef(1001), Is.True);
+			});
+		}
         
         [Test]
         public void ShouldAssignModelReferences()
@@ -82,10 +88,13 @@ namespace SoundFingerprinting.Tests.Unit.DAO
                     subFingerprintRefs.Add(subId);
                 }
             });
-            
-            Assert.AreEqual(trackRefs.Count, trackRefs.Distinct().Count());
-            Assert.AreEqual(subFingerprintRefs.Count, subFingerprintRefs.Distinct().Count());
-        }
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(trackRefs.Distinct().Count(), Is.EqualTo(trackRefs.Count));
+				Assert.That(subFingerprintRefs.Distinct().Count(), Is.EqualTo(subFingerprintRefs.Count));
+			});
+		}
 
         private static Hashes GetHashes(int numberOfHashBins)
         {

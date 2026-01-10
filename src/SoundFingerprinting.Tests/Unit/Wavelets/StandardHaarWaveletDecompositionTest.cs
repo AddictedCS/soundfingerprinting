@@ -44,7 +44,7 @@
 
             wd.DecomposeImageInPlace(floats, 1, 4, 2d); // Let's use 2 as norm, to reconstruct the result more easily
 
-            CollectionAssert.AreEqual(new[] {4, 2, 2, -1}, floats);
+			Assert.That(floats, Is.EqualTo(new[] { 4, 2, 2, -1 }).AsCollection);
         }
 
         private void AssertAreSame(int rows, int cols, float[][] frames, float[] concatenated)
@@ -53,7 +53,7 @@
             {
                 for (var j = 0; j < cols; j++)
                 {
-                    Assert.AreEqual(frames[i][j], concatenated[(i * cols) + j], 0.5);
+					Assert.That(concatenated[(i * cols) + j], Is.EqualTo(frames[i][j]).Within(0.5));
                 }
             }
         }

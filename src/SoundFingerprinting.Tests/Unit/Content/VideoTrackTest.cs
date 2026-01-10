@@ -13,8 +13,8 @@ namespace SoundFingerprinting.Tests.Unit.Content
             var videoTrack = new VideoTrack(TestUtilities.GenerateRandomFrames(30 * 30));
 
             var subTracked = videoTrack.SubTrack(0, 0);
-            
-            Assert.AreEqual(0, subTracked.Duration);
+
+			Assert.That(subTracked.Duration, Is.EqualTo(0));
         }
         
         [Test]
@@ -24,10 +24,10 @@ namespace SoundFingerprinting.Tests.Unit.Content
             var videoTrack = new VideoTrack(frames);
 
             var subTracked = videoTrack.SubTrack(0, 15);
-            
-            Assert.AreEqual(15, subTracked.Duration, 0.0001);
+
+			Assert.That(subTracked.Duration, Is.EqualTo(15).Within(0.0001));
             int half = frames.Count() / 2;
-            Assert.AreEqual(half, subTracked.Frames.Count());
+			Assert.That(subTracked.Frames.Count(), Is.EqualTo(half));
         }
     }
 }

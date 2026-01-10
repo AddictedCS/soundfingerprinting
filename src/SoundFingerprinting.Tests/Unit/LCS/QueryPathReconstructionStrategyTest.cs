@@ -18,7 +18,7 @@
         {
             var result = queryPathReconstructionStrategy.GetBestPaths([], permittedGap: 0);
 
-            CollectionAssert.IsEmpty(result);
+			Assert.That(result, Is.Empty);
         }
         
         [Test]
@@ -26,8 +26,8 @@
         {
             var result = queryPathReconstructionStrategy.GetBestPaths(TestUtilities.GetMatchedWith(new[] { 0 }, new [] { 0 }), permittedGap: 0).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            CollectionAssert.AreEqual(new float[] { 0 }, result[0].Select(with => with.TrackMatchAt));
+			Assert.That(result, Has.Count.EqualTo(1));
+			Assert.That(result[0].Select(with => with.TrackMatchAt), Is.EqualTo(new float[] { 0 }).AsCollection);
         }
 
         /*
@@ -42,8 +42,8 @@
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
 
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, result.Select(_ => (int)_.QuerySequenceNumber));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, result.Select(_ => (int)_.TrackSequenceNumber));
+			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }).AsCollection);
         }
 
         /*
@@ -59,8 +59,8 @@
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
 
-            CollectionAssert.AreEqual(new[] { 1, 4 }, result.Select(_ => (int)_.QuerySequenceNumber));
-            CollectionAssert.AreEqual(new[] { 1, 4 }, result.Select(_ => (int)_.TrackSequenceNumber));
+			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 4 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 4 }).AsCollection);
         }
 
         /*
@@ -77,8 +77,8 @@
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
 
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, result.Select(_ => (int)_.QuerySequenceNumber));
-            CollectionAssert.AreEqual(new[] { 1, 1, 1, 4 }, result.Select(_ => (int)_.TrackSequenceNumber));
+			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 1, 1, 4 }).AsCollection);
         }
         
         /*
@@ -95,8 +95,8 @@
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
 
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6 }, result.Select(_ => (int)_.QuerySequenceNumber));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 6, 6 }, result.Select(_ => (int)_.TrackSequenceNumber));
+			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 6, 6 }).AsCollection);
         }
         
         [Test]
@@ -108,9 +108,9 @@
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matches, permittedGap: 0).ToList();
 
-            Assert.AreEqual(2, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5, 6, 7 }, result[0].Select(pair => pair.TrackMatchAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.TrackMatchAt));
+			Assert.That(result, Has.Count.EqualTo(2));
+			Assert.That(result[0].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3, 4, 5, 6, 7 }).AsCollection);
+			Assert.That(result[1].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3 }).AsCollection);
         }
 
         [Test]
@@ -122,10 +122,10 @@
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matches, permittedGap: 0).ToList();
 
-            Assert.AreEqual(3, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[0].Select(pair => pair.TrackMatchAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[1].Select(pair => pair.TrackMatchAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.TrackMatchAt));
+			Assert.That(result, Has.Count.EqualTo(3));
+			Assert.That(result[0].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3, 4 }).AsCollection);
+			Assert.That(result[1].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3 }).AsCollection);
+			Assert.That(result[2].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3 }).AsCollection);
         }
 
         [Test]
@@ -137,10 +137,10 @@
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matches, permittedGap: 0).ToList();
 
-            Assert.AreEqual(3, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4, 5 }, result[0].Select(pair => pair.TrackMatchAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 4 }, result[1].Select(pair => pair.TrackMatchAt));
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3 }, result[2].Select(pair => pair.TrackMatchAt));
+			Assert.That(result, Has.Count.EqualTo(3));
+			Assert.That(result[0].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3, 4, 5 }).AsCollection);
+			Assert.That(result[1].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3, 4 }).AsCollection);
+			Assert.That(result[2].Select(pair => pair.TrackMatchAt), Is.EqualTo(new float[] { 1, 2, 3 }).AsCollection);
         }
 
         [Test]
@@ -149,16 +149,16 @@
             var matches = TestUtilities.GetMatchedWith(new[] {1, 2, 3, 10, 12, 13, 14}, new[] {1, 2, 3, 10, 12, 13, 14});
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matches, permittedGap: 0).ToList();
-            
-            Assert.AreEqual(1, result.Count);
-            CollectionAssert.AreEqual(new float[] { 1, 2, 3, 10, 12, 13, 14 }, result.First().Select(_ => _.QueryMatchAt));
+
+			Assert.That(result, Has.Count.EqualTo(1));
+			Assert.That(result.First().Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 1, 2, 3, 10, 12, 13, 14 }).AsCollection);
         }
         
          [Test]
         public void ShouldFindLongestIncreasingSequenceEmpty()
         {
             var result = queryPathReconstructionStrategy.GetBestPaths(Enumerable.Empty<MatchedWith>(), permittedGap: 0);
-            Assert.IsFalse(result.Any());
+			Assert.That(result.Any(), Is.False);
         }
 
         [Test]
@@ -232,7 +232,7 @@
             var pairs = new[] {(1, 4), (2, 3), (3, 2), (4, 1)};
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToList();
 
-            Assert.AreEqual(1, result.Count);
+			Assert.That(result, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -293,7 +293,7 @@
             var expected1 = new[] {(1, 1), (2, 2), (3, 3)};
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
 
-            Assert.AreEqual(2, results.Length);
+			Assert.That(results.Length, Is.EqualTo(2));
             AssertResult(expected1, results[0]);
             AssertResult(expected2, results[1]);
         }
@@ -311,7 +311,7 @@
             var pairs = new[] {(1, 1), (2, 2), (4, 3), (3, 4), (3, 5)};
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToList();
 
-            Assert.AreEqual(1, result.Count);
+			Assert.That(result, Has.Count.EqualTo(1));
             var expected1 = new[] {(1, 1), (2, 2), (3, 4)};
             AssertResult(expected1, result[0]);
         }
@@ -335,7 +335,7 @@
             var expected2 = new[] {(20, 1), (21, 2), (22, 3)};
             var expected3 = new[] { (0, 4) };
 
-            Assert.AreEqual(3, results.Length);
+			Assert.That(results.Length, Is.EqualTo(3));
             AssertResult(expected1, results[0]);
             AssertResult(expected2, results[1]);
             AssertResult(expected3, results[2]);
@@ -353,7 +353,7 @@
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (1, 20), (2, 21), (3, 22), (4, 23), (5, 24), (6, 25)};
             var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToArray();
 
-            Assert.AreEqual(2, results.Length);
+			Assert.That(results.Length, Is.EqualTo(2));
         }
 
         [Test]
@@ -368,9 +368,9 @@
             var pairs = new[] {(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (0, 20), (2, 21), (3, 22), (4, 23), (5, 24), (7, 25)};
             var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToArray();
 
-            Assert.AreEqual(2, results.Length);
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6 }, results[0].Select(_ => (int)_.TrackSequenceNumber));
-            CollectionAssert.AreEqual(new[] { 20, 21, 22, 23, 24, 25 }, results[1].Select(_ => (int)_.TrackSequenceNumber));
+			Assert.That(results.Length, Is.EqualTo(2));
+			Assert.That(results[0].Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6 }).AsCollection);
+			Assert.That(results[1].Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 20, 21, 22, 23, 24, 25 }).AsCollection);
         }
 
         [Test]
@@ -387,7 +387,7 @@
 
             var expected1 = new[] {(1, 1), (2, 2)};
             var expected2 = new[] {(0, 20)};
-            Assert.AreEqual(2, results.Length);
+			Assert.That(results.Length, Is.EqualTo(2));
 
             AssertResult(expected1, results[0]);
             AssertResult(expected2, results[1]);
@@ -404,7 +404,7 @@
             var pairs = new[] { (1, 1), (2, 2), (2, 3), (2, 4) };
             var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToArray();
 
-            Assert.AreEqual(3, results.Length);
+			Assert.That(results.Length, Is.EqualTo(3));
             AssertResult(new[] { (1, 1), (2, 2) }, results[0]);
             AssertResult(new[] { (2, 3) }, results[1]);
             AssertResult(new[] { (2, 4) }, results[2]);
@@ -459,11 +459,11 @@
             .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
             var bestPaths = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).ToList();
-            Assert.AreEqual(1, bestPaths.Count);
+			Assert.That(bestPaths, Has.Count.EqualTo(1));
 
             var first = bestPaths[0].ToList();
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, first.Select(_ => (int)_.QuerySequenceNumber));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, first.Select(_ => (int)_.TrackSequenceNumber));
+			Assert.That(first.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }).AsCollection);
+			Assert.That(first.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }).AsCollection);
         }
 
         [Test(Description = "Permitted gap allows artifacts to have a small mismatch")]
@@ -472,7 +472,7 @@
             var pairs = new[] {(1, 1), (2, 2), (5, 3)};
             var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 3).ToArray();
 
-            Assert.AreEqual(1, results.Length);
+			Assert.That(results.Length, Is.EqualTo(1));
             var expected1 = new[] {(1, 1), (2, 2), (5, 3)};
 
             AssertResult(expected1, results[0]); 
@@ -481,8 +481,8 @@
         private static void AssertResult((int q, int t)[] pairs, IEnumerable<MatchedWith> result)
         {
             var matches = result as MatchedWith[] ?? result.ToArray();
-            CollectionAssert.AreEqual(pairs.Select(_ => _.q), matches.Select(_ => _.QuerySequenceNumber));
-            CollectionAssert.AreEqual(pairs.Select(_ => _.t), matches.Select(_ => _.TrackSequenceNumber));
+			Assert.That(matches.Select(_ => _.QuerySequenceNumber), Is.EqualTo(pairs.Select(_ => _.q)).AsCollection);
+			Assert.That(matches.Select(_ => _.TrackSequenceNumber), Is.EqualTo(pairs.Select(_ => _.t)).AsCollection);
         }
 
         private static IEnumerable<MatchedWith> Generate((int q, int t)[] queryTrackPairs)

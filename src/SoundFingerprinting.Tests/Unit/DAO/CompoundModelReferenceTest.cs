@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.DAO
+namespace SoundFingerprinting.Tests.Unit.DAO
 {
     using NUnit.Framework;
     using SoundFingerprinting.DAO;
@@ -25,78 +25,96 @@
         [Test]
         public void SavesProperties()
         {
-            Assert.AreEqual("prefix", prefix421.Prefix);
-            Assert.AreEqual(42, prefix421.Reference.Get<int>());
-            Assert.AreEqual(42, prefix421.Get<int>());
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(prefix421.Prefix, Is.EqualTo("prefix"));
+				Assert.That(prefix421.Reference.Get<int>(), Is.EqualTo(42));
+				Assert.That(prefix421.Get<int>(), Is.EqualTo(42));
+			});
+		}
 
         [Test]
         public void EqualsIsFalseForDifferentPrefixes()
         {
-            Assert.IsFalse(prefix421.Equals(other42));
+			Assert.That(prefix421.Equals(other42), Is.False);
         }
 
         [Test]
         public void EqualsIsFalseForDifferentModelReferences()
         {
-            Assert.IsFalse(prefix421.Equals(prefix0));
+			Assert.That(prefix421.Equals(prefix0), Is.False);
         }
 
         [Test]
         public void EqualsIsReflexive()
         {
-            Assert.IsTrue(prefix421.Equals(prefix421));
-            Assert.IsTrue(nullRef.Equals(nullRef));
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(prefix421, Is.EqualTo(prefix421));
+				Assert.That(nullRef, Is.EqualTo(nullRef));
+			});
+		}
 
         [Test]
         public void EqualsIsSymmetric()
         {
-            Assert.IsTrue(prefix421.Equals(prefix422));
-            Assert.IsTrue(prefix422.Equals(prefix421));
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(prefix421, Is.EqualTo(prefix422));
+				Assert.That(prefix422, Is.EqualTo(prefix421));
+			});
+		}
 
         [Test]
         public void EqualsIsTransitive()
         {
-            Assert.IsTrue(prefix421.Equals(prefix422));
-            Assert.IsTrue(prefix422.Equals(prefix423));
-            Assert.IsTrue(prefix421.Equals(prefix423));
+			Assert.Multiple(() =>
+			{
+				Assert.That(prefix421, Is.EqualTo(prefix422));
+				Assert.That(prefix422, Is.EqualTo(prefix423));
+			});
+			Assert.That(prefix421, Is.EqualTo(prefix423));
         }
 
         [Test]
         public void EqualsIsFalseForNull()
         {
-            Assert.IsFalse(prefix421.Equals(null));
-            Assert.IsFalse(prefix421.Equals(nullRef));
-            Assert.IsFalse(nullRef.Equals(prefix421));
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(prefix421.Equals(null), Is.False);
+				Assert.That(prefix421.Equals(nullRef), Is.False);
+				Assert.That(nullRef.Equals(prefix421), Is.False);
+			});
+		}
 
         [Test]
         public void EqualsIsNullForOtherGenericTypes()
         {
-            Assert.IsFalse(prefix421.Equals(new CompoundModelReference<uint>(1, new ModelReference<uint>(42))));
+			Assert.That(prefix421.Equals(new CompoundModelReference<uint>(1, new ModelReference<uint>(42))), Is.False);
         }
 
         [Test]
         public void GetHashCodeIsConsistent()
         {
-            Assert.AreEqual(prefix421.GetHashCode(), prefix421.GetHashCode());
+			Assert.That(prefix421.GetHashCode(), Is.EqualTo(prefix421.GetHashCode()));
         }
 
         [Test]
         public void GetHashCodeProducesTheSameResultForEqualObjects()
         {
-            Assert.AreEqual(prefix421.GetHashCode(), prefix422.GetHashCode());
-            Assert.AreEqual(prefix422.GetHashCode(), prefix423.GetHashCode());
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(prefix422.GetHashCode(), Is.EqualTo(prefix421.GetHashCode()));
+				Assert.That(prefix423.GetHashCode(), Is.EqualTo(prefix422.GetHashCode()));
+			});
+		}
 
         [Test]
         public void GetHashCodeDoesNotThrowOnOverflow()
         {
             var @ref = new CompoundModelReference<int>(int.MaxValue, new ModelReference<int>(int.MaxValue));
 
-            Assert.DoesNotThrow(() => @ref.GetHashCode());
+            Assert.That(() => @ref.GetHashCode(), Throws.Nothing);
         }
     }
 }

@@ -35,10 +35,13 @@
             AssertTracksAreEqual(track, readTrack);
             
             var (audioHashes, videoHashes) = modelService.ReadHashesByTrackId("id");
-            Assert.IsNotNull(audioHashes);
-            Assert.IsNotNull(videoHashes);
+			Assert.Multiple(() =>
+			{
+				Assert.That(audioHashes, Is.Not.Null);
+				Assert.That(videoHashes, Is.Not.Null);
+			});
 
-            TestUtilities.AssertHashesAreTheSame(audio, audioHashes);
+			TestUtilities.AssertHashesAreTheSame(audio, audioHashes);
             TestUtilities.AssertHashesAreTheSame(video, videoHashes);
 
             var config = new DefaultQueryConfiguration();
@@ -65,7 +68,7 @@
             modelService.DeleteTrack("id");
             var result = modelService.ReadTrackById("id");
 
-            Assert.IsNull(result);
+			Assert.That(result, Is.Null);
         }
 
         [Test]
@@ -80,7 +83,7 @@
 
             var actualTracks = modelService.GetTrackIds().ToList();
 
-            Assert.AreEqual(numberOfTracks, actualTracks.Count);
+			Assert.That(actualTracks, Has.Count.EqualTo(numberOfTracks));
         }
 
         [Test]
@@ -92,9 +95,9 @@
             modelService.DeleteTrack("id");
 
             var candidates = modelService.QueryEfficiently(GetGenericHashes(), new DefaultQueryConfiguration());
-            Assert.IsTrue(candidates.IsEmpty);
+			Assert.That(candidates.IsEmpty, Is.True);
             var actualTrack = modelService.ReadTrackById("id");
-            Assert.IsNull(actualTrack);
+			Assert.That(actualTrack, Is.Null);
         }
 
         [Test]
@@ -105,14 +108,14 @@
             
             modelService.Insert(expectedTrack, new AVHashes(hashes, null));
             var candidates = modelService.QueryEfficiently(GetGenericHashes(MediaType.Audio), new DefaultQueryConfiguration());
-            
-            Assert.AreEqual(1, candidates.Count);
+
+			Assert.That(candidates.Count, Is.EqualTo(1));
             AssertHashesAreTheSame(hashes, candidates.GetMatches().SelectMany(_ => _.Value));
             var references = modelService.ReadTracksByReferences(candidates.GetMatchedTracks()).ToList();
-            Assert.AreEqual(1, references.Count);
+			Assert.That(references, Has.Count.EqualTo(1));
             var trackReference = references.First().TrackReference;
-            Assert.AreEqual(1, candidates.Count);
-            Assert.AreEqual(trackReference, candidates.GetMatchedTracks().FirstOrDefault());
+			Assert.That(candidates.Count, Is.EqualTo(1));
+			Assert.That(candidates.GetMatchedTracks().FirstOrDefault(), Is.EqualTo(trackReference));
         }
 
         [Test]
@@ -138,7 +141,7 @@
                 ThresholdVotes = 5
             });
 
-            Assert.AreEqual(1, candidates.Count);
+			Assert.That(candidates.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -162,7 +165,7 @@
                 YesMetaFieldsFilters = new Dictionary<string, string> { { "group-id", "first-group-id" } }
             });
 
-            Assert.AreEqual(1, candidates.Count);
+			Assert.That(candidates.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -173,30 +176,36 @@
 
             modelService.Insert(track, new AVHashes(hashes, null));
             var oldTrack = modelService.ReadTrackById(track.Id);
-            Assert.IsNotNull(oldTrack);
+			Assert.That(oldTrack, Is.Not.Null);
 
             var updateTrack = new TrackInfo(track.Id, "new_title", "new_artist", new Dictionary<string, string> {{"group-id", "second-group-id"}});
             modelService.UpdateTrack(updateTrack);
 
             var newTrack = modelService.ReadTrackById(track.Id);
-            Assert.IsNotNull(newTrack);
-            Assert.AreEqual("new_title", newTrack.Title);
-            Assert.AreEqual("new_artist", newTrack.Artist);
-            Assert.AreEqual("second-group-id", newTrack.MetaFields["group-id"]);
+			Assert.That(newTrack, Is.Not.Null);
+			Assert.Multiple(() =>
+			{
+				Assert.That(newTrack.Title, Is.EqualTo("new_title"));
+				Assert.That(newTrack.Artist, Is.EqualTo("new_artist"));
+				Assert.That(newTrack.MetaFields["group-id"], Is.EqualTo("second-group-id"));
+			});
 
-            var candidates = modelService.QueryEfficiently(hashes, new DefaultQueryConfiguration());
-            Assert.AreEqual(100, candidates.GetMatches().SelectMany(_ => _.Value).Count());
+			var candidates = modelService.QueryEfficiently(hashes, new DefaultQueryConfiguration());
+			Assert.That(candidates.GetMatches().SelectMany(_ => _.Value).Count(), Is.EqualTo(100));
         }
 
         private static void AssertHashesAreTheSame(Hashes expected, IEnumerable<MatchedWith> actual)
         {
             var tuples = expected.Join(actual, _ => _.SequenceNumber, _ => _.QuerySequenceNumber, (a, b) => (a, b)).ToList();
-            Assert.AreEqual(tuples.Count, expected.Count);
+			Assert.That(expected, Has.Count.EqualTo(tuples.Count));
             foreach (var (first, second) in tuples)
             {
-                Assert.AreEqual(first.StartsAt, second.QueryMatchAt);
-                Assert.AreEqual(first.SequenceNumber, second.QuerySequenceNumber);
-            } 
+				Assert.Multiple(() =>
+				{
+					Assert.That(second.QueryMatchAt, Is.EqualTo(first.StartsAt));
+					Assert.That(second.QuerySequenceNumber, Is.EqualTo(first.SequenceNumber));
+				});
+			} 
         }
     }
 }

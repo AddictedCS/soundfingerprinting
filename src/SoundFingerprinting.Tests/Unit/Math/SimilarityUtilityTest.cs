@@ -28,7 +28,7 @@
                 var byteSimilarity = similarityUtility.CalculateHammingSimilarity(x, y);
                 var longSimilarity = similarityUtility.CalculateHammingSimilarity(a, b, 4);
 
-                Assert.AreEqual(byteSimilarity, longSimilarity);
+				Assert.That(longSimilarity, Is.EqualTo(byteSimilarity));
             }
         }
 
@@ -40,7 +40,7 @@
 
             var result = similarityUtility.CalculateHammingDistance(first, second);
 
-            Assert.AreEqual(4, result);
+			Assert.That(result, Is.EqualTo(4));
         }
 
         [Test]
@@ -51,7 +51,7 @@
 
             var result = similarityUtility.CalculateHammingSimilarity(first, second);
 
-            Assert.AreEqual(6, result);
+			Assert.That(result, Is.EqualTo(6));
         }
 
         [Test]
@@ -62,7 +62,7 @@
 
             var result = similarityUtility.CalculateJacquardSimilarity(first, second);
 
-            Assert.AreEqual(5f / 6, result, 0.0001);
+			Assert.That(result, Is.EqualTo(5f / 6).Within(0.0001));
         }
 
         [Test]
@@ -70,9 +70,9 @@
         {
             byte[] minHashes = [255, 255, 255, 255];
             int[] hashes = hashConverter.ToInts(minHashes, 1);
-            
-            Assert.AreEqual(1, hashes.Length);
-            Assert.AreEqual(-1, hashes[0]);
+
+			Assert.That(hashes.Length, Is.EqualTo(1));
+			Assert.That(hashes[0], Is.EqualTo(-1));
         }
 
         private byte[] GenerateByteArray(int length)

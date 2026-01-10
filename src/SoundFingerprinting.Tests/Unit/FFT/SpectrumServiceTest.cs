@@ -42,10 +42,13 @@
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.ImageLength, result[0].Rows);
-            Assert.AreEqual(configuration.LogBins, result[0].Cols);
-        }
+			Assert.That(result, Has.Count.EqualTo(1));
+			Assert.Multiple(() =>
+			{
+				Assert.That(result[0].Rows, Is.EqualTo(configuration.ImageLength));
+				Assert.That(result[0].Cols, Is.EqualTo(configuration.LogBins));
+			});
+		}
 
         [Test]
         public void CreateLogSpectrogramFromMinimalSamplesLengthTest()
@@ -57,8 +60,8 @@
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(configuration.ImageLength, result[0].Rows);
+			Assert.That(result, Has.Count.EqualTo(1));
+			Assert.That(result[0].Rows, Is.EqualTo(configuration.ImageLength));
         }
 
         [Test]
@@ -76,7 +79,7 @@
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
             logUtility.Verify(utility => utility.GenerateLogFrequenciesRanges(SampleRate, configuration), Times.Once());
-            Assert.AreEqual(2, result.Count);
+			Assert.That(result, Has.Count.EqualTo(2));
         }
 
         [Test]
@@ -89,7 +92,7 @@
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            Assert.AreEqual((tenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap), result.Count);
+			Assert.That(result, Has.Count.EqualTo((tenMinutes * SampleRate) / (configuration.ImageLength * configuration.Overlap)));
         }
 
         [Test]
@@ -100,7 +103,7 @@
 
             var result = spectrumService.CreateLogSpectrogram(samples, configuration);
 
-            Assert.AreEqual(0, result.Count); 
+			Assert.That(result.Count, Is.EqualTo(0)); 
         }
 
         [Test]
@@ -111,12 +114,12 @@
             var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, configuration);
-            
-            Assert.AreEqual(8, cutLogarithmizedSpectrum.Count);
+
+			Assert.That(cutLogarithmizedSpectrum, Has.Count.EqualTo(8));
             double lengthOfOneFingerprint = (double)configuration.ImageLength * configuration.Overlap / SampleRate;
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint)) < Epsilon);
+				Assert.That(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint)) < Epsilon, Is.True);
             }
         }
         
@@ -129,8 +132,8 @@
             var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, configuration);
-            
-            Assert.AreEqual(1, cutLogarithmizedSpectrum.Count);
+
+			Assert.That(cutLogarithmizedSpectrum, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -142,12 +145,12 @@
             var logSpectrum = GetLogSpectrum(logSpectrumLength);
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
-            
-            Assert.AreEqual(48, cutLogarithmizedSpectrum.Count);
+
+			Assert.That(cutLogarithmizedSpectrum, Has.Count.EqualTo(48));
             double lengthOfOneFingerprint = (double)config.ImageLength * config.Overlap / SampleRate;
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint / 2)) < Epsilon);
+				Assert.That(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * lengthOfOneFingerprint / 2)) < Epsilon, Is.True);
             }
         }
 
@@ -163,10 +166,10 @@
             // Default stride between 2 consecutive images is 512, but because of rounding issues and the fact
             // that minimal step is 11.6 ms, timestamp is roughly .37155 sec
             const double timestampOfFingerprints = (double)512 / SampleRate;
-            Assert.AreEqual(145, cutLogarithmizedSpectrum.Count);
+			Assert.That(cutLogarithmizedSpectrum, Has.Count.EqualTo(145));
             for (int i = 0; i < cutLogarithmizedSpectrum.Count; i++)
             {
-                Assert.IsTrue(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * timestampOfFingerprints)) < Epsilon);
+				Assert.That(System.Math.Abs(cutLogarithmizedSpectrum[i].StartsAt - (i * timestampOfFingerprints)) < Epsilon, Is.True);
             }
         }
 
@@ -180,7 +183,7 @@
 
             var cutLogarithmizedSpectrum = spectrumService.CutLogarithmizedSpectrum(logSpectrum, SampleRate, config);
 
-            Assert.AreEqual(0, cutLogarithmizedSpectrum.Count);
+			Assert.That(cutLogarithmizedSpectrum.Count, Is.EqualTo(0));
         }
 
         private void SetupFftService(DefaultSpectrogramConfig configuration)

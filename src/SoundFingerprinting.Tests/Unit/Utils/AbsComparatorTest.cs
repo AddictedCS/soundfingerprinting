@@ -22,9 +22,12 @@
 
             for (int i = 0; i < arrayToSort.Length; i++)
             {
-                Assert.AreEqual(expected[i], arrayToSort[i]);
-                Assert.AreEqual(expectedIndexes[i], indexes[i]);
-            }
+				Assert.Multiple(() =>
+				{
+					Assert.That(arrayToSort[i], Is.EqualTo(expected[i]));
+					Assert.That(indexes[i], Is.EqualTo(expectedIndexes[i]));
+				});
+			}
         }
     }
 }

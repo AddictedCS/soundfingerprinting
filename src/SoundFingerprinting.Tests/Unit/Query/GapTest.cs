@@ -23,7 +23,7 @@ public class GapTest
     [Test]
     public void LengthMustBePositive()
     {
-        Assert.AreEqual(42, new Gap(8, 50, false).LengthInSeconds);
+		Assert.That(new Gap(8, 50, false).LengthInSeconds, Is.EqualTo(42));
     }
 
     [Test]
@@ -65,10 +65,12 @@ public class GapTest
 
         var match = audioResult.BestMatch;
         Assert.That(match, Is.Not.Null);
-            
-        Assert.That(match.Coverage.QueryGaps, Is.Not.Empty);
-        Assert.That(match.Coverage.TrackGaps, Is.Not.Empty);
-        Assert.That(match.Coverage.QueryGaps.Count(), Is.EqualTo(3));
+		Assert.Multiple(() =>
+		{
+			Assert.That(match.Coverage.QueryGaps, Is.Not.Empty);
+			Assert.That(match.Coverage.TrackGaps, Is.Not.Empty);
+		});
+		Assert.That(match.Coverage.QueryGaps.Count(), Is.EqualTo(3));
         Assert.That(match.Coverage.TrackGaps.Count(), Is.EqualTo(3));
         
         var queryGaps = match.Coverage.QueryGaps.ToList();
@@ -81,9 +83,12 @@ public class GapTest
 
     private static void AssertGap(Gap queryGap, int gapLength, Gap trackGap, int gapStartsAt)
     {
-        Assert.That(queryGap.LengthInSeconds, Is.EqualTo(gapLength).Within(1d));
-        Assert.That(trackGap.LengthInSeconds, Is.EqualTo(gapLength).Within(1d));
-        Assert.That(queryGap.Start, Is.EqualTo(gapStartsAt).Within(1d));
-        Assert.That(trackGap.Start, Is.EqualTo(gapStartsAt).Within(1d));
-    }
+		Assert.Multiple(() =>
+		{
+			Assert.That(queryGap.LengthInSeconds, Is.EqualTo(gapLength).Within(1d));
+			Assert.That(trackGap.LengthInSeconds, Is.EqualTo(gapLength).Within(1d));
+			Assert.That(queryGap.Start, Is.EqualTo(gapStartsAt).Within(1d));
+			Assert.That(trackGap.Start, Is.EqualTo(gapStartsAt).Within(1d));
+		});
+	}
 }

@@ -20,7 +20,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.IsFalse(result.IsValid);
+			Assert.That(result.IsValid, Is.False);
         }
 
         [Test]
@@ -32,7 +32,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.IsTrue(result.IsValid);
+			Assert.That(result.IsValid, Is.True);
         }
 
         [Test]
@@ -49,7 +49,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario1, scenario2, scenario3, scenario4, scenario5, scenario6 }.ToArray());
 
-            Assert.IsTrue(result.IsValid);
+			Assert.That(result.IsValid, Is.True);
         }
 
         [Test]
@@ -61,7 +61,7 @@
 
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
-            Assert.IsTrue(result.IsValid);
+			Assert.That(result.IsValid, Is.True);
         }
 
         [Test]
@@ -75,7 +75,7 @@
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
             Directory.Delete(directory.FullName);
-            Assert.IsFalse(result.IsValid);
+			Assert.That(result.IsValid, Is.False);
         }
 
         [Test]
@@ -89,7 +89,7 @@
             var result = validator.ValidateScenarious(new List<string> { scenario }.ToArray());
 
             Directory.Delete(directory.FullName);
-            Assert.IsFalse(result.IsValid);
+			Assert.That(result.IsValid, Is.False);
         }
     }
 }
