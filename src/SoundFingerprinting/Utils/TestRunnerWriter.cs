@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Utils
+namespace SoundFingerprinting.Utils
 {
     using System;
     using System.IO;
@@ -59,10 +59,8 @@
             sb.AppendLine(string.Format("True Positives: {0}", statistics.TruePositiveInfo));
             sb.AppendLine(string.Format("True Positives Percentile: {0}", statistics.TruePositivePercentileInfo));
 
-
             sb.AppendLine(string.Format("False Negatives: {0}", statistics.FalseNegativesInfo));
             sb.AppendLine(string.Format("False Negatives Percentile: {0}", statistics.FalseNegativesPercentileInfo));
-
 
             sb.AppendLine(string.Format("False Positives: {0}", statistics.FalsePositivesInfo));
             sb.AppendLine(string.Format("False Positives Percentile: {0}", statistics.FalsePositivesPercentileInfo));

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Math
+namespace SoundFingerprinting.Math
 {
     using System;
 
@@ -127,7 +127,6 @@
 
             return grouped;
         }
-
 
         private int GetBytesPerLong(int bytesArrayCount, int longsArrayCount)
         {

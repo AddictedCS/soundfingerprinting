@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.LSH
+namespace SoundFingerprinting.LSH
 {
     using System;
     using System.Collections.Concurrent;
@@ -84,7 +84,7 @@
                     h ^= signature[table * k + i];
                 }
 
-                hash[table] = (int) h;
+                hash[table] = (int)h;
             }
 
             return hash;

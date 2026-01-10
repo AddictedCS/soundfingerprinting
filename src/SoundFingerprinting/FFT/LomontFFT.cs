@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.FFT
+namespace SoundFingerprinting.FFT
 {
     // Code to implement decently performing FFT for complex and real valued                                         
     // signals. See www.lomont.org for a derivation of the relevant algorithms                                       
@@ -92,7 +92,6 @@
                 mmax = istep;
             }
 
-
             // perform data scaling as needed                                                                    
             Scale(data, n, forward, length);
         }
@@ -182,7 +181,7 @@
                 // do packed inverse (table based) FFT. This can be changed to regular inverse FFT to save memory
                 TableFFT(data, false, length);
                 // scaling - divide by scaling for N, then mult by scaling for N/2                               
-                //if (A != -1) // todo - off by factor of 2? this works, but something seems weird               
+                // if (A != -1) // todo - off by factor of 2? this works, but something seems weird               
                 {
                     var scale = (float)Math.Pow(2.0, -(A + 1) / 2.0) * 2;
                     for (var i = 0; i < length; ++i)

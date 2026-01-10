@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Image
+namespace SoundFingerprinting.Image
 {
     using System;
     
@@ -47,10 +47,10 @@
         public static float[][] BytesToFloatImage(byte[][] array, int max)
         {
             float[][] floats = new float[array.Length][];
-            for(int i = 0; i < array.Length; ++i)
+            for (int i = 0; i < array.Length; ++i)
             {
                 floats[i] = new float[array[i].Length];
-                for(int j = 0; j < array[i].Length; ++j)
+                for (int j = 0; j < array[i].Length; ++j)
                 {
                     floats[i][j] = (float)array[i][j] / max;
                 }

@@ -13,7 +13,7 @@ namespace SoundFingerprinting.Image
             for (int i = 0; i < image.Length; ++i)
             {
                 this.image[i] = new float[image[0].Length];
-                for(int j = 0; j < image[0].Length; ++j)
+                for (int j = 0; j < image[0].Length; ++j)
                 {
                     this.image[i][j] = image[i][j];
                 }
@@ -173,7 +173,7 @@ namespace SoundFingerprinting.Image
                         }
                     }
 
-                    result[y][x] = (float) rgb;
+                    result[y][x] = (float)rgb;
                 }
             });
 
