@@ -3,93 +3,28 @@ namespace SoundFingerprinting.MinHash
     using System;
     using SoundFingerprinting.Utils;
 
-    /// <summary>
-    /// Represents an entry in the inverted index mapping a bit position
-    /// to a permutation and its rank within that permutation.
-    /// </summary>
-    internal readonly struct PermutationEntry(byte permutationIndex, byte rank)
-    {
-        /// <summary>
-        /// Gets index of the permutation (0 to 99 typically).
-        /// </summary>
-        public byte PermutationIndex { get; } = permutationIndex;
-
-        /// <summary>
-        /// Gets rank of the bit within this permutation (0 to 255).
-        /// Lower rank means higher priority in min-hash computation.
-        /// </summary>
-        public byte Rank { get; } = rank;
-    }
-
     internal class MinHashService : IMinHashService<byte>
     {
-        // inverted index: for each bit position, stores permutation entries, this allows single-pass scanning through set bits instead of nested loops
-        private readonly PermutationEntry[][] invertedIndex;
-        private readonly int maxBitIndex;
+        private readonly IPermutations permutations;
 
         internal MinHashService(IPermutations permutations)
         {
-            // build inverted index for fast min-hash computation
-            int[][] perms = permutations.GetPermutations();
-            
-            // find max bit index to size the inverted index
-            maxBitIndex = 0;
-            for (int i = 0; i < perms.Length; i++)
-            {
-                for (int j = 0; j < perms[i].Length; j++)
-                {
-                    if (perms[i][j] > maxBitIndex)
-                    {
-                        maxBitIndex = perms[i][j];
-                    }
-                }
-            }
-
-            maxBitIndex++; // convert to size
-
-            // count how many permutations reference each bit position
-            int[] counts = new int[maxBitIndex];
-            for (int i = 0; i < perms.Length; i++)
-            {
-                for (int j = 0; j < perms[i].Length; j++)
-                {
-                    counts[perms[i][j]]++;
-                }
-            }
-
-            // allocate inverted index arrays
-            invertedIndex = new PermutationEntry[maxBitIndex][];
-            for (int i = 0; i < maxBitIndex; i++)
-            {
-                invertedIndex[i] = counts[i] > 0 ? new PermutationEntry[counts[i]] : [];
-            }
-
-            // fill inverted index: for each bit position, store which permutations reference it and at what rank
-            int[] currentIndex = new int[maxBitIndex];
-            for (int permIdx = 0; permIdx < perms.Length; permIdx++)
-            {
-                for (int rank = 0; rank < perms[permIdx].Length; rank++)
-                {
-                    int bitPos = perms[permIdx][rank];
-                    int idx = currentIndex[bitPos]++;
-                    invertedIndex[bitPos][idx] = new PermutationEntry((byte)permIdx, (byte)rank);
-                }
-            }
+            this.permutations = permutations;
         }
 
         /// <summary>
         ///  Gets old permutations, not used anymore.
         /// </summary>
-        public static MinHashService Default { get; } = new MinHashService(new DefaultPermutations());
+        public static MinHashService Default { get; } = new (new DefaultPermutations());
 
         /// <summary>
         ///  Gets max entropy permutations.
         /// </summary>
-        public static MinHashService MaxEntropy { get; } = new MinHashService(new MaxEntropyPermutations());
+        public static MinHashService MaxEntropy { get; } = new (new MaxEntropyPermutations());
 
         public byte[] Hash(IEncodedFingerprintSchema fingerprint, int n)
         {
-            return ComputeMinHashSignatureFast(fingerprint, n);
+            return ComputeMinHashSignature(fingerprint, n);
         }
 
         /// <summary>
@@ -108,38 +43,31 @@ namespace SoundFingerprinting.MinHash
         /// The basic idea in the Min Hashing scheme is to randomly permute the rows and for each 
         /// column c(i) compute its hash value h(c(i)) as the index of the first row under the permutation that has a 1 in that column.
         /// I.e. http://infolab.stanford.edu/~ullman/mmds/book.pdf s.3.3.4
-        /// Optimized Min Hash computation using inverted index.
-        /// Instead of iterating through each permutation and checking bits sequentially, we iterate through set bits once and update affected permutations.
         /// </remarks>
-        private byte[] ComputeMinHashSignatureFast(IEncodedFingerprintSchema fingerprint, int n)
+        private byte[] ComputeMinHashSignature(IEncodedFingerprintSchema fingerprint, int n)
         {
-            byte[] minHash = new byte[n];
-            
-            // initialize all to 255 (not found)
+            if (n > permutations.Count)
+            {
+                throw new ArgumentException("n should not exceed number of available hash functions: " + permutations.Count);
+            }
+
+            int[][] perms = permutations.GetPermutations();
+            byte[] minHash = new byte[n]; /*100*/
             for (int i = 0; i < n; i++)
             {
-                minHash[i] = 255;
-            }
-            
-            // iterate through all bit positions and check if set
-            // for each set bit, update the minimum rank for all permutations that reference it
-            for (int bitPos = 0; bitPos < maxBitIndex; bitPos++)
-            {
-                if (fingerprint[bitPos])
+                minHash[i] = 255; /*The probability of occurrence of 1 after position 255 is very insignificant*/
+                for (byte j = 0; j < perms[i].Length /*256*/; j++)
                 {
-                    var entries = invertedIndex[bitPos];
-                    for (int j = 0; j < entries.Length; j++)
+                    int indexAt = perms[i][j];
+                    if (fingerprint[indexAt])
                     {
-                        var entry = entries[j];
-                        if (entry.PermutationIndex < n && entry.Rank < minHash[entry.PermutationIndex])
-                        {
-                            minHash[entry.PermutationIndex] = entry.Rank;
-                        }
+                        minHash[i] = j; /*Looking for first occurrence of '1'*/
+                        break;
                     }
                 }
             }
-            
-            return minHash;
+
+            return minHash; /*Array of 100 elements with bit turned ON if permutation captured successfully a TRUE bit*/
         }
     }
 }

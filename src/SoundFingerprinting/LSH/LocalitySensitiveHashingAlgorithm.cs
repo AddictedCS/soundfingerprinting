@@ -17,7 +17,7 @@ namespace SoundFingerprinting.LSH
         private readonly IHashConverter hashConverter = HashConverter.Instance;
         private readonly ConcurrentDictionary<int, IMinHashService<int>> extendedMinHashServices;
 
-        internal LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService)
+        private LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService)
         {
             extendedMinHashServices = new ConcurrentDictionary<int, IMinHashService<int>>();
             this.minHashService = minHashService;
