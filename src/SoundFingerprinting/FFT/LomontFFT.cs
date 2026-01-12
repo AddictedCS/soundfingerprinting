@@ -62,7 +62,10 @@ namespace SoundFingerprinting.FFT
             var n = length;
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
+            {
                 throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
+            }
+
             n /= 2;    // n is the number of samples                                                             
 
             Reverse(data, n); // bit index data reversal                                                         
@@ -115,7 +118,9 @@ namespace SoundFingerprinting.FFT
             var n = length; // # of real inputs, 1/2 the complex length                                     
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
+            {
                 throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
+            }
 
             float sign = -1.0f; // assume inverse FFT, this controls how algebra below works                        
             if (forward)
@@ -127,7 +132,9 @@ namespace SoundFingerprinting.FFT
                 {
                     var scale = (float)Math.Pow(2.0, (A - 1) / 2.0);
                     for (var i = 0; i < length; ++i)
+                    {
                         data[i] *= scale;
+                    }
                 }
             }
 
@@ -185,7 +192,9 @@ namespace SoundFingerprinting.FFT
                 {
                     var scale = (float)Math.Pow(2.0, -(A + 1) / 2.0) * 2;
                     for (var i = 0; i < length; ++i)
+                    {
                         data[i] *= scale;
+                    }
                 }
             }
         }
@@ -233,7 +242,9 @@ namespace SoundFingerprinting.FFT
             {
                 var scale = (float)Math.Pow(n, (A - 1) / 2.0);
                 for (var i = 0; i < length; ++i)
+                {
                     data[i] *= scale;
+                }
             }
 
             // inverse scaling if needed                                                                         
@@ -241,7 +252,9 @@ namespace SoundFingerprinting.FFT
             {
                 var scale = (float)Math.Pow(n, -(A + 1) / 2.0);
                 for (var i = 0; i < length; ++i)
+                {
                     data[i] *= scale;
+                }
             }
         }
 
@@ -324,7 +337,9 @@ namespace SoundFingerprinting.FFT
                 // Knuth R3: advance k                                                                           
                 k += 4;
                 if (k >= n)
+                {
                     break;
+                }
                 // Knuth R4: advance j                                                                           
                 var h = top;
                 while (j >= h)

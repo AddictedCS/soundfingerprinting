@@ -145,9 +145,14 @@ namespace SoundFingerprinting.Image
         private void AssertSize(GrayImage other)
         {
             if (other.Width != Width)
+            {
                 throw new ArgumentException(nameof(other.Width));
+            }
+
             if (other.Height != Height)
+            {
                 throw new ArgumentException(nameof(other.Height));
+            }
         }
 
         public static float[][] Convolve(float[][] image, double[,] kernel)

@@ -20,10 +20,15 @@ namespace SoundFingerprinting.Image
             int n = width * height;
             id = new int[n];
             for (int i = 0; i < n; i++)
+            {
                 id[i] = i;
+            }
+
             sz = new int[n];
             for (int i = 0; i < n; i++)
+            {
                 sz[i] = 1;
+            }
 
             count = n;
         }
@@ -49,7 +54,9 @@ namespace SoundFingerprinting.Image
             int rp = Find(p);
             int rq = Find(q);
             if (rp == rq)
+            {
                 return;
+            }
             // make the smaller root point to the larger one
             if (sz[rp] <= sz[rq])
             {
@@ -80,7 +87,10 @@ namespace SoundFingerprinting.Image
         {
             int root = p;
             while (root != id[root])
+            {
                 root = id[root];
+            }
+
             while (p != root)
             {
                 int newp = id[p];

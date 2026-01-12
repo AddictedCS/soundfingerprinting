@@ -28,11 +28,19 @@ namespace SoundFingerprinting.Image
             int borderWidth)
         {
             if (img1.Width != img2.Width)
+            {
                 throw new ArgumentException(nameof(img1.Width));
+            }
+
             if (differenceThreshold < 0 || differenceThreshold > 255)
+            {
                 throw new AggregateException(nameof(differenceThreshold));
+            }
+
             if (areaThreshold < 2)
+            {
                 throw new ArgumentException(nameof(areaThreshold));
+            }
 
             double[,] kernel2d = GaussianBlurKernel.Kernel2D(kernelSize, sigma);
             var ux = img1.GaussianBlur(kernel2d);
