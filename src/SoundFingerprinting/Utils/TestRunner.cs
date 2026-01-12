@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Utils
+namespace SoundFingerprinting.Utils
 {
     using System;
     using System.Collections.Concurrent;
@@ -59,10 +59,15 @@
         }
 
         public event TestRunnerEvent PositiveNotFoundEvent;
+
         public event TestRunnerEvent PositiveFoundEvent;
+
         public event TestRunnerEvent NegativeNotFoundEvent;
+
         public event TestRunnerEvent NegativeFoundEvent;
+
         public event TestRunnerEvent TestIterationFinishedEvent;
+
         public event TestRunnerEvent OngoingActionEvent;
         
         public void Run()

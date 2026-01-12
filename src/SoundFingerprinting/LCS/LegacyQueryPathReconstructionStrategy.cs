@@ -5,15 +5,8 @@ using System.Linq;
 using SoundFingerprinting.Query;
 using static SoundFingerprinting.Query.SubFingerprintsToSeconds;
 
-internal class LegacyQueryPathReconstructionStrategy
+internal class LegacyQueryPathReconstructionStrategy(double fingerprintLengthInSeconds)
 {
-    private readonly double fingerprintLengthInSeconds;
-
-    public LegacyQueryPathReconstructionStrategy(double fingerprintLengthInSeconds)
-    {
-        this.fingerprintLengthInSeconds = fingerprintLengthInSeconds;
-    }
-    
     /// <summary>
     ///  Get reconstructed best path for matched entries.
     /// </summary>
@@ -25,7 +18,7 @@ internal class LegacyQueryPathReconstructionStrategy
     /// </returns>
     public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double maxGap)
     {
-        return new[] { GetBestPath(matches, maxGap, fingerprintLengthInSeconds) };
+        return [GetBestPath(matches, maxGap, fingerprintLengthInSeconds)];
     }
     
     /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>

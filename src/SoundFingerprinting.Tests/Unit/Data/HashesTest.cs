@@ -36,13 +36,16 @@ namespace SoundFingerprinting.Tests.Unit.Data
 
             var result = a.MergeWith(b);
             var mergedHashes = result.ToList();
-            Assert.AreEqual(0, mergedHashes[0].StartsAt);
-            Assert.AreEqual(1f, mergedHashes[1].StartsAt, 0.0001);
-            Assert.AreEqual(one, mergedHashes[2].StartsAt, 0.0001);
-            Assert.AreEqual(1 + one, mergedHashes[3].StartsAt, 0.0001);
-            Assert.AreEqual(2 * one, mergedHashes[4].StartsAt, 0.0001);
-            Assert.AreEqual(1 + 2 * one, mergedHashes[5].StartsAt, 0.0001);
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(mergedHashes[0].StartsAt, Is.EqualTo(0));
+				Assert.That(mergedHashes[1].StartsAt, Is.EqualTo(1f).Within(0.0001));
+				Assert.That(mergedHashes[2].StartsAt, Is.EqualTo(one).Within(0.0001));
+				Assert.That(mergedHashes[3].StartsAt, Is.EqualTo(1 + one).Within(0.0001));
+				Assert.That(mergedHashes[4].StartsAt, Is.EqualTo(2 * one).Within(0.0001));
+				Assert.That(mergedHashes[5].StartsAt, Is.EqualTo(1 + 2 * one).Within(0.0001));
+			});
+		}
 
         [Test]
         public void ShouldMergeCorrectly()
@@ -58,9 +61,12 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var y = x.MergeWith(c);
             var z = y.MergeWith(d);
 
-            Assert.AreEqual(dateTime, z.RelativeTo);
-            Assert.AreEqual(3, z.Count);
-            Assert.AreEqual(3 * acc, z.DurationInSeconds, 0.001);
+			Assert.Multiple(() =>
+			{
+				Assert.That(z.RelativeTo, Is.EqualTo(dateTime));
+				Assert.That(z, Has.Count.EqualTo(3));
+			});
+			Assert.That(z.DurationInSeconds, Is.EqualTo(3 * acc).Within(0.001));
         }
 
         [Test]
@@ -85,16 +91,16 @@ namespace SoundFingerprinting.Tests.Unit.Data
             for (int i = 0; i < 200; ++i)
             {
                 var mergedHashes = c.ToList();
-                Assert.AreEqual(i, mergedHashes[i].SequenceNumber);
+				Assert.That(mergedHashes[i].SequenceNumber, Is.EqualTo(i));
                 if (i % 2 == 0)
                 {
-                    Assert.AreEqual(one * (i / 2), mergedHashes[i].StartsAt, 0.0001);
-                    CollectionAssert.AreEqual(new[] {1}, mergedHashes[i].HashBins);
+					Assert.That(mergedHashes[i].StartsAt, Is.EqualTo(one * (i / 2)).Within(0.0001));
+					Assert.That(mergedHashes[i].HashBins, Is.EqualTo(new[] { 1 }).AsCollection);
                 }
                 else
                 {
-                    Assert.AreEqual(1.3f + one * (i / 2), mergedHashes[i].StartsAt, 0.0001);
-                    CollectionAssert.AreEqual(new[] {2}, mergedHashes[i].HashBins);
+					Assert.That(mergedHashes[i].StartsAt, Is.EqualTo(1.3f + one * (i / 2)).Within(0.0001));
+					Assert.That(mergedHashes[i].HashBins, Is.EqualTo(new[] { 2 }).AsCollection);
                 }
             }
         }
@@ -107,8 +113,8 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var timed = new Hashes(list, list.Count * FingerprintCount, MediaType.Audio, DateTime.Now, Enumerable.Empty<string>());
             var buffer = Serialize(timed);
             var deserialized = Deserialize(buffer);
-            Assert.AreEqual(timed.Count, deserialized.Count);
-            Assert.AreEqual(timed.RelativeTo, deserialized.RelativeTo);
+			Assert.That(deserialized, Has.Count.EqualTo(timed.Count));
+			Assert.That(deserialized.RelativeTo, Is.EqualTo(timed.RelativeTo));
 
             for (int i = 0; i < timed.Count; ++i)
             {
@@ -117,9 +123,12 @@ namespace SoundFingerprinting.Tests.Unit.Data
                 var deserializedHashes = deserialized.ToList();
                 HashedFingerprint b = deserializedHashes[i];
 
-                Assert.AreEqual(a.StartsAt, b.StartsAt);
-                Assert.AreEqual(a.SequenceNumber, b.SequenceNumber);
-                CollectionAssert.AreEqual(a.HashBins, b.HashBins);
+				Assert.Multiple(() =>
+				{
+					Assert.That(b.StartsAt, Is.EqualTo(a.StartsAt));
+					Assert.That(b.SequenceNumber, Is.EqualTo(a.SequenceNumber));
+				});
+				Assert.That(b.HashBins, Is.EqualTo(a.HashBins).AsCollection);
             }
         }
 
@@ -134,7 +143,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var b = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio, bStartsAt);
             
             var c = a.MergeWith(b);
-            Assert.AreEqual(count * 2, c.Count);
+			Assert.That(c, Has.Count.EqualTo(count * 2));
             
             AssertInvariantsForHashes(c, aStartsAt);
             var rangeA = c.GetRange(aStartsAt, 120);
@@ -156,7 +165,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var b = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio, bStartsAt);
             
             var c = a.MergeWith(b);
-            Assert.AreEqual(count * 2, c.Count);
+			Assert.That(c, Has.Count.EqualTo(count * 2));
             
             var rangeA = c.GetRange(0, count * 1.48f);
             AssertHashesAreEqual(a, rangeA);
@@ -173,31 +182,37 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var next = TestUtilities.GetRandomHashes(205).WithRelativeTo(DateTime.UnixEpoch.AddSeconds(195)).WithTimeOffset(-5);
 
             var merged =  prev.MergeWith(next);
-            
-            Assert.AreEqual(400, merged.DurationInSeconds);
+
+			Assert.That(merged.DurationInSeconds, Is.EqualTo(400));
         }
 
         private static void AssertInvariantsForHashes(Hashes hashes, DateTime startsAt)
         {
-            Assert.AreEqual((startsAt - hashes.RelativeTo).TotalSeconds, 0, 0.1);
+			Assert.That((startsAt - hashes.RelativeTo).TotalSeconds, Is.EqualTo(0).Within(0.1));
             var list = hashes.ToList();
-            Assert.AreEqual(0, list.First().StartsAt);
-            Assert.AreEqual(0, list.First().SequenceNumber);
-            for (int i = 1; i < hashes.Count; ++i)
+			Assert.Multiple(() =>
+			{
+				Assert.That(list.First().StartsAt, Is.EqualTo(0));
+				Assert.That(list.First().SequenceNumber, Is.EqualTo(0));
+			});
+			for (int i = 1; i < hashes.Count; ++i)
             {
-                Assert.IsTrue(list[i].StartsAt >= list[i - 1].StartsAt);
-                Assert.IsTrue(list[i].SequenceNumber >= list[i - 1].SequenceNumber);
-            }
+				Assert.Multiple(() =>
+				{
+					Assert.That(list[i].StartsAt >= list[i - 1].StartsAt, Is.True);
+					Assert.That(list[i].SequenceNumber >= list[i - 1].SequenceNumber, Is.True);
+				});
+			}
 
-            Assert.AreEqual(hashes.DurationInSeconds, list.Last().StartsAt - list.First().StartsAt + 1.48f, 0.1f);
+			Assert.That(list.Last().StartsAt - list.First().StartsAt + 1.48f, Is.EqualTo(hashes.DurationInSeconds).Within(0.1f));
         }
 
         private static void AssertHashesAreEqual(Hashes a, Hashes b)
         {
-            Assert.AreEqual(a.Count, b.Count);
+			Assert.That(b, Has.Count.EqualTo(a.Count));
             foreach (var tuple in a.Zip(b))
             {
-                CollectionAssert.AreEqual(tuple.First.HashBins, tuple.Second.HashBins);
+				Assert.That(tuple.Second.HashBins, Is.EqualTo(tuple.First.HashBins).AsCollection);
             }
         }
 

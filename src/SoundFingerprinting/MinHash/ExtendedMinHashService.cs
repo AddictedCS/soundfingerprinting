@@ -1,17 +1,10 @@
-﻿namespace SoundFingerprinting.MinHash
+namespace SoundFingerprinting.MinHash
 {
     using System;
     using SoundFingerprinting.Utils;
 
-    internal class ExtendedMinHashService : IMinHashService<int>
+    internal class ExtendedMinHashService(IPermutations permutations) : IMinHashService<int>
     {
-        private readonly IPermutations permutations;
-
-        public ExtendedMinHashService(IPermutations permutations)
-        {
-            this.permutations = permutations;
-        }
-
         public int[] Hash(IEncodedFingerprintSchema schema, int n)
         {
             if (n > permutations.Count)

@@ -90,7 +90,7 @@
             modelService.Setup(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Callback(
                 (Hashes hashes, QueryConfiguration configuration) =>
                 {
-                    Assert.AreEqual(30, hashes.DurationInSeconds, 0.001);
+					Assert.That(hashes.DurationInSeconds, Is.EqualTo(30).Within(0.001));
                 }).Returns(new Candidates());
             
             var avQueryResult = await QueryCommandBuilder.Instance
@@ -98,8 +98,8 @@
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(modelService.Object, mediaService.Object)
                 .Query();
-            
-            Assert.IsFalse(avQueryResult.ContainsMatches);
+
+			Assert.That(avQueryResult.ContainsMatches, Is.False);
             
             modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
         }

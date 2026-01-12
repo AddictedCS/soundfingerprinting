@@ -1,16 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>13.0.0</PackageVersion>
+	<PackageVersion>14.0.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 14.0.0
+		- Fixing parallelisim inside FingerprintService
+		- QueryPathReconstructionStrategy lookup optimization O(1) instead of O(n^2)
+		- Improving HashConverter performance by using direct bit manipulation instead of BitConverter
 		Version 13.0.0
 		- Upgrading .NET dependencies to .NET 10
 		Version 12.8.0

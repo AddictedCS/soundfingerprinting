@@ -1,7 +1,6 @@
 namespace SoundFingerprinting
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -57,58 +56,54 @@ namespace SoundFingerprinting
             }
             
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            var fingerprints = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration).ToList();
+            var fingerprints = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration);
             var hashes = fingerprints
                 .AsParallel()
-                .ToList()
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, new[] {samples.Origin}, string.Empty, new Dictionary<string, string>(), samples.TimeOffset));
+            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, [samples.Origin], string.Empty, new Dictionary<string, string>(), samples.TimeOffset));
         }
 
         /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromImageFrames"/>
         public FingerprintsAndHashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
         {
-            var frames = imageFrames.ToList();
-            var fingerprints = CreateOriginalFingerprintsFromFrames(frames, configuration).ToList();
+            var fingerprints = CreateOriginalFingerprintsFromFrames(imageFrames, configuration);
             var hashes = fingerprints
                 .AsParallel()
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, new[] {imageFrames.Origin}));
+            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, [imageFrames.Origin]));
         }
 
-        internal IEnumerable<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
+        private List<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
         {
             var normalized = configuration.FrameNormalizationTransform.Normalize(frames);
             var images = normalized.ToList();
-            if (!images.Any())
+            if (images.Count == 0)
             {
                 return [];
             }
 
-            var fingerprints = new ConcurrentBag<Fingerprint>();
-            var length = images.First().Length;
+            // pre-sized array for zero-contention parallel writes - each thread writes to its own index
+            var fingerprints = new Fingerprint[images.Count];
+            var length = images[0].Length;
             var saveTransform = configuration.OriginalPointSaveTransform;
-            Parallel.ForEach(images, () => new ushort[length], (frame, _, cachedIndexes) =>
-                {
-                    byte[] originalPoint = saveTransform(frame);
-                    float[] rowCols = frame.ImageRowCols;
-                    waveletDecomposition.DecomposeImageInPlace(rowCols, frame.Rows, frame.Cols, configuration.HaarWaveletNorm);
-                    RangeUtils.PopulateIndexes(length, cachedIndexes);
-                    var image = fingerprintDescriptor.ExtractTopWavelets(rowCols, configuration.TopWavelets, cachedIndexes);
-                    if (!image.IsSilence || configuration.TreatSilenceAsSignal)
-                    {
-                        fingerprints.Add(new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, originalPoint));
-                    }
+            Parallel.For(0, images.Count, () => new ushort[length], (index, _, cachedIndexes) =>
+            {
+                var frame = images[index];
+                byte[] originalPoint = saveTransform(frame);
+                float[] rowCols = frame.ImageRowCols;
+                waveletDecomposition.DecomposeImageInPlace(rowCols, frame.Rows, frame.Cols, configuration.HaarWaveletNorm);
+                RangeUtils.PopulateIndexes(length, cachedIndexes);
+                var image = fingerprintDescriptor.ExtractTopWavelets(rowCols, configuration.TopWavelets, cachedIndexes);
+                fingerprints[index] = new Fingerprint(image, frame.StartsAt, frame.SequenceNumber, originalPoint);
+                return cachedIndexes;
+            },
+            _ => { });
 
-                    return cachedIndexes;
-                },
-                _ => { });
-
-            return fingerprints.ToList();
+            return configuration.TreatSilenceAsSignal ? fingerprints.ToList() : fingerprints.Where(fingerprint => !fingerprint.Schema.IsSilence).ToList();
         }
     }
 }

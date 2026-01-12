@@ -54,7 +54,7 @@
 
             foreach (var table in tables)
             {
-                Assert.IsTrue(table.Count > runs * 0.9);
+				Assert.That(table.Count > runs * 0.9, Is.True);
             }
         }
 
@@ -64,8 +64,8 @@
             long maxValue = (long)int.MaxValue + 1;
 
             int convertBack = (int) maxValue;
-            
-            Assert.AreEqual(int.MinValue, convertBack);
+
+			Assert.That(convertBack, Is.EqualTo(int.MinValue));
         }
         
         [Test]
@@ -103,7 +103,7 @@
             logger.LogInformation(string.Join(",", tables.Select(t => t.Count)));
             foreach (var table in tables)
             {
-                Assert.IsTrue(table.Count > runs * 0.9);
+				Assert.That(table.Count > runs * 0.9, Is.True);
             }
         }
         
@@ -135,7 +135,7 @@
                 for (int j = 0; j < 25; ++j)
                 {
                     var ids = storage.GetSubFingerprintsByHashTableAndHash(j, hash.HashBins[j], MediaType.Audio);
-                    Assert.IsFalse(ids.Any());
+					Assert.That(ids.Any(), Is.False);
                 }
             }
         }
@@ -167,7 +167,7 @@
             foreach (var hashPerTable in distribution)
             {
                 double collisions = (double) (l - hashPerTable) / l;
-                Assert.IsTrue(collisions <= 0.01d, $"Less than 1% of collisions across 100K hashes: {collisions}");
+				Assert.That(collisions, Is.LessThanOrEqualTo(0.01d), $"Less than 1% of collisions across 100K hashes: {collisions}");
             }
         }
 
@@ -206,9 +206,12 @@
                 }
 
                 int requested = (int)((1 - howSimilar) * topWavelets * 2);
-                Assert.AreEqual(requested, hammingDistances.Average(), 1);
-                Assert.AreEqual(expectedThresholds[r], Math.Floor(agreeOn.Average()));
-                logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", howSimilar, agreeOn.Average());
+				Assert.Multiple(() =>
+				{
+					Assert.That(hammingDistances.Average(), Is.EqualTo(requested).Within(1));
+					Assert.That(Math.Floor(agreeOn.Average()), Is.EqualTo(expectedThresholds[r]));
+				});
+				logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", howSimilar, agreeOn.Average());
             });
         }
 

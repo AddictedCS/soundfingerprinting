@@ -34,7 +34,7 @@
             int samples = (int)(fingerprints.DurationInSeconds * config.SampleRate);
             int expectedFingerprints = (int)Math.Round(((double)(samples - (config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize)) / config.Stride.NextStride));
 
-            Assert.AreEqual(expectedFingerprints, fingerprints.Count);
+			Assert.That(fingerprints, Has.Count.EqualTo(expectedFingerprints));
         }
 
         [Test]
@@ -53,7 +53,7 @@
             var config = new DefaultFingerprintConfiguration();
             Assert.That(fingerprints, Is.Not.Null);
             int expected = (int)((fingerprints.DurationInSeconds * config.SampleRate) / config.SamplesPerFingerprint);
-            Assert.AreEqual(expected, fingerprints.Count); 
+			Assert.That(fingerprints, Has.Count.EqualTo(expected)); 
         }
 
         [Test]
@@ -77,16 +77,22 @@
                                .UsingServices(modelService)
                                .Query();
 
-            Assert.IsTrue(queryResult.ContainsMatches);
-            Assert.AreEqual(1, queryResult.ResultEntries.Count());
-            Assert.IsNotNull(queryResult.BestMatch);
-            var (bestMatch, _) = queryResult.BestMatch;
+			Assert.Multiple(() =>
+			{
+				Assert.That(queryResult.ContainsMatches, Is.True);
+				Assert.That(queryResult.ResultEntries.Count(), Is.EqualTo(1));
+				Assert.That(queryResult.BestMatch, Is.Not.Null);
+			});
+			var (bestMatch, _) = queryResult.BestMatch;
             Assert.That(bestMatch, Is.Not.Null);
-            Assert.AreEqual("id", bestMatch.Track.Id);
-            Assert.IsTrue(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
-            Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
-            Assert.IsTrue(bestMatch.Confidence > 0.7, $"Confidence:{bestMatch.Confidence}");
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(bestMatch.Track.Id, Is.EqualTo("id"));
+				Assert.That(bestMatch.TrackCoverageWithPermittedGapsLength > secondsToProcess - 3, Is.True, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
+				Assert.That(Math.Abs(bestMatch.TrackStartsAt), Is.EqualTo(startAtSecond).Within(0.1d));
+				Assert.That(bestMatch.Confidence > 0.7, Is.True, $"Confidence:{bestMatch.Confidence}");
+			});
+		}
 
         [Test]
         public async Task CreateFingerprintsFromFileAndFromAudioSamplesAndGetTheSameResultTest()
@@ -130,7 +136,7 @@
             int numberOfSamples = (int)format.Length / bytesPerSample;
             int numberOfDownsampledSamples = (int)(numberOfSamples / ((double)format.SampleRate / config.SampleRate));
             long numberOfFingerprints = numberOfDownsampledSamples / config.SamplesPerFingerprint;
-            Assert.AreEqual(numberOfFingerprints, list.Count);
+			Assert.That(list.Count, Is.EqualTo(numberOfFingerprints));
         }
 
         [Test]
@@ -160,7 +166,7 @@
                                                 .From(samples)
                                                 .UsingServices(audioService)
                                                 .Hash();
-            Assert.AreEqual(1, hash.Count);
+			Assert.That(hash.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -187,15 +193,21 @@
                     .UsingServices(modelService, audioService)
                     .Query();
 
-            Assert.IsTrue(queryResult.ContainsMatches);
-            Assert.IsNotEmpty(queryResult.ResultEntries);
-            Assert.IsNotNull(queryResult.BestMatch);
-            var (bestMatch, _) = queryResult.BestMatch;
-            Assert.AreEqual("1234", bestMatch!.Track.Id);
-            Assert.AreEqual(secondsToProcess, bestMatch.TrackCoverageWithPermittedGapsLength, 1d, $"QueryCoverageSeconds:{bestMatch.QueryLength}");
-            Assert.AreEqual(startAtSecond, Math.Abs(bestMatch.TrackStartsAt), 0.1d);
-            Assert.AreEqual(1d, bestMatch.Confidence, 0.1d, $"Confidence:{bestMatch.Confidence}");
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(queryResult.ContainsMatches, Is.True);
+				Assert.That(queryResult.ResultEntries, Is.Not.Empty);
+				Assert.That(queryResult.BestMatch, Is.Not.Null);
+			});
+			var (bestMatch, _) = queryResult.BestMatch;
+			Assert.Multiple(() =>
+			{
+				Assert.That(bestMatch!.Track.Id, Is.EqualTo("1234"));
+				Assert.That(bestMatch.TrackCoverageWithPermittedGapsLength, Is.EqualTo(secondsToProcess).Within(1d), $"QueryCoverageSeconds:{bestMatch.QueryLength}");
+				Assert.That(Math.Abs(bestMatch.TrackStartsAt), Is.EqualTo(startAtSecond).Within(0.1d));
+				Assert.That(bestMatch.Confidence, Is.EqualTo(1d).Within(0.1d), $"Confidence:{bestMatch.Confidence}");
+			});
+		}
 
         [Test]
         public void ShouldThrowWhenModelServiceIsNull()
@@ -228,9 +240,12 @@
 
             var (audioResult, videoResult) = avResults;
             Assert.That(audioResult, Is.Not.Null);
-            Assert.IsTrue(audioResult.ContainsMatches);
-            Assert.That(videoResult, Is.Not.Null);
-            Assert.IsTrue(videoResult.ContainsMatches);
+			Assert.Multiple(() =>
+			{
+				Assert.That(audioResult.ContainsMatches, Is.True);
+				Assert.That(videoResult, Is.Not.Null);
+			});
+			Assert.That(videoResult.ContainsMatches, Is.True);
             var audioBestMatch = audioResult.BestMatch;
             AssertBestMatch(audioBestMatch);
 
@@ -242,29 +257,38 @@
                 .From(avTrack.Audio!.Samples)
                 .UsingServices(modelService)
                 .Query();
-            
-            Assert.IsNotNull(audioResult);
-            Assert.IsNull(videoResult);
-            AssertBestMatch(audioResult.BestMatch);
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(audioResult, Is.Not.Null);
+				Assert.That(videoResult, Is.Null);
+			});
+			AssertBestMatch(audioResult.BestMatch);
             
             (audioResult, videoResult) = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(avTrack.Video!.Frames)
                 .UsingServices(modelService)
-                .Query(); 
-            
-            Assert.IsNull(audioResult);
-            Assert.IsNotNull(videoResult);
-            AssertBestMatch(videoResult.BestMatch);
+                .Query();
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(audioResult, Is.Null);
+				Assert.That(videoResult, Is.Not.Null);
+			});
+			AssertBestMatch(videoResult.BestMatch);
         }
 
         private static void AssertBestMatch(ResultEntry bestMatch)
         {
-            Assert.IsNotNull(bestMatch);
-            Assert.AreEqual(1, bestMatch.Confidence, 0.1);
-            Assert.AreEqual(1, bestMatch.Coverage.QueryRelativeCoverage, 0.1);
-            Assert.AreEqual(1, bestMatch.Coverage.TrackRelativeCoverage, 0.1);
-        }
+			Assert.That(bestMatch, Is.Not.Null);
+			Assert.Multiple(() =>
+			{
+				Assert.That(bestMatch.Confidence, Is.EqualTo(1).Within(0.1));
+				Assert.That(bestMatch.Coverage.QueryRelativeCoverage, Is.EqualTo(1).Within(0.1));
+				Assert.That(bestMatch.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.1));
+			});
+		}
 
         [Test]
         public async Task ShouldCreateSameFingerprintsDuringDifferentParallelRuns()
@@ -315,15 +339,21 @@
                 .Query();
 
             Assert.That(queryResult, Is.Not.Null);
-            Assert.IsTrue(queryResult.ContainsMatches);
-            Assert.AreEqual(1, queryResult.ResultEntries.Count());
-            var bestMatch = queryResult.BestMatch;
-            Assert.AreEqual("4321", bestMatch!.Track.Id);
-            Assert.AreEqual(0, Math.Abs(bestMatch.TrackStartsAt), 0.0001d);
-            Assert.AreEqual(audioSamples.Duration, bestMatch.TrackCoverageWithPermittedGapsLength, 1.48d);
-            Assert.AreEqual(1d, bestMatch.Coverage.TrackRelativeCoverage, 0.005d);
-            Assert.AreEqual(1, bestMatch.Confidence, 0.01, $"Confidence:{bestMatch.Confidence}");
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(queryResult.ContainsMatches, Is.True);
+				Assert.That(queryResult.ResultEntries.Count(), Is.EqualTo(1));
+			});
+			var bestMatch = queryResult.BestMatch;
+			Assert.Multiple(() =>
+			{
+				Assert.That(bestMatch!.Track.Id, Is.EqualTo("4321"));
+				Assert.That(Math.Abs(bestMatch.TrackStartsAt), Is.EqualTo(0).Within(0.0001d));
+				Assert.That(bestMatch.TrackCoverageWithPermittedGapsLength, Is.EqualTo(audioSamples.Duration).Within(1.48d));
+				Assert.That(bestMatch.Coverage.TrackRelativeCoverage, Is.EqualTo(1d).Within(0.005d));
+				Assert.That(bestMatch.Confidence, Is.EqualTo(1).Within(0.01), $"Confidence:{bestMatch.Confidence}");
+			});
+		}
 
         [Test]
         public async Task ShouldNormalizeImageFrames()

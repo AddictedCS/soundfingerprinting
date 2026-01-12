@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.LCS
+namespace SoundFingerprinting.LCS
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -68,7 +68,7 @@
         /// <returns>List of matched withs.</returns>
         public IEnumerable<MatchedWith> GetMatchesForTrack(IModelReference trackReference)
         {
-            return (candidates?.TryGetValue(trackReference, out var matchedWith) ?? false) ? matchedWith : Enumerable.Empty<MatchedWith>();
+            return candidates?.TryGetValue(trackReference, out var matchedWith) ?? false ? matchedWith : Enumerable.Empty<MatchedWith>();
         }
 
         /// <summary>
@@ -83,17 +83,22 @@
         /// <summary>
         ///  Add new match for a particular track.
         /// </summary>
-        /// <param name="trackReference">Track reference add matched with.</param>
+        /// <param name="trackReference">Track reference to add matched with.</param>
         /// <param name="matches">An instance of <see cref="MatchedWith"/>.</param>
         public void AddMatchesForTrack(IModelReference trackReference, params MatchedWith[] matches)
         {
-            foreach (var match in matches)
+            if (candidates == null)
             {
-                candidates?.AddOrUpdate(trackReference, _ => new List<MatchedWith> { match }, (_, old) =>
-                {
-                    old.Add(match);
-                    return old;
-                });
+                return;
+            }
+
+            // get or create the list for this track reference (thread-safe)
+            var list = candidates.GetOrAdd(trackReference, _ => []);
+            
+            // lock the list to safely add matches
+            lock (list)
+            {
+                list.AddRange(matches);
             }
         }
     }

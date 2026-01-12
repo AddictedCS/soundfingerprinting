@@ -16,7 +16,7 @@ public class CoverageTest
     [TestCase(60, new[] { 10d, 15, 25, 30 },   new[] { 30d, 60 },  TestName = "First split contains two gaps")]
     public void ShouldSplitByTrackLength(double length, double[] gapsStartEnd, double[] splits)
     {
-        Assert.IsTrue(gapsStartEnd.Length % 2 == 0);
+		Assert.That(gapsStartEnd.Length % 2, Is.EqualTo(0));
         var gaps = TestUtilities.GetGaps(gapsStartEnd);
         var original = TestUtilities.GetCoverage(length, queryLength: length, trackLength: length, gaps);
         var timeSegments = splits.Aggregate(new List<TimeSegment>(), (acc, next) =>
@@ -33,13 +33,16 @@ public class CoverageTest
         });
         
         var results = original.SplitByTrackLength(timeSegments).ToList();
-        
-        Assert.AreEqual(results.Count, splits.Length);
+
+		Assert.That(splits.Length, Is.EqualTo(results.Count));
         foreach (var result in results)
         {
-            Assert.AreEqual(result.QueryLength, original.QueryLength);
-            Assert.AreNotEqual(result.TrackLength, original.TrackLength);
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(original.QueryLength, Is.EqualTo(result.QueryLength));
+				Assert.That(original.TrackLength, Is.Not.EqualTo(result.TrackLength));
+			});
+		}
 
         double startsAt = 0;
         for (int index = 0; index < splits.Length; index++)
@@ -47,17 +50,20 @@ public class CoverageTest
             double endsAt = splits[index];
             double totalLength = endsAt - startsAt;
             var result = results[index];
-            Assert.AreEqual(result.TrackLength, endsAt - startsAt, 0.0001);
+			Assert.That(endsAt - startsAt, Is.EqualTo(result.TrackLength).Within(0.0001));
             var expectedGaps = gaps.Where(_ => _.Start >= startsAt && _.End <= endsAt).ToList();
             var actualGaps = result.TrackGaps.ToList();
-            Assert.AreEqual(expectedGaps.Count, actualGaps.Count);
+			Assert.That(actualGaps, Has.Count.EqualTo(expectedGaps.Count));
             for (int i = 0; i < expectedGaps.Count; i++)
             {
-                Assert.AreEqual(expectedGaps[i].Start - startsAt, actualGaps[i].Start, 0.1);
-                Assert.AreEqual(expectedGaps[i].End - startsAt, actualGaps[i].End, 0.1);
-            }
-            
-            Assert.AreEqual(result.TrackCoverageWithPermittedGapsLength, totalLength - expectedGaps.Sum(_ => _.LengthInSeconds), 0.15);
+				Assert.Multiple(() =>
+				{
+					Assert.That(actualGaps[i].Start, Is.EqualTo(expectedGaps[i].Start - startsAt).Within(0.1));
+					Assert.That(actualGaps[i].End, Is.EqualTo(expectedGaps[i].End - startsAt).Within(0.1));
+				});
+			}
+
+			Assert.That(totalLength - expectedGaps.Sum(_ => _.LengthInSeconds), Is.EqualTo(result.TrackCoverageWithPermittedGapsLength).Within(0.15));
             startsAt = endsAt;
         }
     }
@@ -72,8 +78,8 @@ public class CoverageTest
             new TimeSegment(0, 15), 
             new TimeSegment(15, 30)
         ]).ToList();
-        
-        Assert.AreEqual(1, results.Count(_ => _.BestPath.Any()));
+
+		Assert.That(results.Count(_ => _.BestPath.Any()), Is.EqualTo(1));
     }
 
     [Test]
@@ -86,14 +92,17 @@ public class CoverageTest
             new TimeSegment(0, 15), 
             new TimeSegment(15, 30)
         ]).ToList();
-        
-        Assert.AreEqual(2, results.Count);
-        
-        Assert.AreEqual(12.5, results[0].TrackCoverageWithPermittedGapsLength, 0.2);
-        Assert.AreEqual(0, results[0].QueryMatchStartsAt);
-        Assert.AreEqual(12.5, results[1].TrackCoverageWithPermittedGapsLength, 0.2);
-        Assert.AreEqual(17.5, results[1].QueryMatchStartsAt, 0.1);
-    }
+
+		Assert.That(results, Has.Count.EqualTo(2));
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(results[0].TrackCoverageWithPermittedGapsLength, Is.EqualTo(12.5).Within(0.2));
+			Assert.That(results[0].QueryMatchStartsAt, Is.EqualTo(0));
+			Assert.That(results[1].TrackCoverageWithPermittedGapsLength, Is.EqualTo(12.5).Within(0.2));
+			Assert.That(results[1].QueryMatchStartsAt, Is.EqualTo(17.5).Within(0.1));
+		});
+	}
 
     [Test]
     public void SplitIsInsideTheCoverage()
@@ -102,10 +111,13 @@ public class CoverageTest
         var original = TestUtilities.GetCoverage(30, 30, 30, gaps);
 
         var results = original.SplitByTrackLength([new TimeSegment(2.5, 32.5)]).ToList();
-        
-        Assert.AreEqual(1, results.Count);
+
+		Assert.That(results, Has.Count.EqualTo(1));
         var coverage = results[0];
-        Assert.AreEqual(30 - 5 /*mid gap*/ - 2.5 /*end gap*/ + 1.48 /*last fingerprint*/, coverage.TrackCoverageWithPermittedGapsLength, 0.25);
-        Assert.AreEqual(30, coverage.TrackLength, 0.2);
-    }
+		Assert.Multiple(() =>
+		{
+			Assert.That(coverage.TrackCoverageWithPermittedGapsLength, Is.EqualTo(30 - 5 /*mid gap*/ - 2.5 /*end gap*/ + 1.48).Within(0.25));
+			Assert.That(coverage.TrackLength, Is.EqualTo(30).Within(0.2));
+		});
+	}
 }

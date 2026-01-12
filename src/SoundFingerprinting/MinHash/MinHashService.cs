@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.MinHash
+namespace SoundFingerprinting.MinHash
 {
     using System;
     using SoundFingerprinting.Utils;
@@ -15,12 +15,12 @@
         /// <summary>
         ///  Gets old permutations, not used anymore.
         /// </summary>
-        public static MinHashService Default { get; } = new MinHashService(new DefaultPermutations());
+        public static MinHashService Default { get; } = new (new DefaultPermutations());
 
         /// <summary>
         ///  Gets max entropy permutations.
         /// </summary>
-        public static MinHashService MaxEntropy { get; } = new MinHashService(new MaxEntropyPermutations());
+        public static MinHashService MaxEntropy { get; } = new (new MaxEntropyPermutations());
 
         public byte[] Hash(IEncodedFingerprintSchema fingerprint, int n)
         {
@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// Compute Min Hash signature of a fingerprint
+        /// Compute Min Hash signature of a fingerprint (original implementation as fallback)
         /// </summary>
         /// <param name="fingerprint">
         /// Fingerprint signature

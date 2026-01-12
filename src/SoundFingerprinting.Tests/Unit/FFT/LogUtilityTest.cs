@@ -16,7 +16,7 @@
         {
             int result = logUtility.FrequencyToSpectrumIndex(318, 5512, 2048);
 
-            Assert.AreEqual((318 * 1024) / (5512 / 2), result);
+			Assert.That(result, Is.EqualTo((318 * 1024) / (5512 / 2)));
         }
 
         [Test]
@@ -36,7 +36,7 @@
             {
                 var logSpacedFrequency = logSpacedFrequencies[i];
                 int index = logUtility.FrequencyToSpectrumIndex(logSpacedFrequency, defaultFingerprintConfiguration.SampleRate, defaultConfig.WdftSize);
-                Assert.AreEqual(index, indexes[i]);
+				Assert.That(indexes[i], Is.EqualTo(index));
             }
         }
     }

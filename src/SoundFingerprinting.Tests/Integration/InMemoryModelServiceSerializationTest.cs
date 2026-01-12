@@ -37,10 +37,10 @@
 
             Directory.Delete(tempDirectory, true);
 
-            Assert.IsNotNull(queryResult);
-            Assert.IsTrue(queryResult.ContainsMatches);
+			Assert.That(queryResult, Is.Not.Null);
+			Assert.That(queryResult.ContainsMatches, Is.True);
             AssertTracksAreEqual(trackData, queryResult.BestMatch!.Track);
-            Assert.IsTrue(queryResult.BestMatch.Confidence > 0.9);
+			Assert.That(queryResult.BestMatch.Confidence > 0.9, Is.True);
        }
 
         [Test]
@@ -63,8 +63,11 @@
 
             Directory.Delete(tempDirectory, true);
 
-            Assert.IsTrue(tracks.Any(track => track == "id1"));
-            Assert.IsTrue(tracks.Any(track => track == "id2"));
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(tracks.Any(track => track == "id1"), Is.True);
+				Assert.That(tracks.Any(track => track == "id2"), Is.True);
+			});
+		}
     }
 }

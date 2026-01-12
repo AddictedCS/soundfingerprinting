@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.FFT
+namespace SoundFingerprinting.FFT
 {
     // Code to implement decently performing FFT for complex and real valued                                         
     // signals. See www.lomont.org for a derivation of the relevant algorithms                                       
@@ -62,7 +62,10 @@
             var n = length;
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
+            {
                 throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
+            }
+
             n /= 2;    // n is the number of samples                                                             
 
             Reverse(data, n); // bit index data reversal                                                         
@@ -89,9 +92,9 @@
                         data[k + 1] = data[k + 1] + tempi;
                     }
                 }
+
                 mmax = istep;
             }
-
 
             // perform data scaling as needed                                                                    
             Scale(data, n, forward, length);
@@ -116,7 +119,9 @@
             var n = length; // # of real inputs, 1/2 the complex length                                     
             // checks n is a power of 2 in 2's complement format                                                 
             if ((n & (n - 1)) != 0)
+            {
                 throw new ArgumentException("data length " + n + " in FFT is not a power of 2");
+            }
 
             float sign = -1.0f; // assume inverse FFT, this controls how algebra below works                        
             if (forward)
@@ -128,7 +133,9 @@
                 {
                     var scale = (float)Math.Pow(2.0, (A - 1) / 2.0);
                     for (var i = 0; i < length; ++i)
+                    {
                         data[i] *= scale;
+                    }
                 }
             }
 
@@ -182,11 +189,13 @@
                 // do packed inverse (table based) FFT. This can be changed to regular inverse FFT to save memory
                 TableFFT(data, false, length);
                 // scaling - divide by scaling for N, then mult by scaling for N/2                               
-                //if (A != -1) // todo - off by factor of 2? this works, but something seems weird               
+                // if (A != -1) // todo - off by factor of 2? this works, but something seems weird               
                 {
                     var scale = (float)Math.Pow(2.0, -(A + 1) / 2.0) * 2;
                     for (var i = 0; i < length; ++i)
+                    {
                         data[i] *= scale;
+                    }
                 }
             }
         }
@@ -234,7 +243,9 @@
             {
                 var scale = (float)Math.Pow(n, (A - 1) / 2.0);
                 for (var i = 0; i < length; ++i)
+                {
                     data[i] *= scale;
+                }
             }
 
             // inverse scaling if needed                                                                         
@@ -242,7 +253,9 @@
             {
                 var scale = (float)Math.Pow(n, -(A + 1) / 2.0);
                 for (var i = 0; i < length; ++i)
+                {
                     data[i] *= scale;
+                }
             }
         }
 
@@ -278,6 +291,7 @@
                     wr = wr * wpr - wi * wpi + wr;
                     wi = wi * wpr + t * wpi + wi;
                 }
+
                 mmax = istep;
             }
         }
@@ -322,10 +336,14 @@
                     data[j + n + 3] = data[k + n + 3];
                     data[k + n + 3] = t;
                 }
+
                 // Knuth R3: advance k                                                                           
                 k += 4;
                 if (k >= n)
+                {
                     break;
+                }
+
                 // Knuth R4: advance j                                                                           
                 var h = top;
                 while (j >= h)
@@ -333,6 +351,7 @@
                     j -= h;
                     h /= 2;
                 }
+
                 j += h;
             } // bit reverse loop                                                                                
         }

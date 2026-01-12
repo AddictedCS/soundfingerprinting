@@ -33,7 +33,7 @@
             7.6563e-02f, 7.5647e-02f, 7.2950e-02f, 6.8611e-02f, 6.2852e-02f, 5.5963e-02f, 4.8282e-02f, 4.0169e-02f,
             3.1989e-02f, 2.4081e-02f, 1.6745e-02f, 1.0222e-02f, 4.6867e-03f, 2.3628e-04f, -3.1034e-03f, -5.3745e-03f,
             -6.6760e-03f, -7.1501e-03f, -6.9665e-03f, -6.3058e-03f, -5.3443e-03f, -4.2414e-03f, -3.1292e-03f,
-            -2.1067e-03f - 1.2376e-03f, -5.5166e-04f, -4.9681e-05f, 2.8968e-04f, 5.0156e-04f, 6.2634e-04f, 7.0190e-04f,
+            -2.1067e-03f, -1.2376e-03f, -5.5166e-04f, -4.9681e-05f, 2.8968e-04f, 5.0156e-04f, 6.2634e-04f, 7.0190e-04f,
             7.5736e-04f
         };
 
@@ -101,7 +101,7 @@
                     return ResampleNonIntegerFactor(f48Khz, 7, 61, LpFilter336KHz128);
                 case 48000:
                     // 48000 * 7 / 61 is almost 5512
-                    return ResampleNonIntegerFactor(samples, 7 , 61, LpFilter336KHz128);
+                    return ResampleNonIntegerFactor(samples, 7, 61, LpFilter336KHz128);
                 case 44100:
                     return Resample(samples, samples.Length / 8, 8, LpFilter44);
                 case 22050:
@@ -123,35 +123,62 @@
 
         private float[] ResampleNonIntegerFactor(float[] samples, int p, int q, float[] filter)
         {
-            float[] buffer = new float[samples.Length * p];
-            for (int i = 0; i < buffer.Length; i += p)
-            {
-                buffer[i] = samples[i / p];
-            }
-
-            return Resample(buffer, buffer.Length / q - filter.Length, q, filter);
-        }
-
-        private float[] Resample(float[] samples, int newSamplesCount, int mult, float[] filter)
-        {
+            // Rational resampling by factor p/q without creating large intermediate buffer.
+            // Upsampling by p inserts p-1 zeros between samples, so we only convolve at non-zero positions.
+            int virtualLength = samples.Length * p;
+            int newSamplesCount = virtualLength / q - filter.Length;
             float[] resampled = new float[newSamplesCount];
+            int filterLength = filter.Length;
+
             for (int i = 0; i < newSamplesCount; i++)
             {
-                resampled[i] = Convolve(samples, mult * i, filter, filter.Length);
+                int begin = q * i;
+                float sum = 0;
+                
+                // Only non-zero values in the virtual upsampled buffer are at indices divisible by p.
+                // Find the first filter index that aligns with a non-zero sample.
+                int remainder = begin % p;
+                int filterStart = remainder == 0 ? 0 : p - remainder;
+                
+                for (int filterIndex = filterStart; filterIndex < filterLength; filterIndex += p)
+                {
+                    int virtualIndex = begin + filterIndex;
+                    int sampleIndex = virtualIndex / p;
+                    if (sampleIndex >= samples.Length)
+                    {
+                        break;
+                    }
+
+                    sum += samples[sampleIndex] * filter[filterIndex];
+                }
+
+                resampled[i] = sum;
             }
 
             return resampled;
         }
 
-        private float Convolve(float[] buffer, int begin, float[] filter, int flen)
+        private float[] Resample(float[] samples, int newSamplesCount, int mult, float[] filter)
         {
-            float sum = 0;
-            for (int index = 0; index < flen && begin + index < buffer.Length; ++index)
+            float[] resampled = new float[newSamplesCount];
+            int filterLength = filter.Length;
+            int samplesLength = samples.Length;
+
+            for (int i = 0; i < newSamplesCount; i++)
             {
-                sum += buffer[begin + index] * filter[index];
+                int begin = mult * i;
+                float sum = 0;
+                int maxIndex = Math.Min(filterLength, samplesLength - begin);
+                
+                for (int index = 0; index < maxIndex; ++index)
+                {
+                    sum += samples[begin + index] * filter[index];
+                }
+
+                resampled[i] = sum;
             }
 
-            return sum;
+            return resampled;
         }
     }
 }

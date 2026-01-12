@@ -11,8 +11,8 @@ public class MatchedWithExtensionsTest
     public void ShouldSplitByMaxGapEmpty()
     {
         var result = Enumerable.Empty<MatchedWith>().SplitBestPathByMaxGap(5d);
-        
-        Assert.IsEmpty(result);
+
+		Assert.That(result, Is.Empty);
     }
 
     [Test]
@@ -25,9 +25,9 @@ public class MatchedWithExtensionsTest
         .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d))
         .SplitBestPathByMaxGap(maxGap: 5)
         .ToList();
-        
-        Assert.AreEqual(1, matches.Count);
-        Assert.AreEqual(9, matches[0].Count());
+
+		Assert.That(matches, Has.Count.EqualTo(1));
+		Assert.That(matches[0].Count(), Is.EqualTo(9));
     }
 
     [Test]
@@ -39,11 +39,11 @@ public class MatchedWithExtensionsTest
                 new[] { 1, 2, 3, 1, 2, 3, 4, 1, 2, 3 })
             .SplitBestPathByMaxGap(maxGap: 5)
             .ToList();
-        
-        Assert.AreEqual(3, matches.Count);
-        CollectionAssert.AreEqual(new float[] { 0, 1, 2 }, matches[0].Select(_ => _.QueryMatchAt));
-        CollectionAssert.AreEqual(new float[] { 10, 11, 12, 13 }, matches[1].Select(_ => _.QueryMatchAt));
-        CollectionAssert.AreEqual(new float[] { 24, 25, 26 }, matches[2].Select(_ => _.QueryMatchAt));
+
+		Assert.That(matches, Has.Count.EqualTo(3));
+		Assert.That(matches[0].Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 0, 1, 2 }).AsCollection);
+		Assert.That(matches[1].Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 10, 11, 12, 13 }).AsCollection);
+		Assert.That(matches[2].Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 24, 25, 26 }).AsCollection);
     }
 
     [Test]
@@ -56,9 +56,9 @@ public class MatchedWithExtensionsTest
             .SplitBestPathByMaxGap(maxGap: 5)
             .ToList();
 
-        Assert.AreEqual(2, matches.Count);
-        CollectionAssert.AreEqual(new float[] { 0, 1, 2 }, matches[0].Select(_ => _.QueryMatchAt));
-        CollectionAssert.AreEqual(new float[] { 10, 11, 12 }, matches[1].Select(_ => _.QueryMatchAt));
+		Assert.That(matches, Has.Count.EqualTo(2));
+		Assert.That(matches[0].Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 0, 1, 2 }).AsCollection);
+		Assert.That(matches[1].Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 10, 11, 12 }).AsCollection);
     }
     
     [Test]
@@ -71,8 +71,8 @@ public class MatchedWithExtensionsTest
             .SplitBestPathByMaxGap(maxGap: 5)
             .ToList();
 
-        Assert.AreEqual(2, matches.Count);
-        CollectionAssert.AreEqual(new float[] { 0, 1, 2 }, matches[0].Select(_ => _.QueryMatchAt));
-        CollectionAssert.AreEqual(new float[] { 10 }, matches[1].Select(_ => _.QueryMatchAt));
+		Assert.That(matches, Has.Count.EqualTo(2));
+		Assert.That(matches[0].Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 0, 1, 2 }).AsCollection);
+		Assert.That(matches[1].Select(_ => _.QueryMatchAt), Is.EqualTo(new float[] { 10 }).AsCollection);
     }
 }

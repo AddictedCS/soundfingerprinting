@@ -26,41 +26,59 @@
 
         protected void AssertTracksAreEqual(TrackInfo expectedTrack, TrackInfo actualTrack)
         {
-            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
-            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
-            Assert.AreEqual(expectedTrack.Id, actualTrack.Id);
-            Assert.AreEqual(expectedTrack.MediaType, actualTrack.MediaType);
-            foreach ((string key, string val) in expectedTrack.MetaFields)
+			Assert.Multiple(() =>
+			{
+				Assert.That(actualTrack.Artist, Is.EqualTo(expectedTrack.Artist));
+				Assert.That(actualTrack.Title, Is.EqualTo(expectedTrack.Title));
+				Assert.That(actualTrack.Id, Is.EqualTo(expectedTrack.Id));
+				Assert.That(actualTrack.MediaType, Is.EqualTo(expectedTrack.MediaType));
+			});
+			foreach ((string key, string val) in expectedTrack.MetaFields)
             {
-                Assert.IsTrue(actualTrack.MetaFields.TryGetValue(key, out string value));
-                Assert.AreEqual(val, value);
-            }
+				Assert.Multiple(() =>
+				{
+					Assert.That(actualTrack.MetaFields.TryGetValue(key, out string value), Is.True);
+					Assert.That(value, Is.EqualTo(val));
+				});
+			}
         }
         
         protected void AssertTracksAreEqual(TrackInfo expectedTrack, TrackData actualTrack)
         {
-            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
-            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
-            Assert.AreEqual(expectedTrack.Id, actualTrack.Id);
-            Assert.AreEqual(expectedTrack.MediaType, actualTrack.MediaType);
-            foreach ((string key, string val) in expectedTrack.MetaFields)
+			Assert.Multiple(() =>
+			{
+				Assert.That(actualTrack.Artist, Is.EqualTo(expectedTrack.Artist));
+				Assert.That(actualTrack.Title, Is.EqualTo(expectedTrack.Title));
+				Assert.That(actualTrack.Id, Is.EqualTo(expectedTrack.Id));
+				Assert.That(actualTrack.MediaType, Is.EqualTo(expectedTrack.MediaType));
+			});
+			foreach ((string key, string val) in expectedTrack.MetaFields)
             {
-                Assert.IsTrue(actualTrack.MetaFields.TryGetValue(key, out string value));
-                Assert.AreEqual(val, value);
-            }
+				Assert.Multiple(() =>
+				{
+					Assert.That(actualTrack.MetaFields.TryGetValue(key, out string value), Is.True);
+					Assert.That(value, Is.EqualTo(val));
+				});
+			}
         }
         
         protected void AssertTracksAreEqual(TrackData expectedTrack, TrackData actualTrack)
         {
-            Assert.AreEqual(expectedTrack.Artist, actualTrack.Artist);
-            Assert.AreEqual(expectedTrack.Title, actualTrack.Title);
-            Assert.AreEqual(expectedTrack.Id, actualTrack.Id);
-            Assert.AreEqual(expectedTrack.MediaType, actualTrack.MediaType);
-            foreach ((string key, string val) in expectedTrack.MetaFields)
+			Assert.Multiple(() =>
+			{
+				Assert.That(actualTrack.Artist, Is.EqualTo(expectedTrack.Artist));
+				Assert.That(actualTrack.Title, Is.EqualTo(expectedTrack.Title));
+				Assert.That(actualTrack.Id, Is.EqualTo(expectedTrack.Id));
+				Assert.That(actualTrack.MediaType, Is.EqualTo(expectedTrack.MediaType));
+			});
+			foreach ((string key, string val) in expectedTrack.MetaFields)
             {
-                Assert.IsTrue(actualTrack.MetaFields.TryGetValue(key, out string value));
-                Assert.AreEqual(val, value);
-            }
+				Assert.Multiple(() =>
+				{
+					Assert.That(actualTrack.MetaFields.TryGetValue(key, out string value), Is.True);
+					Assert.That(value, Is.EqualTo(val));
+				});
+			}
         }
     }
 }

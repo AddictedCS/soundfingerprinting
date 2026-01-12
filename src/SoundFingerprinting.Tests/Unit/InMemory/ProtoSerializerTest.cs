@@ -22,7 +22,7 @@
             using var deserializedStream = new MemoryStream(serialized);
             var reference = Serializer.DeserializeWithLengthPrefix<IModelReference>(deserializedStream, PrefixStyle.Fixed32);
 
-            Assert.NotNull(reference);
+			Assert.That(reference, Is.Not.Null);
         }
 
         [Test]
@@ -37,7 +37,7 @@
             using var streamFinal = new MemoryStream(serialized);
             var deserialized = Serializer.DeserializeWithLengthPrefix<SubFingerprintData>(streamFinal, PrefixStyle.Fixed32);
 
-            Assert.AreEqual(sub, deserialized);
+			Assert.That(deserialized, Is.EqualTo(sub));
         }
 
         [Test]
@@ -50,7 +50,7 @@
             using var streamFinal = new MemoryStream(serialized);
             var deserialized = Serializer.DeserializeWithLengthPrefix<UIntModelReferenceProvider>(streamFinal, PrefixStyle.Fixed32);
 
-            Assert.AreEqual(11, deserialized.Next().Get<uint>());
+			Assert.That(deserialized.Next().Get<uint>(), Is.EqualTo(11));
         }
 
         [Test]
@@ -70,11 +70,14 @@
             using (var stream = new MemoryStream(serialized))
             {
                 var data = Serializer.DeserializeWithLengthPrefix<Hashes>(stream, PrefixStyle.Fixed32);
-                Assert.IsNotNull(data);
-                Assert.AreEqual(hashes.Count, data.Count);
-                Assert.AreEqual(hashes.DurationInSeconds, data.DurationInSeconds);
-                Assert.AreEqual(hashes.StreamId, data.StreamId);
-                CollectionAssert.AreEqual(hashes.Origins, data.Origins);
+				Assert.That(data, Is.Not.Null);
+				Assert.That(data, Has.Count.EqualTo(hashes.Count));
+				Assert.Multiple(() =>
+				{
+					Assert.That(data.DurationInSeconds, Is.EqualTo(hashes.DurationInSeconds));
+					Assert.That(data.StreamId, Is.EqualTo(hashes.StreamId));
+				});
+				Assert.That(data.Origins, Is.EqualTo(hashes.Origins).AsCollection);
             }
         }
     }

@@ -28,11 +28,19 @@ namespace SoundFingerprinting.Image
             int borderWidth)
         {
             if (img1.Width != img2.Width)
+            {
                 throw new ArgumentException(nameof(img1.Width));
+            }
+
             if (differenceThreshold < 0 || differenceThreshold > 255)
+            {
                 throw new AggregateException(nameof(differenceThreshold));
+            }
+
             if (areaThreshold < 2)
+            {
                 throw new ArgumentException(nameof(areaThreshold));
+            }
 
             double[,] kernel2d = GaussianBlurKernel.Kernel2D(kernelSize, sigma);
             var ux = img1.GaussianBlur(kernel2d);
@@ -48,16 +56,15 @@ namespace SoundFingerprinting.Image
             var uxUy = ux.Multiply(uy);
             var vxy = uxy.Subtract(uxUy);
 
-
             double c1 = Math.Pow(K1 * L, 2);
             double c2 = Math.Pow(K2 * L, 2);
-            var a1 = uxUy.Convert(x => (float) (2 * x + c1));                     //2 * ux * uy + C1,
-            var a2 = vxy.Convert(x => (float) (2 * x + c2));                      //2 * vxy + C2
-            var b1 = uxSquared.Add(uySquared).Convert(x => (float) (x + c1));     //ux ** 2 + uy ** 2 + C1
-            var b2 = vx.Add(vy).Convert(x => (float) (x + c2));                   //vx + vy + C2)  
+            var a1 = uxUy.Convert(x => (float)(2 * x + c1));                     // 2 * ux * uy + C1,
+            var a2 = vxy.Convert(x => (float)(2 * x + c2));                      // 2 * vxy + C2
+            var b1 = uxSquared.Add(uySquared).Convert(x => (float)(x + c1));     // ux ** 2 + uy ** 2 + C1
+            var b2 = vx.Add(vy).Convert(x => (float)(x + c2));                   // vx + vy + C2)  
             var d = b1.Multiply(b2);
             var s = a1.Multiply(a2).Divide(d);
-            byte[][] ssimImage = s.ConvertAndUnwrap(x => (byte) (x * byte.MaxValue));
+            byte[][] ssimImage = s.ConvertAndUnwrap(x => (byte)(x * byte.MaxValue));
             byte[][] thresholdInvImage = ssimImage
                 .Skip(borderWidth)
                 .Take(img1.Height - 2 * borderWidth)

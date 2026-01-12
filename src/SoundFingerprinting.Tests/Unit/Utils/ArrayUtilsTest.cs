@@ -19,11 +19,11 @@
 
         private void AssertArraysAreEqual(float[] expected, float[] actual)
         {
-            Assert.AreEqual(expected.Length, actual.Length);
+			Assert.That(actual.Length, Is.EqualTo(expected.Length));
 
             for (int i = 0; i < expected.Length; i++)
             {
-                Assert.AreEqual(expected[i], actual[i]);
+				Assert.That(actual[i], Is.EqualTo(expected[i]));
             }
         }
 

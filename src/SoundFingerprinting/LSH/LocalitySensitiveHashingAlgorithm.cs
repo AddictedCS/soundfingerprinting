@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.LSH
+namespace SoundFingerprinting.LSH
 {
     using System;
     using System.Collections.Concurrent;
@@ -17,7 +17,7 @@
         private readonly IHashConverter hashConverter = HashConverter.Instance;
         private readonly ConcurrentDictionary<int, IMinHashService<int>> extendedMinHashServices;
 
-        internal LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService)
+        private LocalitySensitiveHashingAlgorithm(IMinHashService<byte> minHashService)
         {
             extendedMinHashServices = new ConcurrentDictionary<int, IMinHashService<int>>();
             this.minHashService = minHashService;
@@ -84,7 +84,7 @@
                     h ^= signature[table * k + i];
                 }
 
-                hash[table] = (int) h;
+                hash[table] = (int)h;
             }
 
             return hash;

@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.MinHash
+namespace SoundFingerprinting.MinHash
 {
     internal class MaxEntropyPermutations : IPermutations
     {
@@ -6584,7 +6584,6 @@
             get
             {
                 return permutations.Length;
-
             }
         }
 

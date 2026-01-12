@@ -8,7 +8,7 @@ using System.Linq;
 internal class StatefulOngoingAvResultEntryTracker : IOngoingAvResultEntryTracker
 {
     private readonly ConcurrentDictionary<string, AVResultEntry> avResultEntries = new ();
-    private readonly Queue<AVResultEntry> timeShiftedEntries = new ();
+    private readonly ConcurrentQueue<AVResultEntry> timeShiftedEntries = new ();
     
     public void AddOrUpdate(AVResultEntry avResultEntry, Func<AVResultEntry, AVResultEntry> updateFunc)
     {
@@ -38,9 +38,9 @@ internal class StatefulOngoingAvResultEntryTracker : IOngoingAvResultEntryTracke
     
     public IEnumerable<AVResultEntry> GetAndRemoveTimeShiftedEntries()
     {
-        while (timeShiftedEntries.Count > 0)
+        while (timeShiftedEntries.TryDequeue(out var entry))
         {
-            yield return timeShiftedEntries.Dequeue();
+            yield return entry;
         }
     }
 

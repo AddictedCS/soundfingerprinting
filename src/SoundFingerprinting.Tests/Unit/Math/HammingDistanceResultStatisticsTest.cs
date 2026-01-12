@@ -20,9 +20,12 @@
 
             var percentiles = stats.TruePositivePercentile;
 
-            Assert.AreEqual(4.6, percentiles[0], 0.001);
-            Assert.AreEqual(4.8, percentiles[1], 0.001);
-            Assert.AreEqual(4.92, percentiles[2], 0.001);
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(percentiles[0], Is.EqualTo(4.6).Within(0.001));
+				Assert.That(percentiles[1], Is.EqualTo(4.8).Within(0.001));
+				Assert.That(percentiles[2], Is.EqualTo(4.92).Within(0.001));
+			});
+		}
     }
 }

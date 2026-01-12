@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.FFT
+namespace SoundFingerprinting.FFT
 {
     using System;
     using System.Collections.Generic;
@@ -74,20 +74,21 @@
 
         private static unsafe void ExtractLogBins(float* spectrum, ushort[] logFrequenciesIndex, int logBins, int wdftSize, float[] targetArray, int targetIndex)
         {
-            int width = wdftSize / 2; /* 1024 */
+            float width = wdftSize / 2f;
             for (int i = 0; i < logBins; i++)
             {
                 int lowBound = logFrequenciesIndex[i];
                 int higherBound = logFrequenciesIndex[i + 1];
+                int targetIdx = (targetIndex * logBins) + i;
 
                 for (int k = lowBound; k < higherBound; k++)
                 {
-                    double re = spectrum[2 * k] / width;
-                    double img = spectrum[(2 * k) + 1] / width;
-                    targetArray[(targetIndex * logBins) + i] += (float)((re * re) + (img * img));
+                    float re = spectrum[2 * k] / width;
+                    float img = spectrum[(2 * k) + 1] / width;
+                    targetArray[targetIdx] += (re * re) + (img * img);
                 }
 
-                targetArray[(targetIndex * logBins) + i] /= (higherBound - lowBound);
+                targetArray[targetIdx] /= (higherBound - lowBound);
             }
         }
 

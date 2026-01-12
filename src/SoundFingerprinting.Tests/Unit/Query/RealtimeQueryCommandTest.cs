@@ -85,9 +85,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             await Task.WhenAll(wrong, right);
 
-            Assert.AreEqual(1, foundWithClusters);
-            Assert.AreEqual(0, foundWithWrongClusters);
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(foundWithClusters, Is.EqualTo(1));
+				Assert.That(foundWithWrongClusters, Is.EqualTo(0));
+			});
+		}
         
         [Test]
         public async Task RealtimeQueryStrideShouldBeUsed()
@@ -127,9 +130,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                               .UsingServices(modelService)
                                               .Query(cancellationTokenSource.Token);
 
-            Assert.AreEqual((count - 1) * minSamplesPerFingerprint / staticStride + 1, fingerprintsCount);
-            Assert.AreEqual((double)count * minSamplesPerFingerprint / 5512, duration, 0.00001);
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(fingerprintsCount, Is.EqualTo((count - 1) * minSamplesPerFingerprint / staticStride + 1));
+				Assert.That(duration, Is.EqualTo((double)count * minSamplesPerFingerprint / 5512).Within(0.00001));
+			});
+		}
         
         [Test]
         public async Task ShouldCaptureRealtimeQueryResultThatOccursOnTheEdgeOfQueryMatches()
@@ -181,11 +187,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return fingerprints;
                 })
                 .UsingServices(modelService)
-                .Query(cancellationTokenSource.Token); 
-            
-            Assert.AreEqual(1, found);
-            Assert.AreEqual(count * 2 - 1, hashesCount);
-        }
+                .Query(cancellationTokenSource.Token);
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(found, Is.EqualTo(1));
+				Assert.That(hashesCount, Is.EqualTo(count * 2 - 1));
+			});
+		}
         
         [Test]
         public async Task ShouldQueryInRealtime()
@@ -202,10 +211,10 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 .From(concatenated)
                                                 .Hash();
 
-            Assert.NotNull(avHashes.Audio);
-            
-            // hashes have to be equal to total track length +- 1 second
-            Assert.AreEqual(totalTrackLength, avHashes.Audio.DurationInSeconds, delta: 1);
+			Assert.That(avHashes.Audio, Is.Not.Null);
+
+			// hashes have to be equal to total track length +- 1 second
+			Assert.That(avHashes.Audio.DurationInSeconds, Is.EqualTo(totalTrackLength).Within(1));
             
             // store track data and associated hashes
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), avHashes);
@@ -222,7 +231,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var realtimeQuery = data.Skip(count / 2).Take((int)(queryLength/minSizeChunk) + 1).ToArray();
 
             double duration = realtimeQuery.Sum(_ => _.Duration);
-            Assert.AreEqual(queryLength, duration, 1); // asserting the total length of the query +- 1 second
+			Assert.That(duration, Is.EqualTo(queryLength).Within(1)); // asserting the total length of the query +- 1 second
             
             // adding some jitter before and after the query which should not match
             // track           ---------------------------- 210 seconds
@@ -279,27 +288,30 @@ namespace SoundFingerprinting.Tests.Unit.Query
             // this means we will get 3 successful matches 
             // start: 105 seconds,  query length: 35 seconds, query match filter length: 10
             int matchesCount = (int)Math.Floor(queryLength / queryMatchLength);
-            Assert.AreEqual(matchesCount, successMatches.Count);
-            
-            // since our realtime query was 35 seconds with 3 successful matches of 10
-            // there has to be one more purged match of 5 seconds which did not get through successful filter
-            Assert.AreEqual(1, didNotGetToContiguousQueryMatchLengthMatch.Count);
-            
-            // verifying that we queried the correct amount of seconds
-            Assert.AreEqual(queryLength + 2 * jitterLength, processed, 3);
+			Assert.Multiple(() =>
+			{
+				Assert.That(successMatches, Has.Count.EqualTo(matchesCount));
 
-            // track starts to match at the middle
-            // matches                      |||
-            // q with jitter             ^^^---^^^        
-            // expecting 3 matches at 105th, 115th and 125th second 
-            double[] trackMatches = Enumerable.Repeat(totalTrackLength / 2, matchesCount).Select((matchAt, index) => matchAt + queryMatchLength * index).ToArray();
+				// since our realtime query was 35 seconds with 3 successful matches of 10
+				// there has to be one more purged match of 5 seconds which did not get through successful filter
+				Assert.That(didNotGetToContiguousQueryMatchLengthMatch, Has.Count.EqualTo(1));
+
+				// verifying that we queried the correct amount of seconds
+				Assert.That(processed, Is.EqualTo(queryLength + 2 * jitterLength).Within(3));
+			});
+
+			// track starts to match at the middle
+			// matches                      |||
+			// q with jitter             ^^^---^^^        
+			// expecting 3 matches at 105th, 115th and 125th second 
+			double[] trackMatches = Enumerable.Repeat(totalTrackLength / 2, matchesCount).Select((matchAt, index) => matchAt + queryMatchLength * index).ToArray();
             for (int i = 0; i < trackMatches.Length; ++i)
             {
-                Assert.AreEqual(trackMatches[i], successMatches[i].TrackMatchStartsAt, 2.5);
+				Assert.That(successMatches[i].TrackMatchStartsAt, Is.EqualTo(trackMatches[i]).Within(2.5));
             }
-            
-            // ongoing calls have to be called every time when realtime chunk is sent since ongoing query match filter is equal to min-size chunk
-            Assert.AreEqual(realtimeQuery.Length + 6 /*jitter call since track can continue in the next query*/, ongoingCalls);
+
+			// ongoing calls have to be called every time when realtime chunk is sent since ongoing query match filter is equal to min-size chunk
+			Assert.That(ongoingCalls, Is.EqualTo(realtimeQuery.Length + 6));
         }
 
         [Test]
@@ -356,18 +368,24 @@ namespace SoundFingerprinting.Tests.Unit.Query
                  .UsingServices(modelService)
                  .Query(CancellationToken.None);
 
-            Assert.AreEqual(totalQueryLength, processed, 3);
-            Assert.AreEqual(trackCount + jitterChunks - 1, errored);
-            Assert.AreEqual(trackCount, avTracksCount - jitterChunks);
-            Assert.AreEqual(trackCount, fingerprintsCount - jitterChunks);
-            Assert.IsTrue(restoreCalled[0]);
-            Assert.AreEqual(1, resultEntries.Count);
-            var (result, _) = resultEntries.First();
+			Assert.Multiple(() =>
+			{
+				Assert.That(processed, Is.EqualTo(totalQueryLength).Within(3));
+				Assert.That(errored, Is.EqualTo(trackCount + jitterChunks - 1));
+				Assert.That(avTracksCount - jitterChunks, Is.EqualTo(trackCount));
+				Assert.That(fingerprintsCount - jitterChunks, Is.EqualTo(trackCount));
+				Assert.That(restoreCalled[0], Is.True);
+				Assert.That(resultEntries, Has.Count.EqualTo(1));
+			});
+			var (result, _) = resultEntries.First();
             Assert.That(result, Is.Not.Null);
-            Assert.AreEqual(totalTrackLength, result.Coverage.TrackCoverageWithPermittedGapsLength, 2 * minSizeChunkDuration);
-            Assert.IsTrue(Math.Abs(start.Subtract(result.MatchedAt).TotalSeconds) < 2, $"Matched At {result.MatchedAt:o}");
-            Assert.AreEqual(0, didNotPassThreshold);
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(result.Coverage.TrackCoverageWithPermittedGapsLength, Is.EqualTo(totalTrackLength).Within(2 * minSizeChunkDuration));
+				Assert.That(Math.Abs(start.Subtract(result.MatchedAt).TotalSeconds) < 2, Is.True, $"Matched At {result.MatchedAt:o}");
+				Assert.That(didNotPassThreshold, Is.EqualTo(0));
+			});
+		}
 
         [Test]
         public async Task HashesShouldMatchExactlyWhenAggregated()
@@ -404,21 +422,26 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 })
                 .UsingServices(modelService)
                 .Query(CancellationToken.None);
-            
-            Assert.That(hashes, Is.Not.Null);
-            Assert.AreEqual(hashes.Count, list.Select(entry => entry.Audio?.Count).Sum());
-            var merged = Hashes.Aggregate(list.Select(_ => _.Audio), concatenated.Duration).ToList();
-            Assert.AreEqual(1, merged.Count, $"Hashes:{string.Join(",", merged.Select(_ => $"{_.RelativeTo},{_.DurationInSeconds:0.00}"))}");
-            Assert.AreEqual(hashes.Count, merged.Select(entry => entry.Count).Sum());
+			Assert.Multiple(() =>
+			{
+				Assert.That(hashes, Is.Not.Null);
+				Assert.That(list.Select(entry => entry.Audio?.Count).Sum(), Is.EqualTo(hashes.Count));
+			});
+			var merged = Hashes.Aggregate(list.Select(_ => _.Audio), concatenated.Duration).ToList();
+			Assert.That(merged, Has.Count.EqualTo(1), $"Hashes:{string.Join(",", merged.Select(_ => $"{_.RelativeTo},{_.DurationInSeconds:0.00}"))}");
+			Assert.That(merged.Select(entry => entry.Count).Sum(), Is.EqualTo(hashes.Count));
 
             var aggregated = Hashes.Aggregate(list.Select(_ => _.Audio), double.MaxValue).ToList();
-            Assert.AreEqual(1, aggregated.Count);
-            Assert.AreEqual(hashes.Count, aggregated[0].Count);
+			Assert.That(aggregated, Has.Count.EqualTo(1));
+			Assert.That(aggregated[0], Has.Count.EqualTo(hashes.Count));
             foreach (var zipped in hashes.OrderBy(h => h.SequenceNumber).Zip(aggregated[0], (a, b) => new { a, b }))
             {
-                Assert.AreEqual(zipped.a.StartsAt, zipped.b.StartsAt, 1d);
-                Assert.AreEqual(zipped.a.SequenceNumber, zipped.b.SequenceNumber);
-                CollectionAssert.AreEqual(zipped.a.HashBins, zipped.b.HashBins);
+				Assert.Multiple(() =>
+				{
+					Assert.That(zipped.b.StartsAt, Is.EqualTo(zipped.a.StartsAt).Within(1d));
+					Assert.That(zipped.b.SequenceNumber, Is.EqualTo(zipped.a.SequenceNumber));
+				});
+				Assert.That(zipped.b.HashBins, Is.EqualTo(zipped.a.HashBins).AsCollection);
             }
         }
 
@@ -460,9 +483,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService)
                 .Query(cancellationTokenSource.Token);
 
-            Assert.IsTrue(entries.Any());
-            Assert.AreEqual(1, entries.Count);
-            var (realtimeResult, _) = entries.First();
+			Assert.Multiple(() =>
+			{
+				Assert.That(entries.Any(), Is.True);
+				Assert.That(entries, Has.Count.EqualTo(1));
+			});
+			var (realtimeResult, _) = entries.First();
             var aggregatedHashes = Hashes.Aggregate(fingerprints.Select(_ => _.Audio), 60d).First();
             var (nonRealtimeResult, _) = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
@@ -471,12 +497,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query();
             
             Assert.That(nonRealtimeResult, Is.Not.Null);
-            Assert.IsTrue(nonRealtimeResult.ContainsMatches);
-            Assert.AreEqual(1, nonRealtimeResult.ResultEntries.Count());
-            Assert.That(realtimeResult, Is.Not.Null);
-            Assert.AreEqual(realtimeResult.MatchedAt, aggregatedHashes.RelativeTo);
-            Assert.AreEqual(realtimeResult.MatchedAt, nonRealtimeResult.BestMatch?.MatchedAt, $"Realtime vs NonRealtime {nonRealtimeResult.BestMatch?.Coverage.BestPath.Count()} match time does not match");
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(nonRealtimeResult.ContainsMatches, Is.True);
+				Assert.That(nonRealtimeResult.ResultEntries.Count(), Is.EqualTo(1));
+				Assert.That(realtimeResult, Is.Not.Null);
+				Assert.That(aggregatedHashes.RelativeTo, Is.EqualTo(realtimeResult.MatchedAt));
+				Assert.That(nonRealtimeResult.BestMatch?.MatchedAt, Is.EqualTo(realtimeResult.MatchedAt), $"Realtime vs NonRealtime {nonRealtimeResult.BestMatch?.Coverage.BestPath.Count()} match time does not match");
+			});
+		}
 
         [Test]
         public async Task ShouldPurgeCompletedMatchWhenAsyncCollectionIsExhausted()
@@ -509,9 +538,12 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService)
                 .Query(CancellationToken.None);
 
-            Assert.AreEqual(0, didNotPass.Count);
-            Assert.AreEqual(1, success.Count);
-        }
+			Assert.Multiple(() =>
+			{
+				Assert.That(didNotPass.Count, Is.EqualTo(0));
+				Assert.That(success, Has.Count.EqualTo(1));
+			});
+		}
 
         [Test]
         public async Task ShouldContinueQueryingEvenWhenAnErrorOccurs()
@@ -552,12 +584,15 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationTokenSource.Token);
 
             int totalQueries = throwExceptionAfter * totalExceptions - totalExceptions;
-            
-            Assert.AreEqual(totalExceptions, exceptions);
-            Assert.AreEqual(totalExceptions - 1, restored);
-            Assert.AreEqual(totalQueries * length, queryLength);
-            
-            modelService.Verify(s => s.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(totalQueries));
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(exceptions, Is.EqualTo(totalExceptions));
+				Assert.That(restored, Is.EqualTo(totalExceptions - 1));
+				Assert.That(queryLength, Is.EqualTo(totalQueries * length));
+			});
+
+			modelService.Verify(s => s.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(totalQueries));
             backoffPolicy.Verify(b => b.Failure(), Times.Exactly(totalExceptions));
             backoffPolicy.Verify(b => b.RemainingDelay, Times.Exactly(totalExceptions));
             backoffPolicy.Verify(b => b.Success(), Times.Exactly(totalExceptions - 1));
@@ -576,16 +611,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var concatenatedAudio = Concatenate(audioData);
             var videoData = GenerateRandomFrameChunks(audioCount, seed: 456, relativeTo);
             var concatenatedVideo = Concatenate(videoData);
-            Assert.AreEqual(concatenatedAudio.Duration, concatenatedVideo.Duration, (double)minSamplesPerFingerprint / SampleRate);
+			Assert.That(concatenatedVideo.Duration, Is.EqualTo(concatenatedAudio.Duration).Within((double)minSamplesPerFingerprint / SampleRate));
 
             var avHashes = await FingerprintCommandBuilder.Instance
                 .BuildFingerprintCommand()
                 .From(new AVTrack(new AudioTrack(concatenatedAudio), new VideoTrack(concatenatedVideo)))
                 .Hash();
-            
-            Assert.That(avHashes.Audio, Is.Not.Null);
-            Assert.That(avHashes.Video, Is.Not.Null);
-            Assert.That(avHashes.Audio.RelativeTo, Is.EqualTo(avHashes.Video.RelativeTo));
+			Assert.Multiple(() =>
+			{
+				Assert.That(avHashes.Audio, Is.Not.Null);
+				Assert.That(avHashes.Video, Is.Not.Null);
+			});
+			Assert.That(avHashes.Audio.RelativeTo, Is.EqualTo(avHashes.Video.RelativeTo));
             
             modelService.Insert(new TrackInfo("1", string.Empty, string.Empty, MediaType.Audio | MediaType.Video), avHashes);
 
@@ -633,18 +670,21 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                             })
                                             .UsingServices(modelService)
                                             .Query(CancellationToken.None);
-            
-            Assert.AreEqual(1, successMatches.Count, $"There should be only one match:\n{string.Join("\n", successMatches)}\nSuccess Callback Calls: {successCallbackCalls}");
+
+			Assert.That(successMatches, Has.Count.EqualTo(1), $"There should be only one match:\n{string.Join("\n", successMatches)}\nSuccess Callback Calls: {successCallbackCalls}");
             var (audioResult, videoResult) = successMatches.First();
-            Assert.IsNotNull(audioResult);
-            Assert.IsNotNull(videoResult);
-            Assert.AreEqual(1, audioResult.Confidence, 0.01);
-            Assert.AreEqual(1, audioResult.Coverage.TrackRelativeCoverage, 0.01);
-            Assert.AreEqual(1, videoResult.Confidence, 0.01);
-            Assert.AreEqual(1, videoResult.Coverage.TrackRelativeCoverage, 0.01);
-            Assert.AreEqual(0, didNotGetToContiguousQueryMatchLengthMatch.Count);
-            Assert.AreEqual(avTracks.Count, ongoingCalls, 1);
-            Assert.AreEqual(totalTrackLength + jitterLength + jitterLength, processed, 3d);
+			Assert.Multiple(() =>
+			{
+				Assert.That(audioResult, Is.Not.Null);
+				Assert.That(videoResult, Is.Not.Null);
+			});
+			Assert.That(audioResult.Confidence, Is.EqualTo(1).Within(0.01));
+			Assert.That(audioResult.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.01));
+			Assert.That(videoResult.Confidence, Is.EqualTo(1).Within(0.01));
+			Assert.That(videoResult.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.01));
+			Assert.That(didNotGetToContiguousQueryMatchLengthMatch.Count, Is.EqualTo(0));
+			Assert.That(ongoingCalls, Is.EqualTo(avTracks.Count).Within(1));
+			Assert.That(processed, Is.EqualTo(totalTrackLength + jitterLength + jitterLength).Within(3d));
         }
 
         [Test]
@@ -657,7 +697,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             realtimeMediaService.Setup(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, cancellationToken))
                 .Callback((string _, double _, AVTrackReadConfiguration avTrackConfig, MediaType _, CancellationToken _) =>
                 {
-                     Assert.AreEqual(sampleRate, avTrackConfig.AudioConfig.SampleRate);
+					Assert.That(avTrackConfig.AudioConfig.SampleRate, Is.EqualTo(sampleRate));
                 })
                 .Returns(GetSamples(10, 60, cancellationToken, sampleRate: sampleRate));
 
@@ -672,7 +712,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationToken);
            
            realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, cancellationToken), Times.Exactly(1));
-           Assert.AreEqual(60 * 10, length);
+			Assert.That(length, Is.EqualTo(60 * 10));
         }
 
         [Test]
@@ -692,7 +732,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Query(cancellationTokenSource.Token);
            
             realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>()), Times.Exactly(1));
-            Assert.IsTrue(length <= 180, $"Length {length} is bigger than 180");
+			Assert.That(length, Is.LessThanOrEqualTo(180), $"Length {length} is bigger than 180");
         }
 
         [Test]
@@ -710,7 +750,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 {
                     config.ErrorCallback = (ex, _) =>
                     {
-                        Assert.IsInstanceOf<ApplicationException>(ex);
+						Assert.That(ex, Is.InstanceOf<ApplicationException>());
                         errored = true;
                     };
                 
@@ -718,8 +758,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 })
                 .UsingServices(modelService, realtimeMediaService.Object)
                 .Query(cancellationTokenSource.Token);
-            
-            Assert.IsTrue(errored);
+
+			Assert.That(errored, Is.True);
         }
 
         [Test]
@@ -769,12 +809,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .UsingServices(modelService)
                 .Query(CancellationToken.None);
 
-            Assert.That(success.Count, Is.EqualTo(1));
-            Assert.That(didNotPass.Count, Is.Zero, "Found matches:\n" + string.Join("\n", didNotPass));
-            var entry = success.First();
-            Assert.That(entry.Audio, Is.Not.Null);
-            Assert.That(entry.Video, Is.Null);
-            Assert.That(entry.Audio.Coverage.TrackCoverageWithPermittedGapsLength, Is.EqualTo(hashes.Audio!.DurationInSeconds).Within(1d));
+			Assert.Multiple(() =>
+			{
+				Assert.That(success, Has.Count.EqualTo(1));
+				Assert.That(didNotPass.Count, Is.Zero, "Found matches:\n" + string.Join("\n", didNotPass));
+			});
+			var entry = success.First();
+			Assert.Multiple(() =>
+			{
+				Assert.That(entry.Audio, Is.Not.Null);
+				Assert.That(entry.Video, Is.Null);
+			});
+			Assert.That(entry.Audio.Coverage.TrackCoverageWithPermittedGapsLength, Is.EqualTo(hashes.Audio!.DurationInSeconds).Within(1d));
             Assert.That(receivedSuccessBeforeEnd, Is.True);
         }
         

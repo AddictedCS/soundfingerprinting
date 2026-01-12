@@ -23,6 +23,7 @@ namespace SoundFingerprinting.DAO
             {
                 throw new ArgumentNullException(nameof(prefix));
             }
+
             Prefix = prefix;
             Reference = reference ?? throw new ArgumentNullException(nameof(reference));
         }

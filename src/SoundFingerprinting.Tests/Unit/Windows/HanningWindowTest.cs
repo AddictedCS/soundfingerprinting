@@ -21,7 +21,7 @@
 
             for (int i = 0; i < outerSpace.Length; i++)
             {
-                Assert.AreEqual(true, (outerSpace[i] - outerSpaceCopy[i]) < 0.00001);
+				Assert.That((outerSpace[i] - outerSpaceCopy[i]) < 0.00001, Is.EqualTo(true));
             }
         }
 
