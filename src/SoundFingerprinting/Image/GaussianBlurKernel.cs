@@ -22,6 +22,7 @@ namespace SoundFingerprinting.Image
                     numArray[i, j] = Function2D(x, y, sigma);
                     ++x;
                 }
+
                 ++y;
             }
 

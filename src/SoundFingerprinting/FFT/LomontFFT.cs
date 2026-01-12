@@ -92,6 +92,7 @@ namespace SoundFingerprinting.FFT
                         data[k + 1] = data[k + 1] + tempi;
                     }
                 }
+
                 mmax = istep;
             }
 
@@ -290,6 +291,7 @@ namespace SoundFingerprinting.FFT
                     wr = wr * wpr - wi * wpi + wr;
                     wi = wi * wpr + t * wpi + wi;
                 }
+
                 mmax = istep;
             }
         }
@@ -334,12 +336,14 @@ namespace SoundFingerprinting.FFT
                     data[j + n + 3] = data[k + n + 3];
                     data[k + n + 3] = t;
                 }
+
                 // Knuth R3: advance k                                                                           
                 k += 4;
                 if (k >= n)
                 {
                     break;
                 }
+
                 // Knuth R4: advance j                                                                           
                 var h = top;
                 while (j >= h)
@@ -347,6 +351,7 @@ namespace SoundFingerprinting.FFT
                     j -= h;
                     h /= 2;
                 }
+
                 j += h;
             } // bit reverse loop                                                                                
         }

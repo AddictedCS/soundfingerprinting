@@ -57,6 +57,7 @@ namespace SoundFingerprinting.Image
             {
                 return;
             }
+
             // make the smaller root point to the larger one
             if (sz[rp] <= sz[rq])
             {
@@ -70,6 +71,7 @@ namespace SoundFingerprinting.Image
                 sz[rp] += sz[rq];
                 sz[rq] = 0;
             }
+
             count--;
         }
 
