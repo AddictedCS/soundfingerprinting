@@ -27,21 +27,9 @@
             return permutations;
         }
 
-        public int Count
-        {
-            get
-            {
-                return permutations.Length;
-            }
-        }
+        public int Count => permutations.Length;
 
-        public int IndexesPerPermutation
-        {
-            get
-            {
-                return permutations.First().Length;
-            }
-        }
+        public int IndexesPerPermutation => permutations[0].Length;
 
         /// <summary>
         /// Random shuffle of the elements in place
@@ -61,9 +49,7 @@
 
         private static void Swap(int[] array, int i, int j)
         {
-            int tmp = array[i];
-            array[i] = array[j];
-            array[j] = tmp;
+            (array[i], array[j]) = (array[j], array[i]);
         }
     }
 }
