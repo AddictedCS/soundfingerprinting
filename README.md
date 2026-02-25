@@ -38,7 +38,7 @@ Once you've inserted the fingerprints into the datastore, later you might want t
 
 ```csharp
 
-public async Task<TrackData> GetBestMatchForSong(string file)
+public async Task<TrackData?> GetBestMatchForSong(string file)
 {
     int secondsToAnalyze = 10; // number of seconds to analyze from query file
     int startAtSecond = 0; // start at the begining
@@ -48,8 +48,8 @@ public async Task<TrackData> GetBestMatchForSong(string file)
                                          .From(file, secondsToAnalyze, startAtSecond)
                                          .UsingServices(modelService, audioService)
                                          .Query();
-    
-    return queryResult.BestMatch.Track;
+
+    return queryResult.BestMatch?.Audio.Track;
 }
 ```
 ### Fingerprints Storage
@@ -70,6 +70,8 @@ If you are using `FFmpegAudioService` as described in the [wiki][audio-services-
 | 10.x | 10.x   | 6.x |
 | 11.x | 11.x   | 6.x |
 | 12.x | 12.x   | 7.x |
+| 13.x | 13.x   | 7.x |
+| 14.x | 14.x   | 8.x |
 
 
 
