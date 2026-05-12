@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using SoundFingerprinting.LCS;
+    using SoundFingerprinting.SFM;
 
     /// <inheritdoc cref="QueryConfiguration"/>
     public class DefaultQueryConfiguration : QueryConfiguration
@@ -15,10 +16,16 @@
             MaxTracksToReturn = 25;
             PermittedGap = 2d;
             QueryPathReconstructionStrategy = QueryPathReconstructionStrategyType.MultipleBestPaths;
-            FingerprintConfiguration = new DefaultFingerprintConfiguration { Stride = Configs.QueryStrides.DefaultStride, FrequencyRange = Configs.FrequencyRanges.Default };
+            FingerprintConfiguration = new DefaultFingerprintConfiguration
+            {
+                Stride = Configs.QueryStrides.DefaultStride, 
+                FrequencyRange = Configs.FrequencyRanges.Default
+            };
+            
             TruePositivesFilter = new PassThroughTruePositivesFilter();
             YesMetaFieldsFilters = new Dictionary<string, string>();
             NoMetaFieldsFilters = new Dictionary<string, string>();
+            SfmMatchStrategy = NoBridgingStrategy.Default;
         }
     }
 }

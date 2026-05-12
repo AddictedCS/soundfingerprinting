@@ -18,8 +18,9 @@ namespace SoundFingerprinting.Configuration
             TopWavelets = 200;
             SampleRate = 5512;
             HaarWaveletNorm = Math.Sqrt(2);
-            OriginalPointSaveTransform =  _ => Array.Empty<byte>();
+            OriginalPointSaveTransform =  _ => [];
             FrameNormalizationTransform = new LogSpectrumNormalization();
+            ComputeSpectralProfile = false;
         }
     }
 }

@@ -95,7 +95,7 @@ namespace SoundFingerprinting.Query
                 skipLength = matchGap;
             }
 
-            var coverage = new Coverage(bestPath, queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap);
+            var coverage = new Coverage(bestPath, queryLength + skipLength, left.Coverage.TrackLength, fingerprintLength, left.Coverage.PermittedGap, bridgedSeconds: 0);
             var track = left.Track;
             double score = left.Score + right.Score;
             return new ResultEntry(track, score, left.MatchedAt, coverage.WithExtendedQueryLength(-skipLength));
@@ -109,7 +109,7 @@ namespace SoundFingerprinting.Query
         /// <returns>A new instance of the <see cref="ResultEntry"/> class with modified query length.</returns>
         public ResultEntry WithExtendedQueryLength(ResultEntry old, double length)
         {
-            return new ResultEntry(old.Track, old.Score, old.MatchedAt, new Coverage(old.Coverage.BestPath, old.Coverage.QueryLength + length, old.Coverage.TrackLength, old.Coverage.FingerprintLength, old.Coverage.PermittedGap));
+            return new ResultEntry(old.Track, old.Score, old.MatchedAt, new Coverage(old.Coverage.BestPath, old.Coverage.QueryLength + length, old.Coverage.TrackLength, old.Coverage.FingerprintLength, old.Coverage.PermittedGap, old.Coverage.BridgedSeconds));
         }
 
         private static float GetGapSize(MatchedWith leftLastMatch, double leftQueryLength, float fingerprintLength)
