@@ -79,8 +79,6 @@ var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
 
 Available strategies: `NoBridgingStrategy` (default — no change vs. v14), `BroadbandNoiseBridgingStrategy` (per-second SFM > 0.70 on both sides), `SilentRegionBridgingStrategy` (per-second power < 5% on both sides — replaces the removed `TreatSilenceAsSignal` flag), `SimilarProfileBridgingStrategy` (tight |Δsfm| < 0.10 tolerance, capped to `min(10s, 0.30 × queryLength)` to keep speech-vs-speech merges safe), and `CompositeBridgingStrategy` for safe unions. Bridging is bounded by a universal 70% cumulative-bridged-seconds sanity cap and reported back via `Coverage.BridgedSeconds`. Synthetics are structurally indistinguishable from real matches downstream — no wire-format changes to `MatchedWith`. Tracks without a stored profile short-circuit cleanly to no-bridging (behavior identical to v14).
 
-**Breaking:** `FingerprintConfiguration.TreatSilenceAsSignal` is removed in v15.0.0. The hash-level wildcard cross-match it enabled is replaced by symmetric, capped, power-based bridging at the path layer via `SilentRegionBridgingStrategy`. Migration: drop the flag; if you need silence handling, configure `SilentRegionBridgingStrategy.Default` (or `CompositeBridgingStrategy.BroadbandOrSilent`) on the query side.
-
 ### Version Matrix
 If you are using `FFmpegAudioService` as described in the [wiki][audio-services-wiki-page], follow the below version matrix.
 | SoundFingerprinting  | SoundFingerprinting.Emy | FFmpeg |
