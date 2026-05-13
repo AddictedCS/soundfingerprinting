@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Query
+namespace SoundFingerprinting.Query
 {
     /// <summary>
     ///  Query statistics class.
@@ -19,7 +19,7 @@
             QueryDurationMilliseconds = queryDurationMilliseconds;
             FingerprintingDurationMilliseconds = fingerprintingDurationMilliseconds;
         }
-        
+
         /// <summary>
         ///  Gets total duration in milliseconds spent in fingerprinting and querying the data-source.
         /// </summary>
@@ -66,8 +66,9 @@
             {
                 return this;
             }
-            
-            return new QueryCommandStats(TotalTracksAnalyzed + stats.TotalTracksAnalyzed, 
+
+            return new QueryCommandStats(
+                TotalTracksAnalyzed + stats.TotalTracksAnalyzed,
                 TotalFingerprintsAnalyzed + stats.TotalFingerprintsAnalyzed,
                 QueryDurationMilliseconds + stats.QueryDurationMilliseconds,
                 FingerprintingDurationMilliseconds + stats.FingerprintingDurationMilliseconds);

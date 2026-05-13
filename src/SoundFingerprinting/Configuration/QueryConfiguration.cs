@@ -5,6 +5,7 @@
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.SFM;
     using SoundFingerprinting.Strides;
 
     /// <summary>
@@ -12,10 +13,6 @@
     /// </summary>
     public abstract class QueryConfiguration
     {
-        private int thresholdVotes;
-        private int maxTracksToReturn;
-        private QueryPathReconstructionStrategyType queryPathReconstructionStrategyType;
-
         /// <summary>
         ///   Gets or sets vote count for a track to be considered a potential match (i.e. [1; 25]).
         /// </summary>
@@ -26,7 +23,7 @@
         /// </remarks>
         public int ThresholdVotes
         {
-            get => thresholdVotes;
+            get;
 
             set
             {
@@ -35,7 +32,7 @@
                     throw new ArgumentException("ThresholdVotes cannot be less than 1", nameof(value));
                 }
 
-                thresholdVotes = value;
+                field = value;
             }
         }
 
@@ -44,7 +41,7 @@
         /// </summary>
         public int MaxTracksToReturn
         {
-            get => maxTracksToReturn;
+            get;
 
             set
             {
@@ -53,7 +50,7 @@
                     throw new ArgumentException("MaxTracksToReturn cannot be less or equal to 0", nameof(value));
                 }
 
-                maxTracksToReturn = value;
+                field = value;
             }
         }
 
@@ -95,13 +92,39 @@
         /// </remarks>
         public QueryPathReconstructionStrategyType QueryPathReconstructionStrategy
         {
-            get => queryPathReconstructionStrategyType;
+            get;
             set
             {
-                ScoreAlgorithm = value == QueryPathReconstructionStrategyType.Legacy ? HammingSimilarityScoreAlgorithm.Instance : SubFingerprintCountScoreAlgorithm.Instance;
-                queryPathReconstructionStrategyType = value;
+                ScoreAlgorithm = value == QueryPathReconstructionStrategyType.Legacy
+                    ? HammingSimilarityScoreAlgorithm.Instance
+                    : SubFingerprintCountScoreAlgorithm.Instance;
+                field = value;
             }
         }
+
+        /// <summary>
+        ///  Gets or sets the SFM-based path-bridging strategy used during coverage reconstruction.
+        /// </summary>
+        /// <remarks>
+        ///  Default is <see cref="NoBridgingStrategy"/> (no bridging, identical to legacy behaviour).
+        ///  Setting a non-<c>NoBridgingStrategy</c> value cascades to
+        ///  <see cref="SoundFingerprinting.Configuration.FingerprintConfiguration.ComputeSpectralProfile"/>,
+        ///  flipping it on so the per-query Hashes carry the spectral profile required for bridging.
+        ///  Setting back to a <see cref="NoBridgingStrategy"/> instance flips the flag off again.
+        ///  <para>
+        ///  Multiple strategies can be combined via <see cref="CompositeBridgingStrategy"/> — see e.g.
+        ///  <see cref="CompositeBridgingStrategy.BroadbandOrSilent"/> for the safe broadband + silent union.
+        ///  </para>
+        /// </remarks>
+        public ISfmMatchStrategy SfmMatchStrategy
+        {
+            get;
+            set
+            {
+                FingerprintConfiguration.ComputeSpectralProfile = value is not NoBridgingStrategy;
+                field = value;
+            }
+        } = NoBridgingStrategy.Default;
 
         /// <summary>
         ///  Gets or sets permitted gap between consecutive matches of the same track (as defined by the <see cref="Coverage.BestPath"/> property).

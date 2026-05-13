@@ -605,7 +605,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     trackMatchAt:        seqNum * fingerprintLength + trackOffset,
                     score: 100));
             var track = new TrackData(trackId, "artist", "title", trackLength, new ModelReference<uint>(1));
-            var coverage = new Coverage(bestPath, queryLength, trackLength, fingerprintLength, config.PermittedGap);
+            var coverage = new Coverage(bestPath, queryLength, trackLength, fingerprintLength, config.PermittedGap, 0);
             return new ResultEntry(track, score: 100 * 100, matchedAt: DateTime.Now, coverage);
         }
 

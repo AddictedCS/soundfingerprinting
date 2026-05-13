@@ -4,10 +4,11 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.LCS;
 
-    internal class GroupedQueryResults(double queryLength, DateTime relativeTo)
+    internal class GroupedQueryResults(double queryLength, DateTime relativeTo, SpectralProfile? queryProfile)
     {
         private readonly SortedDictionary<uint, Candidates> sequenceToCandidates = new ();
         private readonly ConcurrentDictionary<IModelReference, double> scoreSumPerTrack = new ();
@@ -15,6 +16,8 @@
         public double QueryLength { get; } = queryLength;
 
         public DateTime RelativeTo { get; } = relativeTo;
+
+        public SpectralProfile? QueryProfile { get; } = queryProfile;
 
         public void Add(uint queryHashSequenceNumber, IModelReference trackReference, MatchedWith matchedWith)
         {

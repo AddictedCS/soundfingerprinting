@@ -94,6 +94,59 @@
             }
         }
 
+        [Test]
+        public void SelectNthSmallestShouldMatchFullSortAcrossAllPositions()
+        {
+            var rng = new Random(42);
+            for (int trial = 0; trial < 50; ++trial)
+            {
+                var original = Enumerable.Range(0, 128).Select(_ => rng.NextDouble()).ToArray();
+                var sorted = original.OrderBy(x => x).ToArray();
+
+                for (int k = 0; k < original.Length; ++k)
+                {
+                    var copy = (double[])original.Clone();
+                    var picked = QuickSelectAlgorithm.SelectNthSmallest(copy, k);
+                    Assert.That(picked, Is.EqualTo(sorted[k]), $"trial {trial} k {k}");
+                    Assert.That(copy[k], Is.EqualTo(sorted[k]), "value at index k must be the kth smallest after partition");
+                }
+            }
+        }
+
+        [Test]
+        public void SelectNthSmallestShouldEnforcePartitionInvariant()
+        {
+            // every element before k must be <= values[k], every element after must be >= values[k]
+            var rng = new Random(7);
+            var values = Enumerable.Range(0, 64).Select(_ => rng.NextDouble()).ToArray();
+            const int k = 31;
+
+            var picked = QuickSelectAlgorithm.SelectNthSmallest(values, k);
+
+            for (int i = 0; i < k; ++i)
+            {
+                Assert.That(values[i], Is.LessThanOrEqualTo(picked), $"prefix index {i}");
+            }
+
+            for (int i = k + 1; i < values.Length; ++i)
+            {
+                Assert.That(values[i], Is.GreaterThanOrEqualTo(picked), $"suffix index {i}");
+            }
+        }
+
+        [Test]
+        public void SelectNthSmallestHandlesSingletonAndDuplicateInputs()
+        {
+            Assert.That(QuickSelectAlgorithm.SelectNthSmallest(new[] { 0.42 }, 0), Is.EqualTo(0.42));
+
+            var allSame = Enumerable.Repeat(0.5, 17).ToArray();
+            Assert.That(QuickSelectAlgorithm.SelectNthSmallest(allSame, 8), Is.EqualTo(0.5));
+
+            var twoVals = new[] { 0.1, 0.9 };
+            Assert.That(QuickSelectAlgorithm.SelectNthSmallest((double[])twoVals.Clone(), 0), Is.EqualTo(0.1));
+            Assert.That(QuickSelectAlgorithm.SelectNthSmallest((double[])twoVals.Clone(), 1), Is.EqualTo(0.9));
+        }
+
         private Tuple<float[], float[]> GetTwoRandomCopies(int count, Random random)
         {
             float[] a = GenerateRandomArray(count, random);

@@ -5,6 +5,7 @@ namespace SoundFingerprinting.Data
     using System.Collections.Generic;
     using System.Linq;
     using ProtoBuf;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Query;
 
     /// <summary>
@@ -14,6 +15,8 @@ namespace SoundFingerprinting.Data
     [ProtoContract(IgnoreListHandling = true, SkipConstructor = true)]
     public class Hashes : IEnumerable<HashedFingerprint>
     {
+        private const double ContiguityToleranceSeconds = 0.5;
+        
         private static IDictionary<string, string> emptyDictionary = new Dictionary<string, string>();
 
         [ProtoMember(1)]
@@ -514,9 +517,59 @@ namespace SoundFingerprinting.Data
             var fullLength = result.Last().StartsAt + tailLength;
 
             var additionalProperties = new Dictionary<string, string>();
+            
+            // spectralProfile needs contiguity + version match; skip in the loop and re-attach below to avoid overwrite loss
             foreach (var kv in left.Properties.Concat(right.Properties))
             {
+                if (kv.Key == SpectralProfileKeys.SpectralProfile)
+                {
+                    continue;
+                }
+
                 additionalProperties[kv.Key] = kv.Value;
+            }
+
+            // Hashes.Merge does a time-aware interleave for fingerprints; the spectral profile side is per-second
+            // bucketed so we splice the two profiles along the merged timeline.
+            // Compute the gap/overlap directly from absolute timestamps (not from fullLength, which is caller-order
+            // dependent in Merge's internal frame). gap_seconds = later.RelativeTo - (earlier.RelativeTo + earlier.Duration):
+            //   - gap > tolerance        : real silent gap; we'd have to invent seconds → drop the profile
+            //   - |gap| <= tolerance     : contiguous within FP drift → concat
+            //   - gap < -tolerance       : streams overlap by ~(-gap) seconds; trim that many from the later side's
+            //                               head and concat earlier ++ trimmed-later (per spec: "either side doesn't matter")
+            var leftProfile = left.Properties.TryGetValue(SpectralProfileKeys.SpectralProfile, out var leftPayload) ? leftPayload : null;
+            var rightProfile = right.Properties.TryGetValue(SpectralProfileKeys.SpectralProfile, out var rightPayload) ? rightPayload : null;
+            if (leftProfile != null && rightProfile != null)
+            {
+                bool leftIsEarlier = left.RelativeTo <= right.RelativeTo;
+                var earlierHashes = leftIsEarlier ? left : right;
+                var laterHashes = leftIsEarlier ? right : left;
+                double gapSeconds = (laterHashes.RelativeTo - earlierHashes.RelativeTo).TotalSeconds - earlierHashes.DurationInSeconds;
+                if (gapSeconds <= ContiguityToleranceSeconds)
+                {
+                    var registry = SpectralProfileCodecRegistry.Default;
+                    var earlierPayload = leftIsEarlier ? leftProfile : rightProfile;
+                    var laterPayload = leftIsEarlier ? rightProfile : leftProfile;
+                    var earlier = registry.Decode(earlierPayload);
+                    var later = registry.Decode(laterPayload);
+                    if (earlier != null && later != null)
+                    {
+                        int overlapSeconds = gapSeconds < -ContiguityToleranceSeconds ? (int)Math.Round(-gapSeconds) : 0;
+                        int skip = Math.Min(overlapSeconds, later.PerSecond.Count);
+                        var combined = new SpectralSecond[earlier.PerSecond.Count + later.PerSecond.Count - skip];
+                        for (int s = 0; s < earlier.PerSecond.Count; ++s)
+                        {
+                            combined[s] = earlier.PerSecond[s];
+                        }
+
+                        for (int s = 0; s < later.PerSecond.Count - skip; ++s)
+                        {
+                            combined[earlier.PerSecond.Count + s] = later.PerSecond[skip + s];
+                        }
+
+                        additionalProperties[SpectralProfileKeys.SpectralProfile] = registry.Encode(new SpectralProfile(combined));
+                    }
+                }
             }
 
             double offset = left.RelativeTo < right.RelativeTo ? left.TimeOffset : right.TimeOffset;

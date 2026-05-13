@@ -18,7 +18,7 @@ public class QueryMathTest
     [Test]
     public void ShouldReturnEmptyListWhenNoTracks()
     {
-        var groupedQueryResults = new GroupedQueryResults(10d, DateTime.Now);
+        var groupedQueryResults = new GroupedQueryResults(10d, DateTime.Now, queryProfile: null);
         var queryService = new Mock<IQueryService>();
         queryService
             .Setup(s => s.ReadTracksByReferences(It.IsAny<IEnumerable<IModelReference>>()))
@@ -101,7 +101,7 @@ public class QueryMathTest
         var trackData3 = new TrackData("id-3", "Artist3", "Title3", 30.0, trackRef3);
 
         // Create grouped results with different scores for each track
-        var groupedQueryResults = new GroupedQueryResults(10d, DateTime.Now);
+        var groupedQueryResults = new GroupedQueryResults(10d, DateTime.Now, queryProfile: null);
         AddMatchesForTrack(groupedQueryResults, trackRef1, 5, 100);  // Score: 500
         AddMatchesForTrack(groupedQueryResults, trackRef2, 5, 200);  // Score: 1000
         AddMatchesForTrack(groupedQueryResults, trackRef3, 5, 150);  // Score: 750
@@ -155,7 +155,7 @@ public class QueryMathTest
 
     private static GroupedQueryResults CreateGroupedQueryResultsWithMatches(double queryLength, IModelReference[] trackRefs, int matchCount)
     {
-        var groupedQueryResults = new GroupedQueryResults(queryLength, DateTime.Now);
+        var groupedQueryResults = new GroupedQueryResults(queryLength, DateTime.Now, queryProfile: null);
         foreach (var trackRef in trackRefs)
         {
             AddMatchesForTrack(groupedQueryResults, trackRef, matchCount, 100);

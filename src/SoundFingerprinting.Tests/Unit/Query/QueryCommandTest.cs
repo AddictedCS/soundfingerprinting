@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Tests.Unit.Query
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.SFM;
 
     [TestFixture]
     public class QueryCommandTest
@@ -319,11 +321,11 @@ namespace SoundFingerprinting.Tests.Unit.Query
 			});
 		}
          
-        [Test(Description = "Should cross match tone signal")]
-        public async Task ShouldBeAbleToCrossMatchToneSignal()
+        [Test(Description = "SilentRegionBridgingStrategy should bridge a true-silence gap between two real-anchored regions")]
+        public async Task ShouldBridgeSilentRegionAcrossRealAnchors()
         {
             var first = TestUtilities.GenerateRandomAudioSamples(15 * 5512);
-            var silenceGap = new AudioSamples(Enumerable.Repeat((float)0.5, 10 * 5512).ToArray(), string.Empty, 5512);
+            var silenceGap = new AudioSamples(new float[10 * 5512], string.Empty, 5512);
             var second = TestUtilities.GenerateRandomAudioSamples(15 * 5512);
 
             var samples = TestUtilities.Concatenate(TestUtilities.Concatenate(first, silenceGap), second);
@@ -333,37 +335,47 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(samples)
                 .WithFingerprintConfig(config =>
                 {
-                    config.Audio.TreatSilenceAsSignal = true;
+                    config.Audio.ComputeSpectralProfile = true;
                     return config;
                 })
                 .UsingServices(new SoundFingerprintingAudioService())
                 .Hash();
 
             var modelService = new InMemoryModelService();
-            
-            modelService.Insert(new TrackInfo("id", "title", "artist"), avHashes);
+
+            // mirror the storage-side wiring: copy spectral profile from audio hashes into track meta
+            var trackMeta = new Dictionary<string, string>();
+            if (avHashes.Audio != null && avHashes.Audio.Properties.TryGetValue(SpectralProfileKeys.SpectralProfile, out string profilePayload))
+            {
+                trackMeta[SpectralProfileKeys.SpectralProfile] = profilePayload;
+            }
+
+            modelService.Insert(new TrackInfo("id", "title", "artist", trackMeta), avHashes);
 
             var query = await QueryCommandBuilder
                 .Instance
                 .BuildQueryCommand()
                 .From(avHashes)
+                .WithQueryConfig(config =>
+                {
+                    config.Audio.SfmMatchStrategy = SilentRegionBridgingStrategy.Default;
+                    return config;
+                })
                 .UsingServices(modelService)
                 .Query();
-            
-            var result = query.ResultEntries.First();
-            
-            Assert.That(result, Is.Not.Null);
-            var queryGaps = result.Audio!.Coverage.QueryGaps.ToList();
-            var trackGaps = result.Audio.Coverage.TrackGaps.ToList();
-			Assert.Multiple(() =>
-			{
-				Assert.That(trackGaps, Is.Empty);
-				Assert.That(queryGaps, Is.Empty);
 
-				Assert.That(result.Audio.Confidence, Is.EqualTo(1).Within(0.1));
-				Assert.That(result.Audio.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.1));
-			});
-		}
+            var result = query.ResultEntries.First();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Audio!.Coverage.TrackRelativeCoverage, Is.GreaterThan(0.7));
+            Assert.That(result.Audio.Coverage.BridgedSeconds, Is.GreaterThan(0));
+
+            // score is computed pre-LIS from real hash matches only — synthetics must never enter the score path
+            int realFingerprintCount = avHashes.Audio!.Count;
+            Assert.That(result.Audio.Score, Is.LessThanOrEqualTo(realFingerprintCount), "score must not include bridged synthetics");
+            int bestPathLength = result.Audio.Coverage.BestPath.Count();
+            Assert.That(bestPathLength, Is.GreaterThan((int)result.Audio.Score), "best path is wider than score because it includes synthetics");
+        }
 
         private static float[] GetRandomSamplesWithRegions(float[] m1, float[] m2)
         {

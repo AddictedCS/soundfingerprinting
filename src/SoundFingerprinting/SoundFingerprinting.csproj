@@ -4,13 +4,24 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>14.1.0</PackageVersion>
+	<PackageVersion>15.0.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.0.0
+		- SFM-based path bridging for second-tier ad-deduplication matching. Per-second spectral profile (SFM + power) captured during fingerprinting and used at path-reconstruction time to bridge regions where hashes don't match across recordings (e.g., Corona ad's broadband intro waves, Apple ad's silent brand-reveal moments).
+		- New `FingerprintConfiguration.ComputeSpectralProfile` flag (default false). When set, per-Frame SFM/power is computed pre-normalization and attached to `Hashes.Properties` as a base64-encoded payload via `SpectralProfileCodecV1` (1 version byte + 1 reserved + interleaved sfm/power bytes per second).
+		- New `QueryConfiguration.SfmMatchStrategy` property (default `NoBridgingStrategy`). Setter cascades to `FingerprintConfiguration.ComputeSpectralProfile` so the query-side flag stays in lock-step with the chosen strategy.
+		- New `ISfmMatchStrategy` interface with built-in strategies: `NoBridgingStrategy`, `BroadbandNoiseBridgingStrategy` (per-second SFM &gt; 0.70 on both sides + |Δ| &lt; 0.15), `SilentRegionBridgingStrategy` (per-second power &lt; 5% on both sides + |Δ| &lt; 5%), `SimilarProfileBridgingStrategy` (|Δsfm| &lt; 0.10, capped at min(10s, 0.30 × queryLength)).
+		- New `CompositeBridgingStrategy` for safe union of bridging strategies; ships with `CompositeBridgingStrategy.BroadbandOrSilent` static covering both broadband and silent regions in one pass. Rejects `SimilarProfileBridgingStrategy` (its own per-strategy cap is load-bearing) and `NoBridgingStrategy` (empty bridge) at construction.
+		- `MatchedWithExtensions.GetCoverages` extended with two-phase synthetic emission: Phase 1 per-strategy per-second candidates; Phase 2 skip-if-real, local bracket-interpolation for sequence numbers, universal 70% cumulative cap. Synthetics are structurally indistinguishable from real matches downstream — no `IsSynthetic` field, no wire-format change to `MatchedWith`.
+		- `LCS.Coverage.BridgedSeconds` added as `[ProtoMember(6)]` — wire-visible cumulative count of seconds bridged by the active strategy.
+		- New `SpectralProfileExtensions`: `TrackInfo.WithMetaFieldsFromHashes(Hashes)` (Insert-side auto-propagation), `Hashes.WithPropertiesFromTrack(TrackInfo)` and `Hashes.WithPropertiesFromMetaFields(IDictionary)` (Read-side auto-propagation). `InMemoryModelService.Insert` and `ReadHashesByTrackId` call these so consumers don't have to hand-plumb the profile between `Hashes.Properties` and `TrackInfo.MetaFields`.
+		- `Hashes.Merge` propagates the spectral profile across contiguous splices (≤0.5s gap); one-sided profiles are dropped (cannot fabricate the missing half).
+		- Removed `FingerprintConfiguration.TreatSilenceAsSignal` (breaking change). Silent regions are now bridged at the path layer via `SilentRegionBridgingStrategy` — symmetric (both sides must be silent at the same second), capped by the universal 70% bound, power-based (handles fade-outs and near-silence, not just hard zero). Consumers with `TreatSilenceAsSignal = true` should drop the line and configure `SilentRegionBridgingStrategy.Default` (or `CompositeBridgingStrategy.BroadbandOrSilent`) on the query side.
 		Version 14.1.0
 		- Adding maxTotalDelay to RandomExponentialBackoffPolicy
 		Version 14.0.0

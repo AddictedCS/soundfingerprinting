@@ -110,13 +110,27 @@ namespace SoundFingerprinting.Configuration
         public IFrameNormalization FrameNormalizationTransform { get; set; } = null!;
 
         /// <summary>
-        ///  Gets or sets a value indicating whether to include silence fingerprints into the fingerprinted result set.
+        ///  Gets or sets a value indicating whether to capture a per-second spectral profile (SFM + power)
+        ///  alongside the fingerprints and attach it to the resulting <c>Hashes.Properties</c>.
         /// </summary>
         /// <remarks>
-        ///   Keep in mind that silence fingerprints will always cross-match with any other silence fingerprints. <br />
-        ///   May be useful in scenarios when the dataset is small, and the content you are fingerprinting contains a lot of speech. <br />
-        ///   Default value is false. <br/>
+        ///  When <c>true</c>, the per-Frame SFM and power are computed from the raw spectrum before <see cref="LogSpectrumNormalization"/> mutates the values, bucketed into one-second windows,
+        ///  encoded via <see cref="SoundFingerprinting.Audio.SpectralProfileCodecV1"/>, and stored on <c>Hashes.Properties[SpectralProfileKeys.SpectralProfile]</c> as a base64 string.
+        ///  Default value is <c>false</c>. Setting <see cref="QueryConfiguration.SfmMatchStrategy"/> to a non-no-op strategy flips this on for queries via the setter cascade.
+        ///  <para>
+        ///   <b>Audio only.</b> SFM and power are spectrum-domain concepts and have no meaningful interpretation for video frames (pixel intensities).
+        ///   The video fingerprinting path silently ignores this flag — no profile is attached to video <c>Hashes</c> regardless of the value here.
+        ///  </para>
+        ///  <para>
+        ///   <b>Performance.</b> The cost is dominated by pass 1 of <see cref="SoundFingerprinting.Audio.SpectralProfileService"/>:
+        ///   for each Frame, <c>O(rows × cols)</c> work with one <c>Math.Log</c> per spectrum bin (default 128 × 32 ≈ 4k log ops per Frame), then a per-row median via quickselect
+        ///   (<c>O(rows)</c> average, not a full sort). Pass 2 (bucket → fold means → encode) is <c>O(frames + seconds)</c> and irrelevant to the budget.
+        ///  </para>
+        ///  <para>
+        ///   <b>Memory.</b> The input frames enumerable is materialised once if not already a list. Each Frame holds a ~16 KB float array at the default 128 × 32 layout — peak ~12 MB for a 30 s ad,
+        ///   ~1.4 GB for a 1-hour stream. Per-worker overhead is a small <c>double[rows]</c> buffer (~1 KB at default rows). Chunk long-form content if memory is constrained.
+        ///  </para>
         /// </remarks>
-        public bool TreatSilenceAsSignal { get; set; }
+        public bool ComputeSpectralProfile { get; set; }
     }
 }

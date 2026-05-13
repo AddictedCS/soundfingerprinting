@@ -75,7 +75,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         private static ResultEntry CreateResultEntry()
         {
             var bestPath = new[] { new MatchedWith(0, 0, 0, 0, 0) };
-            var coverage = new Coverage(bestPath, 0, 0, 0, 0);
+            var coverage = new Coverage(bestPath, 0, 0, 0, 0, 0);
             var track = new TrackData("id", "artist", "title", 100, new ModelReference<uint>(1));
             return new ResultEntry(track, 0, DateTime.Now, coverage);
         }

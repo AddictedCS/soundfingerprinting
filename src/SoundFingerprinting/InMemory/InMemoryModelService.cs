@@ -7,6 +7,7 @@ namespace SoundFingerprinting.InMemory
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.DAO.Data;
@@ -86,7 +87,7 @@ namespace SoundFingerprinting.InMemory
         /// <inheritdoc cref="IModelService.Insert"/>
         public void Insert(TrackInfo track, AVHashes avHashes)
         {
-            storage.InsertTrack(track, avHashes);
+            storage.InsertTrack(track.WithMetaFieldsFromHashes(avHashes), avHashes);
         }
 
         /// <inheritdoc cref="IModelService.UpdateTrack"/>
@@ -140,7 +141,10 @@ namespace SoundFingerprinting.InMemory
                 return AVHashes.Empty;
             }
 
-            return storage.ReadAvHashesByTrackId(trackId);
+            var avHashes = storage.ReadAvHashesByTrackId(trackId);
+            var audio = avHashes.Audio.WithPropertiesFromTrack(track);
+            var video = avHashes.Video.WithPropertiesFromTrack(track);
+            return new AVHashes(audio, video, avHashes.FingerprintingTime);
         }
 
         /// <inheritdoc cref="IModelService.GetTrackIds"/>

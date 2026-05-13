@@ -15,15 +15,21 @@
         private const double Epsilon = 0.0001;
         
         private SpectrumService spectrumService;
-        private Mock<IFFTServiceUnsafe> fftService;
         private Mock<ILogUtility> logUtility;
 
         [SetUp]
         public void SetUp()
         {
-            fftService = new Mock<IFFTServiceUnsafe>(MockBehavior.Loose);
+            // Hand-rolled no-op fake instead of Mock<IFFTServiceUnsafe>: Moq generates a Castle.DynamicProxy that boxes the float* argument via System.Reflection.Pointer.Box on every call. Under the heavy Parallel.For (50k+ invocations per test) this intermittently corrupts the GC heap on .NET 10 macOS arm64 and the background GC thread crashes mid-scan. See issue #240.
             logUtility = new Mock<ILogUtility>(MockBehavior.Strict);
-            spectrumService = new SpectrumService(fftService.Object, logUtility.Object);
+            spectrumService = new SpectrumService(new NoOpUnsafeFftService(), logUtility.Object);
+        }
+
+        private sealed class NoOpUnsafeFftService : IFFTServiceUnsafe
+        {
+            public unsafe void FFTForwardInPlace(float* data, int length)
+            {
+            }
         }
 
         [TearDown]

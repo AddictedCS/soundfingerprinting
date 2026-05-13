@@ -1,13 +1,16 @@
-﻿namespace SoundFingerprinting
+namespace SoundFingerprinting
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.Data;
+    using SoundFingerprinting.LCS;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.SFM;
 
     /// <summary>
     ///  Query fingerprint service.
@@ -21,9 +24,9 @@
 
         private QueryFingerprintService(IQueryMath queryMath)
         {
-            this.queryMath = queryMath; 
+            this.queryMath = queryMath;
         }
-        
+
         /// <summary>
         ///  Gets an instance of the <see cref="QueryFingerprintService"/> class.
         /// </summary>
@@ -42,13 +45,14 @@
             var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, configuration.MaxTracksToReturn, queryService, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount;
-            return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed,  queryStopwatch.ElapsedMilliseconds);
+            return QueryResult.NonEmptyResult(resultEntries, hashes, totalTracksAnalyzed, totalSubFingerprintsAnalyzed, queryStopwatch.ElapsedMilliseconds);
         }
 
         private static GroupedQueryResults GetSimilarities(Hashes queryHashes, QueryConfiguration configuration, IQueryService queryService)
         {
             var candidates = queryService.QueryEfficiently(queryHashes, configuration);
-            var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo);
+            var queryProfile = DecodeQueryProfile(queryHashes, configuration);
+            var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo, queryProfile);
             foreach (KeyValuePair<IModelReference, List<MatchedWith>> kv in candidates.GetMatches())
             {
                 foreach (var match in kv.Value)
@@ -58,6 +62,22 @@
             }
 
             return groupedResults;
+        }
+
+        private static SpectralProfile? DecodeQueryProfile(Hashes queryHashes, QueryConfiguration configuration)
+        {
+            // skip the decode when the configured strategy can't use it — saves base64 work on the hot query path
+            if (configuration.SfmMatchStrategy is NoBridgingStrategy)
+            {
+                return null;
+            }
+
+            if (!queryHashes.Properties.TryGetValue(SpectralProfileKeys.SpectralProfile, out var base64))
+            {
+                return null;
+            }
+
+            return SpectralProfileCodecRegistry.Default.Decode(base64);
         }
     }
 }

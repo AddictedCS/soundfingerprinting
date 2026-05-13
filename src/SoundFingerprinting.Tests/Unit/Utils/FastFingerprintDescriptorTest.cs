@@ -25,14 +25,16 @@
                     new SpectrumService(new LomontFFT(), new LogUtility()),
                     LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
-                    new FingerprintDescriptor()));
+                    new FingerprintDescriptor(),
+                    SpectralProfileService.Instance));
 
             var fcbWithFastFingerprintDescriptor = new FingerprintCommandBuilder(
                 new FingerprintService(
                     new SpectrumService(new LomontFFT(), new LogUtility()),
                     LocalitySensitiveHashingAlgorithm.Instance,
                     new StandardHaarWaveletDecomposition(),
-                    new FastFingerprintDescriptor()));
+                    new FastFingerprintDescriptor(),
+                    SpectralProfileService.Instance));
 
             var audioSamples = GetAudioSamples();
 
@@ -66,13 +68,15 @@
                 new SpectrumService(new LomontFFT(), new LogUtility()),
                 LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
-                new FingerprintDescriptor());
+                new FingerprintDescriptor(),
+                SpectralProfileService.Instance);
 
             var fastFingerprintService = new FingerprintService(
                 new SpectrumService(new LomontFFT(), new LogUtility()),
                 LocalitySensitiveHashingAlgorithm.Instance,
                 new StandardHaarWaveletDecomposition(),
-                new FastFingerprintDescriptor());
+                new FastFingerprintDescriptor(),
+                SpectralProfileService.Instance);
 
             int runs = 10;
             var configuration = new DefaultFingerprintConfiguration();

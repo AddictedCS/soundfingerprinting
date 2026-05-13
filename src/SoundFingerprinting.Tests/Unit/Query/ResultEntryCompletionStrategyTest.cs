@@ -61,7 +61,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Take((int)(discreteCoverageLength / fingerprintLength))
                 .ToList();
 
-            var coverage = new Coverage(matchedWith, queryLength, trackLength, fingerprintLength, PermittedGap);
+            var coverage = new Coverage(matchedWith, queryLength, trackLength, fingerprintLength, PermittedGap, 0);
             var trackData = new TrackData("id", "artist", "title", trackLength, new ModelReference<uint>(1));
             var entry = new ResultEntry(trackData, score, matchedAt, coverage);
 

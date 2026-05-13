@@ -69,9 +69,10 @@
         /// <returns>Instance of QueryResult class.</returns>
         public static QueryResult NonEmptyResult(IEnumerable<ResultEntry> results, Hashes hashes, int totalTracksAnalyzed, int totalFingerprintsAnalyzed, long queryTimeMilliseconds)
         {
-            return new QueryResult(results, hashes, new QueryCommandStats(totalTracksAnalyzed: totalTracksAnalyzed, 
-                totalFingerprintsAnalyzed: totalFingerprintsAnalyzed, 
-                queryDurationMilliseconds: queryTimeMilliseconds, 
+            return new QueryResult(results, hashes, new QueryCommandStats(
+                totalTracksAnalyzed: totalTracksAnalyzed,
+                totalFingerprintsAnalyzed: totalFingerprintsAnalyzed,
+                queryDurationMilliseconds: queryTimeMilliseconds,
                 fingerprintingDurationMilliseconds: 0));
         }
     }

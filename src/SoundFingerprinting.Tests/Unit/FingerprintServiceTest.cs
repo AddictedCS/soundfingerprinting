@@ -127,25 +127,33 @@ namespace SoundFingerprinting.Tests.Unit
         }
 
         [Test]
-        public void ShouldCreateFingerprintsForSilenceWhenTreatSilenceAsSignalIsTrue()
+        public void ShouldAttachSpectralProfileWhenComputeSpectralProfileIsTrue()
         {
-            // Arrange - create pure silence audio samples (all zeros)
+            const int tenSeconds = 5512 * 10;
+            var samples = TestUtilities.GenerateRandomAudioSamples(tenSeconds);
             var config = new DefaultFingerprintConfiguration
             {
-                TreatSilenceAsSignal = true
+                ComputeSpectralProfile = true
             };
-            int minSamples = config.SamplesPerFingerprint + config.SpectrogramConfig.WdftSize - config.SpectrogramConfig.Overlap;
-            var silence = new AudioSamples(new float[minSamples * 2], string.Empty, 5512);
 
-            // Act
-            var (fingerprints, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(silence, config);
+            var (_, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(samples, config);
 
-            // Assert - fingerprints are generated because silence is treated as signal
-            Assert.Multiple(() =>
-            {
-                Assert.That(hashes, Is.Not.Empty);
-                Assert.That(fingerprints.Count(), Is.GreaterThan(0));
-            });
+            Assert.That(hashes.Properties.ContainsKey(SpectralProfileKeys.SpectralProfile), Is.True);
+            var profile = hashes.GetSpectralProfile();
+            Assert.That(profile, Is.Not.Null);
+            Assert.That(profile!.LengthInSeconds, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void ShouldNotAttachSpectralProfileByDefault()
+        {
+            const int tenSeconds = 5512 * 10;
+            var samples = TestUtilities.GenerateRandomAudioSamples(tenSeconds);
+            var config = new DefaultFingerprintConfiguration();
+
+            var (_, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(samples, config);
+
+            Assert.That(hashes.Properties.ContainsKey(SpectralProfileKeys.SpectralProfile), Is.False);
         }
     }
 }

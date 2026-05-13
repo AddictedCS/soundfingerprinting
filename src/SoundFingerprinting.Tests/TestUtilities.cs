@@ -152,7 +152,7 @@ namespace SoundFingerprinting.Tests
                 }
             }
 
-            return new Coverage(bestPath, queryLength: queryLength, trackLength: trackLength, fingerprintLength: 1.4862f, permittedGap: 2d);
+            return new Coverage(bestPath, queryLength: queryLength, trackLength: trackLength, fingerprintLength: 1.4862f, permittedGap: 2d, bridgedSeconds: 0);
         }
 
         public static List<Gap> GetGaps(double[] gapsStartEnd)

@@ -61,6 +61,24 @@ Read [Supported Media Formats][audio-services-wiki-page] page for details about 
 ### Video fingerprinting support since version 8.0.0
 Since `v8.0.0` video fingerprinting support has been added. Similarly to audio fingerprinting, video fingerprints are generated from video frames, and used to insert and later query the datastore for exact and similar matches. You can use `SoundFingerprinting` to fingerprint either audio or video content or both at the same time. More details about video fingerprinting are available [here][video-fingerprinting-wiki-page].
 
+### Spectral-profile path bridging since version 15.0.0
+Since `v15.0.0` an optional per-second spectral profile (SFM + relative power) can be captured at ingest and consumed at query time to bridge regions where hashes don't match across recordings — broadband intros (e.g. ocean waves), fade-outs, atmospheric silence. The mechanism is invisible by default; opt in per-query by setting `QueryConfiguration.SfmMatchStrategy` to one of the built-in strategies. The setter cascades through to `FingerprintConfiguration.ComputeSpectralProfile` so the profile is captured during query-time fingerprinting automatically.
+
+```csharp
+var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+    .From(file)
+    .WithQueryConfig(config =>
+    {
+        // covers both broadband and silent regions in one pass
+        config.Audio.SfmMatchStrategy = CompositeBridgingStrategy.BroadbandOrSilent;
+        return config;
+    })
+    .UsingServices(modelService, audioService)
+    .Query();
+```
+
+Available strategies: `NoBridgingStrategy` (default — no change vs. v14), `BroadbandNoiseBridgingStrategy` (per-second SFM > 0.70 on both sides), `SilentRegionBridgingStrategy` (per-second power < 5% on both sides — replaces the removed `TreatSilenceAsSignal` flag), `SimilarProfileBridgingStrategy` (tight |Δsfm| < 0.10 tolerance, capped to `min(10s, 0.30 × queryLength)` to keep speech-vs-speech merges safe), and `CompositeBridgingStrategy` for safe unions. Bridging is bounded by a universal 70% cumulative-bridged-seconds sanity cap and reported back via `Coverage.BridgedSeconds`. Synthetics are structurally indistinguishable from real matches downstream — no wire-format changes to `MatchedWith`. Tracks without a stored profile short-circuit cleanly to no-bridging (behavior identical to v14).
+
 ### Version Matrix
 If you are using `FFmpegAudioService` as described in the [wiki][audio-services-wiki-page], follow the below version matrix.
 | SoundFingerprinting  | SoundFingerprinting.Emy | FFmpeg |
@@ -72,6 +90,7 @@ If you are using `FFmpegAudioService` as described in the [wiki][audio-services-
 | 12.x | 12.x   | 7.x |
 | 13.x | 13.x   | 7.x |
 | 14.x | 14.x   | 8.x |
+| 15.x | 15.x   | 8.x |
 
 
 

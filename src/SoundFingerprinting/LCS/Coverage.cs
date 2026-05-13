@@ -6,6 +6,7 @@ namespace SoundFingerprinting.LCS
     using System.Linq;
     using ProtoBuf;
     using SoundFingerprinting.Query;
+    using SoundFingerprinting.SFM;
 
     /// <summary>
     ///  Object containing information about query match coverage
@@ -14,20 +15,22 @@ namespace SoundFingerprinting.LCS
     public class Coverage
     {
         /// <summary>
-        ///  Initializes a new instance of the <see cref="Coverage"/> class.
+        ///  Initializes a new instance of the <see cref="Coverage"/> class with a bridged-seconds count.
         /// </summary>
-        /// <param name="bestPath">Best path between query and track, calculated by given <see cref="QueryPathReconstructionStrategyType"/> query parameter.</param>
+        /// <param name="bestPath">Best path between query and track.</param>
         /// <param name="queryLength">Query length in seconds.</param>
         /// <param name="trackLength">Track length in seconds.</param>
         /// <param name="fingerprintLength">Fingerprint length in seconds.</param>
         /// <param name="permittedGap">Length of the permitted gap.</param>
-        public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double trackLength, double fingerprintLength, double permittedGap)
+        /// <param name="bridgedSeconds">Number of seconds of this coverage's path that came from spectral-bridging synthetics.</param>
+        public Coverage(IEnumerable<MatchedWith> bestPath, double queryLength, double trackLength, double fingerprintLength, double permittedGap, int bridgedSeconds)
         {
             BestPath = bestPath.ToList();
             QueryLength = queryLength;
             TrackLength = trackLength;
             FingerprintLength = fingerprintLength;
             PermittedGap = permittedGap;
+            BridgedSeconds = bridgedSeconds;
         }
 
         /// <summary>
@@ -189,13 +192,24 @@ namespace SoundFingerprinting.LCS
         public double PermittedGap { get; }
 
         /// <summary>
+        ///  Gets the number of seconds of this coverage's path that came from spectral-bridging synthetics
+        ///  (see <see cref="ISfmMatchStrategy"/>). Zero on coverages produced without bridging.
+        /// </summary>
+        /// <remarks>
+        ///  Travels over the wire so network consumers can decide their own aggregation (max, sum, threshold-based filtering, …)
+        ///  rather than rely on a fixed per-query roll-up.
+        /// </remarks>
+        [ProtoMember(6)]
+        public int BridgedSeconds { get; }
+
+        /// <summary>
         ///  Extend query length by provided extended by value.
         /// </summary>
         /// <param name="extendedBy">Query length to extend by.</param>
         /// <returns>New instance of <see cref="Coverage"/> class.</returns>
         public Coverage WithExtendedQueryLength(double extendedBy)
         {
-            return new Coverage(BestPath, QueryLength + extendedBy, TrackLength, FingerprintLength, PermittedGap);
+            return new Coverage(BestPath, QueryLength + extendedBy, TrackLength, FingerprintLength, PermittedGap, BridgedSeconds);
         }
 
         /// <summary>
@@ -223,7 +237,7 @@ namespace SoundFingerprinting.LCS
                     .Select(match => new MatchedWith(match.QuerySequenceNumber, match.QueryMatchAt, match.TrackSequenceNumber - trackSequenceNumberOffset, (float)(match.TrackMatchAt - segment.StartsAt), match.Score))
                     .ToList();
                 
-                yield return new Coverage(matches, QueryLength, segment.TotalSeconds, FingerprintLength, PermittedGap);
+                yield return new Coverage(matches, QueryLength, segment.TotalSeconds, FingerprintLength, PermittedGap, 0);
             }
         }
 

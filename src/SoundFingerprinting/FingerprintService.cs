@@ -25,17 +25,20 @@ namespace SoundFingerprinting
         private readonly IWaveletDecomposition waveletDecomposition;
         private readonly IFingerprintDescriptor fingerprintDescriptor;
         private readonly ILocalitySensitiveHashingAlgorithm lshAlgorithm;
+        private readonly ISpectralProfileService spectralProfileService;
 
         internal FingerprintService(
             ISpectrumService spectrumService,
             ILocalitySensitiveHashingAlgorithm lshAlgorithm,
             IWaveletDecomposition waveletDecomposition,
-            IFingerprintDescriptor fingerprintDescriptor)
+            IFingerprintDescriptor fingerprintDescriptor,
+            ISpectralProfileService spectralProfileService)
         {
             this.lshAlgorithm = lshAlgorithm;
             this.spectrumService = spectrumService;
             this.waveletDecomposition = waveletDecomposition;
             this.fingerprintDescriptor = fingerprintDescriptor;
+            this.spectralProfileService = spectralProfileService;
         }
 
         /// <summary>
@@ -45,7 +48,8 @@ namespace SoundFingerprinting
             new SpectrumService(new LomontFFT(), new LogUtility()),
             LocalitySensitiveHashingAlgorithm.Instance,
             new StandardHaarWaveletDecomposition(),
-            new FastFingerprintDescriptor());
+            new FastFingerprintDescriptor(),
+            SpectralProfileService.Instance);
 
         /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromAudioSamples"/>
         public FingerprintsAndHashes CreateFingerprintsFromAudioSamples(AudioSamples samples, FingerprintConfiguration configuration)
@@ -54,36 +58,52 @@ namespace SoundFingerprinting
             {
                 throw new ArgumentException($"Provided samples are not sampled in the required sample rate {configuration.SampleRate}", nameof(samples));
             }
-            
+
             var spectrumFrames = spectrumService.CreateLogSpectrogram(samples, configuration.SpectrogramConfig);
-            var fingerprints = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration);
-            var hashes = fingerprints
+            var extracted = CreateOriginalFingerprintsFromFrames(spectrumFrames, configuration);
+            var hashes = extracted.Fingerprints
                 .AsParallel()
                 .Select(fingerprint => lshAlgorithm.Hash(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, [samples.Origin], string.Empty, new Dictionary<string, string>(), samples.TimeOffset));
+            var properties = new Dictionary<string, string>();
+            if (extracted.SpectralProfilePayload != null)
+            {
+                properties[SpectralProfileKeys.SpectralProfile] = extracted.SpectralProfilePayload;
+            }
+
+            return new FingerprintsAndHashes(extracted.Fingerprints, new Hashes(hashes, samples.Duration, MediaType.Audio, samples.RelativeTo, [samples.Origin], string.Empty, properties, samples.TimeOffset));
         }
 
         /// <inheritdoc cref="IFingerprintService.CreateFingerprintsFromImageFrames"/>
         public FingerprintsAndHashes CreateFingerprintsFromImageFrames(Frames imageFrames, FingerprintConfiguration configuration)
         {
-            var fingerprints = CreateOriginalFingerprintsFromFrames(imageFrames, configuration);
-            var hashes = fingerprints
+            var extracted = CreateOriginalFingerprintsFromFrames(imageFrames, configuration);
+            var hashes = extracted.Fingerprints
                 .AsParallel()
                 .Select(fingerprint => lshAlgorithm.HashImage(fingerprint, configuration.HashingConfig))
                 .ToList();
 
-            return new FingerprintsAndHashes(fingerprints, new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, [imageFrames.Origin]));
+            return new FingerprintsAndHashes(extracted.Fingerprints, new Hashes(hashes, imageFrames.Duration, MediaType.Video, imageFrames.RelativeTo, [imageFrames.Origin]));
         }
 
-        private List<Fingerprint> CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
+        private FingerprintExtractionResult CreateOriginalFingerprintsFromFrames(IEnumerable<Frame> frames, FingerprintConfiguration configuration)
         {
-            var normalized = configuration.FrameNormalizationTransform.Normalize(frames);
+            var framesList = frames as IList<Frame> ?? frames.ToList();
+            if (framesList.Count == 0)
+            {
+                return new FingerprintExtractionResult([], null);
+            }
+
+            string? spectralProfilePayload = configuration.ComputeSpectralProfile
+                ? spectralProfileService.Encode(framesList as IReadOnlyList<Frame> ?? framesList.ToList())
+                : null;
+
+            var normalized = configuration.FrameNormalizationTransform.Normalize(framesList);
             var images = normalized.ToList();
             if (images.Count == 0)
             {
-                return [];
+                return new FingerprintExtractionResult([], spectralProfilePayload);
             }
 
             // pre-sized array for zero-contention parallel writes - each thread writes to its own index
@@ -103,7 +123,15 @@ namespace SoundFingerprinting
             },
             _ => { });
 
-            return configuration.TreatSilenceAsSignal ? fingerprints.ToList() : fingerprints.Where(fingerprint => !fingerprint.Schema.IsSilence).ToList();
+            return new FingerprintExtractionResult(fingerprints.Where(fingerprint => !fingerprint.Schema.IsSilence).ToList(), spectralProfilePayload);
+        }
+
+        // strongly-typed return for CreateOriginalFingerprintsFromFrames
+        private sealed class FingerprintExtractionResult(List<Fingerprint> fingerprints, string? spectralProfilePayload)
+        {
+            public List<Fingerprint> Fingerprints { get; } = fingerprints;
+
+            public string? SpectralProfilePayload { get; } = spectralProfilePayload;
         }
     }
 }
