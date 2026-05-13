@@ -5,6 +5,7 @@
     using System.Linq;
 
     using NUnit.Framework;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
@@ -54,6 +55,28 @@
             Assert.That(candidates.Count, Is.EqualTo(1));
             var videoResults = candidates.GetMatches().SelectMany(_ => _.Value).ToList();
             AssertHashesAreTheSame(video, videoResults);
+        }
+
+        [Test]
+        public void InsertAndReadAroundTripsSpectralProfile()
+        {
+            // hashes carry spectral profile in Properties; track is constructed without MetaFields
+            const string encoded = "ENCODED-SPECTRAL-PROFILE";
+            var audio = TestUtilities.GetRandomHashes(120, MediaType.Audio).WithProperty(SpectralProfileKeys.SpectralProfile, encoded);
+            var track = new TrackInfo("rt-id", "title", "artist");
+
+            modelService.Insert(track, new AVHashes(audio, null));
+
+            // Insert path should propagate Hashes.Properties → TrackInfo.MetaFields
+            var readTrack = modelService.ReadTrackById("rt-id");
+            Assert.That(readTrack!.MetaFields.TryGetValue(SpectralProfileKeys.SpectralProfile, out var fromMeta), Is.True);
+            Assert.That(fromMeta, Is.EqualTo(encoded));
+
+            // Read path should propagate TrackInfo.MetaFields → Hashes.Properties even though
+            // the stored hashes don't carry Properties on RAMStorage's freshly-rebuilt Hashes
+            var (audioRead, _) = modelService.ReadHashesByTrackId("rt-id");
+            Assert.That(audioRead!.Properties.TryGetValue(SpectralProfileKeys.SpectralProfile, out var fromHashes), Is.True);
+            Assert.That(fromHashes, Is.EqualTo(encoded));
         }
 
         [Test]

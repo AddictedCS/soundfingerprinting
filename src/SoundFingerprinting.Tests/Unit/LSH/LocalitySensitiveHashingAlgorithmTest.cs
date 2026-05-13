@@ -206,12 +206,14 @@
                 }
 
                 int requested = (int)((1 - howSimilar) * topWavelets * 2);
-				Assert.Multiple(() =>
-				{
-					Assert.That(hammingDistances.Average(), Is.EqualTo(requested).Within(1));
-					Assert.That(Math.Floor(agreeOn.Average()), Is.EqualTo(expectedThresholds[r]));
-				});
-				logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", howSimilar, agreeOn.Average());
+
+                // sequential Assert.That instead of Assert.Multiple: NUnit's multiple-assertion scope is thread-local
+                // and disposing it from a Parallel.For worker thread races against scopes opened by sibling workers,
+                // surfacing as "assertion scope was disposed out of order"
+                Assert.That(hammingDistances.Average(), Is.EqualTo(requested).Within(1));
+                Assert.That(Math.Floor(agreeOn.Average()), Is.EqualTo(expectedThresholds[r]));
+
+                logger.LogInformation("Similarity: {HowSimilar}, Avg. Table Matches {Average}", howSimilar, agreeOn.Average());
             });
         }
 

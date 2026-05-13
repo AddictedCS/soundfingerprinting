@@ -106,6 +106,84 @@ public class SfmMatchStrategyTest
         Assert.That(candidates, Has.Count.EqualTo(10));
     }
 
+    [Test]
+    public void CompositeShouldEmitUnionOfInnerStrategies()
+    {
+        // sec 1: silent (P<5% both sides) → Silent emits, Broadband doesn't (SFM=0.30)
+        // sec 2: broadband (SFM>0.70 both sides) → Broadband emits, Silent doesn't (P=0.50)
+        // sec 3: neither → nothing emits
+        var context = MakeContext(
+            realQueryMatchAts: new[] { 0f },
+            querySfms: new[] { 0.5, 0.30, 0.85, 0.30 },
+            trackSfms: new[] { 0.5, 0.30, 0.85, 0.30 },
+            queryPowers: new[] { 1.0, 0.02, 0.50, 0.50 },
+            trackPowers: new[] { 1.0, 0.02, 0.50, 0.50 });
+
+        var composite = new CompositeBridgingStrategy(SilentRegionBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default);
+        var candidates = composite.GenerateCandidates(context).ToList();
+
+        Assert.That(candidates.Count, Is.EqualTo(2));
+        Assert.That(candidates.Select(c => c.QueryMatchAt), Is.EquivalentTo(new[] { 1.0, 2.0 }));
+    }
+
+    [Test]
+    public void CompositeShouldDeduplicateOverlappingEmissionsAtSameSecond()
+    {
+        // sec 1: borderline frame where SFM=0.85 (broadband) AND P=0.02 (silent) — both fire
+        var context = MakeContext(
+            realQueryMatchAts: new[] { 0f },
+            querySfms: new[] { 0.5, 0.85 },
+            trackSfms: new[] { 0.5, 0.85 },
+            queryPowers: new[] { 1.0, 0.02 },
+            trackPowers: new[] { 1.0, 0.02 });
+
+        var composite = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilentRegionBridgingStrategy.Default);
+        var candidates = composite.GenerateCandidates(context).ToList();
+
+        // both inner strategies emit sec 1 — composite dedups to a single candidate
+        Assert.That(candidates.Count, Is.EqualTo(1));
+        Assert.That(candidates[0].QueryMatchAt, Is.EqualTo(1.0));
+    }
+
+    [Test]
+    public void CompositeShouldExposeBroadbandOrSilentSingleton()
+    {
+        Assert.That(CompositeBridgingStrategy.BroadbandOrSilent.InnerStrategies.Count, Is.EqualTo(2));
+        Assert.That(CompositeBridgingStrategy.BroadbandOrSilent.InnerStrategies, Has.Some.InstanceOf<BroadbandNoiseBridgingStrategy>());
+        Assert.That(CompositeBridgingStrategy.BroadbandOrSilent.InnerStrategies, Has.Some.InstanceOf<SilentRegionBridgingStrategy>());
+    }
+
+    [Test]
+    public void CompositeShouldRejectSimilarProfileStrategy()
+    {
+        Assert.That(
+            () => new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SimilarProfileBridgingStrategy.Default),
+            Throws.ArgumentException);
+    }
+
+    [Test]
+    public void CompositeShouldRejectNoBridgingStrategy()
+    {
+        Assert.That(
+            () => new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, NoBridgingStrategy.Default),
+            Throws.ArgumentException);
+    }
+
+    [Test]
+    public void CompositeShouldRejectNestedComposite()
+    {
+        Assert.That(
+            () => new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, CompositeBridgingStrategy.BroadbandOrSilent),
+            Throws.ArgumentException);
+    }
+
+    [Test]
+    public void CompositeShouldRejectFewerThanTwoStrategies()
+    {
+        Assert.That(() => new CompositeBridgingStrategy(), Throws.ArgumentException);
+        Assert.That(() => new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default), Throws.ArgumentException);
+    }
+
     private static SyntheticMatchContext MakeContext(
         float[] realQueryMatchAts,
         double[] querySfms,
