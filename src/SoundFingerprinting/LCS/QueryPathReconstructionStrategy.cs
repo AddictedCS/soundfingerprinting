@@ -159,12 +159,59 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
                 return previous;
             }
 
+            if (WouldBreakLowerNeighbour(result, candidate))
+            {
+                excluded.Add(candidate);
+                return previous;
+            }
+
             // if the current element is closer to the diagonal, we should pick it
             var pickedValue = prevQueryTrackDistance < currentQueryTrackDistance ? previous : candidate;
             var excludedValue = prevQueryTrackDistance < currentQueryTrackDistance ? candidate : previous;
             excluded.Add(excludedValue);
             return pickedValue;
         });
+    }
+
+    /// <summary>
+    ///  Determines whether replacing <c>result[Length]</c> with <paramref name="candidate"/> would push the
+    ///  chain's track axis below its immediate lower-length neighbour, breaking monotonicity going down the chain.
+    /// </summary>
+    /// <remarks>
+    ///  Why <c>Length - 1</c> is the right key to inspect — and the only one:
+    ///  <list type="bullet">
+    ///   <item>
+    ///    <description>
+    ///     <b>Contiguity.</b> The keys in <c>result</c> are always the contiguous range
+    ///     <c>[max + 1, initialMax]</c>. Init places one entry at <c>initialMax</c>; the bottom-block admission is
+    ///     the only place that lowers <c>max</c>, and it does so in single steps while filling the freshly-uncovered
+    ///     slot. So <c>result[Length - 1]</c> — if it exists — is the genuine immediate lower neighbour; a gap at
+    ///     <c>Length - 1</c> with <c>Length - 2</c> filled is impossible.
+    ///    </description>
+    ///   </item>
+    ///   <item>
+    ///    <description>
+    ///     <b>Lower neighbour missing is benign.</b> If <c>result[Length - 1]</c> is absent, then
+    ///     <c>Length == max + 1</c> — the candidate sits at the bottom of the currently-filled range. The slot
+    ///     below will be filled later by a pop at a lower input index, hence (by the track-ascending sort) at a
+    ///     strictly lower track value than this candidate. The chain stays monotone after that future fill.
+    ///    </description>
+    ///   </item>
+    ///   <item>
+    ///    <description>
+    ///     <b>Upper neighbour cannot break.</b> Same-length competitors are popped in reverse input order, so
+    ///     <c>candidate.TrackSequenceNumber ≤ previous.TrackSequenceNumber</c>, and at swap time
+    ///     <c>previous</c> was itself <c>≤ result[Length + 1]</c>. So the new track value at <c>Length</c> is still
+    ///     below <c>result[Length + 1]</c> after the swap.
+    ///    </description>
+    ///   </item>
+    ///  </list>
+    ///  Track ties across the chain are accepted (<c>ShouldPickAllTrackCandidates</c> documents this) — only a
+    ///  strict decrease is rejected here.
+    /// </remarks>
+    private static bool WouldBreakLowerNeighbour(ConcurrentDictionary<int, MaxAt> result, MaxAt candidate)
+    {
+        return result.TryGetValue(candidate.Length - 1, out var below) && below.MatchedWith.TrackSequenceNumber > candidate.MatchedWith.TrackSequenceNumber;
     }
     
     private static bool IsSameSequence(MaxAt first, MaxAt second, double maxGap)
