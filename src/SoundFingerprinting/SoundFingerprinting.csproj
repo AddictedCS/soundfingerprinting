@@ -11,6 +11,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.0.1
+		- Fixing diagonal-distance swap that breaks track monotonicity.
 		Version 15.0.0
 		- SFM-based path bridging for second-tier ad-deduplication matching. Per-second spectral profile (SFM + power) captured during fingerprinting and used at path-reconstruction time to bridge regions where hashes don't match across recordings (e.g., Corona ad's broadband intro waves, Apple ad's silent brand-reveal moments).
 		- New `FingerprintConfiguration.ComputeSpectralProfile` flag (default false). When set, per-Frame SFM/power is computed pre-normalization and attached to `Hashes.Properties` as a base64-encoded payload via `SpectralProfileCodecV1` (1 version byte + 1 reserved + interleaved sfm/power bytes per second).
