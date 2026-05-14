@@ -1,7 +1,6 @@
 namespace SoundFingerprinting.LCS;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using SoundFingerprinting.Query;
@@ -106,7 +105,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         // initializing the datastructures with first element set to max
         var maxs = new Stack<MaxAt>(maxArray.Take(maxIndex));
         var excluded = new List<MaxAt>();
-        var result = new ConcurrentDictionary<int, MaxAt> {[max--] = maxArray[maxIndex]};
+        var result = new Dictionary<int, MaxAt> {[max--] = maxArray[maxIndex]};
         var lastPicked = maxArray[maxIndex];
         
         while (maxs.TryPop(out var candidate))
@@ -144,33 +143,37 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return new LongestIncreasingSequence(result.OrderBy(_ => _.Key).Select(_ => _.Value.MatchedWith), excluded.Select(_ => _.MatchedWith));
     }
 
-    private static MaxAt TryUpdateResultSelection(ConcurrentDictionary<int, MaxAt> result, MaxAt candidate, List<MaxAt> excluded)
+    private static MaxAt TryUpdateResultSelection(Dictionary<int, MaxAt> result, MaxAt candidate, List<MaxAt> excluded)
     {
         // check if the candidate is closer to the diagonal than the previous element, pick best and exclude the other
-        return result.AddOrUpdate(candidate.Length, candidate, (_, previous) =>
+        if (!result.TryGetValue(candidate.Length, out var previous))
         {
-            double prevQueryTrackDistance = previous.QueryTrackDistance;
-            double currentQueryTrackDistance = candidate.QueryTrackDistance;
+            result[candidate.Length] = candidate;
+            return candidate;
+        }
 
-            // possible when the candidate is part of a different decreasing sequence with equal maxAt
-            if (!IsQuerySequenceDecreasing(candidate, previous))
-            {
-                excluded.Add(candidate);
-                return previous;
-            }
+        double prevQueryTrackDistance = previous.QueryTrackDistance;
+        double currentQueryTrackDistance = candidate.QueryTrackDistance;
 
-            if (WouldBreakLowerNeighbour(result, candidate))
-            {
-                excluded.Add(candidate);
-                return previous;
-            }
+        // possible when the candidate is part of a different decreasing sequence with equal maxAt
+        if (!IsQuerySequenceDecreasing(candidate, previous))
+        {
+            excluded.Add(candidate);
+            return previous;
+        }
 
-            // if the current element is closer to the diagonal, we should pick it
-            var pickedValue = prevQueryTrackDistance < currentQueryTrackDistance ? previous : candidate;
-            var excludedValue = prevQueryTrackDistance < currentQueryTrackDistance ? candidate : previous;
-            excluded.Add(excludedValue);
-            return pickedValue;
-        });
+        if (WouldBreakLowerNeighbour(result, candidate))
+        {
+            excluded.Add(candidate);
+            return previous;
+        }
+
+        // if the current element is closer to the diagonal, we should pick it
+        var pickedValue = prevQueryTrackDistance < currentQueryTrackDistance ? previous : candidate;
+        var excludedValue = prevQueryTrackDistance < currentQueryTrackDistance ? candidate : previous;
+        excluded.Add(excludedValue);
+        result[candidate.Length] = pickedValue;
+        return pickedValue;
     }
 
     /// <summary>
@@ -209,7 +212,7 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     ///  Track ties across the chain are accepted (<c>ShouldPickAllTrackCandidates</c> documents this) — only a
     ///  strict decrease is rejected here.
     /// </remarks>
-    private static bool WouldBreakLowerNeighbour(ConcurrentDictionary<int, MaxAt> result, MaxAt candidate)
+    private static bool WouldBreakLowerNeighbour(Dictionary<int, MaxAt> result, MaxAt candidate)
     {
         return result.TryGetValue(candidate.Length - 1, out var below) && below.MatchedWith.TrackSequenceNumber > candidate.MatchedWith.TrackSequenceNumber;
     }
