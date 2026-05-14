@@ -475,7 +475,67 @@
 			Assert.That(results.Length, Is.EqualTo(1));
             var expected1 = new[] {(1, 1), (2, 2), (5, 3)};
 
-            AssertResult(expected1, results[0]); 
+            AssertResult(expected1, results[0]);
+        }
+
+        // before the fix the walkback's diagonal-distance swap could replace result[L] with a candidate whose
+        // TrackSequenceNumber sat below the already-placed result[L-1], producing a path that went BACKWARDS on the
+        // track axis (e.g. (q=2, t=465) → (q=267, t=326)). Track ties are tolerated, but a decrease is not.
+        [Test(Description = "Track must not decrease across a path returned by GetBestPaths")]
+        public void ShouldNotReturnDecreasingTrackSequenceWhenDiagonalReplacementCanBreakChain()
+        {
+            var matches = new[]
+            {
+                new MatchedWith(2, 0.18577649f, 465, 43.193035f, 1d),
+                new MatchedWith(88, 8.174166f, 889, 82.57765f, 1d),
+                new MatchedWith(126, 11.703918f, 276, 25.637156f, 1d),
+                new MatchedWith(176, 16.348331f, 767, 71.245285f, 1d),
+                new MatchedWith(186, 17.277214f, 976, 90.65893f, 1d),
+                new MatchedWith(267, 24.80116f, 568, 52.76052f, 1d),
+                new MatchedWith(267, 24.80116f, 326, 30.281567f, 1d),
+            };
+
+            var paths = queryPathReconstructionStrategy.GetBestPaths(matches, permittedGap: 3).ToList();
+
+            AssertNoTrackDecreaseInAnyPath(paths);
+        }
+
+        // before the fix, a path could decrease on track mid-chain even when its endpoints stayed monotone — e.g.
+        // (q=2, t=593) → (q=198, t=420) → (q=222, t=438): t goes 593 → 420 (decrease) → 438. The diagonal swap at
+        // result[3] left the predecessor at result[2] dangling against the old, never-reverified anchor.
+        [Test(Description = "Mid-path track decrease must not survive diagonal-distance swap")]
+        public void ShouldNotReturnDecreasingTrackSequenceWhenChainReplacementMidPath()
+        {
+            var matches = new[]
+            {
+                new MatchedWith(2, 0.18577649f, 593, 55.08273f, 1d),
+                new MatchedWith(10, 0.9288824f, 400, 37.155296f, 1d),
+                new MatchedWith(115, 10.682148f, 198, 18.391872f, 1d),
+                new MatchedWith(198, 18.391872f, 676, 62.792454f, 1d),
+                new MatchedWith(198, 18.391872f, 420, 39.01306f, 1d),
+                new MatchedWith(219, 20.342525f, 276, 25.637156f, 1d),
+                new MatchedWith(222, 20.62119f, 694, 64.46444f, 1d),
+                new MatchedWith(222, 20.62119f, 438, 40.68505f, 1d),
+            };
+
+            var paths = queryPathReconstructionStrategy.GetBestPaths(matches, permittedGap: 3).ToList();
+
+            AssertNoTrackDecreaseInAnyPath(paths);
+        }
+
+        private static void AssertNoTrackDecreaseInAnyPath(List<IEnumerable<MatchedWith>> paths)
+        {
+            for (int p = 0; p < paths.Count; p++)
+            {
+                var path = paths[p].ToList();
+                for (int i = 1; i < path.Count; i++)
+                {
+                    Assert.That(
+                        path[i].TrackSequenceNumber,
+                        Is.GreaterThanOrEqualTo(path[i - 1].TrackSequenceNumber),
+                        $"path[{p}] has decreasing track sequence at index {i}: t={path[i - 1].TrackSequenceNumber} -> t={path[i].TrackSequenceNumber}");
+                }
+            }
         }
 
         private static void AssertResult((int q, int t)[] pairs, IEnumerable<MatchedWith> result)
