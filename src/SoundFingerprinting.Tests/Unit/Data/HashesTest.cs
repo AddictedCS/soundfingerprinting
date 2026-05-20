@@ -7,6 +7,7 @@ namespace SoundFingerprinting.Tests.Unit.Data
     using System.Linq;
     using NUnit.Framework;
     using ProtoBuf;
+    using SoundFingerprinting.Audio;
     using SoundFingerprinting.Data;
 
     [TestFixture]
@@ -184,6 +185,44 @@ namespace SoundFingerprinting.Tests.Unit.Data
             var merged =  prev.MergeWith(next);
 
 			Assert.That(merged.DurationInSeconds, Is.EqualTo(400));
+        }
+
+        [Test]
+        public void ShouldNarrowSpectralProfileWhenGettingARange()
+        {
+            // GetRange slices fingerprints to a sub-window; the per-second spectralProfile is on the same time axis and
+            // must be sliced to match, otherwise the returned Hashes carries a profile that describes the wrong range
+            int count = 80;
+            var parentProfile = new SpectralProfile(Enumerable
+                .Range(0, (int)Math.Ceiling(count * 1.48f))
+                .Select(i => new SpectralSecond(i / 200d, (i + 1) / 200d))
+                .ToList());
+            var parent = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio).WithSpectralProfile(parentProfile);
+
+            var sliced = parent.GetRange(10d, 20f);
+
+            var slicedProfile = sliced.GetSpectralProfile();
+            Assert.That(slicedProfile, Is.Not.Null);
+            Assert.That(slicedProfile!.PerSecond.Count, Is.EqualTo(20));
+            Assert.That(slicedProfile.PerSecond[0].Sfm, Is.EqualTo(parentProfile.PerSecond[10].Sfm).Within(1d / 255));
+            Assert.That(slicedProfile.PerSecond[19].Sfm, Is.EqualTo(parentProfile.PerSecond[29].Sfm).Within(1d / 255));
+            Assert.That(parent.GetSpectralProfile()!.PerSecond.Count, Is.EqualTo(parentProfile.PerSecond.Count), "GetRange must not mutate the parent's spectralProfile");
+        }
+
+        [Test]
+        public void ShouldDropSpectralProfileWhenGetRangeFallsOutsideTheParentProfile()
+        {
+            int count = 80;
+            var parentProfile = new SpectralProfile(new[]
+            {
+                new SpectralSecond(0.1d, 0.2d),
+                new SpectralSecond(0.3d, 0.4d),
+            });
+            var parent = new Hashes(GetHashedFingerprints(count), count * 1.48f, MediaType.Audio).WithSpectralProfile(parentProfile);
+
+            var sliced = parent.GetRange(50d, 10f);
+
+            Assert.That(sliced.Properties.ContainsKey(SpectralProfileKeys.SpectralProfile), Is.False);
         }
 
         private static void AssertInvariantsForHashes(Hashes hashes, DateTime startsAt)
