@@ -352,10 +352,64 @@ namespace SoundFingerprinting.Data
 
         private Hashes NewHashes(IReadOnlyCollection<HashedFingerprint> filtered, double lengthOfOneFingerprint)
         {
-            var relativeTo = RelativeTo.AddSeconds(filtered.First().StartsAt);
-            var duration = filtered.Last().StartsAt - filtered.First().StartsAt + lengthOfOneFingerprint;
+            double startsAtInParent = filtered.First().StartsAt;
+            var relativeTo = RelativeTo.AddSeconds(startsAtInParent);
+            var duration = filtered.Last().StartsAt - startsAtInParent + lengthOfOneFingerprint;
             var shifted = ShiftStartsAtAccordingToSelectedRange(filtered);
-            return new Hashes(shifted, duration, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary, timeOffset: 0);
+            var properties = NarrowTimeIndexedProperties(additionalProperties, startsAtInParent, duration);
+            return new Hashes(shifted, duration, MediaType, relativeTo, Origins, StreamId, properties, timeOffset: 0);
+        }
+
+        private static IDictionary<string, string> NarrowTimeIndexedProperties(Dictionary<string, string>? source, double startsAtInParent, double duration)
+        {
+            if (source == null || !source.TryGetValue(SpectralProfileKeys.SpectralProfile, out var encoded))
+            {
+                return source ?? emptyDictionary;
+            }
+
+            // spectralProfile is per-second on the same time axis as the fingerprints, so a GetRange that only sliced
+            // fingerprints would emit Hashes whose profile describes a different (parent-wide) window than its fingerprints
+            var copy = new Dictionary<string, string>(source);
+            var narrowed = NarrowSpectralProfile(encoded, startsAtInParent, duration);
+            if (narrowed == null)
+            {
+                copy.Remove(SpectralProfileKeys.SpectralProfile);
+            }
+            else
+            {
+                copy[SpectralProfileKeys.SpectralProfile] = narrowed;
+            }
+
+            return copy;
+        }
+
+        private static string? NarrowSpectralProfile(string encoded, double startsAtInParent, double duration)
+        {
+            if (string.IsNullOrEmpty(encoded))
+            {
+                return null;
+            }
+
+            var profile = SpectralProfileCodecRegistry.Default.Decode(encoded);
+            if (profile == null || profile.PerSecond.Count == 0)
+            {
+                return null;
+            }
+
+            int startSecond = Math.Max(0, (int)Math.Floor(startsAtInParent));
+            int endSecond = Math.Min(profile.PerSecond.Count, (int)Math.Ceiling(startsAtInParent + duration));
+            if (endSecond <= startSecond)
+            {
+                return null;
+            }
+
+            var slice = new SpectralSecond[endSecond - startSecond];
+            for (int i = 0; i < slice.Length; i++)
+            {
+                slice[i] = profile.PerSecond[startSecond + i];
+            }
+
+            return SpectralProfileCodecRegistry.Default.Encode(new SpectralProfile(slice));
         }
 
         private static List<HashedFingerprint> ShiftStartsAtAccordingToSelectedRange(IReadOnlyCollection<HashedFingerprint> filtered)
