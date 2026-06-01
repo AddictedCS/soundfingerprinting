@@ -112,8 +112,9 @@
         ///  flipping it on so the per-query Hashes carry the spectral profile required for bridging.
         ///  Setting back to a <see cref="NoBridgingStrategy"/> instance flips the flag off again.
         ///  <para>
-        ///  Multiple strategies can be combined via <see cref="CompositeBridgingStrategy"/> — see e.g.
-        ///  <see cref="CompositeBridgingStrategy.BroadbandOrSilent"/> for the safe broadband + silent union.
+        ///  Multiple strategies can be combined via <see cref="CompositeBridgingStrategy"/> — e.g.
+        ///  <c>new CompositeBridgingStrategy(new BroadbandNoiseBridgingStrategy(), SilentRegionBridgingStrategy.Default)</c>
+        ///  for a broadband + silent union.
         ///  </para>
         /// </remarks>
         public ISfmMatchStrategy SfmMatchStrategy

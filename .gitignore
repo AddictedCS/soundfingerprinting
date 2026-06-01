@@ -26,3 +26,7 @@ _site/
 .sass-cache/
 Gemfile.lock
 global.json
+
+# local agent tooling
+.claude/
+AGENTS.md

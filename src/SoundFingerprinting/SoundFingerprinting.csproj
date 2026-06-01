@@ -4,13 +4,19 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.0.9</PackageVersion>
+	<PackageVersion>15.1.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.1.0
+		- `CompositeBridgingStrategy` now returns a canonical (deduplicated, ascending-by-QueryMatchAt) union, making it independent of inner-strategy order; previously the concatenated runs could violate the path-reconstruction cursor invariant and drop head/tail bridges depending on leg order.
+		- Removed `CompositeBridgingStrategy.BroadbandOrSilent` (breaking). Compose explicitly, e.g. `new CompositeBridgingStrategy(new BroadbandNoiseBridgingStrategy(), SilentRegionBridgingStrategy.Default)`.
+		- `ISfmMatchStrategy` gains `MaxQueryRelativeBridge` and `MaxAbsoluteBridgeSeconds`; the Phase-2 budget is now per-strategy `min(absolute, relative × queryLength)`, replacing the hidden universal 70% cap (now the configurable default). `CompositeBridgingStrategy` derives both as the minimum over its legs.
+		- `SimilarProfileBridgingStrategy`'s dual cap unified onto these properties (internal truncation removed); it is now composable — its tight cap travels via the min-combine.
+		- `BroadbandNoiseBridgingStrategy` agreement is now a windowed mean of |ΔSFM| over `AgreementWindowRadius` seconds (presence stays pointwise). Defaults changed to `SfmThreshold = 0.40`, `AgreementWindowRadius = 2` (window makes the lower floor safe); `sfmThreshold` range widened to [0.20, 0.90]. `AgreementWindowRadius = 0` reproduces the prior pointwise gate.
 		Version 15.0.9
 		- Fixing Hashes.GetRange spectral profile slicing.
 		Version 15.0.1
