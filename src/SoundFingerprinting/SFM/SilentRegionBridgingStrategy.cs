@@ -23,7 +23,10 @@ namespace SoundFingerprinting.SFM
         /// <param name="powerSimilarity">
         ///  Maximum allowed |Δpower| between query and track at the same second. Default 0.05. Valid range [0.02, 0.15].
         /// </param>
-        public SilentRegionBridgingStrategy(double powerThreshold = 0.05, double powerSimilarity = 0.05)
+        /// <param name="maxQueryRelativeBridge">
+        ///  Maximum fraction of the query that may be filled with synthetic seconds. Default 0.70. Valid range [0.0, 1.0].
+        /// </param>
+        public SilentRegionBridgingStrategy(double powerThreshold = 0.05, double powerSimilarity = 0.05, double maxQueryRelativeBridge = 0.70)
         {
             if (powerThreshold < 0.01 || powerThreshold > 0.15)
             {
@@ -35,8 +38,14 @@ namespace SoundFingerprinting.SFM
                 throw new ArgumentOutOfRangeException(nameof(powerSimilarity), powerSimilarity, "Must be in [0.02, 0.15].");
             }
 
+            if (maxQueryRelativeBridge < 0.0 || maxQueryRelativeBridge > 1.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxQueryRelativeBridge), maxQueryRelativeBridge, "Must be in [0.0, 1.0].");
+            }
+
             PowerThreshold = powerThreshold;
             PowerSimilarity = powerSimilarity;
+            MaxQueryRelativeBridge = maxQueryRelativeBridge;
         }
 
         /// <summary>
@@ -55,6 +64,12 @@ namespace SoundFingerprinting.SFM
         public double PowerSimilarity { get; }
 
         /// <inheritdoc />
+        public double MaxQueryRelativeBridge { get; }
+
+        /// <inheritdoc />
+        public double MaxAbsoluteBridgeSeconds => double.PositiveInfinity;
+
+        /// <inheritdoc />
         public IEnumerable<SyntheticCandidate> GenerateCandidates(SyntheticMatchContext context)
         {
             if (context.RealMatches.Count == 0)
@@ -67,10 +82,15 @@ namespace SoundFingerprinting.SFM
                 context.TrackProfile,
                 context.QueryLength,
                 context.RealMatches,
-                (qSecond, tSecond) =>
-                    qSecond.Power < PowerThreshold &&
-                    tSecond.Power < PowerThreshold &&
-                    Math.Abs(qSecond.Power - tSecond.Power) < PowerSimilarity);
+                (query, track, queryIndex, trackIndex) =>
+                {
+                    // pointwise: silence is gated by the per-second "both quiet" presence test, not a windowed agreement
+                    var qSecond = query.PerSecond[queryIndex];
+                    var tSecond = track.PerSecond[trackIndex];
+                    return qSecond.Power < PowerThreshold &&
+                        tSecond.Power < PowerThreshold &&
+                        Math.Abs(qSecond.Power - tSecond.Power) < PowerSimilarity;
+                });
         }
     }
 }

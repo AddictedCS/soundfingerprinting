@@ -246,6 +246,118 @@ public class GetCoveragesWithBridgingTest
         }
     }
 
+    [Test]
+    public void CompositeBridgingShouldBeIndependentOfInnerStrategyOrder()
+    {
+        // Two disjoint gaps that each need a different leg:
+        //   head 0-2  : silent (low power, low sfm)  -> only SilentRegion bridges
+        //   middle 5-10: broadband (high sfm)        -> only BroadbandNoise bridges
+        // reals anchor the two clusters (3,4) and (11,12); tail 13-15 is neither.
+        // Before the fix, BroadbandNoise-first emitted the middle run, advanced the Phase-2 forward
+        // cursor past all reals, then mis-bracketed the head run as a tail bridge and dropped it —
+        // so Composite(BB, Silent) and Composite(Silent, BB) disagreed. They must now be identical.
+        var reals = new List<MatchedWith>
+        {
+            new (3, 3, 3, 3, score: 1),
+            new (4, 4, 4, 4, score: 1),
+            new (11, 11, 11, 11, score: 1),
+            new (12, 12, 12, 12, score: 1),
+        };
+
+        var profile = MakeMixedProfile();
+        var bbThenSilent = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilentRegionBridgingStrategy.Default);
+        var silentThenBb = new CompositeBridgingStrategy(SilentRegionBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default);
+
+        var a = Bridge(reals, profile, bbThenSilent);
+        var b = Bridge(reals, profile, silentThenBb);
+        var bbAlone = Bridge(reals, profile, BroadbandNoiseBridgingStrategy.Default);
+        var silentAlone = Bridge(reals, profile, SilentRegionBridgingStrategy.Default);
+
+        // commutativity: the two leg orders produce identical bridging
+        Assert.That(a.BridgedSeconds, Is.EqualTo(b.BridgedSeconds), "BridgedSeconds must not depend on inner-strategy order");
+        Assert.That(a.QueryRelativeCoverage, Is.EqualTo(b.QueryRelativeCoverage).Within(1e-9), "coverage must not depend on inner-strategy order");
+        Assert.That(
+            a.QueryGaps.Where(g => !g.IsOnEdge).Select(g => (g.Start, g.End)),
+            Is.EqualTo(b.QueryGaps.Where(g => !g.IsOnEdge).Select(g => (g.Start, g.End))).AsCollection,
+            "interior gaps must not depend on inner-strategy order");
+
+        // correctness: the union genuinely bridges BOTH regions (head via Silent + middle via Broadband),
+        // i.e. the composite equals the sum of the disjoint single-strategy contributions — no region dropped.
+        Assert.That(a.BridgedSeconds, Is.EqualTo(bbAlone.BridgedSeconds + silentAlone.BridgedSeconds), "composite must bridge the union of both legs' regions");
+        Assert.That(a.BridgedSeconds, Is.GreaterThan(bbAlone.BridgedSeconds));
+        Assert.That(a.BridgedSeconds, Is.GreaterThan(silentAlone.BridgedSeconds));
+    }
+
+    [Test]
+    public void RaisingMaxQueryRelativeBridgeShouldBridgePastTheDefaultCap()
+    {
+        // 2 real anchors at 0,1 + broadband everywhere across a 20s query → 18 bridgeable tail seconds (2-19).
+        // default cap 0.70 -> floor(0.70 x 20) = 14 survive; raising to 0.95 -> floor(0.95 x 20) = 19 >= 18 -> all 18.
+        var reals = ContiguousMatches(0, 2);
+        var profile = MakeProfile(20, sfm: 0.85, power: 0.5);
+
+        var capped = Bridge(reals, profile, new BroadbandNoiseBridgingStrategy(), length: 20);
+        var raised = Bridge(reals, profile, new BroadbandNoiseBridgingStrategy(maxQueryRelativeBridge: 0.95), length: 20);
+
+        Assert.That(capped.BridgedSeconds, Is.EqualTo(14), "default cap = floor(0.70 x 20)");
+        Assert.That(raised.BridgedSeconds, Is.EqualTo(18), "raised cap lets all 18 bridgeable tail seconds through");
+        Assert.That(raised.BridgedSeconds, Is.GreaterThan(capped.BridgedSeconds));
+    }
+
+    [Test]
+    public void SimilarProfileAbsoluteCapShouldBeEnforcedInPhase2()
+    {
+        // 60s query, similar profile throughout, 2 anchors -> relative cap = 0.30 x 60 = 18s, absolute = 10s -> min = 10.
+        // (The cap now lives in Phase 2, not inside SimilarProfile.GenerateCandidates.)
+        var reals = ContiguousMatches(0, 2);
+        var profile = MakeProfile(60, sfm: 0.30, power: 0.5);
+
+        var coverage = Bridge(reals, profile, SimilarProfileBridgingStrategy.Default, length: 60);
+
+        Assert.That(coverage.BridgedSeconds, Is.EqualTo(10), "absolute 10s cap binds at 60s query");
+    }
+
+    [Test]
+    public void SimilarProfileRelativeCapShouldBeEnforcedInPhase2()
+    {
+        // 20s query -> relative cap = 0.30 x 20 = 6s, absolute = 10s -> min = 6.
+        var reals = ContiguousMatches(0, 2);
+        var profile = MakeProfile(20, sfm: 0.30, power: 0.5);
+
+        var coverage = Bridge(reals, profile, SimilarProfileBridgingStrategy.Default, length: 20);
+
+        Assert.That(coverage.BridgedSeconds, Is.EqualTo(6), "relative 0.30 cap binds at 20s query");
+    }
+
+    private static Coverage Bridge(List<MatchedWith> reals, SpectralProfile profile, ISfmMatchStrategy strategy, double length = 16)
+    {
+        return reals.GetCoverages(
+            QueryPathReconstructionStrategyType.MultipleBestPaths,
+            queryLength: length,
+            trackLength: length,
+            fingerprintLength: FingerprintLength,
+            permittedGap: PermittedGap,
+            sfmMatchStrategy: strategy,
+            queryProfile: profile,
+            trackProfile: profile).First();
+    }
+
+    // 16s profile: 0-2 silent, 5-10 broadband, everything else neither (reals at 3,4,11,12 are skip-if-real)
+    private static SpectralProfile MakeMixedProfile()
+    {
+        var seconds = new List<SpectralSecond>();
+        for (int i = 0; i < 16; i++)
+        {
+            bool silent = i <= 2;
+            bool broadband = i >= 5 && i <= 10;
+            double sfm = broadband ? 0.85 : 0.30;
+            double power = silent ? 0.02 : 0.50;
+            seconds.Add(new SpectralSecond(sfm, power));
+        }
+
+        return new SpectralProfile(seconds);
+    }
+
     private static List<MatchedWith> ContiguousMatches(int start, int count)
     {
         return Enumerable.Range(start, count)

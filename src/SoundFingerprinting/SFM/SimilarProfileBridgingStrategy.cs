@@ -3,15 +3,15 @@ namespace SoundFingerprinting.SFM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SoundFingerprinting.LCS;
 
 /// <summary>
 ///  Bridges per-second regions whose spectral character is close on both sides, with a tight tolerance
 ///  and a hard cumulative cap to bound false-positive risk for infomercial-style variable tails.
 /// </summary>
 /// <remarks>
-///  Per-second emit iff <c>|Q.sfm[i] - T.sfm[i]| &lt; Tolerance</c>. Truncated by a cumulative cap of
-///  <c>min(MaxBridgedSecondsAbsolute, MaxBridgedSecondsRelative × queryLength)</c>. The absolute cap is
+///  Per-second emit iff <c>|Q.sfm[i] - T.sfm[i]| &lt; Tolerance</c>. Phase 2 truncates the emissions at
+///  <c>min(MaxBridgedSecondsAbsolute, MaxBridgedSecondsRelative × queryLength)</c> (exposed via
+///  <see cref="MaxAbsoluteBridgeSeconds"/> and <see cref="MaxQueryRelativeBridge"/>). The absolute cap is
 ///  load-bearing safety against false merges on weakly-anchored speech-vs-speech candidates — combined with
 ///  <c>VerySimilarCoverageThreshold = 0.7</c>, the strategy cannot push such a candidate over the merge
 ///  threshold by bridging alone.
@@ -74,21 +74,28 @@ public sealed class SimilarProfileBridgingStrategy : ISfmMatchStrategy
     public double MaxBridgedSecondsRelative { get; }
 
     /// <inheritdoc />
+    /// <remarks>For this strategy the query-relative bridge cap is <see cref="MaxBridgedSecondsRelative"/>.</remarks>
+    public double MaxQueryRelativeBridge => MaxBridgedSecondsRelative;
+
+    /// <inheritdoc />
+    /// <remarks>The calibrated absolute cap is <see cref="MaxBridgedSecondsAbsolute"/>.</remarks>
+    public double MaxAbsoluteBridgeSeconds => MaxBridgedSecondsAbsolute;
+
+    /// <inheritdoc />
     public IEnumerable<SyntheticCandidate> GenerateCandidates(SyntheticMatchContext context)
     {
         if (context.RealMatches.Count == 0)
         {
-            return Enumerable.Empty<SyntheticCandidate>();
+            return [];
         }
 
-        double cap = Math.Min(MaxBridgedSecondsAbsolute, MaxBridgedSecondsRelative * context.QueryLength);
-        var candidates = SyntheticCandidateUtils.EmitPerSecondCandidates(
+        // no self-truncation here: Phase 2 enforces min(MaxAbsoluteBridgeSeconds, MaxQueryRelativeBridge × queryLength)
+        // uniformly for every strategy, counting only synthetics that survive skip-if-real.
+        return SyntheticCandidateUtils.EmitPerSecondCandidates(
             context.QueryProfile,
             context.TrackProfile,
             context.QueryLength,
             context.RealMatches,
-            (qSecond, tSecond) => Math.Abs(qSecond.Sfm - tSecond.Sfm) < Tolerance);
-        int budget = (int)Math.Floor(cap);
-        return candidates.Take(budget);
+            (query, track, queryIndex, trackIndex) => Math.Abs(query.PerSecond[queryIndex].Sfm - track.PerSecond[trackIndex].Sfm) < Tolerance);
     }
 }

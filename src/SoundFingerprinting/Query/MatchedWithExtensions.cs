@@ -15,9 +15,6 @@ namespace SoundFingerprinting.Query
     {
         private const double PermittedGapZero = 1e-5;
 
-        // universal sanity bound applied to all bridging strategies in Phase 2
-        private const double UniversalBridgeFractionCap = 0.70;
-
         private static readonly IQueryPathReconstructionStrategy QueryPathReconstructionStrategy = new QueryPathReconstructionStrategy();
 
         /// <summary>
@@ -57,7 +54,7 @@ namespace SoundFingerprinting.Query
         ///  When <paramref name="sfmMatchStrategy"/> is <see cref="NoBridgingStrategy"/> or either profile is <c>null</c>,
         ///  or <paramref name="queryPathReconstructionStrategyType"/> is <see cref="Legacy"/>, behaviour is identical
         ///  to the no-bridging overload. Otherwise: Phase 1 emits candidates, Phase 2 derives sequence numbers via
-        ///  bracket interpolation and applies the universal 70% sanity bound, then synthetics are concatenated with
+        ///  bracket interpolation and applies the strategy's MaxQueryRelativeBridge cap, then synthetics are concatenated with
         ///  real matches before LIS path reconstruction. Each resulting <see cref="Coverage.BridgedSeconds"/> reports
         ///  how many synthetics survived into the final best path.
         /// </remarks>
@@ -204,17 +201,20 @@ namespace SoundFingerprinting.Query
             return list;
         }
 
-        // Phase 2: skip-if-real → bracket interpolation → universal 70% cap → MatchedWith construction
+        // Phase 2: skip-if-real → bracket interpolation → per-strategy MaxQueryRelativeBridge cap → MatchedWith construction
         private static List<MatchedWith> EmitSynthetics(ISfmMatchStrategy strategy, SyntheticMatchContext context, List<MatchedWith> reals)
         {
-            var candidates = strategy.GenerateCandidates(context).ToList();
+            // the forward-cursor bracket lookup below requires candidates ascending by QueryMatchAt (ISfmMatchStrategy postcondition).
+            // EmitPerSecondCandidates and CompositeBridgingStrategy already honour it; sort defensively
+            // so a future strategy that violates the contract degrades to wrong tuning, never corrupt bracketing.
+            var candidates = strategy.GenerateCandidates(context).OrderBy(c => c.QueryMatchAt).ToList();
             if (candidates.Count == 0)
             {
                 return new List<MatchedWith>();
             }
 
-            // candidates come out of SyntheticCandidateUtils.EmitPerSecondCandidates already sorted by QueryMatchAt — no Sort needed
-            int universalCap = (int)Math.Floor(UniversalBridgeFractionCap * context.QueryLength);
+            // per-strategy false-positive backstop: cap synthetics at min(absolute ceiling, relative fraction of query)
+            int universalCap = (int)Math.Floor(Math.Min(strategy.MaxAbsoluteBridgeSeconds, strategy.MaxQueryRelativeBridge * context.QueryLength));
 
             // local slope at each endpoint for one-sided (head/tail) bridges. Returns 0 if the slope can't be derived;
             // TryDeriveSeq treats slot period <= 0 as "refuse to bridge" rather than falling back to a magic constant.
@@ -310,7 +310,7 @@ namespace SoundFingerprinting.Query
                 // duplicate hash hits on the same sub-fingerprint, or reals from a manually-constructed test set.
                 // It does NOT catch the multi-cluster case where the bracketing reals come from different alignments
                 // (both clusters increase monotonically) — those phantom-diagonal synthetics are bounded by the
-                // universal 70% cap and discarded by LIS post-hoc.
+                // strategy's MaxQueryRelativeBridge cap and discarded by LIS post-hoc.
                 if (qSpan <= 0 || tSpan <= 0)
                 {
                     return false;

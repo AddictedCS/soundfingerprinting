@@ -14,6 +14,12 @@ public sealed class NoBridgingStrategy : ISfmMatchStrategy
     public static NoBridgingStrategy Default { get; } = new ();
 
     /// <inheritdoc />
+    public double MaxQueryRelativeBridge => 0;
+
+    /// <inheritdoc />
+    public double MaxAbsoluteBridgeSeconds => double.PositiveInfinity;
+
+    /// <inheritdoc />
     public IEnumerable<SyntheticCandidate> GenerateCandidates(SyntheticMatchContext context)
     {
         return [];
