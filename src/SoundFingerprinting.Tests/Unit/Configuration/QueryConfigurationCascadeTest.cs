@@ -24,7 +24,7 @@ public class QueryConfigurationCascadeTest
     {
         var config = new DefaultQueryConfiguration
         {
-            SfmMatchStrategy = SilentRegionBridgingStrategy.Default,
+            SfmMatchStrategy = SilenceBridgingStrategy.Default,
         };
         Assume.That(config.FingerprintConfiguration.ComputeSpectralProfile, Is.True);
 

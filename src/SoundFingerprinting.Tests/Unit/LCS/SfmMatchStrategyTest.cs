@@ -66,7 +66,7 @@ public class SfmMatchStrategyTest
             queryPowers: new[] { 1.0, 0.02, 0.03 },
             trackPowers: new[] { 1.0, 0.02, 0.03 });
 
-        var candidates = SilentRegionBridgingStrategy.Default.GenerateCandidates(context).ToList();
+        var candidates = SilenceBridgingStrategy.Default.GenerateCandidates(context).ToList();
 
         // second 0 fails (power = 1.0); seconds 1 and 2 pass (both < 0.05, |Δ| < 0.05)
         Assert.That(candidates, Has.Count.EqualTo(2));
@@ -102,7 +102,7 @@ public class SfmMatchStrategyTest
             queryPowers: new[] { 1.0, 0.02, 0.50, 0.50 },
             trackPowers: new[] { 1.0, 0.02, 0.50, 0.50 });
 
-        var composite = new CompositeBridgingStrategy(SilentRegionBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default);
+        var composite = new CompositeBridgingStrategy(SilenceBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default);
         var candidates = composite.GenerateCandidates(context).ToList();
 
         Assert.That(candidates.Count, Is.EqualTo(2));
@@ -120,7 +120,7 @@ public class SfmMatchStrategyTest
             queryPowers: new[] { 1.0, 0.02 },
             trackPowers: new[] { 1.0, 0.02 });
 
-        var composite = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilentRegionBridgingStrategy.Default);
+        var composite = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilenceBridgingStrategy.Default);
         var candidates = composite.GenerateCandidates(context).ToList();
 
         // both inner strategies emit sec 1 — composite dedups to a single candidate
@@ -152,7 +152,7 @@ public class SfmMatchStrategyTest
     {
         Assert.That(
             () => new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, 
-                new CompositeBridgingStrategy(SilentRegionBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default)),
+                new CompositeBridgingStrategy(SilenceBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default)),
             Throws.ArgumentException);
     }
 
@@ -167,7 +167,7 @@ public class SfmMatchStrategyTest
     public void StrategiesShouldExposeDefaultMaxQueryRelativeBridge()
     {
         Assert.That(BroadbandNoiseBridgingStrategy.Default.MaxQueryRelativeBridge, Is.EqualTo(0.70));
-        Assert.That(SilentRegionBridgingStrategy.Default.MaxQueryRelativeBridge, Is.EqualTo(0.70));
+        Assert.That(SilenceBridgingStrategy.Default.MaxQueryRelativeBridge, Is.EqualTo(0.70));
         Assert.That(SimilarProfileBridgingStrategy.Default.MaxQueryRelativeBridge, Is.EqualTo(0.30), "SimilarProfile's relative cap is its query-relative bridge");
         Assert.That(NoBridgingStrategy.Default.MaxQueryRelativeBridge, Is.EqualTo(0));
     }
@@ -176,9 +176,9 @@ public class SfmMatchStrategyTest
     public void StrategiesShouldExposeDefaultMaxAbsoluteBridgeSeconds()
     {
         Assert.That(BroadbandNoiseBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity));
-        Assert.That(SilentRegionBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity));
+        Assert.That(SilenceBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity));
         Assert.That(NoBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity));
-        Assert.That(new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilentRegionBridgingStrategy.Default).MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity), "min(inf, inf)");
+        Assert.That(new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilenceBridgingStrategy.Default).MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity), "min(inf, inf)");
         Assert.That(SimilarProfileBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(10));
     }
 
@@ -186,7 +186,7 @@ public class SfmMatchStrategyTest
     public void StrategiesShouldExposeOverriddenMaxQueryRelativeBridge()
     {
         Assert.That(new BroadbandNoiseBridgingStrategy(maxQueryRelativeBridge: 0.9).MaxQueryRelativeBridge, Is.EqualTo(0.9));
-        Assert.That(new SilentRegionBridgingStrategy(maxQueryRelativeBridge: 0.5).MaxQueryRelativeBridge, Is.EqualTo(0.5));
+        Assert.That(new SilenceBridgingStrategy(maxQueryRelativeBridge: 0.5).MaxQueryRelativeBridge, Is.EqualTo(0.5));
     }
 
     [Test]
@@ -195,7 +195,7 @@ public class SfmMatchStrategyTest
         // the strictest leg governs the merged union — no gate's synthetics can exceed its own declared ceiling
         var composite = new CompositeBridgingStrategy(
             new BroadbandNoiseBridgingStrategy(maxQueryRelativeBridge: 0.9),
-            new SilentRegionBridgingStrategy(maxQueryRelativeBridge: 0.5));
+            new SilenceBridgingStrategy(maxQueryRelativeBridge: 0.5));
         Assert.That(composite.MaxQueryRelativeBridge, Is.EqualTo(0.5));
     }
 
@@ -203,7 +203,7 @@ public class SfmMatchStrategyTest
     public void MaxQueryRelativeBridgeOutOfRangeShouldThrow()
     {
         Assert.That(() => new BroadbandNoiseBridgingStrategy(maxQueryRelativeBridge: 1.1), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
-        Assert.That(() => new SilentRegionBridgingStrategy(maxQueryRelativeBridge: -0.1), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
+        Assert.That(() => new SilenceBridgingStrategy(maxQueryRelativeBridge: -0.1), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
     }
 
     [Test]

@@ -113,7 +113,7 @@
         ///  Setting back to a <see cref="NoBridgingStrategy"/> instance flips the flag off again.
         ///  <para>
         ///  Multiple strategies can be combined via <see cref="CompositeBridgingStrategy"/> — e.g.
-        ///  <c>new CompositeBridgingStrategy(new BroadbandNoiseBridgingStrategy(), SilentRegionBridgingStrategy.Default)</c>
+        ///  <c>new CompositeBridgingStrategy(new BroadbandNoiseBridgingStrategy(), SilenceBridgingStrategy.Default)</c>
         ///  for a broadband + silent union.
         ///  </para>
         /// </remarks>

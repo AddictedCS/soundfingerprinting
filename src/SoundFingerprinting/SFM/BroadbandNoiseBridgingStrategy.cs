@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SoundFingerprinting.Audio;
+using SoundFingerprinting.Query;
 
 /// <summary>
 ///  Bridges per-second regions where both query and track are sustained broadband content
@@ -105,7 +106,8 @@ public sealed class BroadbandNoiseBridgingStrategy : ISfmMatchStrategy
             context.TrackProfile,
             context.QueryLength,
             context.RealMatches,
-            IsBroadbandMatch);
+            IsBroadbandMatch,
+            MatchedWithType.BroadbandNoise);
     }
 
     // presence is pointwise (both sides flat at this second); agreement is a windowed mean of |ΔSFM| — a window > 0

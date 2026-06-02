@@ -28,13 +28,15 @@ internal static class SyntheticCandidateUtils
     ///  full profiles plus indices — rather than just the two seconds — lets a strategy evaluate a neighbourhood
     ///  (e.g. a windowed agreement) instead of a single second.
     /// </param>
+    /// <param name="matchType">The calling strategy's match type, stamped on every emitted candidate.</param>
     /// <returns>Per-second synthetic candidates anchored to the local query/track diagonal.</returns>
     public static IEnumerable<SyntheticCandidate> EmitPerSecondCandidates(
         SpectralProfile queryProfile,
         SpectralProfile trackProfile,
         double queryLength,
         IReadOnlyList<MatchedWith> realMatches,
-        Func<SpectralProfile, SpectralProfile, int, int, bool> check)
+        Func<SpectralProfile, SpectralProfile, int, int, bool> check,
+        MatchedWithType matchType)
     {
         int querySeconds = Math.Min(queryProfile.PerSecond.Count, (int)Math.Floor(queryLength));
         int realIndex = 0;
@@ -58,7 +60,7 @@ internal static class SyntheticCandidateUtils
 
             if (check(queryProfile, trackProfile, qIndex, tIndex))
             {
-                yield return new SyntheticCandidate(qIndex, trackSecond);
+                yield return new SyntheticCandidate(qIndex, trackSecond, matchType);
             }
         }
     }

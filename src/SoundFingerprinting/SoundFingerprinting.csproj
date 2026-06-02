@@ -4,13 +4,16 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.1.0</PackageVersion>
+	<PackageVersion>15.2.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.2.0
+		- `MatchedWith` now carries a `MatchedWithType` (`Fingerprint` | `Silence` | `BroadbandNoise` | `SimilarProfile`) recording whether a path entry is a real fingerprint hit or which spectral-bridging strategy synthesised it; bridging strategies stamp their synthetics and `Coverage.BridgedSeconds` is derived from it.
+		- `TruePositivesFilter` gains `ignoreBridgedCoverage` (default `true`): when bridging is present the thresholds are re-evaluated against the fingerprint-only coverage, so a stepping-stone synthetic cannot inflate a weakly-anchored match over the bar (it would otherwise extend the span and tuck the gap under the permitted gap). No effect on coverages produced without bridging.
 		Version 15.1.0
 		- `CompositeBridgingStrategy` now returns a canonical (deduplicated, ascending-by-QueryMatchAt) union, making it independent of inner-strategy order; previously the concatenated runs could violate the path-reconstruction cursor invariant and drop head/tail bridges depending on leg order.
 		- Removed `CompositeBridgingStrategy.BroadbandOrSilent` (breaking). Compose explicitly, e.g. `new CompositeBridgingStrategy(new BroadbandNoiseBridgingStrategy(), SilentRegionBridgingStrategy.Default)`.

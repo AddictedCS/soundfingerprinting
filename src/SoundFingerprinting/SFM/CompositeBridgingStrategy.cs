@@ -14,7 +14,7 @@ using System.Linq;
 /// <remarks>
 ///  The merged union is capped at the strictest leg's budget — <see cref="MaxQueryRelativeBridge"/> and
 ///  <see cref="MaxAbsoluteBridgeSeconds"/> are both the minimum over the inner legs — so no leg's declared ceiling can
-///  be exceeded by composition. <see cref="BroadbandNoiseBridgingStrategy"/> and <see cref="SilentRegionBridgingStrategy"/>
+///  be exceeded by composition. <see cref="BroadbandNoiseBridgingStrategy"/> and <see cref="SilenceBridgingStrategy"/>
 ///  compose naturally (their per-second predicates are nearly mutually exclusive: high SFM rarely coincides with low power).
 ///  <para>
 ///  <see cref="SimilarProfileBridgingStrategy"/> is now composable: its calibrated absolute cap travels via

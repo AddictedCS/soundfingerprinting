@@ -86,7 +86,6 @@ namespace SoundFingerprinting.Query
                                   && trackProfile != null
                                   && realMatches.Count > 0;
 
-            HashSet<MatchedWith>? synthetics = null;
             IEnumerable<MatchedWith> augmented = realMatches;
             if (bridgingActive)
             {
@@ -102,7 +101,6 @@ namespace SoundFingerprinting.Query
                 var emitted = EmitSynthetics(sfmMatchStrategy, context, sortedReals);
                 if (emitted.Count > 0)
                 {
-                    synthetics = new HashSet<MatchedWith>(emitted);
                     augmented = realMatches.Concat(emitted);
                 }
             }
@@ -118,7 +116,7 @@ namespace SoundFingerprinting.Query
                 .Select(sequence =>
                 {
                     var path = sequence as IList<MatchedWith> ?? sequence.ToList();
-                    int bridged = synthetics == null ? 0 : path.Count(m => synthetics.Contains(m));
+                    int bridged = path.Count(m => m.Type != MatchedWithType.Fingerprint);
                     return new Coverage(path, queryLength, trackLength, fingerprintLength, permittedGap, bridged);
                 })
                 .ToList();
@@ -255,7 +253,7 @@ namespace SoundFingerprinting.Query
                     continue;
                 }
 
-                emitted.Add(new MatchedWith(qSynth, (float)c.QueryMatchAt, tSynth, (float)c.TrackMatchAt, score: 1));
+                emitted.Add(new MatchedWith(qSynth, (float)c.QueryMatchAt, tSynth, (float)c.TrackMatchAt, score: 1, c.MatchedWithType));
                 bridged++;
             }
 

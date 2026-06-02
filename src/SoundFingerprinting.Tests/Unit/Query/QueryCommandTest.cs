@@ -321,7 +321,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 			});
 		}
          
-        [Test(Description = "SilentRegionBridgingStrategy should bridge a true-silence gap between two real-anchored regions")]
+        [Test(Description = "SilenceBridgingStrategy should bridge a true-silence gap between two real-anchored regions")]
         public async Task ShouldBridgeSilentRegionAcrossRealAnchors()
         {
             var first = TestUtilities.GenerateRandomAudioSamples(15 * 5512);
@@ -358,7 +358,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(avHashes)
                 .WithQueryConfig(config =>
                 {
-                    config.Audio.SfmMatchStrategy = SilentRegionBridgingStrategy.Default;
+                    config.Audio.SfmMatchStrategy = SilenceBridgingStrategy.Default;
                     return config;
                 })
                 .UsingServices(modelService)
