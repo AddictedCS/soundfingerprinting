@@ -8,7 +8,7 @@ namespace SoundFingerprinting.Query
     /// <summary>
     ///  Match pair containing information track/query match tuple.
     /// </summary>
-    [ProtoContract]
+    [ProtoContract(SkipConstructor = true)]
     public class MatchedWith : IEquatable<MatchedWith>
     {
         /// <summary>
@@ -19,20 +19,19 @@ namespace SoundFingerprinting.Query
         /// <param name="trackSequenceNumber">Track sequence number.</param>
         /// <param name="trackMatchAt">Track match at.</param>
         /// <param name="score">
-        ///   Score as calculated by score algorithm set by <see cref="QueryPathReconstructionStrategyType"/> strategy. 
+        ///   Score as calculated by score algorithm set by <see cref="QueryPathReconstructionStrategyType"/> strategy.
         /// </param>
-        public MatchedWith(uint querySequenceNumber, float queryMatchAt, uint trackSequenceNumber, float trackMatchAt, double score)
+        /// <param name="matchType">
+        ///   Provenance of the match: a real fingerprint hit (default) or the bridging strategy that synthesised it.
+        /// </param>
+        public MatchedWith(uint querySequenceNumber, float queryMatchAt, uint trackSequenceNumber, float trackMatchAt, double score, MatchedWithType matchType = MatchedWithType.Fingerprint)
         {
             QuerySequenceNumber = querySequenceNumber;
             QueryMatchAt = queryMatchAt;
             TrackMatchAt = trackMatchAt;
             TrackSequenceNumber = trackSequenceNumber;
             Score = score;
-        }
-
-        private MatchedWith()
-        {
-            // left for proto-buf
+            Type = matchType;
         }
 
         /// <summary>
@@ -67,6 +66,12 @@ namespace SoundFingerprinting.Query
         /// </remarks>
         [ProtoMember(5)]
         public double Score { get; }
+
+        /// <summary>
+        ///  Gets the provenance of this match: a real fingerprint hit, or which spectral-bridging strategy synthesised it.
+        /// </summary>
+        [ProtoMember(6)]
+        public MatchedWithType Type { get; }
 
         /// <inheritdoc cref="object.ToString"/>
         public override string ToString()

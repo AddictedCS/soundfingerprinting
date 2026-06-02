@@ -333,6 +333,82 @@ public class TruePositivesFilterTest
     
     #endregion
 
+    #region ignoreBridgedCoverage Tests
+
+    [Test]
+    public void ShouldAcceptIgnoreBridgedCoverageParameter()
+    {
+        Assert.That(() => new TruePositivesFilter(null, 0.5, null, FilterLogic.Or, ignoreBridgedCoverage: true), Throws.Nothing);
+        Assert.That(() => new TruePositivesFilter(null, 0.5, null, FilterLogic.Or, ignoreBridgedCoverage: false), Throws.Nothing);
+    }
+
+    [Test]
+    public void ShouldDefaultToIgnoringBridgedCoverage()
+    {
+        // 20% real (fingerprint) coverage, bridged up to 80%. Default must judge on the real anchors only -> reject.
+        var filter = new TruePositivesFilter(null, minRelativeCoverage: 0.5, null);
+        var coverage = CreateBridgedCoverage(realCoverage: 0.2, bridgedCoverage: 0.8);
+
+        Assert.That(filter.IsTruePositive(coverage), Is.False);
+    }
+
+    [Test]
+    public void ShouldIgnoreBridgedCoverageWhenEnabled()
+    {
+        var filter = new TruePositivesFilter(null, minRelativeCoverage: 0.5, null, FilterLogic.Or, ignoreBridgedCoverage: true);
+        var coverage = CreateBridgedCoverage(realCoverage: 0.2, bridgedCoverage: 0.8);
+
+        // real anchors cover only 20% — below the 50% bar even though bridged coverage is 80%
+        Assert.That(filter.IsTruePositive(coverage), Is.False);
+    }
+
+    [Test]
+    public void ShouldUseFullBridgedCoverageWhenDisabled()
+    {
+        var filter = new TruePositivesFilter(null, minRelativeCoverage: 0.5, null, FilterLogic.Or, ignoreBridgedCoverage: false);
+        var coverage = CreateBridgedCoverage(realCoverage: 0.2, bridgedCoverage: 0.8);
+
+        // with bridging counted, 80% clears the 50% bar
+        Assert.That(filter.IsTruePositive(coverage), Is.True);
+    }
+
+    [Test]
+    public void ShouldKeepBridgedMatchWhenRealAnchorsAloneClearTheBar()
+    {
+        // 60% real anchors, bridged to 90% — passes on the fingerprint-only coverage regardless of the bridging
+        var filter = new TruePositivesFilter(null, minRelativeCoverage: 0.5, null);
+        var coverage = CreateBridgedCoverage(realCoverage: 0.6, bridgedCoverage: 0.9);
+
+        Assert.That(filter.IsTruePositive(coverage), Is.True);
+    }
+
+    [Test]
+    public void ShouldBeNoOpWhenThereIsNoBridging()
+    {
+        // BridgedSeconds == 0: ignoreBridgedCoverage must not change the outcome
+        var coverage = CreateCoverageWithRelativeCoverage(0.6);
+        var ignoring = new TruePositivesFilter(null, minRelativeCoverage: 0.5, null, FilterLogic.Or, ignoreBridgedCoverage: true);
+        var counting = new TruePositivesFilter(null, minRelativeCoverage: 0.5, null, FilterLogic.Or, ignoreBridgedCoverage: false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ignoring.IsTruePositive(coverage), Is.True);
+            Assert.That(counting.IsTruePositive(coverage), Is.EqualTo(ignoring.IsTruePositive(coverage)));
+        });
+    }
+
+    [Test]
+    public void ShouldRejectWhenPathIsEntirelyBridged()
+    {
+        // no fingerprint anchors at all — the fingerprint-only coverage is empty, so it cannot be a true positive
+        var filter = new TruePositivesFilter(null, minRelativeCoverage: 0.5, null, FilterLogic.Or, ignoreBridgedCoverage: true);
+        var coverage = CreateBridgedCoverage(realCoverage: 0.0, bridgedCoverage: 0.8);
+
+        Assert.That(filter.IsTruePositive(coverage), Is.False);
+    }
+
+    #endregion
+
     #region Helper Methods
 
     /// <summary>
@@ -358,6 +434,37 @@ public class TruePositivesFilterTest
     {
         const double trackLength = 100.0;
         return TestUtilities.GetCoverage(coverageLength, queryLength: trackLength, trackLength: trackLength, new List<Gap>());
+    }
+
+    /// <summary>
+    /// Builds a Coverage whose best path is contiguous fingerprint matches over [0, realCoverage) followed by
+    /// broadband-bridge synthetics over [realCoverage, bridgedCoverage), so the full coverage is bridgedCoverage
+    /// but the fingerprint-only coverage is realCoverage. BridgedSeconds is set positive to trigger the bridge-aware
+    /// recompute. Track length is fixed at 100 seconds for predictable relative coverage.
+    /// </summary>
+    private static Coverage CreateBridgedCoverage(double realCoverage, double bridgedCoverage)
+    {
+        const double trackLength = 100.0;
+        const float fingerprintLength = 1.4862f;
+        const float step = 0.1f;
+        double realLength = trackLength * realCoverage;
+        double bridgedLength = trackLength * bridgedCoverage;
+
+        var bestPath = new List<MatchedWith>();
+        int bridgedSeconds = 0;
+        for (float i = 0; i < bridgedLength; i += step)
+        {
+            uint sequenceNumber = (uint)(i / step);
+            var matchType = i < realLength ? MatchedWithType.Fingerprint : MatchedWithType.BroadbandNoise;
+            if (matchType != MatchedWithType.Fingerprint)
+            {
+                bridgedSeconds++;
+            }
+
+            bestPath.Add(new MatchedWith(sequenceNumber, queryMatchAt: i, sequenceNumber, trackMatchAt: i, score: 0d, matchType));
+        }
+
+        return new Coverage(bestPath, queryLength: trackLength, trackLength: trackLength, fingerprintLength: fingerprintLength, permittedGap: 2d, bridgedSeconds: bridgedSeconds);
     }
 
     #endregion

@@ -3,6 +3,7 @@ namespace SoundFingerprinting.SFM
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using SoundFingerprinting.Query;
 
     /// <summary>
     ///  Bridges per-second regions where both query and track are silent (fade-outs, dramatic pauses,
@@ -12,10 +13,10 @@ namespace SoundFingerprinting.SFM
     ///  Per-second emit iff <c>Q.power[i] &lt; PowerThreshold AND T.power[i] &lt; PowerThreshold AND |Q.power - T.power| &lt; PowerSimilarity</c>.
     ///  Power is bucket fraction relative to the per-audio maximum.
     /// </remarks>
-    public sealed class SilentRegionBridgingStrategy : ISfmMatchStrategy
+    public sealed class SilenceBridgingStrategy : ISfmMatchStrategy
     {
         /// <summary>
-        ///  Initializes a new instance of the <see cref="SilentRegionBridgingStrategy"/> class.
+        ///  Initializes a new instance of the <see cref="SilenceBridgingStrategy"/> class.
         /// </summary>
         /// <param name="powerThreshold">
         ///  Maximum power for a second to qualify as silent. Default 0.05. Valid range [0.01, 0.15].
@@ -26,7 +27,7 @@ namespace SoundFingerprinting.SFM
         /// <param name="maxQueryRelativeBridge">
         ///  Maximum fraction of the query that may be filled with synthetic seconds. Default 0.70. Valid range [0.0, 1.0].
         /// </param>
-        public SilentRegionBridgingStrategy(double powerThreshold = 0.05, double powerSimilarity = 0.05, double maxQueryRelativeBridge = 0.70)
+        public SilenceBridgingStrategy(double powerThreshold = 0.05, double powerSimilarity = 0.05, double maxQueryRelativeBridge = 0.70)
         {
             if (powerThreshold < 0.01 || powerThreshold > 0.15)
             {
@@ -51,7 +52,7 @@ namespace SoundFingerprinting.SFM
         /// <summary>
         ///  Gets the singleton instance with calibrated defaults.
         /// </summary>
-        public static SilentRegionBridgingStrategy Default { get; } = new ();
+        public static SilenceBridgingStrategy Default { get; } = new ();
 
         /// <summary>
         ///  Gets the per-side silence power threshold.
@@ -90,7 +91,8 @@ namespace SoundFingerprinting.SFM
                     return qSecond.Power < PowerThreshold &&
                         tSecond.Power < PowerThreshold &&
                         Math.Abs(qSecond.Power - tSecond.Power) < PowerSimilarity;
-                });
+                },
+                MatchedWithType.Silence);
         }
     }
 }

@@ -265,13 +265,13 @@ public class GetCoveragesWithBridgingTest
         };
 
         var profile = MakeMixedProfile();
-        var bbThenSilent = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilentRegionBridgingStrategy.Default);
-        var silentThenBb = new CompositeBridgingStrategy(SilentRegionBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default);
+        var bbThenSilent = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilenceBridgingStrategy.Default);
+        var silentThenBb = new CompositeBridgingStrategy(SilenceBridgingStrategy.Default, BroadbandNoiseBridgingStrategy.Default);
 
         var a = Bridge(reals, profile, bbThenSilent);
         var b = Bridge(reals, profile, silentThenBb);
         var bbAlone = Bridge(reals, profile, BroadbandNoiseBridgingStrategy.Default);
-        var silentAlone = Bridge(reals, profile, SilentRegionBridgingStrategy.Default);
+        var silentAlone = Bridge(reals, profile, SilenceBridgingStrategy.Default);
 
         // commutativity: the two leg orders produce identical bridging
         Assert.That(a.BridgedSeconds, Is.EqualTo(b.BridgedSeconds), "BridgedSeconds must not depend on inner-strategy order");

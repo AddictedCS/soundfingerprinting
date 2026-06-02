@@ -3,6 +3,7 @@ namespace SoundFingerprinting.SFM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SoundFingerprinting.Query;
 
 /// <summary>
 ///  Bridges per-second regions whose spectral character is close on both sides, with a tight tolerance
@@ -96,6 +97,7 @@ public sealed class SimilarProfileBridgingStrategy : ISfmMatchStrategy
             context.TrackProfile,
             context.QueryLength,
             context.RealMatches,
-            (query, track, queryIndex, trackIndex) => Math.Abs(query.PerSecond[queryIndex].Sfm - track.PerSecond[trackIndex].Sfm) < Tolerance);
+            (query, track, queryIndex, trackIndex) => Math.Abs(query.PerSecond[queryIndex].Sfm - track.PerSecond[trackIndex].Sfm) < Tolerance,
+            MatchedWithType.SimilarProfile);
     }
 }

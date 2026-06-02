@@ -234,7 +234,7 @@ namespace SoundFingerprinting.LCS
                 uint trackSequenceNumberOffset = validRegion.FirstOrDefault()?.TrackSequenceNumber ?? 0;
                 
                 var matches = validRegion
-                    .Select(match => new MatchedWith(match.QuerySequenceNumber, match.QueryMatchAt, match.TrackSequenceNumber - trackSequenceNumberOffset, (float)(match.TrackMatchAt - segment.StartsAt), match.Score))
+                    .Select(match => new MatchedWith(match.QuerySequenceNumber, match.QueryMatchAt, match.TrackSequenceNumber - trackSequenceNumberOffset, (float)(match.TrackMatchAt - segment.StartsAt), match.Score, match.Type))
                     .ToList();
                 
                 yield return new Coverage(matches, QueryLength, segment.TotalSeconds, FingerprintLength, PermittedGap, 0);
