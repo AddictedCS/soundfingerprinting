@@ -20,7 +20,7 @@ namespace SoundFingerprinting.Configuration
             HaarWaveletNorm = Math.Sqrt(2);
             OriginalPointSaveTransform =  _ => [];
             FrameNormalizationTransform = new LogSpectrumNormalization();
-            ComputeSpectralProfile = false;
+            ComputeSpectralProfile = true;
         }
     }
 }

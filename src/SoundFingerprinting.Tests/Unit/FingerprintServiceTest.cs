@@ -127,14 +127,11 @@ namespace SoundFingerprinting.Tests.Unit
         }
 
         [Test]
-        public void ShouldAttachSpectralProfileWhenComputeSpectralProfileIsTrue()
+        public void ShouldAttachSpectralProfileByDefault()
         {
             const int tenSeconds = 5512 * 10;
             var samples = TestUtilities.GenerateRandomAudioSamples(tenSeconds);
-            var config = new DefaultFingerprintConfiguration
-            {
-                ComputeSpectralProfile = true
-            };
+            var config = new DefaultFingerprintConfiguration();
 
             var (_, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(samples, config);
 
@@ -145,11 +142,14 @@ namespace SoundFingerprinting.Tests.Unit
         }
 
         [Test]
-        public void ShouldNotAttachSpectralProfileByDefault()
+        public void ShouldNotAttachSpectralProfileWhenDisabled()
         {
             const int tenSeconds = 5512 * 10;
             var samples = TestUtilities.GenerateRandomAudioSamples(tenSeconds);
-            var config = new DefaultFingerprintConfiguration();
+            var config = new DefaultFingerprintConfiguration
+            {
+                ComputeSpectralProfile = false
+            };
 
             var (_, hashes) = FingerprintService.Instance.CreateFingerprintsFromAudioSamples(samples, config);
 
