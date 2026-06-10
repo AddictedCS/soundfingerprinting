@@ -116,7 +116,10 @@ namespace SoundFingerprinting.Configuration
         /// <remarks>
         ///  When <c>true</c>, the per-Frame SFM and power are computed from the raw spectrum before <see cref="LogSpectrumNormalization"/> mutates the values, bucketed into one-second windows,
         ///  encoded via <see cref="SoundFingerprinting.Audio.SpectralProfileCodecV1"/>, and stored on <c>Hashes.Properties[SpectralProfileKeys.SpectralProfile]</c> as a base64 string.
-        ///  Default value is <c>false</c>. Setting <see cref="QueryConfiguration.SfmMatchStrategy"/> to a non-no-op strategy flips this on for queries via the setter cascade.
+        ///  Default value is <c>true</c>, so stored tracks carry the profile and enabling an <see cref="QueryConfiguration.SfmMatchStrategy"/> at query time works without re-fingerprinting the catalog —
+        ///  the profile can only be computed while the original media is in hand. Opt out (<c>false</c>) for storage-constrained catalogs or long-form content where the profile is not needed.
+        ///  Query configurations are not affected by this default: the <see cref="QueryConfiguration.SfmMatchStrategy"/> setter cascade keeps it off for <see cref="SoundFingerprinting.SFM.NoBridgingStrategy"/>
+        ///  and flips it on for any bridging strategy.
         ///  <para>
         ///   <b>Audio only.</b> SFM and power are spectrum-domain concepts and have no meaningful interpretation for video frames (pixel intensities).
         ///   The video fingerprinting path silently ignores this flag — no profile is attached to video <c>Hashes</c> regardless of the value here.

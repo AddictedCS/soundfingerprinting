@@ -4,13 +4,15 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.2.0</PackageVersion>
+	<PackageVersion>15.3.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.3.0
+		- `FingerprintConfiguration.ComputeSpectralProfile` now defaults to `true`: tracks fingerprinted with the default config carry the per-second spectral profile, so enabling an `SfmMatchStrategy` at query time works out of the box instead of silently no-op'ing against profile-less tracks (the profile can only be computed while the original media is in hand). Opt out with `ComputeSpectralProfile = false` for storage-constrained catalogs. Match results are unchanged unless a bridging strategy is set; query configs are unaffected (the `SfmMatchStrategy` setter cascade keeps the flag off for `NoBridgingStrategy`).
 		Version 15.2.0
 		- `MatchedWith` now carries a `MatchedWithType` (`Fingerprint` | `Silence` | `BroadbandNoise` | `SimilarProfile`) recording whether a path entry is a real fingerprint hit or which spectral-bridging strategy synthesised it; bridging strategies stamp their synthetics and `Coverage.BridgedSeconds` is derived from it.
 		- `TruePositivesFilter` gains `ignoreBridgedCoverage` (default `true`): when bridging is present the thresholds are re-evaluated against the fingerprint-only coverage, so a stepping-stone synthetic cannot inflate a weakly-anchored match over the bar (it would otherwise extend the span and tuck the gap under the permitted gap). No effect on coverages produced without bridging.
