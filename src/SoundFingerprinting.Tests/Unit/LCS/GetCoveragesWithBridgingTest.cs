@@ -188,6 +188,35 @@ public class GetCoveragesWithBridgingTest
     }
 
     [Test]
+    public void ShouldBridgeQuerySecondZeroWhenQueryLeadInMarginallyExceedsTrack()
+    {
+        // #1242: two recordings of the same creative whose first real anchor carries sub-second alignment jitter — the
+        // query lead-in is ~0.1s longer than the track's (anchor at qAt=3.44 / tAt=3.34). Head extrapolation then maps
+        // query-second 0 to track time -0.09, which used to be dropped (tIndex < 0), so second zero never bridged even
+        // though the broadband lead-in agrees on both sides. It must bridge from second zero.
+        var reals = new List<MatchedWith>
+        {
+            new (37, 3.44f, 36, 3.34f, score: 1),
+            new (53, 4.92f, 52, 4.83f, score: 1),
+            new (82, 7.62f, 82, 7.62f, score: 1),
+        };
+
+        var coverages = reals.GetCoverages(
+            QueryPathReconstructionStrategyType.MultipleBestPaths,
+            queryLength: 15,
+            trackLength: 15,
+            fingerprintLength: FingerprintLength,
+            permittedGap: PermittedGap,
+            sfmMatchStrategy: BroadbandNoiseBridgingStrategy.Default,
+            queryProfile: MakeProfile(15, sfm: 0.85, power: 0.5),
+            trackProfile: MakeProfile(15, sfm: 0.85, power: 0.5)).ToList();
+
+        Assert.That(coverages, Is.Not.Empty);
+        bool secondZeroBridged = coverages[0].BestPath.Any(m => m.Type != MatchedWithType.Fingerprint && m.QueryMatchAt < 1.0f);
+        Assert.That(secondZeroBridged, Is.True, "query second zero must bridge when the query lead-in marginally exceeds the track's");
+    }
+
+    [Test]
     public void SimilarProfileShouldNotPushWeaklyAnchoredCandidateOverMergeThreshold()
     {
         // negative case: only 3 reals (anchor) + 25s of bridgeable speech-band content;

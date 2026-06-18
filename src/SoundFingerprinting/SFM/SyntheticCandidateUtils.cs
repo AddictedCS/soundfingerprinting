@@ -89,7 +89,14 @@ internal static class SyntheticCandidateUtils
         if (rightReal != null)
         {
             // head bridge: extrapolate backward at unit rate from the nearest real
-            return rightReal.TrackMatchAt - (rightReal.QueryMatchAt - qSecond);
+            double extrapolated = rightReal.TrackMatchAt - (rightReal.QueryMatchAt - qSecond);
+
+            // sub-second alignment jitter (the first anchor's track time slightly precedes its query time) can push the
+            // very first query second marginally below the track origin — second zero then maps to e.g. -0.09 and is
+            // dropped downstream (tIndex < 0). that is the same start, not missing content: clamp it to the track origin
+            // so second zero still bridges. a query whose lead-in genuinely exceeds the track's by a full second or more
+            // stays negative and is correctly skipped — those query seconds have no track counterpart.
+            return extrapolated is > -1d and < 0d ? 0d : extrapolated;
         }
 
         // no anchors — strategies short-circuit on empty realMatches, so this is unreachable
