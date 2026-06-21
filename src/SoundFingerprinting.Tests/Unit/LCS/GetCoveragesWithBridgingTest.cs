@@ -217,6 +217,115 @@ public class GetCoveragesWithBridgingTest
     }
 
     [Test]
+    public void ShouldBridgeTailPastLastAnchor()
+    {
+        // tail analog of the head second-zero case: real anchors cover q0..q4, the query continues to q9 with no further
+        // anchor, and the lead-out is broadband-agreeing on both sides. The tail seconds q5..q9 have a track counterpart
+        // and must bridge — otherwise the match is wrongly reported not-full on the trailing edge.
+        var reals = ContiguousMatches(0, 5); // q0..q4
+
+        var coverages = reals.GetCoverages(
+            QueryPathReconstructionStrategyType.MultipleBestPaths,
+            queryLength: 10,
+            trackLength: 10,
+            fingerprintLength: FingerprintLength,
+            permittedGap: PermittedGap,
+            sfmMatchStrategy: BroadbandNoiseBridgingStrategy.Default,
+            queryProfile: MakeProfile(10, sfm: 0.85, power: 0.5),
+            trackProfile: MakeProfile(10, sfm: 0.85, power: 0.5)).ToList();
+
+        Assert.That(coverages, Is.Not.Empty);
+        bool tailBridged = coverages[0].BestPath.Any(m => m.Type != MatchedWithType.Fingerprint && m.QueryMatchAt > 4.5f);
+        Assert.That(tailBridged, Is.True, "tail seconds past the last anchor must bridge");
+    }
+
+    [Test]
+    public void ShouldBridgeTailWhenLastRealsShareQuerySequenceNumber()
+    {
+        // Root cause of Nike 0a76->431e: the reconstructed real path ends with a DUPLICATE query-position match — one query
+        // sub-fingerprint matching two track sub-fingerprints (q-seq 110 -> t-seq 110 and 111). So the last two reals share
+        // QuerySequenceNumber; deriving the tail slot period from only that adjacent pair gives qSeqSpan 0 -> period 0 ->
+        // TryDeriveSeq refuses the whole tail. The slope must instead be taken from the nearest DISTINCT-seq real, so the
+        // broadband-agreeing trailing seconds (q12..q14) still bridge.
+        var reals = new List<MatchedWith>
+        {
+            new (0, 0f, 0, 0f, score: 1),
+            new (40, 4f, 40, 4f, score: 1),
+            new (80, 8f, 80, 8f, score: 1),
+            new (108, 10.8f, 108, 10.8f, score: 1),
+            new (110, 11f, 110, 11f, score: 1),
+            new (110, 11f, 111, 11.1f, score: 1), // duplicate query seq at the tail
+        };
+
+        var coverages = reals.GetCoverages(
+            QueryPathReconstructionStrategyType.MultipleBestPaths,
+            queryLength: 15,
+            trackLength: 15,
+            fingerprintLength: FingerprintLength,
+            permittedGap: PermittedGap,
+            sfmMatchStrategy: BroadbandNoiseBridgingStrategy.Default,
+            queryProfile: MakeProfile(15, sfm: 0.85, power: 0.5),
+            trackProfile: MakeProfile(15, sfm: 0.85, power: 0.5)).ToList();
+
+        Assert.That(coverages, Is.Not.Empty);
+        bool tailBridged = coverages.Any(c => c.BestPath.Any(m => m.Type != MatchedWithType.Fingerprint && m.QueryMatchAt > 11.5f));
+        Assert.That(tailBridged, Is.True, "tail must bridge even when the last two reals share a query sequence number");
+    }
+
+    [Test]
+    public void TailShouldBridgeWhenQueryRunsPastTheSpectralProfile()
+    {
+        // Nike 0a76->431e shape: dense contiguous anchors up to q54, query length (59.9) runs ~2s past the spectral
+        // profile (58 secs), so the trailing seconds split into profile-covered (q55..q57, must bridge) and a short
+        // no-profile remainder. The trailing profile-covered seconds must still bridge to a full (or permitted-gap) match.
+        var reals = ContiguousMatches(0, 55); // q0..q54
+
+        var coverages = reals.GetCoverages(
+            QueryPathReconstructionStrategyType.MultipleBestPaths,
+            queryLength: 59.9,
+            trackLength: 60,
+            fingerprintLength: FingerprintLength,
+            permittedGap: PermittedGap,
+            sfmMatchStrategy: BroadbandNoiseBridgingStrategy.Default,
+            queryProfile: MakeProfile(58, sfm: 0.85, power: 0.5),
+            trackProfile: MakeProfile(58, sfm: 0.85, power: 0.5)).ToList();
+
+        Assert.That(coverages, Is.Not.Empty);
+        TestContext.Out.WriteLine($"queryGaps: {string.Join(", ", coverages[0].QueryGaps.Select(g => $"{g.Start:F1}..{g.End:F1}"))}");
+        TestContext.Out.WriteLine($"tail bestpath: {string.Join(" | ", coverages[0].BestPath.OrderBy(m => m.QueryMatchAt).TakeLast(6).Select(m => $"q{m.QueryMatchAt:F1}/{m.Type.ToString()[..3]}"))}");
+        bool tailBridged = coverages[0].BestPath.Any(m => m.Type != MatchedWithType.Fingerprint && m.QueryMatchAt > 54.5f);
+        Assert.That(tailBridged, Is.True, "profile-covered trailing seconds (q55..q57) must bridge");
+    }
+
+    [Test]
+    public void ShouldBridgeTailWhenTrackTailMarginallyExceedsQuery()
+    {
+        // #1242 tail edge (Nike 0a76->431e): the last real anchor's track time slightly exceeds its query time
+        // (qAt=11.0 / tAt=11.2 — track lead-out ~0.2s longer), and the query continues to q14 with no further anchor.
+        // The trailing seconds q12..q14 agree on both sides and must bridge to a full match.
+        var reals = new List<MatchedWith>
+        {
+            new (40, 4.0f, 40, 4.0f, score: 1),
+            new (80, 8.0f, 80, 8.0f, score: 1),
+            new (110, 11.0f, 112, 11.2f, score: 1),
+        };
+
+        var coverages = reals.GetCoverages(
+            QueryPathReconstructionStrategyType.MultipleBestPaths,
+            queryLength: 15,
+            trackLength: 15,
+            fingerprintLength: FingerprintLength,
+            permittedGap: PermittedGap,
+            sfmMatchStrategy: BroadbandNoiseBridgingStrategy.Default,
+            queryProfile: MakeProfile(15, sfm: 0.85, power: 0.5),
+            trackProfile: MakeProfile(15, sfm: 0.85, power: 0.5)).ToList();
+
+        Assert.That(coverages, Is.Not.Empty);
+        bool tailBridged = coverages[0].BestPath.Any(m => m.Type != MatchedWithType.Fingerprint && m.QueryMatchAt > 11.5f);
+        Assert.That(tailBridged, Is.True, "trailing seconds must bridge when the track lead-out marginally exceeds the query's");
+    }
+
+    [Test]
     public void SimilarProfileShouldNotPushWeaklyAnchoredCandidateOverMergeThreshold()
     {
         // negative case: only 3 reals (anchor) + 25s of bridgeable speech-band content;
