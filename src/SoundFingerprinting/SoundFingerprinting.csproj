@@ -4,13 +4,17 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.5.0</PackageVersion>
+	<PackageVersion>15.5.1</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.5.1
+		- Fixed head/tail bridges being refused when the boundary reals share a `QuerySequenceNumber` (a duplicate query-position match — one query sub-fingerprint matching several track sub-fingerprints). The endpoint slot period was derived from only the adjacent boundary pair, so `qSeqSpan = 0` yielded slope 0 and the whole leading/trailing edge was left unbridged (a genuine duplicate then wrongly reported not-full). The slope now anchors on the endpoint real and scans inward to the nearest real with a strictly distinct query sequence number.
+		- `CompositeBridgingStrategy` now derives `MaxQueryRelativeBridge` / `MaxAbsoluteBridgeSeconds` as the maximum over its legs (was minimum), so composition is additive — adding a tighter leg (e.g. `SimilarProfileBridgingStrategy`) no longer starves the broadband/silence budget and drops interior + tail bridges.
+		- `SimilarProfileBridgingStrategy` ΔSFM `tolerance` cap removed (was [0.05, 0.20], now (0, 1]); the caller controls bridging aggressiveness and is responsible for downstream false-merge safety.
 		Version 15.5.0
 		- Adjusting spectral profile bridging
 		Version 15.4.0

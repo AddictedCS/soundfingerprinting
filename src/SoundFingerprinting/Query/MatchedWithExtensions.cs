@@ -170,7 +170,7 @@ namespace SoundFingerprinting.Query
         /// </summary>
         /// <param name="matches">Matches to split.</param>
         /// <param name="maxGap">Maximum gap to consider.</param>
-        /// <returns>List of split best paths.</returns>
+        /// <returns>List of split the best paths.</returns>
         public static IEnumerable<IEnumerable<MatchedWith>> SplitBestPathByMaxGap(this IEnumerable<MatchedWith> matches, double maxGap)
         {
             var sequence = matches as MatchedWith[] ?? matches.ToArray();
@@ -216,8 +216,8 @@ namespace SoundFingerprinting.Query
 
             // local slope at each endpoint for one-sided (head/tail) bridges. Returns 0 if the slope can't be derived;
             // TryDeriveSeq treats slot period <= 0 as "refuse to bridge" rather than falling back to a magic constant.
-            double headSlotPeriod = LocalSlotPeriod(reals, 0, 1);
-            double tailSlotPeriod = LocalSlotPeriod(reals, reals.Count - 2, reals.Count - 1);
+            double headSlotPeriod = EndpointSlotPeriod(reals, fromStart: true);
+            double tailSlotPeriod = EndpointSlotPeriod(reals, fromStart: false);
 
             var emitted = new List<MatchedWith>();
             int bridged = 0;
@@ -260,30 +260,53 @@ namespace SoundFingerprinting.Query
             return emitted;
         }
 
-        // local seconds-per-sub-fingerprint between two adjacent reals, derived from the query axis. Returns 0 if the
-        // span doesn't admit a slope (single-real input, duplicate seq numbers, or out-of-range indices) — callers
-        // treat 0 as "can't bridge here" instead of falling back to a magic constant.
-        private static double LocalSlotPeriod(List<MatchedWith> reals, int leftIdx, int rightIdx)
+        // local seconds-per-sub-fingerprint at one endpoint (head=start, tail=end), derived from the query axis. Anchors on
+        // the endpoint real and scans inward for the nearest real with a STRICTLY DISTINCT query sequence number, so the
+        // slope is robust to duplicate-query-position matches at the boundary — one query sub-fingerprint matching several
+        // track sub-fingerprints leaves two adjacent reals sharing a QuerySequenceNumber (qSeqSpan 0). Using only the
+        // adjacent pair there yields slope 0 and refuses the whole head/tail bridge.
+        // Returns 0 only if no distinct-seq pair exists; callers treat 0 as "can't bridge here".
+        private static double EndpointSlotPeriod(List<MatchedWith> reals, bool fromStart)
         {
-            if (leftIdx < 0 || rightIdx >= reals.Count || leftIdx >= rightIdx)
+            if (reals.Count == 0)
             {
-                // single-real fallback: derive from origin only if both seq and time are strictly positive
-                if (reals.Count == 1 && reals[0].QuerySequenceNumber > 0 && reals[0].QueryMatchAt > 0)
+                return 0;
+            }
+
+            var anchor = fromStart ? reals[0] : reals[reals.Count - 1];
+            if (fromStart)
+            {
+                for (int i = 1; i < reals.Count; i++)
                 {
-                    return reals[0].QueryMatchAt / reals[0].QuerySequenceNumber;
+                    double period = SlotPeriod(anchor, reals[i]);
+                    if (period > 0)
+                    {
+                        return period;
+                    }
                 }
-
-                return 0;
             }
-
-            long qSeqSpan = (long)reals[rightIdx].QuerySequenceNumber - reals[leftIdx].QuerySequenceNumber;
-            double qTimeSpan = reals[rightIdx].QueryMatchAt - reals[leftIdx].QueryMatchAt;
-            if (qSeqSpan <= 0 || qTimeSpan <= 0)
+            else
             {
-                return 0;
+                for (int i = reals.Count - 2; i >= 0; i--)
+                {
+                    double period = SlotPeriod(reals[i], anchor);
+                    if (period > 0)
+                    {
+                        return period;
+                    }
+                }
             }
 
-            return qTimeSpan / qSeqSpan;
+            // single-real (or all-duplicate-seq) fallback: derive from origin only if both seq and time are strictly positive
+            return anchor.QuerySequenceNumber > 0 && anchor.QueryMatchAt > 0 ? anchor.QueryMatchAt / anchor.QuerySequenceNumber : 0;
+        }
+
+        // seconds-per-sub-fingerprint between two reals on the query axis; 0 when the span is degenerate (non-increasing seq or time)
+        private static double SlotPeriod(MatchedWith left, MatchedWith right)
+        {
+            long qSeqSpan = (long)right.QuerySequenceNumber - left.QuerySequenceNumber;
+            double qTimeSpan = right.QueryMatchAt - left.QueryMatchAt;
+            return qSeqSpan > 0 && qTimeSpan > 0 ? qTimeSpan / qSeqSpan : 0;
         }
 
         private static bool TryDeriveSeq(
