@@ -24,7 +24,9 @@ public sealed class SimilarProfileBridgingStrategy : ISfmMatchStrategy
     /// </summary>
     /// <param name="tolerance">
     ///  Maximum allowed |ΔSFM| between query and track at the same second. Default 0.10 — tight default;
-    ///  both sides must be in roughly the same spectral band. Valid range [0.05, 0.20].
+    ///  both sides must be in roughly the same spectral band. Caller-controlled in the full (0, 1] range
+    ///  (SFM is normalized to [0, 1], so |ΔSFM| cannot exceed 1); higher values bridge more aggressively and
+    ///  the caller is responsible for guarding downstream false-merge risk (e.g. a transcript/geometry gate).
     /// </param>
     /// <param name="maxBridgedSecondsAbsolute">
     ///  Absolute cumulative cap (seconds). Default 10. Valid range [5, 20].
@@ -34,9 +36,9 @@ public sealed class SimilarProfileBridgingStrategy : ISfmMatchStrategy
     /// </param>
     public SimilarProfileBridgingStrategy(double tolerance = 0.10, double maxBridgedSecondsAbsolute = 10, double maxBridgedSecondsRelative = 0.30)
     {
-        if (tolerance is < 0.05 or > 0.20)
+        if (tolerance is <= 0 or > 1)
         {
-            throw new ArgumentOutOfRangeException(nameof(tolerance), tolerance, "Must be in [0.05, 0.20].");
+            throw new ArgumentOutOfRangeException(nameof(tolerance), tolerance, "Must be in (0, 1].");
         }
 
         if (maxBridgedSecondsAbsolute is < 5 or > 20)

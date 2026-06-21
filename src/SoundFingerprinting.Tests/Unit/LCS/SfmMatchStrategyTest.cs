@@ -129,14 +129,14 @@ public class SfmMatchStrategyTest
     }
 
     [Test]
-    public void CompositeMayIncludeSimilarProfileAndInheritsItsTightCap()
+    public void CompositeInheritsMostPermissiveLegBudget()
     {
-        // SimilarProfile is now composable: its absolute cap travels via MaxAbsoluteBridgeSeconds and is preserved
-        // under the min combine, so the composite inherits its tight min(10s, 0.30 x queryLength) bound.
+        // composition is additive: adding the tighter SimilarProfile leg must NOT clamp the broadband leg's budget down.
+        // the composite inherits the max over legs so a stricter leg never starves a more permissive one.
         var composite = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SimilarProfileBridgingStrategy.Default);
 
-        Assert.That(composite.MaxAbsoluteBridgeSeconds, Is.EqualTo(10), "min(inf, 10)");
-        Assert.That(composite.MaxQueryRelativeBridge, Is.EqualTo(0.30), "min(0.70, 0.30)");
+        Assert.That(composite.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity), "max(inf, 10)");
+        Assert.That(composite.MaxQueryRelativeBridge, Is.EqualTo(0.70), "max(0.70, 0.30)");
     }
 
     [Test]
@@ -178,7 +178,7 @@ public class SfmMatchStrategyTest
         Assert.That(BroadbandNoiseBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity));
         Assert.That(SilenceBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity));
         Assert.That(NoBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity));
-        Assert.That(new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilenceBridgingStrategy.Default).MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity), "min(inf, inf)");
+        Assert.That(new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilenceBridgingStrategy.Default).MaxAbsoluteBridgeSeconds, Is.EqualTo(double.PositiveInfinity), "max(inf, inf)");
         Assert.That(SimilarProfileBridgingStrategy.Default.MaxAbsoluteBridgeSeconds, Is.EqualTo(10));
     }
 
@@ -190,13 +190,13 @@ public class SfmMatchStrategyTest
     }
 
     [Test]
-    public void CompositeShouldDeriveMaxQueryRelativeBridgeAsMinOfInnerLegs()
+    public void CompositeShouldDeriveMaxQueryRelativeBridgeAsMaxOfInnerLegs()
     {
-        // the strictest leg governs the merged union — no gate's synthetics can exceed its own declared ceiling
+        // the most permissive leg governs the merged union — composition is additive and never starves a leg
         var composite = new CompositeBridgingStrategy(
             new BroadbandNoiseBridgingStrategy(maxQueryRelativeBridge: 0.9),
             new SilenceBridgingStrategy(maxQueryRelativeBridge: 0.5));
-        Assert.That(composite.MaxQueryRelativeBridge, Is.EqualTo(0.5));
+        Assert.That(composite.MaxQueryRelativeBridge, Is.EqualTo(0.9));
     }
 
     [Test]
@@ -213,6 +213,17 @@ public class SfmMatchStrategyTest
         Assert.That(() => new BroadbandNoiseBridgingStrategy(sfmThreshold: 0.19), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
         Assert.That(() => new BroadbandNoiseBridgingStrategy(agreementWindowRadius: -1), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
         Assert.That(new BroadbandNoiseBridgingStrategy(agreementWindowRadius: 2).AgreementWindowRadius, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void SimilarProfileShouldAllowFullDeltaSfmRange()
+    {
+        // tolerance (|ΔSFM|) is now caller-controlled across the full (0, 1] range — the previous [0.05, 0.20] cap is removed
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 0.50), Throws.Nothing);
+        Assert.That(new SimilarProfileBridgingStrategy(tolerance: 0.50).Tolerance, Is.EqualTo(0.50));
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 1.0), Throws.Nothing);
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 0d), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 1.1), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
     }
 
     [Test]
