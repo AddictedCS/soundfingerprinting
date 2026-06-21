@@ -216,6 +216,17 @@ public class SfmMatchStrategyTest
     }
 
     [Test]
+    public void SimilarProfileShouldAllowFullDeltaSfmRange()
+    {
+        // tolerance (|ΔSFM|) is now caller-controlled across the full (0, 1] range — the previous [0.05, 0.20] cap is removed
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 0.50), Throws.Nothing);
+        Assert.That(new SimilarProfileBridgingStrategy(tolerance: 0.50).Tolerance, Is.EqualTo(0.50));
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 1.0), Throws.Nothing);
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 0d), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
+        Assert.That(() => new SimilarProfileBridgingStrategy(tolerance: 1.1), Throws.InstanceOf<System.ArgumentOutOfRangeException>());
+    }
+
+    [Test]
     public void WindowedBroadbandShouldRejectCoincidentalSingleSecondAgreementThatPointwiseAccepts()
     {
         // a long broadband gap (all SFM > 0.40) where track disagrees with query (|ΔSFM| ~0.30) everywhere EXCEPT two
