@@ -12,15 +12,16 @@ using System.Linq;
 ///  are supplied — <c>Composite(a, b)</c> and <c>Composite(b, a)</c> produce identical candidates.
 /// </summary>
 /// <remarks>
-///  The merged union is capped at the strictest leg's budget — <see cref="MaxQueryRelativeBridge"/> and
-///  <see cref="MaxAbsoluteBridgeSeconds"/> are both the minimum over the inner legs — so no leg's declared ceiling can
-///  be exceeded by composition. <see cref="BroadbandNoiseBridgingStrategy"/> and <see cref="SilenceBridgingStrategy"/>
-///  compose naturally (their per-second predicates are nearly mutually exclusive: high SFM rarely coincides with low power).
-///  <para>
-///  <see cref="SimilarProfileBridgingStrategy"/> is now composable: its calibrated absolute cap travels via
-///  <see cref="MaxAbsoluteBridgeSeconds"/> and is preserved under the <c>min</c> combine, so a composite that includes it
-///  inherits its tight <c>min(10s, 0.30 × queryLength)</c> bound rather than a more permissive one.
-///  </para>
+///  The merged union inherits the most permissive leg's budget — <see cref="MaxQueryRelativeBridge"/> and
+///  <see cref="MaxAbsoluteBridgeSeconds"/> are both the <c>max</c> over the inner legs — so composing strategies is
+///  additive: adding a leg can only ever add bridging capacity, never starve a more permissive leg. (A <c>min</c> combine
+///  would let a strict leg such as <see cref="SimilarProfileBridgingStrategy"/> clamp the broadband/silence legs down to
+///  its own tight cap, dropping pairs that those legs would otherwise complete to a full match.) The per-strategy cap is a
+///  loose compute/sanity backstop, not the correctness guard — false-positive safety lives downstream in the real-anchor
+///  coverage filter (<c>ignoreBridgedCoverage</c>, realtime identification) and the dedup content gate, neither of which
+///  is weakened by a more generous bridge budget here. <see cref="BroadbandNoiseBridgingStrategy"/> and
+///  <see cref="SilenceBridgingStrategy"/> compose naturally (their per-second predicates are nearly mutually exclusive:
+///  high SFM rarely coincides with low power).
 ///  <para>
 ///  Composing with <see cref="NoBridgingStrategy"/> is rejected (meaningless union with the empty bridge).
 ///  Nesting <see cref="CompositeBridgingStrategy"/> inside another <see cref="CompositeBridgingStrategy"/> is rejected
@@ -68,15 +69,14 @@ public sealed class CompositeBridgingStrategy : ISfmMatchStrategy
 
     /// <inheritdoc />
     /// <remarks>
-    ///  Derived as the minimum over the inner strategies. Because the Phase-2 cap bounds total synthetic seconds with
-    ///  no per-gate attribution, the strictest leg's budget is the only value that keeps every leg's promise — no gate's
-    ///  synthetics can exceed its own declared ceiling. To bridge a composite past a leg's cap, raise that leg.
+    ///  Derived as the maximum over the inner strategies, so composition is additive — the most permissive leg governs and
+    ///  adding a tighter leg never reduces the budget the other legs would have had on their own.
     /// </remarks>
-    public double MaxQueryRelativeBridge => inner.Min(s => s.MaxQueryRelativeBridge);
+    public double MaxQueryRelativeBridge => inner.Max(s => s.MaxQueryRelativeBridge);
 
     /// <inheritdoc />
-    /// <remarks>Minimum over the inner strategies — same strictest-leg-governs rule as <see cref="MaxQueryRelativeBridge"/>.</remarks>
-    public double MaxAbsoluteBridgeSeconds => inner.Min(s => s.MaxAbsoluteBridgeSeconds);
+    /// <remarks>Maximum over the inner strategies — same most-permissive-leg-governs rule as <see cref="MaxQueryRelativeBridge"/>.</remarks>
+    public double MaxAbsoluteBridgeSeconds => inner.Max(s => s.MaxAbsoluteBridgeSeconds);
 
     /// <inheritdoc />
     public IEnumerable<SyntheticCandidate> GenerateCandidates(SyntheticMatchContext context)
