@@ -85,9 +85,12 @@ namespace SoundFingerprinting.InMemory
         public IEnumerable<ModelServiceInfo> Info => storage.Info;
 
         /// <inheritdoc cref="IModelService.Insert"/>
-        public void Insert(TrackInfo track, AVHashes avHashes)
+        public InsertResult Insert(TrackInfo track, AVHashes avHashes)
         {
+            // no dedup here; detect update the same way UpdateTrack does (existing-track check)
+            bool update = GetTrackById(track.Id) != null;
             storage.InsertTrack(track.WithMetaFieldsFromHashes(avHashes), avHashes);
+            return new InsertResult(update ? InsertOutcome.Updated : InsertOutcome.Inserted);
         }
 
         /// <inheritdoc cref="IModelService.UpdateTrack"/>
