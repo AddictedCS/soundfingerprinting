@@ -154,6 +154,19 @@ namespace SoundFingerprinting.Configuration
         public bool IncludeQueryHashesInResponse { get; set; }
 
         /// <summary>
+        ///  Gets or sets the longest non-matching stretch (in seconds) an ongoing result entry may bridge while waiting for the track to resume matching.
+        /// </summary>
+        /// <remarks>
+        ///  Default <see cref="double.MaxValue"/>: an ongoing entry is held until the query stream advances past the point where the track could still be matching,
+        ///  bridging arbitrarily long non-matching stretches (the historical behavior). <br />
+        ///  When the storage contains long tracks, a sporadic few-seconds match against such a track is held for the track's remaining length before it completes,
+        ///  delaying every other result entry that overlaps it. Capping the ceiling completes such entries shortly after they stop extending, while genuinely
+        ///  matching tracks are unaffected since their coverage keeps growing. <br />
+        ///  Entries on tracks shorter than the ceiling are unaffected regardless of the value.
+        /// </remarks>
+        public double OngoingEntryStalenessCeiling { get; set; } = double.MaxValue;
+
+        /// <summary>
         ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates.
         /// </summary>
         public IDictionary<string, string> YesMetaFieldsFilter

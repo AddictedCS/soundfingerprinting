@@ -4,13 +4,15 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.6.0</PackageVersion>
+	<PackageVersion>15.7.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.7.0
+		- New `RealtimeQueryConfiguration.OngoingEntryStalenessCeiling` (default `double.MaxValue` — no behavior change unless set): caps the longest non-matching stretch, in seconds, an ongoing realtime result entry may bridge while waiting for the matched track to resume. Historically an ongoing entry was held until the query stream advanced past the track's remaining length, so a sporadic few-seconds match against a very long track stayed pending (accumulating query hashes) for the track's remaining duration, delaying downstream consumers that wait on entry completion. With a capped ceiling such entries complete shortly after they stop extending; entries whose coverage keeps growing are unaffected, and entries on tracks shorter than the ceiling are unaffected regardless of the value.
 		Version 15.6.0
 		- Adjusting Insert method signature.
 		Version 15.5.1
