@@ -14,9 +14,9 @@ namespace SoundFingerprinting.Query
             this.videoStrategy = videoStrategy ?? throw new ArgumentNullException(nameof(videoStrategy));
         }
 
-        public AvResultEntryCompletionStrategy(AVQueryConfiguration config) : this(
-            new ResultEntryCompletionStrategy(config.Audio.PermittedGap),
-            new ResultEntryCompletionStrategy(config.Video.PermittedGap))
+        public AvResultEntryCompletionStrategy(AVQueryConfiguration config, double stalenessCeiling = double.MaxValue) : this(
+            new ResultEntryCompletionStrategy(config.Audio.PermittedGap, stalenessCeiling),
+            new ResultEntryCompletionStrategy(config.Video.PermittedGap, stalenessCeiling))
         {
             // no-op
         }

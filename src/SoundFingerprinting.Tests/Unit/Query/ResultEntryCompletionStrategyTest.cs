@@ -41,6 +41,33 @@ namespace SoundFingerprinting.Tests.Unit.Query
 			Assert.That(strategy.CanContinueInNextQuery(entry), Is.EqualTo(expected)); 
         }
 
+        [TestCase(39, 28, 120, true)]
+        [TestCase(140, 129, 1710, false)]
+        [TestCase(111, 100, 1710, true)]
+        [TestCase(150, 100, 200, true)]
+        [TestCase(700, 190, 1710, false)]
+        public void ShouldCompleteEntriesStalePastTheBridgeableCeilingInsteadOfWaitingForRemainingTrackLength(double queryLength, double gapAtTheEnd, double trackLength, bool expected)
+        {
+            // with a capped ceiling an entry that stopped extending may bridge a non-matching stretch of at most the
+            // ceiling: an 11s match on a 2-minute track survives a 28s dropout exactly as before, while a sporadic
+            // ~11s brush against a much longer track completes shortly after it stops extending instead of being
+            // held for the track's remaining length
+            var cappedStrategy = new ResultEntryCompletionStrategy(0d, maxStalenessSeconds: 120d);
+            var entry = CreateResultEntry(gapAtTheEnd, queryLength, trackLength);
+            Assert.That(cappedStrategy.CanContinueInNextQuery(entry), Is.EqualTo(expected));
+        }
+
+        [TestCase(140, 129, 1710)]
+        [TestCase(700, 190, 1710)]
+        [TestCase(1500, 1400, 1710)]
+        public void ShouldPreserveHistoricalBehaviorByDefaultRegardlessOfStaleness(double queryLength, double gapAtTheEnd, double trackLength)
+        {
+            // the default ceiling is double.MaxValue so library consumers observe no behavior change across upgrades:
+            // stale entries on long tracks keep waiting for the remaining track length exactly as before
+            var entry = CreateResultEntry(gapAtTheEnd, queryLength, trackLength);
+            Assert.That(strategy.CanContinueInNextQuery(entry), Is.True);
+        }
+
         private static ResultEntry CreateResultEntry(double gapAtTheEnd, double queryLength = 10, double trackLength = 10, float queryMatchStartsAt = 0, float trackMatchStartsAt = 0)
         {
             // query: [0 1 2 3 4 5 6 7 8 9]

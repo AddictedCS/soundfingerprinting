@@ -254,7 +254,7 @@ namespace SoundFingerprinting.Command
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(
                 configuration.ResultEntryFilter, 
                 configuration.OngoingResultEntryFilter,
-                new AvResultEntryCompletionStrategy(configuration.QueryConfiguration),
+                new AvResultEntryCompletionStrategy(configuration.QueryConfiguration, configuration.OngoingEntryStalenessCeiling),
                 new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
                 new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
                 configuration.IncludeQueryHashesInResponse ? new StatefulQueryHashesConcatenator() : new NoOpQueryHashesConcatenator(loggerFactory));
