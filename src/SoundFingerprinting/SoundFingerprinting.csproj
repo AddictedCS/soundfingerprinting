@@ -4,13 +4,18 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.7.0</PackageVersion>
+	<PackageVersion>15.8.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
 	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.8.0
+		- Realtime `MatchedAt` timestamps no longer land late by the chunk-overlap prefix. Realtime aggregation prepends the tail of the previous chunk (~one fingerprint length) for FFT continuity across chunk boundaries and records the prefix in `Hashes.TimeOffset`, but the offset was never applied when deriving the absolute match time — every realtime match spanning aggregated chunks was stamped late by the prefix length (~1.8s with default configurations). Match time is now derived as `RelativeTo + TimeOffset + QueryMatchStartsAt`.
+		- `Hashes.WithRelativeTo` preserves `TimeOffset` (previously reset it to 0, silently destroying the prefix record when realtime chunks were re-stamped with their capture time — the root cause of the above on file-fed realtime pipelines, and of downstream consumers double-counting the overlap on the query axis).
+		- `RelativeTo` is uniformly the caller's content stamp and is never amended internally: `RealtimeAudioSamplesAggregator` no longer back-shifts the aggregated chunk's `RelativeTo` by the prefix length; the prefix is carried exclusively in `TimeOffset` and applied at every calculation deriving absolute time (`EndsAt`, `GetRange`, `MergeWith` alignment, match-time derivation). Consumers reading `RelativeTo` of realtime-aggregated chunks now observe the chunk's own stamp; the fingerprinted window starts at `RelativeTo + TimeOffset`.
+		- Producers cutting overlapping chunks should stamp `Hashes.TimeOffset` with the negative overlap length; a non-zero producer-stamped offset is authoritative.
 		Version 15.7.0
 		- New `RealtimeQueryConfiguration.OngoingEntryStalenessCeiling` (default `double.MaxValue` — no behavior change unless set): caps the longest non-matching stretch, in seconds, an ongoing realtime result entry may bridge while waiting for the matched track to resume. Historically an ongoing entry was held until the query stream advanced past the track's remaining length, so a sporadic few-seconds match against a very long track stayed pending (accumulating query hashes) for the track's remaining duration, delaying downstream consumers that wait on entry completion. With a capped ceiling such entries complete shortly after they stop extending; entries whose coverage keeps growing are unaffected, and entries on tracks shorter than the ceiling are unaffected regardless of the value.
 		Version 15.6.0
