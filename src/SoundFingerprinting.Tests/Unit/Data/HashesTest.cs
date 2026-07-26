@@ -180,7 +180,8 @@ namespace SoundFingerprinting.Tests.Unit.Data
         public void ShouldMergeCorrectlyRealtimeHashes()
         {
             var prev = TestUtilities.GetRandomHashes(200).WithRelativeTo(DateTime.UnixEpoch);
-            var next = TestUtilities.GetRandomHashes(205).WithRelativeTo(DateTime.UnixEpoch.AddSeconds(195)).WithTimeOffset(-5);
+            // caller content starts at 200; the 5s repeated head is carried in TimeOffset, so the window truly starts at 195
+            var next = TestUtilities.GetRandomHashes(205).WithRelativeTo(DateTime.UnixEpoch.AddSeconds(200)).WithTimeOffset(-5);
 
             var merged =  prev.MergeWith(next);
 

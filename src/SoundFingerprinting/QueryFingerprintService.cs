@@ -52,7 +52,7 @@ namespace SoundFingerprinting
         {
             var candidates = queryService.QueryEfficiently(queryHashes, configuration);
             var queryProfile = DecodeQueryProfile(queryHashes, configuration);
-            var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo, queryProfile);
+            var groupedResults = new GroupedQueryResults(queryHashes.DurationInSeconds, queryHashes.RelativeTo, queryProfile, queryHashes.TimeOffset);
             foreach (KeyValuePair<IModelReference, List<MatchedWith>> kv in candidates.GetMatches())
             {
                 foreach (var match in kv.Value)

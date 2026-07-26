@@ -8,7 +8,7 @@
     using SoundFingerprinting.DAO;
     using SoundFingerprinting.LCS;
 
-    internal class GroupedQueryResults(double queryLength, DateTime relativeTo, SpectralProfile? queryProfile)
+    internal class GroupedQueryResults(double queryLength, DateTime relativeTo, SpectralProfile? queryProfile, double timeOffset = 0)
     {
         private readonly SortedDictionary<uint, Candidates> sequenceToCandidates = new ();
         private readonly ConcurrentDictionary<IModelReference, double> scoreSumPerTrack = new ();
@@ -16,6 +16,9 @@
         public double QueryLength { get; } = queryLength;
 
         public DateTime RelativeTo { get; } = relativeTo;
+
+        // negative length of the repeated head prefixed to the query hashes by realtime aggregation; window positions precede RelativeTo by this much
+        public double TimeOffset { get; } = timeOffset;
 
         public SpectralProfile? QueryProfile { get; } = queryProfile;
 

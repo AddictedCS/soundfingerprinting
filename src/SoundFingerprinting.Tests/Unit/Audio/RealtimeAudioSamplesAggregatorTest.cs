@@ -80,7 +80,9 @@ namespace SoundFingerprinting.Tests.Unit.Audio
                         int overshot = 19 * 551; // buffer is 551 samples long
 						Assert.Multiple(() =>
 						{
-							Assert.That(Math.Abs(DateTime.UnixEpoch.Subtract(aggregated.RelativeTo).TotalMilliseconds), Is.EqualTo(0).Within(1));
+							// RelativeTo stays the last chunk's stamp; the buffered prefix is carried in TimeOffset, together they point at the window start
+							Assert.That(Math.Abs(DateTime.UnixEpoch.AddMilliseconds(bufferSizeMilliseconds * i).Subtract(aggregated.RelativeTo).TotalMilliseconds), Is.EqualTo(0).Within(1));
+							Assert.That(Math.Abs(DateTime.UnixEpoch.Subtract(aggregated.RelativeTo.AddSeconds(aggregated.TimeOffset)).TotalMilliseconds), Is.EqualTo(0).Within(1));
 							Assert.That(aggregated.Samples.Length, Is.EqualTo(overshot));
 						});
 					}

@@ -39,7 +39,8 @@ namespace SoundFingerprinting.Audio
             float[] prefixed = new float[tail.Length + chunk.Samples.Length];
             Buffer.BlockCopy(tail, 0, prefixed, 0, sizeof(float) * tail.Length);
             Buffer.BlockCopy(chunk.Samples, 0, prefixed, sizeof(float) *  tail.Length, sizeof(float) * chunk.Samples.Length);
-            var samples = new AudioSamples(prefixed, chunk.Origin, chunk.SampleRate, chunk.RelativeTo.AddSeconds(-(float)tail.Length / chunk.SampleRate), -(double)tail.Length / chunk.SampleRate);
+            // RelativeTo stays the caller's chunk stamp; the prefixed tail is carried in TimeOffset only, applied where absolute time is derived
+            var samples = new AudioSamples(prefixed, chunk.Origin, chunk.SampleRate, chunk.RelativeTo, -(double)tail.Length / chunk.SampleRate);
             tail = prefixed;
             return samples;
         }
