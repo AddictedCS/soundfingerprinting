@@ -1,5 +1,6 @@
 ﻿namespace SoundFingerprinting.Query
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -38,7 +39,12 @@
 
         private static ResultEntry GetResultEntry(TrackData track, GroupedQueryResults groupedQueryResults, Coverage coverage)
         {
-            return new ResultEntry(track, groupedQueryResults.GetScoreSumForTrack(track.TrackReference), groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt), coverage);
+            // QueryMatchStartsAt is a position inside the fingerprinted window, which starts TimeOffset seconds before RelativeTo (repeated-head prefix);
+            // unstamped queries (RelativeTo == MinValue) skip the offset — MatchedAt is meaningless there, and MinValue cannot go below itself
+            var matchedAt = groupedQueryResults.RelativeTo == DateTime.MinValue
+                ? groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt)
+                : groupedQueryResults.RelativeTo.AddSeconds(coverage.QueryMatchStartsAt + groupedQueryResults.TimeOffset);
+            return new ResultEntry(track, groupedQueryResults.GetScoreSumForTrack(track.TrackReference), matchedAt, coverage);
         }
     }
 }

@@ -205,7 +205,8 @@ namespace SoundFingerprinting.Data
                     throw new InvalidOperationException("RelativeTo was not supplied as a parameter to find EndsAt");
                 }
                 
-                return RelativeTo.Add(TimeSpan.FromSeconds(DurationInSeconds));
+                // the fingerprinted window spans [RelativeTo + TimeOffset, RelativeTo + TimeOffset + DurationInSeconds]
+                return RelativeTo.Add(TimeSpan.FromSeconds(TimeOffset + DurationInSeconds));
             }
         }
 
@@ -213,6 +214,9 @@ namespace SoundFingerprinting.Data
         ///  Gets a value indicating whether hashes object is empty.
         /// </summary>
         public bool IsEmpty => !Fingerprints.Any();
+
+        // absolute time of window position 0; unstamped hashes (RelativeTo == MinValue) have no absolute timeline, offset math must not push below MinValue
+        internal DateTime WindowStartsAt => RelativeTo == DateTime.MinValue ? RelativeTo : RelativeTo.AddSeconds(TimeOffset);
         
         /// <summary>
         ///  Gets number of contained fingerprints.
@@ -245,11 +249,16 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Overrides current <see cref="RelativeTo"/> with a new one.
         /// </summary>
-        /// <param name="relativeTo">New relative to property.</param>
+        /// <param name="relativeTo">New relative to property, the timestamp of the content the caller provided.</param>
         /// <returns>New instance of <see cref="Hashes"/> object with newly set <see cref="RelativeTo"/> property.</returns>
+        /// <remarks>
+        ///  <see cref="TimeOffset"/> is preserved: the offset is internal bookkeeping of the prefix attached by realtime aggregation for FFT
+        ///  continuity across chunk boundaries, and is applied only where absolute time is derived from window positions (match time, coverage).
+        ///  <see cref="RelativeTo"/> itself is never amended by the offset — re-stamping must stay idempotent.
+        /// </remarks>
         public Hashes WithRelativeTo(DateTime relativeTo)
         {
-            return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary, 0);
+            return new Hashes(Fingerprints, DurationInSeconds, MediaType, relativeTo, Origins, StreamId, additionalProperties ?? emptyDictionary, TimeOffset);
         }
 
         /// <summary>
@@ -341,8 +350,9 @@ namespace SoundFingerprinting.Data
             
             var filtered = ordered.Where(fingerprint =>
             {
-                var fingerprintStartsAt = RelativeTo.AddSeconds(fingerprint.StartsAt);
-                var fingerprintEndsAt = RelativeTo.AddSeconds(fingerprint.StartsAt + lengthOfOneFingerprint);
+                // fingerprint positions are window coordinates; window position 0 sits at WindowStartsAt
+                var fingerprintStartsAt = WindowStartsAt.AddSeconds(fingerprint.StartsAt);
+                var fingerprintEndsAt = WindowStartsAt.AddSeconds(fingerprint.StartsAt + lengthOfOneFingerprint);
                 return fingerprintStartsAt >= startsAt && fingerprintEndsAt <= endsAt;
             })
             .ToList();
@@ -353,7 +363,7 @@ namespace SoundFingerprinting.Data
         private Hashes NewHashes(IReadOnlyCollection<HashedFingerprint> filtered, double lengthOfOneFingerprint)
         {
             double startsAtInParent = filtered.First().StartsAt;
-            var relativeTo = RelativeTo.AddSeconds(startsAtInParent);
+            var relativeTo = WindowStartsAt.AddSeconds(startsAtInParent);
             var duration = filtered.Last().StartsAt - startsAtInParent + lengthOfOneFingerprint;
             var shifted = ShiftStartsAtAccordingToSelectedRange(filtered);
             var properties = NarrowTimeIndexedProperties(additionalProperties, startsAtInParent, duration);
@@ -530,10 +540,11 @@ namespace SoundFingerprinting.Data
         {
             var first = left.OrderBy(_ => _.SequenceNumber).ToList();
             double leftTail = left.DurationInSeconds - first.Last().StartsAt;
-            var firstStartsAt = left.RelativeTo;
+            // align on true window starts: fingerprint positions are measured from WindowStartsAt
+            var firstStartsAt = left.WindowStartsAt;
             var second = right.OrderBy(_ => _.SequenceNumber).ToList();
             double rightTail = right.DurationInSeconds - second.Last().StartsAt;
-            var secondStartsAt = right.RelativeTo;
+            var secondStartsAt = right.WindowStartsAt;
                 
             var result = new List<HashedFingerprint>();
             int i = 0, j = 0;
@@ -567,7 +578,7 @@ namespace SoundFingerprinting.Data
                 }
             }
             
-            var relativeTo = left.RelativeTo < right.RelativeTo ? left.RelativeTo : right.RelativeTo;
+            var relativeTo = firstStartsAt < secondStartsAt ? firstStartsAt : secondStartsAt;
             var fullLength = result.Last().StartsAt + tailLength;
 
             var additionalProperties = new Dictionary<string, string>();

@@ -508,6 +508,124 @@ namespace SoundFingerprinting.Tests.Unit.Query
 		}
 
         [Test]
+        public async Task StreamingFilesShouldAnchorHashesAtContentStartAccountingForOverlapPrefix()
+        {
+            var modelService = new InMemoryModelService();
+
+            int count = 10, trackStartsAtChunk = 5;
+            var start = DateTime.UtcNow;
+            var data = GenerateRandomAudioChunks(count, seed: 1, start);
+            // the track covers only the tail chunks, so the match begins inside a chunk whose hashes carry the previous chunk's tail as a prefix
+            var trackContent = Concatenate(data.Skip(trackStartsAtChunk).ToList());
+            var trackHashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(trackContent)
+                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), trackHashes);
+
+            var audioService = new Mock<IAudioService>(MockBehavior.Strict);
+            var files = new List<StreamingFile>();
+            for (int index = 0; index < data.Count; ++index)
+            {
+                string path = $"chunk_{index}.wav";
+                var chunk = data[index];
+                audioService.Setup(service => service.ReadMonoSamplesFromFile(path, SampleRate)).Returns(chunk);
+                files.Add(new StreamingFile(path, chunk.RelativeTo, "tbs", MediaType.Audio));
+            }
+
+            var captured = new List<AVHashes>();
+            var entries = new List<AVResultEntry>();
+            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                .From(GetStreamingFilesSource(files))
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.QueryConfiguration.Audio.Stride = new IncrementalStaticStride(512);
+                    config.ResultEntryFilter = new TrackRelativeCoverageEntryFilter(0.8d, waitTillCompletion: true);
+                    config.SuccessCallback = entry => entries.AddRange(entry.ResultEntries);
+                    return config;
+                })
+                .InterceptHashes(avHashes =>
+                {
+                    captured.Add(avHashes);
+                    return avHashes;
+                })
+                .UsingServices(modelService, audioService.Object)
+                .Query(CancellationToken.None);
+
+            Assert.That(captured, Has.Count.EqualTo(count));
+            Assert.Multiple(() =>
+            {
+                // first chunk has no prefix, hence no offset
+                Assert.That(captured[0].Audio!.TimeOffset, Is.EqualTo(0));
+                Assert.That(captured[0].Audio!.RelativeTo, Is.EqualTo(files[0].RelativeTo));
+            });
+            for (int index = 1; index < captured.Count; ++index)
+            {
+                var audio = captured[index].Audio!;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(audio.TimeOffset, Is.LessThan(0), $"chunk {index} should carry a prefix from the previous chunk");
+                    Assert.That(audio.RelativeTo, Is.EqualTo(files[index].RelativeTo), $"chunk {index} RelativeTo must stay the caller's stamp, prefix is carried in TimeOffset only");
+                });
+            }
+
+            Assert.That(entries, Has.Count.EqualTo(1));
+            var (realtimeResult, _) = entries.First();
+            // without the TimeOffset applied in the match-time calculation MatchedAt lands ~1.8s (one fingerprint length) late
+            Assert.That(realtimeResult!.MatchedAt, Is.EqualTo(files[trackStartsAtChunk].RelativeTo).Within(TimeSpan.FromSeconds(1)));
+        }
+
+        [Test]
+        public async Task UnstampedRealtimeChunksShouldNotThrowOnPrefixedWindowPositions()
+        {
+            var modelService = new InMemoryModelService();
+
+            int count = 10;
+            var data = GenerateRandomAudioChunks(count, seed: 1, DateTime.UtcNow);
+            var concatenated = Concatenate(data);
+            var hashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(concatenated)
+                .Hash();
+
+            modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
+
+            // callers that do not care about absolute time may leave chunks unstamped; matches continuing into a prefixed
+            // window land at positions smaller than the prefix, and MatchedAt math must not push below DateTime.MinValue
+            var unstamped = data.Select(chunk => new AudioSamples(chunk.Samples, chunk.Origin, chunk.SampleRate, DateTime.MinValue)).ToList();
+            var entries = new List<AVResultEntry>();
+            int errors = 0;
+            await QueryCommandBuilder.Instance.BuildRealtimeQueryCommand()
+                .From(SimulateRealtimeAudioQueryData(unstamped, jitterLength: 0))
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.QueryConfiguration.Audio.Stride = new IncrementalStaticStride(512);
+                    config.ResultEntryFilter = new TrackRelativeCoverageEntryFilter(0.8d, waitTillCompletion: true);
+                    config.SuccessCallback = entry => entries.AddRange(entry.ResultEntries);
+                    config.ErrorCallback = (_, _) => Interlocked.Increment(ref errors);
+                    return config;
+                })
+                .UsingServices(modelService)
+                .Query(CancellationToken.None);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(errors, Is.EqualTo(0), "unstamped chunks must not error out of the query pipeline");
+                Assert.That(entries, Has.Count.EqualTo(1));
+            });
+        }
+
+        private static async IAsyncEnumerable<StreamingFile> GetStreamingFilesSource(IEnumerable<StreamingFile> files)
+        {
+            foreach (var file in files)
+            {
+                await Task.Delay(TimeSpan.Zero);
+                yield return file;
+            }
+        }
+
+        [Test]
         public async Task ShouldPurgeCompletedMatchWhenAsyncCollectionIsExhausted()
         {
             var modelService = new InMemoryModelService();
