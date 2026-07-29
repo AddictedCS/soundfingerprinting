@@ -2,11 +2,12 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.8.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
-	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
+	<Company>Sergiu Ciumac</Company>
+	<Product>SoundFingerprinting</Product>
+	<Copyright>Copyright © Sergiu Ciumac 2026</Copyright>
+	<Description>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</Description>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>

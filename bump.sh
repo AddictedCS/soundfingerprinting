@@ -9,6 +9,7 @@
 set -euo pipefail
 
 CSPROJ="$(dirname "$0")/src/SoundFingerprinting/SoundFingerprinting.csproj"
+PROPS="$(dirname "$0")/src/Directory.Build.props"
 COMMIT=1
 DRY_RUN=0
 
@@ -35,9 +36,9 @@ if [ ${#NOTES[@]} -eq 0 ]; then
     exit 1
 fi
 
-CURRENT=$(sed -n 's/.*<PackageVersion>\(.*\)<\/PackageVersion>.*/\1/p' "$CSPROJ")
+CURRENT=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' "$PROPS")
 if [ -z "$CURRENT" ]; then
-    echo "error: could not read <PackageVersion> from $CSPROJ" >&2
+    echo "error: could not read <Version> from $PROPS" >&2
     exit 1
 fi
 
@@ -86,16 +87,20 @@ for note in "${NOTES[@]}"; do
 done
 
 TMP=$(mktemp)
-ENTRY="$ENTRY" NEXT="$NEXT" awk '
-    { gsub(/<PackageVersion>[^<]*<\/PackageVersion>/, "<PackageVersion>" ENVIRON["NEXT"] "</PackageVersion>"); print }
+sed "s|<Version>[^<]*</Version>|<Version>$NEXT</Version>|" "$PROPS" > "$TMP"
+mv "$TMP" "$PROPS"
+
+TMP=$(mktemp)
+ENTRY="$ENTRY" awk '
+    { print }
     /<PackageReleaseNotes>/ { print ENVIRON["ENTRY"] }
 ' "$CSPROJ" > "$TMP"
 mv "$TMP" "$CSPROJ"
 
 if [ $COMMIT -eq 1 ]; then
-    git -C "$(dirname "$0")" add "src/SoundFingerprinting/SoundFingerprinting.csproj"
-    git -C "$(dirname "$0")" commit -m "Version bump to v$NEXT" -- "src/SoundFingerprinting/SoundFingerprinting.csproj"
+    git -C "$(dirname "$0")" add "src/Directory.Build.props" "src/SoundFingerprinting/SoundFingerprinting.csproj"
+    git -C "$(dirname "$0")" commit -m "Version bump to v$NEXT" -- "src/Directory.Build.props" "src/SoundFingerprinting/SoundFingerprinting.csproj"
     echo "Committed 'Version bump to v$NEXT'"
 else
-    echo "Updated $CSPROJ (not committed)"
+    echo "Updated $PROPS and $CSPROJ (not committed)"
 fi
