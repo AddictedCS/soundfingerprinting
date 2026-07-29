@@ -2,6 +2,6 @@
   <!-- Single source of truth for the release version: PackageVersion, AssemblyVersion, FileVersion and
        InformationalVersion all derive from it. Bump with ./bump.sh, do not edit by hand. -->
   <PropertyGroup>
-    <Version>15.8.0</Version>
+    <Version>15.9.0</Version>
   </PropertyGroup>
 </Project>
