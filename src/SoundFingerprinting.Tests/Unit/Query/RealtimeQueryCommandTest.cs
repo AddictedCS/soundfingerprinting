@@ -664,6 +664,30 @@ namespace SoundFingerprinting.Tests.Unit.Query
 		}
 
         [Test]
+        public async Task ShouldStopQueryingWhenCancelledWhileAwaitingRealtimeSource()
+        {
+            var modelService = new InMemoryModelService();
+            // a source that never yields and never completes: the query can only stop if the cancellation token reaches the source enumerator
+            var collection = new BlockingCollection<AudioSamples>();
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+
+            var query = QueryCommandBuilder.Instance
+                .BuildRealtimeQueryCommand()
+                .From(new BlockingRealtimeCollection<AudioSamples>(collection))
+                .WithRealtimeQueryConfig(config =>
+                {
+                    config.ErrorCallback = (e, _) => logger.LogError(e, "Error");
+                    return config;
+                })
+                .UsingServices(modelService)
+                .Query(cancellationTokenSource.Token);
+
+            var completed = await Task.WhenAny(query, Task.Delay(TimeSpan.FromSeconds(10)));
+
+            Assert.That(completed, Is.SameAs(query), "cancellation token was not propagated to the realtime source, query did not stop");
+        }
+
+        [Test]
         public async Task ShouldContinueQueryingEvenWhenAnErrorOccurs()
         {
             const int length = 60;

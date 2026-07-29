@@ -10,6 +10,11 @@ namespace SoundFingerprinting.Command
     /// <summary>
     ///  Contract for realtime source builder.
     /// </summary>
+    /// <remarks>
+    ///  After a non-cancellation error the realtime query command re-enumerates the provided source and continues querying.
+    ///  Sources passed to any of the <c>From</c> overloads have to be hot (i.e., emitting live data, resuming from where they left off when re-enumerated).
+    ///  A cold async enumerable that replays its elements from the beginning will produce duplicate queries after an error occurs.
+    /// </remarks>
     public interface IRealtimeSource
     {
         /// <summary>

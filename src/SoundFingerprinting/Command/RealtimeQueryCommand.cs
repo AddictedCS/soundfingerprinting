@@ -40,6 +40,7 @@ namespace SoundFingerprinting.Command
         private Func<AVQueryResult, AVQueryResult> queryResultInterceptor = _ => _;
         private bool errored = false;
         private double queryLength = 0;
+        private RealtimeAudioSamplesAggregator? realtimeSamplesAggregator;
 
         internal RealtimeQueryCommand(IFingerprintCommandBuilder fingerprintCommandBuilder, IQueryCommandBuilder queryCommandBuilder, ILoggerFactory loggerFactory)
         {
@@ -66,7 +67,7 @@ namespace SoundFingerprinting.Command
                 }
                 
                 var avTrackReadConfiguration = configuration.QueryConfiguration.FingerprintConfiguration.GetTrackReadConfiguration();
-                return ConvertToAvHashes(realtimeMediaService.ReadAVTrackFromRealtimeSource(url, chunkLength, avTrackReadConfiguration, mediaType, cancellationToken));
+                return ConvertToAvHashes(realtimeMediaService.ReadAVTrackFromRealtimeSource(url, chunkLength, avTrackReadConfiguration, mediaType, cancellationToken), cancellationToken);
             };
             return this;
         }
@@ -74,14 +75,14 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AudioSamples})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AudioSamples> source)
         {
-            realtimeCollection = _ => ConvertToAvHashes(ConvertToAvTrack(source));
+            realtimeCollection = cancellationToken => ConvertToAvHashes(ConvertToAvTrack(source, cancellationToken), cancellationToken);
             return this;
         }
 
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{string},MediaType)"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<string> files, MediaType mediaType = MediaType.Audio)
         {
-            realtimeCollection = cancellationToken => ConvertToAvHashes(ReadHashesAsync(files, cancellationToken, mediaType));
+            realtimeCollection = cancellationToken => ConvertToAvHashes(ReadHashesAsync(files, cancellationToken, mediaType), cancellationToken);
             return this;
         }
 
@@ -95,7 +96,7 @@ namespace SoundFingerprinting.Command
         /// <inheritdoc cref="IRealtimeSource.From(IAsyncEnumerable{AVTrack})"/>
         public IWithRealtimeQueryConfiguration From(IAsyncEnumerable<AVTrack> tracks)
         {
-            realtimeCollection = _ => ConvertToAvHashes(tracks);
+            realtimeCollection = cancellationToken => ConvertToAvHashes(tracks, cancellationToken);
             return this;
         }
 
@@ -202,9 +203,9 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private static async IAsyncEnumerable<AVTrack> ConvertToAvTrack(IAsyncEnumerable<AudioSamples> source)
+        private static async IAsyncEnumerable<AVTrack> ConvertToAvTrack(IAsyncEnumerable<AudioSamples> source, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            await foreach (var samples in source)
+            await foreach (var samples in source.WithCancellation(cancellationToken))
             {
                 yield return new AVTrack(new AudioTrack(samples), null);
             }
@@ -212,7 +213,7 @@ namespace SoundFingerprinting.Command
 
         private async IAsyncEnumerable<AVHashes> ReadHashesAsync(IAsyncEnumerable<StreamingFile> files, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var realtimeSamplesAggregator = CreateRealtimeAudioSamplesAggregator();
+            var realtimeSamplesAggregator = this.realtimeSamplesAggregator ??= CreateRealtimeAudioSamplesAggregator();
             await foreach (var file in files.WithCancellation(cancellationToken))
             {
                 logger.LogDebug("Consuming streaming file {File}", file);
@@ -227,10 +228,12 @@ namespace SoundFingerprinting.Command
             }
         }
 
-        private async IAsyncEnumerable<AVHashes> ConvertToAvHashes(IAsyncEnumerable<AVTrack> source)
+        private async IAsyncEnumerable<AVHashes> ConvertToAvHashes(IAsyncEnumerable<AVTrack> source, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var realtimeSamplesAggregator = CreateRealtimeAudioSamplesAggregator();
-            await foreach (var track in source)
+            // the samples aggregator is shared across enumerations of the same query run, so that the buffered
+            // tail is not lost when the realtime source is re-enumerated after a transient error
+            var realtimeSamplesAggregator = this.realtimeSamplesAggregator ??= CreateRealtimeAudioSamplesAggregator();
+            await foreach (var track in source.WithCancellation(cancellationToken))
             {
                 var hashes = await GetAvHashes(track, realtimeSamplesAggregator);
                 if (hashes == null)
@@ -251,6 +254,7 @@ namespace SoundFingerprinting.Command
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
         private async Task<double> QueryRealtimeSource(CancellationToken cancellationToken)
         {
+            realtimeSamplesAggregator = CreateRealtimeAudioSamplesAggregator();
             var resultsAggregator = new StatefulRealtimeResultEntryAggregator(
                 configuration.ResultEntryFilter, 
                 configuration.OngoingResultEntryFilter,
@@ -306,7 +310,16 @@ namespace SoundFingerprinting.Command
                         throw;
                     }
 
-                    await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
+                    try
+                    {
+                        await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
+                    }
+                    catch (Exception delayException) when (delayException is OperationCanceledException or ObjectDisposedException)
+                    {
+                        // cancellation during the backoff delay has to deliver pending aggregated entries, same as cancellation at any other point
+                        PurgeResultEntryAggregator(resultsAggregator);
+                        throw;
+                    }
                 }
             }
         }
@@ -347,9 +360,12 @@ namespace SoundFingerprinting.Command
         private void HandleQueryFailure(AVHashes? hashes, Exception e)
         {
             errored = true;
-            configuration.ErrorCallback(e, hashes);
+
+            // backoff accounting and offline persistence must complete before the user callback runs:
+            // the default ErrorCallback rethrows, and hashes would otherwise be lost
             configuration.ErrorBackoffPolicy.Failure();
             configuration.OfflineStorage.Add(hashes);
+            configuration.ErrorCallback(e, hashes);
         }
 
         /// <summary>
@@ -382,25 +398,23 @@ namespace SoundFingerprinting.Command
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
         private async Task<bool> TryQuery(AVHashes hashes, IRealtimeResultEntryAggregator realtimeAggregator, CancellationToken cancellationToken)
         {
+            AVQueryResult avQueryResult;
             try
             {
                 var (audioMilliseconds, videoMilliseconds) = hashes.FingerprintingTime;
-                var avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
+                avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
                 if (errored)
                 {
                     logger.LogDebug("Query restored from previous error");
                     errored = false;
-                    configuration.RestoredAfterErrorCallback();
                     configuration.ErrorBackoffPolicy.Success();
+                    configuration.RestoredAfterErrorCallback();
                 }
 
                 await foreach (var offlineResult in QueryFromOfflineStorage(cancellationToken))
                 {
                     ConsumeQueryResult(offlineResult, realtimeAggregator);
                 }
-                
-                ConsumeQueryResult(avQueryResult, realtimeAggregator);
-                return true;
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
             {
@@ -408,10 +422,18 @@ namespace SoundFingerprinting.Command
             }
             catch (Exception e)
             {
-                // here we catch exceptions that are related to server not reachable
+                // here we catch exceptions that are related to server not reachable; the current chunk was
+                // not consumed yet at any point inside the try block, so rerouting it to the offline storage
+                // is always safe (it will be queried and consumed exactly once, later)
                 HandleQueryFailure(hashes, e);
                 return false;
             }
+
+            // consuming the current chunk stays outside the try block: an exception thrown by a user callback
+            // must not reroute already consumed hashes to the offline storage, as re-querying them later would
+            // emit the same results a second time and double-count the query length
+            ConsumeQueryResult(avQueryResult, realtimeAggregator);
+            return true;
         }
         
         private RealtimeAudioSamplesAggregator CreateRealtimeAudioSamplesAggregator()
