@@ -11,6 +11,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Read Package Version
+      id: define_variables
+      run: |
+        VERSION=$(sed -n 's/.*<PackageVersion>\(.*\)<\/PackageVersion>.*/\1/p' src/SoundFingerprinting/SoundFingerprinting.csproj)
+        echo "sf_core_version=$VERSION" >> "$GITHUB_OUTPUT"
+    - name: Ensure Version Was Bumped
+      run: |
+        if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.define_variables.outputs.sf_core_version }}" > /dev/null; then
+          echo "::error::v${{ steps.define_variables.outputs.sf_core_version }} is already released. Run ./bump.sh on develop before merging to master."
+          exit 1
+        fi
     - name: Run Tests
       run: dotnet test src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -v n -tl:off
     - name: Slack Failure Notification
@@ -18,14 +29,9 @@ jobs:
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_COLOR: '#3278BD'
-        SLACK_MESSAGE: 'SoundFingerprinting Core library build failed on master branch'
+        SLACK_MESSAGE: 'SoundFingerprinting Core library release failed on master branch (missing version bump or failing tests, check logs)'
         SLACK_USERNAME: rtCamp
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-    - name: Define Variables
-      run: |
-        cat src/SoundFingerprinting/SoundFingerprinting.csproj | grep PackageVersion | awk -F">" '{print $2}' | awk -F"<" '{print $1}' > SF_CORE_VERSION
-        echo "##[set-output name=sf_core_version;]$(cat SF_CORE_VERSION)"
-      id: define_variables
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
