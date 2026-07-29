@@ -15,6 +15,18 @@ namespace SoundFingerprinting.Tests.Unit.LCS
         private readonly float fingerprintLengthInSeconds = (float)new DefaultFingerprintConfiguration().FingerprintLengthInSeconds;
 
         [Test]
+        public void ConfidenceShouldNotExceedOneWhenMatchedPathOverhangsTrackLength()
+        {
+            // last fingerprint starts at second 10 of a 10 second track, so the matched path extends one
+            // fingerprint length past the declared track end, shrinking the confidence denominator below the numerator
+            var matches = TestUtilities.GetMatchedWith([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+            var coverage = matches.GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength: 10, trackLength: 10, fingerprintLength: 1d, permittedGap: 0d).First();
+
+            Assert.That(coverage.Confidence, Is.LessThanOrEqualTo(1d));
+        }
+
+        [Test]
         public void ShouldIdentifyLongestMatch()
         {
             const double queryLength = 9d;
