@@ -377,6 +377,81 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.That(bestPathLength, Is.GreaterThan((int)result.Audio.Score), "best path is wider than score because it includes synthetics");
         }
 
+        /**
+         * Duplicate-merge scenario: two 15s lanes captured from different content are folded into one
+         * track via MergeWith on the same time axis. Each lane matches the merged track separately,
+         * but the lanes do not match each other. The interleave must keep duration at ~15s (density
+         * increases, the track does not get longer) and renumber sequence numbers monotonically so
+         * that best-path retains sequence/time co-monotonicity — both lane queries must recover
+         * full coverage from the merged track.
+         */
+        [Test]
+        public async Task ShouldReturnFullCoverageForBothLanesAfterMergingNonMatchingHashes()
+        {
+            var laneA = (await HashAudio(TestUtilities.GenerateRandomAudioSamples(15 * 5512))).WithRelativeTo(DateTime.MinValue);
+            var laneB = (await HashAudio(TestUtilities.GenerateRandomAudioSamples(15 * 5512))).WithRelativeTo(DateTime.MinValue);
+
+            // precondition: the two lanes must not match each other, otherwise the scenario is vacuous
+            var laneAOnly = new InMemoryModelService();
+            laneAOnly.Insert(new TrackInfo("lane-a", "lane-a", "test"), new AVHashes(laneA, null));
+            var crossLane = await QueryLane(laneB, laneAOnly);
+            Assert.That(crossLane.ResultEntries, Is.Empty);
+
+            var merged = laneA.MergeWith(laneB);
+
+            Assert.That(merged.Count, Is.EqualTo(laneA.Count + laneB.Count), "every fingerprint from both lanes must survive the merge");
+            Assert.That(merged.DurationInSeconds, Is.EqualTo(laneA.DurationInSeconds).Within(0.1), "equal RelativeTo lanes interleave in place, the track must not get longer");
+            var mergedList = merged.ToList();
+            for (int i = 0; i < mergedList.Count; ++i)
+            {
+                Assert.That(mergedList[i].SequenceNumber, Is.EqualTo((uint)i), "sequence numbers must be renumbered monotonically across lanes");
+                if (i > 0)
+                {
+                    Assert.That(mergedList[i].StartsAt, Is.GreaterThanOrEqualTo(mergedList[i - 1].StartsAt), "sequence numbers must stay co-monotonic with time");
+                }
+            }
+
+            var modelService = new InMemoryModelService();
+            modelService.Insert(new TrackInfo("merged", "merged", "test"), new AVHashes(merged, null));
+
+            foreach (var lane in new[] { laneA, laneB })
+            {
+                // baseline: the same lane queried against a track built from that lane alone
+                var solo = new InMemoryModelService();
+                solo.Insert(new TrackInfo("solo", "solo", "test"), new AVHashes(lane, null));
+                double soloCoverage = (await QueryLane(lane, solo)).ResultEntries.Single().Audio!.Coverage.TrackRelativeCoverage;
+
+                var result = await QueryLane(lane, modelService);
+                var entry = result.ResultEntries.Single().Audio;
+                Assert.That(entry, Is.Not.Null);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(entry!.Coverage.TrackRelativeCoverage, Is.EqualTo(soloCoverage).Within(0.01), "merging must not degrade lane coverage vs the solo track");
+                    Assert.That(entry.Coverage.TrackRelativeCoverage, Is.GreaterThan(0.95), "lane must cover the merged track fully");
+                    Assert.That(entry.Coverage.QueryRelativeCoverage, Is.GreaterThan(0.95), "merged track must cover the lane query fully");
+                });
+            }
+        }
+
+        private static async Task<AVQueryResult> QueryLane(Hashes lane, IModelService modelService)
+        {
+            return await QueryCommandBuilder.Instance
+                .BuildQueryCommand()
+                .From(new AVHashes(lane, null))
+                .UsingServices(modelService)
+                .Query();
+        }
+
+        private static async Task<Hashes> HashAudio(AudioSamples samples)
+        {
+            var avHashes = await FingerprintCommandBuilder.Instance
+                .BuildFingerprintCommand()
+                .From(samples)
+                .UsingServices(new SoundFingerprintingAudioService())
+                .Hash();
+            return avHashes.Audio!;
+        }
+
         private static float[] GetRandomSamplesWithRegions(float[] m1, float[] m2)
         {
             float[] c1 = AddJitter(m1, beforeSec: 5, betweenSec: 0, afterSec: 5);
