@@ -30,8 +30,15 @@
             var trackHead = trackMatchStartsAt;
             var trackTail = trackLength - (trackHead + trackDiscreteCoverageLength);
 
+            // tails can go negative when the matched path extends past the declared query/track length,
+            // shrinking the denominator below the numerator, hence the confidence has to be capped at 1
             var maxPossibleCoverageLength = Min(queryHead, trackHead) + trackDiscreteCoverageLength + Min(queryTail, trackTail);
-            return trackCoverageWithPermittedGapsLength / maxPossibleCoverageLength;
+            if (maxPossibleCoverageLength <= 0)
+            {
+                return 0;
+            }
+
+            return Min(trackCoverageWithPermittedGapsLength / maxPossibleCoverageLength, 1d);
         }
     }
 }

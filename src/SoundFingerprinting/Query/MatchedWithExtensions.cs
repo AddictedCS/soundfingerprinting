@@ -447,7 +447,8 @@ namespace SoundFingerprinting.Query
                 float startsAt = matches[i - 1].Item2;
                 float endsAt = matches[i].Item2;
                 float gap = (float)SubFingerprintsToSeconds.GapLengthToSeconds(endsAt, startsAt, fingerprintLength);
-                bool sequenceNumberIncremented = matches[i].Item1 - matches[i - 1].Item1 > 1;
+                // entries are ordered by time, not by sequence number, so the delta can be negative; unsigned subtraction would wrap
+                bool sequenceNumberIncremented = (long)matches[i].Item1 - matches[i - 1].Item1 > 1;
                 float start = endsAt - gap;
                 if (!(endsAt <= start) && gap > permittedGap && sequenceNumberIncremented)
                 {

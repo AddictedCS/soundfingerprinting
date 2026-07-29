@@ -14,6 +14,9 @@ namespace SoundFingerprinting.LCS
     [ProtoContract(SkipConstructor = true)]
     public class Coverage
     {
+        private List<Gap>? queryGaps;
+        private List<Gap>? trackGaps;
+
         /// <summary>
         ///  Initializes a new instance of the <see cref="Coverage"/> class with a bridged-seconds count.
         /// </summary>
@@ -159,12 +162,12 @@ namespace SoundFingerprinting.LCS
         /// <summary>
         ///  Gets query match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> QueryGaps => BestPath.FindQueryGaps(QueryLength, PermittedGap, FingerprintLength);
+        public IEnumerable<Gap> QueryGaps => queryGaps ??= BestPath.FindQueryGaps(QueryLength, PermittedGap, FingerprintLength).ToList();
 
         /// <summary>
         ///  Gets track match gaps from the best path
         /// </summary>
-        public IEnumerable<Gap> TrackGaps => BestPath.FindTrackGaps(TrackLength, PermittedGap, FingerprintLength);
+        public IEnumerable<Gap> TrackGaps => trackGaps ??= BestPath.FindTrackGaps(TrackLength, PermittedGap, FingerprintLength).ToList();
 
         /// <summary>
         ///  Checks if this coverage contains other coverage.

@@ -72,11 +72,20 @@ namespace SoundFingerprinting.Query
             var leftLastMatch = left.Coverage.BestPath.Last();
             float gapSize = GetGapSize(leftLastMatch, left.QueryLength, fingerprintLength);
 
+            // gapSize + queryOffset is negative for overlapped queries, and a negative double to uint cast is
+            // unspecified on .NET Framework (saturates to 0 on .NET Core), so the shift must stay in signed arithmetic
+            long sequenceShift = leftLastMatch.QuerySequenceNumber + 1 + (long)((gapSize + queryOffset) / fingerprintLength);
+            uint firstRightSequenceNumber = right.Coverage.BestPath.First().QuerySequenceNumber;
+            if (sequenceShift + firstRightSequenceNumber < 0)
+            {
+                sequenceShift = -(long)firstRightSequenceNumber;
+            }
+
             var nextBestPath = right
                 .Coverage
                 .BestPath
                 .Select(_ => new MatchedWith(
-                    querySequenceNumber: _.QuerySequenceNumber + leftLastMatch.QuerySequenceNumber + 1 + (uint)((gapSize + queryOffset) / fingerprintLength),
+                    querySequenceNumber: (uint)(_.QuerySequenceNumber + sequenceShift),
                     queryMatchAt: _.QueryMatchAt + leftLastMatch.QueryMatchAt + fingerprintLength + gapSize + (float)queryOffset,
                     trackSequenceNumber: _.TrackSequenceNumber,
                     trackMatchAt: _.TrackMatchAt,
