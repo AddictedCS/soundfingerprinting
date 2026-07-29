@@ -20,6 +20,17 @@
         }
 
         [Test]
+        public void ShouldNotGenerateIndexesBeyondLastSpectrumBinForNearNyquistFrequencyRange()
+        {
+            const int sampleRate = 5512;
+            var config = new DefaultSpectrogramConfig { UseDynamicLogBase = false, FrequencyRange = new FrequencyRange(318, sampleRate / 2) };
+
+            ushort[] indexes = logUtility.GenerateLogFrequenciesRanges(sampleRate, config);
+
+            Assert.That(indexes, Is.All.LessThanOrEqualTo(config.WdftSize / 2), "an index past WdftSize / 2 makes ExtractLogBins read beyond the spectrum buffer");
+        }
+
+        [Test]
         public void GenerateLogFrequenciesRangesTest()
         {
             var defaultConfig = new DefaultSpectrogramConfig { UseDynamicLogBase = false, LogBase = 10 };
