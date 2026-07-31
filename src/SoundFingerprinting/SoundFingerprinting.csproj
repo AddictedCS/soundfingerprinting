@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.9.1
+		- Guard Origins and StreamId against protobuf null on deserialization
 		Version 15.9.0
 		- Realtime result entry concatenation applies negative query offsets (chunk overlap) to `QuerySequenceNumber` in signed arithmetic. Previously the offset went through a negative double to uint cast (saturates to 0 on .NET Core, unspecified on .NET Framework), leaving stitched sequence numbers ahead of their match times by the overlap length.
 		- `Coverage.Confidence` is capped at 1. A matched path overhanging the declared query/track length (e.g. the last fingerprint of a full-length match extending past the stored track duration) shrank the denominator below the numerator, yielding confidence above 1.
