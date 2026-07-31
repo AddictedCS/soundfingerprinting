@@ -269,6 +269,24 @@ namespace SoundFingerprinting.Tests.Unit.Data
             return stream.ToArray();
         }
 
+        [Test]
+        public void ShouldMergeHashesThatWereRoundTrippedOverTheWire()
+        {
+            // protobuf does not encode empty collections and SkipConstructor bypasses initialization, so origins
+            // and streamId used to come back null - and Merge dereferenced both (the Tagging merge-page crash:
+            // ArgumentNullException 'first' from Origins.Concat)
+            var left = Deserialize(Serialize(new Hashes(GetHashedFingerprints(10), 16, MediaType.Audio, DateTime.UtcNow, Enumerable.Empty<string>())));
+            var right = Deserialize(Serialize(new Hashes(GetHashedFingerprints(10), 16, MediaType.Audio, DateTime.UtcNow, Enumerable.Empty<string>())));
+
+            Assert.That(left.Origins, Is.Not.Null);
+            Assert.That(left.StreamId, Is.EqualTo(string.Empty));
+
+            var merged = left.WithRelativeTo(DateTime.MinValue).MergeWith(right.WithRelativeTo(DateTime.MinValue));
+
+            Assert.That(merged.IsEmpty, Is.False);
+            Assert.That(merged.Origins, Is.Empty);
+        }
+
         private static List<HashedFingerprint> GetHashedFingerprints(int count = 100)
         {
             var random = new Random();
