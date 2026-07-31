@@ -238,13 +238,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
             // q with jitter             ^^^----^^^         10 sec + 35 seconds + 10 sec = 55 sec
             // match starts at              |               105 second
             const double jitterLength = 10;
-            var collection = SimulateRealtimeAudioQueryData(realtimeQuery, jitterLength);
+            var collection = SimulateRealtimeAudioQueryData(realtimeQuery, jitterLength, seed: 3333);
             double processed = await QueryCommandBuilder.Instance
                                             .BuildRealtimeQueryCommand()
                                             .From(collection)
                                             .WithRealtimeQueryConfig(config =>
                                             {
-                                                config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512);
+                                                config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512, seed: 123);
                                                 config.QueryConfiguration.Audio.PermittedGap = 2;
                                                 config.ResultEntryFilter = new TrackCoverageLengthEntryFilter(queryMatchLength, waitTillCompletion: false);
                                                 config.OngoingResultEntryFilter = new ChainedRealtimeEntryFilter([
@@ -337,7 +337,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             modelService.Insert(new TrackInfo("312", "Bohemian Rhapsody", "Queen"), hashes);
 
             var resultEntries = new List<AVResultEntry>();
-            var collection = SimulateRealtimeAudioQueryData(data, jitterLength);
+            var collection = SimulateRealtimeAudioQueryData(data, jitterLength, seed: 4444);
             var offlineStorage = new OfflineStorage(Path.GetTempPath());
             var restoreCalled = new bool[1];
             var loggerFactory = new NullLoggerFactory();
@@ -346,6 +346,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                  .From(collection)
                  .WithRealtimeQueryConfig(config =>
                  {
+                     config.QueryConfiguration.Audio.Stride = new IncrementalRandomStride(256, 512, seed: 123);
                      config.SuccessCallback = entry => resultEntries.AddRange(entry.ResultEntries);
                      config.DidNotPassFilterCallback = _ => Interlocked.Increment(ref didNotPassThreshold);
                      config.ErrorCallback = (_, _) => Interlocked.Increment(ref errored);
@@ -1030,7 +1031,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         {
             return Enumerable
                 .Range(0, count)
-                .Select(index => GetMinSizeOfAudioSamples(seed * index, relativeTo.AddSeconds(index * minSizeChunkDuration)))
+                .Select(index => GetMinSizeOfAudioSamples(seed * (index + 1), relativeTo.AddSeconds(index * minSizeChunkDuration)))
                 .ToList();
         }
 
@@ -1041,7 +1042,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .Range(0, count)
                 .Select(index =>
                 {
-                    var frames = Enumerable.Range(0, (int)(minSizeChunkDuration * frameRate)).Select(chunkIndex => new Frame(TestUtilities.GenerateRandomFloatArray(128 * 72, index * seed).Select(_ => _ / 32767).ToArray(), 128, 72, ((float)chunkIndex) / 30, (uint)chunkIndex)).ToList();
+                    var frames = Enumerable.Range(0, (int)(minSizeChunkDuration * frameRate)).Select(chunkIndex => new Frame(TestUtilities.GenerateRandomFloatArray(128 * 72, (index + 1) * seed).Select(_ => _ / 32767).ToArray(), 128, 72, ((float)chunkIndex) / 30, (uint)chunkIndex)).ToList();
                     return new Frames(frames, string.Empty, frameRate: frameRate, relativeTo.AddSeconds((float)(index * frames.Count) / frameRate));
                 }).ToList();
         }
