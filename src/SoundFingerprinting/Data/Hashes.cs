@@ -24,7 +24,15 @@ namespace SoundFingerprinting.Data
 
         [ProtoMember(7)]
         private readonly Dictionary<string, string>? additionalProperties;
-        
+
+        // protobuf does not encode empty collections and SkipConstructor bypasses initialization, so these two
+        // deserialize as null on read-back; the guarded getters below keep Merge/WithRelativeTo/MergeWith safe
+        [ProtoMember(3)]
+        private readonly string? streamId;
+
+        [ProtoMember(5)]
+        private readonly IEnumerable<string>? origins;
+
         [ProtoIgnore]
         private List<HashedFingerprint> Fingerprints => fingerprints ?? Enumerable.Empty<HashedFingerprint>().ToList();
 
@@ -135,8 +143,8 @@ namespace SoundFingerprinting.Data
             
             DurationInSeconds = durationInSeconds;
             RelativeTo = relativeTo;
-            Origins = origins;
-            StreamId = streamId;
+            this.origins = origins;
+            this.streamId = streamId;
             MediaType = mediaType;
             TimeOffset = timeOffset;
         }
@@ -150,8 +158,7 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Gets the stream ID associated with this instance.
         /// </summary>
-        [ProtoMember(3)] 
-        public string StreamId { get; }
+        public string StreamId => streamId ?? string.Empty;
 
         /// <summary>
         ///  Gets an actual point in time reference of when these hashes have been generated.
@@ -162,8 +169,7 @@ namespace SoundFingerprinting.Data
         /// <summary>
         ///  Gets a list of origins of the hashes.
         /// </summary>
-        [ProtoMember(5)]
-        public IEnumerable<string> Origins { get; }
+        public IEnumerable<string> Origins => origins ?? Enumerable.Empty<string>();
 
         /// <summary>
         ///  Gets the media type associated with this hashes object.
