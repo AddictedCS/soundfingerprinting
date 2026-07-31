@@ -577,6 +577,40 @@ namespace SoundFingerprinting.Tests.Unit.Query
 			});
 		}
         
+        [Test]
+        public void ShouldKeepSequenceNumbersConsistentWithMatchTimeWhenResultEntriesOverlap()
+        {
+            var left  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength: 12, queryLength: 12);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 10, queryLength: 12);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, autoSkipDetection: true);
+
+            var result = concatenator.Concat(left, right, queryOffset: -2);
+
+            float fingerprintLength = (float)result.Coverage.FingerprintLength;
+            foreach (var match in result.Coverage.BestPath)
+            {
+                Assert.That(match.QuerySequenceNumber * fingerprintLength, Is.EqualTo(match.QueryMatchAt).Within(2 * fingerprintLength),
+                    "query sequence number diverged from query match time, negative query offset was not applied to sequence numbers");
+            }
+        }
+
+        [Test]
+        public void ShouldNotWrapSequenceNumbersWhenNegativeOffsetExceedsLeftQueryLength()
+        {
+            var left  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 2, queryLength: 2);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 2, matchLength: 2, queryLength: 2);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, autoSkipDetection: false);
+
+            var result = concatenator.Concat(left, right, queryOffset: -4);
+
+            foreach (var match in result.Coverage.BestPath)
+            {
+                Assert.That(match.QuerySequenceNumber, Is.LessThan(10_000), "sequence number wrapped around uint boundary");
+            }
+        }
+
         private static void AssertCoverageOrder(Coverage coverage)
         {
 			Assert.That(coverage.BestPath.Select(_ => _.QueryMatchAt), Is.Ordered, "Query matched at is not ordered");

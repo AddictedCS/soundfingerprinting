@@ -32,8 +32,12 @@ namespace SoundFingerprinting.FFT
         public ushort FrequencyToSpectrumIndex(float frequency, int sampleRate, int spectrumLength)
         {
             float fraction = frequency / ((float)sampleRate / 2); // N sampled points in time correspond to [0, N/2] frequency range
-            int index = (int)Math.Round(((spectrumLength / 2) + 1) * fraction); // DFT N points defines [N/2 + 1] frequency points
-            return (ushort)index;
+            // N/2 positive-frequency bins are laid out as (re, img) pairs in the packed spectrum of length N;
+            // scaling by N/2 + 1 pushed Nyquist-range frequencies to bin N/2 + 1, one past the last stored bin,
+            // making ExtractLogBins read beyond the stackalloc'ed buffer; the clamp protects against
+            // FrequencyRange.Max set above Nyquist, which is not rejected at configuration time
+            int index = (int)Math.Round((spectrumLength / 2) * fraction);
+            return (ushort)Math.Min(index, spectrumLength / 2);
         }
 
         private ushort[] GenerateLogFrequenciesDynamicBase(int sampleRate, SpectrogramConfig configuration)

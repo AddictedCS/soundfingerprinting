@@ -2,15 +2,24 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Nullable>enable</Nullable>
-	<PackageVersion>15.8.0</PackageVersion>
 	<Authors>Sergiu Ciumac</Authors>
-	<PackageDescription>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</PackageDescription>
+	<Company>Sergiu Ciumac</Company>
+	<Product>SoundFingerprinting</Product>
+	<Copyright>Copyright © Sergiu Ciumac 2026</Copyright>
+	<Description>SoundFingerprinting is a C# framework that implements an efficient algorithm of audio fingerprinting and identification. Designed for developers, enthusiasts, researchers in the fields of audio processing, data mining, digital signal processing.</Description>
 	<PackageProjectUrl>https://github.com/addictedcs/soundfingerprinting</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.9.0
+		- Realtime result entry concatenation applies negative query offsets (chunk overlap) to `QuerySequenceNumber` in signed arithmetic. Previously the offset went through a negative double to uint cast (saturates to 0 on .NET Core, unspecified on .NET Framework), leaving stitched sequence numbers ahead of their match times by the overlap length.
+		- `Coverage.Confidence` is capped at 1. A matched path overhanging the declared query/track length (e.g. the last fingerprint of a full-length match extending past the stored track duration) shrank the denominator below the numerator, yielding confidence above 1.
+		- Fixed an out-of-bounds spectrum read: `UseDynamicLogBase = false` with `FrequencyRange.Max` at or near Nyquist produced a spectrum bin index one past the last stored bin, silently folding adjacent stack memory into fingerprints. The index now scales by N/2 (was N/2 + 1) and clamps at the last bin. Static log base bin boundaries above roughly Nyquist/2 shift down by one spectral bin, so fingerprints generated with static log base differ marginally from prior versions; the default dynamic log base configuration is unaffected.
+		- Realtime query cancellation reaches sources supplied via `From(IAsyncEnumerable)` overloads (the token was silently discarded before the source enumerator; cancelling while awaiting the next chunk hung until the producer completed).
+		- Realtime error handling: exceptions thrown by user callbacks no longer reroute already consumed hashes to `IOfflineStorage` (previously re-emitting the same results and double-counting query length); `ErrorCallback` is invoked after backoff registration and offline persistence, so the default rethrowing callback no longer loses hashes; cancellation during the error backoff delay delivers pending aggregated entries; the realtime samples aggregator survives source re-enumeration after transient errors, preserving the buffered chunk tail. Realtime sources must be hot (resume where they left off when re-enumerated) - documented on `IRealtimeSource`.
+		- Performance: `Coverage` caches gap computations (previously recomputed on every property access, multiple times per candidate per query); `ExtractLogBins` accumulates raw magnitudes and scales once per bin; `TinyFingerprintSchema` is backed by ulong words with popcount (56x faster `TrueCounts`, 32x faster `AgreeOn`, 1.24x faster encoding, identical results).
+		- Versioning: the release version is now a single `Version` property in src/Directory.Build.props from which package and assembly versions derive; assembly attributes are SDK-generated, so `AssemblyVersion` follows the package version exactly (the historical .100 revision suffix is gone) and `InformationalVersion` carries the source revision. New bump.sh automates version bumps and release notes.
 		Version 15.8.0
 		- Realtime `MatchedAt` timestamps no longer land late by the chunk-overlap prefix. Realtime aggregation prepends the tail of the previous chunk (~one fingerprint length) for FFT continuity across chunk boundaries and records the prefix in `Hashes.TimeOffset`, but the offset was never applied when deriving the absolute match time — every realtime match spanning aggregated chunks was stamped late by the prefix length (~1.8s with default configurations). Match time is now derived as `RelativeTo + TimeOffset + QueryMatchStartsAt`.
 		- `Hashes.WithRelativeTo` preserves `TimeOffset` (previously reset it to 0, silently destroying the prefix record when realtime chunks were re-stamped with their capture time — the root cause of the above on file-fed realtime pipelines, and of downstream consumers double-counting the overlap on the query axis).
