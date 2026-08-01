@@ -52,6 +52,26 @@ public async Task<TrackData?> GetBestMatchForSong(string file)
     return queryResult.BestMatch?.Audio.Track;
 }
 ```
+
+#### Querying audio captured with vinyl-style pitch control
+
+When the source playback-speed change is known, pass its percentage together
+with the query samples. Positive values mean the source was played faster and
+negative values mean it was played slower. The query is resampled back to its
+original playback rate before fingerprinting.
+
+```csharp
+var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
+    .From(audioSamples, sourcePlaybackSpeedPercentage: 8)
+    .UsingServices(modelService)
+    .Query();
+```
+
+This supports vinyl-style pitch control, where tempo and pitch change together.
+It does not support pitch-only processing such as key lock. If the percentage is
+unknown, applications can try a small set of likely values; each value requires
+a separate fingerprint and storage query.
+
 ### Fingerprints Storage
 The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code> class. If you plan to use an external persistent storage for fingerprints **Emy** is the preferred choice. **Emy** provides a community version which is free for non-commercial use. More about **Emy** can be found [on wiki page][emy-wiki-page].
 
