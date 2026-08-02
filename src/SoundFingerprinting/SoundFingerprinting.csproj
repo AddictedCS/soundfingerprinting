@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.10.0
+		- Adding playback-speed compensation for audio queries
 		Version 15.9.1
 		- Guard Origins and StreamId against protobuf null on deserialization
 		Version 15.9.0

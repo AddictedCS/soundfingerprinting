@@ -52,6 +52,9 @@ public async Task<TrackData?> GetBestMatchForSong(string file)
     return queryResult.BestMatch?.Audio.Track;
 }
 ```
+
+If the source was played with vinyl-style pitch control (tempo and pitch changed together) by a known percentage, pass it with the query samples to compensate before fingerprinting: `.From(audioSamples, sourcePlaybackSpeedPercentage: 8)`.
+
 ### Fingerprints Storage
 The default storage, which comes bundled with _soundfingerprinting_ NuGet package, is a plain in-memory storage, available via <code>InMemoryModelService</code> class. If you plan to use an external persistent storage for fingerprints **Emy** is the preferred choice. **Emy** provides a community version which is free for non-commercial use. More about **Emy** can be found [on wiki page][emy-wiki-page].
 
