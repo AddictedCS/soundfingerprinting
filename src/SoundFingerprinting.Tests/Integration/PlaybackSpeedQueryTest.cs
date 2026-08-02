@@ -1,11 +1,14 @@
 namespace SoundFingerprinting.Tests.Integration
 {
+    using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using SoundFingerprinting.Audio;
     using SoundFingerprinting.Builder;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.InMemory;
+    using SoundFingerprinting.Query;
+    using SoundFingerprinting.Strides;
 
     [TestFixture]
     public class PlaybackSpeedQueryTest : IntegrationWithSampleFilesTest
@@ -36,14 +39,14 @@ namespace SoundFingerprinting.Tests.Integration
             });
         }
 
-        private static async Task<SoundFingerprinting.Query.QueryResult> Query(
+        private static async Task<QueryResult> Query(
             AudioSamples samples,
             InMemoryModelService modelService)
         {
             return await Query(samples, null, modelService);
         }
 
-        private static async Task<SoundFingerprinting.Query.QueryResult> Query(
+        private static async Task<QueryResult> Query(
             AudioSamples samples,
             double? sourcePlaybackSpeedPercentage,
             InMemoryModelService modelService)
@@ -53,6 +56,11 @@ namespace SoundFingerprinting.Tests.Integration
                 ? source.From(samples, sourcePlaybackSpeedPercentage.Value)
                 : source.From(samples);
             var result = await configured
+                .WithQueryConfig(config =>
+                {
+                    config.Audio.Stride = new IncrementalRandomStride(256, 512, seed: 123);
+                    return config;
+                })
                 .UsingServices(modelService)
                 .Query();
             return result.Audio!;
@@ -60,15 +68,15 @@ namespace SoundFingerprinting.Tests.Integration
 
         private static AudioSamples Resample(AudioSamples input, double playbackRate)
         {
-            int outputLength = System.Math.Max(
+            int outputLength = Math.Max(
                 2,
-                (int)System.Math.Floor((input.Samples.Length - 1) / playbackRate) + 1);
+                (int)Math.Floor((input.Samples.Length - 1) / playbackRate) + 1);
             float[] output = new float[outputLength];
             for (int outputIndex = 0; outputIndex < output.Length; outputIndex++)
             {
                 double sourcePosition = outputIndex * playbackRate;
-                int lowerIndex = System.Math.Min((int)sourcePosition, input.Samples.Length - 1);
-                int upperIndex = System.Math.Min(lowerIndex + 1, input.Samples.Length - 1);
+                int lowerIndex = Math.Min((int)sourcePosition, input.Samples.Length - 1);
+                int upperIndex = Math.Min(lowerIndex + 1, input.Samples.Length - 1);
                 double fraction = sourcePosition - lowerIndex;
                 output[outputIndex] = (float)(
                     input.Samples[lowerIndex] +

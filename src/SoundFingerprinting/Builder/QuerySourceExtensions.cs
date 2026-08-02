@@ -22,6 +22,9 @@ namespace SoundFingerprinting.Builder
         /// <remarks>
         ///  This compensates vinyl-style pitch control where tempo and pitch change together.
         ///  It does not compensate pitch-only processing such as key lock.
+        ///  Since the query is resampled, resulting matches are positioned on the compensated timeline:
+        ///  timestamps relative to the start of the query (i.e., matched at) may deviate from capture
+        ///  wall-clock time by up to <paramref name="sourcePlaybackSpeedPercentage"/> percent.
         /// </remarks>
         public static IWithQueryConfiguration From(
             this IQuerySource source,
