@@ -12,6 +12,10 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.11.0
+		- UIntModelReferenceTracker takes a wrapOnOverflow flag that restarts both counters at 0 instead of throwing, keeping every track in one contiguous block across the wrap, and reports the lap count and both write heads as one atomic snapshot through State
+		- UIntModelReferenceProvider.TryNext issues the next reference without throwing and leaves the counter untouched when the maximum is reached
+		- Adding AVHashes.GetRange that cuts a range out of both media types on absolute time
 		Version 15.10.0
 		- Adding playback-speed compensation for audio queries
 		Version 15.9.1
