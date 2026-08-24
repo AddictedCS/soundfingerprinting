@@ -130,6 +130,25 @@ namespace SoundFingerprinting.Data
         }
 
         /// <summary>
+        ///  Gets a new range out of the current instance, cut on both media types.
+        /// </summary>
+        /// <param name="startsAt">Absolute start of the range.</param>
+        /// <param name="length">Length of the range in seconds.</param>
+        /// <returns>New instance of the <see cref="AVHashes"/> class.</returns>
+        /// <remarks>
+        ///  Each side is cut with the absolute-time <see cref="Hashes.GetRange(DateTime, float)"/> overload. The
+        ///  <see cref="double"/> overload counts seconds from the start of the window and cuts a different range.
+        ///  A null side stays null and an empty side stays as it is. The fingerprinting time of the parent
+        ///  describes the parent and not the range, so the result carries <see cref="AVFingerprintingTime.Zero"/>.
+        /// </remarks>
+        public AVHashes GetRange(DateTime startsAt, float length)
+        {
+            var audio = Audio is { IsEmpty: false } ? Audio.GetRange(startsAt, length) : Audio;
+            var video = Video is { IsEmpty: false } ? Video.GetRange(startsAt, length) : Video;
+            return new AVHashes(audio, video, AVFingerprintingTime.Zero());
+        }
+
+        /// <summary>
         ///  Adds a stream identifier to the Audio/Video hashes object.
         /// </summary>
         /// <param name="streamId">Stream ID.</param>

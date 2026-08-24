@@ -96,6 +96,79 @@ namespace SoundFingerprinting.Tests.Unit.DAO
 			});
 		}
 
+        [Test]
+        public void ShouldWrapBothCountersInsteadOfThrowing()
+        {
+            var tracker = new UIntModelReferenceTracker(maxAllowedReference: 10, wrapOnOverflow: true);
+            var track = new TrackInfo("id", string.Empty, string.Empty);
+
+            // drives the sub counter to 9 over three tracks of three hashes each
+            for (int i = 0; i < 3; ++i)
+            {
+                tracker.AssignModelReferences(track, GetHashes(3));
+            }
+
+            Assert.That(tracker.State, Is.EqualTo(new UIntModelReferenceState(0, 3, 9)));
+
+            // the fourth track needs sub ids 10, 11 and 12, so both counters restart at 0 first
+            var (trackData, subFingerprints) = tracker.AssignModelReferences(track, GetHashes(3));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(trackData.TrackReference.Get<uint>(), Is.EqualTo(1u));
+                Assert.That(subFingerprints.Select(_ => _.SubFingerprintReference.Get<uint>()), Is.EqualTo(new[] { 1u, 2u, 3u }));
+                Assert.That(tracker.State, Is.EqualTo(new UIntModelReferenceState(1, 1, 3)));
+            });
+        }
+
+        [Test]
+        public void ShouldNotStraddleTheWrap()
+        {
+            var tracker = new UIntModelReferenceTracker(maxAllowedReference: 10, wrapOnOverflow: true);
+            var track = new TrackInfo("id", string.Empty, string.Empty);
+
+            tracker.AssignModelReferences(track, GetHashes(5));
+
+            // 5 + 8 exceeds the maximum, so the whole block lands contiguously in [1..8] after the wrap
+            var (_, subFingerprints) = tracker.AssignModelReferences(track, GetHashes(8));
+
+            Assert.That(subFingerprints.Select(_ => _.SubFingerprintReference.Get<uint>()), Is.EqualTo(Enumerable.Range(1, 8).Select(_ => (uint)_)));
+        }
+
+        [Test]
+        public void ShouldThrowWhenOneTrackDoesNotFitAWholeLap()
+        {
+            var tracker = new UIntModelReferenceTracker(maxAllowedReference: 10, wrapOnOverflow: true);
+            var track = new TrackInfo("id", string.Empty, string.Empty);
+
+            Assert.Throws<ModelReferenceMaxAllowedValueExceededException>(() => tracker.AssignModelReferences(track, GetHashes(11)));
+        }
+
+        [Test]
+        public void ShouldLeaveTheCountersUsableAfterARefusedAssignment()
+        {
+            var tracker = new UIntModelReferenceTracker(0, 0, 10);
+            var track = new TrackInfo("id", string.Empty, string.Empty);
+
+            tracker.AssignModelReferences(track, GetHashes(8));
+
+            // the throwing path used to leave the sub counter at 11, above the maximum, and unusable after that
+            Assert.Throws<ModelReferenceMaxAllowedValueExceededException>(() => tracker.AssignModelReferences(track, GetHashes(3)));
+            Assert.That(tracker.State, Is.EqualTo(new UIntModelReferenceState(0, 2, 10)));
+        }
+
+        [Test]
+        public void ShouldReportStateOfBothCounters()
+        {
+            var tracker = new UIntModelReferenceTracker(0, 0);
+            var track = new TrackInfo("id", string.Empty, string.Empty);
+
+            tracker.AssignModelReferences(track, GetHashes(7));
+            tracker.TryResetSubFingerprintRef(100);
+
+            Assert.That(tracker.State, Is.EqualTo(new UIntModelReferenceState(0, 1, 100)));
+        }
+
         private static Hashes GetHashes(int numberOfHashBins)
         {
             return new Hashes(Enumerable
