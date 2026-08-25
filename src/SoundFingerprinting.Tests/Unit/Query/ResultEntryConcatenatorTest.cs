@@ -611,6 +611,42 @@ namespace SoundFingerprinting.Tests.Unit.Query
             }
         }
 
+        [Test]
+        public void ShouldNotStitchEntryThatRewindsBehindAccumulatedCoverage()
+        {
+            // an almost fully accumulated track followed by a chunk that re-matches the head of the same
+            // track (self-similar audio, or the same track airing again back-to-back): stitching would
+            // rewind the track axis and collapse the accumulated coverage, so the incoming entry must be
+            // returned as-is and treated by the caller as a new match
+            var left  = CreateEntry(queryOffset: 7, trackOffset: 0, matchLength: 44, trackLength: 45, queryLength: 52);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 8, trackLength: 45, queryLength: 10);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+
+            var result = concatenator.Concat(left, right, queryOffset: -1.4);
+
+            Assert.That(result, Is.SameAs(right));
+        }
+
+        [Test]
+        public void ShouldStitchConsecutiveChunkThatReMatchesOnlyTheQueryOverlap()
+        {
+            // consecutive overlapped chunks legitimately re-match up to |queryOffset| + fingerprint length
+            // + permitted gap of already covered track audio; such entries must still stitch
+            var left  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 42, trackLength: 45, queryLength: 42);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 41, matchLength: 4, trackLength: 45, queryLength: 10);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+
+            var result = concatenator.Concat(left, right, queryOffset: -1.4);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.TrackCoverageWithPermittedGapsLength, Is.GreaterThanOrEqualTo(left.TrackCoverageWithPermittedGapsLength));
+                Assert.That(result.Coverage.TrackRelativeCoverage, Is.EqualTo(1).Within(0.05));
+            });
+        }
+
         private static void AssertCoverageOrder(Coverage coverage)
         {
 			Assert.That(coverage.BestPath.Select(_ => _.QueryMatchAt), Is.Ordered, "Query matched at is not ordered");

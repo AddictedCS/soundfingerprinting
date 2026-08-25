@@ -3,10 +3,15 @@ namespace SoundFingerprinting.Query
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Extensions.Logging;
     using SoundFingerprinting.Command;
 
     internal sealed class StatefulRealtimeResultEntryAggregator : IRealtimeResultEntryAggregator
     {
+        // re-deriving gaps over a stitched best path can shave fractions of a second; a merge that loses
+        // more than this from an entry that claims the same match is a defect, not arithmetic noise
+        private const double CoverageShrinkToleranceSeconds = 0.5;
+
         private readonly IRealtimeResultEntryFilter realtimeResultEntryFilter;
         private readonly IRealtimeResultEntryFilter ongoingResultEntryFilter;
         private readonly ICompletionStrategy<AVResultEntry> completionStrategy;
@@ -15,6 +20,7 @@ namespace SoundFingerprinting.Query
 
         private readonly IQueryHashesConcatenator queryHashesConcatenator;
         private readonly IOngoingAvResultEntryTracker avResultEntryTracker = new StatefulOngoingAvResultEntryTracker();
+        private readonly ILogger<StatefulRealtimeResultEntryAggregator> logger;
 
         public StatefulRealtimeResultEntryAggregator(
             IRealtimeResultEntryFilter realtimeResultEntryFilter, 
@@ -22,7 +28,8 @@ namespace SoundFingerprinting.Query
             ICompletionStrategy<AVResultEntry> completionStrategy,
             IConcatenator<ResultEntry> audioResultEntryConcatenator,
             IConcatenator<ResultEntry> videoResultEntryConcatenator,
-            IQueryHashesConcatenator queryHashesConcatenator)
+            IQueryHashesConcatenator queryHashesConcatenator,
+            ILoggerFactory loggerFactory)
         {
             this.realtimeResultEntryFilter = realtimeResultEntryFilter;
             this.ongoingResultEntryFilter = ongoingResultEntryFilter;
@@ -30,6 +37,7 @@ namespace SoundFingerprinting.Query
             this.audioResultEntryConcatenator = audioResultEntryConcatenator;
             this.videoResultEntryConcatenator = videoResultEntryConcatenator;
             this.queryHashesConcatenator = queryHashesConcatenator;
+            logger = loggerFactory.CreateLogger<StatefulRealtimeResultEntryAggregator>();
         }
         
         /// <inheritdoc cref="IRealtimeResultEntryAggregator.Consume"/>
@@ -57,6 +65,8 @@ namespace SoundFingerprinting.Query
             var (audioHashes, videoHashes) = queryResult.QueryHashes;
             double audioQueryOffset = audioHashes?.TimeOffset ?? 0;
             double videoQueryOffset = videoHashes?.TimeOffset ?? 0;
+            double audioQueryLength = audioHashes?.DurationInSeconds ?? 0;
+            double videoQueryLength = videoHashes?.DurationInSeconds ?? 0;
             
             // getting one best result entry per track, as all following code assumes there is only one entry per track
             var newEntries = GetBestMatchPerTrack(queryResult);
@@ -68,13 +78,27 @@ namespace SoundFingerprinting.Query
                     var (prevAudio, prevVideo) = prev;
                     var audio = audioResultEntryConcatenator.Concat(prevAudio, nextAudio, audioQueryOffset);
                     var video = videoResultEntryConcatenator.Concat(prevVideo, nextVideo, videoQueryOffset);
-                    return new AVResultEntry(audio, video);
+                    var merged = new AVResultEntry(audio, video);
+                    if (merged.IsEquivalent(prev) && GetSummedTrackCoverage(merged) < GetSummedTrackCoverage(prev) - CoverageShrinkToleranceSeconds)
+                    {
+                        // a merge that claims the same match must never lose accumulated coverage; keep the
+                        // previous entry (query length extended) so the completion filter judges the peak value
+                        logger.LogWarning(
+                            "Merging track {TrackId} matched at {MatchedAt:O} shrank accumulated coverage from {Previous:0.00}s to {Merged:0.00}s, keeping the accumulated entry",
+                            prev.TrackId,
+                            prev.MatchedAt,
+                            GetSummedTrackCoverage(prev),
+                            GetSummedTrackCoverage(merged));
+                        var keptAudio = ExtendResultEntryQueryLength(prevAudio, audioQueryLength, audioQueryOffset);
+                        var keptVideo = ExtendResultEntryQueryLength(prevVideo, videoQueryLength, videoQueryOffset);
+                        return new AVResultEntry(keptAudio, keptVideo);
+                    }
+
+                    return merged;
                 });
             }
             
             // we need to extend the query length of those matches that haven't been purged on the previous call, and haven't been updated during this call.
-            double audioQueryLength = audioHashes?.DurationInSeconds ?? 0;
-            double videoQueryLength = videoHashes?.DurationInSeconds ?? 0;
             foreach (var notUpdated in avResultEntryTracker.GetAvResultEntriesExcept(newEntries))
             {
                 var (prevAudio, prevVideo) = notUpdated;
@@ -97,6 +121,12 @@ namespace SoundFingerprinting.Query
                     })
                     .First())
                 .ToList();
+        }
+
+        private static double GetSummedTrackCoverage(AVResultEntry entry)
+        {
+            var (audio, video) = entry;
+            return (audio?.Coverage.TrackCoverageWithPermittedGapsLength ?? 0) + (video?.Coverage.TrackCoverageWithPermittedGapsLength ?? 0);
         }
 
         private static ResultEntry? ExtendResultEntryQueryLength(ResultEntry? notUpdated, double queryLength, double queryOffset)

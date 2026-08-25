@@ -38,7 +38,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new ResultEntryConcatenator(loggerFactory, false),
-                new StatefulQueryHashesConcatenator());
+                new StatefulQueryHashesConcatenator(),
+                loggerFactory);
 
             var result = aggregator.Consume(null);
 
@@ -59,7 +60,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new ResultEntryConcatenator(loggerFactory, false),
-                new StatefulQueryHashesConcatenator());
+                new StatefulQueryHashesConcatenator(),
+                loggerFactory);
             
             const int firstQueryLength = 5;
             const int trackLength = 10;
@@ -106,7 +108,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
                 new ResultEntryConcatenator(loggerFactory, false),
                 new ResultEntryConcatenator(loggerFactory, false),
-                new StatefulQueryHashesConcatenator());
+                new StatefulQueryHashesConcatenator(),
+                loggerFactory);
 
             var success = new List<AVResultEntry>();
             var filtered = new List<AVResultEntry>();
@@ -229,6 +232,125 @@ namespace SoundFingerprinting.Tests.Unit.Query
             foreach (var p in zipped)
             {
 				Assert.That(p.Actual, Is.EqualTo(p.Expected).Within(0.00001));
+            }
+        }
+
+        [Test]
+        public void ShouldCompleteAccumulatedEntryWhenTrackHeadMatchesAgain()
+        {
+            double permittedGap = 2d;
+            var aggregator = new StatefulRealtimeResultEntryAggregator(
+                new TrackRelativeCoverageEntryFilter(0.4, waitTillCompletion: true),
+                new NoPassRealtimeResultEntryFilter(),
+                new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(permittedGap), new ResultEntryCompletionStrategy(permittedGap)),
+                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(loggerFactory, false),
+                new StatefulQueryHashesConcatenator(),
+                loggerFactory);
+
+            const int trackLength = 45;
+            const int chunkLength = 10;
+            var matchedAt = DateTime.UtcNow;
+            var success = new List<AVResultEntry>();
+            var filtered = new List<AVResultEntry>();
+
+            // the track starts mid-chunk, then three full chunks accumulate track coverage [0, 37)
+            ConsumeChunk(aggregator, matchedAt, Enumerable.Range(3, 7).ToArray(), Enumerable.Range(0, 7).ToArray(), chunkLength, trackLength, permittedGap, success, filtered);
+            for (int chunk = 1; chunk < 4; ++chunk)
+            {
+                int[] queryAt = Enumerable.Range(0, chunkLength).ToArray();
+                int[] trackAt = Enumerable.Range(7 + ((chunk - 1) * chunkLength), chunkLength).ToArray();
+                ConsumeChunk(aggregator, matchedAt.AddSeconds(chunk * chunkLength), queryAt, trackAt, chunkLength, trackLength, permittedGap, success, filtered);
+            }
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(success, Is.Empty);
+				Assert.That(filtered, Is.Empty);
+			});
+
+            // the fifth chunk re-matches the head of the track (self-similar audio, or the same track airing
+            // again back-to-back); the accumulated entry must complete with its full coverage instead of
+            // being collapsed by a track-axis rewind and rejected
+            ConsumeChunk(aggregator, matchedAt.AddSeconds(4 * chunkLength), Enumerable.Range(0, 8).ToArray(), Enumerable.Range(0, 8).ToArray(), chunkLength, trackLength, permittedGap, success, filtered);
+
+			Assert.That(success, Has.Count.EqualTo(1));
+			Assert.That(success[0].Audio, Is.Not.Null);
+			Assert.That(success[0].Audio!.TrackCoverageWithPermittedGapsLength, Is.EqualTo(37).Within(1d));
+        }
+
+        [Test]
+        public void ShouldKeepAccumulatedCoverageWhenMergeShrinksIt()
+        {
+            double permittedGap = 2d;
+            var aggregator = new StatefulRealtimeResultEntryAggregator(
+                new TrackRelativeCoverageEntryFilter(0.4, waitTillCompletion: true),
+                new NoPassRealtimeResultEntryFilter(),
+                new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(permittedGap), new ResultEntryCompletionStrategy(permittedGap)),
+                new CorruptingConcatenator(),
+                new ResultEntryConcatenator(loggerFactory, false),
+                new StatefulQueryHashesConcatenator(),
+                loggerFactory);
+
+            const int trackLength = 45;
+            var matchedAt = DateTime.UtcNow;
+            var success = new List<AVResultEntry>();
+            var filtered = new List<AVResultEntry>();
+
+            // one 40 second query accumulates track coverage [0, 40)
+            ConsumeChunk(aggregator, matchedAt, Enumerable.Range(0, 40).ToArray(), Enumerable.Range(0, 40).ToArray(), 40, trackLength, permittedGap, success, filtered);
+
+			Assert.Multiple(() =>
+			{
+				Assert.That(success, Is.Empty);
+				Assert.That(filtered, Is.Empty);
+			});
+
+            // the corrupting concatenator claims the same match while dropping the accumulated coverage;
+            // the aggregator must keep the accumulated entry and complete it with the peak value
+            ConsumeChunk(aggregator, matchedAt.AddSeconds(40), Enumerable.Range(0, 8).ToArray(), Enumerable.Range(0, 8).ToArray(), 10, trackLength, permittedGap, success, filtered);
+
+			Assert.That(success, Has.Count.EqualTo(1));
+			Assert.That(success[0].Audio, Is.Not.Null);
+			Assert.That(success[0].Audio!.TrackCoverageWithPermittedGapsLength, Is.EqualTo(40).Within(1d));
+        }
+
+        private static void ConsumeChunk(
+            IRealtimeResultEntryAggregator aggregator,
+            DateTime matchedAt,
+            int[] queryAt,
+            int[] trackAt,
+            float queryLength,
+            int trackLength,
+            double permittedGap,
+            ICollection<AVResultEntry> success,
+            ICollection<AVResultEntry> filtered)
+        {
+            var coverage = TestUtilities.GetMatchedWith(queryAt, trackAt).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, 1, permittedGap).First();
+            var entry = new ResultEntry(GetTrack(trackLength), 100, matchedAt, coverage);
+            var randomHashes = TestUtilities.GetRandomHashes(queryLength);
+            var audioResult = new QueryResult(new[] { entry }, randomHashes, QueryCommandStats.Zero());
+            var aggregated = aggregator.Consume(new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null)));
+            AddAll(aggregated.SuccessEntries, success);
+            AddAll(aggregated.DidNotPassThresholdEntries, filtered);
+        }
+
+        private class CorruptingConcatenator : IConcatenator<ResultEntry>
+        {
+            public ResultEntry Concat(ResultEntry? left, ResultEntry? right, double queryOffset = 0d)
+            {
+                if (left == null || right == null)
+                {
+                    return (left ?? right)!;
+                }
+
+                // simulates a merge defect: claims the same match as left while dropping its accumulated coverage
+                return new ResultEntry(left.Track, left.Score, left.MatchedAt, right.Coverage);
+            }
+
+            public ResultEntry WithExtendedQueryLength(ResultEntry entry, double length)
+            {
+                return new ResultEntry(entry.Track, entry.Score, entry.MatchedAt, entry.Coverage.WithExtendedQueryLength(length));
             }
         }
 

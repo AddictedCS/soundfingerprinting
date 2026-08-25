@@ -68,6 +68,19 @@ namespace SoundFingerprinting.Query
                 (left, right) = (right, left);
             }
 
+            // an entry that does not extend the covered track region and restarts deeper behind it than the
+            // re-matchable window (audio shared between overlapped queries plus one fingerprint window plus
+            // alignment jitter bounded by the permitted gap) is not a continuation of the same match: it is
+            // self-similar audio or the same track playing again, and stitching it would rewind the track
+            // axis and collapse the accumulated coverage
+            double allowedTrackRewind = left.Coverage.FingerprintLength + left.Coverage.PermittedGap - Math.Min(queryOffset, 0);
+            bool extendsTrackCoverage = right.Coverage.TrackMatchEndsAt > left.Coverage.TrackMatchEndsAt;
+            if (!extendsTrackCoverage && left.Coverage.TrackMatchEndsAt - right.Coverage.TrackMatchStartsAt > allowedTrackRewind)
+            {
+                logger.LogDebug("Entry {Right} rewinds the track axis behind the accumulated coverage of {Left}, returning it as a new match", right, left);
+                return right;
+            }
+
             float fingerprintLength = (float)left.Coverage.FingerprintLength;
             var leftLastMatch = left.Coverage.BestPath.Last();
             float gapSize = GetGapSize(leftLastMatch, left.QueryLength, fingerprintLength);
