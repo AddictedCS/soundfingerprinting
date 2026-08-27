@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.12.0
+		- Version bump to 15.12.0
 		Version 15.11.1
 		- Realtime queries no longer lose accumulated coverage when a chunk re-matches the head of the track it already covered.
 		Version 15.11.0

@@ -1140,6 +1140,115 @@ namespace SoundFingerprinting.Tests.Unit.Query
             return new AudioSamples(samples, "cnn", 5512, relativeTo);
         }
 
+        [Test]
+        public async Task OfflineStorageDrainsBeforeTheLiveChunk()
+        {
+            // every query makes the server publish the chunk it received, so the replay order after an outage
+            // is the order the consumers see: the outage chunks have to reach them before the live chunk
+            const int outageChunks = 3;
+            var start = new DateTime(2026, 8, 27, 0, 0, 0, DateTimeKind.Utc);
+            var data = GenerateRandomAudioChunks(count: 8, seed: 7, start);
+            var expected = data.Select(chunk => chunk.RelativeTo).ToList();
+            int attempts = 0, restoredAtSuccessCount = -1;
+            var recording = new RecordingQueryService(QueryFingerprintService.Instance, _ => attempts++ < outageChunks);
+            string folder = Path.Combine(Path.GetTempPath(), "drain-first-" + Guid.NewGuid().ToString("N"));
+            var loggerFactory = new NullLoggerFactory();
+            try
+            {
+                await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new QueryCommandBuilder(FingerprintCommandBuilder.Instance, recording, loggerFactory), loggerFactory)
+                    .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
+                    .WithRealtimeQueryConfig(config =>
+                    {
+                        config.OfflineStorage = new OfflineStorage(folder);
+                        config.DelayStrategy = new NoDelayStrategy();
+                        config.ErrorCallback = (_, _) => { };
+                        config.RestoredAfterErrorCallback = () => restoredAtSuccessCount = recording.Succeeded.Count;
+                        return config;
+                    })
+                    .UsingServices(new InMemoryModelService())
+                    .Query(CancellationToken.None);
+
+                Assert.That(recording.Succeeded, Is.EqualTo(expected), "the query service receives every chunk exactly once, oldest first");
+                Assert.That(restoredAtSuccessCount, Is.EqualTo(1), "the restore signal fires on the first drained query, not after the whole drain");
+            }
+            finally
+            {
+                if (Directory.Exists(folder))
+                {
+                    Directory.Delete(folder, recursive: true);
+                }
+            }
+        }
+
+        [Test]
+        public async Task ADrainFailureParksTheLiveChunkBehindTheStoredEntries()
+        {
+            var start = new DateTime(2026, 8, 27, 0, 0, 0, DateTimeKind.Utc);
+            var data = GenerateRandomAudioChunks(count: 6, seed: 11, start);
+            var expected = data.Select(chunk => chunk.RelativeTo).ToList();
+            var errored = new List<DateTime>();
+            var attemptsPerChunk = new Dictionary<DateTime, int>();
+            var recording = new RecordingQueryService(QueryFingerprintService.Instance, hashes =>
+            {
+                attemptsPerChunk.TryGetValue(hashes.RelativeTo, out int attempt);
+                attemptsPerChunk[hashes.RelativeTo] = attempt + 1;
+                // the first chunk fails twice: once live, once inside the drain that the second chunk triggers
+                return hashes.RelativeTo == expected[0] && attempt < 2;
+            });
+
+            string folder = Path.Combine(Path.GetTempPath(), "drain-failure-" + Guid.NewGuid().ToString("N"));
+            var loggerFactory = new NullLoggerFactory();
+            try
+            {
+                await new RealtimeQueryCommand(FingerprintCommandBuilder.Instance, new QueryCommandBuilder(FingerprintCommandBuilder.Instance, recording, loggerFactory), loggerFactory)
+                    .From(SimulateRealtimeAudioQueryData(data, jitterLength: 0))
+                    .WithRealtimeQueryConfig(config =>
+                    {
+                        config.OfflineStorage = new OfflineStorage(folder);
+                        config.DelayStrategy = new NoDelayStrategy();
+                        config.ErrorCallback = (_, hashes) => errored.Add(hashes?.RelativeTo ?? DateTime.MinValue);
+                        return config;
+                    })
+                    .UsingServices(new InMemoryModelService())
+                    .Query(CancellationToken.None);
+
+                Assert.That(errored, Is.EqualTo(new[] { expected[0], expected[1] }), "a failed drain parks the live chunk, never the entry it failed on");
+                Assert.That(recording.Succeeded, Is.EqualTo(expected), "the stored entries still reach the query service before the live chunk, oldest first");
+            }
+            finally
+            {
+                if (Directory.Exists(folder))
+                {
+                    Directory.Delete(folder, recursive: true);
+                }
+            }
+        }
+
+        private class RecordingQueryService : IQueryFingerprintService
+        {
+            private readonly IQueryFingerprintService goodOne;
+            private readonly Func<Hashes, bool> shouldFail;
+
+            public RecordingQueryService(IQueryFingerprintService goodOne, Func<Hashes, bool> shouldFail)
+            {
+                this.goodOne = goodOne;
+                this.shouldFail = shouldFail;
+            }
+
+            public List<DateTime> Succeeded { get; } = new();
+
+            public QueryResult Query(Hashes queryFingerprints, QueryConfiguration configuration, IQueryService queryService)
+            {
+                if (shouldFail(queryFingerprints))
+                {
+                    throw new IOException("I/O exception");
+                }
+
+                Succeeded.Add(queryFingerprints.RelativeTo);
+                return goodOne.Query(queryFingerprints, configuration, queryService);
+            }
+        }
+
         private class FaultyQueryService : IQueryFingerprintService
         {
             private readonly IQueryFingerprintService goodOne;
