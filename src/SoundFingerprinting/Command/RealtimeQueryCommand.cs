@@ -358,6 +358,23 @@ namespace SoundFingerprinting.Command
             InvokeCallbackHandler(didNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
         }
         
+        /// <summary>
+        ///  Clears the error state after a successful query. It runs on the first query that succeeds, drained
+        ///  or live, so a long drain does not keep every consumer of the callback reporting a failed stream.
+        /// </summary>
+        private void MarkRestoredFromError()
+        {
+            if (!errored)
+            {
+                return;
+            }
+
+            logger.LogDebug("Query restored from previous error");
+            errored = false;
+            configuration.ErrorBackoffPolicy.Success();
+            configuration.RestoredAfterErrorCallback();
+        }
+
         private void HandleQueryFailure(AVHashes? hashes, Exception e)
         {
             errored = true;
@@ -382,7 +399,9 @@ namespace SoundFingerprinting.Command
             {
                 var offlineHashes = offlineStorage.First();
                 logger.LogDebug("Read AVHashes from offline storage {Hashes}. Querying storage", offlineHashes);
-                yield return await GetAvQueryResult(offlineHashes);
+                var offlineResult = await GetAvQueryResult(offlineHashes);
+                MarkRestoredFromError();
+                yield return offlineResult;
                 offlineStorage.Remove(offlineHashes);
                 await Task.Delay(configuration.DelayStrategy.Delay, cancellationToken);
             }
@@ -402,20 +421,17 @@ namespace SoundFingerprinting.Command
             AVQueryResult avQueryResult;
             try
             {
-                var (audioMilliseconds, videoMilliseconds) = hashes.FingerprintingTime;
-                avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
-                if (errored)
-                {
-                    logger.LogDebug("Query restored from previous error");
-                    errored = false;
-                    configuration.ErrorBackoffPolicy.Success();
-                    configuration.RestoredAfterErrorCallback();
-                }
-
+                // the offline storage drains BEFORE the live chunk: every query makes the server publish the
+                // chunk it received, so querying the live chunk first hands the consumers the newest chunk
+                // ahead of the outage chunks, and a consumer that guards on its own stream end drops them
                 await foreach (var offlineResult in QueryFromOfflineStorage(cancellationToken))
                 {
                     ConsumeQueryResult(offlineResult, realtimeAggregator);
                 }
+
+                var (audioMilliseconds, videoMilliseconds) = hashes.FingerprintingTime;
+                avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
+                MarkRestoredFromError();
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
             {
