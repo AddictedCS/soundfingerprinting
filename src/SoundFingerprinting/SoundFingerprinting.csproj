@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.13.0
+		- Hashes.MergeWith applies the earlier operand's TimeOffset once and accepts operands in any order, so folding realtime chunks no longer moves the window start back or stretches the duration
 		Version 15.12.0
 		- Version bump to 15.12.0
 		Version 15.11.1
