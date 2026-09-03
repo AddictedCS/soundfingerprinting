@@ -544,6 +544,12 @@ namespace SoundFingerprinting.Data
 
         private static Hashes Merge(Hashes left, Hashes right, string streamId)
         {
+            // merged positions are measured from the left window start, so the earlier window always goes left
+            if (right.WindowStartsAt < left.WindowStartsAt)
+            {
+                (left, right) = (right, left);
+            }
+
             var first = left.OrderBy(_ => _.SequenceNumber).ToList();
             double leftTail = left.DurationInSeconds - first.Last().StartsAt;
             // align on true window starts: fingerprint positions are measured from WindowStartsAt
@@ -584,7 +590,6 @@ namespace SoundFingerprinting.Data
                 }
             }
             
-            var relativeTo = firstStartsAt < secondStartsAt ? firstStartsAt : secondStartsAt;
             var fullLength = result.Last().StartsAt + tailLength;
 
             var additionalProperties = new Dictionary<string, string>();
@@ -643,8 +648,8 @@ namespace SoundFingerprinting.Data
                 }
             }
 
-            double offset = left.RelativeTo < right.RelativeTo ? left.TimeOffset : right.TimeOffset;
-            return new Hashes(result, fullLength, left.MediaType, relativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId, additionalProperties, offset);
+            // the stamp and the offset both come from the left operand, so the merged window start equals the left window start (the offset is applied once)
+            return new Hashes(result, fullLength, left.MediaType, left.RelativeTo, new HashSet<string>(left.Origins.Concat(right.Origins)), streamId, additionalProperties, left.TimeOffset);
         }
     }
 }

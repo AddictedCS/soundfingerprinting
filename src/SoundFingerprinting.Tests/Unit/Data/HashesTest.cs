@@ -189,6 +189,49 @@ namespace SoundFingerprinting.Tests.Unit.Data
         }
 
         [Test]
+        public void ShouldApplyTimeOffsetOnceWhenFoldingRealtimeChunks()
+        {
+            // 12 chunks of 12 s at a 10 s stride, each carrying a -2 s overlap offset: the true timeline spans [-2, 120]
+            var origin = DateTime.UnixEpoch;
+            var chunks = Enumerable.Range(0, 12)
+                .Select(i => TestUtilities.GetRandomHashes(12).WithRelativeTo(origin.AddSeconds(10 * i)).WithTimeOffset(-2))
+                .ToList();
+
+            var batch = chunks.Skip(1).Aggregate(chunks[0], (merged, next) => merged.MergeWith(next));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(batch, Has.Count.EqualTo(chunks.Sum(_ => _.Count)));
+                Assert.That(batch.RelativeTo, Is.EqualTo(origin));
+                Assert.That(batch.TimeOffset, Is.EqualTo(-2));
+                Assert.That(batch.DurationInSeconds, Is.EqualTo(122).Within(0.01));
+                Assert.That((batch.EndsAt - origin).TotalSeconds, Is.EqualTo(120).Within(0.01));
+            });
+        }
+
+        [Test]
+        public void ShouldMergeRealtimeChunksInAnyOrder()
+        {
+            var origin = DateTime.UnixEpoch;
+            var earlier = TestUtilities.GetRandomHashes(12).WithRelativeTo(origin).WithTimeOffset(-2);
+            var later = TestUtilities.GetRandomHashes(12).WithRelativeTo(origin.AddSeconds(10)).WithTimeOffset(-2);
+
+            var forward = earlier.MergeWith(later);
+            var backward = later.MergeWith(earlier);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(backward.RelativeTo, Is.EqualTo(forward.RelativeTo));
+                Assert.That(backward.TimeOffset, Is.EqualTo(forward.TimeOffset));
+                Assert.That(backward.DurationInSeconds, Is.EqualTo(forward.DurationInSeconds).Within(0.01));
+                Assert.That(backward.Select(_ => _.StartsAt), Is.EqualTo(forward.Select(_ => _.StartsAt)).AsCollection);
+            });
+            AssertHashesAreEqual(forward, backward);
+            Assert.That(forward.RelativeTo, Is.EqualTo(origin));
+            Assert.That(forward.First().StartsAt, Is.EqualTo(0));
+        }
+
+        [Test]
         public void ShouldNarrowSpectralProfileWhenGettingARange()
         {
             // GetRange slices fingerprints to a sub-window; the per-second spectralProfile is on the same time axis and
