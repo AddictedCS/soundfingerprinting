@@ -12,6 +12,9 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.14.0
+		- Preserve cut-off occurrences beside full repeats during query path reconstruction.
+		- Resolve competing matches against the selected occurrence alignment independently of timestamp origins.
 		Version 15.13.0
 		- Hashes.MergeWith applies the earlier operand's TimeOffset once and accepts operands in any order, so folding realtime chunks no longer moves the window start back or stretches the duration
 		Version 15.12.0
