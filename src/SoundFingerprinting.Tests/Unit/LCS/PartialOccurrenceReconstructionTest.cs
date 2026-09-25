@@ -15,6 +15,28 @@ using SoundFingerprinting.Query;
 [TestFixture]
 public class PartialOccurrenceReconstructionTest
 {
+    [TestCase(false, 0)]
+    [TestCase(false, 100)]
+    [TestCase(true, 0)]
+    [TestCase(true, 100)]
+    public void ShouldRecoverAnEarlierSuffixBesideALaterPrefix(bool reverseAxes, int queryShift)
+    {
+        var pairs = Enumerable.Range(0, 4).Select(i => (Q: i + 10, T: i))
+            .Concat(Enumerable.Range(0, 6).Select(i => (Q: i, T: i + 10)))
+            .Select(p => reverseAxes ? (Q: p.T, T: p.Q) : p)
+            .Select(p => new MatchedWith((uint)(p.Q + queryShift), p.Q + queryShift, (uint)p.T, p.T, 1))
+            .ToArray();
+
+        var paths = new QueryPathReconstructionStrategy().GetBestPaths(pairs, 5).Select(p => p.ToArray()).ToArray();
+
+        Assert.That(paths.Select(p => p.Length), Is.EqualTo(new[] { 6, 4 }));
+        Assert.That(paths.SelectMany(p => p), Is.EquivalentTo(pairs));
+        foreach (var path in paths)
+        {
+            Assert.That(path.Select(p => p.TrackMatchAt - p.QueryMatchAt).Distinct().Count(), Is.EqualTo(1));
+        }
+    }
+
     [TestCase(false, 0, 0)]
     [TestCase(false, 100, 0)]
     [TestCase(false, 0, 100)]
@@ -100,7 +122,7 @@ public class PartialOccurrenceReconstructionTest
     }
 
     [Test]
-    public void ShouldNotReviveDisjointQueryFragmentsBeforeTheSelectedOccurrence()
+    public void ShouldKeepCompetitorSuppressionWhenRecoveringCrossedPrefixes()
     {
         const int groups = 1000;
         var matches = Enumerable.Range(0, groups).SelectMany(i => Enumerable.Range(0, 2)
@@ -109,8 +131,9 @@ public class PartialOccurrenceReconstructionTest
 
         var paths = new QueryPathReconstructionStrategy().GetBestPaths(matches, 5).ToArray();
 
-        Assert.That(paths, Has.Length.EqualTo(1));
-        Assert.That(paths[0].Count(), Is.EqualTo(2));
+        // each axis can recover one branch; the other 998 remain competitors rather than separate results.
+        Assert.That(paths, Has.Length.EqualTo(2));
+        Assert.That(paths.Select(p => p.Count()), Is.EqualTo(new[] { 2, 2 }));
     }
 
     [TestCase(100, 100, 1)]

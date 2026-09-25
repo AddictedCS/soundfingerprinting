@@ -40,10 +40,11 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         return new MatchedWith(match.TrackSequenceNumber, match.TrackMatchAt, match.QuerySequenceNumber, match.QueryMatchAt, match.Score, match.Type);
     }
     
-    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double permittedGap)
+    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double permittedGap, bool recoverCrossedPrefixes = true)
     {
         var remaining = new HashSet<MatchedWith>(matched);
         var bestPaths = new List<IEnumerable<MatchedWith>>();
+        HashSet<MatchedWith>? crossedPrefixes = null;
         
         while (remaining.Count > 0)
         {
@@ -56,12 +57,30 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
 
             bestPaths.Add(withs);
             remaining.ExceptWith(withs);
-            // retain an earlier prefix on the sorted axis; positions beyond the other axis's selected endpoint remain competitors.
+            // retain earlier prefixes; crossed prefixes are reconsidered on the other axis.
             // singleton paths retain the existing exclusion policy because they have no time span.
             var first = withs[0];
             var last = withs[withs.Length - 1];
+            if (recoverCrossedPrefixes && withs.Length > 1)
+            {
+                foreach (var candidate in exclusions)
+                {
+                    if (candidate.TrackMatchAt < first.TrackMatchAt && candidate.QueryMatchAt > last.QueryMatchAt && remaining.Contains(candidate))
+                    {
+                        (crossedPrefixes ??= []).Add(candidate);
+                    }
+                }
+            }
+
             remaining.ExceptWith(withs.Length == 1 ? exclusions : exclusions.Where(x =>
                 x.TrackMatchAt >= first.TrackMatchAt || x.QueryMatchAt > last.QueryMatchAt));
+        }
+
+        // one opposite-axis pass recovers disjoint suffixes without recursively reviving its own competitors.
+        if (crossedPrefixes != null)
+        {
+            bestPaths.AddRange(GetIncreasingSequences(crossedPrefixes.Select(Transpose), permittedGap, false)
+                .Select(path => path.Select(Transpose).ToArray()));
         }
 
         // this may seem as redundant, but it is not, since we can pick the first candidates from not the same sequences
