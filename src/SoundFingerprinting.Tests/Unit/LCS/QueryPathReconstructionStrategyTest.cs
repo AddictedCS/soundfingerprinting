@@ -30,6 +30,22 @@
 			Assert.That(result[0].Select(with => with.TrackMatchAt), Is.EqualTo(new float[] { 0 }).AsCollection);
         }
 
+        [Test]
+        public void ShouldPreserveTheStrongestPathWhenTheQueryTimeOriginShifts()
+        {
+            // a timestamp origin must not decide between the competing hits (1,1) and (1,2).
+            var matches = Generate(new[] { (1, 1), (1, 2), (2, 3) }).ToArray();
+            var shiftedMatches = matches.Select(m => new MatchedWith(
+                m.QuerySequenceNumber, m.QueryMatchAt + 100, m.TrackSequenceNumber, m.TrackMatchAt, m.Score, m.Type));
+
+            var original = queryPathReconstructionStrategy.GetBestPaths(matches, permittedGap: 0).First().ToArray();
+            var shifted = queryPathReconstructionStrategy.GetBestPaths(shiftedMatches, permittedGap: 0).First().ToArray();
+
+            Assert.That(shifted.Select(m => (m.QuerySequenceNumber, m.QueryMatchAt - 100, m.TrackSequenceNumber, m.TrackMatchAt)),
+                Is.EqualTo(original.Select(m => (m.QuerySequenceNumber, m.QueryMatchAt, m.TrackSequenceNumber, m.TrackMatchAt))));
+            AssertResult(new[] { (1, 2), (2, 3) }, original);
+        }
+
         /*
          * q         1 2 3 7 8 4 5 6 7 8 2 3 9
          * t         1 2 3 2 3 4 5 6 7 8 7 8 9
@@ -84,19 +100,19 @@
         /*
          * q         1 2 3 4 7 4 5 6 
          * t         1 2 3 4 6 6 6 6
-         * expected  x x x x
-         * max       1 2 3 4 5 4 5 6
+         * selected  x x x x x - - -
+         * the old six-hit path extended track ties; sorting the wider query axis keeps one hit per track position
          */
         [Test]
-        public void ShouldNotUpdateIfQueryMatchReversalDetected()
+        public void ShouldKeepOneHitPerTrackPositionWhenQueryIsTheWiderAxis()
         {
             var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (4, 4), (7, 6), (4, 6), (5, 6), (6, 6) }
                 .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
 
-			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6 }).AsCollection);
-			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 6, 6 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 7 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 6 }).AsCollection);
         }
         
         [Test]
@@ -190,14 +206,14 @@
             /*
              * q         1 2 3 4
              * t         1 1 1 2
-             * expected  x     x
-             * max       1 2 3 4
+             * selected      x x
+             * the old path extended track ties; sorting the wider query axis selects two hits at the endpoint's alignment
              */
 
             var pairs = new[] {(1, 1), (2, 1), (3, 1), (4, 2)};
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToList();
 
-            AssertResult(pairs, result[0]);
+            AssertResult(new[] { (3, 1), (4, 2) }, result[0]);
         }
 
         [Test]
@@ -304,15 +320,15 @@
             /*
              * q         1 2 4 3 3
              * t         1 2 3 4 5
-             * expected  x x   x  
-             * max       1 2 3 3 3
+             * selected  x x - - x
+             * the old (3,4) endpoint favored zero-origin alignment; (3,5) preserves the selected endpoint's alignment
              */
 
             var pairs = new[] {(1, 1), (2, 2), (4, 3), (3, 4), (3, 5)};
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToList();
 
 			Assert.That(result, Has.Count.EqualTo(1));
-            var expected1 = new[] {(1, 1), (2, 2), (3, 4)};
+            var expected1 = new[] {(1, 1), (2, 2), (3, 5)};
             AssertResult(expected1, result[0]);
         }
 
@@ -416,12 +432,13 @@
             /*
             * q            1 5 4 3
             * t            1 2 3 4
-            * max (c.)     1 2 2 2
+            * selected      x - x -
+            * the old (3,4) endpoint came from sorting track; sorting the wider query axis selects (4,3)
             */
             var pairs = new[] {(1, 1), (5, 2), (4, 3), (3, 4)};
             var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToArray();
 
-            var expected1 = new[] {(1, 1), (3, 4)};
+            var expected1 = new[] {(1, 1), (4, 3)};
 
             AssertResult(expected1, results[0]);
         }

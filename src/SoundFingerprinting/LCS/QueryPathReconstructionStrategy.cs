@@ -11,11 +11,33 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     
     /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
     /// <remarks>
-    ///   Returns all possible reconstructed paths, where both <see cref="MatchedWith.TrackMatchAt"/> and <see cref="MatchedWith.QueryMatchAt"/> are strictly increasing. <br />
+    ///   Reconstructs paths with monotone query and track positions, retaining the existing treatment of ties.
+    ///   Ties are allowed on the sorted axis, chosen by the wider matched time span (track on equal spans).
+    ///   Noise can change that choice for similar spans, changing the selected path and its length.
     /// </remarks>
     public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double permittedGap)
     {
-        return GetIncreasingSequences(matches, permittedGap).ToList();
+        var points = matches.ToArray();
+        if (points.Length == 0)
+        {
+            return [];
+        }
+
+        double querySpan = points.Max(p => p.QueryMatchAt) - points.Min(p => p.QueryMatchAt);
+        double trackSpan = points.Max(p => p.TrackMatchAt) - points.Min(p => p.TrackMatchAt);
+        // repeated occurrences must advance on the sorted axis, whichever recording contains them.
+        if (querySpan <= trackSpan)
+        {
+            return GetIncreasingSequences(points, permittedGap).ToList();
+        }
+
+        return GetIncreasingSequences(points.Select(Transpose), permittedGap)
+            .Select(path => path.Select(Transpose).ToArray()).ToList();
+    }
+
+    private static MatchedWith Transpose(MatchedWith match)
+    {
+        return new MatchedWith(match.TrackSequenceNumber, match.TrackMatchAt, match.QuerySequenceNumber, match.QueryMatchAt, match.Score, match.Type);
     }
     
     private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double permittedGap)
@@ -34,7 +56,12 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
 
             bestPaths.Add(withs);
             remaining.ExceptWith(withs);
-            remaining.ExceptWith(exclusions);
+            // retain an earlier prefix on the sorted axis; positions beyond the other axis's selected endpoint remain competitors.
+            // singleton paths retain the existing exclusion policy because they have no time span.
+            var first = withs[0];
+            var last = withs[withs.Length - 1];
+            remaining.ExceptWith(withs.Length == 1 ? exclusions : exclusions.Where(x =>
+                x.TrackMatchAt >= first.TrackMatchAt || x.QueryMatchAt > last.QueryMatchAt));
         }
 
         // this may seem as redundant, but it is not, since we can pick the first candidates from not the same sequences
@@ -107,6 +134,8 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
         var excluded = new List<MaxAt>();
         var result = new Dictionary<int, MaxAt> {[max--] = maxArray[maxIndex]};
         var lastPicked = maxArray[maxIndex];
+        // compare equal-length alternatives with the selected occurrence, not the recordings' origins.
+        double alignment = (double)lastPicked.MatchedWith.TrackMatchAt - lastPicked.MatchedWith.QueryMatchAt;
         
         while (maxs.TryPop(out var candidate))
         {
@@ -117,8 +146,8 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             
             if (candidate!.Length > max)
             {
-                // check if we previously picked a sequence with the same length, if yes we should try picking the best one based on the distance to the diagonal
-                lastPicked = TryUpdateResultSelection(result, candidate, excluded);
+                // check if we previously picked a sequence with the same length, if yes we should try picking the best one based on the distance to the selected alignment
+                lastPicked = TryUpdateResultSelection(result, candidate, excluded, alignment);
                 continue;
             }
             
@@ -137,23 +166,22 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             }
             
             max--;
-            lastPicked = TryUpdateResultSelection(result, candidate, excluded);
+            lastPicked = TryUpdateResultSelection(result, candidate, excluded, alignment);
         }
 
         return new LongestIncreasingSequence(result.OrderBy(_ => _.Key).Select(_ => _.Value.MatchedWith), excluded.Select(_ => _.MatchedWith));
     }
 
-    private static MaxAt TryUpdateResultSelection(Dictionary<int, MaxAt> result, MaxAt candidate, List<MaxAt> excluded)
+    private static MaxAt TryUpdateResultSelection(Dictionary<int, MaxAt> result, MaxAt candidate, List<MaxAt> excluded, double alignment)
     {
-        // check if the candidate is closer to the diagonal than the previous element, pick best and exclude the other
         if (!result.TryGetValue(candidate.Length, out var previous))
         {
             result[candidate.Length] = candidate;
             return candidate;
         }
 
-        double prevQueryTrackDistance = previous.QueryTrackDistance;
-        double currentQueryTrackDistance = candidate.QueryTrackDistance;
+        double previousAlignmentDistance = Math.Abs((double)previous.MatchedWith.TrackMatchAt - previous.MatchedWith.QueryMatchAt - alignment);
+        double candidateAlignmentDistance = Math.Abs((double)candidate.MatchedWith.TrackMatchAt - candidate.MatchedWith.QueryMatchAt - alignment);
 
         // possible when the candidate is part of a different decreasing sequence with equal maxAt
         if (!IsQuerySequenceDecreasing(candidate, previous))
@@ -168,9 +196,9 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
             return previous;
         }
 
-        // if the current element is closer to the diagonal, we should pick it
-        var pickedValue = prevQueryTrackDistance < currentQueryTrackDistance ? previous : candidate;
-        var excludedValue = prevQueryTrackDistance < currentQueryTrackDistance ? candidate : previous;
+        // prefer the alternative closer to this occurrence's alignment.
+        var pickedValue = previousAlignmentDistance < candidateAlignmentDistance ? previous : candidate;
+        var excludedValue = previousAlignmentDistance < candidateAlignmentDistance ? candidate : previous;
         excluded.Add(excludedValue);
         result[candidate.Length] = pickedValue;
         return pickedValue;
@@ -212,6 +240,9 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     ///  Track ties across the chain are accepted (<c>ShouldPickAllTrackCandidates</c> documents this) — only a
     ///  strict decrease is rejected here.
     /// </remarks>
+    /// <param name="result">Selected positions by path length.</param>
+    /// <param name="candidate">Alternative position.</param>
+    /// <returns>True if replacement would reverse the track axis.</returns>
     private static bool WouldBreakLowerNeighbour(Dictionary<int, MaxAt> result, MaxAt candidate)
     {
         return result.TryGetValue(candidate.Length - 1, out var below) && below.MatchedWith.TrackSequenceNumber > candidate.MatchedWith.TrackSequenceNumber;
