@@ -14,9 +14,8 @@ using SoundFingerprinting.Query;
 [TestFixture]
 public class WrapAroundRegressionTest
 {
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task ShouldRecoverBothHalvesOfARotatedCreative(bool reverseAxes)
+    [Test]
+    public async Task ShouldRecoverBothHalvesWhenQueryWrapsAroundStoredCreative()
     {
         const int sampleRate = 5512;
         var samples = new[] { 11, 22, 33, 44 }.SelectMany(seed =>
@@ -30,8 +29,8 @@ public class WrapAroundRegressionTest
         var broadcast = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
             .From(new AudioSamples(rotated, string.Empty, sampleRate)).Hash();
         var model = new InMemoryModelService();
-        model.Insert(new TrackInfo("stored", string.Empty, string.Empty), reverseAxes ? broadcast : creative);
-        var query = (reverseAxes ? creative : broadcast).Audio!;
+        model.Insert(new TrackInfo("stored", string.Empty, string.Empty), creative);
+        var query = broadcast.Audio!;
         var config = new DefaultQueryConfiguration
         {
             ThresholdVotes = 3,

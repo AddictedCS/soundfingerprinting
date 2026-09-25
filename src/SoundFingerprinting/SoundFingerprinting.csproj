@@ -13,7 +13,7 @@
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
 		Version 15.14.1
-		- Recover wrap-around match fragments discarded by competitor exclusion without reopening every competing path.
+		- Restore fixed-axis reconstruction while retaining retrospective partial-occurrence recovery and alignment-based tie selection.
 		Version 15.14.0
 		- Preserve cut-off occurrences beside full repeats during query path reconstruction.
 		- Resolve competing matches against the selected occurrence alignment independently of timestamp origins.

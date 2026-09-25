@@ -15,39 +15,13 @@ using SoundFingerprinting.Query;
 [TestFixture]
 public class PartialOccurrenceReconstructionTest
 {
-    [TestCase(false, 0)]
-    [TestCase(false, 100)]
-    [TestCase(true, 0)]
-    [TestCase(true, 100)]
-    public void ShouldRecoverAnEarlierSuffixBesideALaterPrefix(bool reverseAxes, int queryShift)
-    {
-        var pairs = Enumerable.Range(0, 4).Select(i => (Q: i + 10, T: i))
-            .Concat(Enumerable.Range(0, 6).Select(i => (Q: i, T: i + 10)))
-            .Select(p => reverseAxes ? (Q: p.T, T: p.Q) : p)
-            .Select(p => new MatchedWith((uint)(p.Q + queryShift), p.Q + queryShift, (uint)p.T, p.T, 1))
-            .ToArray();
-
-        var paths = new QueryPathReconstructionStrategy().GetBestPaths(pairs, 5).Select(p => p.ToArray()).ToArray();
-
-        Assert.That(paths.Select(p => p.Length), Is.EqualTo(new[] { 6, 4 }));
-        Assert.That(paths.SelectMany(p => p), Is.EquivalentTo(pairs));
-        foreach (var path in paths)
-        {
-            Assert.That(path.Select(p => p.TrackMatchAt - p.QueryMatchAt).Distinct().Count(), Is.EqualTo(1));
-        }
-    }
-
-    [TestCase(false, 0, 0)]
-    [TestCase(false, 100, 0)]
-    [TestCase(false, 0, 100)]
-    [TestCase(true, 0, 0)]
-    [TestCase(true, 100, 0)]
-    [TestCase(true, 0, 100)]
-    public void ShouldPreservePartialAndFullOccurrences(bool reverseAxes, int queryShift, int trackShift)
+    [TestCase(0, 0)]
+    [TestCase(100, 0)]
+    [TestCase(0, 100)]
+    public void ShouldPreservePartialAndFullOccurrencesInStoredTrack(int queryShift, int trackShift)
     {
         var pairs = Enumerable.Range(0, 3).Select(i => (Q: i, T: i))
             .Concat(Enumerable.Range(0, 6).Select(i => (Q: i, T: i + 4)))
-            .Select(p => reverseAxes ? (Q: p.T, T: p.Q) : p)
             .Select(p => new MatchedWith((uint)(p.Q + queryShift), p.Q + queryShift, (uint)(p.T + trackShift), p.T + trackShift, 1))
             .ToArray();
 
@@ -66,28 +40,24 @@ public class PartialOccurrenceReconstructionTest
         }
     }
 
-    [TestCase(false, 0)]
-    [TestCase(false, 4)]
-    [TestCase(true, 0)]
-    [TestCase(true, 4)]
-    public void ShouldStartANewPathAfterDistantCrossMatches(bool reverseAxes, int creativeOffset)
+    [TestCase(0)]
+    [TestCase(4)]
+    public void ShouldStartANewTrackPathAfterDistantCrossMatches(int creativeOffset)
     {
         var occurrence = Enumerable.Range(0, 10).Select(i => (Q: i + creativeOffset, T: i + 30));
         var pairs = new[] { (Q: 5, T: 0), (Q: 6, T: 1), (Q: 7, T: 2), (Q: 3, T: 7), (Q: 7, T: 19), (Q: 8, T: 20), (Q: 3, T: 43) }
             .Concat(occurrence)
-            .Select(p => reverseAxes ? (Q: p.T, T: p.Q) : p)
             .Select(p => new MatchedWith((uint)p.Q, p.Q, (uint)p.T, p.T, 1));
 
         var path = new QueryPathReconstructionStrategy().GetBestPaths(pairs, 5).First().ToArray();
 
         Assert.That(path, Has.Length.EqualTo(10));
         Assert.That(path.Select(p => (p.QueryMatchAt, p.TrackMatchAt)),
-            Is.EqualTo(occurrence.Select(p => reverseAxes ? ((float)p.T, (float)p.Q) : ((float)p.Q, (float)p.T))));
+            Is.EqualTo(occurrence.Select(p => ((float)p.Q, (float)p.T))));
     }
 
-    [TestCase(false)]
-    [TestCase(true)]
-    public void ShouldRecoverTheCutOffAiringAmongUnrelatedMatches(bool reverseAxes)
+    [Test]
+    public void ShouldRecoverTheCutOffAiringInStoredTrackAmongUnrelatedMatches()
     {
         const float stride = 0.068f;
         var early = Enumerable.Range(0, 118).Select(i => (Q: i, T: i)).ToArray();
@@ -99,9 +69,7 @@ public class PartialOccurrenceReconstructionTest
             noise.Add((random.Next(441), random.Next(1764)));
         }
 
-        MatchedWith Match((int Q, int T) p) => reverseAxes
-            ? new MatchedWith((uint)p.T, p.T * stride, (uint)p.Q, p.Q * stride, 1)
-            : new MatchedWith((uint)p.Q, p.Q * stride, (uint)p.T, p.T * stride, 1);
+        MatchedWith Match((int Q, int T) p) => new MatchedWith((uint)p.Q, p.Q * stride, (uint)p.T, p.T * stride, 1);
         var matches = early.Concat(later).Concat(noise).Distinct().Select(Match);
 
         var paths = new QueryPathReconstructionStrategy().GetBestPaths(matches, 5).Select(p => p.ToArray()).ToArray();
@@ -122,7 +90,7 @@ public class PartialOccurrenceReconstructionTest
     }
 
     [Test]
-    public void ShouldKeepCompetitorSuppressionWhenRecoveringCrossedPrefixes()
+    public void ShouldNotReviveDisjointQueryFragmentsBeforeTheSelectedOccurrence()
     {
         const int groups = 1000;
         var matches = Enumerable.Range(0, groups).SelectMany(i => Enumerable.Range(0, 2)
@@ -131,9 +99,8 @@ public class PartialOccurrenceReconstructionTest
 
         var paths = new QueryPathReconstructionStrategy().GetBestPaths(matches, 5).ToArray();
 
-        // each axis can recover one branch; the other 998 remain competitors rather than separate results.
-        Assert.That(paths, Has.Length.EqualTo(2));
-        Assert.That(paths.Select(p => p.Count()), Is.EqualTo(new[] { 2, 2 }));
+        Assert.That(paths, Has.Length.EqualTo(1));
+        Assert.That(paths[0].Count(), Is.EqualTo(2));
     }
 
     [TestCase(100, 100, 1)]
@@ -156,7 +123,7 @@ public class PartialOccurrenceReconstructionTest
     [TestCase(8, 8, true)]
     [TestCase(8, 30, false)]
     [TestCase(30, 8, false)]
-    [TestCase(8, 30, true)]
+    // query-side cut-offs retain the previous limitation; recovery is scoped to stored recordings.
     [TestCase(30, 8, true)]
     public async Task ShouldRecoverCutOffAiringBesideAFullAiring(int firstLength, int secondLength, bool queryBroadcast)
     {

@@ -11,40 +11,19 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
     
     /// <inheritdoc cref="IQueryPathReconstructionStrategy.GetBestPaths"/>
     /// <remarks>
-    ///   Reconstructs paths with monotone query and track positions, retaining the existing treatment of ties.
-    ///   Ties are allowed on the sorted axis, chosen by the wider matched time span (track on equal spans).
-    ///   Noise can change that choice for similar spans, changing the selected path and its length.
+    ///   Reconstructs paths with monotone query and track positions.
+    ///   Track positions define the sorted axis and retain the existing treatment of ties.
+    ///   Earlier partial occurrences are retained in stored tracks; query-side recovery remains asymmetric.
     /// </remarks>
     public IEnumerable<IEnumerable<MatchedWith>> GetBestPaths(IEnumerable<MatchedWith> matches, double permittedGap)
     {
-        var points = matches.ToArray();
-        if (points.Length == 0)
-        {
-            return [];
-        }
-
-        double querySpan = points.Max(p => p.QueryMatchAt) - points.Min(p => p.QueryMatchAt);
-        double trackSpan = points.Max(p => p.TrackMatchAt) - points.Min(p => p.TrackMatchAt);
-        // repeated occurrences must advance on the sorted axis, whichever recording contains them.
-        if (querySpan <= trackSpan)
-        {
-            return GetIncreasingSequences(points, permittedGap).ToList();
-        }
-
-        return GetIncreasingSequences(points.Select(Transpose), permittedGap)
-            .Select(path => path.Select(Transpose).ToArray()).ToList();
+        return GetIncreasingSequences(matches, permittedGap).ToList();
     }
 
-    private static MatchedWith Transpose(MatchedWith match)
-    {
-        return new MatchedWith(match.TrackSequenceNumber, match.TrackMatchAt, match.QuerySequenceNumber, match.QueryMatchAt, match.Score, match.Type);
-    }
-    
-    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double permittedGap, bool recoverCrossedPrefixes = true)
+    private IEnumerable<IEnumerable<MatchedWith>> GetIncreasingSequences(IEnumerable<MatchedWith> matched, double permittedGap)
     {
         var remaining = new HashSet<MatchedWith>(matched);
         var bestPaths = new List<IEnumerable<MatchedWith>>();
-        HashSet<MatchedWith>? crossedPrefixes = null;
         
         while (remaining.Count > 0)
         {
@@ -57,30 +36,12 @@ internal class QueryPathReconstructionStrategy : IQueryPathReconstructionStrateg
 
             bestPaths.Add(withs);
             remaining.ExceptWith(withs);
-            // retain earlier prefixes; crossed prefixes are reconsidered on the other axis.
+            // retain earlier track prefixes; query positions beyond the selected endpoint remain competitors.
             // singleton paths retain the existing exclusion policy because they have no time span.
             var first = withs[0];
             var last = withs[withs.Length - 1];
-            if (recoverCrossedPrefixes && withs.Length > 1)
-            {
-                foreach (var candidate in exclusions)
-                {
-                    if (candidate.TrackMatchAt < first.TrackMatchAt && candidate.QueryMatchAt > last.QueryMatchAt && remaining.Contains(candidate))
-                    {
-                        (crossedPrefixes ??= []).Add(candidate);
-                    }
-                }
-            }
-
             remaining.ExceptWith(withs.Length == 1 ? exclusions : exclusions.Where(x =>
                 x.TrackMatchAt >= first.TrackMatchAt || x.QueryMatchAt > last.QueryMatchAt));
-        }
-
-        // one opposite-axis pass recovers disjoint suffixes without recursively reviving its own competitors.
-        if (crossedPrefixes != null)
-        {
-            bestPaths.AddRange(GetIncreasingSequences(crossedPrefixes.Select(Transpose), permittedGap, false)
-                .Select(path => path.Select(Transpose).ToArray()));
         }
 
         // this may seem as redundant, but it is not, since we can pick the first candidates from not the same sequences
