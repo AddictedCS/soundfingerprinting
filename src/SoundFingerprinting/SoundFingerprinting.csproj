@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.14.1
+		- Restore fixed-axis reconstruction while retaining retrospective partial-occurrence recovery and alignment-based tie selection.
 		Version 15.14.0
 		- Preserve cut-off occurrences beside full repeats during query path reconstruction.
 		- Resolve competing matches against the selected occurrence alignment independently of timestamp origins.

@@ -100,19 +100,19 @@
         /*
          * q         1 2 3 4 7 4 5 6 
          * t         1 2 3 4 6 6 6 6
-         * selected  x x x x x - - -
-         * the old six-hit path extended track ties; sorting the wider query axis keeps one hit per track position
+         * selected  x x x x - - x x
+         * track ties retain the existing six-hit path without the reversal at (7,6)
          */
         [Test]
-        public void ShouldKeepOneHitPerTrackPositionWhenQueryIsTheWiderAxis()
+        public void ShouldNotUpdateIfQueryMatchReversalDetected()
         {
             var matchedWiths = new[] { (1, 1), (2, 2), (3, 3), (4, 4), (7, 6), (4, 6), (5, 6), (6, 6) }
                 .Select(tuple => new MatchedWith((uint)tuple.Item1, tuple.Item1, (uint)tuple.Item2, tuple.Item2, 0d));
 
             var result = queryPathReconstructionStrategy.GetBestPaths(matchedWiths, permittedGap: 0).First().ToList();
 
-			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 7 }).AsCollection);
-			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 6 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.QuerySequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 5, 6 }).AsCollection);
+			Assert.That(result.Select(_ => (int)_.TrackSequenceNumber), Is.EqualTo(new[] { 1, 2, 3, 4, 6, 6 }).AsCollection);
         }
         
         [Test]
@@ -206,14 +206,14 @@
             /*
              * q         1 2 3 4
              * t         1 1 1 2
-             * selected      x x
-             * the old path extended track ties; sorting the wider query axis selects two hits at the endpoint's alignment
+             * selected  x x x x
+             * track ties retain all four increasing query positions
              */
 
             var pairs = new[] {(1, 1), (2, 1), (3, 1), (4, 2)};
             var result = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToList();
 
-            AssertResult(new[] { (3, 1), (4, 2) }, result[0]);
+            AssertResult(pairs, result[0]);
         }
 
         [Test]
@@ -432,13 +432,13 @@
             /*
             * q            1 5 4 3
             * t            1 2 3 4
-            * selected      x - x -
-            * the old (3,4) endpoint came from sorting track; sorting the wider query axis selects (4,3)
+            * selected     x - - x
+            * the fixed track sort retains the existing (3,4) endpoint
             */
             var pairs = new[] {(1, 1), (5, 2), (4, 3), (3, 4)};
             var results = queryPathReconstructionStrategy.GetBestPaths(Generate(pairs), permittedGap: 0).ToArray();
 
-            var expected1 = new[] {(1, 1), (4, 3)};
+            var expected1 = new[] {(1, 1), (3, 4)};
 
             AssertResult(expected1, results[0]);
         }
