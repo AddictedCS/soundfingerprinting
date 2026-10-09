@@ -36,5 +36,11 @@ namespace SoundFingerprinting.Builder
         {
             return new FingerprintCommand(fingerprintService, loggerFactory ?? new NullLoggerFactory());
         }
+
+        /// <inheritdoc cref="IFingerprintCommandBuilder.BuildRealtimeFingerprintCommand"/>
+        public IRealtimeFingerprintSource BuildRealtimeFingerprintCommand()
+        {
+            return new RealtimeFingerprintCommand(this, loggerFactory ?? new NullLoggerFactory());
+        }
     }
 }

@@ -12,5 +12,11 @@ namespace SoundFingerprinting.Builder
         /// </summary>
         /// <returns>Instance of <see cref="ISourceFrom"/> that allows selecting a source from which the fingerprints will be built.</returns>
         ISourceFrom BuildFingerprintCommand();
+
+        /// <summary>
+        ///   Start building a realtime fingerprint command.
+        /// </summary>
+        /// <returns>Instance of <see cref="IRealtimeFingerprintSource"/> that allows selecting the realtime source from which the fingerprints will be built.</returns>
+        IRealtimeFingerprintSource BuildRealtimeFingerprintCommand();
     }
 }
