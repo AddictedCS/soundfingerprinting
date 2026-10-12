@@ -1,0 +1,129 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "restore: solution",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "restore",
+        "${workspaceFolder}/src/SoundFingerprinting.sln"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build: solution",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/SoundFingerprinting.sln",
+        "--configuration",
+        "Debug",
+        "--nologo",
+        "-tl:off"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build: library",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/SoundFingerprinting/SoundFingerprinting.csproj",
+        "--configuration",
+        "Debug",
+        "--nologo",
+        "-tl:off"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "test: all",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "${workspaceFolder}/src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj",
+        "--configuration",
+        "Debug",
+        "--logger",
+        "console;verbosity=normal",
+        "-tl:off"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "test: unit",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "${workspaceFolder}/src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj",
+        "--configuration",
+        "Debug",
+        "--logger",
+        "console;verbosity=normal",
+        "-tl:off",
+        "--filter",
+        "FullyQualifiedName~SoundFingerprinting.Tests.Unit"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "group": "test"
+    },
+    {
+      "label": "test: filtered",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "${workspaceFolder}/src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj",
+        "--configuration",
+        "Debug",
+        "--logger",
+        "console;verbosity=normal",
+        "-tl:off",
+        "--filter",
+        "${input:testFilter}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile",
+      "group": "test"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "testFilter",
+      "type": "promptString",
+      "description": "dotnet test filter (class, method, or namespace)",
+      "default": "FullyQualifiedName~LowPassFilterTest"
+    }
+  ]
+}
