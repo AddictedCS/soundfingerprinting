@@ -9,15 +9,16 @@ namespace SoundFingerprinting.Video
     public class VideoTrackReadConfiguration
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="VideoTrackReadConfiguration"/> class.
+        ///  Initializes a new instance of the <see cref="VideoTrackReadConfiguration"/> class.
         /// </summary>
-        /// <param name="height">Height of the image frame.</param>
-        /// <param name="width">Width of the image frame.</param>
+        /// <param name="height">Required height of the image frame.</param>
+        /// <param name="width">Required width of the image frame.</param>
         /// <param name="frameRate">Frame rate at which to read the frames from the source.</param>
         /// <param name="blackFramesFilterConfiguration">Black frames filter configuration.</param>
         /// <param name="croppingConfiguration">Cropping configuration.</param>
-        /// <param name="additionalFilters">Additional video frames configuration to use.</param>
-        public VideoTrackReadConfiguration(int height, int width, int frameRate, BlackFramesFilterConfiguration blackFramesFilterConfiguration, CroppingConfiguration croppingConfiguration, string additionalFilters)
+        /// <param name="additionalFilters">Additional filters to apply when reading from the source.</param>
+        /// <param name="frameCropSink">Sink that takes crops of a frame region while the source is read, or null when nothing is cropped.</param>
+        public VideoTrackReadConfiguration(int height, int width, int frameRate, BlackFramesFilterConfiguration blackFramesFilterConfiguration, CroppingConfiguration croppingConfiguration, string additionalFilters, IFrameCropSink? frameCropSink = null)
         {
             Height = height;
             Width = width;
@@ -25,6 +26,7 @@ namespace SoundFingerprinting.Video
             BlackFramesFilterConfiguration = blackFramesFilterConfiguration;
             CroppingConfiguration = croppingConfiguration;
             AdditionalFilters = additionalFilters;
+            FrameCropSink = frameCropSink;
         }
 
         /// <summary>
@@ -62,5 +64,13 @@ namespace SoundFingerprinting.Video
         ///  Gets additional filters to apply when reading from the source.
         /// </summary>
         public string AdditionalFilters { get; }
+
+        /// <summary>
+        ///  Gets the sink that takes crops of a frame region while the source is read, or null when nothing is cropped.
+        /// </summary>
+        /// <remarks>
+        ///  A media service that supports it reads <see cref="IFrameCropSink.Region"/> once at the start of every source and crops the decoded frames at the region's rate.
+        /// </remarks>
+        public IFrameCropSink? FrameCropSink { get; }
     }
 }
