@@ -12,6 +12,9 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.16.0
+		- IFrameCropSink, FrameRegion and FrameCrop in SoundFingerprinting.Video: a media service that supports it crops a frame region out of the decoded frames while it reads a source, stamped with the time since the first video frame
+		- VideoFingerprintConfiguration.FrameCropSink and WithFrameCropSink, mirrored on AVFingerprintConfiguration; the sink reaches the media service through VideoTrackReadConfiguration.FrameCropSink
 		Version 15.15.0
 		- Public RealtimeFingerprintCommand: realtime hash generation extracted from RealtimeQueryCommand, built with FingerprintCommandBuilder.BuildRealtimeFingerprintCommand()
 		Version 15.14.1
