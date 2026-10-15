@@ -12,6 +12,10 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 15.17.0
+		- RealtimeQueryConfiguration.SeamJumpPolicy decides what a realtime query does when the track position jumps ahead of the stream between consecutive chunks: Stitch (default, historical), SourceSkip (the former AutomaticSkipDetection, now obsolete) or NewOccurrenceAbove(seconds) for tracks that repeat their own audio
+		- The realtime aggregator prefers, among several candidates of one track, the one that continues the tracked occurrence, so a real playing of a track that repeats its audio accumulates through the repeated regions instead of hopping to a copy
+		- ResultEntryConcatenator takes a SeamJumpPolicy; the (ILoggerFactory, bool) constructor is removed
 		Version 15.16.0
 		- IFrameCropSink, FrameRegion and FrameCrop in SoundFingerprinting.Video: a media service that supports it crops a frame region out of the decoded frames while it reads a source, stamped with the time since the first video frame
 		- VideoFingerprintConfiguration.FrameCropSink and WithFrameCropSink, mirrored on AVFingerprintConfiguration; the sink reaches the media service through VideoTrackReadConfiguration.FrameCropSink

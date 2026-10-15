@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "dotnet.defaultSolution": "src/SoundFingerprinting.sln",
+    "dotnet.server.useOmnisharp": false,
+    "dotnet.automaticallySyncWithActiveItem": true
+  }
+}

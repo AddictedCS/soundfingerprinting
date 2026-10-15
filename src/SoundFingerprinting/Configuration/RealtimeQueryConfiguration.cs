@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Configuration
         /// <param name="offlineStorage">An instance of the <see cref="IOfflineStorage"/> interface.</param>
         /// <param name="errorBackoffPolicy">Error backoff policy.</param>
         /// <param name="delayStrategy">Delay strategy.</param>
-        /// <param name="automaticSkipDetection">A flag indicating whether to automatically detect skip in the query source.</param>
+        /// <param name="automaticSkipDetection">True selects <see cref="Configuration.SeamJumpPolicy.SourceSkip"/>, false <see cref="Configuration.SeamJumpPolicy.Stitch"/>; see <see cref="SeamJumpPolicy"/>.</param>
         /// <param name="includeQueryHashesInResponse">A flag indicating whether to include query hashes in the response or not.</param>
         public RealtimeQueryConfiguration(AVQueryConfiguration queryConfiguration,
             IRealtimeResultEntryFilter resultEntryFilter,
@@ -53,7 +53,7 @@ namespace SoundFingerprinting.Configuration
             OfflineStorage = offlineStorage;
             ErrorBackoffPolicy = errorBackoffPolicy;
             DelayStrategy = delayStrategy;
-            AutomaticSkipDetection = automaticSkipDetection;
+            SeamJumpPolicy = automaticSkipDetection ? SeamJumpPolicy.SourceSkip : SeamJumpPolicy.Stitch;
             IncludeQueryHashesInResponse = includeQueryHashesInResponse;
         }
 
@@ -136,14 +136,27 @@ namespace SoundFingerprinting.Configuration
         public IOfflineStorage OfflineStorage { get; set; }
 
         /// <summary>
-        ///  Gets or sets a value indicating whether to enable automatic skip detection (default false).
+        ///  Gets or sets a value indicating whether the source skips (default false). Shorthand for <see cref="SeamJumpPolicy"/>: true reads and writes <see cref="Configuration.SeamJumpPolicy.SourceSkip"/>, false <see cref="Configuration.SeamJumpPolicy.Stitch"/>.
         /// </summary>
         /// <remarks>
-        ///  Experimental automatic skip detection is used to identify fast-forwards or backwards skip in the realtime query source (i.e., skip through audio/video player). <br />
-        ///  This helps in correctly identifying query/track gaps that result when the query source is matching across track regions larger than the initial query length. <br />
-        ///  A by-product of skip detection is a synthetically increased query length in the resulting <see cref="ResultEntry"/> when skip is detected.
+        ///  Setting false when the policy is <see cref="SeamJumpKind.NewOccurrence"/> leaves that policy in place.
         /// </remarks>
-        public bool AutomaticSkipDetection { get; set; }
+        [Obsolete("Use SeamJumpPolicy: SeamJumpPolicy.SourceSkip for a seeking source, SeamJumpPolicy.NewOccurrenceAbove for a continuous source matched against tracks that repeat their own audio.")]
+        public bool AutomaticSkipDetection
+        {
+            get => SeamJumpPolicy.Kind == SeamJumpKind.SourceSkip;
+            set
+            {
+                if (value)
+                {
+                    SeamJumpPolicy = SeamJumpPolicy.SourceSkip;
+                }
+                else if (SeamJumpPolicy.Kind == SeamJumpKind.SourceSkip)
+                {
+                    SeamJumpPolicy = SeamJumpPolicy.Stitch;
+                }
+            }
+        }
 
         /// <summary>
         ///  Gets or sets a value indicating whether to include query hashes <see cref="AVQueryResult.QueryHashes"/> in the response or not.
@@ -165,6 +178,18 @@ namespace SoundFingerprinting.Configuration
         ///  Entries on tracks shorter than the ceiling are unaffected regardless of the value.
         /// </remarks>
         public double OngoingEntryStalenessCeiling { get; set; } = double.MaxValue;
+
+        /// <summary>
+        ///  Gets or sets what happens when the track position jumps ahead of the stream across a query seam (default <see cref="SeamJumpPolicy.Stitch"/>).
+        /// </summary>
+        /// <remarks>
+        ///  <see cref="SeamJumpPolicy.Stitch"/> continues the match whatever the jump (the historical behavior). <br />
+        ///  <see cref="SeamJumpPolicy.SourceSkip"/> is for a source that seeks (an audio/video player): the match continues and the skipped track time is booked into the query length,
+        ///  so query/track gaps that result from a skip are identified correctly; the query length of the resulting <see cref="ResultEntry"/> grows by the skip. <br />
+        ///  <see cref="SeamJumpPolicy.NewOccurrenceAbove"/> is for a continuous source matched against tracks that repeat their own audio: a jump above the ceiling is another
+        ///  occurrence of the audio and starts a new result entry instead of one match whose track span covers minutes of content that never aired.
+        /// </remarks>
+        public SeamJumpPolicy SeamJumpPolicy { get; set; } = SeamJumpPolicy.Stitch;
 
         /// <summary>
         ///  Gets or sets list of positive meta fields to consider when querying the data source for potential candidates.

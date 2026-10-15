@@ -1,0 +1,23 @@
+{
+  "dotnet.defaultSolution": "src/SoundFingerprinting.sln",
+  "dotnet.server.useOmnisharp": false,
+  "dotnet.automaticallySyncWithActiveItem": true,
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true
+  },
+  "files.watcherExclude": {
+    "**/bin/**": true,
+    "**/obj/**": true,
+    "**/TestResults/**": true
+  },
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/TestResults": true,
+    "build": true
+  }
+}

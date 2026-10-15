@@ -36,8 +36,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackCoverageLengthEntryFilter(5d, waitTillCompletion: false), 
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
-                new ResultEntryConcatenator(loggerFactory, false),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
                 new StatefulQueryHashesConcatenator(),
                 loggerFactory);
 
@@ -58,8 +58,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackCoverageLengthEntryFilter(10d, waitTillCompletion: false),
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(0d), new ResultEntryCompletionStrategy(0d)),
-                new ResultEntryConcatenator(loggerFactory, false),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
                 new StatefulQueryHashesConcatenator(),
                 loggerFactory);
             
@@ -106,8 +106,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackCoverageLengthEntryFilter(5d, waitTillCompletion: false),
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(3d), new ResultEntryCompletionStrategy(1.75d)),
-                new ResultEntryConcatenator(loggerFactory, false),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
                 new StatefulQueryHashesConcatenator(),
                 loggerFactory);
 
@@ -243,8 +243,8 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new TrackRelativeCoverageEntryFilter(0.4, waitTillCompletion: true),
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(permittedGap), new ResultEntryCompletionStrategy(permittedGap)),
-                new ResultEntryConcatenator(loggerFactory, false),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
                 new StatefulQueryHashesConcatenator(),
                 loggerFactory);
 
@@ -288,7 +288,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 new NoPassRealtimeResultEntryFilter(),
                 new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(permittedGap), new ResultEntryCompletionStrategy(permittedGap)),
                 new CorruptingConcatenator(),
-                new ResultEntryConcatenator(loggerFactory, false),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
                 new StatefulQueryHashesConcatenator(),
                 loggerFactory);
 
@@ -315,6 +315,46 @@ namespace SoundFingerprinting.Tests.Unit.Query
 			Assert.That(success[0].Audio!.TrackCoverageWithPermittedGapsLength, Is.EqualTo(40).Within(1d));
         }
 
+        [Test]
+        public void ShouldContinueTheTrackedOccurrenceOverACopyWithMoreCoverage()
+        {
+            double permittedGap = 2d;
+            var aggregator = new StatefulRealtimeResultEntryAggregator(
+                new TrackCoverageLengthEntryFilter(5d, waitTillCompletion: true),
+                new NoPassRealtimeResultEntryFilter(),
+                new AvResultEntryCompletionStrategy(new ResultEntryCompletionStrategy(permittedGap), new ResultEntryCompletionStrategy(permittedGap)),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
+                new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch),
+                new StatefulQueryHashesConcatenator(),
+                loggerFactory);
+
+            const int trackLength = 1800;
+            var matchedAt = DateTime.UtcNow;
+            var success = new List<AVResultEntry>();
+            var filtered = new List<AVResultEntry>();
+            ConsumeChunk(aggregator, matchedAt, Enumerable.Range(0, 10).ToArray(), Enumerable.Range(0, 10).ToArray(), 10, trackLength, permittedGap, success, filtered);
+
+            // a program that repeats its audio: the next chunk matches the continuation with 9 points and a copy 1000 s ahead with 10 points
+            var copy = Entry(matchedAt.AddSeconds(10), Enumerable.Range(0, 10).ToArray(), Enumerable.Range(1000, 10).ToArray(), 10, trackLength, permittedGap);
+            var continuation = Entry(matchedAt.AddSeconds(10), Enumerable.Range(0, 9).ToArray(), Enumerable.Range(10, 9).ToArray(), 10, trackLength, permittedGap);
+            var hashes = TestUtilities.GetRandomHashes(10);
+            var aggregated = aggregator.Consume(new AVQueryResult(new QueryResult(new[] { copy, continuation }, hashes, QueryCommandStats.Zero()), null, new AVHashes(hashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null)));
+            AddAll(aggregated.SuccessEntries, success);
+            AddAll(aggregated.DidNotPassThresholdEntries, filtered);
+            var purged = aggregator.Purge();
+            AddAll(purged.SuccessEntries, success);
+            AddAll(purged.DidNotPassThresholdEntries, filtered);
+
+            var all = success.Concat(filtered).ToList();
+            Assert.That(all, Has.Count.EqualTo(1), "the copy must not start a second occurrence");
+            Assert.Multiple(() =>
+            {
+                Assert.That(all[0].Audio!.Coverage.TrackMatchStartsAt, Is.EqualTo(0).Within(0.5));
+                Assert.That(all[0].Audio!.Coverage.TrackDiscreteCoverageLength, Is.EqualTo(19).Within(1.5));
+                Assert.That(all[0].Audio!.Coverage.TrackCoverageWithPermittedGapsLength, Is.EqualTo(19).Within(1.5));
+            });
+        }
+
         private static void ConsumeChunk(
             IRealtimeResultEntryAggregator aggregator,
             DateTime matchedAt,
@@ -326,13 +366,18 @@ namespace SoundFingerprinting.Tests.Unit.Query
             ICollection<AVResultEntry> success,
             ICollection<AVResultEntry> filtered)
         {
-            var coverage = TestUtilities.GetMatchedWith(queryAt, trackAt).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, 1, permittedGap).First();
-            var entry = new ResultEntry(GetTrack(trackLength), 100, matchedAt, coverage);
+            var entry = Entry(matchedAt, queryAt, trackAt, queryLength, trackLength, permittedGap);
             var randomHashes = TestUtilities.GetRandomHashes(queryLength);
             var audioResult = new QueryResult(new[] { entry }, randomHashes, QueryCommandStats.Zero());
             var aggregated = aggregator.Consume(new AVQueryResult(audioResult, null, new AVHashes(randomHashes, null), new AVQueryCommandStats(QueryCommandStats.Zero(), null)));
             AddAll(aggregated.SuccessEntries, success);
             AddAll(aggregated.DidNotPassThresholdEntries, filtered);
+        }
+
+        private static ResultEntry Entry(DateTime matchedAt, int[] queryAt, int[] trackAt, float queryLength, int trackLength, double permittedGap)
+        {
+            var coverage = TestUtilities.GetMatchedWith(queryAt, trackAt).GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, queryLength, trackLength, 1, permittedGap).First();
+            return new ResultEntry(GetTrack(trackLength), 100, matchedAt, coverage);
         }
 
         private class CorruptingConcatenator : IConcatenator<ResultEntry>
