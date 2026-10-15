@@ -68,7 +68,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                     return config;
                                               })
                                               .UsingServices(modelService)
-                                              .QueryAsync(cancellationTokenSource.Token);
+                                              .Query(cancellationTokenSource.Token);
             
             var right = QueryCommandBuilder.Instance
                                 .BuildRealtimeQueryCommand()
@@ -81,7 +81,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                     return config;
                                 })
                                 .UsingServices(modelService)
-                                .QueryAsync(cancellationTokenSource.Token);
+                                .Query(cancellationTokenSource.Token);
 
             await Task.WhenAll(wrong, right);
 
@@ -128,7 +128,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                   return fingerprints;
                                               })
                                               .UsingServices(modelService)
-                                              .QueryAsync(cancellationTokenSource.Token);
+                                              .Query(cancellationTokenSource.Token);
 
 			Assert.Multiple(() =>
 			{
@@ -188,7 +188,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return fingerprints;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(cancellationTokenSource.Token);
+                .Query(cancellationTokenSource.Token);
 
 			Assert.Multiple(() =>
 			{
@@ -286,7 +286,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 return fingerprints;
                                             })
                                             .UsingServices(modelService)
-                                            .QueryAsync(CancellationToken.None);
+                                            .Query(CancellationToken.None);
 
             // since we start from the middle of the track ~1 min 45 seconds and query for 35 seconds with 10 seconds filter
             // this means we will get 3 successful matches 
@@ -371,7 +371,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                      return fingerprints;
                  })
                  .UsingServices(modelService)
-                 .QueryAsync(CancellationToken.None);
+                 .Query(CancellationToken.None);
 
 			Assert.Multiple(() =>
 			{
@@ -423,7 +423,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return result;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 
             Assert.Multiple(() =>
             {
@@ -478,7 +478,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return timedHashes;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 			Assert.Multiple(() =>
 			{
 				Assert.That(hashes, Is.Not.Null);
@@ -538,7 +538,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return queryHashes;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(cancellationTokenSource.Token);
+                .Query(cancellationTokenSource.Token);
 
 			Assert.Multiple(() =>
 			{
@@ -551,7 +551,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BuildQueryCommand()
                 .From(new AVHashes(aggregatedHashes, null))
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
             
             Assert.That(nonRealtimeResult, Is.Not.Null);
 			Assert.Multiple(() =>
@@ -608,7 +608,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return avHashes;
                 })
                 .UsingServices(modelService, audioService.Object)
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 
             Assert.That(captured, Has.Count.EqualTo(count));
             Assert.Multiple(() =>
@@ -664,7 +664,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 
             Assert.Multiple(() =>
             {
@@ -711,7 +711,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 
 			Assert.Multiple(() =>
 			{
@@ -737,7 +737,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(cancellationTokenSource.Token);
+                .Query(cancellationTokenSource.Token);
 
             var completed = await Task.WhenAny(query, Task.Delay(TimeSpan.FromSeconds(10)));
 
@@ -780,7 +780,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService.Object)
-                .QueryAsync(cancellationTokenSource.Token);
+                .Query(cancellationTokenSource.Token);
 
             int totalQueries = throwExceptionAfter * totalExceptions - totalExceptions;
 
@@ -871,7 +871,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                                                 return fingerprints;
                                             })
                                             .UsingServices(modelService)
-                                            .QueryAsync(CancellationToken.None);
+                                            .Query(CancellationToken.None);
 
 			Assert.That(successMatches, Has.Count.EqualTo(1), $"There should be only one match:\n{string.Join("\n", successMatches)}\nSuccess Callback Calls: {successCallbackCalls}");
             var (audioResult, videoResult) = successMatches.First();
@@ -911,7 +911,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService, realtimeMediaService.Object)
-                .QueryAsync(cancellationToken);
+                .Query(cancellationToken);
            
            realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, cancellationToken), Times.Exactly(1));
 			Assert.That(length, Is.EqualTo(60 * 10));
@@ -931,7 +931,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var length = await queryCommandBuilder.BuildRealtimeQueryCommand()
                 .From("http://localhost", 60, mediaType: MediaType.Audio)
                 .UsingServices(modelService, realtimeMediaService.Object)
-                .QueryAsync(cancellationTokenSource.Token);
+                .Query(cancellationTokenSource.Token);
            
             realtimeMediaService.Verify(_ => _.ReadAVTrackFromRealtimeSource("http://localhost", 60, It.IsAny<AVTrackReadConfiguration>(), MediaType.Audio, It.IsAny<CancellationToken>()), Times.Exactly(1));
 			Assert.That(length, Is.LessThanOrEqualTo(180), $"Length {length} is bigger than 180");
@@ -959,7 +959,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService, realtimeMediaService.Object)
-                .QueryAsync(cancellationTokenSource.Token);
+                .Query(cancellationTokenSource.Token);
 
 			Assert.That(errored, Is.True);
         }
@@ -1009,7 +1009,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return avHashes;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 
 			Assert.Multiple(() =>
 			{
@@ -1225,7 +1225,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                         return config;
                     })
                     .UsingServices(new InMemoryModelService())
-                    .QueryAsync(CancellationToken.None);
+                    .Query(CancellationToken.None);
 
                 Assert.That(recording.Succeeded, Is.EqualTo(expected), "the query service receives every chunk exactly once, oldest first");
                 Assert.That(restoredAtSuccessCount, Is.EqualTo(1), "the restore signal fires on the first drained query, not after the whole drain");
@@ -1269,7 +1269,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                         return config;
                     })
                     .UsingServices(new InMemoryModelService())
-                    .QueryAsync(CancellationToken.None);
+                    .Query(CancellationToken.None);
 
                 Assert.That(errored, Is.EqualTo(new[] { expected[0], expected[1] }), "a failed drain parks the live chunk, never the entry it failed on");
                 Assert.That(recording.Succeeded, Is.EqualTo(expected), "the stored entries still reach the query service before the live chunk, oldest first");

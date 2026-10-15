@@ -62,7 +62,7 @@ namespace SoundFingerprinting.Tests.Integration
                     return config;
                 })
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
             return result.Audio!;
         }
 

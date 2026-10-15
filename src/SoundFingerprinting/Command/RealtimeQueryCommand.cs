@@ -110,8 +110,8 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        /// <inheritdoc cref="IRealtimeQueryCommand.QueryAsync"/>
-        public async Task<double> QueryAsync(CancellationToken cancellationToken)
+        /// <inheritdoc cref="IRealtimeQueryCommand.Query"/>
+        public async Task<double> Query(CancellationToken cancellationToken)
         {
             try
             {
@@ -470,7 +470,7 @@ namespace SoundFingerprinting.Command
                 .From(hashes)
                 .WithQueryConfig(configuration.QueryConfiguration)
                 .UsingServices(queryService)
-                .QueryAsync(cancellationToken);
+                .Query(cancellationToken);
             var avQueryResult = queryResultInterceptor(queryResult);
             queryLength += (hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset ?? hashes.Video?.DurationInSeconds) ?? 0;
             return avQueryResult;

@@ -66,18 +66,18 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(new InMemoryModelService())
-                .QueryAsync());
+                .Query());
             
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(100))
-                .QueryAsync());
+                .Query());
 
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(new InMemoryModelService(), new SoundFingerprintingAudioService())
-                .QueryAsync());
+                .Query());
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(modelService.Object, mediaService.Object)
-                .QueryAsync();
+                .Query();
 
 			Assert.That(avQueryResult.ContainsMatches, Is.False);
             
@@ -128,7 +128,7 @@ namespace SoundFingerprinting.Tests.Unit.Builder
             _ = await queryCommandBuilder.BuildQueryCommand()
                 .From(pathToFile)
                 .UsingServices(modelService.Object, audioService.Object)
-                .QueryAsync();
+                .Query();
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                                            return config;
                                        })
                                    .UsingServices(modelService.Object, audioService.Object)
-                                   .QueryAsync();
+                                   .Query();
 
             fingerprintingSource.Verify(source => source.From(pathToFile, secondsToQuery, startAtSecond, MediaType.Audio), Times.Once());
         }

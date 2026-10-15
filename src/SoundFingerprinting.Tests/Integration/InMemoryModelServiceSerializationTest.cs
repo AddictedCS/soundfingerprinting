@@ -33,7 +33,7 @@ namespace SoundFingerprinting.Tests.Integration
             var (queryResult, _) = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new InMemoryModelService(tempDirectory))
-                .QueryAsync();
+                .Query();
 
             Directory.Delete(tempDirectory, true);
 

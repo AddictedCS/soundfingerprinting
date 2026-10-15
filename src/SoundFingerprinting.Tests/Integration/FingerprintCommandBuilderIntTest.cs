@@ -75,7 +75,7 @@ namespace SoundFingerprinting.Tests.Integration
                                .BuildQueryCommand()
                                .From(PathToWav, secondsToProcess, startAtSecond)
                                .UsingServices(modelService)
-                               .QueryAsync();
+                               .Query();
 
 			Assert.Multiple(() =>
 			{
@@ -191,7 +191,7 @@ namespace SoundFingerprinting.Tests.Integration
                     .BuildQueryCommand()
                     .From(new AudioSamples(querySamples, string.Empty, audioSamples.SampleRate))
                     .UsingServices(modelService, audioService)
-                    .QueryAsync();
+                    .Query();
 
 			Assert.Multiple(() =>
 			{
@@ -214,7 +214,7 @@ namespace SoundFingerprinting.Tests.Integration
         {
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(120))
-                .QueryAsync());
+                .Query());
         }
 
         [Test]
@@ -236,7 +236,7 @@ namespace SoundFingerprinting.Tests.Integration
                 .BuildQueryCommand()
                 .From(avTrack)
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
 
             var (audioResult, videoResult) = avResults;
             Assert.That(audioResult, Is.Not.Null);
@@ -256,7 +256,7 @@ namespace SoundFingerprinting.Tests.Integration
                 .BuildQueryCommand()
                 .From(avTrack.Audio!.Samples)
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
 
 			Assert.Multiple(() =>
 			{
@@ -269,7 +269,7 @@ namespace SoundFingerprinting.Tests.Integration
                 .BuildQueryCommand()
                 .From(avTrack.Video!.Frames)
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
 
 			Assert.Multiple(() =>
 			{
@@ -336,7 +336,7 @@ namespace SoundFingerprinting.Tests.Integration
                 .BuildQueryCommand()
                 .From(avHashes)
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
 
             Assert.That(queryResult, Is.Not.Null);
 			Assert.Multiple(() =>

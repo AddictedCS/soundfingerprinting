@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(Path.GetTempPath(), MediaType.Audio | MediaType.Video)
-                .QueryAsync());
+                .Query());
         }
         
         [Test]
@@ -31,7 +31,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(10 * 5512))
-                .QueryAsync()); 
+                .Query()); 
         }
         
         /**
@@ -362,7 +362,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
 
             var result = query.ResultEntries.First();
 
@@ -439,7 +439,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BuildQueryCommand()
                 .From(new AVHashes(lane, null))
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
         }
 
         private static async Task<Hashes> HashAudio(AudioSamples samples)
@@ -487,7 +487,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BuildQueryCommand()
                 .From(new AudioSamples(match, "cnn", 5512))
                 .UsingServices(modelService)
-                .QueryAsync();
+                .Query();
             return avQueryResult.Audio;
         }
 

@@ -51,7 +51,7 @@ namespace SoundFingerprinting.Tests.Unit.Command
                     return hashes;
                 })
                 .UsingServices(new InMemoryModelService())
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 
             Assert.That(fromFingerprintCommand, Has.Count.EqualTo(chunks.Count));
             Assert.That(fromQueryCommand, Has.Count.EqualTo(fromFingerprintCommand.Count));

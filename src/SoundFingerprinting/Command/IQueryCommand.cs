@@ -16,7 +16,7 @@ namespace SoundFingerprinting.Command
         /// </summary>
         /// <param name="cancellationToken">Token that cancels the storage round trips and the match registration; fingerprint generation runs to completion.</param>
         /// <returns>Query result.</returns>
-        Task<AVQueryResult> QueryAsync(CancellationToken cancellationToken = default);
+        Task<AVQueryResult> Query(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///  Query the underlying <see cref="IQueryService"/>.
@@ -24,6 +24,6 @@ namespace SoundFingerprinting.Command
         /// <param name="relativeTo">The timestamp which is considered as a reference point of the query operation. Will be used to set exact <see cref="ResultEntry.MatchedAt"/> timestamp of the match.</param>
         /// <param name="cancellationToken">Token that cancels the storage round trips and the match registration; fingerprint generation runs to completion.</param>
         /// <returns>Query result.</returns>
-        Task<AVQueryResult> QueryAsync(DateTime relativeTo, CancellationToken cancellationToken = default);
+        Task<AVQueryResult> Query(DateTime relativeTo, CancellationToken cancellationToken = default);
     }
 }

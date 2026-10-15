@@ -58,7 +58,7 @@ public class GapTest
             .BuildQueryCommand()
             .From(new AudioSamples(buffer, string.Empty, sampleRate))
             .UsingServices(modelService, new SoundFingerprintingAudioService())
-            .QueryAsync();
+            .Query();
             
         Assert.That(audioResult, Is.Not.Null);
         Assert.That(audioResult.ContainsMatches, Is.True);

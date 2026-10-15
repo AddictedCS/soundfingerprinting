@@ -166,14 +166,14 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        /// <inheritdoc cref="IQueryCommand.QueryAsync(CancellationToken)"/>
-        public Task<AVQueryResult> QueryAsync(CancellationToken cancellationToken = default)
+        /// <inheritdoc cref="IQueryCommand.Query(CancellationToken)"/>
+        public Task<AVQueryResult> Query(CancellationToken cancellationToken = default)
         {
-            return QueryAsync(DateTime.MinValue, cancellationToken);
+            return Query(DateTime.MinValue, cancellationToken);
         }
 
-        /// <inheritdoc cref="IQueryCommand.QueryAsync(DateTime, CancellationToken)"/>
-        public async Task<AVQueryResult> QueryAsync(DateTime relativeTo, CancellationToken cancellationToken = default)
+        /// <inheritdoc cref="IQueryCommand.Query(DateTime, CancellationToken)"/>
+        public async Task<AVQueryResult> Query(DateTime relativeTo, CancellationToken cancellationToken = default)
         {
             if (queryService == null)
             {

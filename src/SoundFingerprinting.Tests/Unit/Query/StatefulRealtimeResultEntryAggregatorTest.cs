@@ -215,7 +215,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService)
-                .QueryAsync(CancellationToken.None);
+                .Query(CancellationToken.None);
 
             var resultEntry = results.FirstOrDefault();
 			Assert.That(resultEntry, Is.Not.Null);

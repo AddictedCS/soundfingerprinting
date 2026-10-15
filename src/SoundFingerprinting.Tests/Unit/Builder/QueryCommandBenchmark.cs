@@ -43,7 +43,7 @@ namespace SoundFingerprinting.Tests.Unit.Builder
                     .BuildQueryCommand()
                     .From(samples)
                     .UsingServices(modelService)
-                    .QueryAsync();
+                    .Query();
 
                 logger.LogInformation("{0,10}ms{1,15}ms{2,15}", queryResult.CommandStats.FingerprintingDurationMilliseconds, queryResult.CommandStats.QueryDurationMilliseconds, queryResult.CommandStats.TotalFingerprintsAnalyzed);
                 avgFingerprinting += queryResult.CommandStats.FingerprintingDurationMilliseconds;

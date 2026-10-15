@@ -26,7 +26,7 @@ namespace SoundFingerprinting.Command
         /// </summary>
         /// <param name="cancellationToken">Cancellation token (ignored on executed query command).</param>
         /// <returns>Audio/Video query result.</returns>
-        public Task<AVQueryResult> QueryAsync(CancellationToken cancellationToken = default)
+        public Task<AVQueryResult> Query(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(queryResult);
         }
@@ -37,7 +37,7 @@ namespace SoundFingerprinting.Command
         /// <param name="relativeTo">Relative to (ignored on executed query command).</param>
         /// <param name="cancellationToken">Cancellation token (ignored on executed query command).</param>
         /// <returns>Audio/Video query result.</returns>
-        public Task<AVQueryResult> QueryAsync(DateTime relativeTo, CancellationToken cancellationToken = default)
+        public Task<AVQueryResult> Query(DateTime relativeTo, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(queryResult);
         }
