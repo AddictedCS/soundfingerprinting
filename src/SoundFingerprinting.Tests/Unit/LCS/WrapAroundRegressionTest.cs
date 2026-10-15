@@ -29,7 +29,7 @@ public class WrapAroundRegressionTest
         var broadcast = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand()
             .From(new AudioSamples(rotated, string.Empty, sampleRate)).Hash();
         var model = new InMemoryModelService();
-        model.Insert(new TrackInfo("stored", string.Empty, string.Empty), creative);
+        await model.InsertAsync(new TrackInfo("stored", string.Empty, string.Empty), creative);
         var query = broadcast.Audio!;
         var config = new DefaultQueryConfiguration
         {
@@ -37,7 +37,7 @@ public class WrapAroundRegressionTest
             TruePositivesFilter = new TruePositivesFilter(null, 0.25, null)
         };
 
-        var results = QueryFingerprintService.Instance.Query(query, config, model)
+        var results = (await QueryFingerprintService.Instance.QueryAsync(query, config, model))
             .ResultEntries.OrderBy(r => r.QueryMatchStartsAt).ToArray();
 
         Assert.That(results, Has.Length.EqualTo(2));

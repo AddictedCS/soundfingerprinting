@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Integration
+namespace SoundFingerprinting.Tests.Integration
 {
     using Audio;
     using Builder;
@@ -69,13 +69,13 @@
                                             .Hash();
 
             var modelService = new InMemoryModelService();
-            modelService.Insert(track, fingerprints);
+            await modelService.InsertAsync(track, fingerprints);
 
             var queryResult = await QueryCommandBuilder.Instance
                                .BuildQueryCommand()
                                .From(PathToWav, secondsToProcess, startAtSecond)
                                .UsingServices(modelService)
-                               .Query();
+                               .QueryAsync();
 
 			Assert.Multiple(() =>
 			{
@@ -183,7 +183,7 @@
                     .Hash();
 
             var modelService = new InMemoryModelService();
-            modelService.Insert(track, fingerprints);
+            await modelService.InsertAsync(track, fingerprints);
 
             var querySamples = GetQuerySamples(GetAudioSamples(), startAtSecond, secondsToProcess);
 
@@ -191,7 +191,7 @@
                     .BuildQueryCommand()
                     .From(new AudioSamples(querySamples, string.Empty, audioSamples.SampleRate))
                     .UsingServices(modelService, audioService)
-                    .Query();
+                    .QueryAsync();
 
 			Assert.Multiple(() =>
 			{
@@ -214,7 +214,7 @@
         {
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(120))
-                .Query());
+                .QueryAsync());
         }
 
         [Test]
@@ -230,13 +230,13 @@
                 .From(avTrack)
                 .Hash();
             
-            modelService.Insert(track, avHashes);
+            await modelService.InsertAsync(track, avHashes);
 
             var avResults = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(avTrack)
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
 
             var (audioResult, videoResult) = avResults;
             Assert.That(audioResult, Is.Not.Null);
@@ -256,7 +256,7 @@
                 .BuildQueryCommand()
                 .From(avTrack.Audio!.Samples)
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
 
 			Assert.Multiple(() =>
 			{
@@ -269,7 +269,7 @@
                 .BuildQueryCommand()
                 .From(avTrack.Video!.Frames)
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
 
 			Assert.Multiple(() =>
 			{
@@ -279,7 +279,7 @@
 			AssertBestMatch(videoResult.BestMatch);
         }
 
-        private static void AssertBestMatch(ResultEntry bestMatch)
+        private static async Task AssertBestMatch(ResultEntry bestMatch)
         {
 			Assert.That(bestMatch, Is.Not.Null);
 			Assert.Multiple(() =>
@@ -330,13 +330,13 @@
                 .Hash();
 
             var modelService = new InMemoryModelService();
-            modelService.Insert(track, avHashes);
+            await modelService.InsertAsync(track, avHashes);
 
             var (queryResult, _) = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(avHashes)
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
 
             Assert.That(queryResult, Is.Not.Null);
 			Assert.Multiple(() =>

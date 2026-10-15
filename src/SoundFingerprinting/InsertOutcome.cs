@@ -1,7 +1,7 @@
 namespace SoundFingerprinting;
 
 /// <summary>
-///  Describes the outcome of an <see cref="IModelService.Insert"/> call.
+///  Describes the outcome of an <see cref="IModelService.InsertAsync"/> call.
 /// </summary>
 public enum InsertOutcome
 {

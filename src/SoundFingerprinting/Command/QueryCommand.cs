@@ -1,7 +1,8 @@
-﻿namespace SoundFingerprinting.Command
+namespace SoundFingerprinting.Command
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using SoundFingerprinting.Audio;
@@ -165,30 +166,36 @@
             return this;
         }
 
-        /// <inheritdoc cref="IQueryCommand.Query()"/>
-        public async Task<AVQueryResult> Query()
+        /// <inheritdoc cref="IQueryCommand.QueryAsync(CancellationToken)"/>
+        public Task<AVQueryResult> QueryAsync(CancellationToken cancellationToken = default)
         {
-            return await Query(DateTime.MinValue);
+            return QueryAsync(DateTime.MinValue, cancellationToken);
         }
 
-        /// <inheritdoc cref="IQueryCommand.Query(DateTime)"/>
-        public async Task<AVQueryResult> Query(DateTime relativeTo)
+        /// <inheritdoc cref="IQueryCommand.QueryAsync(DateTime, CancellationToken)"/>
+        public async Task<AVQueryResult> QueryAsync(DateTime relativeTo, CancellationToken cancellationToken = default)
         {
+            if (queryService == null)
+            {
+                throw new ArgumentException("Provide an instance of IQueryService to query the storage via UsingServices(IQueryService)", nameof(queryService));
+            }
+
             var usingFingerprintServices = createFingerprintCommand().WithFingerprintConfig(queryConfiguration.FingerprintConfiguration);
             var fingerprintCommand = SelectMediaServiceForFingerprintCommand(usingFingerprintServices);
             
             var hashes = await fingerprintCommand.Hash();
+            cancellationToken.ThrowIfCancellationRequested();
             var avHashes = relativeTo == DateTime.MinValue ? hashes : hashes.WithRelativeTo(relativeTo);
             
             var (audioHashes, videoHashes) = hashesInterceptor(avHashes);
-            var avQueryResult = GetAvQueryResult(audioHashes, videoHashes, hashes.FingerprintingTime);
+            var avQueryResult = await GetAvQueryResultAsync(queryService, audioHashes, videoHashes, hashes.FingerprintingTime, cancellationToken);
             
             if (avQueryResult.ContainsMatches && queryMatchRegistry != null)
             {
                 string streamId = audioHashes?.StreamId ?? videoHashes?.StreamId ?? string.Empty;
                 logger.LogDebug("AVQueryResult contains {Count} matches. Registering them with {QueryMatchRegistry} for stream {StreamId}", avQueryResult.ResultEntries.Count(), queryMatchRegistry, streamId);
                 var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(streamId: streamId));
-                queryMatchRegistry.RegisterMatches(avQueryMatches);
+                await queryMatchRegistry.RegisterMatchesAsync(avQueryMatches, cancellationToken: cancellationToken);
             }
 
             return avQueryResult;
@@ -212,23 +219,14 @@
             return usingFingerprintServices.UsingServices(audioService);
         }
 
-        private AVQueryResult GetAvQueryResult(Hashes? audioHashes, Hashes? videoHashes, AVFingerprintingTime avFingerprintingTime)
+        private async Task<AVQueryResult> GetAvQueryResultAsync(IQueryService service, Hashes? audioHashes, Hashes? videoHashes, AVFingerprintingTime avFingerprintingTime, CancellationToken cancellationToken)
         {
-            var audioResults = GetQueryResult(audioHashes, queryConfiguration.Audio);
-            var videoResults = GetQueryResult(videoHashes, queryConfiguration.Video);
+            // audio before video, one round trip at a time, same as the synchronous command did
+            var audioResults = audioHashes != null ? await queryFingerprintService.QueryAsync(audioHashes, queryConfiguration.Audio, service, cancellationToken) : null;
+            var videoResults = videoHashes != null ? await queryFingerprintService.QueryAsync(videoHashes, queryConfiguration.Video, service, cancellationToken) : null;
             var (audioMilliseconds, videoMilliseconds) = avFingerprintingTime;
             var queryCommandStats = new AVQueryCommandStats(audioResults?.CommandStats, videoResults?.CommandStats).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
             return new AVQueryResult(audioResults, videoResults, new AVHashes(audioHashes, videoHashes, avFingerprintingTime), queryCommandStats);
-        }
-
-        private QueryResult? GetQueryResult(Hashes? hashes, QueryConfiguration configuration)
-        {
-            if (queryService == null)
-            {
-                throw new ArgumentException("Provide an instance of IModelService to query the storage via UsingServices(IModelService)", nameof(queryService));
-            }
-            
-            return hashes != null ? queryFingerprintService.Query(hashes, configuration, queryService) : null;
         }
     }
 }

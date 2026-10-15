@@ -135,10 +135,10 @@ public class PartialOccurrenceReconstructionTest
         var creativeHashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand().From(creative).Hash();
         var broadcastHashes = await FingerprintCommandBuilder.Instance.BuildFingerprintCommand().From(broadcast).Hash();
         var model = new InMemoryModelService();
-        model.Insert(new TrackInfo("stored", string.Empty, string.Empty), queryBroadcast ? creativeHashes : broadcastHashes);
+        await model.InsertAsync(new TrackInfo("stored", string.Empty, string.Empty), queryBroadcast ? creativeHashes : broadcastHashes);
         var query = (queryBroadcast ? broadcastHashes : creativeHashes).Audio!;
 
-        var results = QueryFingerprintService.Instance.Query(query, new DefaultQueryConfiguration { ThresholdVotes = 4, PermittedGap = 5 }, model)
+        var results = (await QueryFingerprintService.Instance.QueryAsync(query, new DefaultQueryConfiguration { ThresholdVotes = 4, PermittedGap = 5 }, model))
             .ResultEntries.Select(r => r.Coverage).OrderBy(c => queryBroadcast ? c.QueryMatchStartsAt : c.TrackMatchStartsAt).ToArray();
 
         Assert.That(results, Has.Length.EqualTo(2));

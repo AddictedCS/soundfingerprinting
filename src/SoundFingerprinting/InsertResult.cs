@@ -4,7 +4,7 @@ using System;
 using ProtoBuf;
 
 /// <summary>
-///  Result of an <see cref="IModelService.Insert"/> call describing whether the track was persisted,
+///  Result of an <see cref="IModelService.InsertAsync"/> call describing whether the track was persisted,
 ///  updated, or suppressed as a duplicate.
 /// </summary>
 [ProtoContract(SkipConstructor = true)]

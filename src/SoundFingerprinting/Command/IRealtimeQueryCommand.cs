@@ -13,6 +13,6 @@ namespace SoundFingerprinting.Command
         /// </summary>
         /// <param name="cancellationToken">Token to cancel query.</param>
         /// <returns>Total sum of queried seconds.</returns>
-        Task<double> Query(CancellationToken cancellationToken);
+        Task<double> QueryAsync(CancellationToken cancellationToken);
     }
 }

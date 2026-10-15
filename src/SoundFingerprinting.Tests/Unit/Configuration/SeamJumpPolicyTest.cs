@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Tests.Unit.Configuration
 {
     using System;
+    using System.Threading.Tasks;
     using NUnit.Framework;
     using SoundFingerprinting.Configuration;
 
@@ -18,7 +19,7 @@ namespace SoundFingerprinting.Tests.Unit.Configuration
         [Test]
         public void ShouldDefaultToStitchAndMapTheSkipFlagOntoThePolicy()
         {
-            var config = new DefaultRealtimeQueryConfiguration(_ => { }, _ => { }, (_, _) => { }, () => { });
+            var config = new DefaultRealtimeQueryConfiguration(_ => Task.CompletedTask, _ => Task.CompletedTask, (_, _) => { }, () => { });
             Assert.That(config.SeamJumpPolicy, Is.SameAs(SeamJumpPolicy.Stitch));
 #pragma warning disable CS0618
             Assert.That(config.AutomaticSkipDetection, Is.False);

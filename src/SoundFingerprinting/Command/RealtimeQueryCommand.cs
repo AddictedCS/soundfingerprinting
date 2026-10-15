@@ -5,7 +5,6 @@ namespace SoundFingerprinting.Command
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
@@ -53,8 +52,8 @@ namespace SoundFingerprinting.Command
             this.loggerFactory = loggerFactory;
 
             configuration = new DefaultRealtimeQueryConfiguration(
-                e => { /* do nothing */ },
-                e => { /* do nothing */ }, (e, _) => throw e, () => {/* do nothing */ });
+                _ => Task.CompletedTask,
+                _ => Task.CompletedTask, (e, _) => throw e, () => {/* do nothing */ });
             hashesSource = new BlockingRealtimeCollection<AVHashes>(new BlockingCollection<AVHashes>());
             audioService = new SoundFingerprintingAudioService();
         }
@@ -111,8 +110,8 @@ namespace SoundFingerprinting.Command
             return this;
         }
 
-        /// <inheritdoc cref="IRealtimeQueryCommand.Query"/>
-        public async Task<double> Query(CancellationToken cancellationToken)
+        /// <inheritdoc cref="IRealtimeQueryCommand.QueryAsync"/>
+        public async Task<double> QueryAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -237,20 +236,16 @@ namespace SoundFingerprinting.Command
 
             try
             {
-                // let's check the offline storage immediately at startup
-                await foreach (var queryResult in QueryFromOfflineStorage(cancellationToken))
-                {
-                    ConsumeQueryResult(queryResult, resultsAggregator);
-                }
+                // the offline storage is drained at startup; a query failure is handled inside the drain and the realtime loop continues
+                await TryDrainOfflineStorageAsync(liveHashes: null, resultsAggregator, cancellationToken);
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
             {
-                // if operation has been cancelled re-throw to the calling thread.
                 throw;
             }
             catch (Exception e)
             {
-                // if an offline storage exception occurs, let's continue consuming realtime data and storing it to the offline storage
+                // a callback failed on an already acknowledged chunk: report it and continue with the realtime source
                 HandleQueryFailure(null, e);
             }
 
@@ -260,12 +255,12 @@ namespace SoundFingerprinting.Command
                 {
                     await QueryFromRealtimeAndOffline(realtimeHashes, resultsAggregator, cancellationToken);
                     logger.LogInformation("Stopped querying realtime source after {QueryLength:00} seconds", queryLength);
-                    PurgeResultEntryAggregator(resultsAggregator);
+                    await PurgeResultEntryAggregatorAsync(resultsAggregator);
                     return queryLength;
                 }
                 catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
                 {
-                    PurgeResultEntryAggregator(resultsAggregator);
+                    await PurgeResultEntryAggregatorAsync(resultsAggregator);
                     throw;
                 }
                 catch (Exception e)
@@ -278,7 +273,7 @@ namespace SoundFingerprinting.Command
                     catch (Exception e2)
                     {
                         logger.LogWarning(e2, "Failed to handle query failure. Purging realtime aggregator, exiting query loop");
-                        PurgeResultEntryAggregator(resultsAggregator);
+                        await PurgeResultEntryAggregatorAsync(resultsAggregator);
                         throw;
                     }
 
@@ -289,18 +284,18 @@ namespace SoundFingerprinting.Command
                     catch (Exception delayException) when (delayException is OperationCanceledException or ObjectDisposedException)
                     {
                         // cancellation during the backoff delay has to deliver pending aggregated entries, same as cancellation at any other point
-                        PurgeResultEntryAggregator(resultsAggregator);
+                        await PurgeResultEntryAggregatorAsync(resultsAggregator);
                         throw;
                     }
                 }
             }
         }
 
-        private void PurgeResultEntryAggregator(IRealtimeResultEntryAggregator resultsAggregator)
+        private async Task PurgeResultEntryAggregatorAsync(IRealtimeResultEntryAggregator resultsAggregator)
         {
             var purged = resultsAggregator.Purge();
-            InvokeCallbackHandler(purged.SuccessEntries, configuration?.SuccessCallback);
-            InvokeCallbackHandler(purged.DidNotPassThresholdEntries, configuration?.DidNotPassFilterCallback);
+            await InvokeCallbackHandlerAsync(purged.SuccessEntries, configuration.SuccessCallback);
+            await InvokeCallbackHandlerAsync(purged.DidNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
         }
 
         /// <summary>
@@ -318,16 +313,16 @@ namespace SoundFingerprinting.Command
             {
                 var intercepted = hashesInterceptor(avHashes);
                 logger.LogDebug("Issuing query with hashes {Hashes}", intercepted);
-                await TryQuery(intercepted, resultsAggregator, cancellationToken);
+                await TryQueryAsync(intercepted, resultsAggregator, cancellationToken);
             }
         }
 
-        private void ConsumeQueryResult(AVQueryResult queryResult, IRealtimeResultEntryAggregator resultsAggregator)
+        private async Task ConsumeQueryResultAsync(AVQueryResult queryResult, IRealtimeResultEntryAggregator resultsAggregator)
         {
             var (ongoingEntries, successEntries, didNotPassThresholdEntries) = resultsAggregator.Consume(queryResult);
-            InvokeOngoingCallbackHandler(queryResult.StreamId, ongoingEntries);
-            InvokeCallbackHandler(successEntries, configuration.SuccessCallback);
-            InvokeCallbackHandler(didNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
+            await configuration.OngoingCallback(queryResult.StreamId, ongoingEntries);
+            await InvokeCallbackHandlerAsync(successEntries, configuration.SuccessCallback);
+            await InvokeCallbackHandlerAsync(didNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
         }
 
         /// <summary>
@@ -359,24 +354,46 @@ namespace SoundFingerprinting.Command
         }
 
         /// <summary>
-        ///  Queries local or remote <see cref="IQueryService"/> with <see cref="AVHashes"/> gathered from offline storage.
+        ///  Drains the offline storage ahead of the live chunk: every stored chunk is queried, acknowledged and consumed in order.
         /// </summary>
+        /// <param name="liveHashes">Live chunk that waits behind the drain; a query failure reroutes it to the offline storage. Null at startup.</param>
+        /// <param name="resultsAggregator">Results aggregator to use for query results aggregation.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>Async enumerable with <see cref="AVQueryResult"/>.</returns>
-        /// <exception cref="IOException">Input/Output exception when querying the model service.</exception>>
-        private async IAsyncEnumerable<AVQueryResult> QueryFromOfflineStorage([EnumeratorCancellation] CancellationToken cancellationToken)
+        /// <returns>True when the storage is drained, false when a query failed and the drain stopped.</returns>
+        /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
+        /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
+        /// <exception cref="Exception">An exception thrown by a user callback; the chunk that triggered it is already consumed and never replayed.</exception>
+        private async Task<bool> TryDrainOfflineStorageAsync(AVHashes? liveHashes, IRealtimeResultEntryAggregator resultsAggregator, CancellationToken cancellationToken)
         {
             var offlineStorage = configuration.OfflineStorage;
             while (offlineStorage.Any())
             {
                 var offlineHashes = offlineStorage.First();
-                logger.LogDebug("Read AVHashes from offline storage {Hashes}. Querying storage", offlineHashes);
-                var offlineResult = await GetAvQueryResult(offlineHashes);
-                MarkRestoredFromError();
-                yield return offlineResult;
+                AVQueryResult offlineResult;
+                try
+                {
+                    logger.LogDebug("Read AVHashes from offline storage {Hashes}. Querying storage", offlineHashes);
+                    offlineResult = await GetAvQueryResultAsync(offlineHashes, cancellationToken);
+                    MarkRestoredFromError();
+                }
+                catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    // the server is not reachable: the stored chunk stays for the next attempt and the live chunk queues behind it
+                    HandleQueryFailure(liveHashes, e);
+                    return false;
+                }
+
+                // the chunk is acknowledged as soon as its query succeeded: a callback failure below must not replay it
                 offlineStorage.Remove(offlineHashes);
+                await ConsumeQueryResultAsync(offlineResult, resultsAggregator);
                 await Task.Delay(configuration.DelayStrategy.Delay, cancellationToken);
             }
+
+            return true;
         }
 
         /// <summary>
@@ -388,21 +405,35 @@ namespace SoundFingerprinting.Command
         /// <returns>True if query was successful, otherwise false.</returns>
         /// <exception cref="OperationCanceledException">Operation cancelled by the caller.</exception>
         /// <exception cref="ObjectDisposedException">Object disposed exception (invoked on cancellation token).</exception>
-        private async Task<bool> TryQuery(AVHashes hashes, IRealtimeResultEntryAggregator realtimeAggregator, CancellationToken cancellationToken)
+        private async Task<bool> TryQueryAsync(AVHashes hashes, IRealtimeResultEntryAggregator realtimeAggregator, CancellationToken cancellationToken)
         {
+            // the offline storage drains BEFORE the live chunk: every query makes the server publish the
+            // chunk it received, so querying the live chunk first hands the consumers the newest chunk
+            // ahead of the outage chunks, and a consumer that guards on its own stream end drops them
+            try
+            {
+                if (!await TryDrainOfflineStorageAsync(hashes, realtimeAggregator, cancellationToken))
+                {
+                    return false;
+                }
+            }
+            catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                // a callback failed on a drained chunk that is already acknowledged; the live chunk behind the drain is
+                // still unqueried, so it goes to the offline storage and is queried exactly once later
+                HandleQueryFailure(hashes, e);
+                return false;
+            }
+
             AVQueryResult avQueryResult;
             try
             {
-                // the offline storage drains BEFORE the live chunk: every query makes the server publish the
-                // chunk it received, so querying the live chunk first hands the consumers the newest chunk
-                // ahead of the outage chunks, and a consumer that guards on its own stream end drops them
-                await foreach (var offlineResult in QueryFromOfflineStorage(cancellationToken))
-                {
-                    ConsumeQueryResult(offlineResult, realtimeAggregator);
-                }
-
                 var (audioMilliseconds, videoMilliseconds) = hashes.FingerprintingTime;
-                avQueryResult = (await GetAvQueryResult(hashes)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
+                avQueryResult = (await GetAvQueryResultAsync(hashes, cancellationToken)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
                 MarkRestoredFromError();
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
@@ -412,7 +443,7 @@ namespace SoundFingerprinting.Command
             catch (Exception e)
             {
                 // here we catch exceptions that are related to server not reachable; the current chunk was
-                // not consumed yet at any point inside the try block, so rerouting it to the offline storage
+                // not consumed yet inside the try block, so rerouting it to the offline storage
                 // is always safe (it will be queried and consumed exactly once, later)
                 HandleQueryFailure(hashes, e);
                 return false;
@@ -421,7 +452,7 @@ namespace SoundFingerprinting.Command
             // consuming the current chunk stays outside the try block: an exception thrown by a user callback
             // must not reroute already consumed hashes to the offline storage, as re-querying them later would
             // emit the same results a second time and double-count the query length
-            ConsumeQueryResult(avQueryResult, realtimeAggregator);
+            await ConsumeQueryResultAsync(avQueryResult, realtimeAggregator);
             return true;
         }
 
@@ -429,31 +460,27 @@ namespace SoundFingerprinting.Command
         ///  Gets an instance of <see cref="AVQueryResult"/> with query results from both Audio and Video queries.
         /// </summary>
         /// <param name="hashes">An instance of <see cref="AVHashes"/>.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>An instance of <see cref="AVQueryResult"/>.</returns>
         /// <exception cref="IOException">Input/Output exception when querying the model service.</exception>>
-        private async Task<AVQueryResult> GetAvQueryResult(AVHashes hashes)
+        private async Task<AVQueryResult> GetAvQueryResultAsync(AVHashes hashes, CancellationToken cancellationToken)
         {
             var queryResult = await queryCommandBuilder
                 .BuildQueryCommand()
                 .From(hashes)
                 .WithQueryConfig(configuration.QueryConfiguration)
                 .UsingServices(queryService)
-                .Query();
+                .QueryAsync(cancellationToken);
             var avQueryResult = queryResultInterceptor(queryResult);
             queryLength += (hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset ?? hashes.Video?.DurationInSeconds) ?? 0;
             return avQueryResult;
         }
 
-        private void InvokeOngoingCallbackHandler(string streamId, IEnumerable<AVResultEntry> ongoingResultEntries)
-        {
-            configuration.OngoingCallback(streamId, ongoingResultEntries);
-        }
-
-        private static void InvokeCallbackHandler(IEnumerable<AVQueryResult> results, Action<AVQueryResult>? callback)
+        private static async Task InvokeCallbackHandlerAsync(IEnumerable<AVQueryResult> results, Func<AVQueryResult, Task> callback)
         {
             foreach (var queryResult in results)
             {
-                callback?.Invoke(queryResult);
+                await callback(queryResult);
             }
         }
     }

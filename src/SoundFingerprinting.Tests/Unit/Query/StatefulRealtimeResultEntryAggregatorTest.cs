@@ -178,7 +178,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var orderedHashes = hashes.Audio.OrderBy(_ => _.SequenceNumber).ToList();
             
             var track = new TrackInfo("1", string.Empty, string.Empty);
-            modelService.Insert(track, hashes);
+            await modelService.InsertAsync(track, hashes);
 
             var splits = new List<float[]>
             {
@@ -209,12 +209,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     config.DidNotPassFilterCallback = avQueryResult =>
                     {
                         results.AddRange(avQueryResult.ResultEntries.Select(_ => _.Audio));
+                        return Task.CompletedTask;
                     };
                     
                     return config;
                 })
                 .UsingServices(modelService)
-                .Query(CancellationToken.None);
+                .QueryAsync(CancellationToken.None);
 
             var resultEntry = results.FirstOrDefault();
 			Assert.That(resultEntry, Is.Not.Null);

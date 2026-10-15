@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using SoundFingerprinting.Query;
 using System;
 
@@ -51,14 +51,14 @@ public class GapTest
             
         // insert the original track
         var track = new TrackInfo("id", "title", "artist");
-        modelService.Insert(track, avHashes);
+        await modelService.InsertAsync(track, avHashes);
 
         var (audioResult, _) = await QueryCommandBuilder
             .Instance
             .BuildQueryCommand()
             .From(new AudioSamples(buffer, string.Empty, sampleRate))
             .UsingServices(modelService, new SoundFingerprintingAudioService())
-            .Query();
+            .QueryAsync();
             
         Assert.That(audioResult, Is.Not.Null);
         Assert.That(audioResult.ContainsMatches, Is.True);

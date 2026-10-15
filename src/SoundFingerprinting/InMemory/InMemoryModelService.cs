@@ -4,6 +4,7 @@ namespace SoundFingerprinting.InMemory
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
@@ -21,6 +22,7 @@ namespace SoundFingerprinting.InMemory
     /// </summary>
     /// <remarks>
     ///  This implementation is intended to be used for testing purposes only.
+    ///  Every operation computes synchronously over the in-memory storage and returns a completed task.
     /// </remarks>
     public class InMemoryModelService : IModelService
     {
@@ -81,20 +83,20 @@ namespace SoundFingerprinting.InMemory
             storage.Snapshot(path);
         }
 
-        /// <inheritdoc cref="IModelService.Info"/>
-        public IEnumerable<ModelServiceInfo> Info => storage.Info;
-
-        /// <inheritdoc cref="IModelService.Insert"/>
-        public InsertResult Insert(TrackInfo track, AVHashes avHashes)
+        /// <inheritdoc cref="IModelService.GetInfoAsync"/>
+        public Task<IReadOnlyList<ModelServiceInfo>> GetInfoAsync(CancellationToken cancellationToken = default)
         {
-            // no dedup here; detect update the same way UpdateTrack does (existing-track check)
-            bool update = GetTrackById(track.Id) != null;
-            storage.InsertTrack(track.WithMetaFieldsFromHashes(avHashes), avHashes);
-            return new InsertResult(update ? InsertOutcome.Updated : InsertOutcome.Inserted);
+            return Task.FromResult<IReadOnlyList<ModelServiceInfo>>(storage.Info.ToList());
         }
 
-        /// <inheritdoc cref="IModelService.UpdateTrack"/>
-        public void UpdateTrack(TrackInfo trackInfo)
+        /// <inheritdoc cref="IModelService.InsertAsync"/>
+        public Task<InsertResult> InsertAsync(TrackInfo trackInfo, AVHashes hashes, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Insert(trackInfo, hashes));
+        }
+
+        /// <inheritdoc cref="IModelService.UpdateTrackAsync"/>
+        public Task UpdateTrackAsync(TrackInfo trackInfo, CancellationToken cancellationToken = default)
         {
             var track = GetTrackById(trackInfo.Id);
             if (track == null)
@@ -108,12 +110,13 @@ namespace SoundFingerprinting.InMemory
             }
 
             var hashes = storage.ReadAvHashesByTrackId(trackInfo.Id);
-            DeleteTrack(trackInfo.Id);
+            Delete(trackInfo.Id);
             Insert(trackInfo, hashes);
+            return Task.CompletedTask;
         }
 
-        /// <inheritdoc cref="IModelService.QueryEfficiently"/>
-        public Candidates QueryEfficiently(Hashes hashes, QueryConfiguration config)
+        /// <inheritdoc cref="IQueryService.QueryEfficientlyAsync"/>
+        public Task<Candidates> QueryEfficientlyAsync(Hashes hashes, QueryConfiguration config, CancellationToken cancellationToken = default)
         {
             var allSubs = GetSubFingerprintIdToHashedFingerprintMap(hashes, config);
             var subFingerprints = ResolveFromIds(allSubs.Keys, config.YesMetaFieldsFilters, config.NoMetaFieldsFilters, hashes.MediaType);
@@ -132,34 +135,34 @@ namespace SoundFingerprinting.InMemory
                 }
             }
 
-            return candidates;
+            return Task.FromResult(candidates);
         }
 
-        /// <inheritdoc cref="IModelService.ReadHashesByTrackId"/>
-        public AVHashes ReadHashesByTrackId(string trackId)
+        /// <inheritdoc cref="IModelService.ReadHashesByTrackIdAsync"/>
+        public Task<AVHashes> ReadHashesByTrackIdAsync(string trackId, CancellationToken cancellationToken = default)
         {
             var track = GetTrackById(trackId);
             if (track == null)
             {
-                return AVHashes.Empty;
+                return Task.FromResult(AVHashes.Empty);
             }
 
             var avHashes = storage.ReadAvHashesByTrackId(trackId);
             var audio = avHashes.Audio.WithPropertiesFromTrack(track);
             var video = avHashes.Video.WithPropertiesFromTrack(track);
-            return new AVHashes(audio, video, avHashes.FingerprintingTime);
+            return Task.FromResult(new AVHashes(audio, video, avHashes.FingerprintingTime));
         }
 
-        /// <inheritdoc cref="IModelService.GetTrackIds"/>
-        public IEnumerable<string> GetTrackIds()
+        /// <inheritdoc cref="IModelService.GetTrackIdsAsync"/>
+        public Task<IReadOnlyList<string>> GetTrackIdsAsync(CancellationToken cancellationToken = default)
         {
-            return storage.GetTrackIds();
+            return Task.FromResult<IReadOnlyList<string>>(storage.GetTrackIds().ToList());
         }
 
-        /// <inheritdoc cref="IModelService.ReadTracksByReferences"/>
-        public IEnumerable<TrackData> ReadTracksByReferences(IEnumerable<IModelReference> references)
+        /// <inheritdoc cref="IQueryService.ReadTracksByReferencesAsync"/>
+        public Task<IReadOnlyList<TrackData>> ReadTracksByReferencesAsync(IEnumerable<IModelReference> references, CancellationToken cancellationToken = default)
         {
-            return references.Aggregate(new List<TrackData>(), (list, reference) =>
+            var tracks = references.Aggregate(new List<TrackData>(), (list, reference) =>
             {
                 if (storage.TryGetTrackByReference(reference, out var track))
                 {
@@ -168,16 +171,32 @@ namespace SoundFingerprinting.InMemory
 
                 return list;
             });
+
+            return Task.FromResult<IReadOnlyList<TrackData>>(tracks);
         }
 
-        /// <inheritdoc cref="IModelService.ReadTrackById"/>
-        public TrackInfo? ReadTrackById(string trackId)
+        /// <inheritdoc cref="IModelService.ReadTrackByIdAsync"/>
+        public Task<TrackInfo?> ReadTrackByIdAsync(string trackId, CancellationToken cancellationToken = default)
         {
-            return GetTrackById(trackId);
+            return Task.FromResult(GetTrackById(trackId));
         }
 
-        /// <inheritdoc cref="IModelService.DeleteTrack"/>
-        public void DeleteTrack(string trackId)
+        /// <inheritdoc cref="IModelService.DeleteTrackAsync"/>
+        public Task DeleteTrackAsync(string trackId, CancellationToken cancellationToken = default)
+        {
+            Delete(trackId);
+            return Task.CompletedTask;
+        }
+
+        private InsertResult Insert(TrackInfo track, AVHashes avHashes)
+        {
+            // no dedup here; detect update the same way UpdateTrackAsync does (existing-track check)
+            bool update = GetTrackById(track.Id) != null;
+            storage.InsertTrack(track.WithMetaFieldsFromHashes(avHashes), avHashes);
+            return new InsertResult(update ? InsertOutcome.Updated : InsertOutcome.Inserted);
+        }
+
+        private void Delete(string trackId)
         {
             var track = GetTrackById(trackId);
             if (track == null)

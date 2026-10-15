@@ -1,5 +1,7 @@
-﻿namespace SoundFingerprinting
+namespace SoundFingerprinting
 {
+    using System.Threading;
+    using System.Threading.Tasks;
     using SoundFingerprinting.Configuration;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
@@ -15,7 +17,8 @@
         /// <param name="hashes">Hashed fingerprints generated from the query source.</param>
         /// <param name="configuration">Query configuration.</param>
         /// <param name="queryService">Storage service used to access the data source.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Query results.</returns>
-        QueryResult Query(Hashes hashes, QueryConfiguration configuration, IQueryService queryService);
+        Task<QueryResult> QueryAsync(Hashes hashes, QueryConfiguration configuration, IQueryService queryService, CancellationToken cancellationToken = default);
     }
 }

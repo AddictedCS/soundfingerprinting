@@ -23,7 +23,7 @@ namespace SoundFingerprinting.Tests.Integration
                 .BuildFingerprintCommand()
                 .From(original)
                 .Hash();
-            modelService.Insert(new TrackInfo("original", "Nocturne", "Chopin"), originalHashes);
+            await modelService.InsertAsync(new TrackInfo("original", "Nocturne", "Chopin"), originalHashes);
 
             var pitched = Resample(original, 1d + (sourcePlaybackSpeedPercentage / 100d));
             var uncompensated = await Query(pitched, modelService);
@@ -62,7 +62,7 @@ namespace SoundFingerprinting.Tests.Integration
                     return config;
                 })
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
             return result.Audio!;
         }
 

@@ -1,6 +1,7 @@
 namespace SoundFingerprinting.Configuration
 {
     using System;
+    using System.Threading.Tasks;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.Query;
@@ -18,8 +19,8 @@ namespace SoundFingerprinting.Configuration
         /// <param name="onError">Error callback.</param>
         /// <param name="restoredAfterErrorCallback">When connection to storage is restored, this callback is invoked.</param>
         public DefaultRealtimeQueryConfiguration(
-            Action<AVQueryResult> successCallback,
-            Action<AVQueryResult> didNotPassFilterCallback,
+            Func<AVQueryResult, Task> successCallback,
+            Func<AVQueryResult, Task> didNotPassFilterCallback,
             Action<Exception, AVHashes?> onError,
             Action restoredAfterErrorCallback) : base(
             new DefaultAVQueryConfiguration(),
@@ -27,7 +28,7 @@ namespace SoundFingerprinting.Configuration
             successCallback,
             didNotPassFilterCallback,
             new PassThroughRealtimeResultEntryFilter(),
-            ongoingCallback: (_, _) => { },
+            ongoingCallback: (_, _) => Task.CompletedTask,
             errorCallback: onError,
             restoredAfterErrorCallback: restoredAfterErrorCallback,
             offlineStorage: new EmptyOfflineStorage(),

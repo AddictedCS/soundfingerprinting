@@ -279,7 +279,8 @@ namespace SoundFingerprinting.Utils
 
         private TrackInfo GetActualTrack(TagInfo tags)
         {
-            return modelService.ReadTrackById(tags.ISRC);
+            // internal test tool over a local model service: the completed task is unwrapped on the calling thread, same as Hash() and BuildQuery() below
+            return modelService.ReadTrackByIdAsync(tags.ISRC).GetAwaiter().GetResult();
         }
 
         private object[] GetNotFoundLine(TagInfo tags)
@@ -309,7 +310,7 @@ namespace SoundFingerprinting.Utils
                         return queryConfig;
                     })
                 .UsingServices(modelService, audioService)
-                .Query();
+                .QueryAsync();
             return audio!;
         }
 
@@ -342,7 +343,7 @@ namespace SoundFingerprinting.Utils
                                         .Hash()
                                         .Result;
 
-                        modelService.Insert(track, hashes);
+                        modelService.InsertAsync(track, hashes).GetAwaiter().GetResult();
                     });
  
             stopWatch.Stop();
@@ -357,11 +358,11 @@ namespace SoundFingerprinting.Utils
 
         private void DeleteAll()
         {
-            var trackIds = modelService.GetTrackIds().ToList();
+            var trackIds = modelService.GetTrackIdsAsync().GetAwaiter().GetResult();
             int deleted = 0;
             foreach (var id in trackIds)
             {
-                modelService.DeleteTrack(id);
+                modelService.DeleteTrackAsync(id).GetAwaiter().GetResult();
                 OnTestRunnerEvent(OngoingActionEvent,
                     new TestRunnerOngoingEventArgs
                         {

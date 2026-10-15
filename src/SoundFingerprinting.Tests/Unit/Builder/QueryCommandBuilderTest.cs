@@ -1,6 +1,7 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Builder
+namespace SoundFingerprinting.Tests.Unit.Builder
 {
     using System;
+    using System.Threading;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging.Abstractions;
@@ -65,18 +66,18 @@
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(new InMemoryModelService())
-                .Query());
+                .QueryAsync());
             
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(100))
-                .Query());
+                .QueryAsync());
 
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Video)
                 .UsingServices(new InMemoryModelService(), new SoundFingerprintingAudioService())
-                .Query());
+                .QueryAsync());
         }
 
         [Test]
@@ -87,21 +88,21 @@
 
             var avTrack = new AVTrack(new AudioTrack(TestUtilities.GenerateRandomAudioSamples(30 * 5512)), new VideoTrack(TestUtilities.GenerateRandomFrames(30 * 30)));
             mediaService.Setup(_ => _.ReadAVTrackFromFile("test.mp4", It.IsAny<AVTrackReadConfiguration>(), 0, 0, MediaType.Audio | MediaType.Video)).Returns(avTrack);
-            modelService.Setup(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>())).Callback(
-                (Hashes hashes, QueryConfiguration configuration) =>
+            modelService.Setup(_ => _.QueryEfficientlyAsync(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>(), It.IsAny<CancellationToken>())).Callback(
+                (Hashes hashes, QueryConfiguration configuration, CancellationToken _) =>
                 {
 					Assert.That(hashes.DurationInSeconds, Is.EqualTo(30).Within(0.001));
-                }).Returns(new Candidates());
+                }).ReturnsAsync(new Candidates());
             
             var avQueryResult = await QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From("test.mp4", MediaType.Audio | MediaType.Video)
                 .UsingServices(modelService.Object, mediaService.Object)
-                .Query();
+                .QueryAsync();
 
 			Assert.That(avQueryResult.ContainsMatches, Is.False);
             
-            modelService.Verify(_ => _.QueryEfficiently(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>()), Times.Exactly(2));
+            modelService.Verify(_ => _.QueryEfficientlyAsync(It.IsAny<Hashes>(), It.IsAny<QueryConfiguration>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
         
         [Test]
@@ -122,12 +123,12 @@
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultAVFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(command => command.Hash()).Returns(Task.Factory.StartNew(() => hashedFingerprints));
-            queryFingerprintService.Setup(service => service.Query(hashedFingerprints.Audio, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
+            queryFingerprintService.Setup(service => service.QueryAsync(hashedFingerprints.Audio, It.IsAny<DefaultQueryConfiguration>(), modelService.Object, It.IsAny<CancellationToken>())).ReturnsAsync(dummyResult);
 
             _ = await queryCommandBuilder.BuildQueryCommand()
                 .From(pathToFile)
                 .UsingServices(modelService.Object, audioService.Object)
-                .Query();
+                .QueryAsync();
         }
 
         [Test]
@@ -149,7 +150,7 @@
             withAlgorithmConfiguration.Setup(config => config.WithFingerprintConfig(It.IsAny<DefaultAVFingerprintConfiguration>())).Returns(usingFingerprintServices.Object);
             usingFingerprintServices.Setup(u => u.UsingServices(audioService.Object)).Returns(fingerprintCommand.Object);
             fingerprintCommand.Setup(fingerprintingUnit => fingerprintingUnit.Hash()).Returns(Task.Factory.StartNew(() => hashes));
-            queryFingerprintService.Setup(service => service.Query(hashes.Audio, It.IsAny<DefaultQueryConfiguration>(), modelService.Object)).Returns(dummyResult);
+            queryFingerprintService.Setup(service => service.QueryAsync(hashes.Audio, It.IsAny<DefaultQueryConfiguration>(), modelService.Object, It.IsAny<CancellationToken>())).ReturnsAsync(dummyResult);
 
             _ = await queryCommandBuilder.BuildQueryCommand()
                                    .From(pathToFile, secondsToQuery, startAtSecond)
@@ -161,7 +162,7 @@
                                            return config;
                                        })
                                    .UsingServices(modelService.Object, audioService.Object)
-                                   .Query();
+                                   .QueryAsync();
 
             fingerprintingSource.Verify(source => source.From(pathToFile, secondsToQuery, startAtSecond, MediaType.Audio), Times.Once());
         }

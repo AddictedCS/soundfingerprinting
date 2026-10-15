@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Integration
+namespace SoundFingerprinting.Tests.Integration
 {
     using System;
     using System.Collections.Generic;
@@ -25,7 +25,7 @@
 
             var trackData = new TrackInfo("id", "title", "artist", new Dictionary<string, string> {{"key", "value"}}, MediaType.Audio);
 
-            modelService.Insert(trackData, hashedFingerprints);
+            await modelService.InsertAsync(trackData, hashedFingerprints);
 
             var tempDirectory = Path.Combine(Path.GetTempPath(), "sftests");
             modelService.Snapshot(tempDirectory);
@@ -33,7 +33,7 @@
             var (queryResult, _) = await QueryCommandBuilder.Instance.BuildQueryCommand()
                 .From(GetAudioSamples())
                 .UsingServices(new InMemoryModelService(tempDirectory))
-                .Query();
+                .QueryAsync();
 
             Directory.Delete(tempDirectory, true);
 
@@ -44,12 +44,12 @@
        }
 
         [Test]
-        public void ShouldSerializeAndIncrementNextIdCorrectly()
+        public async Task ShouldSerializeAndIncrementNextIdCorrectly()
         {
             var modelService = new InMemoryModelService();
 
             var firstTrack = new TrackInfo("id1", "title", "artist");
-            modelService.Insert(firstTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
+            await modelService.InsertAsync(firstTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
 
             var tempDirectory = Path.Combine(Path.GetTempPath(), "sftests");
             modelService.Snapshot(tempDirectory);
@@ -57,9 +57,9 @@
             var fromFileService = new InMemoryModelService(tempDirectory);
 
             var secondTrack = new TrackInfo("id2", "title", "artist");
-            fromFileService.Insert(secondTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
+            await fromFileService.InsertAsync(secondTrack, new AVHashes(new Hashes(new[] { new HashedFingerprint(GenericHashBuckets(), 1, 0f, Array.Empty<byte>()) }, 1.48, MediaType.Audio), null));
 
-            var tracks = fromFileService.GetTrackIds().ToList();
+            var tracks = (await fromFileService.GetTrackIdsAsync()).ToList();
 
             Directory.Delete(tempDirectory, true);
 

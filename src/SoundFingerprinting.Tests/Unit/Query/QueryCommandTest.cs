@@ -22,7 +22,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(Path.GetTempPath(), MediaType.Audio | MediaType.Video)
-                .Query());
+                .QueryAsync());
         }
         
         [Test]
@@ -31,7 +31,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             Assert.ThrowsAsync<ArgumentException>(() => QueryCommandBuilder.Instance
                 .BuildQueryCommand()
                 .From(TestUtilities.GenerateRandomAudioSamples(10 * 5512))
-                .Query()); 
+                .QueryAsync()); 
         }
         
         /**
@@ -350,7 +350,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 trackMeta[SpectralProfileKeys.SpectralProfile] = profilePayload;
             }
 
-            modelService.Insert(new TrackInfo("id", "title", "artist", trackMeta), avHashes);
+            await modelService.InsertAsync(new TrackInfo("id", "title", "artist", trackMeta), avHashes);
 
             var query = await QueryCommandBuilder
                 .Instance
@@ -362,7 +362,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                     return config;
                 })
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
 
             var result = query.ResultEntries.First();
 
@@ -393,7 +393,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
 
             // precondition: the two lanes must not match each other, otherwise the scenario is vacuous
             var laneAOnly = new InMemoryModelService();
-            laneAOnly.Insert(new TrackInfo("lane-a", "lane-a", "test"), new AVHashes(laneA, null));
+            await laneAOnly.InsertAsync(new TrackInfo("lane-a", "lane-a", "test"), new AVHashes(laneA, null));
             var crossLane = await QueryLane(laneB, laneAOnly);
             Assert.That(crossLane.ResultEntries, Is.Empty);
 
@@ -412,13 +412,13 @@ namespace SoundFingerprinting.Tests.Unit.Query
             }
 
             var modelService = new InMemoryModelService();
-            modelService.Insert(new TrackInfo("merged", "merged", "test"), new AVHashes(merged, null));
+            await modelService.InsertAsync(new TrackInfo("merged", "merged", "test"), new AVHashes(merged, null));
 
             foreach (var lane in new[] { laneA, laneB })
             {
                 // baseline: the same lane queried against a track built from that lane alone
                 var solo = new InMemoryModelService();
-                solo.Insert(new TrackInfo("solo", "solo", "test"), new AVHashes(lane, null));
+                await solo.InsertAsync(new TrackInfo("solo", "solo", "test"), new AVHashes(lane, null));
                 double soloCoverage = (await QueryLane(lane, solo)).ResultEntries.Single().Audio!.Coverage.TrackRelativeCoverage;
 
                 var result = await QueryLane(lane, modelService);
@@ -439,7 +439,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BuildQueryCommand()
                 .From(new AVHashes(lane, null))
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
         }
 
         private static async Task<Hashes> HashAudio(AudioSamples samples)
@@ -487,7 +487,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .BuildQueryCommand()
                 .From(new AudioSamples(match, "cnn", 5512))
                 .UsingServices(modelService)
-                .Query();
+                .QueryAsync();
             return avQueryResult.Audio;
         }
 
@@ -498,7 +498,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
                 .From(new AudioSamples(audioSamples, "Queen", 5512))
                 .Hash();
 
-            modelService.Insert(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), hashes);
+            await modelService.InsertAsync(new TrackInfo("123", "Bohemian Rhapsody", "Queen"), hashes);
         }
     }
 }

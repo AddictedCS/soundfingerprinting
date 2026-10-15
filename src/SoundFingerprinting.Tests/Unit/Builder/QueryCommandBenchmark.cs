@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Tests.Unit.Builder
+namespace SoundFingerprinting.Tests.Unit.Builder
 {
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
@@ -30,7 +30,7 @@
 
                 var track = new TrackInfo($"{i}", string.Empty, string.Empty);
 
-                modelService.Insert(track, hashes);
+                await modelService.InsertAsync(track, hashes);
             }
 
             logger.LogInformation("Fingerprinting Time, Query Time, Candidates Found");
@@ -43,7 +43,7 @@
                     .BuildQueryCommand()
                     .From(samples)
                     .UsingServices(modelService)
-                    .Query();
+                    .QueryAsync();
 
                 logger.LogInformation("{0,10}ms{1,15}ms{2,15}", queryResult.CommandStats.FingerprintingDurationMilliseconds, queryResult.CommandStats.QueryDurationMilliseconds, queryResult.CommandStats.TotalFingerprintsAnalyzed);
                 avgFingerprinting += queryResult.CommandStats.FingerprintingDurationMilliseconds;

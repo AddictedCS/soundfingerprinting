@@ -1,4 +1,4 @@
-﻿namespace SoundFingerprinting.Query
+namespace SoundFingerprinting.Query
 {
     using System;
     using System.Collections.Generic;
@@ -19,10 +19,8 @@
 
         public static QueryMath Instance { get; } = new (new QueryResultCoverageCalculator());
 
-        public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, int maxNumberOfMatchesToReturn, IQueryService modelService, QueryConfiguration queryConfiguration)
+        public List<ResultEntry> GetBestCandidates(GroupedQueryResults groupedQueryResults, IReadOnlyList<TrackData> tracks, QueryConfiguration queryConfiguration)
         {
-            var trackIds = groupedQueryResults.GetTopTracksByScore(maxNumberOfMatchesToReturn).ToList();
-            var tracks = modelService.ReadTracksByReferences(trackIds);
             return tracks
                 .SelectMany(track => BuildResultEntries(track, groupedQueryResults, queryConfiguration))
                 .OrderByDescending(entry => entry.Score)

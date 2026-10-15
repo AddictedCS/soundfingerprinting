@@ -2,6 +2,7 @@ namespace SoundFingerprinting.Configuration
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using SoundFingerprinting.Command;
     using SoundFingerprinting.Data;
     using SoundFingerprinting.LCS;
@@ -30,10 +31,10 @@ namespace SoundFingerprinting.Configuration
         /// <param name="includeQueryHashesInResponse">A flag indicating whether to include query hashes in the response or not.</param>
         public RealtimeQueryConfiguration(AVQueryConfiguration queryConfiguration,
             IRealtimeResultEntryFilter resultEntryFilter,
-            Action<AVQueryResult> successCallback,
-            Action<AVQueryResult> didNotPassFilterCallback,
+            Func<AVQueryResult, Task> successCallback,
+            Func<AVQueryResult, Task> didNotPassFilterCallback,
             IRealtimeResultEntryFilter ongoingResultEntryFilter,
-            Action<string, IEnumerable<AVResultEntry>> ongoingCallback,
+            Func<string, IEnumerable<AVResultEntry>, Task> ongoingCallback,
             Action<Exception, AVHashes?> errorCallback,
             Action restoredAfterErrorCallback,
             IOfflineStorage offlineStorage,
@@ -74,12 +75,15 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///   Gets or sets success callback invoked when a candidate passes result entry filter.
         /// </summary>
-        public Action<AVQueryResult> SuccessCallback { get; set; }
+        /// <remarks>
+        ///  The realtime command awaits the returned task before it consumes the next query result, so a callback that performs I/O does not block a thread and does not run concurrently with itself.
+        /// </remarks>
+        public Func<AVQueryResult, Task> SuccessCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets callback invoked when a candidate did not pass result entry filter, but has been considered a candidate.
         /// </summary>
-        public Action<AVQueryResult> DidNotPassFilterCallback { get; set; }
+        public Func<AVQueryResult, Task> DidNotPassFilterCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets ongoing result entry filter that will be invoked for every result entry filter that is captured by the aggregator.
@@ -94,7 +98,7 @@ namespace SoundFingerprinting.Configuration
         /// <summary>
         ///  Gets or sets ongoing success callback that will be invoked on entries that pass <see cref="OngoingResultEntryFilter"/>.
         /// </summary>
-        public Action<string, IEnumerable<AVResultEntry>> OngoingCallback { get; set; }
+        public Func<string, IEnumerable<AVResultEntry>, Task> OngoingCallback { get; set; }
 
         /// <summary>
         ///  Gets or sets error callback which will be invoked in case if an error occurs during query time.

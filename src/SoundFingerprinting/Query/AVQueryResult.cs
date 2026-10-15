@@ -42,7 +42,7 @@ namespace SoundFingerprinting.Query
         public QueryResult? Video { get; }
         
         /// <summary>
-        ///  Gets query hashes used for for querying the model service <see cref="IModelService.Query"/>.
+        ///  Gets query hashes used for for querying the model service <see cref="IQueryService.QueryEfficientlyAsync"/>.
         /// </summary>
         public AVHashes QueryHashes { get; }
         

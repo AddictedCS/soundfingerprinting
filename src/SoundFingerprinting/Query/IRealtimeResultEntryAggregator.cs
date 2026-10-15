@@ -3,7 +3,7 @@ namespace SoundFingerprinting.Query
     internal interface IRealtimeResultEntryAggregator
     {
         /// <summary>
-        ///  Consume candidates returned from the <see cref="QueryFingerprintService.Query"/> invocation.
+        ///  Consume candidates returned from the <see cref="QueryFingerprintService.QueryAsync"/> invocation.
         /// </summary>
         /// <param name="candidates">And instance of <see cref="QueryResult"/> class.</param>
         /// <returns>
