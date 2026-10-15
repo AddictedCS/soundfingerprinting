@@ -230,8 +230,8 @@ namespace SoundFingerprinting.Command
                 configuration.ResultEntryFilter,
                 configuration.OngoingResultEntryFilter,
                 new AvResultEntryCompletionStrategy(configuration.QueryConfiguration, configuration.OngoingEntryStalenessCeiling),
-                new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
-                new ResultEntryConcatenator(loggerFactory, configuration.AutomaticSkipDetection),
+                new ResultEntryConcatenator(loggerFactory, configuration.SeamJumpPolicy),
+                new ResultEntryConcatenator(loggerFactory, configuration.SeamJumpPolicy),
                 configuration.IncludeQueryHashesInResponse ? new StatefulQueryHashesConcatenator() : new NoOpQueryHashesConcatenator(loggerFactory),
                 loggerFactory);
 

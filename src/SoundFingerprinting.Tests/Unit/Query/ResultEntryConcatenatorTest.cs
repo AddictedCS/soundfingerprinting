@@ -23,14 +23,14 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ReturnNullWhenBothEntriesAreNull()
         {
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
 			Assert.That(concatenator.Concat(null, null), Is.Null);
         }
 
         [Test]
         public void WhenOneEntryIsNullThenReturnTheOther()
         {
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var entry = CreateEntry(queryOffset: 110, trackOffset: 0, matchLength: 10);
 
@@ -44,7 +44,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
         [Test]
         public void ShouldNotConcatEntriesFromDifferentTracks()
         {
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var left = CreateEntry(queryOffset: 110, trackOffset: 0, matchLength: 10, trackLength: 30, queryLength: 120, trackId: "track-1");
             var right = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 20, trackLength: 30, queryLength: 120, trackId: "track-2");
@@ -65,7 +65,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -102,7 +102,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength:  9);
             var right = CreateEntry(queryOffset:   0, trackOffset: 12, matchLength: 18);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -140,7 +140,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 107, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -181,7 +181,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   3, trackOffset: 10, matchLength: 20);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -222,7 +222,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 108, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   2, trackOffset: 10, matchLength: 20);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -263,7 +263,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength:  7);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -302,7 +302,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   3, trackOffset: 13, matchLength: 17);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -341,7 +341,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 108, trackOffset:  0, matchLength:  9);
             var right = CreateEntry(queryOffset:   4, trackOffset: 12, matchLength: 18);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(left, right);
 
@@ -373,7 +373,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 5, trackOffset:  0, matchLength: 5, trackLength: 10, queryLength: 10); 
             var second  = CreateEntry(queryOffset: 0, trackOffset:  5, matchLength: 5, trackLength: 10, queryLength: 10); 
             
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(first, second);
 
@@ -396,7 +396,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength, trackLength: 20, queryLength: 10);
             var second = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength, trackLength: 20, queryLength: 10);
             
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(first, second);
 
@@ -431,7 +431,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength, trackLength: 20, queryLength: 10);
             var second = CreateEntry(queryOffset: 3, trackOffset: 13, 7, trackLength: 20, queryLength: 10);
             
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(first, second);
 
@@ -460,7 +460,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var second = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength, queryLength: 10); 
             var third = CreateEntry(queryOffset: 0, trackOffset: 20, matchLength, queryLength: 10);
             
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var concatenated = concatenator.Concat(first, second);
             var result = concatenator.Concat(concatenated, third);
@@ -482,7 +482,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength, queryLength: 10, trackLength: 10);
             var second = CreateEntry(queryOffset: 0, trackOffset: 3, matchLength: 3, queryLength: 3, trackLength: 10);
             
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var result = concatenator.Concat(first, second);
 
@@ -501,7 +501,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength, queryLength: 10, trackLength: 30); 
             var second  = CreateEntry(queryOffset: 0, trackOffset: 5, matchLength, queryLength: 10, trackLength: 30);
             
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
             
             var result = concatenator.Concat(first, second);
 
@@ -521,7 +521,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 110, trackOffset:  0, matchLength: 10);
             var right = CreateEntry(queryOffset:   0, trackOffset: 10, matchLength: 20);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, autoSkipDetection: true);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.SourceSkip);
             
             var a = concatenator.Concat(left, right);
             var b = concatenator.Concat(right, left);
@@ -535,7 +535,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var first  = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 5, trackLength: 210, queryLength: 5); 
             var second  = CreateEntry(queryOffset: 0, trackOffset: 110, matchLength: 5, trackLength: 210, queryLength: 5);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, autoSkipDetection: true);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.SourceSkip);
             
             var result = concatenator.Concat(first, second);
 
@@ -565,7 +565,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength: 12, queryLength: 12);
             var right = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 10, queryLength: 12);
             
-            var concatenator = new ResultEntryConcatenator(loggerFactory, autoSkipDetection: true);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.SourceSkip);
             
             var result = concatenator.Concat(left, right, queryOffset: -2);
 
@@ -583,7 +583,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 0, trackOffset:  0, matchLength: 12, queryLength: 12);
             var right = CreateEntry(queryOffset: 0, trackOffset: 10, matchLength: 10, queryLength: 12);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, autoSkipDetection: true);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.SourceSkip);
 
             var result = concatenator.Concat(left, right, queryOffset: -2);
 
@@ -601,7 +601,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 2, queryLength: 2);
             var right = CreateEntry(queryOffset: 0, trackOffset: 2, matchLength: 2, queryLength: 2);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, autoSkipDetection: false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
 
             var result = concatenator.Concat(left, right, queryOffset: -4);
 
@@ -621,11 +621,89 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 7, trackOffset: 0, matchLength: 44, trackLength: 45, queryLength: 52);
             var right = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 8, trackLength: 45, queryLength: 10);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
 
             var result = concatenator.Concat(left, right, queryOffset: -1.4);
 
             Assert.That(result, Is.SameAs(right));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ShouldStartANewMatchWhenTheTrackJumpsBeyondTheSeamCeiling(bool startsNew)
+        {
+            var policy = startsNew ? SeamJumpPolicy.NewOccurrenceAbove(120) : SeamJumpPolicy.Stitch;
+            // a 28-minute program repeats lines of a spot; consecutive chunks of one spot airing match copies 16 minutes apart.
+            // the default ceiling keeps the historical stitching, the ad ceiling returns the incoming entry as a new match
+            var left  = CreateEntry(queryOffset: 1.3f, trackOffset: 32.4f, matchLength: 5.6f, trackLength: 1709, queryLength: 20);
+            var right = CreateEntry(queryOffset: 2.2f, trackOffset: 1026.6f, matchLength: 9.2f, trackLength: 1709, queryLength: 10);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, policy);
+
+            var result = concatenator.Concat(left, right);
+
+            Assert.That(ReferenceEquals(result, right), Is.EqualTo(startsNew));
+        }
+
+        [TestCase(119)]
+        [TestCase(122)]
+        public void ShouldStitchAForwardJumpUpToTheCeilingPlusThePermittedGap(double trackOffset)
+        {
+            // the permitted gap (2.9 s) is alignment jitter, so a jump of ceiling + gap still continues
+            var left  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 10, trackLength: 1709, queryLength: 10);
+            var right = CreateEntry(queryOffset: 0, trackOffset: (float)(10 + trackOffset), matchLength: 10, trackLength: 1709, queryLength: 10);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.NewOccurrenceAbove(120));
+
+            Assert.That(concatenator.Concat(left, right), Is.Not.SameAs(right));
+        }
+
+        [Test]
+        public void ShouldStartANewMatchJustBeyondTheCeilingPlusThePermittedGap()
+        {
+            var left  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 10, trackLength: 1709, queryLength: 10);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 10 + 123.1f, matchLength: 10, trackLength: 1709, queryLength: 10);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.NewOccurrenceAbove(120));
+
+            Assert.That(concatenator.Concat(left, right), Is.SameAs(right));
+        }
+
+        [Test]
+        public void ShouldStitchCutDownEditWithinTheMaxGap()
+        {
+            // a 60 second spot aired as a 45 second edit: 13 seconds of the middle are cut, the track jumps ahead of the query once
+            var left  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 20, trackLength: 60, queryLength: 20);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 33, matchLength: 25, trackLength: 60, queryLength: 25);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.NewOccurrenceAbove(120));
+
+            var result = concatenator.Concat(left, right);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.SameAs(left).And.Not.SameAs(right));
+                Assert.That(result.Coverage.TrackDiscreteCoverageLength, Is.EqualTo(58).Within(1));
+                Assert.That(result.Coverage.QueryDiscreteCoverageLength, Is.EqualTo(45).Within(1));
+            });
+        }
+
+        [Test]
+        public void ShouldStitchAcrossUnmatchedStretchThatAdvancesBothAxes()
+        {
+            // 30 unmatched seconds inside a long-form airing advance the query and the track together
+            var left  = CreateEntry(queryOffset: 0, trackOffset: 100, matchLength: 10, trackLength: 1709, queryLength: 40);
+            var right = CreateEntry(queryOffset: 0, trackOffset: 140, matchLength: 10, trackLength: 1709, queryLength: 10);
+
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.NewOccurrenceAbove(120));
+
+            var result = concatenator.Concat(left, right);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.SameAs(left).And.Not.SameAs(right));
+                Assert.That(result.Coverage.TrackDiscreteCoverageLength, Is.EqualTo(50).Within(1));
+            });
         }
 
         [Test]
@@ -636,7 +714,7 @@ namespace SoundFingerprinting.Tests.Unit.Query
             var left  = CreateEntry(queryOffset: 0, trackOffset: 0, matchLength: 42, trackLength: 45, queryLength: 42);
             var right = CreateEntry(queryOffset: 0, trackOffset: 41, matchLength: 4, trackLength: 45, queryLength: 10);
 
-            var concatenator = new ResultEntryConcatenator(loggerFactory, false);
+            var concatenator = new ResultEntryConcatenator(loggerFactory, SeamJumpPolicy.Stitch);
 
             var result = concatenator.Concat(left, right, queryOffset: -1.4);
 

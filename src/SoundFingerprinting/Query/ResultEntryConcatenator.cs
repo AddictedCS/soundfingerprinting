@@ -1,9 +1,11 @@
 namespace SoundFingerprinting.Query
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Extensions.Logging;
     using SoundFingerprinting.Audio;
+    using SoundFingerprinting.Configuration;
     using SoundFingerprinting.LCS;
 
     /// <summary>
@@ -11,17 +13,17 @@ namespace SoundFingerprinting.Query
     /// </summary>
     public class ResultEntryConcatenator : IConcatenator<ResultEntry>
     {
-        private readonly bool autoSkipDetection;
+        private readonly SeamJumpPolicy seamJumpPolicy;
         private readonly ILogger<ResultEntryConcatenator> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResultEntryConcatenator"/> class.
         /// </summary>
         /// <param name="loggerFactory">An instance of logger factory.</param>
-        /// <param name="autoSkipDetection">A flag indicating whether to enable automatic skip detection.</param>
-        public ResultEntryConcatenator(ILoggerFactory loggerFactory, bool autoSkipDetection)
+        /// <param name="seamJumpPolicy">What to do when the track position jumps ahead of the stream across the seam, see <see cref="SeamJumpPolicy"/>.</param>
+        public ResultEntryConcatenator(ILoggerFactory loggerFactory, SeamJumpPolicy seamJumpPolicy)
         {
-            this.autoSkipDetection = autoSkipDetection;
+            this.seamJumpPolicy = seamJumpPolicy;
             logger = loggerFactory.CreateLogger<ResultEntryConcatenator>();
         }
 
@@ -62,7 +64,7 @@ namespace SoundFingerprinting.Query
                 return right;
             }
 
-            if (autoSkipDetection && left.TrackMatchStartsAt > right.TrackMatchStartsAt)
+            if (seamJumpPolicy.Kind == SeamJumpKind.SourceSkip && left.TrackMatchStartsAt > right.TrackMatchStartsAt)
             {
                 logger.LogDebug("Concatenator result entry reversal detected for {Left}<->{Right}", left, right);
                 (left, right) = (right, left);
@@ -105,13 +107,22 @@ namespace SoundFingerprinting.Query
                     score: _.Score,
                     matchType: _.Type));
 
-            var bestPath = left.Coverage.BestPath.Concat(nextBestPath);
+            var nextPath = nextBestPath.ToList();
+            // one question at the seam: the track jumped ahead of the stream, is this still the same playing of the track? the policy answers it
+            double trackSkip = SeamTrackSkip(left.Coverage, nextPath);
+            if (seamJumpPolicy.Kind == SeamJumpKind.NewOccurrence && trackSkip > seamJumpPolicy.CeilingSeconds + left.Coverage.PermittedGap)
+            {
+                logger.LogDebug("Entry {Right} jumps {Skip:0.00}s ahead of {Left} across the seam, beyond the {Ceiling:0.00}s ceiling, returning it as a new match", right, trackSkip, left, seamJumpPolicy.CeilingSeconds);
+                return right;
+            }
+
+            var bestPath = left.Coverage.BestPath.Concat(nextPath);
             double queryLength = left.Coverage.QueryLength + right.Coverage.QueryLength + queryOffset;
             double permittedGap = left.Coverage.PermittedGap;
             double skipLength = 0d;
             double leftEndsAt = left.TrackMatchStartsAt + left.DiscreteTrackCoverageLength;
             double matchGap = right.TrackMatchStartsAt - leftEndsAt;
-            if (autoSkipDetection && matchGap > 0 && right.Coverage.TrackCoverageWithPermittedGapsLength + left.Coverage.TrackCoverageWithPermittedGapsLength + matchGap > queryLength + permittedGap)
+            if (seamJumpPolicy.Kind == SeamJumpKind.SourceSkip && matchGap > 0 && right.Coverage.TrackCoverageWithPermittedGapsLength + left.Coverage.TrackCoverageWithPermittedGapsLength + matchGap > queryLength + permittedGap)
             {
                 // we have covered more than the query allowed us, realtime query came with a glitch/skip
                 logger.LogDebug("Result entries {Left}->{Right} covered more than it is possible by the query length {QueryLength:0.00}. Possible skip length {Glitch:0.00}", left, right, queryLength, matchGap);
@@ -133,6 +144,24 @@ namespace SoundFingerprinting.Query
         public ResultEntry WithExtendedQueryLength(ResultEntry old, double length)
         {
             return new ResultEntry(old.Track, old.Score, old.MatchedAt, new Coverage(old.Coverage.BestPath, old.Coverage.QueryLength + length, old.Coverage.TrackLength, old.Coverage.FingerprintLength, old.Coverage.PermittedGap, old.Coverage.BridgedSeconds));
+        }
+
+        /// <summary>
+        ///  Gets how far the track position jumped ahead of the stream across the seam.
+        /// </summary>
+        /// <param name="left">Accumulated coverage.</param>
+        /// <param name="nextPath">Next path, already shifted into the accumulated query timeline.</param>
+        /// <returns>Track advance minus query advance at the seam, in seconds; zero for an empty path. Negative values are rewinds, judged by the guard above.</returns>
+        private static double SeamTrackSkip(Coverage left, IReadOnlyList<MatchedWith> nextPath)
+        {
+            if (nextPath.Count == 0)
+            {
+                return 0;
+            }
+
+            var leftLast = left.BestPath.Last();
+            var rightFirst = nextPath[0];
+            return (rightFirst.TrackMatchAt - leftLast.TrackMatchAt) - (rightFirst.QueryMatchAt - leftLast.QueryMatchAt);
         }
 
         private static float GetGapSize(MatchedWith leftLastMatch, double leftQueryLength, float fingerprintLength)

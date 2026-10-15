@@ -82,6 +82,9 @@ var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
 
 Available strategies: `NoBridgingStrategy` (default — no change vs. v14), `BroadbandNoiseBridgingStrategy` (per-second SFM > 0.70 on both sides), `SilentRegionBridgingStrategy` (per-second power < 5% on both sides — replaces the removed `TreatSilenceAsSignal` flag), `SimilarProfileBridgingStrategy` (tight |Δsfm| < 0.10 tolerance, capped to `min(10s, 0.30 × queryLength)` to keep speech-vs-speech merges safe), and `CompositeBridgingStrategy` for safe unions. Bridging is bounded by a universal 70% cumulative-bridged-seconds sanity cap and reported back via `Coverage.BridgedSeconds`. Synthetics are structurally indistinguishable from real matches downstream — no wire-format changes to `MatchedWith`. Tracks without a stored profile short-circuit cleanly to no-bridging (behavior identical to v14).
 
+### Realtime seam jump policy since version 15.17.0
+A realtime query stitches consecutive chunks that match the same track into one result entry. When the track position jumps ahead of where the stream advance puts it, `RealtimeQueryConfiguration.SeamJumpPolicy` decides whether the chunk continues the same playing of the track (`Stitch`, the default), is a seek in the source (`SourceSkip`), or is another occurrence of audio that the track repeats (`NewOccurrenceAbove(seconds)`). Use the last one when stored tracks can contain the same audio several times, for example long programs that embed their advertising spots. Details, the reasoning and the measurements are on the [Realtime Seam Jump Policy][seam-jump-policy-wiki-page] wiki page.
+
 ### Version Matrix
 If you are using `FFmpegAudioService` as described in the [wiki][audio-services-wiki-page], follow the below version matrix.
 | SoundFingerprinting  | SoundFingerprinting.Emy | FFmpeg |
@@ -137,3 +140,4 @@ The framework is provided under [MIT](https://opensource.org/licenses/MIT) licen
 [emy-wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki/Emy-Storage
 [audio-services-wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki/Audio-Services
 [video-fingerprinting-wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki/Video-Fingerprints
+[seam-jump-policy-wiki-page]: https://github.com/AddictedCS/soundfingerprinting/wiki/Realtime-Seam-Jump-Policy
