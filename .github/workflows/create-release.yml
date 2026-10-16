@@ -41,7 +41,7 @@ jobs:
         tag_name: v${{ steps.define_variables.outputs.sf_core_version }}
         release_name: Release ${{ steps.define_variables.outputs.sf_core_version }}
         draft: false
-        prerelease: false
+        prerelease: ${{ contains(steps.define_variables.outputs.sf_core_version, '-') }}
     - name: Slack Success Notification
       uses: rtCamp/action-slack-notify@v2
       env:
