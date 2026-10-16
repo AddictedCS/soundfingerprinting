@@ -310,7 +310,7 @@ namespace SoundFingerprinting.Utils
                         return queryConfig;
                     })
                 .UsingServices(modelService, audioService)
-                .Query();
+                .Query().ConfigureAwait(false);
             return audio!;
         }
 

@@ -13,12 +13,13 @@
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
 		Version 16.0.0-beta
-		- Breaking: IQueryService and IModelService are asynchronous. QueryEfficientlyAsync, ReadTracksByReferencesAsync, GetInfoAsync (replaces the Info property), InsertAsync, UpdateTrackAsync, DeleteTrackAsync, ReadHashesByTrackIdAsync, ReadTrackByIdAsync and GetTrackIdsAsync return Task and accept a CancellationToken; list results are materialized (IReadOnlyList). There is no synchronous surface and no parallel async interface family
-		- IQueryCommand.Query() and Query(DateTime) accept an optional CancellationToken; IRealtimeQueryCommand.Query(token) is unchanged. The token cancels the storage round trips and the match registration, fingerprint generation runs to completion
-		- Breaking: IQueryFingerprintService.Query is QueryAsync(hashes, configuration, queryService, token). Query math no longer reads tracks from the storage: QueryFingerprintService awaits the candidates, selects the track references, awaits the track details and hands them to the pure computation
-		- Breaking: IAVQueryMatchRegistry.RegisterMatches is RegisterMatchesAsync(matches, publishToDownstreamSubscribers, token); QueryCommand awaits it
-		- Breaking: RealtimeQueryConfiguration.SuccessCallback and DidNotPassFilterCallback are Func&lt;AVQueryResult, Task&gt;, OngoingCallback is Func&lt;string, IEnumerable&lt;AVResultEntry&gt;, Task&gt;; the realtime command awaits each callback before it consumes the next query result. ErrorCallback and RestoredAfterErrorCallback stay synchronous
-		- InMemoryModelService implements the asynchronous contract by computing synchronously and returning completed tasks; results and snapshots are unchanged
+		- Breaking: IQueryService and IModelService are async-only (QueryEfficientlyAsync, ReadTracksByReferencesAsync, GetInfoAsync, InsertAsync, UpdateTrackAsync, DeleteTrackAsync, ReadHashesByTrackIdAsync, ReadTrackByIdAsync, GetTrackIdsAsync) and take a CancellationToken; list results are IReadOnlyList
+		- IQueryCommand.Query() and Query(DateTime) take an optional CancellationToken; IRealtimeQueryCommand.Query(token) is unchanged
+		- Breaking: IQueryFingerprintService.Query is QueryAsync(hashes, configuration, queryService, token); query math no longer reads tracks itself
+		- Breaking: IAVQueryMatchRegistry.RegisterMatches is RegisterMatchesAsync
+		- Breaking: realtime SuccessCallback, DidNotPassFilterCallback and OngoingCallback return Task and are awaited
+		- InMemoryModelService returns completed tasks; results unchanged
+		- Every await is ConfigureAwait(false), enforced by CA2007; the realtime loop starts on the thread pool, never on the caller SynchronizationContext
 		Version 15.17.0
 		- RealtimeQueryConfiguration.SeamJumpPolicy decides what a realtime query does when the track position jumps ahead of the stream between consecutive chunks: Stitch (default, historical), SourceSkip (the former AutomaticSkipDetection, now obsolete) or NewOccurrenceAbove(seconds) for tracks that repeat their own audio
 		- The realtime aggregator prefers, among several candidates of one track, the one that continues the tracked occurrence, so a real playing of a track that repeats its audio accumulates through the repeated regions instead of hopping to a copy

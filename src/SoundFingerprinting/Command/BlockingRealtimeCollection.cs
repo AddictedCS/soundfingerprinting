@@ -43,7 +43,7 @@ namespace SoundFingerprinting.Command
         public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             T? result;
-            while ((result = await TryReadAsync(cancellationToken)) != null)
+            while ((result = await TryReadAsync(cancellationToken).ConfigureAwait(false)) != null)
             {
                 yield return result;
             }
@@ -57,7 +57,7 @@ namespace SoundFingerprinting.Command
                 {
                     if (collection.TryTake(out var samples, (int)delay.TotalMilliseconds, cancellationToken))
                     {
-                        return await Task.FromResult(samples);
+                        return await Task.FromResult(samples).ConfigureAwait(false);
                     }
                 }
                 catch (Exception e) when (e is ObjectDisposedException or OperationCanceledException)

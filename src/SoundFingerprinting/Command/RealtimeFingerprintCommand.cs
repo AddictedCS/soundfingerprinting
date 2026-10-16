@@ -158,7 +158,7 @@ namespace SoundFingerprinting.Command
 
         private static async IAsyncEnumerable<RealtimeElement> Map<T>(IAsyncEnumerable<T> source, Func<T, RealtimeElement> map, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            await foreach (var item in source.WithCancellation(cancellationToken))
+            await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return map(item);
             }
@@ -166,9 +166,9 @@ namespace SoundFingerprinting.Command
 
         private async IAsyncEnumerable<AVHashes> Enumerate(RealtimeAudioSamplesAggregator aggregator, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            await foreach (var element in source(cancellationToken).WithCancellation(cancellationToken))
+            await foreach (var element in source(cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
             {
-                var hashes = await CreateHashes(element, aggregator);
+                var hashes = await CreateHashes(element, aggregator).ConfigureAwait(false);
                 if (hashes == null)
                 {
                     continue;
@@ -195,7 +195,7 @@ namespace SoundFingerprinting.Command
                 .BuildFingerprintCommand()
                 .From(avTrack)
                 .WithFingerprintConfig(fingerprintConfiguration)
-                .Hash();
+                .Hash().ConfigureAwait(false);
             logger.LogDebug("Created hashes {Hashes} from aggregated track {AVTrack}", hashes, avTrack);
             return element.StreamId != null ? hashes.WithStreamId(element.StreamId) : hashes;
         }
@@ -280,7 +280,7 @@ namespace SoundFingerprinting.Command
             private async IAsyncEnumerable<AVHashes> EnumerateLinked([EnumeratorCancellation] CancellationToken enumeratorToken)
             {
                 using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, enumeratorToken);
-                await foreach (var hashes in command.Enumerate(aggregator, linked.Token).WithCancellation(linked.Token))
+                await foreach (var hashes in command.Enumerate(aggregator, linked.Token).WithCancellation(linked.Token).ConfigureAwait(false))
                 {
                     yield return hashes;
                 }

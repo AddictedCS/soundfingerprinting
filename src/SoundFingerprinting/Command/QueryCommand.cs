@@ -183,19 +183,19 @@ namespace SoundFingerprinting.Command
             var usingFingerprintServices = createFingerprintCommand().WithFingerprintConfig(queryConfiguration.FingerprintConfiguration);
             var fingerprintCommand = SelectMediaServiceForFingerprintCommand(usingFingerprintServices);
             
-            var hashes = await fingerprintCommand.Hash();
+            var hashes = await fingerprintCommand.Hash().ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             var avHashes = relativeTo == DateTime.MinValue ? hashes : hashes.WithRelativeTo(relativeTo);
             
             var (audioHashes, videoHashes) = hashesInterceptor(avHashes);
-            var avQueryResult = await GetAvQueryResultAsync(queryService, audioHashes, videoHashes, hashes.FingerprintingTime, cancellationToken);
+            var avQueryResult = await GetAvQueryResultAsync(queryService, audioHashes, videoHashes, hashes.FingerprintingTime, cancellationToken).ConfigureAwait(false);
             
             if (avQueryResult.ContainsMatches && queryMatchRegistry != null)
             {
                 string streamId = audioHashes?.StreamId ?? videoHashes?.StreamId ?? string.Empty;
                 logger.LogDebug("AVQueryResult contains {Count} matches. Registering them with {QueryMatchRegistry} for stream {StreamId}", avQueryResult.ResultEntries.Count(), queryMatchRegistry, streamId);
                 var avQueryMatches = avQueryResult.ResultEntries.Select(_ => _.ConvertToAvQueryMatch(streamId: streamId));
-                await queryMatchRegistry.RegisterMatchesAsync(avQueryMatches, cancellationToken: cancellationToken);
+                await queryMatchRegistry.RegisterMatchesAsync(avQueryMatches, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
 
             return avQueryResult;
@@ -222,8 +222,8 @@ namespace SoundFingerprinting.Command
         private async Task<AVQueryResult> GetAvQueryResultAsync(IQueryService service, Hashes? audioHashes, Hashes? videoHashes, AVFingerprintingTime avFingerprintingTime, CancellationToken cancellationToken)
         {
             // audio before video, one round trip at a time, same as the synchronous command did
-            var audioResults = audioHashes != null ? await queryFingerprintService.QueryAsync(audioHashes, queryConfiguration.Audio, service, cancellationToken) : null;
-            var videoResults = videoHashes != null ? await queryFingerprintService.QueryAsync(videoHashes, queryConfiguration.Video, service, cancellationToken) : null;
+            var audioResults = audioHashes != null ? await queryFingerprintService.QueryAsync(audioHashes, queryConfiguration.Audio, service, cancellationToken).ConfigureAwait(false) : null;
+            var videoResults = videoHashes != null ? await queryFingerprintService.QueryAsync(videoHashes, queryConfiguration.Video, service, cancellationToken).ConfigureAwait(false) : null;
             var (audioMilliseconds, videoMilliseconds) = avFingerprintingTime;
             var queryCommandStats = new AVQueryCommandStats(audioResults?.CommandStats, videoResults?.CommandStats).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
             return new AVQueryResult(audioResults, videoResults, new AVHashes(audioHashes, videoHashes, avFingerprintingTime), queryCommandStats);

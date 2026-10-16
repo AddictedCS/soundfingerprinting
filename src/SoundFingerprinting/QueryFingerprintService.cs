@@ -39,7 +39,7 @@ namespace SoundFingerprinting
         public async Task<QueryResult> QueryAsync(Hashes hashes, QueryConfiguration configuration, IQueryService queryService, CancellationToken cancellationToken = default)
         {
             var queryStopwatch = Stopwatch.StartNew();
-            var candidates = await queryService.QueryEfficientlyAsync(hashes, configuration, cancellationToken);
+            var candidates = await queryService.QueryEfficientlyAsync(hashes, configuration, cancellationToken).ConfigureAwait(false);
             var groupedQueryResults = GroupCandidates(hashes, configuration, candidates);
             if (!groupedQueryResults.ContainsMatches)
             {
@@ -48,7 +48,7 @@ namespace SoundFingerprinting
 
             // the storage round trips stay here so that query math never depends on a service that can perform remote I/O
             var trackReferences = groupedQueryResults.GetTopTracksByScore(configuration.MaxTracksToReturn).ToList();
-            var tracks = await queryService.ReadTracksByReferencesAsync(trackReferences, cancellationToken);
+            var tracks = await queryService.ReadTracksByReferencesAsync(trackReferences, cancellationToken).ConfigureAwait(false);
             var resultEntries = queryMath.GetBestCandidates(groupedQueryResults, tracks, configuration);
             int totalTracksAnalyzed = groupedQueryResults.TracksCount;
             int totalSubFingerprintsAnalyzed = groupedQueryResults.SubFingerprintsCount;

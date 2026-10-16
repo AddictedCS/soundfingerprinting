@@ -115,8 +115,8 @@ namespace SoundFingerprinting.Command
         {
             try
             {
-                await Task.Yield();
-                return await QueryRealtimeSource(cancellationToken);
+                // the loop starts on the thread pool so a caller synchronization context never hosts fingerprinting or callbacks
+                return await Task.Run(() => QueryRealtimeSource(cancellationToken)).ConfigureAwait(false);
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
             {
@@ -237,7 +237,7 @@ namespace SoundFingerprinting.Command
             try
             {
                 // the offline storage is drained at startup; a query failure is handled inside the drain and the realtime loop continues
-                await TryDrainOfflineStorageAsync(liveHashes: null, resultsAggregator, cancellationToken);
+                await TryDrainOfflineStorageAsync(liveHashes: null, resultsAggregator, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
             {
@@ -253,14 +253,14 @@ namespace SoundFingerprinting.Command
             {
                 try
                 {
-                    await QueryFromRealtimeAndOffline(realtimeHashes, resultsAggregator, cancellationToken);
+                    await QueryFromRealtimeAndOffline(realtimeHashes, resultsAggregator, cancellationToken).ConfigureAwait(false);
                     logger.LogInformation("Stopped querying realtime source after {QueryLength:00} seconds", queryLength);
-                    await PurgeResultEntryAggregatorAsync(resultsAggregator);
+                    await PurgeResultEntryAggregatorAsync(resultsAggregator).ConfigureAwait(false);
                     return queryLength;
                 }
                 catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
                 {
-                    await PurgeResultEntryAggregatorAsync(resultsAggregator);
+                    await PurgeResultEntryAggregatorAsync(resultsAggregator).ConfigureAwait(false);
                     throw;
                 }
                 catch (Exception e)
@@ -273,18 +273,18 @@ namespace SoundFingerprinting.Command
                     catch (Exception e2)
                     {
                         logger.LogWarning(e2, "Failed to handle query failure. Purging realtime aggregator, exiting query loop");
-                        await PurgeResultEntryAggregatorAsync(resultsAggregator);
+                        await PurgeResultEntryAggregatorAsync(resultsAggregator).ConfigureAwait(false);
                         throw;
                     }
 
                     try
                     {
-                        await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken);
+                        await Task.Delay(configuration.ErrorBackoffPolicy.RemainingDelay, cancellationToken).ConfigureAwait(false);
                     }
                     catch (Exception delayException) when (delayException is OperationCanceledException or ObjectDisposedException)
                     {
                         // cancellation during the backoff delay has to deliver pending aggregated entries, same as cancellation at any other point
-                        await PurgeResultEntryAggregatorAsync(resultsAggregator);
+                        await PurgeResultEntryAggregatorAsync(resultsAggregator).ConfigureAwait(false);
                         throw;
                     }
                 }
@@ -294,8 +294,8 @@ namespace SoundFingerprinting.Command
         private async Task PurgeResultEntryAggregatorAsync(IRealtimeResultEntryAggregator resultsAggregator)
         {
             var purged = resultsAggregator.Purge();
-            await InvokeCallbackHandlerAsync(purged.SuccessEntries, configuration.SuccessCallback);
-            await InvokeCallbackHandlerAsync(purged.DidNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
+            await InvokeCallbackHandlerAsync(purged.SuccessEntries, configuration.SuccessCallback).ConfigureAwait(false);
+            await InvokeCallbackHandlerAsync(purged.DidNotPassThresholdEntries, configuration.DidNotPassFilterCallback).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -309,20 +309,20 @@ namespace SoundFingerprinting.Command
         /// <exception cref="Exception">Any other exception that can occur during fingerprinting creation, and not fingerprinting querying.</exception>
         private async Task QueryFromRealtimeAndOffline(IAsyncEnumerable<AVHashes> realtimeHashes, IRealtimeResultEntryAggregator resultsAggregator, CancellationToken cancellationToken)
         {
-            await foreach (var avHashes in realtimeHashes.WithCancellation(cancellationToken))
+            await foreach (var avHashes in realtimeHashes.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 var intercepted = hashesInterceptor(avHashes);
                 logger.LogDebug("Issuing query with hashes {Hashes}", intercepted);
-                await TryQueryAsync(intercepted, resultsAggregator, cancellationToken);
+                await TryQueryAsync(intercepted, resultsAggregator, cancellationToken).ConfigureAwait(false);
             }
         }
 
         private async Task ConsumeQueryResultAsync(AVQueryResult queryResult, IRealtimeResultEntryAggregator resultsAggregator)
         {
             var (ongoingEntries, successEntries, didNotPassThresholdEntries) = resultsAggregator.Consume(queryResult);
-            await configuration.OngoingCallback(queryResult.StreamId, ongoingEntries);
-            await InvokeCallbackHandlerAsync(successEntries, configuration.SuccessCallback);
-            await InvokeCallbackHandlerAsync(didNotPassThresholdEntries, configuration.DidNotPassFilterCallback);
+            await configuration.OngoingCallback(queryResult.StreamId, ongoingEntries).ConfigureAwait(false);
+            await InvokeCallbackHandlerAsync(successEntries, configuration.SuccessCallback).ConfigureAwait(false);
+            await InvokeCallbackHandlerAsync(didNotPassThresholdEntries, configuration.DidNotPassFilterCallback).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace SoundFingerprinting.Command
                 try
                 {
                     logger.LogDebug("Read AVHashes from offline storage {Hashes}. Querying storage", offlineHashes);
-                    offlineResult = await GetAvQueryResultAsync(offlineHashes, cancellationToken);
+                    offlineResult = await GetAvQueryResultAsync(offlineHashes, cancellationToken).ConfigureAwait(false);
                     MarkRestoredFromError();
                 }
                 catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
@@ -389,8 +389,8 @@ namespace SoundFingerprinting.Command
 
                 // the chunk is acknowledged as soon as its query succeeded: a callback failure below must not replay it
                 offlineStorage.Remove(offlineHashes);
-                await ConsumeQueryResultAsync(offlineResult, resultsAggregator);
-                await Task.Delay(configuration.DelayStrategy.Delay, cancellationToken);
+                await ConsumeQueryResultAsync(offlineResult, resultsAggregator).ConfigureAwait(false);
+                await Task.Delay(configuration.DelayStrategy.Delay, cancellationToken).ConfigureAwait(false);
             }
 
             return true;
@@ -412,7 +412,7 @@ namespace SoundFingerprinting.Command
             // ahead of the outage chunks, and a consumer that guards on its own stream end drops them
             try
             {
-                if (!await TryDrainOfflineStorageAsync(hashes, realtimeAggregator, cancellationToken))
+                if (!await TryDrainOfflineStorageAsync(hashes, realtimeAggregator, cancellationToken).ConfigureAwait(false))
                 {
                     return false;
                 }
@@ -433,7 +433,7 @@ namespace SoundFingerprinting.Command
             try
             {
                 var (audioMilliseconds, videoMilliseconds) = hashes.FingerprintingTime;
-                avQueryResult = (await GetAvQueryResultAsync(hashes, cancellationToken)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
+                avQueryResult = (await GetAvQueryResultAsync(hashes, cancellationToken).ConfigureAwait(false)).WithFingerprintingDurationMilliseconds(audioMilliseconds, videoMilliseconds);
                 MarkRestoredFromError();
             }
             catch (Exception e) when (e is OperationCanceledException or ObjectDisposedException)
@@ -452,7 +452,7 @@ namespace SoundFingerprinting.Command
             // consuming the current chunk stays outside the try block: an exception thrown by a user callback
             // must not reroute already consumed hashes to the offline storage, as re-querying them later would
             // emit the same results a second time and double-count the query length
-            await ConsumeQueryResultAsync(avQueryResult, realtimeAggregator);
+            await ConsumeQueryResultAsync(avQueryResult, realtimeAggregator).ConfigureAwait(false);
             return true;
         }
 
@@ -470,7 +470,7 @@ namespace SoundFingerprinting.Command
                 .From(hashes)
                 .WithQueryConfig(configuration.QueryConfiguration)
                 .UsingServices(queryService)
-                .Query(cancellationToken);
+                .Query(cancellationToken).ConfigureAwait(false);
             var avQueryResult = queryResultInterceptor(queryResult);
             queryLength += (hashes.Audio?.DurationInSeconds + hashes.Audio?.TimeOffset ?? hashes.Video?.DurationInSeconds) ?? 0;
             return avQueryResult;
@@ -480,7 +480,7 @@ namespace SoundFingerprinting.Command
         {
             foreach (var queryResult in results)
             {
-                await callback(queryResult);
+                await callback(queryResult).ConfigureAwait(false);
             }
         }
     }

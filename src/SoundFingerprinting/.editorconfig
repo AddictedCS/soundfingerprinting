@@ -1,0 +1,3 @@
+# reusable library: every await must state its context choice (CA2007); the library never resumes on a caller SynchronizationContext
+[*.cs]
+dotnet_diagnostic.CA2007.severity = error
