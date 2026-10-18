@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 16.0.0
+		- Stable release of 16.0.0-beta: the async-only IQueryService and IModelService contract below, with no API or behaviour change since the beta
 		Version 16.0.0-beta
 		- Breaking: IQueryService and IModelService are async-only (QueryEfficientlyAsync, ReadTracksByReferencesAsync, GetInfoAsync, InsertAsync, UpdateTrackAsync, DeleteTrackAsync, ReadHashesByTrackIdAsync, ReadTrackByIdAsync, GetTrackIdsAsync) and take a CancellationToken; list results are IReadOnlyList
 		- IQueryCommand.Query() and Query(DateTime) take an optional CancellationToken; IRealtimeQueryCommand.Query(token) is unchanged
