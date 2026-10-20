@@ -27,5 +27,12 @@ public enum InsertOutcome
     /// </summary>
     DuplicateSuppressed = 3,
 
-    // values 4+ are reserved for future outcomes; never reuse 0.
+    /// <summary>
+    ///  Nothing was written: the request carried a snapshot sequence and undecided residents, named by
+    ///  <see cref="InsertResult.UndecidedResidentIds"/>, were inserted after that snapshot. The client decides
+    ///  the identity of those residents and inserts again with <see cref="InsertResult.Sequence"/> as the snapshot.
+    /// </summary>
+    Undecided = 4,
+
+    // values 5+ are reserved for future outcomes; never reuse 0.
 }

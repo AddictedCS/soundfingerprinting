@@ -8,12 +8,13 @@
     [ProtoContract]
     public class ModelServiceInfo
     {
-        public ModelServiceInfo(string id, int tracksCount, int subFingerprintsCount, int[] hashCountsInTables)
+        public ModelServiceInfo(string id, int tracksCount, int subFingerprintsCount, int[] hashCountsInTables, long? sequence = null)
         {
             TracksCount = tracksCount;
             SubFingerprintsCount = subFingerprintsCount;
             HashCountsInTables = hashCountsInTables;
             Id = id;
+            Sequence = sequence;
         }
 
         private ModelServiceInfo()
@@ -32,6 +33,13 @@
 
         [ProtoMember(4)]
         public string Id { get; }
+
+        /// <summary>
+        ///  Gets the sequence number of the last action the server applied, the snapshot for an insert that asks the server
+        ///  to validate the client's identity decisions. Null from a server that does not report it.
+        /// </summary>
+        [ProtoMember(5)]
+        public long? Sequence { get; }
 
         public override bool Equals(object obj)
         {
