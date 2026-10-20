@@ -12,6 +12,9 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 16.0.1
+		- InsertOutcome.Undecided: an insert that carries a snapshot sequence returns the residents inserted after it instead of writing; InsertResult gains UndecidedResidentIds and Sequence (protobuf members 3 and 4)
+		- ModelServiceInfo.Sequence (protobuf member 5): the last applied sequence of the server, null from a server that does not report it
 		Version 16.0.0
 		- Stable release of 16.0.0-beta: the async-only IQueryService and IModelService contract below, with no API or behaviour change since the beta
 		Version 16.0.0-beta
