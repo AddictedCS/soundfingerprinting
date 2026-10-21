@@ -9,16 +9,16 @@ namespace SoundFingerprinting.Tests.Unit
     public class InsertResultTest
     {
         [Test]
-        public void UndecidedRoundTripsItsResidentsAndSequence()
+        public void SnapshotStaleRoundTripsItsResidentsAndSequence()
         {
-            var original = new InsertResult(InsertOutcome.Undecided, undecidedResidentIds: new[] { "a", "b" }, sequence: 42);
+            var original = new InsertResult(InsertOutcome.SnapshotStale, newerResidentIds: new[] { "a", "b" }, sequence: 42);
 
             var roundTripped = RoundTrip(original);
 
-            Assert.That(roundTripped.Outcome, Is.EqualTo(InsertOutcome.Undecided));
-            Assert.That(roundTripped.UndecidedResidentIds, Is.EqualTo(new[] { "a", "b" }));
+            Assert.That(roundTripped.Outcome, Is.EqualTo(InsertOutcome.SnapshotStale));
+            Assert.That(roundTripped.NewerResidentIds, Is.EqualTo(new[] { "a", "b" }));
             Assert.That(roundTripped.Sequence, Is.EqualTo(42));
-            Assert.That(roundTripped.Undecided, Is.True);
+            Assert.That(roundTripped.SnapshotStale, Is.True);
             Assert.That(roundTripped.Persisted, Is.False);
             Assert.That(roundTripped.DuplicatePrevented, Is.False);
         }
@@ -29,7 +29,7 @@ namespace SoundFingerprinting.Tests.Unit
             var roundTripped = RoundTrip(new InsertResult(InsertOutcome.Inserted));
 
             Assert.That(roundTripped.Outcome, Is.EqualTo(InsertOutcome.Inserted));
-            Assert.That(roundTripped.UndecidedResidentIds, Is.Null);
+            Assert.That(roundTripped.NewerResidentIds, Is.Null);
             Assert.That(roundTripped.Sequence, Is.Null);
             Assert.That(roundTripped.Persisted, Is.True);
         }
@@ -44,11 +44,11 @@ namespace SoundFingerprinting.Tests.Unit
         }
 
         [Test]
-        public void UndecidedRequiresResidentIdsAndASequence()
+        public void SnapshotStaleRequiresResidentIdsAndASequence()
         {
-            Assert.Throws<ArgumentException>(() => new InsertResult(InsertOutcome.Undecided, sequence: 1));
-            Assert.Throws<ArgumentException>(() => new InsertResult(InsertOutcome.Undecided, undecidedResidentIds: Array.Empty<string>(), sequence: 1));
-            Assert.Throws<ArgumentException>(() => new InsertResult(InsertOutcome.Undecided, undecidedResidentIds: new[] { "a" }));
+            Assert.Throws<ArgumentException>(() => new InsertResult(InsertOutcome.SnapshotStale, sequence: 1));
+            Assert.Throws<ArgumentException>(() => new InsertResult(InsertOutcome.SnapshotStale, newerResidentIds: Array.Empty<string>(), sequence: 1));
+            Assert.Throws<ArgumentException>(() => new InsertResult(InsertOutcome.SnapshotStale, newerResidentIds: new[] { "a" }));
         }
 
         [Test]

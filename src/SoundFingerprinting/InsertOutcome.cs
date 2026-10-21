@@ -28,11 +28,11 @@ public enum InsertOutcome
     DuplicateSuppressed = 3,
 
     /// <summary>
-    ///  Nothing was written: the request carried a snapshot sequence and undecided residents, named by
-    ///  <see cref="InsertResult.UndecidedResidentIds"/>, were inserted after that snapshot. The client decides
-    ///  the identity of those residents and inserts again with <see cref="InsertResult.Sequence"/> as the snapshot.
+    ///  Nothing was written: the request carried a snapshot sequence and the residents named by
+    ///  <see cref="InsertResult.NewerResidentIds"/> were inserted after that snapshot. The client screens the
+    ///  candidate against those residents and inserts again with <see cref="InsertResult.Sequence"/> as the snapshot.
     /// </summary>
-    Undecided = 4,
+    SnapshotStale = 4,
 
     // values 5+ are reserved for future outcomes; never reuse 0.
 }

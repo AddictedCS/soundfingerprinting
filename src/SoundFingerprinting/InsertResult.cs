@@ -7,7 +7,7 @@ using ProtoBuf;
 
 /// <summary>
 ///  Result of an <see cref="IModelService.InsertAsync"/> call describing whether the track was persisted,
-///  updated, suppressed as a duplicate, or left undecided for the client to resolve.
+///  updated, suppressed as a duplicate, or rejected because residents landed after the request's snapshot.
 /// </summary>
 [ProtoContract(SkipConstructor = true)]
 public sealed record InsertResult
@@ -20,39 +20,39 @@ public sealed record InsertResult
     ///  The id of the existing track this insert duplicated; mandatory when <paramref name="outcome"/>
     ///  is <see cref="InsertOutcome.DuplicateSuppressed"/>, otherwise <c>null</c>.
     /// </param>
-    /// <param name="undecidedResidentIds">
-    ///  The residents the client has to decide against; mandatory and non-empty when <paramref name="outcome"/>
-    ///  is <see cref="InsertOutcome.Undecided"/>, otherwise <c>null</c>.
+    /// <param name="newerResidentIds">
+    ///  The residents inserted after the request's snapshot that the client screens again; mandatory and non-empty when <paramref name="outcome"/>
+    ///  is <see cref="InsertOutcome.SnapshotStale"/>, otherwise <c>null</c>.
     /// </param>
     /// <param name="sequence">
     ///  The server sequence this result reflects; mandatory when <paramref name="outcome"/> is
-    ///  <see cref="InsertOutcome.Undecided"/>, optional otherwise.
+    ///  <see cref="InsertOutcome.SnapshotStale"/>, optional otherwise.
     /// </param>
     /// <exception cref="ArgumentException">
     ///  Thrown when <paramref name="outcome"/> is <see cref="InsertOutcome.DuplicateSuppressed"/> but
-    ///  <paramref name="duplicateOfTrackId"/> is null or empty, or when it is <see cref="InsertOutcome.Undecided"/>
+    ///  <paramref name="duplicateOfTrackId"/> is null or empty, or when it is <see cref="InsertOutcome.SnapshotStale"/>
     ///  without resident ids or without a sequence.
     /// </exception>
-    public InsertResult(InsertOutcome outcome, string? duplicateOfTrackId = null, IReadOnlyList<string>? undecidedResidentIds = null, long? sequence = null)
+    public InsertResult(InsertOutcome outcome, string? duplicateOfTrackId = null, IReadOnlyList<string>? newerResidentIds = null, long? sequence = null)
     {
         if (outcome == InsertOutcome.DuplicateSuppressed && string.IsNullOrEmpty(duplicateOfTrackId))
         {
             throw new ArgumentException("DuplicateSuppressed requires a non-null DuplicateOfTrackId.", nameof(duplicateOfTrackId));
         }
 
-        if (outcome == InsertOutcome.Undecided && (undecidedResidentIds == null || undecidedResidentIds.Count == 0))
+        if (outcome == InsertOutcome.SnapshotStale && (newerResidentIds == null || newerResidentIds.Count == 0))
         {
-            throw new ArgumentException("Undecided requires at least one resident id.", nameof(undecidedResidentIds));
+            throw new ArgumentException("SnapshotStale requires at least one resident id.", nameof(newerResidentIds));
         }
 
-        if (outcome == InsertOutcome.Undecided && sequence == null)
+        if (outcome == InsertOutcome.SnapshotStale && sequence == null)
         {
-            throw new ArgumentException("Undecided requires the server sequence.", nameof(sequence));
+            throw new ArgumentException("SnapshotStale requires the server sequence.", nameof(sequence));
         }
 
         Outcome = outcome;
         DuplicateOfTrackId = duplicateOfTrackId;
-        UndecidedResidentIds = undecidedResidentIds?.ToList();
+        NewerResidentIds = newerResidentIds?.ToList();
         Sequence = sequence;
     }
 
@@ -69,14 +69,14 @@ public sealed record InsertResult
     public string? DuplicateOfTrackId { get; }
 
     /// <summary>
-    ///  Gets the residents that were inserted after the request's snapshot and that the client has to decide against,
-    ///  or <c>null</c> when the outcome is not <see cref="InsertOutcome.Undecided"/>.
+    ///  Gets the residents that were inserted after the request's snapshot and that the client screens again,
+    ///  or <c>null</c> when the outcome is not <see cref="InsertOutcome.SnapshotStale"/>.
     /// </summary>
     [ProtoMember(3)]
-    public List<string>? UndecidedResidentIds { get; }
+    public List<string>? NewerResidentIds { get; }
 
     /// <summary>
-    ///  Gets the server sequence this result reflects: the snapshot for the next attempt after <see cref="InsertOutcome.Undecided"/>,
+    ///  Gets the server sequence this result reflects: the snapshot for the next attempt after <see cref="InsertOutcome.SnapshotStale"/>,
     ///  informational otherwise, <c>null</c> from a server that does not report it.
     /// </summary>
     [ProtoMember(4)]
@@ -94,7 +94,7 @@ public sealed record InsertResult
     public bool DuplicatePrevented => Outcome == InsertOutcome.DuplicateSuppressed;
 
     /// <summary>
-    ///  Gets a value indicating whether nothing was written because undecided residents arrived after the request's snapshot.
+    ///  Gets a value indicating whether nothing was written because residents arrived after the request's snapshot.
     /// </summary>
-    public bool Undecided => Outcome == InsertOutcome.Undecided;
+    public bool SnapshotStale => Outcome == InsertOutcome.SnapshotStale;
 }
