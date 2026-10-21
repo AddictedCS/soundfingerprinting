@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 16.0.7
+		- Breaking rename: InsertOutcome.Undecided is InsertOutcome.SnapshotStale, InsertResult.UndecidedResidentIds is NewerResidentIds and InsertResult.Undecided is SnapshotStale; the wire format (enum value 4, protobuf member 3) is unchanged
 		Version 16.0.1
 		- InsertOutcome.Undecided: an insert that carries a snapshot sequence returns the residents inserted after it instead of writing; InsertResult gains UndecidedResidentIds and Sequence (protobuf members 3 and 4)
 		- ModelServiceInfo.Sequence (protobuf member 5): the last applied sequence of the server, null from a server that does not report it
