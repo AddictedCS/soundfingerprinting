@@ -1,6 +1,7 @@
 ﻿namespace SoundFingerprinting.Tests.Unit.InMemory
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using NUnit.Framework;
     using ProtoBuf;
@@ -79,6 +80,61 @@
 				});
 				Assert.That(data.Origins, Is.EqualTo(hashes.Origins).AsCollection);
             }
+        }
+
+        [Test]
+        public void ShouldRoundTripTrackInfoMetaFields()
+        {
+            var metaFields = new Dictionary<string, string> { { "station", "CNN" }, { "empty", string.Empty } };
+            var track = new TrackInfo("id", "title", "artist", metaFields, MediaType.Video);
+
+            var deserialized = RoundTrip(track);
+
+            Assert.That(deserialized.MetaFields, Is.EqualTo(metaFields).AsCollection);
+            Assert.That(deserialized.MediaType, Is.EqualTo(MediaType.Video));
+        }
+
+        [Test]
+        public void ShouldRoundTripEmptyMetaFieldsAsEmpty()
+        {
+            var track = new TrackInfo("id", "title", "artist", new Dictionary<string, string>(), MediaType.Audio);
+
+            var deserialized = RoundTrip(track);
+
+            Assert.That(deserialized.MetaFields, Is.Not.Null);
+            Assert.That(deserialized.MetaFields, Is.Empty);
+        }
+
+        [Test]
+        public void ShouldRoundTripTrackDataMetaFields()
+        {
+            var metaFields = new Dictionary<string, string> { { "station", "CNN" } };
+            var track = new TrackData("id", "artist", "title", 120d, new ModelReference<uint>(7), metaFields, MediaType.Audio);
+
+            var deserialized = RoundTrip(track);
+
+            Assert.That(deserialized.MetaFields, Is.EqualTo(metaFields).AsCollection);
+            Assert.That(deserialized.TrackReference, Is.EqualTo(track.TrackReference));
+        }
+
+        [Test]
+        public void ShouldRoundTripNullMetaFieldValueAsEmptyString()
+        {
+            var metaFields = new Dictionary<string, string> { { "station", null! } };
+            var track = new TrackInfo("id", "title", "artist", metaFields, MediaType.Audio);
+
+            var deserialized = RoundTrip(track);
+
+            Assert.That(deserialized.MetaFields, Has.Count.EqualTo(1));
+            Assert.That(deserialized.MetaFields["station"], Is.EqualTo(string.Empty));
+        }
+
+        private static T RoundTrip<T>(T value)
+        {
+            using var stream = new MemoryStream();
+            Serializer.SerializeWithLengthPrefix(stream, value, PrefixStyle.Fixed32);
+            stream.Position = 0;
+            return Serializer.DeserializeWithLengthPrefix<T>(stream, PrefixStyle.Fixed32);
         }
     }
 }

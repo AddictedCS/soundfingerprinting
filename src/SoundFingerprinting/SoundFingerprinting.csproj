@@ -185,7 +185,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
-	  <PackageReference Include="protobuf-net" Version="2.4.6" />
+	  <PackageReference Include="protobuf-net" Version="3.4.40" />
   </ItemGroup>
   <ItemGroup>
 	<None Include="../../license.txt">
