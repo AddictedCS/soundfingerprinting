@@ -61,8 +61,11 @@ The default storage, which comes bundled with _soundfingerprinting_ NuGet packag
 ### Supported audio/video formats
 Read [Supported Media Formats][audio-services-wiki-page] page for details about processing different file formats or realtime streams.
 
-### Video fingerprinting support since version 8.0.0
-Since `v8.0.0` video fingerprinting support has been added. Similarly to audio fingerprinting, video fingerprints are generated from video frames, and used to insert and later query the datastore for exact and similar matches. You can use `SoundFingerprinting` to fingerprint either audio or video content or both at the same time. More details about video fingerprinting are available [here][video-fingerprinting-wiki-page].
+### Asynchronous storage contract since version 16.0.0
+Since `v16.0.0` the storage contract is asynchronous and there is one interface family: `IQueryService` and `IModelService` expose `QueryEfficientlyAsync`, `ReadTracksByReferencesAsync`, `InsertAsync`, `ReadTrackByIdAsync`, `GetInfoAsync` and the other operations as `Task`-returning methods with a `CancellationToken`. Commands keep their names: `IQueryCommand.Query` and `IRealtimeQueryCommand.Query` were already `Task`-returning and now take a `CancellationToken`. `IAVQueryMatchRegistry.RegisterMatches` is `RegisterMatchesAsync`, and the realtime `SuccessCallback`, `DidNotPassFilterCallback` and `OngoingCallback` return a `Task` that the realtime command awaits before it consumes the next chunk. A remote storage awaits its network I/O; `InMemoryModelService` computes synchronously and returns completed tasks, so local behavior and snapshots are unchanged. Migration is mechanical: rename the call, `await` it, and return `Task.CompletedTask` from callbacks that do no I/O. The library never resumes on the caller's `SynchronizationContext`: every internal `await` is `ConfigureAwait(false)` and the realtime loop starts on the thread pool, so a UI application marshals callback results back to its own context.
+
+### Realtime seam jump policy since version 15.17.0
+A realtime query stitches consecutive chunks that match the same track into one result entry. When the track position jumps ahead of where the stream advance puts it, `RealtimeQueryConfiguration.SeamJumpPolicy` decides whether the chunk continues the same playing of the track (`Stitch`, the default), is a seek in the source (`SourceSkip`), or is another occurrence of audio that the track repeats (`NewOccurrenceAbove(seconds)`). Use the last one when stored tracks can contain the same audio several times, for example long programs that embed their advertising spots. Details, the reasoning and the measurements are on the [Realtime Seam Jump Policy][seam-jump-policy-wiki-page] wiki page.
 
 ### Spectral-profile path bridging since version 15.0.0
 Since `v15.0.0` an optional per-second spectral profile (SFM + relative power) can be captured at ingest and consumed at query time to bridge regions where hashes don't match across recordings — broadband intros (e.g. ocean waves), fade-outs, atmospheric silence. The mechanism is invisible by default; opt in per-query by setting `QueryConfiguration.SfmMatchStrategy` to one of the built-in strategies. The setter cascades through to `FingerprintConfiguration.ComputeSpectralProfile` so the profile is captured during query-time fingerprinting automatically.
@@ -82,26 +85,23 @@ var queryResult = await QueryCommandBuilder.Instance.BuildQueryCommand()
 
 Available strategies: `NoBridgingStrategy` (default — no change vs. v14), `BroadbandNoiseBridgingStrategy` (per-second SFM > 0.70 on both sides), `SilentRegionBridgingStrategy` (per-second power < 5% on both sides — replaces the removed `TreatSilenceAsSignal` flag), `SimilarProfileBridgingStrategy` (tight |Δsfm| < 0.10 tolerance, capped to `min(10s, 0.30 × queryLength)` to keep speech-vs-speech merges safe), and `CompositeBridgingStrategy` for safe unions. Bridging is bounded by a universal 70% cumulative-bridged-seconds sanity cap and reported back via `Coverage.BridgedSeconds`. Synthetics are structurally indistinguishable from real matches downstream — no wire-format changes to `MatchedWith`. Tracks without a stored profile short-circuit cleanly to no-bridging (behavior identical to v14).
 
-### Asynchronous storage contract since version 16.0.0
-Since `v16.0.0` the storage contract is asynchronous and there is one interface family: `IQueryService` and `IModelService` expose `QueryEfficientlyAsync`, `ReadTracksByReferencesAsync`, `InsertAsync`, `ReadTrackByIdAsync`, `GetInfoAsync` and the other operations as `Task`-returning methods with a `CancellationToken`. Commands keep their names: `IQueryCommand.Query` and `IRealtimeQueryCommand.Query` were already `Task`-returning and now take a `CancellationToken`. `IAVQueryMatchRegistry.RegisterMatches` is `RegisterMatchesAsync`, and the realtime `SuccessCallback`, `DidNotPassFilterCallback` and `OngoingCallback` return a `Task` that the realtime command awaits before it consumes the next chunk. A remote storage awaits its network I/O; `InMemoryModelService` computes synchronously and returns completed tasks, so local behavior and snapshots are unchanged. Migration is mechanical: rename the call, `await` it, and return `Task.CompletedTask` from callbacks that do no I/O. The library never resumes on the caller's `SynchronizationContext`: every internal `await` is `ConfigureAwait(false)` and the realtime loop starts on the thread pool, so a UI application marshals callback results back to its own context.
-
-### Realtime seam jump policy since version 15.17.0
-A realtime query stitches consecutive chunks that match the same track into one result entry. When the track position jumps ahead of where the stream advance puts it, `RealtimeQueryConfiguration.SeamJumpPolicy` decides whether the chunk continues the same playing of the track (`Stitch`, the default), is a seek in the source (`SourceSkip`), or is another occurrence of audio that the track repeats (`NewOccurrenceAbove(seconds)`). Use the last one when stored tracks can contain the same audio several times, for example long programs that embed their advertising spots. Details, the reasoning and the measurements are on the [Realtime Seam Jump Policy][seam-jump-policy-wiki-page] wiki page.
+### Video fingerprinting support since version 8.0.0
+Since `v8.0.0` video fingerprinting support has been added. Similarly to audio fingerprinting, video fingerprints are generated from video frames, and used to insert and later query the datastore for exact and similar matches. You can use `SoundFingerprinting` to fingerprint either audio or video content or both at the same time. More details about video fingerprinting are available [here][video-fingerprinting-wiki-page].
 
 ### Version Matrix
 If you are using `FFmpegAudioService` as described in the [wiki][audio-services-wiki-page], follow the below version matrix.
 | SoundFingerprinting  | SoundFingerprinting.Emy | FFmpeg |
 | ---- | ------ |-----|
-| 8.x  | 8.x    | 4.x |
-| 9.x  | 9.x    | 5.x |
-| 10.x | 10.x   | 6.x |
-| 11.x | 11.x   | 6.x |
-| 12.x | 12.x   | 7.x |
-| 13.x | 13.x   | 7.x |
-| 14.x | 14.x   | 8.x |
-| 15.x | 15.x   | 8.x |
-| 16.x | 16.x   | 8.x |
 | 17.x | 17.x   | 9.x |
+| 16.x | 16.x   | 8.x |
+| 15.x | 15.x   | 8.x |
+| 14.x | 14.x   | 8.x |
+| 13.x | 13.x   | 7.x |
+| 12.x | 12.x   | 7.x |
+| 11.x | 11.x   | 6.x |
+| 10.x | 10.x   | 6.x |
+| 9.x  | 9.x    | 5.x |
+| 8.x  | 8.x    | 4.x |
 
 
 
