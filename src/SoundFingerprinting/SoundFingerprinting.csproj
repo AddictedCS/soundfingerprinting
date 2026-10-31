@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 17.0.0
+		- Pairs with SoundFingerprinting.Emy 17.x, which binds FFmpeg 9.x; no code change
 		Version 16.2.0
 		- protobuf-net 3.4.40 (from 2.4.6): same wire format; drops the System.Xml.XmlSerializer 4.3.0 dependency chain that carried the System.Text.RegularExpressions 4.3.0 advisory; a null meta-field value now deserializes as an empty string
 		Version 16.0.7
