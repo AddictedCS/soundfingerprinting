@@ -5,9 +5,15 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/dotnet/sdk:10.0
+    permissions:
+      contents: write   # create the GitHub release and its tag
+      id-token: write   # GitHub OIDC token, exchanged for a temporary nuget.org API key (trusted publishing)
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - uses: actions/checkout@v3
@@ -17,23 +23,39 @@ jobs:
         VERSION=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' src/Directory.Build.props)
         echo "sf_core_version=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Ensure Version Was Bumped
+      # nuget.org is the record of a release, so a version whose publish failed is retried by the next push to master
       run: |
-        if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.define_variables.outputs.sf_core_version }}" > /dev/null; then
-          echo "::error::v${{ steps.define_variables.outputs.sf_core_version }} is already released. Run ./bump.sh on develop before merging to master."
+        VERSION="${{ steps.define_variables.outputs.sf_core_version }}"
+        if curl -fsS https://api.nuget.org/v3-flatcontainer/soundfingerprinting/index.json | grep -q "\"${VERSION,,}\""; then
+          echo "::error::v$VERSION is already on nuget.org. Run ./bump.sh on develop before merging to master."
           exit 1
         fi
     - name: Run Tests
       run: dotnet test src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -v n -tl:off
-    - name: Slack Failure Notification
-      if: failure()
-      uses: rtCamp/action-slack-notify@v2
-      env:
-        SLACK_COLOR: '#3278BD'
-        SLACK_MESSAGE: 'SoundFingerprinting Core library release failed on master branch (missing version bump or failing tests, check logs)'
-        SLACK_USERNAME: rtCamp
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+    - name: Pack
+      run: dotnet pack src/SoundFingerprinting/SoundFingerprinting.csproj -c Release -o artifacts -tl:off
+    # the temporary API key is valid for 1 hour, so it is requested right before the push
+    - name: NuGet Login
+      id: nuget_login
+      uses: NuGet/login@v1
+      with:
+        user: AddictedCS
+    - name: Publish to NuGet
+      run: |
+        dotnet nuget push "artifacts/SoundFingerprinting.${{ steps.define_variables.outputs.sf_core_version }}.nupkg" \
+          --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+          --source https://api.nuget.org/v3/index.json
+    - name: Check Release Tag
+      id: release_tag
+      # an earlier run whose publish failed may have created the tag already
+      run: |
+        if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.define_variables.outputs.sf_core_version }}" > /dev/null; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+        fi
     - name: Create Release
-      id: create_release
+      if: steps.release_tag.outputs.exists != 'true'
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,31 +68,14 @@ jobs:
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_COLOR: '#3278BD'
-        SLACK_MESSAGE: 'SoundFingerprinting v${{ steps.define_variables.outputs.sf_core_version }} core library GitHub release created'
+        SLACK_MESSAGE: 'SoundFingerprinting v${{ steps.define_variables.outputs.sf_core_version }} published to NuGet, GitHub release created'
         SLACK_USERNAME: rtCamp
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-  publish-nuget:
-    needs: build
-    runs-on: ubuntu-latest
-    container: mcr.microsoft.com/dotnet/sdk:10.0
-    steps:
-    - uses: actions/checkout@master
-    - name: Publish to NuGet
-      uses: alirezanet/publish-nuget@v3.0.3
-      with:
-        PROJECT_FILE_PATH: src/SoundFingerprinting/SoundFingerprinting.csproj # Relative to repository root
-        VERSION_FILE_PATH: src/Directory.Build.props # Filepath with version info, relative to repository root
-        VERSION_REGEX: <Version>(.*)<\/Version> # Regex pattern to extract version info in a capturing group
-        TAG_COMMIT: false # Flag to enable / disalge git tagging
-        # TAG_FORMAT: v* # Format of the git tag, [*] gets replaced with version
-        NUGET_KEY: ${{ secrets.NUGET_API_KEY }} # nuget.org API key
-        # PACKAGE_NAME: NuGet package name, required when it's different from project name. Defaults to project name
-        INCLUDE_SYMBOLS: false # do not publish symbols
-    - name: Slack Notification
+    - name: Slack Failure Notification
+      if: failure()
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_COLOR: '#3278BD'
-        SLACK_MESSAGE: 'SoundFingerprinting has been published to NuGet'
+        SLACK_MESSAGE: 'SoundFingerprinting Core library release failed on master branch (missing version bump, failing tests or NuGet publish, check logs)'
         SLACK_USERNAME: rtCamp
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-    
