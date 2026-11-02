@@ -47,9 +47,10 @@ jobs:
           --source https://api.nuget.org/v3/index.json
     - name: Check Release Tag
       id: release_tag
-      # an earlier run whose publish failed may have created the tag already
+      # an earlier run whose publish failed may have created the tag already. The remote URL, not the checkout: the
+      # container runs git as a user that does not own the workspace, so git ignores that clone after the checkout step
       run: |
-        if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.define_variables.outputs.sf_core_version }}" > /dev/null; then
+        if git ls-remote --exit-code --tags "https://github.com/${{ github.repository }}.git" "refs/tags/v${{ steps.define_variables.outputs.sf_core_version }}" > /dev/null; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
         else
           echo "exists=false" >> "$GITHUB_OUTPUT"
