@@ -467,6 +467,64 @@ public class GetCoveragesWithBridgingTest
         Assert.That(coverage.BridgedSeconds, Is.EqualTo(6), "relative 0.30 cap binds at 20s query");
     }
 
+    [Test]
+    public void ShouldBridgeEachRealPathAlongItsOwnDiagonalRegardlessOfInputOrder()
+    {
+        // the track holds the matched audio twice: every query second 0-4 matches track second q (copy A) and q+6 (copy B).
+        // A tail bridge from copy A stays inside the 12 s track to q11; from copy B it leaves the track after q5. Bridging
+        // the flat list anchored the tail on whichever match at q4 came last in input order, so the two orders disagreed.
+        var copyA = ContiguousMatches(0, 5);
+        var copyB = Enumerable.Range(0, 5).Select(i => new MatchedWith((uint)i, i, (uint)(i + 6), i + 6, score: 1)).ToList();
+        var profile = MakeProfile(12, sfm: 0.85, power: 0.5);
+
+        var aThenB = Bridge(copyA.Concat(copyB).ToList(), profile, new BroadbandNoiseBridgingStrategy(maxQueryRelativeBridge: 0.95), length: 12);
+        var bThenA = Bridge(copyB.Concat(copyA).ToList(), profile, new BroadbandNoiseBridgingStrategy(maxQueryRelativeBridge: 0.95), length: 12);
+
+        Assert.That(aThenB.QueryRelativeCoverage, Is.EqualTo(bThenA.QueryRelativeCoverage).Within(1e-9), "coverage must not depend on input order");
+        Assert.That(aThenB.BridgedSeconds, Is.EqualTo(bThenA.BridgedSeconds), "bridged seconds must not depend on input order");
+        Assert.That(aThenB.BridgedSeconds, Is.EqualTo(7), "copy A bridges q5..q11; the longer path wins");
+        Assert.That(aThenB.QueryRelativeCoverage, Is.EqualTo(1).Within(1e-9));
+        Assert.That(aThenB.BestPath.Where(m => m.Type == MatchedWithType.Fingerprint).Select(m => m.TrackSequenceNumber), Is.EqualTo(new uint[] { 0, 1, 2, 3, 4 }).AsCollection, "the bridged path is copy A's diagonal");
+    }
+
+    [Test]
+    public void ShouldReturnTheSameCoveragesForEveryInputOrder()
+    {
+        // interleaved diagonals plus a duplicate track position (q3 and q4 both match t9): every permutation of the input
+        // must give the same coverages, path by path
+        var reals = new List<MatchedWith>
+        {
+            new (0, 0, 0, 0, score: 1),
+            new (0, 0, 6, 6, score: 1),
+            new (1, 1, 1, 1, score: 1),
+            new (1, 1, 7, 7, score: 1),
+            new (2, 2, 2, 2, score: 1),
+            new (2, 2, 8, 8, score: 1),
+            new (3, 3, 3, 3, score: 1),
+            new (3, 3, 9, 9, score: 1),
+            new (4, 4, 4, 4, score: 1),
+            new (4, 4, 9, 9, score: 1),
+        };
+        var profile = MakeProfile(12, sfm: 0.85, power: 0.5);
+        var strategy = new CompositeBridgingStrategy(BroadbandNoiseBridgingStrategy.Default, SilenceBridgingStrategy.Default);
+
+        string Describe(List<MatchedWith> input)
+        {
+            var coverages = input.GetCoverages(QueryPathReconstructionStrategyType.MultipleBestPaths, 12, 12, FingerprintLength, PermittedGap, strategy, profile, profile);
+            return string.Join(" || ", coverages.Select(c => $"{c.QueryRelativeCoverage:F4}/{c.TrackRelativeCoverage:F4}/{c.BridgedSeconds}: " + string.Join(" ", c.BestPath.Select(m => $"{m.QuerySequenceNumber}-{m.TrackSequenceNumber}{(m.Type == MatchedWithType.Fingerprint ? string.Empty : "s")}"))));
+        }
+
+        string expected = Describe(reals);
+        var random = new System.Random(42);
+        for (int i = 0; i < 25; i++)
+        {
+            var shuffled = reals.OrderBy(_ => random.Next()).ToList();
+            Assert.That(Describe(shuffled), Is.EqualTo(expected), $"permutation {i} changed the coverages");
+        }
+
+        Assert.That(Describe(reals.AsEnumerable().Reverse().ToList()), Is.EqualTo(expected));
+    }
+
     private static Coverage Bridge(List<MatchedWith> reals, SpectralProfile profile, ISfmMatchStrategy strategy, double length = 16)
     {
         return reals.GetCoverages(

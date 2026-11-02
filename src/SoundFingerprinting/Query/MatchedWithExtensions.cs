@@ -53,10 +53,11 @@ namespace SoundFingerprinting.Query
         /// <remarks>
         ///  When <paramref name="sfmMatchStrategy"/> is <see cref="NoBridgingStrategy"/> or either profile is <c>null</c>,
         ///  or <paramref name="queryPathReconstructionStrategyType"/> is <see cref="Legacy"/>, behaviour is identical
-        ///  to the no-bridging overload. Otherwise: Phase 1 emits candidates, Phase 2 derives sequence numbers via
-        ///  bracket interpolation and applies the strategy's MaxQueryRelativeBridge cap, then synthetics are concatenated with
-        ///  real matches before LIS path reconstruction. Each resulting <see cref="Coverage.BridgedSeconds"/> reports
-        ///  how many synthetics survived into the final best path.
+        ///  to the no-bridging overload. Otherwise the real matches are reconstructed into paths first, and each path is
+        ///  bridged along its own diagonal: Phase 1 emits candidates, Phase 2 derives sequence numbers via bracket
+        ///  interpolation and applies the strategy's MaxQueryRelativeBridge cap, then the path and its synthetics go through
+        ///  LIS reconstruction again. The result does not depend on the order of <paramref name="matchedEntries"/>. Each
+        ///  resulting <see cref="Coverage.BridgedSeconds"/> reports how many synthetics survived into the final best path.
         /// </remarks>
         /// <param name="matchedEntries">Real (hash-derived) matches.</param>
         /// <param name="queryPathReconstructionStrategyType">Path reconstruction strategy type.</param>
@@ -86,29 +87,12 @@ namespace SoundFingerprinting.Query
                                   && trackProfile != null
                                   && realMatches.Count > 0;
 
-            IEnumerable<MatchedWith> augmented = realMatches;
-            if (bridgingActive)
-            {
-                // sort once here so both Phase 1 (bracket lookup in SyntheticCandidateUtils) and Phase 2 (skip-if-real + seq derivation) walk a sorted list
-                var sortedReals = realMatches.OrderBy(r => r.QueryMatchAt).ToList();
-                var context = new SyntheticMatchContext(
-                    sortedReals,
-                    queryProfile!,
-                    trackProfile!,
-                    queryLength,
-                    trackLength,
-                    fingerprintLength);
-                var emitted = EmitSynthetics(sfmMatchStrategy, context, sortedReals);
-                if (emitted.Count > 0)
-                {
-                    augmented = realMatches.Concat(emitted);
-                }
-            }
-
             var reconstructedPaths = queryPathReconstructionStrategyType switch
             {
-                Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(augmented, Math.Min(queryLength, trackLength)),
-                MultipleBestPaths => QueryPathReconstructionStrategy.GetBestPaths(augmented, permittedGap),
+                Legacy => new LegacyQueryPathReconstructionStrategy(fingerprintLength).GetBestPaths(realMatches, Math.Min(queryLength, trackLength)),
+                MultipleBestPaths => bridgingActive
+                    ? BridgeEachRealPath(realMatches, sfmMatchStrategy, queryProfile!, trackProfile!, queryLength, trackLength, fingerprintLength, permittedGap)
+                    : QueryPathReconstructionStrategy.GetBestPaths(realMatches, permittedGap),
                 _ => throw new NotSupportedException($"Provided path reconstruction strategy is not valid {queryPathReconstructionStrategyType}")
             };
 
@@ -197,6 +181,39 @@ namespace SoundFingerprinting.Query
             }
 
             return list;
+        }
+
+        // path-first bridging: reconstruct the real paths, then bridge each one along its own diagonal. Bridging the flat
+        // list anchored the head and tail on whichever real match came last in input order, a coin flip when the track
+        // holds the matched audio twice (two diagonals share the last query position).
+        private static IEnumerable<IEnumerable<MatchedWith>> BridgeEachRealPath(
+            IList<MatchedWith> realMatches,
+            ISfmMatchStrategy sfmMatchStrategy,
+            SpectralProfile queryProfile,
+            SpectralProfile trackProfile,
+            double queryLength,
+            double trackLength,
+            double fingerprintLength,
+            double permittedGap)
+        {
+            var bridgedPaths = new List<IEnumerable<MatchedWith>>();
+            foreach (var realPath in QueryPathReconstructionStrategy.GetBestPaths(realMatches, permittedGap))
+            {
+                // sorted once so both Phase 1 (bracket lookup in SyntheticCandidateUtils) and Phase 2 (skip-if-real + seq derivation) walk a sorted list
+                var sortedReals = realPath.OrderBy(r => r.QueryMatchAt).ToList();
+                var context = new SyntheticMatchContext(sortedReals, queryProfile, trackProfile, queryLength, trackLength, fingerprintLength);
+                var emitted = EmitSynthetics(sfmMatchStrategy, context, sortedReals);
+                if (emitted.Count == 0)
+                {
+                    bridgedPaths.Add(sortedReals);
+                    continue;
+                }
+
+                // a second reconstruction over the path plus its synthetics discards any synthetic that breaks monotonicity
+                bridgedPaths.AddRange(QueryPathReconstructionStrategy.GetBestPaths(sortedReals.Concat(emitted), permittedGap));
+            }
+
+            return bridgedPaths;
         }
 
         // Phase 2: skip-if-real → bracket interpolation → per-strategy MaxQueryRelativeBridge cap → MatchedWith construction
