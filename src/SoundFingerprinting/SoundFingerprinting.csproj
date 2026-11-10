@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 17.1.1
+		- RandomExponentialBackoffPolicy.RemainingDelay reads the clock once and never returns a negative delay (a negative value made Task.Delay throw or wait forever)
 		Version 17.1.0
 		- Path-first SFM bridging: the real matches are reconstructed into paths before bridging and each path is bridged along its own diagonal, so the coverage no longer depends on the order the storage returns matches in (a track that holds the matched audio twice returned a full match on one call and a partial match on the next)
 		Version 17.0.0
