@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 17.4.0
+		- Version aligned with the Emy 17.4.0 release; carries the RandomExponentialBackoffPolicy.RemainingDelay fix from 17.1.1
 		Version 17.1.1
 		- RandomExponentialBackoffPolicy.RemainingDelay reads the clock once and never returns a negative delay (a negative value made Task.Delay throw or wait forever)
 		Version 17.1.0
