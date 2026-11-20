@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/dotnet/sdk:10.0
+    container: mcr.microsoft.com/dotnet/sdk:11.0
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Run Tests
       run: dotnet test src/SoundFingerprinting.Tests/SoundFingerprinting.Tests.csproj -c Release -v n -tl:off
     - name: Slack Notification

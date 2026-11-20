@@ -12,6 +12,8 @@
 	<RepositoryUrl>https://github.com/AddictedCS/soundfingerprinting</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageReleaseNotes>
+		Version 18.0.0
+		- Target .NET 11: the test project builds on net11.0 and the package references the 11.0 Microsoft.Bcl.AsyncInterfaces and Microsoft.Extensions.Logging.Abstractions; the library itself stays netstandard2.0
 		Version 17.4.0
 		- Version aligned with the Emy 17.4.0 release; carries the RandomExponentialBackoffPolicy.RemainingDelay fix from 17.1.1
 		Version 17.1.1
@@ -189,9 +191,9 @@
 	<AdditionalFiles Include="../stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.0" />
-	  <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100">
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
+	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="11.0.0" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="11.0.100">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>

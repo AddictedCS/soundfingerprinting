@@ -7,7 +7,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/dotnet/sdk:10.0
+    container: mcr.microsoft.com/dotnet/sdk:11.0
     permissions:
       contents: write   # create the GitHub release and its tag
       id-token: write   # GitHub OIDC token, exchanged for a temporary nuget.org API key (trusted publishing)
@@ -16,7 +16,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Read Package Version
       id: define_variables
       run: |
