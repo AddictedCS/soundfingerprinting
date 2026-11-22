@@ -52,7 +52,9 @@ public static class SilenceCalculator
         double silence = 0;
         for (int i = 1; i < items.Length; i++)
         {
-            if (hashes[i - 1].HashBins.All(_ => _ == Silence))
+            // the predicate must be read off the ordered array, not the caller's enumeration order:
+            // hashes[i - 1] is a different fingerprint than items[i - 1] whenever the input is not sequence-ordered
+            if (items[i - 1].HashBins.All(_ => _ == Silence))
             {
                 silence += items[i].StartsAt - items[i - 1].StartsAt;
             }
