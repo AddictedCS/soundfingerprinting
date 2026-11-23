@@ -9,8 +9,8 @@ using SoundFingerprinting.Data;
 /// </summary>
 /// <remarks>
 ///  A utility class allowing to calculate silence contained within audio and video hashes. <br />
-///  It only makes sense to calculate silence for hashes if TreatAsSilence flag is set to true during fingerprinting. <br />
-///  Do not set the flag to true unless you've explicitly arrived to the conclusion you need it.
+///  The fingerprint extractor drops silent fingerprints, so hashes produced by this library report zero silence. <br />
+///  The calculator applies to hashes the caller builds itself, or stored by releases before 15.0.0 with silence treated as signal.
 /// </remarks>
 public static class SilenceCalculator
 {
@@ -39,7 +39,7 @@ public static class SilenceCalculator
     /// <param name="hashes">Hashes to analyze.</param>
     /// <returns>Timespan.</returns>
     /// <remarks>
-    ///  It only makes sense to calculate silence for hashes if TreatAsSilence flag is set to true during fingerprinting.
+    ///  Hashes produced by this library contain no silent fingerprints and report zero silence.
     /// </remarks>
     public static TimeSpan Calculate(Hashes? hashes)
     {
@@ -52,8 +52,6 @@ public static class SilenceCalculator
         double silence = 0;
         for (int i = 1; i < items.Length; i++)
         {
-            // the predicate must be read off the ordered array, not the caller's enumeration order:
-            // hashes[i - 1] is a different fingerprint than items[i - 1] whenever the input is not sequence-ordered
             if (items[i - 1].HashBins.All(_ => _ == Silence))
             {
                 silence += items[i].StartsAt - items[i - 1].StartsAt;
